@@ -949151,8 +949151,8 @@
     },
     {
       "id": "SL3120",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - fleet-supervisor · analytics report",
       "pages": [
@@ -949209,6 +949209,12 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: analytics-report.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:15:38.243Z (.tmp/slw/results/lb3w_mb9.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 13 rows (div#ar-toolbar); no list read - its lists are fixed content; DOM 395 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 13 rows (div#ar-toolbar); no list read - its lists are fixed content; DOM 395 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3120.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -949277,8 +949283,8 @@
     },
     {
       "id": "SL3122",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - worker · asset hub",
       "pages": [
@@ -949335,12 +949341,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: asset-hub.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:10:58.800Z (.tmp/slw/results/lb3w_mb8.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 200 rows (div#asset-list) after 6 presses of its own Load more; 2 list read(s) answered from the 1,000-row pool (asset_nodes, v_risk_truth; up to 500 rows served); DOM 942 elements; slowest interaction 112 ms (pointerdown); longest task after the rows arrived 115 ms || desktop-1280: longest list 200 rows (div#asset-list) after 6 presses of its own Load more; 2 list read(s) answered from the 1,000-row pool (asset_nodes, v_risk_truth; up to 500 rows served); DOM 942 elements; slowest interaction 48 ms (pointerdown); longest task after the rows arrived 0 ms. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, e Receipt .tmp/mcp_walks/SL3122.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3123",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - worker · assistant",
       "pages": [
@@ -949397,6 +949409,12 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: assistant.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:15:38.243Z (.tmp/slw/results/lb3w_mb9.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 14 rows (main#wh-main-content); no list read - its lists are fixed content; DOM 366 elements; slowest interaction 32 ms (pointerdown) || desktop-1280: longest list 14 rows (main#wh-main-content); no list read - its lists are fixed content; DOM 366 elements; slowest interaction 32 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3123.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -949587,8 +949605,8 @@
     },
     {
       "id": "SL3127",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - worker · index",
       "pages": [
@@ -949645,12 +949663,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:15:38.243Z (.tmp/slw/results/lb3w_mb9.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 6 rows (div.oh-more-body); 1 list read(s) answered from the 1,000-row pool (rpc:get_hive_dashboard.open_jobs; up to 5 rows served); DOM 1160 elements; slowest interaction 32 ms (pointerdown); longest task after the rows arrived 53 ms || desktop-1280: longest list 6 rows (div.oh-more-body); 1 list read(s) answered from the 1,000-row pool (rpc:get_hive_dashboard.open_jobs; up to 5 rows served); DOM 1200 elements; slowest interaction 24 ms (pointerdown); longest task after the rows arrived 0 ms. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and Receipt .tmp/mcp_walks/SL3127.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3128",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - solo-owner · integrations",
       "pages": [
@@ -949707,6 +949731,12 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: integrations.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:22:11.228Z (.tmp/slw/results/lb3w_mb10.json) as Jun Salvador (junvanowner, solo (no hive)), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 8 rows (main#wh-main-content); no list read - its lists are fixed content; DOM 406 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 8 rows (main#wh-main-content); no list read - its lists are fixed content; DOM 406 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3128.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -949835,8 +949865,8 @@
     },
     {
       "id": "SL3131",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - buyer · marketplace seller profile",
       "pages": [
@@ -949893,6 +949923,12 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: marketplace-seller-profile.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:06:47.472Z (.tmp/slw/results/lb3w_mb7.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 60 rows (div#listing-grid); 3 list read(s) answered from the 1,000-row pool (rpc:get_seller_community_reputation, rpc:marketplace_seller_reply_stats, v_marketplace_listings_public; up to 1000 rows served); DOM 954 elements; slowest interaction 16 ms (pointerdown); longest task after the rows arrived 157 ms || desktop-1280: longest list 60 rows (div#listing-grid); 3 list read(s) answered from the 1,000-row pool (rpc:get_seller_community_reputation, rpc:marketplace_seller_reply_stats, v_marketplace_listings_public; up to 1000 rows served); DOM 955 elements; slowest interaction under the browser's 16 ms recording floor; longest task after the rows arrived 0 ms. Budget: every interaction under 200 ms to paint, no task over 200 ms on Receipt .tmp/mcp_walks/SL3131.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -949959,8 +949995,8 @@
     },
     {
       "id": "SL3133",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - buyer · marketplace",
       "pages": [
@@ -950017,12 +950053,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: marketplace.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:15:38.243Z (.tmp/slw/results/lb3w_mb9.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 181 rows (div.) after 12 presses of its own Load more; 4 list read(s) answered from the 1,000-row pool (marketplace_watchlist, rpc:get_marketplace_trust_badges, v_marketplace_inquiries_truth, v_marketplace_listings_public; up to 1000 rows served); DOM 2446 elements; slowest interaction 88 ms (pointerdown); longest task after the rows arrived 129 ms || desktop-1280: longest list 181 rows (div.) after 12 presses of its own Load more; 4 list read(s) answered from the 1,000-row pool (marketplace_watchlist, rpc:get_marketplace_trust_badges, v_marketplace_inquiries_truth, v_marketplace_listings_public; up to 1000 rows served); DOM 2446 elements; slowest interaction 56 ms (pointerdown); longest task after the rows arrived 0 ms Receipt .tmp/mcp_walks/SL3133.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3134",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - fleet-supervisor · ph intelligence",
       "pages": [
@@ -950079,12 +950121,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: ph-intelligence.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:10:58.800Z (.tmp/slw/results/lb3w_mb8.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 5 rows (div#wh-ai-panel); no list read - its lists are fixed content; DOM 374 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 5 rows (div#wh-ai-panel); no list read - its lists are fixed content; DOM 374 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3134.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3135",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - machine-client · plant connections",
       "pages": [
@@ -950141,12 +950189,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: plant-connections.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:06:47.472Z (.tmp/slw/results/lb3w_mb7.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 5 rows (div#wh-ai-panel); no list read - its lists are fixed content; DOM 346 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 5 rows (div#wh-ai-panel); no list read - its lists are fixed content; DOM 346 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3135.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3136",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - worker · pm scheduler",
       "pages": [
@@ -950203,12 +950257,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: pm-scheduler.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:22:11.228Z (.tmp/slw/results/lb3w_mb10.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 500 rows (div#asset-list) after 49 presses of its own Load more; 2 list read(s) answered from the 1,000-row pool (pm_assets, rpc:get_pm_compliance_smrp.compliance_by_asset; up to 1000 rows served); DOM 8204 elements; slowest interaction 192 ms (pointerdown); longest task after the rows arrived 106 ms || desktop-1280: longest list 500 rows (div#asset-list) after 49 presses of its own Load more; 2 list read(s) answered from the 1,000-row pool (pm_assets, rpc:get_pm_compliance_smrp.compliance_by_asset; up to 1000 rows served); DOM 8205 elements; slowest interaction 40 ms (pointerdown); longest task after the rows arrived 0 ms. Budget: every interaction under 200 ms to paint, no task over 200 ms Receipt .tmp/mcp_walks/SL3136.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3137",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - fleet-supervisor · project manager",
       "pages": [
@@ -950265,12 +950325,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: project-manager.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:10:58.800Z (.tmp/slw/results/lb3w_mb8.json) as Christine Dizon (christinedizon, supervisor of Baguio Textile Mills), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 12 rows (div#list-view); 2 list read(s) answered from the 1,000-row pool (hive_members, projects; up to 1000 rows served); DOM 2667 elements; slowest interaction 128 ms (pointerdown); longest task after the rows arrived 164 ms || desktop-1280: longest list 12 rows (div#list-view); 2 list read(s) answered from the 1,000-row pool (hive_members, projects; up to 1000 rows served); DOM 2279 elements; slowest interaction 40 ms (pointerdown); longest task after the rows arrived 0 ms. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) an Receipt .tmp/mcp_walks/SL3137.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3138",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - fleet-supervisor · project report",
       "pages": [
@@ -950327,12 +950393,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: project-report.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:28:48.549Z (.tmp/slw/results/lb3w_mb12.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 5 rows (p.); no list read - its lists are fixed content; DOM 446 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 5 rows (p.); no list read - its lists are fixed content; DOM 446 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3138.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3139",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · public feed",
       "pages": [
@@ -950383,6 +950455,12 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: public-feed.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:06:47.472Z (.tmp/slw/results/lb3w_mb7.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 1000 rows (div#feed-list) after 49 presses of its own Load more; 1 list read(s) answered from the 1,000-row pool (v_community_posts_truth; up to 1000 rows served); DOM 6482 elements; slowest interaction 104 ms (pointerdown); longest task after the rows arrived 125 ms || desktop-1280: longest list 1000 rows (div#feed-list) after 49 presses of its own Load more; 1 list read(s) answered from the 1,000-row pool (v_community_posts_truth; up to 1000 rows served); DOM 6482 elements; slowest interaction 48 ms (pointerdown); longest task after the rows arrived 0 ms. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every  Receipt .tmp/mcp_walks/SL3139.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -950449,8 +950527,8 @@
     },
     {
       "id": "SL3141",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - worker · resume",
       "pages": [
@@ -950507,12 +950585,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: resume.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:15:38.243Z (.tmp/slw/results/lb3w_mb9.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div#sections); no list read - its lists are fixed content; DOM 509 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 9 rows (div#sections); no list read - its lists are fixed content; DOM 509 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3141.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3142",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - worker · shift brain",
       "pages": [
@@ -950569,6 +950653,12 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: shift-brain.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:22:11.228Z (.tmp/slw/results/lb3w_mb10.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 14 rows (main#wh-main-content); no list read - its lists are fixed content; DOM 484 elements; slowest interaction 24 ms (pointerdown) || desktop-1280: longest list 14 rows (main#wh-main-content); no list read - its lists are fixed content; DOM 484 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3142.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -950635,8 +950725,8 @@
     },
     {
       "id": "SL3144",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - oversight · agentic rag observability",
       "pages": [
@@ -950687,12 +950777,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from agentic rag observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: agentic-rag-observability.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:22:11.228Z (.tmp/slw/results/lb3w_mb10.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 8 rows (tr.); 1 list read(s) answered from the 1,000-row pool (v_worker_truth; up to 50 rows served); DOM 133 elements; slowest interaction 16 ms (pointerdown); longest task after the rows arrived 0 ms || desktop-1280: longest list 8 rows (tr.); 1 list read(s) answered from the 1,000-row pool (v_worker_truth; up to 50 rows served); DOM 133 elements; slowest interaction under the browser's 16 ms recording floor; longest task after the rows arrived 0 ms. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3144.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3145",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - supervisor · ai quality",
       "pages": [
@@ -950749,6 +950845,12 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: ai-quality.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:10:58.800Z (.tmp/slw/results/lb3w_mb8.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 5 rows (div#wh-ai-panel); no list read - its lists are fixed content; DOM 386 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 5 rows (div#wh-ai-panel); no list read - its lists are fixed content; DOM 386 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3145.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -950872,8 +950974,8 @@
     },
     {
       "id": "SL3148",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - oversight · design system",
       "pages": [
@@ -950924,12 +951026,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from design system itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: design-system.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:22:11.228Z (.tmp/slw/results/lb3w_mb10.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 11 rows (section.ds-class); no list read - its lists are fixed content; DOM 1017 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 11 rows (section.ds-class); no list read - its lists are fixed content; DOM 1017 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3148.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3149",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - oversight · founder console",
       "pages": [
@@ -950980,12 +951088,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from founder console itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: founder-console.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:25:57.327Z (.tmp/slw/results/lb3w_mb11.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 0 rows (none); 1 list read(s) answered from the 1,000-row pool (v_worker_truth; up to 50 rows served); DOM 383 elements; slowest interaction 16 ms (pointerdown); longest task after the rows arrived 156 ms || desktop-1280: longest list 0 rows (none); 1 list read(s) answered from the 1,000-row pool (v_worker_truth; up to 50 rows served); DOM 383 elements; slowest interaction under the browser's 16 ms recording floor; longest task after the rows arrived 0 ms. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3149.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3150",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - oversight · llm observability",
       "pages": [
@@ -951036,6 +951150,12 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from llm observability itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: llm-observability.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:25:57.327Z (.tmp/slw/results/lb3w_mb11.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 6 rows (div.grid); 1 list read(s) answered from the 1,000-row pool (v_worker_truth; up to 50 rows served); DOM 112 elements; slowest interaction under the browser's 16 ms recording floor; longest task after the rows arrived 0 ms || desktop-1280: longest list 6 rows (div.grid); 1 list read(s) answered from the 1,000-row pool (v_worker_truth; up to 50 rows served); DOM 112 elements; slowest interaction 16 ms (pointerdown); longest task after the rows arrived 0 ms. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3150.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -951152,8 +951272,8 @@
     },
     {
       "id": "SL3153",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - oversight · status",
       "pages": [
@@ -951204,6 +951324,12 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from status itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: status.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:25:57.327Z (.tmp/slw/results/lb3w_mb11.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 10 rows (div#grid); no list read - its lists are fixed content; DOM 166 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 10 rows (div#grid); no list read - its lists are fixed content; DOM 166 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3153.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
@@ -951322,8 +951448,8 @@
     },
     {
       "id": "SL3156",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · about",
       "pages": [
@@ -951374,12 +951500,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from about itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: about/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:41:34.383Z (.tmp/slw/results/lb3w_m1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 18 rows (div.prose-wh); no list read - its lists are fixed content; DOM 151 elements; slowest interaction 32 ms (pointerdown) || desktop-1280: longest list 18 rows (div.prose-wh); no list read - its lists are fixed content; DOM 151 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3156.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3157",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · feedback",
       "pages": [
@@ -951430,12 +951562,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from feedback itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: feedback/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:41:34.383Z (.tmp/slw/results/lb3w_m1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 6 rows (div#filter-bar); no list read - its lists are fixed content; DOM 133 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 6 rows (div#filter-bar); no list read - its lists are fixed content; DOM 133 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3157.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3158",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · ai companion hezekiah zaniah personas",
       "pages": [
@@ -951486,12 +951624,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from ai companion hezekiah zaniah personas itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/ai-companion-hezekiah-zaniah-personas/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:41:34.383Z (.tmp/slw/results/lb3w_m1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 10 rows (ol.); no list read - its lists are fixed content; DOM 306 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 10 rows (ol.); no list read - its lists are fixed content; DOM 306 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3158.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3159",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · ai quality and roi stage 2 plants",
       "pages": [
@@ -951542,12 +951686,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from ai quality and roi stage 2 plants itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/ai-quality-and-roi-stage-2-plants/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:44:58.807Z (.tmp/slw/results/lb3w_mb1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 263 elements; slowest interaction 24 ms (pointerdown) || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 263 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3159.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3160",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · ai work assistant maintenance technicians",
       "pages": [
@@ -951598,12 +951748,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from ai work assistant maintenance technicians itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/ai-work-assistant-maintenance-technicians/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:44:58.807Z (.tmp/slw/results/lb3w_mb1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 10 rows (ol.); no list read - its lists are fixed content; DOM 351 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 10 rows (ol.); no list read - its lists are fixed content; DOM 351 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3160.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3161",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · best free cmms software philippines",
       "pages": [
@@ -951654,12 +951810,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from best free cmms software philippines itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/best-free-cmms-software-philippines/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:44:58.807Z (.tmp/slw/results/lb3w_mb1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 260 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 260 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3161.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3162",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · building asset register zero budget",
       "pages": [
@@ -951710,12 +951872,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from building asset register zero budget itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/building-asset-register-zero-budget/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:44:58.807Z (.tmp/slw/results/lb3w_mb1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 340 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 340 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3162.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3163",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · cmms vs excel spreadsheet maintenance",
       "pages": [
@@ -951766,12 +951934,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from cmms vs excel spreadsheet maintenance itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/cmms-vs-excel-spreadsheet-maintenance/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:44:58.807Z (.tmp/slw/results/lb3w_mb1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 252 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 252 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3163.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3164",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · connecting workhive to sap maximo cmms",
       "pages": [
@@ -951822,12 +951996,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from connecting workhive to sap maximo cmms itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/connecting-workhive-to-sap-maximo-cmms/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:44:58.807Z (.tmp/slw/results/lb3w_mb1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 329 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 329 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3164.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3165",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · dilo wilo day planner supervisors",
       "pages": [
@@ -951878,12 +952058,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from dilo wilo day planner supervisors itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/dilo-wilo-day-planner-supervisors/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:48:18.924Z (.tmp/slw/results/lb3w_mb2.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 11 rows (ol.); no list read - its lists are fixed content; DOM 383 elements; slowest interaction 48 ms (pointerdown) || desktop-1280: longest list 11 rows (ol.); no list read - its lists are fixed content; DOM 383 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3165.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3166",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · dole iso audit trail from logbook",
       "pages": [
@@ -951934,12 +952120,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from dole iso audit trail from logbook itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/dole-iso-audit-trail-from-logbook/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:48:18.924Z (.tmp/slw/results/lb3w_mb2.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 298 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 298 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3166.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3167",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · free engineering calculators philippine plants",
       "pages": [
@@ -951990,12 +952182,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from free engineering calculators philippine plants itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/free-engineering-calculators-philippine-plants/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:48:18.924Z (.tmp/slw/results/lb3w_mb2.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 15 rows (ul.); no list read - its lists are fixed content; DOM 604 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 15 rows (ul.); no list read - its lists are fixed content; DOM 604 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3167.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3168",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · free pm checklist templates",
       "pages": [
@@ -952046,12 +952244,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from free pm checklist templates itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/free-pm-checklist-templates/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:48:18.924Z (.tmp/slw/results/lb3w_mb2.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 11 rows (ol.); no list read - its lists are fixed content; DOM 307 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 11 rows (ol.); no list read - its lists are fixed content; DOM 307 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3168.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3169",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · gamifying maintenance for engagement",
       "pages": [
@@ -952102,12 +952306,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from gamifying maintenance for engagement itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/gamifying-maintenance-for-engagement/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:48:18.924Z (.tmp/slw/results/lb3w_mb2.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 286 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 286 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3169.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3170",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · learn",
       "pages": [
@@ -952158,12 +952368,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from learn itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:48:18.924Z (.tmp/slw/results/lb3w_mb2.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 54 rows (div#lh-grid) after 3 presses of its own Load more; no list read - its lists are fixed content; DOM 473 elements; slowest interaction 64 ms (pointerdown) || desktop-1280: longest list 54 rows (div#lh-grid) after 3 presses of its own Load more; no list read - its lists are fixed content; DOM 473 elements; slowest interaction 32 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3170.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3171",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · industrial community of practice philippines",
       "pages": [
@@ -952214,12 +952430,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from industrial community of practice philippines itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/industrial-community-of-practice-philippines/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:51:17.612Z (.tmp/slw/results/lb3w_mb3.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 247 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 247 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3171.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3172",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · industrial marketplace philippine specialists",
       "pages": [
@@ -952270,12 +952492,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from industrial marketplace philippine specialists itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/industrial-marketplace-philippine-specialists/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:51:17.612Z (.tmp/slw/results/lb3w_mb3.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 258 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 258 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3172.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3173",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · joining and growing your hive",
       "pages": [
@@ -952326,12 +952554,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from joining and growing your hive itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/joining-and-growing-your-hive/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:51:17.612Z (.tmp/slw/results/lb3w_mb3.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 272 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 272 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3173.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3174",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · maintenance metrics reliability guide",
       "pages": [
@@ -952382,12 +952616,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from maintenance metrics reliability guide itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/maintenance-metrics-reliability-guide/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:51:17.612Z (.tmp/slw/results/lb3w_mb3.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 265 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 265 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3174.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3175",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · maintenance project planning template",
       "pages": [
@@ -952438,12 +952678,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from maintenance project planning template itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/maintenance-project-planning-template/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:51:17.612Z (.tmp/slw/results/lb3w_mb3.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 340 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 340 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3175.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3176",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · maintenance shift handover template",
       "pages": [
@@ -952494,12 +952740,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from maintenance shift handover template itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/maintenance-shift-handover-template/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:51:17.612Z (.tmp/slw/results/lb3w_mb3.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 331 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 331 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3176.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3177",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · mtbf vs mttr for supervisors",
       "pages": [
@@ -952550,12 +952802,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from mtbf vs mttr for supervisors itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/mtbf-vs-mttr-for-supervisors/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:54:24.067Z (.tmp/slw/results/lb3w_mb4.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 10 rows (ol.); no list read - its lists are fixed content; DOM 357 elements; slowest interaction 32 ms (pointerdown) || desktop-1280: longest list 10 rows (ol.); no list read - its lists are fixed content; DOM 357 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3177.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3178",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · ph industrial benchmarks intelligence",
       "pages": [
@@ -952606,12 +952864,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from ph industrial benchmarks intelligence itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/ph-industrial-benchmarks-intelligence/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:54:24.067Z (.tmp/slw/results/lb3w_mb4.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 273 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 273 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3178.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3179",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · ph plant compliance guide",
       "pages": [
@@ -952662,12 +952926,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from ph plant compliance guide itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/ph-plant-compliance-guide/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:54:24.067Z (.tmp/slw/results/lb3w_mb4.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 216 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 216 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3179.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3180",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · philippine plants now pay the highest power rates",
       "pages": [
@@ -952718,12 +952988,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from philippine plants now pay the highest power rates itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/philippine-plants-now-pay-the-highest-power-rates/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:54:24.067Z (.tmp/slw/results/lb3w_mb4.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 7 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 244 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 7 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 244 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3180.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3181",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · predictive alert thresholds plants",
       "pages": [
@@ -952774,12 +953050,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from predictive alert thresholds plants itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/predictive-alert-thresholds-plants/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:54:24.067Z (.tmp/slw/results/lb3w_mb4.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 312 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 312 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3181.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3182",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · predictive maintenance on a budget philippines",
       "pages": [
@@ -952830,12 +953112,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from predictive maintenance on a budget philippines itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/predictive-maintenance-on-a-budget-philippines/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:54:24.067Z (.tmp/slw/results/lb3w_mb4.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 352 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 352 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3182.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3183",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · reduce unplanned downtime guide",
       "pages": [
@@ -952886,12 +953174,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from reduce unplanned downtime guide itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/reduce-unplanned-downtime-guide/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:57:30.552Z (.tmp/slw/results/lb3w_mb5.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 240 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 240 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3183.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3184",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · sensor cmms gateway operations",
       "pages": [
@@ -952942,12 +953236,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from sensor cmms gateway operations itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/sensor-cmms-gateway-operations/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:57:30.552Z (.tmp/slw/results/lb3w_mb5.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 272 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 272 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3184.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3185",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · skill matrix for maintenance technicians",
       "pages": [
@@ -952998,12 +953298,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from skill matrix for maintenance technicians itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/skill-matrix-for-maintenance-technicians/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:57:30.552Z (.tmp/slw/results/lb3w_mb5.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 10 rows (ol.); no list read - its lists are fixed content; DOM 442 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 10 rows (ol.); no list read - its lists are fixed content; DOM 442 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3185.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3186",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · spare parts inventory philippine plants",
       "pages": [
@@ -953054,12 +953360,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from spare parts inventory philippine plants itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/spare-parts-inventory-philippine-plants/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:57:30.552Z (.tmp/slw/results/lb3w_mb5.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 325 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 325 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3186.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3187",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · start digital logbook philippine factory",
       "pages": [
@@ -953110,12 +953422,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from start digital logbook philippine factory itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/start-digital-logbook-philippine-factory/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:57:30.552Z (.tmp/slw/results/lb3w_mb5.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 11 rows (ol.); no list read - its lists are fixed content; DOM 391 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 11 rows (ol.); no list read - its lists are fixed content; DOM 391 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3187.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3188",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · start digital maintenance guide",
       "pages": [
@@ -953166,12 +953484,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from start digital maintenance guide itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/start-digital-maintenance-guide/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T04:57:30.552Z (.tmp/slw/results/lb3w_mb5.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 215 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 8 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 215 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3188.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3189",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · voice to text maintenance philippine plant floor",
       "pages": [
@@ -953222,12 +953546,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from voice to text maintenance philippine plant floor itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/voice-to-text-maintenance-philippine-plant-floor/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:00:41.619Z (.tmp/slw/results/lb3w_mb6.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 294 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (div.max-w-3xl.mx-auto.px-5); no list read - its lists are fixed content; DOM 294 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3189.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3190",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · what is oee how to calculate",
       "pages": [
@@ -953278,12 +953608,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from what is oee how to calculate itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/what-is-oee-how-to-calculate/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:00:41.619Z (.tmp/slw/results/lb3w_mb6.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 10 rows (ol.); no list read - its lists are fixed content; DOM 384 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 10 rows (ol.); no list read - its lists are fixed content; DOM 384 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3190.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3191",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · what is workhive complete platform guide",
       "pages": [
@@ -953334,12 +953670,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from what is workhive complete platform guide itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/what-is-workhive-complete-platform-guide/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:00:41.619Z (.tmp/slw/results/lb3w_mb6.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 12 rows (tbody.); no list read - its lists are fixed content; DOM 716 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 12 rows (tbody.); no list read - its lists are fixed content; DOM 716 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3191.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3192",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · workhive ai companion complete capabilities",
       "pages": [
@@ -953390,12 +953732,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from workhive ai companion complete capabilities itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/workhive-ai-companion-complete-capabilities/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:00:41.619Z (.tmp/slw/results/lb3w_mb6.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 11 rows (ol.); no list read - its lists are fixed content; DOM 386 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 11 rows (ol.); no list read - its lists are fixed content; DOM 386 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3192.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3193",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · workhive vs maintainx comparison",
       "pages": [
@@ -953446,12 +953794,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from workhive vs maintainx comparison itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/workhive-vs-maintainx-comparison/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:00:41.619Z (.tmp/slw/results/lb3w_mb6.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (tbody.); no list read - its lists are fixed content; DOM 246 elements; slowest interaction 24 ms (pointerdown) || desktop-1280: longest list 9 rows (tbody.); no list read - its lists are fixed content; DOM 246 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3193.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3194",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · workhive vs upkeep free cmms comparison",
       "pages": [
@@ -953502,12 +953856,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from workhive vs upkeep free cmms comparison itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: learn/workhive-vs-upkeep-free-cmms-comparison/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:00:41.619Z (.tmp/slw/results/lb3w_mb6.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 9 rows (tbody.); no list read - its lists are fixed content; DOM 262 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 9 rows (tbody.); no list read - its lists are fixed content; DOM 262 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3194.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3195",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · privacy policy",
       "pages": [
@@ -953558,12 +953918,18 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from privacy policy itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: privacy-policy/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:06:47.472Z (.tmp/slw/results/lb3w_mb7.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 6 rows (ul.); no list read - its lists are fixed content; DOM 179 elements; slowest interaction 16 ms (pointerdown) || desktop-1280: longest list 6 rows (ul.); no list read - its lists are fixed content; DOM 179 elements; slowest interaction under the browser's 16 ms recording floor. Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3195.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {
       "id": "SL3196",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - an anonymous visitor · terms of service",
       "pages": [
@@ -953614,6 +953980,12 @@
         "engine": "chromium",
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from terms of service itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-21] pct -> 60. WALKED LIVE 2026-10-21 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the condition induced by the MCP's initScript before any page script): LB3: terms-of-service/index.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-21T05:06:47.472Z (.tmp/slw/results/lb3w_mb7.json) as a visitor (signed out) (signed out, visitor), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 5 rows (ul.); no list read - its lists are fixed content; DOM 173 elements; slowest interaction under the browser's 16 ms recording floor || desktop-1280: longest list 5 rows (ul.); no list read - its lists are fixed content; DOM 173 elements; slowest interaction 16 ms (pointerdown). Budget: every interaction under 200 ms to paint, no task over 200 ms once the rows arrived. Gates long-list-render (every show-more appends through whRenderRows, no row bound twice, every search debounced, static pages build no list from data) and scripts-parse. Receipt .tmp/mcp_walks/SL3196.json.",
+      "artifacts": {
+        "gates": [
+          "page-survives-optional-failures"
+        ]
       }
     },
     {

@@ -57,8 +57,12 @@ import sys
 from pathlib import Path
 
 if sys.platform == "win32":
-    import io
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    # reconfigure in place: a NEW wrapper here closes the one a gate importing this module made (its old wrapper is
+    # dropped and collected, closing the shared buffer - "I/O operation on closed file")
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
 
 ROOT = Path(__file__).resolve().parent.parent
 DB = "supabase_db_workhive"

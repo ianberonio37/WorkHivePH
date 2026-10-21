@@ -1545,7 +1545,13 @@
       return `<span class="meta-chip yellow">Draft: Pending Review${d >= 1 ? ` · ${e(String(d))}d waiting` : ''}</span>`;
     };
 
-    area.innerHTML = visible.map(item => `
+    /* ★SL LB3 (2026-10-21): "Load more" rebuilt every listing (30 more a press, each press re-rendering and re-binding all
+       of them). The listings now live in their own container inside the shared pane - recreated whenever another tab or
+       an empty state has replaced the pane - so whRenderRows can append the new ones; a card's own HTML is its key (its
+       wait in review and its age move with time). */
+    let listEl = area.querySelector(':scope > #ms-listings');
+    if (!listEl) { area.innerHTML = '<div id="ms-listings"></div><span data-ms-listings-end hidden></span>'; listEl = area.firstElementChild; }
+    whRenderRows(listEl, visible, item => `
       <div class="listing-item ${e(item.status)}" data-id="${e(item.id)}">
         <div class="li-body">
           <div class="li-thumb">
@@ -1583,13 +1589,18 @@
           ${item.status === 'draft' ? `<button class="btn-sm danger" data-action="delete" data-id="${e(item.id)}" data-i="delete">Delete</button>` : ''}
           ${item.status === 'published' ? `<a href="marketplace.html" class="btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.25rem;">View Live</a>` : ''}
         </div>
-      </div>`).join('') + '<span data-ms-listings-end hidden></span>';
+      </div>`, { sig: 'listings', long: true,
+        // the listing's data and the ages its card shows (they move with the clock) - not every card's HTML on each press
+        key: (item) => JSON.stringify(item) + '|' + timeAgo(item.created_at) + '|' + (item.moderated_at ? timeAgo(item.moderated_at) : '') + '|' + _draftAgeDays(item) });
     // SL LB1: once every loaded listing is on screen, past the 500 the list says it holds the newest of the total
     if (typeof whMoreNote === 'function') whMoreNote(area.querySelector('[data-ms-listings-end]'), {
       shown: _listings.length, total: _listingsTotal, more: _listingsMore && visible.length >= filtered.length,
       noun: 'listings', order: 'newest', src: 'v_marketplace_listings_truth' });
 
-    area.querySelectorAll('[data-action]').forEach(btn => {
+    // only the buttons not bound yet: the appended render keeps the cards already on screen, and binding them again would
+    // open the edit sheet - or delete - twice from one tap (SL LB3)
+    area.querySelectorAll('[data-action]:not([data-wh-bound])').forEach(btn => {
+      btn.setAttribute('data-wh-bound', '');
       btn.addEventListener('click', () => {
         if (btn.dataset.action === 'edit')   openEditSheet(btn.dataset.id);
         if (btn.dataset.action === 'delete') handleDelete(btn.dataset.id);

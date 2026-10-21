@@ -3393,8 +3393,10 @@
       document.getElementById('fb-filter-kind')?.addEventListener('change', e => {
         _fb.kindFilter = e.target.value; applyFeedbackView();
       });
+      // SL LB3: the list follows the typing 150 ms after it pauses, so a keystroke paints at once
+      const _fbSearchRender = debounce(applyFeedbackView, 150);
       document.getElementById('fb-filter-search')?.addEventListener('input', e => {
-        _fb.searchTerm = e.target.value.trim(); applyFeedbackView();
+        _fb.searchTerm = e.target.value.trim(); _fbSearchRender();
       });
       if (window.whAutoRememberFilters) whAutoRememberFilters('fb-filters', ['fb-filter-search']);   // G5a: remember the feedback search cross-session
       // Drawer close handlers

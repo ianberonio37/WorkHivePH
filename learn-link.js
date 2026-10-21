@@ -203,32 +203,78 @@
         // cleared in the rAF callback; a write between them is the page's own render, which the NEXT frame
         // re-measures anyway.
         var ctrlCache = null;
+        // ★A LONG LIST IS READ ROW BY ROW, AND A ROW THE BROWSER IS NOT DRAWING IS PASSED OVER WHOLE (SL LB3, 2026-10-21).
+        // The pass below asked every control on the page - ~3,000 on a thousand-row logbook, each a style query - four
+        // times a second. A long list's rows (whRenderRows long:true, class wh-rows-cv) report when the browser stops or
+        // starts drawing them (contentvisibilityautostatechange), so a row known to be skipped is passed over without
+        // opening it, and the controls outside the lists come from one query that passes over them.
+        // ...and never the controls inside a dialog: while one is shown the chip stands down (dialogUp), and while it is
+        // closed its controls are hidden - the logbook's two pickers held 1,500 of them, every one style-checked each pass
+        var CTRL_OUT = CTRL.split(',').map(function (s) { return s.trim() + ':not(.wh-rows-cv *):not([role="dialog"] *):not(dialog *)'; }).join(',');
+        document.addEventListener('contentvisibilityautostatechange', function (ev) {
+          if (ev && ev.target) ev.target.__whSkipped = !!ev.skipped;
+        }, true);
+        // the controls outside the long lists, remembered until something outside a list is inserted or removed (the
+        // observer) - appending rows to a list leaves them as they were, and the query was 7.7 s of an inventory walk
+        var outCache = null;
         function pageControls() {
           if (ctrlCache) return ctrlCache;
-          var out = [], list = document.querySelectorAll(CTRL);
-          for (var i = 0; i < list.length && out.length < 60; i++) {
-            var e = list[i];
-            if (e === bar || bar.contains(e) || e.closest(CHROME)) continue;
-            if (e.getAttribute && e.getAttribute('tabindex') === '-1') continue;
-            // ★RECT FIRST, COMPUTED STYLE LAST (Chrome DevTools MCP, ForcedReflow, 2026-09-15). visible() resolves a
-            // computed style for EVERY candidate - 31 ms of the reflow - while a display:none element already reports
-            // a 0x0 rect, so the size filter below excludes it for free. Only the survivors (a handful, not 60) need
-            // the style resolve, and only to catch visibility:hidden. Exactly the same set, far fewer style reads:
-            // the rect overlap test stays exact, because this rule protects controls and has failed twice before.
-            var r = e.getBoundingClientRect();
-            // the Sources area's words are measured by the TEXT, not the block: its heading's box runs the column's full
-            // width (880px on analytics-report at 1280), which the "a big container" filter below would skip, and the
-            // chip then sat on the heading at the bottom of the scroll (walked 2026-10-19)
-            if (e.closest && e.closest('[data-wh-sources]') && document.createRange) {
-              try { var rg = document.createRange(); rg.selectNodeContents(e); var tr = rg.getBoundingClientRect(); if (tr.width > 0) r = tr; } catch (_) { /* empty-catch-allow: the block rect stands */ }
+          var out = [], lists = document.getElementsByClassName('wh-rows-cv');
+          if (!lists.length) takeControls(document.querySelectorAll(CTRL), out);
+          else {
+            if (!outCache) outCache = document.querySelectorAll(CTRL_OUT);
+            takeControls(outCache, out);
+            for (var l = 0; l < lists.length && out.length < 60; l++) {
+              for (var row = lists[l].firstElementChild; row && out.length < 60; row = row.nextElementSibling) {
+                if (row.__whSkipped === true) continue;   // not drawn: off screen, so nothing in it is under the chip
+                if (row.matches(CTRL)) takeControls([row], out);
+                takeControls(row.querySelectorAll(CTRL), out);
+              }
             }
-            if (r.width < 4 || r.height < 4 || r.width > 520) continue;   // a control, not a big container
-            if (r.bottom < 0 || r.top > innerHeight) continue;            // off-screen: cannot be under a fixed chip
-            if (!visible(e)) continue;
-            out.push(r);
           }
           ctrlCache = out;
           return out;
+        }
+        function takeControls(list, out) {
+          for (var i = 0; i < list.length && out.length < 60; i++) {
+            var e = list[i];
+            // ★A THOUSAND-ROW LIST MADE EVERY SCAN A FULL LAYOUT (SL LB3, 2026-10-21, CPU-profiled at 390 with the CPU
+            // 4x slower). Long lists render their rows with content-visibility:auto (whRenderRows long:true), so a row
+            // off screen is never laid out - until something reads a rect inside it. This loop read one for EVERY
+            // control on the page, on every mutation burst: report-sender's 500 contacts became one 2.1 s task, and the
+            // logbook spent 10 s of a thousand-row walk here. A row the browser is skipping is off screen by definition,
+            // so it cannot sit under this fixed chip: it is passed over before any rect is read. The options are named
+            // (a bare checkVisibility() checks none of them): display, visibility and skipped content - not opacity,
+            // which visible() deliberately does not test either - so the set is exactly what the filters below keep.
+            if (e.checkVisibility && !e.checkVisibility({ contentVisibilityAuto: true, visibilityProperty: true })) continue;
+            var r = ctrlRect(e);
+            if (r) out.push(r);
+          }
+        }
+        // The box a control occupies for this rule, or null when it does not count. ONE definition, used by the full
+        // pass above and by the instant check below, so the two can never disagree about the same control - a chip one
+        // rule hides and the other puts back would be another every-frame loop (SL LB3).
+        function ctrlRect(e) {
+          if (e.getAttribute && e.getAttribute('tabindex') === '-1') return null;
+          // ★RECT FIRST, COMPUTED STYLE LAST (Chrome DevTools MCP, ForcedReflow, 2026-09-15). visible() resolves a
+          // computed style for EVERY candidate - 31 ms of the reflow - while a display:none element already reports
+          // a 0x0 rect, so the size filter below excludes it for free. Only the survivors (a handful, not 60) need
+          // the style resolve, and only to catch visibility:hidden. Exactly the same set, far fewer style reads:
+          // the rect overlap test stays exact, because this rule protects controls and has failed twice before.
+          var r = e.getBoundingClientRect();
+          // the Sources area's words are measured by the TEXT, not the block: its heading's box runs the column's full
+          // width (880px on analytics-report at 1280), which the "a big container" filter below would skip, and the
+          // chip then sat on the heading at the bottom of the scroll (walked 2026-10-19)
+          if (e.closest && e.closest('[data-wh-sources]') && document.createRange) {
+            try { var rg = document.createRange(); rg.selectNodeContents(e); var tr = rg.getBoundingClientRect(); if (tr.width > 0) r = tr; } catch (_) { /* empty-catch-allow: the block rect stands */ }
+          }
+          if (r.width < 4 || r.height < 4 || r.width > 520) return null;   // a control, not a big container
+          if (r.bottom < 0 || r.top > innerHeight) return null;            // off-screen: cannot be under a fixed chip
+          // the chrome test walks every ancestor against a list of selectors, so it runs only for the few controls on
+          // screen (SL LB3: it ran for every control on a thousand-row page)
+          if (e === bar || bar.contains(e) || e.closest(CHROME)) return null;
+          if (!visible(e)) return null;
+          return r;
         }
         function overlapsAny(rect, ctrls) {
           for (var i = 0; i < ctrls.length; i++) {
@@ -240,7 +286,8 @@
           return false;
         }
         function setState(display, lift) {
-          if (display !== lastDisplay) { bar.style.display = display; lastDisplay = display; invalidateBarRect(); }
+          // the box at lift 0 does not change when the chip is shown or hidden, so no write here drops it (SL LB3)
+          if (display !== lastDisplay) { bar.style.display = display; lastDisplay = display; }
           if (lift !== lastLift) { bar.style.transform = lift ? ('translateY(-' + lift + 'px)') : ''; lastLift = lift; }
         }
         // Where the chip currently sits, with its own lift removed — the geometry both the immediate hide
@@ -251,90 +298,218 @@
         // re-forced, on every single mutation burst. The rect is cached and invalidated only by the things that
         // CAN move it: this code changing its display or lift, the chip folding or unfolding, its text being
         // swapped to the other language, and the viewport resizing.
-        var barRectCache = null;
-        function invalidateBarRect() { barRectCache = null; }
-        function baseRect() {
-          if (!barRectCache) {
-            var r = bar.getBoundingClientRect();
-            barRectCache = { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+        // ★AND IT IS MEASURED WITHOUT BEING SHOWN (SL LB3, 2026-10-21). The cache now holds the chip's box at LIFT 0 - its
+        // own lift taken off when it is measured - and it is kept across hiding, because a hidden fixed chip's box does
+        // not move. sync() used to set display:flex just to measure, then display:none when no lift was clear: two style
+        // writes on the chip, which this file's own observer read as "the chip changed" and answered with another
+        // pass on the next frame. Measured live at 390 on the logbook with a card under the chip: 360 style writes in
+        // 3 s of a page at rest, and with a thousand rows at phone speed, the pass behind every frame was a long task
+        // (146 s of the walk's main thread). Now a chip that has been seen once is never shown merely to be measured.
+        var homeCache = null;
+        function invalidateBarRect() { homeCache = null; }
+        function home() {
+          if (!homeCache && lastDisplay !== 'none' && bar.isConnected) {
+            var r = bar.getBoundingClientRect(), l = lastLift || 0;
+            if (r.width || r.height) homeCache = { left: r.left, right: r.right, top: r.top + l, bottom: r.bottom + l };
           }
-          return { left: barRectCache.left, right: barRectCache.right,
-                   top: barRectCache.top + (lastLift || 0), bottom: barRectCache.bottom + (lastLift || 0) };
+          return homeCache;   // null only for a chip not measured since its box last changed
         }
+        // the chip's box at a given lift
+        function at(h, lift) { return { left: h.left, right: h.right, top: h.top - lift, bottom: h.bottom - lift }; }
+        // ★FROM THE BROWSER'S LIVE LISTS, NOT A DOCUMENT QUERY (SL LB3, 2026-10-21). Every DIALOGISH shape is a
+        // [role="dialog"], a <dialog>, or carries the class "open"; the last two are live collections the browser keeps,
+        // and the role dialogs are remembered until the observer sees one inserted or a role change. A query of the whole
+        // page for seven selectors ran on every pass - 6 s of a thousand-row inventory walk at phone speed.
+        var roleDialogs = null;
         function dialogUp() {
-          var all = document.querySelectorAll(DIALOGISH);
-          for (var i = 0; i < all.length; i++) { if (visible(all[i])) return true; }
+          if (!roleDialogs) roleDialogs = document.querySelectorAll('[role="dialog"]');
+          var sets = [roleDialogs, document.getElementsByClassName('open'), document.getElementsByTagName('dialog')];
+          for (var s = 0; s < sets.length; s++) {
+            for (var i = 0; i < sets[s].length; i++) {
+              var d = sets[s][i];
+              if (d.isConnected && d.matches(DIALOGISH) && visible(d)) return true;
+            }
+          }
           return false;
         }
-        // ★HIDE SYNCHRONOUSLY THE INSTANT A CONTROL IS UNDER THE CHIP (2026-09-14). The deferred sync below
-        // LIFTS the chip clear, but it runs on the next animation frame — and hive's shift-summary "Snooze"
-        // control renders LATE (several identity round-trips), so the per-step occlusion audit could read the
-        // overlap in the ~16ms window before the rAF fired. So the observer (which fires in the same microtask
-        // as the control's insertion) hides the chip RIGHT THEN if it is over a control or a dialog; the
-        // deferred sync afterwards decides whether it can come back at a clear lift. The gate-satisfying action
-        // (vacate) is synchronous; only the re-appearance is deferred.
-        function hideIfOccluding() {
-          if (!bar.isConnected) return;
-          if (bar.style.display === 'none') return;                       /* already down */
-          if (dialogUp() || overlapsAny(baseRect(), pageControls())) setState('none', lastLift || 0);
+        // ★VACATE THE INSTANT A CONTROL IS INSERTED UNDER THE CHIP (2026-09-14). The full pass below LIFTS the chip clear,
+        // but hive's shift-summary "Snooze" control renders LATE (several identity round-trips), and the per-step occlusion
+        // audit read the chip over it before that pass had run. So an element inserted under the chip sends the chip down
+        // before the frame is painted; the full pass afterwards decides whether it can come back at a clear lift.
+        // ★AFTER THE FRAME'S OWN LAYOUT, AND ONLY WHAT WAS INSERTED (SL LB3, 2026-10-21, traced at 390 with the CPU 4x
+        // slower). This ran from the observer as nine hit tests over the chip: they forced the layout of whatever the page
+        // had just inserted - 119 ms of one logbook "Load More" press - and each walked a thousand list rows (a
+        // content-visibility row is a paint layer of its own), 54 ms more. A ResizeObserver reports after the frame's
+        // layout and before its paint, and observing the chip afresh asks for exactly one report: the check now reads a
+        // layout the browser has already made, and a chip that must vacate is still down before the frame is painted. It
+        // asks only about the elements inserted since the last check - one rect each, and a look inside only the ones
+        // that reach the chip.
+        var fresh = [];
+        var afterLayout = typeof ResizeObserver === 'function'
+          ? new ResizeObserver(function () { afterLayout.disconnect(); vacateFresh(); }) : null;
+        function vacateSoon() {
+          if (!afterLayout) { requestAnimationFrame(vacateFresh); return; }
+          afterLayout.disconnect();
+          afterLayout.observe(bar);
+        }
+        function vacateFresh() {
+          var list = fresh;
+          fresh = [];
+          if (!bar.isConnected || bar.style.display === 'none') return;   /* gone, or already down */
+          // the chip WHERE IT IS, at its current lift (SL LB3, 2026-10-21): testing its resting box hid a chip sync() had
+          // just lifted clear of a control, and lifted it again on the next frame - every frame
+          var h = home();
+          if (!h) return;
+          var cur = at(h, lastLift || 0);
+          for (var i = 0; i < list.length; i++) {
+            if (bringsControlUnder(list[i], cur)) { setState('none', lastLift || 0); return; }
+          }
+        }
+        // Whether an element just inserted put a control under the chip's box. A long list's row is paint-contained
+        // (content-visibility), so nothing in it reaches past its own box: one rect passes over a row away from the chip
+        // without reading inside it - a rect read inside a skipped row would lay that row out. The same ctrlRect() the
+        // full pass uses decides each control, so the two never disagree about one.
+        function bringsControlUnder(el, cur) {
+          if (!el.isConnected || el === bar || bar.contains(el)) return false;
+          var under = function (c) { var r = ctrlRect(c); return !!r && overlapsAny(cur, [r]); };
+          var list = el.parentElement && el.parentElement.closest('.wh-rows-cv');
+          if (list) {
+            var row = el;
+            while (row.parentElement && row.parentElement !== list) row = row.parentElement;
+            if (!overlapsAny(cur, [row.getBoundingClientRect()])) return false;
+            if (el.matches(CTRL) && under(el)) return true;
+            var rc = el.querySelectorAll(CTRL);
+            for (var k = 0; k < rc.length; k++) if (under(rc[k])) return true;
+            return false;
+          }
+          if (el.matches(CTRL_OUT) && under(el)) return true;
+          var oc = el.querySelectorAll(CTRL_OUT);
+          for (var o = 0; o < oc.length; o++) if (under(oc[o])) return true;
+          // a long list that came in whole, rows and all: each row by its own box first
+          var rows = el.querySelectorAll('.wh-rows-cv > *');
+          for (var w = 0; w < rows.length; w++) if (bringsControlUnder(rows[w], cur)) return true;
+          return false;
         }
         function sync() {
           queued = false;
           if (!bar.isConnected) { obs.disconnect(); return; }   /* dismissed: stand down for good */
-          if (dialogUp()) { setState('none', 0); return; }      /* a dialog is up: stand down */
+          if (dialogUp()) { setState('none', lastLift || 0); return; }   /* a dialog is up: stand down */
+          // the box at lift 0: from the cache, so a chip standing down is not shown just to be measured; one never
+          // measured since its box last changed is shown at its resting place once
+          var h = home();
+          if (!h) { setState('flex', 0); h = home(); }
+          if (!h) return;
           // measure at each candidate lift and take the first that occludes nothing
-          setState('flex', lastLift || 0);
           var ctrls = pageControls();
-          var base = bar.getBoundingClientRect(), baseTop = base.top + (lastLift || 0);   // top with lift removed
           var LIFTS = [0, 84, 168, 252, 336];
           for (var k = 0; k < LIFTS.length; k++) {
-            if (baseTop - LIFTS[k] < 8) break;                   /* would leave the viewport top */
-            var probe = { left: base.left, right: base.right, top: baseTop - LIFTS[k], bottom: base.bottom - (lastLift || 0) - LIFTS[k] };
-            if (!overlapsAny(probe, ctrls)) { setState('flex', LIFTS[k]); return; }
+            if (h.top - LIFTS[k] < 8) break;                     /* would leave the viewport top */
+            if (!overlapsAny(at(h, LIFTS[k]), ctrls)) { setState('flex', LIFTS[k]); return; }
           }
-          setState('none', 0);                                  /* nowhere clear: cede to the page */
+          setState('none', lastLift || 0);                      /* nowhere clear: cede to the page */
         }
-        // ★113 ms OF FORCED REFLOW ON A THROTTLED PHONE (Chrome DevTools MCP, ForcedReflow insight, 2026-09-15:
-        // top frame `schedule @ learn-link.js`, 87 ms inside baseRect, 58 ms inside visible). hideIfOccluding
-        // reads the bar's rect, then a computed style + rect for every dialog-ish node, then every page
-        // control - and it ran on EVERY mutation burst, so a feed rendering 30 rows forced layout dozens of
-        // times, each read invalidated by the page's next write. The invariant survives intact: the FIRST
-        // burst in a frame still measures and vacates synchronously (that is what keeps the chip off a
-        // control inserted in the same microtask); later bursts in the SAME frame skip the re-measure,
-        // because the rAF pass one frame later settles the placement authoritatively anyway.
-        var measuredThisFrame = false;
+        // ★AT MOST FOUR FULL PASSES A SECOND (SL LB3, 2026-10-21). The full pass (every control and every dialog on the
+        // page) ran on the frame after every mutation burst and every scroll; a page growing a thousand-row list at phone
+        // speed spent ~24 s of its walk here. Vacating is the urgent direction and stays immediate (vacateFresh, after the
+        // frame's layout); finding a clear lift to return to waits up to a quarter second - leave at once, return at
+        // leisure.
+        var SYNC_GAP = 250, lastSync = -1e9, fullTimer = 0, fullFrame = false;
         // a mutation INSIDE the chip (the i18n swapper rewriting its label) changes its own box
         function scheduleSelf() { invalidateBarRect(); schedule(); }
+        // the instant check for what was just inserted, then the quarter-second pass
         function schedule() {
-          // the synchronous vacate exists for a control inserted in the same microtask AFTER the page has
-          // settled (hive's shift-summary Snooze). While the document is still loading, its own render is
-          // the only thing mutating and the rAF pass one frame later places the chip correctly - so the
-          // expensive read is skipped for the whole load burst, where it cost the most and proved nothing.
-          if (document.readyState === 'complete' && !measuredThisFrame) { measuredThisFrame = true; hideIfOccluding(); }
-          if (!queued) {
-            queued = true;
-            requestAnimationFrame(function () { measuredThisFrame = false; ctrlCache = null; sync(); });
-          }
+          if (fresh.length) vacateSoon();
+          scheduleFull();
         }
-        document.addEventListener('transitionend', schedule, true);
-        window.addEventListener('scroll', schedule, { passive: true });
-        window.addEventListener('resize', function () { invalidateBarRect(); schedule(); }, { passive: true });
+        function runFull() {
+          fullTimer = 0;
+          if (fullFrame) return;
+          fullFrame = true;
+          requestAnimationFrame(function () { fullFrame = false; ctrlCache = null; lastSync = performance.now(); sync(); });
+        }
+        // the quarter-second pass alone
+        function scheduleFull() {
+          if (queued) return;
+          queued = true;
+          var wait = SYNC_GAP - (performance.now() - lastSync);
+          if (wait > 0) fullTimer = setTimeout(runFull, wait); else runFull();
+        }
+        // ...and the pass at once, when the page has come to rest somewhere new
+        function fullNow() {
+          if (fullTimer) { clearTimeout(fullTimer); fullTimer = 0; }
+          queued = true;
+          runFull();
+        }
+        // a finished transition can MOVE a control, never insert one, so it only queues the quarter-second pass: it ran
+        // the instant check (nine stacked hit tests) for every transition on the page - hover fades as a pointer crossed
+        // a thousand cards - 91 and 101 ms of HitTest inside two of the logbook's longest tasks (traced at 390, SL LB3)
+        document.addEventListener('transitionend', function () { scheduleFull(); }, true);
+        // ★A SCROLL MOVES CONTROLS, IT INSERTS NONE (SL LB3, 2026-10-21). It ran the instant check - nine hit tests
+        // through a thousand rows - on every frame of a scroll. The quarter-second pass keeps up while the page moves, and
+        // the moment the scroll ends the place is settled at once, before a person can aim at what scrolled under the chip.
+        window.addEventListener('scroll', function () { scheduleFull(); }, { passive: true });
+        window.addEventListener('scrollend', fullNow, { passive: true });
+        window.addEventListener('resize', function () { invalidateBarRect(); fullNow(); }, { passive: true });
         // ★childList, NOT ONLY attributes (2026-09-14): a page's controls often render AFTER this chip is
         // injected (hive's shift-summary tile arrives on a later identity round-trip), and a control ADDED to
         // the DOM is a childList mutation the attribute filter never saw - so the chip's collision check ran
         // once against an empty bottom-left and never re-ran, and the added Snooze button sat under it. Watch
         // childList too, and re-check while the page fills in.
         var obs = new MutationObserver(function (records) {
-          // a mutation INSIDE the chip (the i18n swapper rewriting its label) is the one kind that changes the
-          // chip's own box, so it is also the one kind that must drop the cached rect
+          // a mutation INSIDE the chip (the i18n swapper rewriting its label, the fold) changes the chip's own box, so
+          // it drops the cached box; so does a style change on <html> or <body>, which is how nav-hub's shared
+          // --wh-fab-lift moves every bottom chip. The chip's OWN style writes (setState's display and lift) are the
+          // one kind skipped: answering them is what made this observer drive itself every frame (SL LB3).
+          var moved = false, other = false, dialog = false, inserted = false;
+          // elements inserted once the page has settled, while the chip is up, are kept for the instant check (vacateFresh);
+          // while the document is still loading, its own render is the only thing mutating and the full pass places the
+          // chip a frame later - so nothing is kept for the whole load burst, where it would cost the most and prove nothing
+          var keep = document.readyState === 'complete' && bar.style.display !== 'none';
           for (var i = 0; i < records.length; i++) {
-            var t = records[i].target;
-            if (t && (t === bar || (bar.contains && bar.contains(t)))) { scheduleSelf(); return; }
+            var rec = records[i], t = rec.target;
+            if (t === bar && rec.type === 'attributes' && rec.attributeName === 'style') continue;
+            if (t && (t === bar || (bar.contains && bar.contains(t)))) { moved = true; continue; }
+            if ((t === document.documentElement || t === document.body) && rec.type === 'attributes'
+                && rec.attributeName === 'style') moved = true;
+            other = true;
+            if (rec.type === 'childList') {
+              // the controls outside the lists change only when an ELEMENT outside a list is inserted or removed: a label
+              // rewriting its words swaps a text node and adds no control, yet inventory's "Showing N of M parts" threw the
+              // remembered controls away on every press, and the next pass queried the whole page again
+              var el = false;
+              for (var ia = 0; ia < rec.addedNodes.length; ia++) {
+                if (rec.addedNodes[ia].nodeType !== 1) continue;
+                el = inserted = true;
+                if (keep) fresh.push(rec.addedNodes[ia]);
+              }
+              for (var ir = 0; !el && ir < rec.removedNodes.length; ir++) if (rec.removedNodes[ir].nodeType === 1) el = true;
+              if (el && !(t && t.closest && t.closest('.wh-rows-cv'))) outCache = null;
+            }
+            if (rec.attributeName === 'role') outCache = null;
+            // a dialog opening is caught where it happens - its own attribute change, or its insertion - and only then
+            // is the page asked whether one is up (the full scan no longer runs on every burst)
+            if (!dialog && t && t.nodeType === 1 && t.matches && t.matches(DIALOGISH)) dialog = true;
+            // the remembered role dialogs go stale when one is inserted or a role changes (see dialogUp)
+            if (rec.attributeName === 'role') roleDialogs = null;
+            for (var q = 0; roleDialogs && rec.addedNodes && q < rec.addedNodes.length; q++) {
+              var an = rec.addedNodes[q];
+              if (an.nodeType === 1 && (an.matches('[role="dialog"]') || an.querySelector('[role="dialog"]'))) roleDialogs = null;
+            }
+            for (var a = 0; !dialog && rec.addedNodes && a < rec.addedNodes.length; a++) {
+              var n = rec.addedNodes[a];
+              if (n.nodeType === 1 && (n.matches(DIALOGISH) || n.querySelector(DIALOGISH))) dialog = true;
+            }
           }
-          schedule();
+          if (dialog && bar.style.display !== 'none' && dialogUp()) setState('none', lastLift || 0);
+          // the instant check is for an element INSERTED under the chip (its reason since 2026-09-14); a class or style
+          // change only queues the quarter-second pass - on a thousand-row page each instant check after a write was a
+          // forced layout (7.7 s of hit tests in an inventory walk at phone speed, SL LB3)
+          if (moved) scheduleSelf();
+          else if (inserted) schedule();
+          else if (other) scheduleFull();
         });
         obs.observe(document.documentElement, { attributes: true, childList: true, subtree: true,
-          attributeFilter: ['style', 'class', 'open', 'aria-hidden', 'hidden'] });
+          attributeFilter: ['style', 'class', 'open', 'aria-hidden', 'hidden', 'role'] });
         sync();
         [300, 800, 1500, 2600, 4000, 6000, 9000, 12000].forEach(function (ms) { setTimeout(schedule, ms); });
       })();

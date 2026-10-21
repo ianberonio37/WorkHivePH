@@ -1945,7 +1945,10 @@
         }
       }
 
-      list.innerHTML = visible.map(n => `
+      /* ★SL LB3 (2026-10-21): "Load more" rebuilt every card (30 more a press, each press re-rendering and re-binding all of
+         them). whRenderRows appends the new cards; a card's risk chip comes from risk data that arrives on its own, so it
+         is part of the card's key and a card whose risk changed renders the list again. */
+      whRenderRows(list, visible, n => `
         <div class="asset-card" data-node-id="${e(n.id)}">
           <div class="asset-card-main">
             <div class="asset-card-tag">${e(n.tag || n.name || 'Untitled')}</div>
@@ -1961,7 +1964,7 @@
             <span class="${critClass(n.criticality)}" title="Criticality (how important this asset is)">${e(_t('CRITICALITY ', 'KRITIKALIDAD '))}${e(typeof whLevelWord === 'function' ? whLevelWord(n.criticality || 'medium') : (n.criticality || 'medium'))}</span>
           </div>
         </div>
-      `).join('');
+      `, { sig: 'asset-list', key: (n) => JSON.stringify(n) + '|' + riskChip(n), long: true });   // the node's data and its risk chip (risk data arrives on its own)
 
       // Bind clicks
       // ★THE ASSET LIST COULD ONLY BE OPENED WITH A MOUSE (2026-10-06, asset-hub x any, layer F render contract). Every
@@ -1970,7 +1973,10 @@
       // interactive elements beside 30 asset rows. Each card is now a button: focusable, Enter and Space open it, and
       // its NAME is built from what the card shows (tag, name, location, the risk and criticality words) rather than
       // left to the whole card's text, which would run every nested chip and hidden suffix together.
-      list.querySelectorAll('.asset-card').forEach(el => {
+      // only the cards not bound yet: an appended render keeps the cards already on screen, and binding them again would
+      // open an asset twice from one tap (SL LB3)
+      list.querySelectorAll('.asset-card:not([data-wh-bound])').forEach(el => {
+        el.setAttribute('data-wh-bound', '');
         // SL L3: a press that opened an asset is a use; the same openDetail run by a ?node_id= arrival is not
         const _open = () => { const _id = el.getAttribute('data-node-id'); if (!_id) return;
           openDetail(_id).then(() => { if (typeof whUse === 'function') whUse(db, 'asset_opened'); }); };

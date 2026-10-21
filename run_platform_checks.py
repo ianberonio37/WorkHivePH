@@ -7022,6 +7022,20 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # SL LB3 (2026-10-21): every list stays responsive with a thousand rows in it. Walked with a thousand rows behind
+        # each list (phone-390 at 4x CPU and desktop-1280): the logbook's Load More rebuilt every card on every press - 49
+        # presses to reach 1,000, up to 2.4 s each at phone speed - and the same shape sat under eleven "show more"
+        # handlers on ten pages. Holds utils.js whRenderRows (append a grown list, replace anything else) and its
+        # content-visibility rule, every show-more going through it, no row bound twice, every search debounced, and the
+        # static pages building no list from data. Static (the helper's unit test runs under node).
+        "id":      "long-list-render",
+        "script":  os.path.join("tools", "validate_long_list_render.py"),
+        "args":    [],
+        "label":   "Long-list render (SL LB3): every show-more on the 34 LB3 data pages appends through utils.js whRenderRows instead of rebuilding every row (its 21-case unit test runs under node: append, patch in place with focus carried, replace), no row an append kept is bound a second time, every search that re-renders a list waits for the typing to pause, no row drawn through whRenderRows animates on every render (only a .new-entry arrival), and the 42 static pages build no list from data; the shared chrome stays cheap with a thousand rows - the guide chip skips rows the browser is not drawing, never answers its own writes, vacates after the frame's layout asking only about what was inserted, runs its full pass at most four times a second and leaves dialogs' controls out; figure marking reads a long list by its words; the Sources area and the overlay Back-dismiss answer only the changes that concern them (--self-test: 26 mutants)",
+        "group":   "Performance",
+        "skip_if_fast": False,
+    },
+    {
         # SL L4 (2026-10-21): when a page fails, the sentence it SHOWED the person is logged beside the code. Of 390
         # client_errors rows, 383 were the uncaught net; a refused save, a list that could not load, an access check that
         # could not be asked left nothing, and the one logger kept the technical message, never what the person read.

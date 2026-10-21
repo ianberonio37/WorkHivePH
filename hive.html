@@ -5322,10 +5322,12 @@ function renderFeed() {
   // P181 (2026-09-05): keep the keyboard user's place across this innerHTML rebuild (utils.js whFocusCapture/whFocusRestore)
   var _cap = (typeof whFocusCapture === 'function') ? whFocusCapture(feed) : null;
   if (_cap) setTimeout(function () { whFocusRestore(feed, _cap); }, 0);
-  feed.innerHTML = visible.map(e =>
+  /* ★SL LB3 (2026-10-21): "Load more" rebuilt every card on the board's feed (15 more a press, each press re-rendering all
+     of them). whRenderRows appends the new cards; each card's own HTML is its key, so a card whose time or state moved
+     is redrawn. */
+  whRenderRows(feed, visible, e =>
     e._type === 'pm' ? buildPMCard(e, false) :
-    buildFeedCard(e, false)
-  ).join('');
+    buildFeedCard(e, false), { key: 'html', long: true });
   moreWrap.classList.toggle('hidden', _feedDisplayCount >= _feedEntries.length);
   // SL LB1: once everything loaded is on screen, say the board holds only the newest activity, and where the rest is
   if (typeof whMoreNote === 'function') whMoreNote(feed, { more: _feedMore && _feedDisplayCount >= _feedEntries.length, src: 'hive-feed',

@@ -77,9 +77,15 @@
          left border thicker than 1px on a card, and utils.js already ruled 1px for the shared strips - the
          thickness was the objection, never the colour that says how much is left. An entrance eases OUT. */
       border-left-width: 1px;
-      animation: slide-in 0.22s ease-out;
       transition: border-color 0.2s;
     }
+    /* ★ONE AUTHORED MOMENT, NOT EVERY CARD (SL LB3, 2026-10-21). Every card slid in whenever the list drew it - each
+       search, filter, Load More and refresh - and with a thousand parts each sliding card made the browser re-check every
+       row's place on every frame (a bare page at 390 with the CPU 4x slower: a 20-card append cost ~245 ms of rendering
+       with the slide, ~26 ms without). The part a person has just added is the one that slides in (.new-entry, the platform's arrival class, set by
+       the save); the list's own renders draw their cards still. */
+    .part-card.new-entry { animation: slide-in 0.22s var(--wh-ease-out, ease-out); }
+    @keyframes wh-arrive-fade { from { opacity: 0; } to { opacity: 1; } }
     .part-card:hover { border-top-color: rgba(255,255,255,0.14); border-right-color: rgba(255,255,255,0.14); border-bottom-color: rgba(255,255,255,0.14); }
     .part-card.stock-surplus  { border-left-color: var(--wh-blue); }
     .part-card.stock-ok  { border-left-color: var(--wh-green); }
@@ -88,10 +94,10 @@
     .part-card.stock-out { border-left-color: var(--wh-red); }
     @keyframes slide-in { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
     /* 8 part cards slid in on every render with no motion guard - the largest visible-motion
-       count on the platform after the tier rings. Safe to still: .part-card sets `animation` and
-       nothing else about opacity, so stopping it leaves each card at full opacity, exactly as it
-       looks once the 0.22s entry finishes. The stock-state border-left colour is untouched. */
-    @media (prefers-reduced-motion: reduce) { .part-card { animation: none; } }
+       count on the platform after the tier rings. Now only the part just added moves, and with reduced motion it fades
+       in where it stands (gentler motion, not none: the arrival is still shown); the stock-state border-left colour is
+       untouched. */
+    @media (prefers-reduced-motion: reduce) { .part-card.new-entry { animation: wh-arrive-fade 0.2s ease-out; } }
 
     /* Inputs */
     .wh-input {
@@ -827,7 +833,8 @@ function writeAuditLog(action, targetType, targetId, targetName, meta) {
 }
 
 let _invDisplayCount = 8;  // Arc P Wave 2 (P2 list-discipline): glance-first slice — the list sorts out/low-first, so the 8 shown are the "needs me" parts; Load More reveals the rest (+12).
-function loadMoreInventory() { _invDisplayCount += 12; renderParts(); }
+let _invFiltered = [], _invQuery = '';   // SL LB3: the list Load More continues (set by renderParts)
+function loadMoreInventory() { _invDisplayCount += 12; _invRenderList(); }   // SL LB3: the next 12, appended - nothing recomputed
 
 // ────────────────────────────────────────────
 // IN-MEMORY CACHE (populated from Supabase on init)
@@ -1233,8 +1240,13 @@ function renderParts() {
   // a duplicate early, instead of recalling the SKU cold (mirrors the category picker).
   const pnDatalist = document.getElementById('existing-part-numbers');
   if (pnDatalist) {
-    pnDatalist.innerHTML = [...new Set(items.map(i => i.part_number).filter(Boolean))]
-      .map(pn => `<option value="${escHtml(pn)}"></option>`).join('');
+    // SL LB3: rebuilt only when the part numbers changed - with a thousand parts this wrote 1,000 options on every render
+    const _pns = [...new Set(items.map(i => i.part_number).filter(Boolean))];
+    const _pnSig = _pns.join('\u0001');
+    if (pnDatalist.__whSig !== _pnSig) {
+      pnDatalist.innerHTML = _pns.map(pn => `<option value="${escHtml(pn)}"></option>`).join('');
+      pnDatalist.__whSig = _pnSig;
+    }
   }
   const query   = document.getElementById('search-input').value.trim().toLowerCase();
   // datalist combobox: only filter on an EXACT category match (partial/typed text → '' = show all)
@@ -1302,6 +1314,7 @@ function renderParts() {
   const noRes  = document.getElementById('no-results');
 
   if (items.length === 0) {
+    _invFiltered = [];
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     noRes.classList.add('hidden');
     // An empty set from a FAILED read is not an empty inventory. #empty-state says "No parts in
@@ -1370,6 +1383,7 @@ function renderParts() {
   });
 
   if (filtered.length === 0) {
+    _invFiltered = [];
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     noRes.classList.remove('hidden');
     document.getElementById('inv-load-more-wrap').classList.add('hidden');
@@ -1377,14 +1391,33 @@ function renderParts() {
   }
   noRes.classList.add('hidden');
 
+  _invFiltered = filtered;
+  _invQuery = query;
+  _invRenderList();
+
+  // AI grounding (Inventory PDDA, 2026-07-12): feed the companion a piiSafe LIVE stock
+  // snapshot so "Inventory Manager" answers stock questions from real counts instead of
+  // confabulating (mirrors marketplace.html setContext; only counts + part-number SKUs,
+  // no worker names / free-text → PII-safe). Refreshes on every render (post use/restock).
+  setInventoryCompanionContext();
+}
+
+/* ★SL LB3 (2026-10-21): "LOAD MORE" RE-RAN THE WHOLE PAGE. Each press added 12 to the count and called renderParts(),
+   which merged the items, rewrote a datalist of every part number, recounted the stats, the summary and the banner,
+   filtered and re-sorted everything (localeCompare) and rebuilt every visible card. With a thousand parts that was up
+   to 2 s a press at phone speed. renderParts() still does all of that when the data, the search or a filter changes;
+   a press only renders the next slice of the list it already has, and whRenderRows appends it. */
+function _invRenderList() {
+  const filtered = _invFiltered;
+  const list = document.getElementById('parts-list');
   const visible = filtered.slice(0, _invDisplayCount);
   const wrap = document.getElementById('inv-load-more-wrap');
   const lbl  = document.getElementById('inv-count-label');
   wrap.classList.toggle('hidden', _invDisplayCount >= filtered.length);
   lbl.textContent = _t(`Showing ${visible.length} of ${filtered.length} part${filtered.length === 1 ? '' : 's'}`, `Ipinapakita ang ${visible.length} sa ${filtered.length} parts`);
 
-  const q = query;
-  list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = visible.map(item => {
+  const q = _invQuery;
+  whRenderRows(list, visible, item => {
     const st      = stockStatus(item);
     const sc      = STATUS_COLORS[st];
     // Phase 5b.2: linked_asset_node_ids is uuid[]; map back to display codes
@@ -1400,7 +1433,7 @@ function renderParts() {
     const locked  = HIVE_ID && (item.status === 'pending' || item.status === 'rejected');
 
     return `
-    <div class="part-card stock-${st} p-5 mb-3">
+    <div class="part-card stock-${st} p-5 mb-3" data-part-id="${escHtml(String(item.id))}">
       <div class="flex items-start gap-4">
         ${item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? `<img src="${escHtml(item.photo)}" alt="Inventory item photo" class="photo-thumb flex-shrink-0 mt-0.5" />` : ''}
         <div class="flex-1 min-w-0">
@@ -1482,13 +1515,15 @@ function renderParts() {
         </div>
       </div>
     </div>`;
-  }).join('');
-
-  // AI grounding (Inventory PDDA, 2026-07-12): feed the companion a piiSafe LIVE stock
-  // snapshot so "Inventory Manager" answers stock questions from real counts instead of
-  // confabulating (mirrors marketplace.html setContext; only counts + part-number SKUs,
-  // no worker names / free-text → PII-safe). Refreshes on every render (post use/restock).
-  setInventoryCompanionContext();
+  }, {
+    // the key is the card's DATA, not its HTML: building every card's HTML on each press to compare it cost ~0.5 ms a card
+    // at phone speed (680 cards: 340 ms a press). A card also shows its reservations and linked asset codes, which arrive
+    // after the parts, so they are part of its key; the search it highlights is the sig.
+    sig: JSON.stringify([q]),
+    key: (item) => JSON.stringify(item) + '|' + getReservedQty(item.id) + '|' + getReservedFor(item.id).join(',') + '|'
+      + (item.linked_asset_node_ids || []).map(u => _nodeIdToAssetId[u] || '').join(','),
+    long: true,
+  });
 }
 
 // ────────────────────────────────────────────
@@ -1728,6 +1763,7 @@ function _ensureInvQueue() {
 }
 
 async function submitPart() {
+  let _addedId = null;   // the part this save added, which slides into the list (.part-card.new-entry)
   const partNumber = document.getElementById('f-part-number').value.trim();
   const partName   = document.getElementById('f-part-name').value.trim();
   const qtyRaw     = document.getElementById('f-qty').value;
@@ -1962,10 +1998,15 @@ async function submitPart() {
     showToast(HIVE_ID
       ? `${partNumber} submitted for supervisor approval → once approved it counts toward stock levels, low-stock alerts & reorder suggestions.`
       : `${partNumber} added to inventory → counts toward stock levels, low-stock alerts & reorder suggestions.`);
+    _addedId = item.id;
   }
 
   closePartModal();
   renderParts();
+  if (_addedId) {
+    const card = document.querySelector('#parts-list [data-part-id="' + CSS.escape(String(_addedId)) + '"]');
+    if (card) card.classList.add('new-entry');
+  }
 }
 
 function showFormError(el, msg) { el.textContent = msg; el.classList.remove('hidden'); }

@@ -941,8 +941,15 @@ if (typeof window !== 'undefined') window.whCleanNumericPaste = whCleanNumericPa
     // Read a task later, so an overlay injected and opened in the same turn is already wired by whSheetA11y
     // when we look - otherwise this observer, created first, would claim it before its real owner could.
     var queued = false;
-    var mo = new MutationObserver(function () {
+    // ★ONLY AN OVERLAY'S OWN CLASS OPENS OR CLOSES IT (SL LB3, 2026-10-21). Every class change anywhere on the page queued
+    // a query of the whole document - each of a thousand parts made tappable (a class added) was one, 1.4 s of an
+    // inventory walk at phone speed. The open state lives on the overlay element itself, so a change elsewhere is passed.
+    var OVERLAY = '.sheet-overlay, .modal-overlay';
+    var mo = new MutationObserver(function (records) {
       if (queued) return;
+      var hit = false;
+      for (var r = 0; r < records.length && !hit; r++) { var tg = records[r].target; hit = !!(tg && tg.matches && tg.matches(OVERLAY)); }
+      if (!hit) return;
       queued = true;
       setTimeout(function () { queued = false; sync(); }, 0);
     });
@@ -3376,7 +3383,15 @@ function renderSourceChip(opts) {
     }
     if (any) align(area);
     if (area.hidden === any) area.hidden = !any;
-    if (any) clearBottom(area);      // measured with the area shown, in the same task, so it is never painted uncleared
+    // measured with the area shown, in the same task, so it is never painted uncleared - and only when the area is within
+    // reach of the screen (SL LB3, 2026-10-21): clearBottom samples 21 points at the bottom of the screen, a forced layout
+    // each pass, and with a thousand-row list above it the area is pages away; the observer in start() brings this pass
+    // back as it scrolls into reach, before it is on screen
+    if (any && nearView(area)) clearBottom(area);
+  }
+  function nearView(area) {
+    var r = area.getBoundingClientRect(), H = window.innerHeight;
+    return r.top < H * 1.5 && r.bottom > -H * 0.5;
   }
   // The visibility and alignment read layout, so they run when the page is idle rather than every few milliseconds of a
   // long render: on alert-hub a sync on each burst of the feed's mutations forced a layout ~20 times while the feed was
@@ -3402,17 +3417,67 @@ function renderSourceChip(opts) {
     }
     collapse(area);
     queue();
+    // ★A LIST ROW CARRIES NOTHING THIS AREA MIRRORS (SL LB3, 2026-10-21). Every childList burst ran collapse() - two
+    // queries over the whole document - and queued the layout-reading sync; a page growing a thousand-row list at phone
+    // speed spent ~10 s of its walk here, for rows that hold no source line, no anchor and no slot. A burst counts when
+    // it adds or removes one of those, or writes inside one (a page filling a collapsed slot with words); attribute
+    // changes (a toggle that takes its explainer with it) still always count.
+    var MARK = 'template[data-wh-source],[data-wh-source-anchor],.wh-source-chip,[data-wh-sources-collapsed]';
+    function carries(nodes) {
+      for (var k = 0; k < nodes.length; k++) {
+        var nd = nodes[k];
+        if (nd.nodeType === 1 && (nd.matches(MARK) || nd.querySelector(MARK))) return true;
+      }
+      return false;
+    }
+    // ★AN ATTRIBUTE CHANGE COUNTS WHERE IT CAN MOVE A LINE OR THE ROOM BELOW (SL LB3, 2026-10-21). Every class, style,
+    // hidden or open change on the page queued this pass - a thousand parts' figures marked, a card restyled under a
+    // passing pointer, the guide chip lifting - and the pass reads layout (21 hit tests at the foot of the screen): 4.5 s
+    // of an inventory walk at phone speed. A line's place is shown or hidden only by a change on an element that holds a
+    // carrier, an anchor or a slot, and the room below moves only with the fixed controls at the foot of the screen
+    // (BOTTOM: the toasts' stack list, utils.js whToast); a change anywhere else moves neither.
+    var BOTTOM = '#wh-hub, .wh-conn-chip, .wh-conn-popover, .wh-fb-fab, #wh-guide-link, #wh-ai-widget, #fab, '
+               + '.wh-companion-trigger, #sticky-mobile-cta, .sheet-inner, .bottom-sheet, #wh-consent, [data-wh-bottom-bar]';
+    // every carrier, anchor and slot on the page and each of their ancestors - one lookup per change - kept until a burst
+    // adds or removes one
+    var marks = null;
+    function holdsMark(t) {
+      if (!marks) {
+        marks = new Set();
+        var ms = document.querySelectorAll(MARK);
+        for (var k = 0; k < ms.length; k++) for (var a = ms[k]; a && !marks.has(a); a = a.parentElement) marks.add(a);
+      }
+      return marks.has(t);
+    }
     new MutationObserver(function (muts) {
       var outside = false, added = false;
       for (var i = 0; i < muts.length; i++) {
-        if (area.contains(muts[i].target)) continue;
+        var m = muts[i];
+        if (area.contains(m.target)) continue;
+        if (m.type === 'childList') {
+          var inMark = m.target.nodeType === 1 && m.target.closest && m.target.closest(MARK);
+          if (!inMark && !carries(m.addedNodes) && !carries(m.removedNodes)) continue;
+          added = true;
+          marks = null;
+        } else if (!outside) {
+          var t = m.target;
+          if (t.nodeType !== 1) continue;
+          // inside a long list's row nothing is fixed to the screen (the row's containment holds it), so there only a
+          // mark counts - that is where a thousand figures are marked and a thousand cards restyled
+          if (!holdsMark(t) && (t.closest('.wh-rows-cv') || !t.closest(BOTTOM))) continue;
+        }
         outside = true;
-        if (muts[i].type === 'childList') added = true;
       }
       if (added) collapse(area);
       if (outside) queue();
     }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden', 'style', 'open'] });
     window.addEventListener('resize', queue);
+    // the area coming within half a screen runs the pass that gives it room below the fixed controls (see nearView)
+    if (typeof IntersectionObserver === 'function') {
+      new IntersectionObserver(function (es) {
+        for (var i = 0; i < es.length; i++) if (es[i].isIntersecting) { queue(); break; }
+      }, { rootMargin: '50% 0px 50% 0px' }).observe(area);
+    }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
@@ -4067,6 +4132,81 @@ function whMoreNote(listEl, state) {
 }
 if (typeof window !== 'undefined') window.whMoreNote = whMoreNote;
 
+// whRenderRows - SL LB3 (2026-10-21): a list that grows renders only what is new. Measured with a thousand rows behind
+// the logbook: every "Load More" re-rendered the WHOLE list (innerHTML of every card again), so reaching 1,000 entries
+// cost 49 presses that each rebuilt everything - 642 ms per press on a desktop, 2 s at phone speed - and the same shape
+// sits under 10 pages' "show more". This renders `items` into listEl, one element per item, and APPENDS the new ones when
+// the list only grew: the same `sig` as the last render and the keys already on screen are the start of the new keys.
+// When only a few rows changed (a selection, an opened detail, one row a live update touched) it replaces just those,
+// carrying a keyboard user's focus into the replacement - report-sender rebuilt all 500 contacts to tick one. Anything
+// else (a new search, a filter, a sort, many rows changed) replaces the list, as before.
+//   whRenderRows(listEl, items, rowHtml, { sig: JSON.stringify([query, filter, mode]), key: (x) => x.id + '|' + x.status })
+// `sig` names everything OUTSIDE a row that its HTML depends on (the search a highlight marks, a view mode); without one
+// the list is always replaced - appending is never guessed. `key` says when a row changed (default: the whole row);
+// key: 'html' makes each row's own HTML its key - the safest choice when a row shows state from outside it (a relative
+// time, a name, a badge from another read) - and needs no sig. It builds EVERY row's HTML on every call, so it is for
+// short lists: on a list that can hold a thousand rows, key on the row's data (the default, or a function adding what
+// the row shows from outside it) and name the rest in sig - measured on inventory, building 680 cards' HTML to compare
+// them cost 340 ms a press at phone speed.
+// `long: true` lets the browser skip rendering rows that are off screen (content-visibility); only for rows that hold no
+// popover or menu that must draw outside the row. Returns 'appended', 'patched' or 'replaced'.
+function whRenderRows(listEl, items, rowHtml, opts) {
+  opts = opts || {};
+  // key 'html': a row's key IS its HTML - every row's string is built (cheap), the DOM is touched only for rows that are
+  // new, and a row that would render differently (a relative time, a name, a badge) is always caught. No sig is needed.
+  var html = opts.key === 'html' ? items.map(rowHtml) : null;
+  var sig = opts.sig !== undefined ? String(opts.sig) : (html ? '' : undefined);
+  var keyOf = typeof opts.key === 'function' ? opts.key : function (x) { try { return JSON.stringify(x); } catch (_) { return String(Math.random()); } };
+  var keys = html || items.map(function (x, i) { return String(keyOf(x, i)); });
+  var rowsHtml = function (from) { return html ? html.slice(from).join('') : items.slice(from).map(rowHtml).join(''); };
+  if (opts.long) listEl.classList.add('wh-rows-cv');
+  var prev = listEl.__whRows;
+  // the rows on screen are still the ones this rendered: same count, and the same last element (a skeleton or another
+  // render of the same size in between is not mistaken for them)
+  if (sig !== undefined && prev && prev.sig === sig && prev.keys.length <= keys.length
+      && listEl.childElementCount === prev.keys.length && listEl.lastElementChild === prev.last) {
+    var diff = [];
+    for (var i = 0; i < prev.keys.length; i++) { if (prev.keys[i] !== keys[i]) diff.push(i); }
+    // a few rows changed (a selection, an opened detail, one row a live update touched): only those are replaced - the
+    // focus a keyboard user had inside one is carried into its replacement. Many changed rows: the list is replaced.
+    if (diff.length && diff.length <= Math.max(8, prev.keys.length >> 3) && typeof document !== 'undefined') {
+      var fresh = [];
+      for (var d = 0; d < diff.length; d++) {
+        var tpl = document.createElement('template');
+        tpl.innerHTML = html ? html[diff[d]] : rowHtml(items[diff[d]]);
+        if (tpl.content.childElementCount !== 1) { fresh = null; break; }
+        fresh.push(tpl.content.firstElementChild);
+      }
+      if (fresh) {
+        for (var f = 0; f < diff.length; f++) {
+          var old = listEl.children[diff[f]], neu = fresh[f], act = document.activeElement, path = null;
+          if (act && act !== old && old.contains(act)) {
+            path = []; for (var n = act; n && n !== old; n = n.parentElement) path.unshift(Array.prototype.indexOf.call(n.parentElement.children, n));
+          }
+          old.replaceWith(neu);
+          if (act === old || path) {
+            var tgt = neu; for (var p = 0; path && tgt && p < path.length; p++) tgt = tgt.children[path[p]];
+            try { if (tgt && tgt.focus) tgt.focus({ preventScroll: true }); } catch (_) { /* empty-catch-allow: focus is a courtesy */ }
+          }
+        }
+        var patched = diff.length;
+        diff = [];
+      }
+    }
+    if (!diff.length) {
+      if (keys.length > prev.keys.length) listEl.insertAdjacentHTML('beforeend', rowsHtml(prev.keys.length));
+      listEl.__whRows = { sig: sig, keys: keys, last: listEl.lastElementChild };
+      return patched ? 'patched' : 'appended';
+    }
+  }
+  listEl.innerHTML = rowsHtml(0);
+  // the shape the next call checks against holds only if every item rendered exactly one element
+  listEl.__whRows = (sig !== undefined && listEl.childElementCount === keys.length)
+    ? { sig: sig, keys: keys, last: listEl.lastElementChild } : null;
+  return 'replaced';
+}
+if (typeof window !== 'undefined') window.whRenderRows = whRenderRows;
+
 if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-css')) {
   var whListStatesCss = document.createElement('style');
   whListStatesCss.id = 'wh-list-states-css';
@@ -4091,7 +4231,10 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
     '.wh-more-note .wh-more-btn{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:var(--wh-cloud,#F4F6FA);font-family:inherit;font-size:0.8125rem;font-weight:600;cursor:pointer}' +
     '.wh-more-note .wh-more-btn:hover{border-color:rgba(255,255,255,0.32)}' +
     '.wh-more-note .wh-more-btn[disabled]{opacity:0.6;cursor:default}' +
-    '.wh-more-note .wh-more-link{display:inline-flex;align-items:center;min-height:44px;color:var(--wh-orange-text,#F7A21B);font-weight:600;text-decoration:underline;text-underline-offset:2px}';
+    '.wh-more-note .wh-more-link{display:inline-flex;align-items:center;min-height:44px;color:var(--wh-orange-text,#F7A21B);font-weight:600;text-decoration:underline;text-underline-offset:2px}' +
+    /* SL LB3: a long list's off-screen rows skip layout and paint until they near the viewport (whRenderRows long:true);
+       the browser keeps each row's last real height, and the rows stay in find-in-page and the accessibility tree */
+    '.wh-rows-cv>*{content-visibility:auto;contain-intrinsic-size:auto 160px}';
   (document.head || document.documentElement).appendChild(whListStatesCss);
 }
 
@@ -5103,8 +5246,16 @@ function whFmtDate(d, opts) {
      this platform promises is unchanged - what moves is the language of the month and the weekday, for
      the 73 call sites that draw a date through here. */
   var _loc = (typeof window !== 'undefined' && window.WH_LANG === 'fil') ? 'fil-PH' : 'en-PH';
-  return dt.toLocaleString(_loc, fmt);
+  // ★ONE FORMATTER PER SHAPE, NOT ONE PER DATE (SL LB3, 2026-10-21). toLocaleString builds a new Intl.DateTimeFormat on
+  // every call; a thousand-row list draws two or three dates a row, and the CPU profile of the logbook walk put this
+  // function among its costs. A formatter is a pure function of its locale and options, so it is built once and kept:
+  // the same output (3,740 dates compared, both languages, every option shape - 0 differences) at ~1/38 the cost.
+  var _k = _loc + '|' + JSON.stringify(fmt);
+  var _c = _whDateFmts || (_whDateFmts = Object.create(null));   // lazy: a date drawn while this file is still loading
+  var _f = _c[_k] || (_c[_k] = new Intl.DateTimeFormat(_loc, fmt));
+  return _f.format(dt);
 }
+var _whDateFmts = null;
 /* ★"TODAY" AS A DATE KEY WAS UTC'S DAY (2026-10-13, the device-clock-day ratchet). Thirty sites wrote today's date
    as new Date().toISOString().slice(0, 10) - export file names, a query's "today", a form's default date, a voice
    command's schedule date. That is UTC's calendar day, and from 00:00 to 08:00 Manila it is still YESTERDAY. WorkHive's
@@ -5113,8 +5264,10 @@ function whFmtDate(d, opts) {
 function whManilaYmd(d) {
   var dt = (d instanceof Date) ? d : (d == null ? new Date() : new Date(d));
   if (isNaN(dt.getTime())) return '';
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).format(dt);
+  // one formatter, kept (SL LB3 - see whFmtDate)
+  return (_whYmdFmt || (_whYmdFmt = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }))).format(dt);
 }
+var _whYmdFmt = null;
 /* The instant the Manila day of `d` (now by default) began - for a query window such as "today's entries". Manila keeps
    no daylight saving, so its midnight is always 16:00 UTC the day before. Replaces `new Date(); x.setHours(0,0,0,0)`,
    which is the DEVICE's midnight (on a New Zealand host the hive's "today" began at 19:00 Manila the day before). */
@@ -7475,16 +7628,32 @@ function whAuditView(row) {
   // Parts of a picture are not figures of the page: an avatar's level badge is aria-hidden inside role="img", and the
   // image's own name already says the level - a tappable button inside it would be a control no screen reader can reach.
   var NOT_A_FIGURE = '[role="img"], [aria-hidden="true"], .wh-fig-card';
-  function markIn(box, e) {
+  // ★READ EVERY FIGURE FIRST, THEN MARK THEM (SL LB3, 2026-10-21, traced at 390 with the CPU 4x slower). This read a
+  // candidate's innerText, then marked it (class + five attributes), then read the next: every innerText after a mark
+  // was a forced style recalculation, and inventory's figure is every part's quantity - with a thousand parts, one
+  // decorate pass was a 321 ms task. markIn now only collects (reads); decorate() marks once, after every read. And a
+  // candidate is judged once per wording: textContent needs no layout, so an element whose words have not changed since
+  // it was last judged is passed over without asking for innerText at all.
+  function markIn(box, e, found) {
     var cands = e.whole ? [box] : [box].concat(Array.prototype.slice.call(box.querySelectorAll('*')));
     for (var k = 0; k < cands.length; k++) {
       var c = cands[k];
-      if (c.__whFig || c.closest(CTL) || c.closest(NOT_A_FIGURE)) continue;
-      var t = (c.innerText || '').trim();
+      if (c.__whFig) continue;
+      var tc = c.textContent;
+      if (c.__whFigSeen === tc) continue;
+      c.__whFigSeen = tc;
+      if (c.closest(CTL) || c.closest(NOT_A_FIGURE)) continue;
+      // ★A LONG LIST'S ROWS ARE READ BY THEIR WORDS, NOT THEIR LAYOUT (SL LB3, 2026-10-21). Long lists render their rows
+      // with content-visibility:auto, and innerText of anything in a row the browser is skipping is "" - measured on
+      // inventory at 390, the quantities of every part below the first two were judged "not a figure" and never became
+      // tappable. Asking whether a row is skipped is no cheaper: checkVisibility() on a skipped row computes that row's
+      // styles, 4.9 s of a thousand-part walk at phone speed. So anything inside a long list is judged by its textContent,
+      // whitespace folded - the same answer on screen or off - and everything else keeps innerText (hidden words left out).
+      var t = ((c.closest('.wh-rows-cv') ? (c.textContent || '').replace(/\s+/g, ' ') : c.innerText) || '').trim();
       if (!t || t.length > 48) continue;
       if (e.whole ? !/\d/.test(t) : (c.children.length ? !FIG.test(ownText(c)) : !FIG.test(t))) continue;
       if (!e.whole && c.children.length && !FIG.test(t)) continue;
-      mark(c, e);
+      found.push([c, e]);
     }
   }
   // A renderer that knows where its numbers come from says so on the block it draws (renderKpiTile's `figure`
@@ -7500,15 +7669,24 @@ function whAuditView(row) {
   }
   function decorate() {
     if (!map) return;
+    var found = [];   // every read first (markIn), every write after (mark) - see markIn
     for (var i = 0; i < map.length; i++) {
       var e = map[i];
       if (!e || e.chrome || !e.sel) continue;
       var hits;
       try { hits = document.querySelectorAll(e.sel); } catch (_) { continue; }
-      for (var j = 0; j < hits.length; j++) markIn(hits[j], e);
+      for (var j = 0; j < hits.length; j++) {
+        // a whole box whose words have not changed since its last pass holds nothing new to judge (SL LB3: inventory's
+        // figure is every part's quantity, so each pass opened a thousand boxes to find the twelve a press added)
+        var btc = hits[j].textContent;
+        if (hits[j].__whFigBox === btc) continue;
+        hits[j].__whFigBox = btc;
+        markIn(hits[j], e, found);
+      }
     }
     var boxes = document.querySelectorAll('[data-wh-fig-reads]');
-    for (var b = 0; b < boxes.length; b++) markIn(boxes[b], declaredEntry(boxes[b]));
+    for (var b = 0; b < boxes.length; b++) markIn(boxes[b], declaredEntry(boxes[b]), found);
+    for (var f = 0; f < found.length; f++) mark(found[f][0], found[f][1]);
   }
   function schedule() { if (timer) clearTimeout(timer); timer = setTimeout(decorate, 250); }
 

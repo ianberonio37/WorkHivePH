@@ -1498,7 +1498,17 @@
 
     // E2 consistent states: shimmer skeleton in the alert feed while sources fetch
     // so #feed never flashes blank before alerts render (shared whListSkeleton).
-    if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('feed'), 5, 'your alerts');
+    // ★ONLY BEFORE THE FIRST FEED (SL LB3, 2026-10-21). loadAll also runs every 60 s (the refresh poll) and on every
+    // return to the tab, and this replaced a settled feed with five shimmer rows each time: a person reading or
+    // scrolling the list lost their place every minute, and every alert was then rebuilt from nothing (532 of them in
+    // the thousand-row walk, caught mid-refresh at 390). The brief card below already latches its skeleton to the first
+    // load for exactly this reason; the feed now does too - a refresh keeps the alerts on screen until the new ones
+    // replace them, and whRenderRows redraws only the alerts that changed.
+    const _feedEl0 = document.getElementById('feed');
+    if (!window._ahFeedFirstLoadStarted && typeof whListSkeleton === 'function') {
+      window._ahFeedFirstLoadStarted = true;
+      whListSkeleton(_feedEl0, 5, 'your alerts');
+    }
 
     // ...and the SAME state inside #amc-card, which is the V2 view the anatomy names. The reveal has
     // to happen HERE, before the FIRST await: under a slow backend every read in this function is
@@ -2497,7 +2507,11 @@
       if (lead.endsWith(tail)) lead = lead.slice(0, -tail.length).trim();
       return lead ? x.title + ', ' + lead : x.title;
     };
-    feed.innerHTML = visible.map(a => {
+    /* ★SL LB3 (2026-10-21): "Load more" rebuilt every alert on the feed (30 more a press, each press re-rendering all of
+       them). whRenderRows appends the new ones. A row's name can depend on the rows around it (a tag that repeats takes
+       its lead phrase), and its time is relative - both are part of its key, so a press that changes an earlier row
+       renders the list again rather than leaving a stale name. */
+    whRenderRows(feed, visible, a => {
       const nm = _alertName(a);
       const sev = a.severity || 'medium';
       // F34: include 'low' (v_alert_truth normalizes some signature severities to it) so it
@@ -2535,7 +2549,13 @@
           </div>
         </div>
       </div>`;
-    }).join('');
+    }, {
+      sig: JSON.stringify([_activeKind, _sevFocus]),
+      // the key is the alert's data plus what its row shows from outside it: its name (a tag that repeats takes its lead
+      // phrase), its relative time and its seen state - cheaper than building every row's HTML on each press
+      key: (a) => JSON.stringify(a) + '|' + _alertName(a) + '|' + fmtRelative(a.time) + '|' + !!(a.dedupeKey && _seen[a.dedupeKey]),
+      long: true,
+    });
     // SL LB1: once the feed's loaded alerts are all on screen, say which sources hold more than it lists
     const _caps = (_feedCaps || []).filter((c) => _activeKind === 'all' || c.kind === _activeKind);
     if (typeof whMoreNote === 'function') whMoreNote(feed, { more: _caps.length > 0 && visible.length >= items.length,

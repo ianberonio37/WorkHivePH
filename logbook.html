@@ -329,7 +329,15 @@
       from { opacity: 0; transform: translateY(-10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .entry-card { animation: slide-in 0.25s ease; }
+    /* ★ONE AUTHORED MOMENT, NOT EVERY CARD (SL LB3, 2026-10-21). Every card slid in whenever the list drew it - each
+       search, filter, Load More and reload, tens of times a day - and with a thousand entries each sliding card made the
+       browser re-check every row's place on every frame (a bare page at 390 with the CPU 4x slower: a 20-card append
+       cost ~245 ms of rendering with the slide, ~26 ms without). The entry a person has just logged is the one that
+       slides into place (.new-entry, the platform's arrival class, set by the save); the list's own renders draw their cards
+       still. */
+    .entry-card.new-entry { animation: slide-in 0.25s var(--wh-ease-out, ease-out); }
+    @keyframes wh-arrive-fade { from { opacity: 0; } to { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .entry-card.new-entry { animation: wh-arrive-fade 0.2s ease-out; } }
 
     /* Badge */
     .badge-category {
@@ -2033,7 +2041,9 @@ async function loadMoreLogbook() {
   if (_logbookDisplayCount > _allEntries.length && _mineHasMore) {
     await loadEntries(true);
   }
-  renderEntries(false);
+  // SL LB3: showing more changes no count the stat pills show (they are the server's exact totals), so the press does
+  // not re-ask for them - the second argument is the render that skips the pills' refresh
+  renderEntries(false, true);
 }
 
 // ────────────────────────────────────────────
@@ -2847,7 +2857,7 @@ async function addEntry(entry) {
     document.getElementById('sync-badge').classList.remove('hidden');
     if (_viewMode === 'mine') await renderEntries(false);
     showToast('Saved offline, will sync when connected.');
-    return { ok: true, offline: true };
+    return { ok: true, offline: true, id: payload.id };
   }
 
   // Tier F capture contract — runtime validation against logbook_add_entry_v1.
@@ -2950,7 +2960,14 @@ async function addEntry(entry) {
   // Project Manager Phase 3B — auto-link this entry to active projects
   // that have the asset linked. Fire-and-forget; don't block save flow.
   _autoLinkLogbookToProject(entry).catch(e => console.warn('project auto-link:', e));
-  return { ok: true, online: true };
+  return { ok: true, online: true, id: payload.id };
+}
+
+// The one card on this list that moves: the entry a person has just logged slides into place (see .entry-card.new-entry).
+function _lbMarkArrived(id) {
+  if (!id) return;
+  const card = document.querySelector('#entries-list [data-entry-id="' + CSS.escape(String(id)) + '"]');
+  if (card) card.classList.add('new-entry');
 }
 
 // Phase 3B — When a logbook entry is created on an asset that's already
@@ -4923,6 +4940,10 @@ async function renderEntries(reload = true, fromStatPills = false) {
   const catFilter    = document.getElementById('filter-category').value;
   const statusFilter = document.getElementById('filter-status').value;
 
+  // T128: fold diacritics so "Pena" finds "Peña" (PH names carry them constantly and a plant
+  // keyboard does not). whFold case-folds too, so it replaces toLowerCase rather than stacking.
+  const _fq = !query ? '' : (typeof whFold === 'function') ? whFold(query) : query;
+
   // Mine mode: client-side filter. Team mode: server already filtered — show all.
   const filtered = _viewMode === 'team' ? entries : entries.filter(e => {
     // '__none' asks for the entries that have NO discipline (imported history); '' is still
@@ -4931,11 +4952,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
     const matchStatus = !statusFilter || (e.status || 'Open') === statusFilter;
     if (!matchCat || !matchStatus) return false;
     if (!query) return true;
-    // T128: fold diacritics so "Pena" finds "Peña" (PH names carry them constantly and a plant
-    // keyboard does not). whFold case-folds too, so it replaces toLowerCase rather than stacking.
-    const _fq = (typeof whFold === 'function') ? whFold(query) : query;
-    return [e.machine, e.problem, e.action, e.knowledge, e.category, e.root_cause, e.maintenance_type]
-      .some(f => f && ((typeof whFold === 'function') ? whFold(f) : f.toLowerCase()).includes(_fq));
+    return _lbHaystack(e).includes(_fq);
   });
 
   // Stats always reflect personal entries (header cards say "Your Repair Logbook").
@@ -5035,7 +5052,11 @@ async function renderEntries(reload = true, fromStatPills = false) {
      the card shows ELECTRICAL · CLOSED · Sep 17, 2026 · 03:41 PM, and in the Team Feed the name of whoever logged
      it. For a logbook those are the provenance - when, what state, who - and a screen-reader user moving through
      the list heard none of them. The label now carries what the card shows, in the order it shows it. */
-  list.innerHTML = visible.map(e => {
+  /* ★SL LB3 (2026-10-21): LOAD MORE REBUILT EVERY CARD. With a thousand entries behind the list, each press re-rendered
+     the whole list - 49 presses to reach 1,000, each rebuilding everything: 642 ms a press on a desktop, 2 s at phone
+     speed. whRenderRows appends the 20 new cards when the list only grew (the same search, filter, view and machine
+     labels, and the cards already on screen unchanged), and lets the browser skip the cards that are off screen. */
+  whRenderRows(list, visible, e => {
     const q         = query;
     const machine   = highlight(e.machine, q);
     const problem   = highlight(e.problem, q);
@@ -5043,7 +5064,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
     const knowledge = highlight(e.knowledge, q);
 
     return `
-    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" onclick="openModal('${escJsAttr(e.id)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${escJsAttr(e.id)}')}" aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([(e.machine || ''), (e.problem || '').slice(0, 60), (e.status || 'Open'), formatDate(e.date), (_viewMode === 'team' && e.worker_name && !_isMine(e)) ? _t('logged by', 'isinulat ni') + ' ' + e.worker_name : ''].filter(Boolean).join(' - '))}">
+    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" data-entry-id="${escHtml(String(e.id))}" onclick="openModal('${escJsAttr(e.id)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${escJsAttr(e.id)}')}" aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([(e.machine || ''), (e.problem || '').slice(0, 60), (e.status || 'Open'), formatDate(e.date), (_viewMode === 'team' && e.worker_name && !_isMine(e)) ? _t('logged by', 'isinulat ni') + ' ' + e.worker_name : ''].filter(Boolean).join(' - '))}">
       <div class="flex items-start justify-between gap-3 mb-3">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -5084,7 +5105,13 @@ async function renderEntries(reload = true, fromStatPills = false) {
 
       ${e.photo && (e.photo.startsWith('data:image/') || e.photo.startsWith('https://')) ? `<div class="mt-3"><img src="${escHtml(e.photo)}" alt="Logbook entry photo" class="photo-thumb" /></div>` : ''}
     </div>`;
-  }).join('');
+  }, {
+    // the key is the entry's data (whRenderRows' default) - building every card's HTML on each press just to compare it
+    // costs more than the press saves on a thousand entries. Everything OUTSIDE an entry that its card shows is the sig:
+    // the search it highlights, the view (team cards name who logged them) and the CMMS source labels that arrive later.
+    sig: JSON.stringify([query, _viewMode, Object.keys(_syncedMachineSource).length]),
+    long: true,
+  });
 }
 
 // ────────────────────────────────────────────
@@ -6071,6 +6098,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   // toast already fired inside addEntry. (Checked PM tasks / parts on an offline save ride
   // with the entry only, not as separate writes - a queue-drain follow-up, not a hang.)
   if (addResult && addResult.offline === true) {
+    _lbMarkArrived(addResult.id);   // addEntry drew the queued entry into the list
     clearForm();
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Entry';
@@ -6139,6 +6167,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
   const _machine = entry.machine || machine;
   clearForm();
   await renderEntries();
+  _lbMarkArrived(addResult && addResult.id);
   // ── Phase D1 (INTERACTIVE_LINEAGE_ROADMAP) — cross-surface RECEIPT ──────────
   // Make the logbook→PM/parts/risk cascade VISIBLE: name what this save just
   // rippled to across the platform, so the worker SEES the effect of their action
@@ -6991,9 +7020,30 @@ function _logSyncUrl() {
   } catch (_) { /* empty-catch-allow: best-effort URL sync */ }
 }
 
+// ★SL LB3 (2026-10-21): AN ENTRY'S WORDS ARE FOLDED ONCE, NOT ON EVERY PAUSE IN THE TYPING. The search folded seven fields
+// of every entry (whFold: NFD + strip marks + lower case) each time the typing paused - ~7,000 normalisations over a
+// thousand entries, 753 ms of one search at phone speed (traced). Each entry's searchable words are folded once and kept
+// with it until they change. They are joined by a control character no typed search contains, so a search still matches
+// inside one field and never across two - the same entries as before.
+function _lbHaystack(e) {
+  // kept on the function, so a search that runs before this line of the script has been reached still finds it
+  const folded = _lbHaystack.kept || (_lbHaystack.kept = new WeakMap());
+  const raw = [e.machine, e.problem, e.action, e.knowledge, e.category, e.root_cause, e.maintenance_type]
+    .map(f => (f == null ? '' : String(f))).join('\u0001');
+  const kept = folded.get(e);
+  if (kept && kept.raw === raw) return kept.hay;
+  const hay = (typeof whFold === 'function') ? whFold(raw) : raw.toLowerCase();
+  folded.set(e, { raw, hay });
+  return hay;
+}
+
+// SL LB3: a keystroke re-rendered the list in the same task, so with a thousand entries loaded the paint after a
+// keystroke waited for the whole filter and render (936 ms at phone speed when the search was cleared). The list now
+// follows the typing 150 ms after it pauses; the keystroke itself paints at once.
+const _lbMineSearch = debounce(() => renderEntries(false), 150);
 document.getElementById('search-input').addEventListener('input', () => {
   _logbookDisplayCount = 20;
-  _viewMode === 'team' ? _teamSearchDebounce() : renderEntries(false);
+  _viewMode === 'team' ? _teamSearchDebounce() : _lbMineSearch();
   _logSyncUrl();
 });
 window.addEventListener('load', () => { if (window.whAutoRememberFilters) whAutoRememberFilters('logbook-filters', ['filter-category', 'filter-status']); });   // G5a: remember the logbook filters cross-session

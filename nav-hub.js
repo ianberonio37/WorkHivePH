@@ -1402,10 +1402,21 @@
         var r = el.getBoundingClientRect();
         return r.width > 0 && r.height > 0;
       }
+      /* ★FROM THE BROWSER'S LIVE LISTS (SL LB3, 2026-10-21). Every DIALOGISH shape is a [role="dialog"], a <dialog>, or
+         carries the class "open": the last two are live collections the browser keeps; the role dialogs are remembered,
+         and asked again when a dialog's own attribute changes (schedule) or two seconds have passed. A query of the whole
+         page for seven selectors on every pass was 4.5 s of a thousand-row inventory walk at phone speed. */
+      var roleDialogs = null, roleAt = 0;
+      function dialogCandidates() {
+        if (!roleDialogs || performance.now() - roleAt > 2000) { roleDialogs = document.querySelectorAll('[role="dialog"]'); roleAt = performance.now(); }
+        var out = [], sets = [roleDialogs, document.getElementsByClassName('open'), document.getElementsByTagName('dialog')];
+        for (var s = 0; s < sets.length; s++) for (var k = 0; k < sets[s].length; k++) if (sets[s][k].matches(DIALOGISH)) out.push(sets[s][k]);
+        return out;
+      }
       function sync() {
         queued = false;
         if (!wrapper.isConnected) { obs.disconnect(); return; }
-        var open = false, all = document.querySelectorAll(DIALOGISH);
+        var open = false, all = dialogCandidates();
         /* ★THE HUB STOOD DOWN FOR ITS OWN PANEL (critique, 2026-10-13). #wh-hub-panel is role="dialog", so opening the
            hub matched DIALOGISH and this hid the hub's own wrapper: visibility:hidden took the toggle away (the open
            panel had no visible way to close it), and aria-hidden="true" on the wrapper removed the WHOLE open panel
@@ -1420,7 +1431,27 @@
         wrapper.style.visibility = open ? 'hidden' : '';
         wrapper.setAttribute('aria-hidden', open ? 'true' : 'false');
       }
-      function schedule() { if (!queued) { queued = true; requestAnimationFrame(sync); } }
+      /* ★A DIALOG AT ONCE, EVERYTHING ELSE FOUR TIMES A SECOND (SL LB3, 2026-10-21). Every attribute change on the page
+         queued a scan of the whole document for dialogs on the next frame - ~8 s of a thousand-row walk at phone speed,
+         mostly for class and style changes that were nothing to do with a dialog. A record whose own element IS a
+         dialog is answered on the next frame as before; any other waits for the next quarter-second pass, which still
+         settles everything (a dialog shown by a class change on an ancestor included). */
+      var lastSync = -1e9, SYNC_GAP = 250;
+      function run() { lastSync = performance.now(); sync(); }
+      function schedule(records) {
+        var urgent = false;
+        if (records && records.length && records[0] && records[0].target) {
+          for (var i = 0; i < records.length; i++) {
+            var t = records[i].target;
+            if (t && t.nodeType === 1 && t.matches && t.matches(DIALOGISH)) { urgent = true; roleDialogs = null; break; }
+          }
+        }
+        if (queued && !urgent) return;
+        queued = true;
+        var wait = urgent ? 0 : SYNC_GAP - (performance.now() - lastSync);
+        if (wait > 0) setTimeout(function () { requestAnimationFrame(run); }, wait);
+        else requestAnimationFrame(run);
+      }
       /* A dialog that settles via a CSS transition emits no further mutation, so listen for the transition
          too — belt and braces against the one-frame race above. */
       document.addEventListener('transitionend', schedule, true);

@@ -1365,6 +1365,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let _watchlist     = new Set(); /* listing IDs the current buyer has saved */
   let _sellerTiers   = {};        /* { sellerName: topLevel } for tier frames */
   const _communityTrustedSellers = new Set();  /* X-axis: sellers with the Voice-of-the-Hive community badge */
+  const _tierAsked = new Set();   /* SL LB3: sellers whose tier and community trust were already asked - a Load more asks only the new ones */
   let _compareMode   = false;
   let _compareSet    = new Set(); /* listing IDs selected for RFQ */
   const COMPARE_MAX  = 5;
@@ -2110,12 +2111,18 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       const _inqMore = data.length > _inqLimit;   // SL LB1
       if (_inqMore) data.splice(_inqLimit);
       const e = escHtml;
-      slot.innerHTML =
-        // one card treatment (critic R3, 2026-10-13): a list, not a KPI tile - list-row, the component's padding
-        '<div class="simple-card list-row" style="border-left:3px solid var(--wh-orange);">' +
-        '<div style="font-size: 0.75rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--wh-orange);margin-bottom:6px;">' +
-        'Your inquiries &middot; ' + data.length + (_inqMore ? '+' : '') + '</div>' +
-        data.map(function (r) {
+      // one card treatment (critic R3, 2026-10-13): a list, not a KPI tile - list-row, the component's padding.
+      // ★SL LB3 (2026-10-21): "Show older inquiries" re-read 20 more and rebuilt the whole card; the card is built once, its
+      // count is rewritten, and whRenderRows appends the older rows (each row's own HTML is its key).
+      let _inqCard = slot.querySelector(':scope > .simple-card');
+      if (!_inqCard) {
+        slot.innerHTML = '<div class="simple-card list-row" style="border-left:3px solid var(--wh-orange);">' +
+          '<div data-mk-inq-head style="font-size: 0.75rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--wh-orange);margin-bottom:6px;"></div>' +
+          '<div data-mk-inq-rows></div></div>';
+        _inqCard = slot.firstElementChild;
+      }
+      _inqCard.querySelector('[data-mk-inq-head]').textContent = 'Your inquiries · ' + data.length + (_inqMore ? '+' : '');
+      whRenderRows(_inqCard.querySelector('[data-mk-inq-rows]'), data, function (r) {
           var when = r.replied_at ? (typeof whFmtDate === 'function' ? whFmtDate(r.replied_at) : String(r.replied_at).slice(0, 10)) : '';
           var sent = r.created_at ? (typeof whFmtDate === 'function' ? whFmtDate(r.created_at) : String(r.created_at).slice(0, 10)) : '';
           return '<div style="padding:6px 0;border-top:1px solid rgba(255,255,255,0.06);">' +
@@ -2131,8 +2138,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
                 ' &middot; waiting for a reply</div>') +
             (r.listing_id ? '<a href="marketplace.html?listing=' + encodeURIComponent(r.listing_id) + '" style="font-size: 0.75rem;color:var(--wh-blue-text);text-decoration:none;display:inline-flex;min-height:44px;align-items:center;">Open the listing &rarr;</a>' : '') +
             '</div>';
-        }).join('') + '</div>';
-      if (typeof whMoreNote === 'function') whMoreNote(slot.firstElementChild, { shown: data.length, more: _inqMore, noun: 'inquiries',
+        }, { key: 'html' });
+      if (typeof whMoreNote === 'function') whMoreNote(_inqCard, { shown: data.length, more: _inqMore, noun: 'inquiries',
         order: 'newest', moreLabel: 'Show older inquiries', onMore: function () { _inqLimit += 20; return loadMyInquiryReplies(); },
         src: 'v_marketplace_inquiries_truth' });   // SL LB1
       slot.style.display = 'block';
@@ -2766,15 +2773,23 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     }
 
     grid.setAttribute('role', 'feed');  // restored: the grid now holds role=article cards (see removeAttribute above)
-    grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = _listings.map(cardHtml).join('');
+    /* ★SL LB3 (2026-10-21): "Load more" rebuilt every card in the grid and bound every card's three listeners again. The grid
+       renders through whRenderRows: the new page is appended, a card whose watch or compare state changed is redrawn alone,
+       and only cards not bound yet are bound. A card shows its seller's tier and community trust, whether it is watched and
+       whether it is picked to compare - each part of its key; the section and compare mode are the sig. */
+    whRenderRows(grid, _listings, cardHtml, { sig: JSON.stringify([_section, _compareMode]), long: true,
+      key: (item) => JSON.stringify(item) + '|' + _watchlist.has(item.id) + '|' + _compareSet.has(item.id) + '|'
+        + JSON.stringify(_sellerTiers[item.seller_name] == null ? null : _sellerTiers[item.seller_name]) + '|' + _communityTrustedSellers.has(item.seller_name) });
 
-    grid.querySelectorAll('.btn-view').forEach(btn => {
+    grid.querySelectorAll('.btn-view:not([data-wh-bound])').forEach(btn => {
+      btn.setAttribute('data-wh-bound', '');
       btn.addEventListener('click', ev => {
         ev.stopPropagation();
         openDetailSheet(btn.dataset.id, true);
       });
     });
-    grid.querySelectorAll('.listing-card').forEach(card => {
+    grid.querySelectorAll('.listing-card:not([data-wh-bound])').forEach(card => {
+      card.setAttribute('data-wh-bound', '');
       card.addEventListener('click', (ev) => {
         /* Skip when clicking the seller link (let it navigate normally) */
         if (ev.target?.closest?.('.seller-link')) return;
@@ -2790,7 +2805,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     });
 
     /* Heart-button toggle wiring */
-    grid.querySelectorAll('.heart-btn').forEach(btn => {
+    grid.querySelectorAll('.heart-btn:not([data-wh-bound])').forEach(btn => {
+      btn.setAttribute('data-wh-bound', '');
       btn.addEventListener('click', (ev) => {
         ev.stopPropagation();
         toggleWatchlist(btn.dataset.listing);
@@ -2943,8 +2959,11 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       }
     }
 
-    const sellerNames = [...new Set(_listings.map(l => l.seller_name).filter(Boolean))];
+    // SL LB3: every Load more used to ask the tiers and the community trust of EVERY seller loaded so far - one call naming
+    // up to a thousand sellers on each press. Only sellers not asked yet are asked; the answers already held stay.
+    const sellerNames = [...new Set(_listings.map(l => l.seller_name).filter(Boolean))].filter(n => !_tierAsked.has(n));
     if (sellerNames.length) {
+      sellerNames.forEach(n => _tierAsked.add(n));
       Object.assign(_sellerTiers, await loadWorkerTiers(db, sellerNames));
       // X-axis: batch community-trust lookup for the browse-grid "Community-trusted" chip.
       // MUST go through the DEFINER RPC — reading skill_badges directly is RLS-dead

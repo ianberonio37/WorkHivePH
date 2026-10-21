@@ -1075,6 +1075,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     let   _preVoiceSelected  = null;    // snapshot before voice auto-selects (restored on clear)
     let   _preVoiceContacts  = null;
     let   _contacts         = [];
+    // SL LB3 (2026-10-21): the recipient list shows a first page and grows on "Show more contacts" - drawing all 500 at
+    // once was one 254 ms task at phone speed, 204 ms of it laying the chips out (traced). A ticked recipient is always
+    // on screen, wherever it sits in the list.
+    const RS_PAGE           = 50;
+    let   _rsShown          = RS_PAGE;
     const _selectedContacts = new Set();
     let   _selectedLabel    = 'Team';
 
@@ -1699,13 +1704,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
       // The fallback copy is real data, so it stays on screen — but it is LABELLED, because a saved
       // copy presented as live truth is the quieter half of the same defect.
-      if (_rsUsedFallback) {
-        list.innerHTML = `<div class="contacts-empty" style="opacity:1;font-size: 0.75rem;">${_t('⚠ Showing your saved copy. Could not reach the server, so this list may be out of date.', '⚠ Ipinapakita ang saved copy mo. Hindi maabot ang server, kaya baka luma na ang listahang ito.')}</div>`;
-      } else {
-        list.innerHTML = '';
+      // ★SL LB3 (2026-10-21): TICKING ONE RECIPIENT REBUILT EVERY CONTACT. Each tap re-rendered and re-bound the whole list
+      // (500 contacts at most) - over half a second a tap at phone speed. The notice and the chips now have their own
+      // containers, built once; whRenderRows patches the one chip whose selection changed and appends new ones.
+      let _rsChips = list.querySelector(':scope > [data-rs-chips]'), _rsNote = list.querySelector(':scope > [data-rs-notice]');
+      if (!_rsChips || !_rsNote) {
+        list.innerHTML = '<div data-rs-notice></div><div data-rs-chips style="display:flex;flex-direction:column;gap:0.4rem;"></div>';
+        _rsNote = list.firstElementChild; _rsChips = list.lastElementChild;
       }
+      _rsNote.innerHTML = _rsUsedFallback ? `<div class="contacts-empty" style="opacity:1;font-size: 0.75rem;">${_t('⚠ Showing your saved copy. Could not reach the server, so this list may be out of date.', '⚠ Ipinapakita ang saved copy mo. Hindi maabot ang server, kaya baka luma na ang listahang ito.')}</div>` : '';
+      _rsNote.hidden = !_rsUsedFallback;
       _rsSummaryAfterContacts();
-      list.innerHTML += _contacts.map(c => {
+      let _need = _rsShown;
+      _contacts.forEach((c, i) => { if (_selectedContacts.has(c.id) && i + 1 > _need) _need = i + 1; });
+      const _shownContacts = _contacts.slice(0, _need);
+      whRenderRows(_rsChips, _shownContacts, c => {
         const color = avatarColor(c.name);
         const sel   = _selectedContacts.has(c.id);
         return `
@@ -1721,9 +1734,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <span class="ic ic-check contact-check" aria-hidden="true"></span>
             <button class="contact-delete" data-del="${escHtml(c.id)}" aria-label="${escHtml(_t(`Remove ${c.name} from saved contacts`, `Alisin si ${c.name} sa mga naka-save na contact`))}">&#x2715;</button>
           </div>`;
-      }).join('');
+      }, { sig: 'contacts', long: true,
+        // the contact's data, whether it is ticked, and the bounce it shows - a tick changes one chip's key, so one chip is redrawn
+        key: (c) => JSON.stringify(c) + '|' + _selectedContacts.has(c.id) + '|' + (_bouncedEmails.get(String(c.email || '').toLowerCase()) || '') });
+      if (typeof whMoreNote === 'function') whMoreNote(_rsChips, {
+        more: _contacts.length > _shownContacts.length, shown: _shownContacts.length, total: _contacts.length, noun: 'contacts',
+        said: `Showing ${_shownContacts.length} of ${_contacts.length} saved contacts.`,
+        onMore: () => { _rsShown += 100; renderContacts(); },
+        moreLabel: 'Show more contacts',
+        src: 'report-contacts' });
 
-      list.querySelectorAll('.contact-chip').forEach(chip => {
+      // only the chips not bound yet: a patched or appended render keeps the others, and a second listener would tick
+      // and untick in one tap (SL LB3)
+      _rsChips.querySelectorAll('.contact-chip:not([data-wh-bound])').forEach(chip => {
+        chip.setAttribute('data-wh-bound', '');
         chip.addEventListener('click', (e) => {
           if (e.target.closest('.contact-delete')) return;
           if (_cardState !== 'idle') return;
@@ -1735,7 +1759,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         });
       });
 
-      list.querySelectorAll('.contact-delete').forEach(btn => {
+      _rsChips.querySelectorAll('.contact-delete:not([data-wh-bound])').forEach(btn => {
+        btn.setAttribute('data-wh-bound', '');
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
           deleteContact(btn.dataset.del);
@@ -1871,6 +1896,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
       // Always sync to localStorage so contacts survive navigation
       localStorage.setItem(LS_CONTACTS, JSON.stringify(_contacts));
+      // the contact just added is shown, even when the list holds more than its first page (SL LB3)
+      if (_contacts.length > _rsShown) _rsShown = _contacts.length;
 
       if (saveBtn) saveBtn.disabled = false; // re-enable for the next add (sheet reopens fresh)
       closeSheet();

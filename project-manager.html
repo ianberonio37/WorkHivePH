@@ -1442,7 +1442,8 @@ function renderList() {
     grid.style.display = 'grid';
     const visible = list.slice(0, _pmDisplayCount);
     if (lmWrap) lmWrap.classList.toggle('hidden', visible.length >= list.length);
-    grid/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = visible.map(pcardHtml).join('');
+    // SL LB3: "Load more" (30 a press) appends the new cards instead of rebuilding every one; a card's own HTML is its key
+    whRenderRows(grid, visible, pcardHtml, { key: 'html', long: true });
     return;
   }
 
@@ -1538,7 +1539,9 @@ function bindFilters() {
   });
   $('filter-type').addEventListener('change', ev => { _activeFilter.type = ev.target.value; _pmDisplayCount = 30; renderList(); });
   $('filter-owner').addEventListener('change', ev => { _activeFilter.owner = ev.target.value; _pmDisplayCount = 30; renderList(); });
-  $('filter-search').addEventListener('input', ev => { _activeFilter.search = ev.target.value.trim(); _pmDisplayCount = 30; renderList(); });
+  // SL LB3: the list follows the typing 150 ms after it pauses, so a keystroke paints at once
+  const _pmSearchRender = debounce(renderList, 150);
+  $('filter-search').addEventListener('input', ev => { _activeFilter.search = ev.target.value.trim(); _pmDisplayCount = 30; _pmSearchRender(); });
   if (window.whAutoRememberFilters) whAutoRememberFilters('proj-filters', ['filter-search']);   // G5a: remember the search filter cross-session
 }
 
