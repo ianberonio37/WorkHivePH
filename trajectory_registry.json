@@ -956864,8 +956864,8 @@
     },
     {
       "id": "SL3233",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · achievements",
       "pages": [
@@ -956923,12 +956923,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from achievements itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: achievements.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:17:27.655Z (.tmp/slw/results/rl1w_m3.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3233.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3234",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · alert hub",
       "pages": [
@@ -956986,12 +956997,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from alert hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: alert-hub.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:19:35.756Z (.tmp/slw/results/rl1w_m4.json) as Ben Ocampo (driverben, worker of Dela Cruz Delivery Fleet), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: start-up calls analytics-orchestrator (charged to a limiter); spent: \"The live refresh did not run: Daily AI limit reached for this hive. Try again in about 6 hours. The brief below is the stored one.\"; companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: start-up calls analytics-orchestrator (charged to a limiter); spent: \"The live refresh did not run: Daily AI limit reached for this hive. Try again in about 6 hours. The brief below is the stored one.\"; companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3234.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3235",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - fleet-supervisor · analytics report",
       "pages": [
@@ -957049,12 +957071,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from analytics report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: analytics-report.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:21:41.071Z (.tmp/slw/results/rl1w_m5.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3235.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3236",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - fleet-supervisor · analytics",
       "pages": [
@@ -957114,12 +957147,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from analytics itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: analytics.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:26:01.500Z (.tmp/slw/results/rl1w_m7.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3236.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3237",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · asset hub",
       "pages": [
@@ -957177,12 +957221,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from asset hub itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: asset-hub.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:19:35.756Z (.tmp/slw/results/rl1w_m4.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3237.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3238",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · assistant",
       "pages": [
@@ -957240,12 +957295,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from assistant itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: assistant.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:19:35.756Z (.tmp/slw/results/rl1w_m4.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: ungraded (the ask is not on this page for this person); ask assistant: \"The AI is at its limit right now. Try again in about 360 minutes. Nothing you typed was lost.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: ungraded (the ask is not on this page for this person); ask assistant: \"The AI is at its limit right now. Try again in about 360 minutes. Nothing you typed was lost.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3238.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3239",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - fleet-supervisor · community",
       "pages": [
@@ -957303,12 +957369,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from community itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: community.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:23:54.805Z (.tmp/slw/results/rl1w_m6.json) as Oscar Ramos (jeepneyoscarph, supervisor of Ramos Jeepney Line), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3239.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3240",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - fleet-supervisor · dayplanner",
       "pages": [
@@ -957366,12 +957443,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from dayplanner itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: dayplanner.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:27:28.765Z (.tmp/slw/results/rl1w_m8.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3240.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3241",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - solo-owner · engineering design",
       "pages": [
@@ -957429,12 +957517,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from engineering design itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: engineering-design.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:23:54.805Z (.tmp/slw/results/rl1w_m6.json) as Jun Salvador (junvanowner, solo (no hive)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3241.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3242",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · hive",
       "pages": [
@@ -957492,12 +957591,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from hive itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: hive.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:19:35.756Z (.tmp/slw/results/rl1w_m4.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\"; ask coach: ungraded (the ask is not on this page for this person) || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\"; ask coach: ungraded (the ask is not on this page for this person). The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3242.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3243",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · index",
       "pages": [
@@ -957555,12 +957665,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from index itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: index.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:21:41.071Z (.tmp/slw/results/rl1w_m5.json) as Ben Ocampo (driverben, worker of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3243.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3244",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - solo-owner · integrations",
       "pages": [
@@ -957618,12 +957739,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from integrations itself at phone-390 AND desktop-1280 as solo-owner, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: integrations.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:26:01.500Z (.tmp/slw/results/rl1w_m7.json) as Jun Salvador (junvanowner, solo (no hive)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3244.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3245",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · inventory",
       "pages": [
@@ -957681,12 +957813,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: inventory.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:17:27.655Z (.tmp/slw/results/rl1w_m3.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3245.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3246",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · logbook",
       "pages": [
@@ -957744,12 +957887,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: logbook.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:03:50.610Z (.tmp/slw/results/rl1w_m1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3246.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3247",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - buyer · marketplace seller profile",
       "pages": [
@@ -957807,12 +957961,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from marketplace seller profile itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: marketplace-seller-profile.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:03:50.610Z (.tmp/slw/results/rl1w_m1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3247.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3248",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - buyer · marketplace seller",
       "pages": [
@@ -957870,12 +958035,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from marketplace seller itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: marketplace-seller.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:03:50.610Z (.tmp/slw/results/rl1w_m1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3248.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3249",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - buyer · marketplace",
       "pages": [
@@ -957933,12 +958109,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from marketplace itself at phone-390 AND desktop-1280 as buyer, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: marketplace.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:21:41.071Z (.tmp/slw/results/rl1w_m5.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3249.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3250",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - fleet-supervisor · ph intelligence",
       "pages": [
@@ -957996,12 +958183,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from ph intelligence itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: ph-intelligence.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:15:35.637Z (.tmp/slw/results/rl1w_m2.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3250.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3251",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - machine-client · plant connections",
       "pages": [
@@ -958059,12 +958257,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from plant connections itself at phone-390 AND desktop-1280 as machine-client, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: plant-connections.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:15:35.637Z (.tmp/slw/results/rl1w_m2.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3251.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3252",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · pm scheduler",
       "pages": [
@@ -958122,12 +958331,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from pm scheduler itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: pm-scheduler.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:23:54.805Z (.tmp/slw/results/rl1w_m6.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3252.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3253",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - fleet-supervisor · project manager",
       "pages": [
@@ -958185,12 +958405,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from project manager itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: project-manager.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:15:35.637Z (.tmp/slw/results/rl1w_m2.json) as Christine Dizon (christinedizon, supervisor of Baguio Textile Mills), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3253.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3254",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - fleet-supervisor · project report",
       "pages": [
@@ -958248,12 +958479,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from project report itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: project-report.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:27:28.765Z (.tmp/slw/results/rl1w_m8.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3254.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3255",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - an anonymous visitor · public feed",
       "pages": [
@@ -958305,12 +958547,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from public feed itself at phone-390 AND desktop-1280 as an anonymous visitor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as anon through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: public-feed.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:03:50.610Z (.tmp/slw/results/rl1w_m1.json) as a visitor (signed out) (signed out, visitor), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3255.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3256",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - fleet-supervisor · report sender",
       "pages": [
@@ -958368,12 +958621,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from report sender itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: report-sender.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:17:27.655Z (.tmp/slw/results/rl1w_m3.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3256.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3257",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · resume",
       "pages": [
@@ -958431,12 +958695,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from resume itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: resume.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:21:41.071Z (.tmp/slw/results/rl1w_m5.json) as Isidro Suarez (isidrosuarez, worker of Manila Electronics Assembly), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3257.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3258",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · shift brain",
       "pages": [
@@ -958494,12 +958769,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from shift brain itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: shift-brain.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:23:54.805Z (.tmp/slw/results/rl1w_m6.json) as Oscar Ramos (jeepneyoscarph, supervisor (the hive has no worker account) of Ramos Jeepney Line), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: start-up calls analytics-orchestrator (charged to a limiter); spent: \"The live refresh did not run: Daily AI limit reached for this hive. Try again in about 6 hours. The briefing below is the stored one.\"; companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: start-up calls analytics-orchestrator (charged to a limiter); spent: \"The live refresh did not run: Daily AI limit reached for this hive. Try again in about 6 hours. The briefing below is the stored one.\"; companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3258.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3259",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - worker · skillmatrix",
       "pages": [
@@ -958557,12 +958843,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from skillmatrix itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: skillmatrix.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:17:27.655Z (.tmp/slw/results/rl1w_m3.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3259.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3260",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - supervisor · ai quality",
       "pages": [
@@ -958620,6 +958917,17 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from ai quality itself at phone-390 AND desktop-1280 as supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: ai-quality.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:15:35.637Z (.tmp/slw/results/rl1w_m2.json) as Christine Dizon (christinedizon, supervisor of Lucena Pharmaceutical Mfg.), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3260.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -958682,8 +958990,8 @@
     },
     {
       "id": "SL3262",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - fleet-supervisor · audit log",
       "pages": [
@@ -958741,12 +959049,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from audit log itself at phone-390 AND desktop-1280 as fleet-supervisor, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: audit-log.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:27:28.765Z (.tmp/slw/results/rl1w_m8.json) as Gloria Tan (vanfleetgloriaph, supervisor of Tan Delivery Vans), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3262.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3263",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - oversight · marketplace admin",
       "pages": [
@@ -958798,12 +959117,23 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from marketplace admin itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: marketplace-admin.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:26:01.500Z (.tmp/slw/results/rl1w_m7.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\" || desktop-1280: spent: ungraded (the page calls no edge function at start-up); companion: \"⚠️ Daily AI limit reached for this hive. Try again in about 6 hours.\". The spent allowance: rate-limit.ts's own daily refusal for the hive (429, Retry-After 21600). A sentence counts when it names the limit and when it reopens. Gates ai-spend-in-budget, ai_rate_limit_coverage, rate_limit_key_is_verified, limit-says-when, skew-heal and scripts-parse. Receipt .tmp/mcp_walks/SL3263.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
       "id": "SL3264",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-RL",
       "title": "RL1 · The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent - oversight · status",
       "pages": [
@@ -958855,6 +959185,17 @@
         "engine": "chromium",
         "ask": "The platform must keep what this page spends on AI and functions inside its hive's budget, and say when it is spent",
         "closes": "the RL1 ask is answered from status itself at phone-390 AND desktop-1280 as oversight, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served in its own browser context (service workers blocked, so a context route answered every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, 429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, the page's AI asks made as a person makes them (the companion opened from its trigger and a question sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on naming the limit AND when it reopens, no machine text, no move off the page): RL1: status.html charges what it spends to a budget and says when the budget is spent - at phone-390 and desktop-1280. Witness: MCP walk 2026-10-21T23:29:04.087Z (.tmp/slw/results/rl1w_st1.json) as Leandro Marquez (leandromarquez, platform admin (oversight)), service workers blocked, every edge call carrying x-wh-walk-no-model: phone-390: start-up calls ai-gateway/health (health probe, nothing spent), platform-gateway/health (health probe, nothing spent), agentic-rag-loop/health (health probe, nothing spent), voice-action-router/health (health probe, nothing spent), voice-report-intent/health (health probe, nothing spent), semantic-fact-extractor/health (health probe, nothing spent), analytics-orchestrator/health (health probe, nothing spent), asset-brain-query/health (health probe, nothing spent), embed-entry/health (health probe, nothing spent), data-fabric-normalizer/health (health probe, nothing spent); spent: \"Every check was refused for a request limit (10 of 10). The services are answering, but are limiting requests from here, so their health is not known yet. Try a\"; companion: ungraded (the ask is not on this page for this person) || desktop-1280: start-up calls ai-gateway/health (health probe, nothing spent), platform-gateway/health (health probe, nothing spent), agentic-rag-loop/health (health pr Receipt .tmp/mcp_walks/SL3264.json.",
+      "artifacts": {
+        "gates": [
+          "ai-spend-in-budget",
+          "ai_rate_limit_coverage",
+          "limit-says-when",
+          "rate_limit_key_is_verified",
+          "scripts-parse",
+          "skew-heal"
+        ]
       }
     },
     {
@@ -1035771,5 +1036112,5 @@
       }
     }
   ],
-  "next": "SL LB4 35/35 banked (SL.20): platform-actions polled 14 reads a minute into a hidden tab - fixed with whPoll, four refreshers of the same shape fixed, gate refresh-stands-down-hidden. Next: RL1 (31), RL2 (24), RL3 (36) - survey, fixes, gates and walk instruments being prepared in parallel, then their MCP walks; LB3's five and the scroll-up layout shift (SL.19 NEXT) stay queued"
+  "next": "SL LB3: the five rows 19-65 ms of CPU over budget on a paging host, and the scroll-up layout shift (SL.19 NEXT); then the remaining expansion waves in the header's order"
 }
