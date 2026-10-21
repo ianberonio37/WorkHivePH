@@ -3607,8 +3607,8 @@ async function initBoard() {
 // ── MATURITY STAIRWAY (Phase 0.2 of STRATEGIC_ROADMAP) ────────────────────
 // Anchor of the Operational Readiness reframe. Renders the hive's current
 // stair (0..4), composite score, 5-dimension bars, and the honest blocker
-// for the next stair. If no snapshot exists yet (fresh hive), trigger the
-// compute_hive_readiness RPC first then re-fetch.
+// for the next stair. If no snapshot exists yet (fresh hive) or it is over a
+// day old, refresh_hive_readiness recomputes it (members only) and returns it.
 //
 // Doctrine surfaced here, not just in the AI prompt: the worker SEES the
 // score on every hive page load. That's the whole point.
@@ -3661,20 +3661,27 @@ async function loadMaturityStairway() {
     if (Array.isArray(row)) row = row[0] || null;
   }
 
-  // 2. If no snapshot OR it's stale (>24h), compute fresh. Service-role only;
-  //    if RPC errors (e.g. anon perms), the read above will still hydrate the UI.
+  // 2. If no snapshot OR it's stale (>24h), refresh it. ★THIS CALLED compute_hive_readiness, WHICH PRODUCTION HAS
+  //    REFUSED EVERY MEMBER SINCE 2026-06-19 (BRH-AD, 2026-10-21): the revoke closed a cross-tenant write on the
+  //    premise that "no browser code invokes it" and "it runs server-side (cron)" - this line invoked it and no job
+  //    ran it, so nothing could refresh a hive's readiness and every board past a day showed its old snapshot.
+  //    refresh_hive_readiness is the member-gated door to the same computation: it recomputes only when the newest
+  //    snapshot is missing or over 24 hours old, and returns that snapshot, so no second read is needed.
   const isStale = !row
     || !row.computed_at
     || (Date.now() - new Date(row.computed_at).getTime() > 24 * 3600 * 1000);
   if (isStale) {
     try {
-      await db.rpc('compute_hive_readiness', { p_hive_id: HIVE_ID });
-      const refetch = await db.rpc('get_hive_readiness_current', { p_hive_id: HIVE_ID });
-      if (refetch.error) window._readinessErr = true; else if (refetch.data) window._readinessErr = false;
-      row = Array.isArray(refetch.data) ? refetch.data[0] : refetch.data;
+      const fresh = await db.rpc('refresh_hive_readiness', { p_hive_id: HIVE_ID });
+      if (fresh.error) {
+        window._readinessErr = !row;   // a refused refresh keeps the snapshot we hold; only "none at all" is an error
+      } else if (fresh.data && fresh.data.hive_id) {
+        row = fresh.data;
+        window._readinessErr = false;
+      }
     } catch (e) {
-      window._readinessErr = true;
-      console.warn('compute_hive_readiness failed (using cached if any):', e?.message || e);
+      window._readinessErr = !row;
+      console.warn('refresh_hive_readiness failed (using the snapshot already read, if any):', e?.message || e);
     }
   }
   if (row) window._readinessErr = false;

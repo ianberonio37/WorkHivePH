@@ -4907,6 +4907,12 @@ VALIDATORS = [
     {"id":"free-plan-budget","script":os.path.join("tools", "validate_free_plan_budget.py"),"args":[],
      "label":"Free-plan budget (BRH 9): every operational table (cron history, traces, analytics events, automation log, AI cost log, client errors) has a scheduled purge in a migration and live in the database, or stands in a pending list that may only shrink; list reads that ship an inline photo column may only fall from 23; what Vercel stores - each build's upload times the builds the project keeps (its keep-newest count, or the busiest 30 days of builds in the last 90) - stays under a tenth of the free 10 GB, which the old 612.7 MB builds had filled to 9.90 GB (--self-test: 5 mutants)",
      "group":"Platform","skip_if_fast":False},
+    # BRH 9 AD (2026-10-21): hive.html called compute_hive_readiness, which 20260619000000 had revoked from members on
+    # the premise that no browser code called it - so production refused every board's readiness refresh for four
+    # months. rpc-argument-consistency checks a called function exists; this checks its reader may run it.
+    {"id":"page-rpcs-callable","script":os.path.join("tools", "validate_page_rpcs_callable.py"),"args":[],
+     "label":"Page RPCs callable (BRH 9 AD): every function a shipped page or script calls with db.rpc() is one a signed-in reader may EXECUTE in the local database (the catalogue is asked, nothing is called) - hive.html's compute_hive_readiness call was refused by production on every board load from 2026-06-19 (--self-test: a page calling the server-only function reddens)",
+     "group":"Platform","skip_if_fast":False},
     {"id":"api-grants-explicit","script":os.path.join("tools", "validate_api_grants_explicit.py"),"args":[],
      "label":"API grants explicit (BRH-X): a migration that creates a public table, view or sequence grants it (or closes it to anon and authenticated outright); every API privilege the local database holds is written in a migration; a replay under the no-automatic-grant default (simulated in a rolled-back transaction) restores every object production serves (--self-test: static, live and replay mutants)",
      "group":"Platform","skip_if_fast":False},

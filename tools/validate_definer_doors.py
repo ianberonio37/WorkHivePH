@@ -257,8 +257,12 @@ def check_revokes(migs: list[tuple[str, str]] | None = None) -> list[str]:
         for m in REVOKE_PUBLIC.finditer(t):
             roles = {r.strip().lower() for r in m.group(3).split(",")}
             fn = m.group(1).lower()
+            # anon named in a SEPARATE revoke of the same function in the same file reaches it too (2026-10-21: a
+            # migration that wrote 'from public;' then 'from anon;' read as leaving anon open)
             if "public" in roles and "anon" not in roles and not re.search(
-                    r"\bgrant\s+(?:all|execute)[^;]*\bfunction\s+(?:public\.)?" + re.escape(fn) + r"\s*\([^;]*\bto\b[^;]*\banon\b", t, re.I):
+                    r"\bgrant\s+(?:all|execute)[^;]*\bfunction\s+(?:public\.)?" + re.escape(fn) + r"\s*\([^;]*\bto\b[^;]*\banon\b", t, re.I) \
+                    and not re.search(r"\brevoke\s+(?:all|execute)[^;]*\bfunction\s+(?:public\.)?" + re.escape(fn)
+                                      + r"\s*\([^;]*\bfrom\b[^;]*\banon\b", t, re.I):
                 issues.append(f"Y2 {name}: revokes public.{fn}() from PUBLIC but not from anon - Supabase grants anon EXECUTE "
                               "explicitly on every new function, so this revoke never reaches it; name anon (or grant anon "
                               "explicitly to say it keeps it)")
@@ -311,6 +315,14 @@ def self_test() -> list[str]:
     ok = [("29991231000000_selftest.sql", "revoke all on function public.my_recent_xp(integer) from public, anon;")]
     if check_revokes(ok):
         fails.append("a revoke that names anon was flagged (Y2 false positive)")
+    ok = [("29991231000000_selftest.sql", "revoke all on function public.my_recent_xp(integer) from public;\n"
+                                          "revoke all on function public.my_recent_xp(integer) from anon;")]
+    if check_revokes(ok):
+        fails.append("anon revoked in a separate statement was flagged (Y2 false positive)")
+    bad = [("29991231000000_selftest.sql", "revoke all on function public.my_recent_xp(integer) from public;\n"
+                                           "revoke all on function public.other_fn(integer) from anon;")]
+    if not any(i.startswith("Y2") for i in check_revokes(bad)):
+        fails.append("mutant 'anon revoked from a DIFFERENT function' was not caught (Y2)")
     return fails
 
 

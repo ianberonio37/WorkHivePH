@@ -739554,8 +739554,8 @@
     },
     {
       "id": "BRH496",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "BRH-AA",
       "title": "a table that grows with every use and that nothing ever purges - index · public.ai_cost_log - oversight",
       "pages": [
@@ -739616,12 +739616,13 @@
         "repro": "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
         "fix": "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "basis": "[2026-10-21] DESCOPED - refuted: ai_cost_log IS purged. Production reads 62 rows and 0 deletes only because none is a year old yet. hard_delete_expired_soft_deletes() removes AI cost records after 365 days (since 20260707000007; its latest definition 20261016000001 keeps the delete), and production's job hard-delete-soft-expired (id 36, active, read 2026-10-21) calls it daily. The pages already say 'AI cost records go after 365 days'. The measurement missed it because it read only deletes written directly in a job's command. free-plan-budget now follows a job into the function it calls (PURGED_BY_FUNCTION: static on the latest definition, live on the function the database holds), and its --self-test takes the delete out of the function and reddens."
     },
     {
       "id": "BRH497",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AA",
       "title": "a table that grows with every use and that nothing ever purges - index · public.analytics_events - oversight",
       "pages": [
@@ -739682,12 +739683,18 @@
         "repro": "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
         "fix": "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED LOCALLY, GATED. Production, read-only through the Supabase connector (2026-10-21): analytics_events held 3,046 rows inserted and 0 ever deleted (1.8 MB), and no scheduled job names it. Every reader asks for 30 days at most (the founder views' p_days, the Grafana founder-ops and growth panels). Fixed with a 400-day window, 13 months, so a year-on-year comparison stays possible. Fix: migration 20261015998000_free_telemetry_retention schedules wh-traces-retention (04:35 UTC, 90 days), client-errors-retention (04:40, 90 days) and analytics-events-retention (04:50, 400 days); applied and active locally (jobs 60-62). Production receives it with the next push: it sorts directly after production's latest applied migration (20261015997000), before the pending ones. Each window is longer than the longest any reader asks for. The privacy policy keeps account data 'as long as your account is active' and states no shorter window for these, so removing them sooner keeps what it promises. Reproduction made to fail on demand, in one rolled-back transaction: a row aged just past each window and one just inside, then each job's own stored command - past the window 2 -> 0 (wh_traces), 1 -> 0 (client_errors), 1 -> 0 (analytics_events), and the rows at 89 and 399 days still there. Gate free-plan-budget: F1 every operational table purges on a schedule (5 of 5, 0 pending), F2 each purge is an active job locally; its --self-test takes the purges out of this migration and all three tables redden.",
+      "artifacts": {
+        "gates": [
+          "free-plan-budget"
+        ]
       }
     },
     {
       "id": "BRH498",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "BRH-AA",
       "title": "a table that grows with every use and that nothing ever purges - index · public.automation_log - oversight",
       "pages": [
@@ -739748,12 +739755,13 @@
         "repro": "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
         "fix": "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
-      }
+      },
+      "basis": "[2026-10-21] DESCOPED - by design, not a defect: automation_log does grow with no purge (675 rows, 272 kB in production in six months), and it should. It is a source of the unified audit trail - v_audit_unified reads it (959 'automation' rows locally) - and the privacy policy keeps audit logs 10 years, while the D3 pages say records and their audit trail are never purged. A purge would break that promise for no free-plan gain at this size. Its readers (alert-hub 24h, report-sender 30d) need no purge either. free-plan-budget now holds the exemption honest: AUDIT_KEPT fails a scheduled purge inside 10 years (static) and fails if v_audit_unified stops reading the table (live), and --self-test feeds both."
     },
     {
       "id": "BRH499",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AA",
       "title": "a table that grows with every use and that nothing ever purges - index · public.client_errors - oversight",
       "pages": [
@@ -739814,12 +739822,18 @@
         "repro": "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
         "fix": "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED LOCALLY, GATED. Production, read-only through the Supabase connector (2026-10-21): client_errors held 58 rows inserted and 0 ever deleted (104 kB), and no scheduled job names it. It is read as recent errors. Fixed with a 90-day window, plus the created_at index the purge reads by (its two indexes led with hive_id or were partial). Fix: migration 20261015998000_free_telemetry_retention schedules wh-traces-retention (04:35 UTC, 90 days), client-errors-retention (04:40, 90 days) and analytics-events-retention (04:50, 400 days); applied and active locally (jobs 60-62). Production receives it with the next push: it sorts directly after production's latest applied migration (20261015997000), before the pending ones. Each window is longer than the longest any reader asks for. The privacy policy keeps account data 'as long as your account is active' and states no shorter window for these, so removing them sooner keeps what it promises. Reproduction made to fail on demand, in one rolled-back transaction: a row aged just past each window and one just inside, then each job's own stored command - past the window 2 -> 0 (wh_traces), 1 -> 0 (client_errors), 1 -> 0 (analytics_events), and the rows at 89 and 399 days still there. Gate free-plan-budget: F1 every operational table purges on a schedule (5 of 5, 0 pending), F2 each purge is an active job locally; its --self-test takes the purges out of this migration and all three tables redden.",
+      "artifacts": {
+        "gates": [
+          "free-plan-budget"
+        ]
       }
     },
     {
       "id": "BRH500",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AA",
       "title": "a table that grows with every use and that nothing ever purges - index · public.wh_traces - oversight",
       "pages": [
@@ -739880,6 +739894,12 @@
         "repro": "read the table's insert and delete counters and the scheduled jobs: rows arrive with every use, none leave, and the free plan's 500 MB database fills (cron.job_run_details: 77 MB, 443,228 runs, ~5,800 a day)",
         "fix": "a scheduled purge (pg_cron, free) with a window the platform states - operational history a week, telemetry 90 days - never an audit trail's stated window; and a gate that every operational table has its purge",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION, FIXED LOCALLY, GATED. Production, read-only through the Supabase connector (2026-10-21): wh_traces held 5,124 rows inserted and 0 ever deleted (1.9 MB), and no scheduled job names it. Its readers - slo_error_budget, v_wh_traces_slo, the Grafana SLO board - ask for 28 days at most. Fixed with a 90-day window. Fix: migration 20261015998000_free_telemetry_retention schedules wh-traces-retention (04:35 UTC, 90 days), client-errors-retention (04:40, 90 days) and analytics-events-retention (04:50, 400 days); applied and active locally (jobs 60-62). Production receives it with the next push: it sorts directly after production's latest applied migration (20261015997000), before the pending ones. Each window is longer than the longest any reader asks for. The privacy policy keeps account data 'as long as your account is active' and states no shorter window for these, so removing them sooner keeps what it promises. Reproduction made to fail on demand, in one rolled-back transaction: a row aged just past each window and one just inside, then each job's own stored command - past the window 2 -> 0 (wh_traces), 1 -> 0 (client_errors), 1 -> 0 (analytics_events), and the rows at 89 and 399 days still there. Gate free-plan-budget: F1 every operational table purges on a schedule (5 of 5, 0 pending), F2 each purge is an active job locally; its --self-test takes the purges out of this migration and all three tables redden.",
+      "artifacts": {
+        "gates": [
+          "free-plan-budget"
+        ]
       }
     },
     {
@@ -740730,8 +740750,8 @@
     },
     {
       "id": "BRH514",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AD",
       "title": "a page that calls a function production refuses its caller - hive · compute_hive_readiness - worker",
       "pages": [
@@ -740789,6 +740809,13 @@
         "repro": "as a signed-in member, call the function the page calls: production refuses it (authenticated has no EXECUTE), so the page falls back on every load without saying so",
         "fix": "the page asks what production lets its reader ask (a function that answers for the reader's own hive, or the stored figure), and a gate compares every function a page calls with what production grants its reader",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-21] pct -> 60. REPRODUCED IN PRODUCTION'S GRANTS, FIXED LOCALLY, WALKED, GATED. Production, read-only through the Supabase connector (2026-10-21): of the 87 functions pages call, exactly one is refused to a signed-in member - compute_hive_readiness(uuid). hive.html called it on every board load whose readiness snapshot was missing or over 24 hours old. 20260619000000 revoked it from authenticated to close a real cross-tenant write, on two premises its comment states: no browser code invokes it, and it runs server-side by cron. Both were false - no job and no edge function runs it - so from 2026-06-19 nothing could refresh a hive's readiness in production. Reproduced over the real API as Oscar Ramos (GoTrue sign-in, PostgREST): the page's call -> 403 42501 'permission denied for function compute_hive_readiness'. Fix: migration 20261021000009 adds refresh_hive_readiness(uuid), the member-gated door to the same computation (user_can_access_hive, the gate get_hive_readiness_current uses). It recomputes only when the newest snapshot is missing or over 24 hours old, and returns that snapshot. compute_hive_readiness stays server-only, as 20260619000000 meant. hive.html calls the new door instead of the refused one and needs no second read. Witness over the API: a stale snapshot -> 200, recomputed at once; called again -> the same computed_at, no second write; another hive -> 403 42501 'not a member of this hive'; anon -> 401 42501. Walked through chrome-devtools-mcp as Oscar Ramos (supervisor). At phone-390 the board's one readiness call was refresh_hive_readiness (200), a snapshot dated today was written, and the card read STAIR 0 PAPER 34/100 with its five dimensions. At desktop-1280, with the snapshot fresh, there was no readiness call at all and the same card. Every request on both loads was 200/201. Production receives it with the next push (the migration and the page together). Gates: page-rpcs-callable (new) asks the catalogue whether a signed-in reader may EXECUTE every function a shipped page or script calls - 87 functions from 125 sites pass, and HEAD's hive.html reddens it at line 3671. definer-doors holds the new function closed to anon (its Y2 rule now also accepts anon revoked in a separate statement, with self-test cases both ways).",
+      "artifacts": {
+        "gates": [
+          "definer-doors",
+          "page-rpcs-callable"
+        ]
       }
     },
     {

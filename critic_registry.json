@@ -2286313,43 +2286313,7 @@
       "findings": []
     },
     {
-      "id": "BRH496",
-      "wave": "BRH-AA",
-      "status": "pending",
-      "pages": [
-        "index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
-      ],
-      "cell": "wide-1920|oversight|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "BRH497",
-      "wave": "BRH-AA",
-      "status": "pending",
-      "pages": [
-        "index.html",
-        "hive.html",
-        "analytics.html",
-        "hive.html",
-        "audit-log.html"
-      ],
-      "cell": "wide-1920|oversight|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "BRH498",
       "wave": "BRH-AA",
       "status": "pending",
       "pages": [
