@@ -39,7 +39,34 @@ WRITE_NAME = re.compile(r"^(submit|save|confirm|create|add|send|publish|approve|
 # or a `db.rpc(` mutation. Keyed on `db.` + the from→write chain so (a) a JS Set/Array/Map `.delete(`
 # (e.g. `_jdSelected.delete(term)`) is NOT misread as a write (Map.size class), and (b) a READ-ONLY
 # handler whose db.from() calls are all `.select(` (e.g. runAutofill) is NOT flagged.
-BODY_WRITE = re.compile(r"db\.from\s*\([^)]*\)[\s\S]{0,300}?\.(insert|upsert|update|delete)\s*\(|\bdb\.rpc\s*\(")
+BODY_WRITE = re.compile(r"db\.from\s*\([^)]*\)[\s\S]{0,300}?\.(insert|upsert|update|delete)\s*\(")
+# ★AN RPC IS A WRITE ONLY IF THE DATABASE LETS IT WRITE (2026-10-22). Any `db.rpc(` counted as a write, so resume.html's
+# runAutofill turned red the day it began reading my_logbook_summary (a STABLE function) - the read-only handler this
+# file's own docstring names as the one not to flag. A function's volatility decides it, and the rubric lens already
+# carries that from the database: a read-prefixed name (get_/list_/fetch_/v_/my_) or one in survey_ufai_rubric.js's
+# _READ_RPCS (every STABLE/IMMUTABLE function a page calls without such a prefix, held to the database by the
+# lens-read-rpcs gate). A name the page builds at run time stays a write - nothing can say otherwise.
+RPC_CALL = re.compile(r"\bdb\.rpc\s*\(\s*(?:(['\"])(\w+)\1)?")
+READ_PREFIX = re.compile(r"^(get_|list_|fetch_|v_|my_)")
+
+
+def _read_rpcs() -> set:
+    lens = REPO / "survey_ufai_rubric.js"
+    m = re.search(r"const _READ_RPCS = new Set\(\[([^\]]*)\]\)", lens.read_text(encoding="utf-8")) if lens.exists() else None
+    return set(re.findall(r"'(\w+)'", m.group(1))) if m else set()
+
+
+READ_RPCS = _read_rpcs()
+
+
+def body_writes(body: str) -> bool:
+    if BODY_WRITE.search(body):
+        return True
+    for m in RPC_CALL.finditer(body):
+        name = m.group(2)
+        if not name or not (READ_PREFIX.match(name) or name in READ_RPCS):
+            return True
+    return False
 # the handler self-locks (any of these tokens inside its body)
 SELF_LOCK = re.compile(r"\.disabled\s*=\s*true|withButtonLock\s*\(|lockButtonDuring\s*\(|\bbusy\b\s*=\s*true|_saving\s*=\s*true")
 # handler names that are pure navigation/close/render (never a write) — skip fast
@@ -74,7 +101,7 @@ def scan_page(path: Path) -> list[str]:
         body = _extract_handler_body(src, name)
         if body is None:
             continue
-        is_write = bool(WRITE_NAME.match(name)) or bool(BODY_WRITE.search(body))
+        is_write = bool(WRITE_NAME.match(name)) or body_writes(body)
         if not is_write:
             continue
         # bound bare (not wrapped). Is it single-flight-locked in its own body?
@@ -148,6 +175,15 @@ def self_test() -> bool:
         tmp.write_text(ro, encoding="utf-8")
         if scan_page(tmp):
             print(f"{R}self-test FAIL: read-only select handler misflagged as a write.{X}"); ok = False
+        # a handler that reads through a STABLE rpc (a read prefix) -> NOT flagged; one that calls a write rpc -> flagged
+        rrpc = "document.getElementById('b').addEventListener('click', runSummaryX);\nasync function runSummaryX(){ const {data}=await db.rpc('my_summary_x', {p: 1}); render(data); }"
+        tmp.write_text(rrpc, encoding="utf-8")
+        if scan_page(tmp):
+            print(f"{R}self-test FAIL: a read rpc (read prefix) misflagged as a write.{X}"); ok = False
+        wrpc = "document.getElementById('b').addEventListener('click', runDeductX);\nasync function runDeductX(){ await db.rpc('inventory_deduct', {p: 1}); }"
+        tmp.write_text(wrpc, encoding="utf-8")
+        if "runDeductX" not in scan_page(tmp):
+            print(f"{R}self-test FAIL: a write rpc not flagged.{X}"); ok = False
     finally:
         try: tmp.unlink()
         except OSError: pass

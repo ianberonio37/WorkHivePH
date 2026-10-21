@@ -75,7 +75,10 @@ insert into public.service_credit_topups(id, account_type, account_id, payer_aut
   -- moderation case verifies would test inflating an already-verified top-up, where the mint cannot fire at
   -- all, so the assertion would hold for the wrong reason.
   ('e3333333-0000-4000-8000-00000000000e','provider','e2222222-0000-4000-8000-00000000000b',
-   'e1111111-0000-4000-8000-00000000000b',500,'920000000006','pending_verification');
+   'e1111111-0000-4000-8000-00000000000b',500,'920000000006','pending_verification'),
+  -- and one the admin REJECTS, for the decider stamp on a refusal (case 6)
+  ('e3333333-0000-4000-8000-000000000010','provider','e2222222-0000-4000-8000-00000000000b',
+   'e1111111-0000-4000-8000-00000000000b',500,'920000000007','pending_verification');
 
 -- Verified as postgres (auth.uid() is null -> the vetted backend path), which is the ONLY way to arrive at a
 -- verified row with its ledger entry already minted. Inserting `verified` directly would not mint, because
@@ -189,6 +192,16 @@ begin
     get diagnostics n = row_count;
     raise notice 'RESULT reverify_write_accepted=%', case when n>0 then 'yes' else 'no' end;
   exception when others then raise notice 'RESULT reverify_write_accepted=refused'; end;
+
+  -- 6. A REJECTION BY THE SAME ADMIN, of a top-up they are a party to in no way. A refused payment is a
+  --    decision about real money too, and the guard only ever stamped verifications; mig 20261021000001's
+  --    stamp_topup_decider records the decider on both. Read back in $stamp$ below.
+  begin
+    update public.service_credit_topups set status='rejected'
+     where id='e3333333-0000-4000-8000-000000000010';
+    get diagnostics n = row_count;
+    raise notice 'RESULT moderation_reject_unrelated=%', case when n>0 then 'works' else 'BROKEN' end;
+  exception when others then raise notice 'RESULT moderation_reject_unrelated=BROKEN'; end;
 end
 $probe$;
 
@@ -242,6 +255,14 @@ begin
     case when who = 'e1111111-0000-4000-8000-00000000000a' then 'yes'
          when who is null then 'NULL-no-stamp' else 'someone-else' end;
   raise notice 'RESULT verified_at_stamped=%', case when whenv is not null then 'yes' else 'NULL' end;
+  -- The REJECTION's decider. Since mig 20261021000001 a trigger after the guard stamps every decision, so the
+  -- verification above would read 'yes' even with the guard's own stamp deleted. On a rejection that trigger
+  -- is the only writer, so this is where deleting it shows.
+  select verified_by into who
+    from public.service_credit_topups where id='e3333333-0000-4000-8000-000000000010';
+  raise notice 'RESULT rejecter_is_the_admin=%',
+    case when who = 'e1111111-0000-4000-8000-00000000000a' then 'yes'
+         when who is null then 'NULL-no-stamp' else 'someone-else' end;
 end
 $stamp$;
 

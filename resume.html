@@ -1345,7 +1345,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     // ── Auto-fill from WorkHive (builds checklist items, reuses review sheet) ─
+    // ONE GATHER AT A TIME (P7, 2026-10-22). Two buttons start it - the toolbar's and the empty state's - and a second
+    // press while the first was still reading ran the whole gather again and filled the review sheet twice. Both stand
+    // down until it is done.
     async function runAutofill() {
+      const btns = ['btn-autofill', 'btn-autofill-2'].map((id) => document.getElementById(id)).filter(Boolean);
+      if (btns.some((b) => b.disabled)) return;
+      btns.forEach((b) => { b.disabled = true; });
+      try { await gatherAutofill(); } finally { btns.forEach((b) => { b.disabled = false; }); }
+    }
+    async function gatherAutofill() {
       toast('Gathering your WorkHive data…');
       // U6 (identity-drift): every query below keys on the display NAME. If the
       // localStorage name drifted from the DB (a rename / case / whitespace mismatch),

@@ -5922,7 +5922,9 @@
           "credit_minted_by_redirect": "0",
           "inflate_then_verify": "blocked",
           "credit_value_by_inflation": "0",
-          "rewrite_receipt_then_verify": "blocked"
+          "rewrite_receipt_then_verify": "blocked",
+          "moderation_reject_unrelated": "works",
+          "rejecter_is_the_admin": "yes"
         }
       },
       "asserts": [
@@ -5932,7 +5934,8 @@
         "WHO verified it is recorded: the guard stamps verified_by/verified_at and nothing asserted the stamp existed, so an operator deleting it left every cell green while the money path kept minting credit and lost the accountability for it",
         "THE REDIRECT, a live exploit closed by mig 20260730000005: the party gate reads coalesce(old.account_id,...) while the mint inserts new.account_id, so ONE statement (change the destination to an account you own AND verify) passed the gate on the old values and credited the new ones - probed ALLOWED with 500 credits into the admin own account before the fix",
         "VALUE forgery as distinct from DESTINATION forgery: an admin may not inflate a pending top-up (500 -> 50000) and verify it in one statement. Found by an operator written against my OWN migration - dropping the amount column from the pinned intake facts left nothing objecting, and a new rule with no cell behind it is the same gap as any other",
-        "the RECEIPT is pinned too: gcash_ref is the evidence a verification is justified by, and nothing asserted it until an 8th wave deleted it from the pin"
+        "the RECEIPT is pinned too: gcash_ref is the evidence a verification is justified by, and nothing asserted it until an 8th wave deleted it from the pin",
+        "WHO REJECTED it is recorded too: since mig 20261021000001 stamp_topup_decider stamps the decider on every decision after the guard runs, which made the guard's own verify-stamp unobservable; on a REJECTION that trigger is the only writer of verified_by, so a rejection by the admin must read back the admin"
       ],
       "provenance": "Found 2026-07-30 by a FOURTH wave of mutation operators written to re-challenge a 100% rather than bank it - the previous 100% on this tool had been fabricated by a broken injection, so an unchallenged score was not trusted. mint_on_any_prior_status, party_provider_account_branch_removed and party_consumer_account_branch_removed all survived the guard s 4 existing cells. The shipped guard is CORRECT in all three cases: these were test gaps, so the fix is a cell, not a migration. 2026-07-30 addendum: probing what coalesce(old.X,new.X) MEANS on an UPDATE found a live money exploit - an admin who is a party to NOTHING could redirect a stranger s top-up to their own provider account and verify it in one statement. Closed by mig 20260730000005 (the intake facts are immutable for any real caller; the backend and system-write paths are untouched) and locked here plus by the intake_immutability_removed operator."
     },

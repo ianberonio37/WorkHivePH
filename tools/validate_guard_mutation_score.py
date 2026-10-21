@@ -178,6 +178,13 @@ GUARDS = {
     # Judge: TB-APPROVAL (worker refused the approve, supervisor allowed, worker's non-privileged cancel allowed).
     # Two operators: the gate raise, and forcing `privileged` true so it OVER-gates a non-privileged change. Clean.
     "wh_guard_supervisor_approval":       "project_change_orders",
+    # ── SL L2 (2026-10-22) — WHO DECIDED A TOP-UP now lives here, so its tooth moves here. Mig 20261021000001
+    # added this BEFORE UPDATE OF status trigger to stamp the decider on EVERY decision, verified AND rejected;
+    # the guard only ever stamped verifications. Triggers fire in name order, so it runs after the guard and
+    # its `verified_by := auth.uid()` overwrites the guard's coalesce - which made the guard's
+    # verified_by_stamp_removed mutant unobservable (see EXCLUDED). The accountability did not go away, it
+    # moved: on a REJECTION this is the only writer of verified_by, and TB-MINT's rejecter_is_the_admin asserts it.
+    "stamp_topup_decider":                "service_credit_topups",
 }
 
 
@@ -293,6 +300,11 @@ OPERATORS = [
      "new.verified_by := new.verified_by",
      "a top-up verification stops recording WHO verified it - the money path keeps the credit and loses the "
      "accountability ([[feedback_records_that_outlive_the_action]])"),
+    ("decider_stamp_removed",
+     r"new\.verified_by\s*:=\s*auth\.uid\(\)\s*;",
+     "null;",
+     "a top-up decision stops recording WHO made it - a rejection then carries no decider at all, because the "
+     "guard stamps only verifications"),
     ("order_deny_list_narrowed", r"NEW\.status\s+IN\s*\('released',\s*'refunded'\)", "NEW.status IN ('released')",
      "'refunded' drops out of the escrow-only list, so a buyer or seller may refund an order directly"),
     ("is_client_reads_new", r"v_is_client\s*:=\s*\(old\.client_auth_uid\s*=\s*auth\.uid\(\)\)",
@@ -549,9 +561,11 @@ OPERATORS = [
      "the 30-second anti-flood stops firing, so one author can post an unbounded burst"),
     ("community_reply_rate_removed", r"RAISE EXCEPTION 'Replying too fast\. Wait a few seconds\.'[^;]*;", "NULL;",
      "the 15-second reply anti-flood stops firing, so one author can reply in an unbounded burst"),
-    ("listing_rate_removed", r"RAISE EXCEPTION 'Daily listing limit of 20 reached'[^;]*;", "NULL;",
+    # (SL RL2, 2026-10-22: the two sentences below now go on to say when the limit clears - mig 20261022000001 - so
+    # each anchor ends at the words they still begin with)
+    ("listing_rate_removed", r"RAISE EXCEPTION 'Daily listing limit of 20 reached[^;]*;", "NULL;",
      "the 24-hour per-hive listing cap stops firing, so a hive can flood the marketplace past its anti-spam limit"),
-    ("ai_feedback_rate_removed", r"RAISE EXCEPTION 'Daily AI reply feedback limit reached'[^;]*;", "NULL;",
+    ("ai_feedback_rate_removed", r"RAISE EXCEPTION 'Daily AI reply feedback limit reached[^;]*;", "NULL;",
      "the per-user 200/day AI-reply-feedback cap stops firing, so one account can flood feedback unbounded"),
     ("review_cap_removed", r"RAISE EXCEPTION 'Daily review limit reached[^;]*;", "NULL;",
      "the per-reviewer 10/day review cap stops firing, so one reviewer can flood a listing with reviews"),
@@ -669,6 +683,24 @@ EXCLUDED = {
         "The row-version divergence that produced three live exploits is now unreachable on this branch by "
         "construction. Recorded rather than deleted: if the pin is ever loosened, this mutant becomes "
         "killable and the STALE EXCLUSION failure is the alarm."
+    ),
+    ("guard_service_topup_status", "state_list_widened"): (
+        "Equivalent: VOCAB_EXTRA 'settled' is not a valid service_credit_topups.status (the CHECK allows only "
+        "pending_verification/verified/rejected), so widening the decided set `('verified','rejected')` of mig "
+        "20260803000040 to include it is unreachable - no top-up can be 'settled', so the added element never "
+        "takes part in a transition. The same bleed as anomaly_signals: the operator was written for the "
+        "service_request machine and matches here only because both write `old.status in (...)`. It was the one "
+        "survivor tolerated in the 99.3% baseline from 2026-08-04 on, recorded now rather than carried."
+    ),
+    ("guard_service_topup_status", "verified_by_stamp_removed"): (
+        "Masked by trg_stamp_topup_decider (mig 20261021000001), which took this job over and widened it. It is "
+        "BEFORE UPDATE OF status, fires after the guard (triggers run in name order: trg_guard_ < trg_stamp_), "
+        "and sets verified_by := auth.uid() on every verified/rejected decision by a signed-in caller. So with "
+        "the guard's coalesce removed the row still ends stamped with the admin; and with no caller "
+        "(auth.uid() null) the guard's coalesce(new.verified_by, null) changed nothing to begin with. The "
+        "accountability is still asserted, on the trigger that now holds it: stamp_topup_decider is scored "
+        "below (decider_stamp_removed, killed by TB-MINT's rejecter_is_the_admin). Falsifiable: drop or "
+        "disable that trigger and verifier_is_the_admin objects, failing this as a STALE EXCLUSION."
     ),
     # ARC 13 / F: refusal_removed's FIRST 'Not allowed' match in guard_service_review is the `unknown service
     # request` raise, which fires only when the request lookup finds nothing (v_req.id IS NULL). marketplace_
