@@ -20,6 +20,7 @@
  * Usage: node tools/prove_waiting_is_spoken.mjs
  */
 import { chromium } from 'playwright';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const BASE = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SB_URL = process.env.WH_SUPABASE_URL || 'http://127.0.0.1:54321';
@@ -45,6 +46,7 @@ const rows = [];
 let fatal = null;
 try {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const auth = await ctx.newPage();
   await auth.goto(`${BASE}/shift-brain.html`, { waitUntil: 'domcontentloaded' });
   await auth.waitForFunction(

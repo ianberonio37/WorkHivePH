@@ -28,6 +28,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname } from 'node:path';
 import { SEEDER, HIVE, stubModelCalls, signIn, PAGE_QUERY } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const OUT = arg('--json', '.tmp/session_states_results.json');
@@ -98,6 +99,7 @@ async function stateFor(acct) {
   if (!acct) return undefined;
   if (STATES.has(acct.email)) return STATES.get(acct.email);
   const ctx = await BROWSER.newContext({ serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const ok = await signIn(ctx, { ...acct, hive: acct.hive === '' ? undefined : HIVE });
   let st = null;
   if (ok) {
@@ -115,6 +117,7 @@ async function stateFor(acct) {
 async function fresh(prefixIndex, storageState) {
   const browser = BROWSER;
   const ctx = await browser.newContext({ serviceWorkers: 'block', ...(storageState ? { storageState } : {}) });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await stubModelCalls(ctx);
   await ctx.route('**/functions/v1/**', (r) => r.request().method() === 'OPTIONS' ? r.fallback()
     : r.fallback({ headers: { ...r.request().headers(), 'x-wh-walk-no-model': '1' } }));

@@ -27,6 +27,7 @@
  */
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_SEEDER || 'http://127.0.0.1:5000';
 const HIVE = { id: '084c113b-99c0-45c6-a8e8-b4b8349da46d' };
@@ -44,6 +45,7 @@ const browser = await chromium.launch();
 const v = {};
 try {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const page = await ctx.newPage();
   const errs = [];
   page.on('pageerror', (e) => errs.push(String(e).slice(0, 120)));

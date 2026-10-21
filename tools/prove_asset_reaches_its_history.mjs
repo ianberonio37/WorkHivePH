@@ -20,6 +20,7 @@
  */
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_SEEDER || 'http://127.0.0.1:5000';
 const HIVE = { id: '084c113b-99c0-45c6-a8e8-b4b8349da46d', name: 'Baguio Textile Mills' };
@@ -45,6 +46,7 @@ const browser = await chromium.launch();
 let landed = null;
 try {
   const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
+  await page.addInitScript(ALL_ROWS_DRAWN);
   await page.goto(`${SEEDER}/shift-brain.html`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => !!(window.supabase && window.supabase.createClient), { timeout: 25000 });
   await page.evaluate(async ({ email, worker, hive }) => {

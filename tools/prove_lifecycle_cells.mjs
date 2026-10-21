@@ -25,6 +25,7 @@ import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { execSync } from 'node:child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ORIGIN = process.env.WH_SEEDER_URL ? `${process.env.WH_SEEDER_URL}/workhive` : 'http://127.0.0.1:5000/workhive';
 const args = process.argv.slice(2);
@@ -252,6 +253,7 @@ async function establishSupervisor(browser) {
   const [name, email, hive] = row.split('|');
   if (!email) return `${name} is a supervisor but has no auth account, so there is no supervisor view to walk`;
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const p = await ctx.newPage();
   await p.goto(`${ORIGIN}/shift-brain.html`, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
   await p.waitForFunction(() => typeof window.getDb === 'function' && !!window.supabase, { timeout: 20000 }).catch(() => {});
@@ -295,6 +297,7 @@ async function establishFresh(browser) {
   if (!email) return 'the database holds no account without a hive, so a first-timer cannot be cast';
   FRESH_WHO = email;
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const p = await ctx.newPage();
   await p.goto(`${ORIGIN}/index.html`, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
   await p.waitForFunction(() => typeof window.getDb === 'function' && !!window.supabase, { timeout: 20000 }).catch(() => {});
@@ -320,6 +323,7 @@ async function establishIdentity(browser) {
   if (!hive) return `${PERSON.name} is in no active hive, so there is no signed-in view to walk`;
   const role = psql(`select role from hive_members where worker_name = '${PERSON.name}' and hive_id::text = '${hive}' limit 1`) || 'worker';
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const p = await ctx.newPage();
   await p.goto(`${ORIGIN}/shift-brain.html`, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
   await p.waitForFunction(() => typeof window.getDb === 'function' && !!window.supabase, { timeout: 20000 }).catch(() => {});
@@ -511,6 +515,7 @@ async function walkRevoked(browser, page) {
     }
     staged = true;
     const ctx = await browser.newContext({ viewport: VIEWPORTS['desktop-1280'] });
+    await ctx.addInitScript(ALL_ROWS_DRAWN);
     const p = await ctx.newPage();
     try {
       await p.goto(`${ORIGIN}/index.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -574,6 +579,7 @@ async function walkRow(browser, t) {
   // walks as the established worker
   const use = anon ? null : (cellWho === 'new-user' && FRESH) ? FRESH : SESSION;
   const ctx = await browser.newContext({ viewport: vp, acceptDownloads: true, ...(use ? { storageState: use } : {}) });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const p = await ctx.newPage();
   let r = null; let err = null; let landed = '';
   try {
@@ -616,6 +622,7 @@ async function walkRow(browser, t) {
     const ownCast = ['anon', 'new-user', 'adversary'].includes((t.persona || '').toLowerCase());
     if (SUPER && !ownCast && WALL.test(r.text) && r.chars < 900) {
       const sctx = await browser.newContext({ viewport: vp, acceptDownloads: true, storageState: SUPER });
+      await sctx.addInitScript(ALL_ROWS_DRAWN);
       const sp = await sctx.newPage();
       try {
         await sp.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });

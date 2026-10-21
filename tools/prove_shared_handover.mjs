@@ -15,6 +15,7 @@ import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
 import { psql } from './wh_identity.mjs';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const args = process.argv.slice(2);
 const ORIGIN = process.env.WH_SEEDER_URL ? `${process.env.WH_SEEDER_URL}/workhive` : 'http://127.0.0.1:5000/workhive';
@@ -73,6 +74,7 @@ const signOut = async (page) => page.evaluate(async () => {
 await takeBrowserSlot('shared-handover');
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });   // ONE device, both people
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 const page = await ctx.newPage();
 await page.goto(`${ORIGIN}/hive.html`, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
 await page.waitForFunction(() => typeof window.getDb === 'function' && !!window.supabase, { timeout: 20000 }).catch(() => {});

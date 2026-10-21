@@ -281,6 +281,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
 import { signIn, assertSignedIn } from './live_page_journeys.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
@@ -465,6 +466,7 @@ const readNum = async (page, url, selector, opts = {}) => {
 const run = async () => {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await assertSignedIn(signIn(ctx, 'supervisor'));
   const out = { origin: ORIGIN, pairs: [] };
 
@@ -478,6 +480,7 @@ const run = async () => {
     let pairCtx = ctx;
     if (p.persona) {
       pairCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+      await pairCtx.addInitScript(ALL_ROWS_DRAWN);
       await assertSignedIn(signIn(pairCtx, p.persona));
     }
     const page = await pairCtx.newPage();

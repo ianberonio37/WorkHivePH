@@ -22,6 +22,7 @@
 import { chromium } from 'playwright';
 import { execSync } from 'node:child_process';
 import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, HIVE, assertSignedIn } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const psql = (sql) => { try { return execSync(`docker exec -i supabase_db_workhive psql -U postgres -d postgres -tA -c "${sql.replace(/"/g, '\\"')}"`, { encoding: 'utf8' }).trim(); } catch { return ''; } };
 
@@ -35,6 +36,7 @@ const na = (id, line) => console.log(`  n/a ${id.padEnd(22)} ${line} - unmeasure
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 await assertSignedIn(signIn(ctx));
 const open = async (file) => {
   const p = await ctx.newPage();

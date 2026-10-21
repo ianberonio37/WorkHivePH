@@ -24,6 +24,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { SEEDER, stubModelCalls } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const OUT = arg('--json', '.tmp/s4_results.json');
@@ -59,6 +60,7 @@ function poison(v, n) {
 async function context(neuterEscHtml) {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await stubModelCalls(ctx);
   const seen = { fields: 0, responses: 0 };
   await ctx.route('**/rest/v1/client_errors*', (r) => r.request().method() === 'POST' ? r.fulfill({ status: 201, contentType: 'application/json', body: '[]' }) : r.continue());

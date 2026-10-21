@@ -16,7 +16,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 | **RL** Rate Limiting | 766/861 · **89.0%** | 0/3 | 89 | 6 | 59% | 0 |
 | **F** Frontend | 4855/5283 · **91.9%** | 5/5 | 147 | 281 | 45% | 0 |
 | **L** Error Tracking & Logs | 1106/1158 · **95.5%** | 4/4 | 52 | 0 | 28% | 0 |
-| **LB** Load Balancing & Scaling | 879/919 · **95.6%** | 2/4 | 37 | 3 | 21% | 0 |
+| **LB** Load Balancing & Scaling | 879/919 · **95.6%** | 2/4 | 37 | 3 | 24% | 0 |
 | **CI** CI/CD & Version Control | 1305/1318 · **99.0%** | 4/4 | 12 | 1 | 23% | 0 |
 | **H** Hosting & Deployment | 1448/1460 · **99.2%** | 4/4 | 12 | 0 | 18% | 0 |
 | **AV** Availability & Recovery | 1100/1105 · **99.5%** | 4/4 | 5 | 0 | 29% | 0 |
@@ -5841,12 +5841,29 @@ the main thread was left to settle, and the page was measured:
     still stands the hub down before its first paint, and the chip still gets out of a control's way at once (its
     instant check runs after the frame's layout). New gate R19, 3 mutants.
 
+31. The instruments read a tenth of every long list. The rows the browser skips have no innerText, and the page's
+    innerText leaves them out too: on the live logbook at 390, `document.body.innerText` held the words of 2 of Bryan
+    Garcia's 20 entries. 91 instruments read a long-list page's text with innerText (68 registered gates and 23
+    driven by other tools, across the 15 pages that draw a long list), so from the day the rule shipped each saw
+    the first screen of a list, and a "must not appear" check passed over the rest of it.
+    `tools/lib/long_list_text.mjs` now gives them two ways to read every row:
+    - `ALL_ROWS_DRAWN`, installed on every context a text prover opens, draws every row (proven: 20 of 20);
+    - `PAGE_TEXT` puts the skipped rows' words back without changing the rendering (20 of 20). It is for a walk
+      that also times the page: lx_walk's LB verdict judges long tasks.
+    A sweep that times first and reads afterwards (family_rubric_sweep) draws the rows once its LCP and CLS
+    readings are taken. Installed by codemod in 87 files and by hand in 4: a one-statement
+    `(await browser.newContext()).newPage()` gets it on the page, and the MCP walk bodies carry a marked inline copy.
+    Verified live with every row drawn: stored-text-escaped 36/36 and shared-handover pass. New gate
+    prover-reads-whole-list (9 mutants) derives the pages from the code, holds every such instrument to install the
+    script on as many contexts as it opens (or to read through PAGE_TEXT), and holds the helper to the class utils.js
+    skips rows in.
+
 **Measuring.** The host has 7.8 GB, and with VS Code, the Docker VM and the MCP servers resident, Windows held 2.2 GB
 compressed and 0.63 GB free. A traced run (the phone step under a Chrome trace) read an 838 ms task, and a 634 ms task
 on desktop, on a page whose code had not changed: a trace run gives the composition of the slow tasks, never the budget
 numbers. The next clean run of the same logbook code read 57 ms on desktop.
 
-**Gates.** long-list-render R1-R19 (41 mutants). in-list-chunked (new): every `.in()` on the served pages and shared scripts is a fixed list, asked through whInChunks, sliced by hand, or bounded with its reason, and whInChunks holds its 18 cases (6 mutants: the helper unchunked, not de-duplicated or swallowing an error; pm-scheduler and project-manager put back; a reason removed).
+**Gates.** long-list-render R1-R19 (41 mutants). prover-reads-whole-list (new, 9 mutants): every instrument that reads innerText on a long-list page draws every row or reads the skipped rows back. in-list-chunked (new): every `.in()` on the served pages and shared scripts is a fixed list, asked through whInChunks, sliced by hand, or bounded with its reason, and whInChunks holds its 18 cases (6 mutants: the helper unchunked, not de-duplicated or swallowing an error; pm-scheduler and project-manager put back; a reason removed).
 
 **Where it stands.** 71 of the 76 rows are banked through the MCP browser on a returning visit; three are descoped
 (their pages hold no list a thousand rows can reach). The walk now books every task by its main-thread CPU time times

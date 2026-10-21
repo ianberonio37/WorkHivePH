@@ -21,6 +21,7 @@
 import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const args = process.argv.slice(2);
 const BASE = (process.env.WH_SEEDER_URL || 'http://127.0.0.1:5000').replace(/\/workhive$/, '');
@@ -60,6 +61,7 @@ if (args.includes('--self-test')) {
 
 const read = async (browser, page, vw, vh) => {
   const ctx = await browser.newContext({ viewport: { width: vw, height: vh } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const p = await ctx.newPage();
   await p.goto(`${BASE}/${page}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await p.waitForTimeout(2600);

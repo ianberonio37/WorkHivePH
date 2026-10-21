@@ -30,6 +30,7 @@ import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
 import { PAGE_QUERY, PAGE_REVEAL, revealWorkedState } from './page_walk_state.mjs';   // one copy of the state a page needs to be graded
 import { writeFileSync, readFileSync } from 'fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const EMAIL = process.env.WH_TEST_EMAIL || 'pabloaguilar@auth.workhiveph.com';
@@ -219,6 +220,10 @@ async function surveyPage(context, file) {
     // added ~0.45 that two isolated observers never saw (0.009 / 0.033 through a scroll, 2026-09-05).
     // The post-survey read stays as clsAtLoad for the diagnostic delta below.
     const clsSettled = await page.evaluate(() => (window.__cwv && window.__cwv.cls) || 0);
+    // long-list-text: the timing readings are taken - LCP stopped at the Shift press, the settled CLS just above - so a
+    // long list's rows are drawn NOW (tools/lib/long_list_text.mjs): an off-screen row has no innerText, and the rubric
+    // reads what the page says, every row a person can scroll to (SL LB3, 2026-10-22)
+    await page.evaluate(ALL_ROWS_DRAWN).catch(() => {});
     if (process.env.WH_SWEEP_CLS_DEBUG) { const sh = await page.evaluate(() => (window.__cwv && window.__cwv.shifts) || []); for (const x of sh) if (x.v >= 0.005) console.log(`[cls-debug] ${file} t=${x.t} v=${x.v} :: ${x.src.join(' | ')}`); }
     // Gated pages (audit-log, integrations, marketplace-admin) show a supervisor/hive/admin AUTH
     // GATE until the async role check resolves; the survey must grade the REAL UI behind it, not the

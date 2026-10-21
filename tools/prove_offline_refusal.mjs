@@ -27,6 +27,7 @@
  */
 import { chromium } from 'playwright';
 import { signIn, assertSignedIn } from './live_page_journeys.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 // Each case names the page, how to reach the committing control, and what the write endpoint looks
 // like. `reach` runs ONLINE and must leave the control pressable; `fire` runs OFFLINE.
@@ -816,6 +817,7 @@ if (!c) { console.log('pass --case <' + Object.keys(CASES).join('|') + '>'); pro
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 // Some views only exist for a signed-OUT visitor - index's landing page is the whole marketing
 // surface, and signing in replaces it with the ops-home. A case marked `anon` skips the sign-in.
 if (!c.anon) await assertSignedIn(signIn(ctx, 'supervisor'));

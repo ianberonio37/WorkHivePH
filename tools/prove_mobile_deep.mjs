@@ -17,6 +17,7 @@
 //   node tools/prove_mobile_deep.mjs --page hive.html
 import { chromium } from 'playwright';
 import { SEEDER, signIn, PAGE_QUERY, VIS_JS, assertSignedIn } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const LIST = (() => { const i = process.argv.indexOf('--pages'); return i >= 0 ? process.argv[i + 1].split(',') : null; })();
@@ -109,6 +110,7 @@ const PAGES = ONLY ? [ONLY] : (LIST || ROSTER);
 // M4 is one question about the app, not one per page
 const shell = await (async () => {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const p = await ctx.newPage();
   await p.goto(`${SEEDER}/workhive/index.html`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
   await p.waitForTimeout(6000);
@@ -145,6 +147,7 @@ for (const file of PAGES) {
   const issues = [];
   for (const [label, w, h] of [['phone', 390, 844], ['landscape', 844, 390], ['tablet', 834, 1112]]) {
     const ctx = await b.newContext({ viewport: { width: w, height: h }, isMobile: w < 800, hasTouch: true, deviceScaleFactor: 2, serviceWorkers: 'block' });
+    await ctx.addInitScript(ALL_ROWS_DRAWN);
     await assertSignedIn(signIn(ctx));
     const p = await ctx.newPage();
     await p.goto(`${SEEDER}/workhive/${file}${PAGE_QUERY[file] || ''}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});

@@ -180,6 +180,18 @@ async (page) => {
         window.__w4Printed = false;
         window.print = function () { window.__w4Printed = true; };
       });
+      // long-list-text: ALL_ROWS_DRAWN of tools/lib/long_list_text.mjs, inlined (a walk body cannot import). A long
+      // list's off-screen rows carry no innerText (content-visibility:auto) - the logbook's text held 2 of its 20
+      // entries - so every row is drawn, and what the walk reads is every row a person can scroll to (SL LB3, 2026-10-22)
+      await page.addInitScript(() => {
+        const put = () => {
+          if (document.getElementById('wh-prover-all-rows')) return;
+          const st = document.createElement('style'); st.id = 'wh-prover-all-rows';
+          st.textContent = '.wh-rows-cv>*{content-visibility:visible!important}';
+          (document.head || document.documentElement).appendChild(st);
+        };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', put, { once: true }); else put();
+      });
       page.on('download', (d) => { downloads++; lastDownload = d; });
       page.on('popup', async (pp) => { popups++; try { await pp.close(); } catch (e) { void e; } });
     } catch (e) { void e; }

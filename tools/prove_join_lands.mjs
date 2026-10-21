@@ -21,6 +21,7 @@
  */
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_SEEDER || 'http://127.0.0.1:5000';
 const HIVE_ID = '084c113b-99c0-45c6-a8e8-b4b8349da46d'; // Baguio Textile Mills (live-resolved 2026-08-26)
@@ -74,6 +75,7 @@ let verdict = { realtime: false, on_reload: false, joined_db: false, cleanup_ok:
 try {
   // ── ctx A: the watching supervisor ──
   const ctxA = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  await ctxA.addInitScript(ALL_ROWS_DRAWN);
   const a = await pageSignIn(ctxA, SUP, { id: HIVE_ID, name: 'Baguio Textile Mills' });
   if (!a.ok) throw new Error('supervisor sign-in failed: ' + a.err);
   await a.page.goto(`${SEEDER}/hive.html`, { waitUntil: 'domcontentloaded' });
@@ -89,6 +91,7 @@ try {
 
   // ── ctx B: the outside worker joins via the same server path the UI uses ──
   const ctxB = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await ctxB.addInitScript(ALL_ROWS_DRAWN);
   const b = await pageSignIn(ctxB, JOINER, null);
   if (!b.ok) throw new Error('joiner sign-in failed: ' + b.err);
   const join = await b.page.evaluate(async ({ code, worker }) => {

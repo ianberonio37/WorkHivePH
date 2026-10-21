@@ -21,6 +21,7 @@ import { chromium } from 'playwright';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { SEEDER, stubModelCalls } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const OUT = arg('--json', '.tmp/s5_results.json');
@@ -62,6 +63,7 @@ function scan(text, where) {
 async function context(plant) {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await stubModelCalls(ctx);
   await ctx.route('**/rest/v1/client_errors*', (r) => r.request().method() === 'POST' ? r.fulfill({ status: 201, contentType: 'application/json', body: '[]' }) : r.continue());
   if (plant) {

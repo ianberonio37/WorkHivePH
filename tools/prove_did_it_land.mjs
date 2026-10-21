@@ -37,6 +37,7 @@
 import { chromium } from 'playwright';
 import { writeFileSync } from 'fs';
 import { signIn, assertSignedIn } from './live_page_journeys.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
 const args = process.argv.slice(2);
@@ -193,6 +194,7 @@ if (args.includes('--selftest')) {
   // SILENT: one that resolves and leaves the surface exactly as it was — the defect this oracle exists for.
   for (const [name, tells] of [['tells', true], ['silent', false]]) {
     const c = await b.newContext({ viewport: { width: 390, height: 844 } });
+    await c.addInitScript(ALL_ROWS_DRAWN);
     await c.addInitScript(DELAY_WRITES, 600);
     const pg = await c.newPage();
     await pg.goto(`${ORIGIN}/index.html`, { waitUntil: 'domcontentloaded', timeout: 25000 });
@@ -483,6 +485,7 @@ for (const p of (ONE ? [ONE] : Object.keys(FLOWS))) {
   const flow = FLOWS[p];
   const rec = { page: p };
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await assertSignedIn(signIn(ctx, 'supervisor'));
   await ctx.addInitScript(DELAY_WRITES, DELAY_MS);
   const page = await ctx.newPage();

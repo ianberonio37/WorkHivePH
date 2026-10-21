@@ -17,6 +17,7 @@
 //   node tools/prove_boundary_legible.mjs --page founder-console.html
 import { chromium } from 'playwright';
 import { SEEDER, HIVE, PAGE_QUERY, VIS_JS, SETTLE_MS } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const PLAIN = { name: 'Wilfredo Malabanan', email: 'wilfredomalabanan@auth.workhiveph.com', password: 'test1234', role: 'worker' };
@@ -37,6 +38,7 @@ const ACTIONABLE = /\b(ask|contact|supervisor|admin|permission|access|request|si
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 {
   const s = await ctx.newPage();
   await s.goto(`${SEEDER}/workhive/shift-brain.html`, { waitUntil: 'domcontentloaded' });

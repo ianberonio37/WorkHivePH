@@ -20,6 +20,7 @@
  */
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const BASE = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SB_URL = process.env.WH_SUPABASE_URL || 'http://127.0.0.1:54321';
@@ -40,6 +41,7 @@ const v = {};
 const browser = await chromium.launch();
 try {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
 
   // sign in on a neutral page first — asset-hub bounces before a session exists, and the
   // navigation destroys any evaluate running against it

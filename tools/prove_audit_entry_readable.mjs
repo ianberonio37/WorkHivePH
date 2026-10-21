@@ -19,6 +19,7 @@
  * Usage: node tools/prove_audit_entry_readable.mjs
  */
 import { chromium } from 'playwright';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_SEEDER || 'http://127.0.0.1:5000';
 // Leandro is the SUPERVISOR of this hive; a worker sees an empty audit feed by design.
@@ -29,6 +30,7 @@ const browser = await chromium.launch();
 const v = { entries: 0, opened: false, rows: 0, jsonPunctuation: null, sample: '' };
 try {
   const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
+  await page.addInitScript(ALL_ROWS_DRAWN);
   await page.goto(`${SEEDER}/shift-brain.html`, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => !!(window.supabase && window.supabase.createClient), { timeout: 25000 });
   await page.evaluate(async ({ email, pw, worker, hive }) => {

@@ -37,6 +37,7 @@
 import { chromium } from 'playwright';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const HIVE = '9b4eaeac-59b0-4b0e-9b0b-0947b45ad1e7'; // Baguio Textile Mills
@@ -563,6 +564,7 @@ async function main() {
 
   const browser = await chromium.launch({ headless: !HEADED });
   const context = await browser.newContext();
+  await context.addInitScript(ALL_ROWS_DRAWN);
   await context.addInitScript((hive) => {
     try {
       localStorage.setItem('wh_active_hive_id', hive);

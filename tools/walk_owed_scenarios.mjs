@@ -27,6 +27,7 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import crypto from 'node:crypto';   // to recompute a row's freshness the same way the gate does
 
 // fileURLToPath, not url.pathname: this project's directory contains spaces AND an '&', so the raw
@@ -1627,6 +1628,7 @@ const context = await browser.newContext({
   viewport: { width: 1280, height: 900 },
   serviceWorkers: 'block',
 });
+await context.addInitScript(ALL_ROWS_DRAWN);
 
 // sign in once, exactly as state_probe.mjs does
 {

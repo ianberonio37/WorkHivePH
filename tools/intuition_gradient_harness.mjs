@@ -40,6 +40,7 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -282,6 +283,7 @@ const DEFAULT_PAGES = ['analytics.html','asset-hub.html','alert-hub.html','hive.
 async function inspectFirstPaint(slug, role) {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: VW, height: VH }, deviceScaleFactor: 1 });
+  await context.addInitScript(ALL_ROWS_DRAWN);
   const si = await signIn(context, role);
   if (!si.ok) { console.error(`sign-in failed (${role}):`, si); await browser.close(); process.exit(2); }
   const page = await context.newPage();
@@ -333,6 +335,7 @@ async function inspectFirstPaint(slug, role) {
   const byKey = {};   // `${slug}` -> { worker:card, supervisor:card }
   for (const role of roles) {
     const context = await browser.newContext({ viewport: { width: VW, height: VH }, deviceScaleFactor: 1 });
+    await context.addInitScript(ALL_ROWS_DRAWN);
     const si = await signIn(context, role);
     if (!si.ok) { console.error(`sign-in failed (${role}):`, si); await context.close(); continue; }
     console.log(`\n[auth: ${role}]`);

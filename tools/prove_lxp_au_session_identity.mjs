@@ -32,6 +32,7 @@ const allReceiptSteps = [];
 for (const vp of VIEWPORTS) {
   const browser = await chromium.launch();
   const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const page = await ctx.newPage();
   // the receipt's steps are MEASURED here, not hand-written later: record_mcp_walk requires
   // {page, chars, identityKept} per step and refuses a thin one (<120 chars), which is exactly the
@@ -198,6 +199,7 @@ if (problems.length) {
 // verdict, so it follows the findings.
 // the receipt's steps, measured by this run - tools/record_mcp_walk.py --steps reads this
 import { writeFileSync, mkdirSync } from 'node:fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 // NOT into .tmp/mcp_walks: live_walk_manifest scans that directory for RECEIPTS and reads
 // doc.results on every file it finds, so a bare steps ARRAY parked there crashes the ledger.
 mkdirSync('.tmp/lxp', { recursive: true });

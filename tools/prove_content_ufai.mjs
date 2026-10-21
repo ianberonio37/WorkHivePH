@@ -31,6 +31,7 @@
 import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
 import { readdirSync, existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ORIGIN = process.env.WH_SEEDER_URL ? `${process.env.WH_SEEDER_URL}/workhive` : 'http://127.0.0.1:5000/workhive';
 const args = process.argv.slice(2);
@@ -109,6 +110,7 @@ const kindOf = (f) => (f.startsWith('learn/') ? 'learn' : 'calc');
 async function walk(browser, file) {
   const kind = file.startsWith('learn/') ? 'learn' : 'calc';
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const page = await ctx.newPage();
   const out = { file, kind, F: null, A: null, I: null };
   try {

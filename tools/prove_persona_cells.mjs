@@ -28,6 +28,7 @@ import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
 import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 import { VIEW_ONLY, askSurface, launcherOnlyFor } from './ai_ask.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ONLY_CELL = (() => { const i = process.argv.indexOf('--cell'); return i >= 0 ? process.argv[i + 1] : null; })();
 const ONLY_PAGE = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
@@ -63,6 +64,7 @@ for (const r of ROWS) {
   n++;
   const [w, h] = VIEW[r.device] || VIEW.any;
   const ctx = await b.newContext({ viewport: { width: w, height: h }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const signedIn = !['deep-link', 'kiosk-print'].includes(r.cell) && r.persona !== 'any' || ['first-time', 'data-volume', 'wide-pc', 'tablet', 'quota-spent', 'expiry-mid-read', 'email-arrival', 'returner'].includes(r.cell);
   if (signedIn) await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();

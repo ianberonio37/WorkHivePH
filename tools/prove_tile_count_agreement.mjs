@@ -20,6 +20,7 @@
  * Usage: node tools/prove_tile_count_agreement.mjs
  */
 import { chromium } from 'playwright';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_SEEDER || 'http://127.0.0.1:5000';
 const HIVE = { id: '084c113b-99c0-45c6-a8e8-b4b8349da46d', name: 'Baguio Textile Mills' };
@@ -64,6 +65,7 @@ async function readTile(page, kpi) {
 const browser = await chromium.launch();
 const results = [];
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 const page = await ctx.newPage();
 const s = await signInDirect(page);
 if (!s.ok) { console.log('FAIL — sign-in: ' + s.err); process.exit(1); }

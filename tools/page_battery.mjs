@@ -28,6 +28,7 @@
 import { chromium } from 'playwright';
 import { writeFileSync } from 'fs';
 import { signIn, makeHelpers, ACCOUNTS, SEEDER } from './live_page_journeys.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const args = process.argv.slice(2);
 const HEADED = args.includes('--headed');
@@ -244,6 +245,7 @@ async function runPage(context, pageFile) {
   const pages = PAGE_ONLY ? [PAGE_ONLY] : PAGES;
   const browser = await chromium.launch({ headless: !HEADED });
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, timezoneId: 'Asia/Manila' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const si = await signIn(ctx, ROLE);
   console.log(`[BATTERY] sign-in ${ROLE} (${ACCOUNTS[ROLE]?.email || '?'}): ${si.ok ? 'OK' : 'FAIL ' + si.err}`);
   if (!si.ok) { console.error('sign-in failed, aborting'); process.exit(2); }

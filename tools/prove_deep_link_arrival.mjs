@@ -22,6 +22,7 @@
 import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const args = process.argv.slice(2);
 const BASE = (process.env.WH_SEEDER_URL || 'http://127.0.0.1:5000').replace(/\/workhive$/, '');
@@ -60,6 +61,7 @@ let unread = 0;
 for (const r of rows) {
   // a fresh context per page: no history, no storage, no referrer - a pasted link and nothing else
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const p = await ctx.newPage();
   let rec;
   try {

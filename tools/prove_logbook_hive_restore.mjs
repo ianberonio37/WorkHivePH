@@ -22,6 +22,7 @@
 //   node tools/prove_logbook_hive_restore.mjs
 import { chromium } from 'playwright';
 import { SEEDER } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const WHO = { username: 'leandromarquez', password: 'test1234', real: 'Leandro Marquez' };
 const HIVE = '084c113b-99c0-45c6-a8e8-b4b8349da46d';   // Baguio Textile Mills
@@ -37,6 +38,7 @@ async function walk(disableHelper) {
   // serviceWorkers: 'block' - a page served by the service worker never reaches ctx.route, so the teeth walk
   // would get the real utils.js and "fail" for the wrong reason.
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   if (disableHelper) {
     await ctx.route('**/utils.js*', async (route) => {
       const res = await route.fetch();
@@ -112,6 +114,7 @@ async function walk(disableHelper) {
 // <script src> until the page fetch()es the file past the cache - the logbook's self-heal - and the real file after.
 async function skewWalk() {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const seen = [];
   let fresh = false;
   await ctx.route('**/utils.js*', async (route) => {

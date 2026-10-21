@@ -6,6 +6,7 @@
 //   node tools/prove_sw_navigation_fallback.mjs                      # default targets
 //   node tools/prove_sw_navigation_fallback.mjs --page learn/index.html
 import { chromium } from 'playwright';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { HIVE, WORKER } from './prover_harness.mjs';   // identity constants shared with every prover (2026-09-05); the sign-in itself stays on the landing page because the service worker must control THIS page
 
 const SEEDER = process.env.WH_SEEDER_URL || 'http://127.0.0.1:5000';
@@ -19,6 +20,7 @@ const LANDING_WORDS = /THE HIVE IS OPEN|Access Your Memory Free/i;
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 800 } });   // service workers ALLOWED (default)
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 const p = await ctx.newPage();
 await p.goto(`${SEEDER}/workhive/index.html`, { waitUntil: 'load' });
 const sw = await p.evaluate(async () => {

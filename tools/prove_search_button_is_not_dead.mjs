@@ -20,6 +20,7 @@
  * Usage: node tools/prove_search_button_is_not_dead.mjs
  */
 import { chromium } from 'playwright';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const BASE = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 
@@ -27,6 +28,7 @@ const v = {};
 const browser = await chromium.launch();
 try {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
 
   const drive = async (breakScript) => {
     const page = await ctx.newPage();

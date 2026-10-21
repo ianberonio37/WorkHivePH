@@ -32,6 +32,7 @@
 import { writeFileSync } from 'fs';
 import { chromium } from '@playwright/test';
 import { signIn, SEEDER, assertSignedIn } from './live_page_journeys.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const args = process.argv.slice(2);
 const GATE = args.includes('--gate');
@@ -105,6 +106,7 @@ function findingsFor(obs, errors) {
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: WIDTH, height: 900 } });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 await assertSignedIn(signIn(ctx, 'supervisor'));
 
 // ── --teeth: each clause must actually FIRE ──────────────────────────────────────────────────

@@ -17,6 +17,7 @@
 //   node tools/prove_anon_conversion.mjs --page public-feed.html
 import { chromium } from 'playwright';
 import { SEEDER, PAGE_QUERY, VIS_JS } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 
@@ -36,6 +37,7 @@ for (const [file, what, actionRe] of (ONLY ? FUNNELS.filter((f) => f[0] === ONLY
   n++;
   // no sign-in: a stranger from a search result carries nothing
   const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const p = await ctx.newPage();
   await p.goto(`${SEEDER}/workhive/${file}${PAGE_QUERY[file] || ''}`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
   await p.waitForTimeout(12000);

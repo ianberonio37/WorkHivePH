@@ -35,6 +35,7 @@ import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { signIn, assertSignedIn } from './live_page_journeys.mjs';
 import { REASONED_EMPTY_SRC } from './session_signals.mjs';
 import { TARGETS } from './dialog_targets.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 // Which PAGE is this URL? Fragment first, then query, then the extension — in that order, because
 // `index.html#evolution` does not end in `.html` and a `/\.html$/` strip leaves it mangled. Three
@@ -486,6 +487,7 @@ async function newCtx(browser, identity) {
     opts.userAgent = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
   }
   const ctx = await browser.newContext(opts);
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const who = (identity === 'supervisor' || identity === 'multi_hive') ? 'supervisor'
             : identity === 'worker' ? 'worker' : null;
   if (who) {
@@ -542,6 +544,7 @@ async function visit(ctx, url, { wipeFirst }) {
 if (args.includes('--selftest')) {
   const b = await chromium.launch();
   const c = await b.newContext({ viewport: { width: 390, height: 844 } });
+  await c.addInitScript(ALL_ROWS_DRAWN);
   const pg = await c.newPage();
   await pg.goto(`${ORIGIN}/index.html`, { waitUntil: 'domcontentloaded', timeout: 25000 });
   await pg.waitForTimeout(1500);

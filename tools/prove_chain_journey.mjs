@@ -18,6 +18,7 @@
  * Usage: node tools/prove_chain_journey.mjs
  */
 import { chromium } from 'playwright';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_SEEDER || 'http://127.0.0.1:5000';
 const HIVE = { id: '084c113b-99c0-45c6-a8e8-b4b8349da46d', name: 'Baguio Textile Mills' };
@@ -47,6 +48,7 @@ const browser = await chromium.launch();
 let verdict = { hop1: false, hop2: false, back: false, hop3: false, hop4: false, note: '' };
 try {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const page = await ctx.newPage();
   const s = await signInDirect(page);
   if (!s.ok) throw new Error('sign-in failed: ' + s.err);

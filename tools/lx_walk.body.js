@@ -77,7 +77,11 @@ async (mcpPage) => {
       root.querySelectorAll('[aria-label]').forEach((e) => { if (!hiddenUp(e) && !(e.innerText || '').trim()) out.push(e.getAttribute('aria-label')); });
       return out.join(' ').replace(/\s+/g, ' ');
     };
-    const visText = (document.body.innerText || '').replace(/\s+/g, ' ').trim();
+    // long-list-text: PAGE_TEXT of tools/lib/long_list_text.mjs, inlined. This walk times the page's long tasks (its LB
+    // verdict), so the rows stay as the page renders them; a long list's off-screen rows carry no innerText
+    // (content-visibility:auto), so their words are put back from textContent (SL LB3, 2026-10-22)
+    const visText = [document.body.innerText || '', ...[...document.querySelectorAll('.wh-rows-cv > *')]
+      .filter((r) => !r.innerText && r.textContent.trim()).map((r) => r.textContent)].join('\n').replace(/\s+/g, ' ').trim();
     const ownText = (root.innerText || '').replace(/\s+/g, ' ').trim();
     const text = at ? atText() : ownText;
     const low = ' ' + text.toLowerCase() + ' ';

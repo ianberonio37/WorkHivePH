@@ -31,6 +31,7 @@ import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
 import { signIn, assertSignedIn } from './live_page_journeys.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
@@ -116,6 +117,7 @@ const run = async () => {
   let captured = REPLAY && existsSync(CAP) ? readFileSync(CAP, 'utf-8') : null;
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 950 },
     serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await assertSignedIn(signIn(ctx, 'supervisor'));
   const w = await askAndRead(ctx, {
     fulfilWith: captured ? { status: 200, contentType: 'application/json', body: captured } : null,
@@ -218,6 +220,7 @@ const run = async () => {
   {
     const fctx = await browser.newContext({ viewport: { width: 1280, height: 950 },
       serviceWorkers: 'block' });
+    await fctx.addInitScript(ALL_ROWS_DRAWN);
     await assertSignedIn(signIn(fctx, 'supervisor'));
     const f = await askAndRead(fctx, { fulfilWith: { status: 500,
       contentType: 'application/json', body: JSON.stringify({ error: 'gateway unavailable' }) } });

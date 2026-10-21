@@ -31,6 +31,7 @@ import { pageUrl } from './page_query.mjs';
 // different screens while both report success.
 import { TARGETS } from './dialog_targets.mjs';
 import fs from 'node:fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
 const args = process.argv.slice(2);
@@ -633,6 +634,7 @@ for (const page_ of (ONE ? [ONE.replace(/\.html$/, '')] : Object.keys(TRUTHS))) 
   const truths = TRUTHS[page_];
   if (!truths) { console.log(`  ${page_}: no truths authored yet`); continue; }
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 1600 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await assertSignedIn(signIn(ctx, 'supervisor'));
   const page = await ctx.newPage();
   await page.goto(pageUrl(ORIGIN, page_), { waitUntil: 'domcontentloaded', timeout: 25000 });

@@ -197,6 +197,23 @@ CONDITION["LB2"] = ("the page read as served in its own browser context (service
                     "rows inside one rolled-back transaction (50k-130k rows on the history tables): every read must be on an "
                     "index at that size")
 GATES["L2"] = ["change-trail", "audit-trail-coverage", "skew-heal", "scripts-parse"]
+# LB3 had no entry, so its 71 banked rows named the default gate (page-survives-optional-failures) - a gate that holds
+# nothing the LB3 walk found; these are the ones that do (corrected 2026-10-22)
+GATES["LB3"] = ["long-list-render", "in-list-chunked", "skew-heal", "scripts-parse"]
+CONDITION["LB3"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's cast, "
+                    "on a RETURNING visit (opened once first with the cast's real rows); every list read answered from a pool of "
+                    "1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown "
+                    "through the page's own Load more until it held 1,000, the main thread settled, its search typed and "
+                    "cleared; every task booked by its main-thread CPU time x the throttle (phone-390 at 4x): every interaction "
+                    "under 200 ms and no task over 200 ms after the rows arrived")
+GATES["LB4"] = ["idle-network", "timers", "skew-heal", "scripts-parse"]
+CONDITION["LB4"] = ("the page read as served in its own browser context (service workers blocked, so every request it made was "
+                    "seen), signed in as the row's cast (or signed out, for the visitor's pages), settled until its network "
+                    "went quiet, then left alone - no click, key or scroll - for 75 s visible (longer than the slowest poll "
+                    "in the roster, 60 s) and, at 390, 75 s hidden (visibilityState hidden + visibilitychange); every request "
+                    "it made on its own, every frame on its realtime socket and every repeating timer it started recorded: "
+                    "no request repeating faster than every 10 s, no two copies of one request landing together, no realtime "
+                    "channel joining again, no write while idle, and nothing refreshed while nobody could see it")
 CONDITION["L2"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's cast in "
                    "the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its "
                    "confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack "

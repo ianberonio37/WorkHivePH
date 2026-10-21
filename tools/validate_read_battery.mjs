@@ -18,6 +18,7 @@
 // USAGE:  node tools/validate_read_battery.mjs [--headed]   ·  exit 0 = all PASS · exit 1 = any FAIL
 import { chromium } from 'playwright';
 import { execSync } from 'child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SUPABASE_URL = process.env.WH_SUPABASE_URL || 'http://127.0.0.1:54321';
@@ -101,6 +102,7 @@ const isRateLimit = (t) => /\b429\b|too many requests|rate.?limit/i.test(t || ''
 (async () => {
   const browser = await chromium.launch({ headless: !HEADED });
   const ctx = await browser.newContext();
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const page = await ctx.newPage();
   const consoleErrors = [];
   page.on('console', m => { if (m.type() === 'error') consoleErrors.push(m.text().slice(0, 160)); });

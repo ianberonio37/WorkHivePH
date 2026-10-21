@@ -24,6 +24,7 @@
 
 import { chromium } from 'playwright';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const EMAIL = process.env.WH_TEST_EMAIL || 'leandromarquez@auth.workhiveph.com';
@@ -697,6 +698,7 @@ async function auditPage(context, pageFile) {
 
   const browser = await chromium.launch({ headless: !HEADED });
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  await context.addInitScript(ALL_ROWS_DRAWN);
   const si = await signInOnce(context);
   console.log(`[D1] sign-in: ${si.ok ? 'OK' : 'FAIL ' + si.err}`);
 

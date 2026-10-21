@@ -24,6 +24,7 @@
 import { writeFileSync } from 'fs';
 import { chromium } from '@playwright/test';
 import { signIn, SEEDER, assertSignedIn } from './live_page_journeys.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const args = process.argv.slice(2);
 const ONE = (() => { const i = args.indexOf('--page'); return i >= 0 ? args[i + 1] : null; })();
@@ -151,6 +152,7 @@ const OVERLOADED = [
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 await assertSignedIn(signIn(ctx, 'supervisor'));
 
 const results = [];

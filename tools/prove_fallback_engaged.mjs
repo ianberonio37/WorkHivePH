@@ -38,6 +38,7 @@ import { writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'node:url';
 import { signIn, assertSignedIn } from './live_page_journeys.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
@@ -206,6 +207,7 @@ const run = async () => {
     // "this page has no primary". Blocking registration removes the bypass at the source.
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 },
       serviceWorkers: 'block' });
+    await ctx.addInitScript(ALL_ROWS_DRAWN);
     await assertSignedIn(signIn(ctx, 'supervisor'));
     const page = await ctx.newPage();
     let edgeDown = 0;
@@ -393,6 +395,7 @@ const run = async () => {
       // shrinkage means content DID depend on the read, and then the silence is real.
       const ctl = await browser.newContext({ viewport: { width: 390, height: 844 },
         serviceWorkers: 'block' });
+      await ctl.addInitScript(ALL_ROWS_DRAWN);
       await assertSignedIn(signIn(ctl, 'supervisor'));
       const cp = await ctl.newPage();
       let healthy = null;

@@ -19,6 +19,7 @@
 //   node tools/prove_data_honesty.mjs --pages a.html,b.html
 import { chromium } from 'playwright';
 import { SEEDER, signIn, PAGE_QUERY, VIS_JS, assertSignedIn } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const LIST = (() => { const i = process.argv.indexOf('--pages'); return i >= 0 ? process.argv[i + 1].split(',') : null; })();
@@ -109,6 +110,7 @@ const AUDIT = function audit(VIS_JS) {
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block' });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 await assertSignedIn(signIn(ctx));
 
 let bad = 0, n = 0;

@@ -8,6 +8,7 @@
 //   node tools/prove_db_pages_degradation.mjs --shared   # every shared script fails
 //   ... --page alert-hub.html
 import { chromium } from 'playwright';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { SEEDER, HIVE, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';   // shared preamble (2026-09-05)
 const MODE = process.argv.includes('--shared') ? 'shared' : 'data';
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
@@ -35,6 +36,7 @@ const STATUS_SEL = '[role="status"], [role="alert"], .wh-source-chip, .honest-em
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block' });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 await assertSignedIn(signIn(ctx));
 
 let bad = 0, n = 0;

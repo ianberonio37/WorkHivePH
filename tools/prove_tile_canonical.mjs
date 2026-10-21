@@ -23,6 +23,7 @@
 import { chromium } from 'playwright';
 import { SEEDER, HIVE, signIn, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 import { execSync } from 'node:child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const psql = (sql) => { try { return execSync(`docker exec -i supabase_db_workhive psql -U postgres -d postgres -tA -c "${sql.replace(/"/g, '\\"')}"`, { encoding: 'utf8' }).trim(); } catch { return ''; } };
@@ -77,6 +78,7 @@ const READ = function read(args) {
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 await assertSignedIn(signIn(ctx));
 const pages = [...new Set(PAIRS.map((p) => p.page))].filter((f) => !ONLY || f === ONLY);
 let bad = 0, n = 0;

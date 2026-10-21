@@ -28,6 +28,7 @@
  */
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const BASE = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const SB_URL = process.env.WH_SUPABASE_URL || 'http://127.0.0.1:54321';
@@ -67,6 +68,7 @@ const signIn = async (ctx, email, pw) => {
 try {
   // ── the supervisor's browser ──
   const supCtx = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
+  await supCtx.addInitScript(ALL_ROWS_DRAWN);
   if (!(await signIn(supCtx, SUP.email, SUP.pw))) throw new Error('supervisor sign-in failed');
 
   const supPage = await supCtx.newPage();
@@ -106,6 +108,7 @@ try {
 
   // ── the worker's browser: a different account, sharing only the six characters ──
   const wkCtx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await wkCtx.addInitScript(ALL_ROWS_DRAWN);
   if (!(await signIn(wkCtx, workerRow, SUP.pw))) throw new Error('worker sign-in failed');
 
   const join = async (theCode) => {

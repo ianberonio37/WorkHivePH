@@ -53,6 +53,7 @@ import { TARGETS } from './dialog_targets.mjs';
 // space and the naive version threw ENOENT before it could check anything.
 import { readFileSync as _readSelf } from 'fs';
 import { fileURLToPath as _selfPath } from 'url';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 // ★PROCESS DEADLINE, a BACKSTOP to the per-read watchdog below. read() is raced at 90s, which
 // bounds every page read -- but NOT the parts outside it: signIn(), browser launch, context
@@ -412,6 +413,7 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
   let healthy = null;
   try {
     const c0 = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    await c0.addInitScript(ALL_ROWS_DRAWN);
     // A SWALLOWED SIGN-IN FAILURE FABRICATES DEFECTS. This was `.catch(() => {})`: if sign-in
     // failed the sweep continued UNAUTHENTICATED, every auth-gated page redirected to index, and the
     // prover measured a redirect stub — reporting "N call(s) failed and the page said NOTHING about
@@ -458,6 +460,7 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
           + `("${(healthy.failureQuote || '').slice(0, 50)}") — the signal cannot be attributed`;
       } else {
         const c = await browser.newContext({ viewport: { width: 390, height: 844 } });
+        await c.addInitScript(ALL_ROWS_DRAWN);
         await assertSignedIn(signIn(c, 'supervisor'));
         const bad = await read(c, p, mode);
         await c.close();

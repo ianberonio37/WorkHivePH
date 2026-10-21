@@ -7043,6 +7043,20 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # SL LB3 follow-on (2026-10-22): an instrument that reads what a page says reads every row of its long lists. A
+        # long list's off-screen rows (content-visibility:auto) carry no innerText and the page's innerText leaves them
+        # out: on the live logbook at 390, body.innerText held the words of 2 of 20 entries - every prover reading a
+        # long-list page's text saw a tenth of the list, and a "must not appear" check passed over the rest. Holds the
+        # 87 instruments that read innerText on the 15 long-list pages to draw every row (tools/lib/long_list_text.mjs
+        # ALL_ROWS_DRAWN on every context) or read the rows back (PAGE_TEXT, for a walk that times the rendering).
+        "id":      "prover-reads-whole-list",
+        "script":  os.path.join("tools", "validate_prover_reads_whole_list.py"),
+        "args":    [],
+        "label":   "Prover reads the whole list (SL LB3): every instrument that reads innerText on a long-list page draws every row (ALL_ROWS_DRAWN on each context it opens) or reads the skipped rows back (PAGE_TEXT); the helper draws the class utils.js skips rows in",
+        "group":   "Performance",
+        "skip_if_fast": False,
+    },
+    {
         # SL LB3 (2026-10-21): a lookup by many keys reaches the database in pieces the gateway accepts. `.in(col, keys)`
         # carries every key in the URL, and past ~8 KB the gateway answers 414 (measured: 400 names = 8.7 KB; ~200 UUIDs).
         # Walked with a thousand rows: pm-scheduler read no PM work for a plant of a few hundred assets, project-manager

@@ -6,6 +6,7 @@
 //   node tools/prove_handoff_carries_context.mjs            # roster below; exit 1 on any dropped identity
 //   node tools/prove_handoff_carries_context.mjs --page audit-log.html
 import { chromium } from 'playwright';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { SEEDER, HIVE as HIVE_ID, WORKER as WHO, signIn, VIS_JS, assertSignedIn } from './prover_harness.mjs';   // shared preamble (2026-09-05)
 const HIVE_NAME = WHO.hiveName;
 const WORKER = WHO.first;
@@ -24,6 +25,7 @@ const SKIP_HREF = /^(#|javascript:|mailto:|tel:|https?:\/\/(?!127\.0\.0\.1))|ind
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block' });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 await assertSignedIn(signIn(ctx));
 
 const ident = (p) => p.evaluate(() => ({ hive: localStorage.getItem('wh_active_hive_id'), role: localStorage.getItem('wh_hive_role'), worker: localStorage.getItem('wh_last_worker'), url: location.pathname.split('/').pop(), text: (document.body.innerText || '').replace(/\s+/g, ' ').slice(0, 8000) }));   // the whole first screens, not the first 1,200 chars (2026-09-05 calibration)

@@ -21,6 +21,7 @@
  */
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_SEEDER || 'http://127.0.0.1:5000';
 const MARKER = 'WH-T9-PROBE timed journey';
@@ -199,6 +200,7 @@ const browser = await chromium.launch();
 const results = [];
 for (const c of CASES) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const page = await ctx.newPage();
   let verdict = { id: c.id, ms: null, within: false, note: '' };
   try {

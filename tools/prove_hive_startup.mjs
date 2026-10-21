@@ -21,6 +21,7 @@ import { chromium } from 'playwright';
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { SEEDER, HIVE, signIn, stubModelCalls, PAGE_QUERY, psql } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const OUT = arg('--json', '.tmp/hive_startup_results.json');
@@ -62,6 +63,7 @@ const STATES = {};
 let REAL = null;
 for (const [k, acct] of Object.entries(ACCTS)) {
   const ctx = await BROWSER.newContext({ serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   if (await signIn(ctx, { ...acct, hive: HIVE })) {
     const p = await ctx.newPage();
     await p.goto(`${SEEDER}/workhive/index.html`, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
@@ -76,6 +78,7 @@ if (!STATES.bryan || !STATES.leandro || !REAL) { console.log(`FAIL hive-startup 
 async function read(row, [w, h]) {
   const who = acctFor(row);
   const ctx = await BROWSER.newContext({ serviceWorkers: 'block', storageState: STATES[who] });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await stubModelCalls(ctx);
   await ctx.route('**/functions/v1/**', (r) => r.request().method() === 'OPTIONS' ? r.fallback()
     : r.fallback({ headers: { ...r.request().headers(), 'x-wh-walk-no-model': '1' } }));

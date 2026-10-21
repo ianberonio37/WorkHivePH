@@ -20,6 +20,7 @@ import { chromium } from 'playwright';
 import { readFileSync, readdirSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { SEEDER, signIn, PAGE_QUERY, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const psql = (sql) => { try { return execSync(`docker exec -i supabase_db_workhive psql -U postgres -d postgres -tA -c "${sql.replace(/"/g, '\\"')}"`, { encoding: 'utf8' }).trim(); } catch { return ''; } };
@@ -65,6 +66,7 @@ console.log(`  ${r2bad.length ? 'BAD' : 'ok '} R2 in step               ${r2chec
 // reaching `waiting` and tell the person, rather than swapping under them on the next navigation?
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 {
   const p = await ctx.newPage();
   await p.goto(`${SEEDER}/workhive/index.html`, { waitUntil: 'load', timeout: 30000 }).catch(() => {});
@@ -106,6 +108,7 @@ const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } });
 // ── R3 · an in-progress draft survives a reload ──────────────────────────────────────────────────
 {
   const ctx2 = await b.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block' });
+  await ctx2.addInitScript(ALL_ROWS_DRAWN);
   await assertSignedIn(signIn(ctx2));
   let checked = 0, lost = [];
   for (const file of (ONLY ? [ONLY] : ['logbook.html', 'inventory.html', 'community.html', 'resume.html', 'voice-journal.html'])) {

@@ -608,6 +608,18 @@ async (mcpPage) => {
   for (const vp of P.viewports) {
     const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, isMobile: !!vp.mobile,
       hasTouch: !!vp.mobile, deviceScaleFactor: vp.mobile ? 2 : 1, serviceWorkers: 'block', locale: 'en-PH' });
+    // long-list-text: ALL_ROWS_DRAWN of tools/lib/long_list_text.mjs, inlined (a walk body cannot import). A long list's
+    // off-screen rows carry no innerText (content-visibility:auto) - the logbook's text held 2 of its 20 entries - so
+    // every row is drawn, and what the walk reads is every row a person can scroll to (SL LB3, 2026-10-22)
+    await ctx.addInitScript(() => {
+      const put = () => {
+        if (document.getElementById('wh-prover-all-rows')) return;
+        const st = document.createElement('style'); st.id = 'wh-prover-all-rows';
+        st.textContent = '.wh-rows-cv>*{content-visibility:visible!important}';
+        (document.head || document.documentElement).appendChild(st);
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', put, { once: true }); else put();
+    });
     const captured = [];
     // ★A SIGNED-IN PERSON WAS TOLD TO "SIGN IN" (LM389, 2026-10-07): marketplace's AI assist read the hive, not the
     // session, and showed a signed-in solo owner the shared sign-in card - and no walk flagged it, because the card is

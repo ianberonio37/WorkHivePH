@@ -23,6 +23,7 @@ import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname } from 'node:path';
 import { SEEDER, HIVE, signIn, stubModelCalls, PAGE_QUERY } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const OUT = arg('--json', '.tmp/scope_empty_results.json');
@@ -43,6 +44,7 @@ const BROWSER = await chromium.launch();
 let STATE = null;
 {
   const ctx = await BROWSER.newContext({ serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   if (await signIn(ctx, { ...ACCT, hive: HIVE })) {
     const p = await ctx.newPage();
     await p.goto(`${SEEDER}/workhive/index.html`, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
@@ -56,6 +58,7 @@ if (!STATE) { console.log('FAIL scope-empty - sign-in failed'); process.exit(1);
 // one load per (page, viewport, state) reads EVERY row's sentence on that page
 async function readPage(page, [w, h], wiped, revert = REVERT) {
   const ctx = await BROWSER.newContext({ serviceWorkers: 'block', storageState: STATE });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await stubModelCalls(ctx);
   await ctx.route('**/functions/v1/**', (r) => r.request().method() === 'OPTIONS' ? r.fallback()
     : r.fallback({ headers: { ...r.request().headers(), 'x-wh-walk-no-model': '1' } }));

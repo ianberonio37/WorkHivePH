@@ -31,6 +31,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { dirname } from 'node:path';
 import { SEEDER, stubModelCalls, PAGE_QUERY } from './prover_harness.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const ENGINES = arg('--engine') ? [arg('--engine')] : ['chromium', 'webkit'];
@@ -105,6 +106,7 @@ async function context(engine, condition, prefix) {
   const browser = await (engine === 'webkit' ? webkit : chromium).launch(engine === 'webkit' ? {} : {
     args: ['--disable-features=LocalNetworkAccessChecks,BlockInsecurePrivateNetworkRequests,PrivateNetworkAccessSendPreflights'] });
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await stubModelCalls(ctx);   // local stubs first: a page's load-time model call never reaches a provider
   const seen = { inserts: [] };
   await ctx.route('**/rest/v1/client_errors*', async (route) => {

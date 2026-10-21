@@ -8,6 +8,7 @@
 //   node tools/prove_reference_claims.mjs --page design-system.html
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { SEEDER, signIn as harnessSignIn, psql, psqlAs, assertSignedIn } from './prover_harness.mjs';   // shared preamble + DB truths (2026-09-05)
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 // Truth views that carry an admin/member predicate (v_service_credit_topups_truth, v_gcash_receipts_needing_eyes) return
@@ -126,6 +127,7 @@ async function signIn(ctx) { return harnessSignIn(ctx); }
 
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block' });
+await ctx.addInitScript(ALL_ROWS_DRAWN);
 let bad = 0, n = 0, signed = false;
 for (const c of CLAIMS) {
   if (ONLY && c.file !== ONLY) continue;

@@ -41,6 +41,7 @@
  */
 import { chromium } from 'playwright';
 import { writeFileSync } from 'fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
 const PERSONAS = {
@@ -77,6 +78,7 @@ const browser = await chromium.launch();
 for (const [persona, acct] of Object.entries(PERSONAS)) {
   if (only && persona !== only) continue;
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const p = await ctx.newPage();
 
   if (acct) {

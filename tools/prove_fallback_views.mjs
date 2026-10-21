@@ -23,6 +23,7 @@ import { chromium } from 'playwright';
 import { writeFileSync } from 'fs';
 import { signIn, assertSignedIn } from './live_page_journeys.mjs';
 import { viewTargets, openView } from './view_pass.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
 const PAGES = ['hive', 'logbook', 'inventory', 'pm-scheduler', 'project-manager', 'dayplanner',
@@ -75,6 +76,7 @@ for (const pg of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
     try {
       const ctx = await browser.newContext({ viewport: { width: 390, height: 844 },
         serviceWorkers: 'block' });
+      await ctx.addInitScript(ALL_ROWS_DRAWN);
       if (!t.signedOut) await assertSignedIn(signIn(ctx, 'supervisor'));  // index V2/V3 run signed OUT by design
       const p = await ctx.newPage();
       await p.goto(`${ORIGIN}/${pg}.html${QUERY[pg] || ''}`, { waitUntil: 'domcontentloaded', timeout: 25000 });

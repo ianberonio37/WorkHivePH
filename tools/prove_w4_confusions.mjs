@@ -22,6 +22,7 @@ import { chromium } from 'playwright';
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import os from 'node:os';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { stubModelCalls } from './prover_harness.mjs';   // signs in through the UI, then opens shift-brain (C26): stub its load-time model call
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -287,6 +288,7 @@ for (const t of rows) {
   const problems = []; const steps = []; let predicate = null;
   let waited = 0; while (freeGb() < 0.7 && waited < 120) { await new Promise((r) => setTimeout(r, 15000)); waited += 15; }
   const context = await browser.newContext({ viewport, isMobile: true, hasTouch: true, deviceScaleFactor: 1, locale: lang === 'fil' ? 'fil-PH' : 'en-PH', serviceWorkers: 'block' });
+  await context.addInitScript(ALL_ROWS_DRAWN);
   await stubModelCalls(context);
   const page = await context.newPage();
   await page.addInitScript({ content: AUDIT });

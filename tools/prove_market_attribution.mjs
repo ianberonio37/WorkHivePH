@@ -27,6 +27,7 @@
  */
 import { chromium } from 'playwright';
 import { writeFileSync } from 'fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
 const ACCTS = {
@@ -57,6 +58,7 @@ const check = (surface, name, pass, detail) => {
 const browser = await chromium.launch();
 async function signedPage(acct, viewport) {
   const ctx = await browser.newContext({ viewport: viewport || { width: 390, height: 844 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const p = await ctx.newPage();
   await p.goto(`${ORIGIN}/shift-brain.html`, { waitUntil: 'domcontentloaded' });
   await p.waitForFunction(() => typeof window.getDb === 'function' && !!window.supabase, { timeout: 15000 }).catch(() => {});
@@ -448,6 +450,7 @@ if (!only || only === 'achievements') {
 // ── public_feed: the anon page, its cards vs its own exact public query ──────────────────────────
 if (!only || only === 'public_feed') {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const p = await ctx.newPage();
   await p.goto(`${ORIGIN}/public-feed.html`, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await p.waitForTimeout(7000);

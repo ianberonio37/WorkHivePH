@@ -31,6 +31,7 @@ import { takeBrowserSlot } from './browser_slot.mjs';
 import { record as fitRecord, issuesOf as fitIssues } from './phone_fit_audit.mjs';
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ORIGIN = process.env.WH_SEEDER_URL ? `${process.env.WH_SEEDER_URL}/workhive` : 'http://127.0.0.1:5000/workhive';
 const SUPA = 'http://127.0.0.1:54321';
@@ -819,6 +820,7 @@ async function walk(browser, story) {
   // cleanup path - killing two whole archetypes (J25, J19) on rows that had nothing to do with a pair.
   let partnerCtx = null;
   const ctx = await browser.newContext(opts);
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   try {
     // ★A CONDITION THE WALK DOES NOT APPLY IS A CONDITION THE ROW CANNOT CLAIM. The registry asks for four
     // and this applied ONE. `dependency-down` (20 rows) and `release-mid-way` (20 rows) were never emulated
@@ -930,6 +932,7 @@ async function walk(browser, story) {
         // as themselves; only the viewport and locale are shared, because the device and language belong
         // to the story, not to the walker.
         partnerCtx = await browser.newContext({ viewport: opts.viewport, locale: opts.locale });
+        await partnerCtx.addInitScript(ALL_ROWS_DRAWN);
         const s = await signInAs(partnerCtx, story.partner, story.partner.hiveId || story.hiveId);
         // ★THE LANGUAGE BELONGS TO THE STORY, NOT TO THE WALKER (2026-09-10). `wh_lang` was stamped on the
         // primary context only, so the partner opened a fresh context in English and all six Filipino J27

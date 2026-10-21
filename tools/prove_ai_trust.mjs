@@ -22,6 +22,7 @@ import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
 import { SEEDER, signIn, PAGE_QUERY, VIS_JS, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
 import { REFUSAL, VIEW_ONLY, armQuotaRefusal, askSurface } from './ai_ask.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? process.argv[i + 1] : null; })();
 const read = (f) => { try { return readFileSync(f, 'utf8'); } catch { return ''; } };
@@ -51,6 +52,7 @@ for (const file of (ONLY ? [ONLY] : ROSTER)) {
   const hasChip = /wh-source-chip|data-source-chip|source-chip|whAiTrustRow/i.test(src);
 
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await assertSignedIn(signIn(ctx));
   const p = await ctx.newPage();
   // T4: the gateway answers as it does on a spent quota

@@ -18,6 +18,7 @@
 
 import { chromium } from 'playwright';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
 // ★THE APP IS SERVED UNDER /workhive/, AND THAT PREFIX DECIDES WHETHER LINKS RESOLVE (2026-08-28).
@@ -130,6 +131,7 @@ async function probePage(browser, entry) {
   const results = [];
   for (const vp of VIEWPORTS) {
     const ctx = await browser.newContext({ viewport: { width: vp.w, height: vp.h }, timezoneId: 'Asia/Manila' });
+    await ctx.addInitScript(ALL_ROWS_DRAWN);
     const page = await ctx.newPage();
     try {
       const resp = await page.goto(`${ORIGIN}${PATH_BASE}/${entry.page}`, { waitUntil: 'domcontentloaded', timeout: 25000 });
