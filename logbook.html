@@ -5103,6 +5103,9 @@ async function renderEntries(reload = true, fromStatPills = false) {
      the card shows ELECTRICAL · CLOSED · Sep 17, 2026 · 03:41 PM, and in the Team Feed the name of whoever logged
      it. For a logbook those are the provenance - when, what state, who - and a screen-reader user moving through
      the list heard none of them. The label now carries what the card shows, in the order it shows it. */
+  /* SL RL3 (2026-10-22): a key held on a card repeats about 30 times a second, and each repeat opened the entry again -
+     a read of the entry whenever it was not in memory. The card's onkeydown (and the open-jobs panel's) opens on a
+     press, never on a held key's repeats. */
   /* ★SL LB3 (2026-10-21): LOAD MORE REBUILT EVERY CARD. With a thousand entries behind the list, each press re-rendered
      the whole list - 49 presses to reach 1,000, each rebuilding everything: 642 ms a press on a desktop, 2 s at phone
      speed. whRenderRows appends the 20 new cards when the list only grew (the same search, filter, view and machine
@@ -5115,7 +5118,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
     const knowledge = highlight(e.knowledge, q);
 
     return `
-    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" data-entry-id="${escHtml(String(e.id))}" onclick="openModal('${escJsAttr(e.id)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${escJsAttr(e.id)}')}" aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([(e.machine || ''), (e.problem || '').slice(0, 60), (e.status || 'Open'), formatDate(e.date), (_viewMode === 'team' && e.worker_name && !_isMine(e)) ? _t('logged by', 'isinulat ni') + ' ' + e.worker_name : ''].filter(Boolean).join(' - '))}">
+    <div class="card p-5 mb-3 entry-card cursor-pointer hover:border-white/15 transition-colors" data-entry-id="${escHtml(String(e.id))}" onclick="openModal('${escJsAttr(e.id)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();if(!event.repeat)openModal('${escJsAttr(e.id)}')}" aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([(e.machine || ''), (e.problem || '').slice(0, 60), (e.status || 'Open'), formatDate(e.date), (_viewMode === 'team' && e.worker_name && !_isMine(e)) ? _t('logged by', 'isinulat ni') + ' ' + e.worker_name : ''].filter(Boolean).join(' - '))}">
       <div class="flex items-start justify-between gap-3 mb-3">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -7914,7 +7917,7 @@ function renderOpenJobs(entries) {
   list.innerHTML = displayed.map(e => `
     <div class="rounded-xl p-3 mb-2 cursor-pointer" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15);"
       onclick="openModal('${escJsAttr(e.id)}')" role="button" tabindex="0"
-      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModal('${escJsAttr(e.id)}')}"
+      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();if(!event.repeat)openModal('${escJsAttr(e.id)}')}"
       aria-label="${escHtml(_t('Open entry', 'Buksan ang entry'))}: ${escHtml([e.machine || _t('Unknown machine', 'Hindi kilalang makina'), (e.problem || '').slice(0, 60), e.date ? new Date(e.date).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month:'short', day:'numeric' }) : ''].filter(Boolean).join(' - '))}"
       onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='rgba(239,68,68,0.06)'">
       <div class="flex items-center justify-between gap-2">

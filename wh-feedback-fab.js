@@ -585,8 +585,16 @@
       const error = await insertViaRest(row);
       if (error) {
         // 23P01 is our rate-limit trigger; PostgREST returns it as code.
+        // ★TWO LIMITS, ONE SENTENCE (SL RL2, 2026-10-22). The trigger holds two limits - five an hour per person, and an
+        // hourly ceiling shared by everyone who is not signed in - and this always said the first: a visitor who had
+        // sent nothing read "You've already sent 5 messages this hour", and nobody read when to try again ("later").
+        // The trigger now says which limit and when it clears (migration 20261022000001); that sentence is shown, and
+        // the old one stays for a database that still words it the old way.
         if (error.code === '23P01' || /rate limit/i.test(error.message || '')) {
-          setStatus('error', RATE_LIMIT_MSG());
+          const said = String(error.message || '');
+          setStatus('error', (/\b(?:minutes?|hours?|seconds?)\b/.test(said) && said.length <= 300 && !/identity \(/.test(said))
+            ? said.replace(/^Feedback rate limit reached:\s*/i, '').replace(/^\w/, (c) => c.toUpperCase())
+            : RATE_LIMIT_MSG());
         } else {
           setStatus('error', _tt('Could not send, please try again in a moment.', 'Hindi naipadala, subukan ulit maya-maya.'));
           console.error('[wh-feedback-fab] insert failed', error);

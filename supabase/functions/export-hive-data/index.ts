@@ -45,6 +45,7 @@ import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
+import { checkRouteRateLimit, routeRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // Warm module-scope client (PRODUCTION_FIXES #46 pattern).
 const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
@@ -135,6 +136,15 @@ serveObserved("export-hive-data", async (req) => {
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
+
+    // ★THE WHOLE HIVE, AS OFTEN AS THE BUTTON IS PRESSED (SL RL1, 2026-10-22). Every other function hive.html calls is
+    // charged to the hive's budget; this one - the heaviest read on the platform, every table the hive owns in one
+    // payload - had none, so an export ran as many times as a supervisor pressed for it. It now counts against the
+    // hive's own per-route allowance (hive_route_quotas, the default hourly cap where the hive set none), checked only
+    // once the caller is proven an active supervisor OF this hive - so the key is a verified hive, never a body claim -
+    // and a refusal says which limit and when it reopens.
+    const _rq = await checkRouteRateLimit(db, hive_id, "export-hive-data");
+    if (!_rq.allowed) return routeRateLimitedResponse(corsHeaders, "export-hive-data", _rq.cap, _rq.retry_after_seconds, _rq.scope);
 
     // Bounded RPC call.
     const exportP = db.rpc("export_hive_data", { p_hive_id: hive_id });

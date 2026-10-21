@@ -42,34 +42,45 @@ const EN = (en) => en;
 const FIL = (en, fil) => (fil || en);
 
 // Exact gateway bodies (from _shared/rate-limit.ts) -> expected friendly substring.
+// ★A BODY THAT SAYS WHOSE LIMIT AND WHEN IS SHOWN AS IT IS (SL RL1, 2026-10-22). The stock hints rewrote the gateway's
+// own refusal: a HIVE's spent hourly allowance ("AI call limit reached for this hive. Try again in about 12 minutes.")
+// became "You've used up your AI questions for this hour. Try again in a little while - your teammates aren't
+// affected" - the asker blamed, the teammates told a false thing, the window thrown away. A body naming a limit and when
+// it clears is now the sentence itself ('server' below: the same text in either language, because the page cannot
+// translate a sentence the server wrote); the stock hints stay for a body with no window ('stock').
 const cases = [
-  ["AI is handling a burst of activity right now. Please retry in a few seconds.", "very busy"],
-  ["The platform's shared AI budget for today is fully used. Please try again tomorrow.", "shared AI budget for today"],
-  ["Daily AI limit reached for this hive. Resets tomorrow.", "today's AI limit"],
-  ["Per-user AI call limit reached (25/hour). Other hive members are unaffected.", "for this hour"],
-  ["AI call limit reached for this hive. Try again in an hour.", "for this hour"],
-  ["Failed to fetch", "Check your connection"],
-  ["Edge Function returned a non-2xx status code", "Check your connection"],
-  ["WH_DB_TIMEOUT: the database did not answer in time", "took too long"],
+  ["AI is handling a burst of activity right now. Please retry in a few seconds.", "very busy", "stock"],
+  ["The platform's shared AI budget for today is fully used. Please try again tomorrow.", "The platform's shared AI budget for today is fully used. Please try again tomorrow.", "server"],
+  ["Daily AI limit reached for this hive. Resets tomorrow.", "Daily AI limit reached for this hive. Resets tomorrow.", "server"],
+  ["Daily AI limit reached for this hive. Try again in about 6 hours.", "Daily AI limit reached for this hive. Try again in about 6 hours.", "server"],
+  ["Per-user AI call limit reached (25/hour). Other hive members are unaffected.", "for this hour", "stock"],
+  ["Per-user AI call limit reached (25/hour). Other hive members are unaffected. Try again in about 20 minutes.", "Per-user AI call limit reached (25/hour). Other hive members are unaffected. Try again in about 20 minutes.", "server"],
+  ["AI call limit reached for this hive. Try again in an hour.", "AI call limit reached for this hive. Try again in an hour.", "server"],
+  ["AI call limit reached for this hive. Try again in about 12 minutes.", "AI call limit reached for this hive. Try again in about 12 minutes.", "server"],
+  ["limit reached", "for this hour", "stock"],
+  ["Failed to fetch", "Check your connection", "stock"],
+  ["Edge Function returned a non-2xx status code", "Check your connection", "stock"],
+  ["WH_DB_TIMEOUT: the database did not answer in time", "took too long", "stock"],
 ];
 
 let pass = 0, fail = 0;
 console.log('  EN — each gateway body maps to the right hint:');
-for (const [body, want] of cases) {
+for (const [body, want, kind] of cases) {
   const got = classify(body, EN);
-  const ok = typeof got === 'string' && got.includes(want);
+  const ok = typeof got === 'string' && (kind === 'server' ? got === '⚠️ ' + want : got.includes(want));
   if (ok) pass++; else fail++;
   console.log(`  [${ok ? 'ok  ' : 'FAIL'}] "${body.slice(0, 42)}..." -> ${ok ? 'correct' : 'got: ' + got}`);
 }
 
-console.log('\n  FIL — every branch must return DIFFERENT, non-empty Filipino text:');
-for (const [body] of cases) {
+console.log('\n  FIL — every stock branch must return DIFFERENT, non-empty Filipino text; a server sentence stays as written:');
+for (const [body, , kind] of cases) {
   const en = classify(body, EN);
   const fil = classify(body, FIL);
-  // an untranslated branch falls through to the English half, so en === fil is the failure
-  const ok = typeof fil === 'string' && fil.trim().length > 0 && fil !== en;
+  // an untranslated stock branch falls through to the English half, so en === fil is the failure there; a server
+  // sentence is the server's words in either language, so there it is the requirement
+  const ok = typeof fil === 'string' && fil.trim().length > 0 && (kind === 'server' ? fil === en : fil !== en);
   if (ok) pass++; else fail++;
-  console.log(`  [${ok ? 'ok  ' : 'FAIL'}] "${body.slice(0, 42)}..." -> ${ok ? 'translated' : 'NOT translated (identical to EN)'}`);
+  console.log(`  [${ok ? 'ok  ' : 'FAIL'}] "${body.slice(0, 42)}..." -> ${ok ? (kind === 'server' ? 'the server\'s words' : 'translated') : (kind === 'server' ? 'REWRITTEN' : 'NOT translated (identical to EN)')}`);
 }
 
 console.log('\n  ' + (fail === 0 ? 'PASS' : 'FAIL') + ' — ' + pass + ' passed, ' + fail + ' failed');

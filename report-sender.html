@@ -2561,10 +2561,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // with a network-error regex), and the root is always a broad failure classifier swallowing a
         // specific, actionable cause. The per-report errors are already captured in `results`, so the
         // cause is available here — it just was not being read.
-        const msgs = Object.values(results).map((v) => String((v && v.message) || '')).join(' ');
-        const rateLimited = /\b429\b|rate.?limit|too many requests/i.test(msgs);
+        // ★THE LIMIT'S OWN "WHEN" WAS THROWN AWAY (SL RL2, 2026-10-22). generateReport carries the function's sentence
+        // ("AI call limit reached for this hive. Try again in about 40 minutes. [429]"), and this branch answered with a
+        // stand-in 429 - "Wait a moment and try again" - to a hive whose limit had most of an hour to run. The
+        // function's sentence is shown (its status tag taken off); a refusal with no window in it goes to the shared
+        // mapper as it was said.
+        const _limitMsgs = Object.values(results).map((v) => String((v && v.message) || ''))
+          .filter((m) => /\b429\b|rate.?limit|too many requests|call limit|limit reached/i.test(m));
+        const rateLimited = _limitMsgs.length > 0;
+        const _limitSaid = _limitMsgs.map((m) => m.replace(/\s*\[\d{3}\]\s*$/, ''))
+          .find((m) => /\b(?:limit|too many)\b/i.test(m) && /\b(?:seconds?|minutes?|hours?|tomorrow|midnight)\b/i.test(m));
         showToast(rateLimited
-          ? (window.whAiError ? window.whAiError({ message: '429' }) : _t('You have hit the AI rate limit.', 'Naabot mo na ang limitasyon ng AI.'))
+          ? (_limitSaid || (window.whAiError ? window.whAiError({ message: _limitMsgs[0] }) : _t('You have hit the AI rate limit.', 'Naabot mo na ang limitasyon ng AI.')))
             + ' Your selection and recipients are still here.'
           // 2026-10-06 (report-sender x assistive-tech, PostgREST stopped): "check connection" was the advice for every
           // non-429 failure, including a service outage with navigator.onLine TRUE.

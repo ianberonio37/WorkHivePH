@@ -505,7 +505,8 @@
     function refusalMessage(err) {
       const code = String(err && (err.code || err.errcode) || '');
       const msg = String(err && err.message || '').trim();
-      if ((code === '23514' || code === 'P0001') && msg && msg.length < 300) return msg;
+      // 54000 (SL RL2, 2026-10-22): a limit refuses in its own sentence too - the daily caps say which limit and when
+      if ((code === '23514' || code === 'P0001' || code === '54000') && msg && msg.length < 300) return msg;
       if (code === '42501' && msg && msg.length < 300
           && !/permission denied for (table|relation|schema|function|view|sequence)/i.test(msg)
           && !/jwt|token expired/i.test(msg)) return msg;

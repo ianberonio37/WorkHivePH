@@ -1273,7 +1273,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      ============================== -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFreshnessFooter whGcashPasteWire whHeldUpload whI18nApply whMoreNote whQueryTimeout whReadError whSourcesSync whStartupHive whStatUnknown whStatValue whUse whWorker">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFnError whFreshnessFooter whGcashPasteWire whHeldUpload whI18nApply whMoreNote whQueryTimeout whReadError whSourcesSync whStartupHive whStatUnknown whStatValue whUse whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -4779,7 +4779,10 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         ? 'You are offline' + tail + '. Try again when your connection is back.'
         : _t('WorkHive did not answer', 'Hindi sumagot ang WorkHive') + tail + '. ' + _t('Try again in a moment.', 'Subukan muli maya-maya.');
     }
-    const _authored = (code === '23514' || code === 'P0001'
+    // SL RL2 (2026-10-22): a daily limit on hire requests, payments and top-ups refuses in its own sentence ("You have
+    // reached today's free limit (40). Resets at midnight.") under 54000, the code Postgres keeps for limits - and it
+    // fell to "Something went wrong, so nothing was sent": no limit named, no word of when. A limit speaks for itself too.
+    const _authored = (code === '23514' || code === 'P0001' || code === '54000'
       || (code === '42501' && msg && !/permission denied for (table|relation|schema|function|view|sequence)/i.test(msg)));
     if (_authored && msg && msg.length < 300) return msg;
     if (msg) { try { console.warn('marketplace service error (shown as a generic message):', code, msg); } catch (_) { /* empty-catch-allow: logging must never break the error path */ } }
@@ -5327,6 +5330,17 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       const resp = await db.functions.invoke('ai-gateway', {
         body: { agent: 'service-triage', message: desc, hive_id: HIVE_ID || undefined }
       });
+      // ★A SPENT AI ALLOWANCE READ AS "NO SUGGESTION" (SL RL1, 2026-10-22). The gateway's refusal was never read: a
+      // limit reached left the reply empty, and the person was told "No suggestion this time" - as if the AI had looked
+      // and found nothing. A refusal says which limit and when it clears (the gateway's own sentence); the fields can
+      // still be picked by hand.
+      if (resp.error) {
+        const said = typeof whFnError === 'function'
+          ? await whFnError(resp.error, 'The AI could not suggest anything just now.')
+          : 'The AI could not suggest anything just now.';
+        if (out) out.textContent = said + ' Pick the fields yourself.';
+        return;
+      }
       const env = (resp.data && resp.data.data) || resp.data || {};   // gateway envelope: payload under .data
       const t = (env.route_result && env.route_result.triage) || env.triage || null;
       if (!t) { if (out) out.textContent = 'No suggestion this time. Pick the fields yourself.'; return; }

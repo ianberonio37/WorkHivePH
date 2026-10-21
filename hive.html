@@ -2668,8 +2668,9 @@ document.getElementById('btn-back-from-create').addEventListener('click', () => 
 document.getElementById('btn-back-from-join').addEventListener('click', () => showView('onboard'));
 
 // ── CREATE HIVE ──
+// a held Enter repeats about 30 times a second; one press creates, joins or asks once (SL RL3, 2026-10-22)
 document.getElementById('hive-name-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') submitCreate();
+  if (e.key === 'Enter' && !e.repeat) submitCreate();
 });
 document.getElementById('btn-submit-create').addEventListener('click', submitCreate);
 
@@ -2755,7 +2756,7 @@ document.getElementById('join-code-input').addEventListener('input', function() 
   this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 });
 document.getElementById('join-code-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') submitJoin();
+  if (e.key === 'Enter' && !e.repeat) submitJoin();
 });
 document.getElementById('btn-submit-join').addEventListener('click', submitJoin);
 
@@ -2803,6 +2804,9 @@ async function submitJoin() {
   errEl.classList.add('hidden');
 
   const btn = document.getElementById('btn-submit-join');
+  // the same guard as Create's P7-01: Enter in the code box reached this past the locked button, once per repeat of a
+  // held key - each a code lookup and a membership write racing the first (SL RL3, 2026-10-22)
+  if (btn.disabled) return;
   btn.textContent = 'Joining...'; btn.disabled = true;
 
   // Join-by-code: a non-member looking up a hive to join. hives is now member-scoped (RLS), so use the
@@ -3141,6 +3145,11 @@ document.getElementById('btn-export-hive')?.addEventListener('click', async (ev)
     // comment in index.html: DESCRIBE what a source-reading gate looks for, never reproduce it, and
     // never quote the text that tripped it.
     ? 'Only a supervisor of this hive can export it. If you were just made a supervisor, sign out and back in.'
+      // SL RL1 (2026-10-22): the export now counts against the hive's own allowance, and its refusal names the limit
+      // and when it reopens - in the function's words, which only whFnError reads off the response (the save
+      // sentence would have said "nothing was saved" about an export)
+      : (e && e.context && typeof window.whFnError === 'function')
+        ? await window.whFnError(e, _t('The export could not be built just now. Your data is still here, and nothing was lost.', 'Hindi nabuo ang export ngayon. Nandito pa ang data mo, at walang nawala.'))
       : (typeof window.whWriteError === 'function'
           ? window.whWriteError(e, _t('The export could not be built just now. Your data is still here, and nothing was lost.', 'Hindi nabuo ang export ngayon. Nandito pa ang data mo, at walang nawala.'))
           : _t('The export could not be built just now. Your data is still here, and nothing was lost.', 'Hindi nabuo ang export ngayon. Nandito pa ang data mo, at walang nawala.'));
@@ -7017,6 +7026,11 @@ async function askCoach() {
   const question = (input.value || '').trim();
   if (!question) { input.focus(); return; }
 
+  // ★ENTER ASKED AGAIN PAST THE LOCK (SL RL3, 2026-10-22). Ask locks itself while the coach works, so a second click
+  // cannot reach it - but Enter in the question box called askCoach directly, and a key held down repeats about 30 times
+  // a second: each repeat was one more AI call through the gateway, each charged to the hive's budget. A run while the
+  // last one is still working now does nothing, as the click already did.
+  if (btn.disabled) return;
   btn.disabled    = true;
   btn.textContent = '...';
   // the previous answer's "was this right?" row goes with that answer - it never rates the next one or a failure
@@ -7111,7 +7125,7 @@ async function askCoach() {
 document.addEventListener('DOMContentLoaded', () => {
   const coachInput = document.getElementById('coach-input');
   if (coachInput) {
-    coachInput.addEventListener('keydown', e => { if (e.key === 'Enter') askCoach(); });
+    coachInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.repeat) askCoach(); });
   }
 });
 

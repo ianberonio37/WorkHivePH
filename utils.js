@@ -2971,7 +2971,7 @@ function whAiTrustRow(container, opts) {
     btn.addEventListener('click', async function () {
       var rating = Number(btn.getAttribute('data-rate')) || 0;
       [up, down].forEach(function (b) { b.disabled = true; b.style.opacity = '0.45'; });
-      var landed = false;
+      var landed = false, refused = null;
       try {
         // the page's own client: pages hold `db` as a page-scoped const, so callers pass it in opts.db;
         // window.db is the fallback for pages that expose it. getDb(url, key) needs arguments - never call it bare.
@@ -2990,6 +2990,7 @@ function whAiTrustRow(container, opts) {
             trace_id: whTraceIdOf(opts.traceId),
           });
           landed = !res || !res.error;
+          refused = (res && res.error) || null;
         }
       } catch (e) { landed = false; /* empty-catch-allow: best-effort feedback */ }
       if (landed) {
@@ -2997,7 +2998,12 @@ function whAiTrustRow(container, opts) {
         note.textContent = rating > 0 ? _t('Recorded - thank you.', 'Naitala - salamat.') : _t('Recorded as wrong - a person will review it.', 'Naitalang mali - may taong magre-review.');
       } else {
         [up, down].forEach(function (b) { b.disabled = false; b.style.opacity = ''; });
-        note.textContent = _t('Not recorded - try again.', 'Hindi naitala - subukan muli.');
+        // SL RL2 (2026-10-22): "Not recorded - try again." answered every refusal, the daily rating limit included -
+        // a retry that cannot work until the limit clears, and no word of the limit. The refusal's own sentence, read
+        // the way every other save reads it, says which it was (the limit, and when it clears; a dead session).
+        note.textContent = (refused && typeof whWriteError === 'function')
+          ? whWriteError(refused, _t('Not recorded - try again.', 'Hindi naitala - subukan muli.'))
+          : _t('Not recorded - try again.', 'Hindi naitala - subukan muli.');
       }
     });
   });
@@ -4505,7 +4511,15 @@ async function whGcashReadReceipt(db, file) {
     fr.readAsDataURL(file);
   });
   const { data, error } = await db.functions.invoke('gcash-receipt-ocr', { body: { image_data_url: dataUrl } });
-  if (error) throw new Error('Could not read the receipt. Type the details, or paste the receipt text.');
+  if (error) {
+    // SL RL1 (2026-10-22): the reader is a paid model call and now counts against the person's AI allowance; a refusal
+    // for that limit says so and when it clears (the function's own sentence) - typing the details still works
+    var _st = error.context && error.context.status;
+    if ((_st === 429 || _st === 503) && typeof whFnError === 'function') {
+      throw new Error(await whFnError(error, 'The receipt reader is at its limit right now.') + ' You can type the details, or paste the receipt text.');
+    }
+    throw new Error('Could not read the receipt. Type the details, or paste the receipt text.');
+  }
   /* The function speaks the platform ENVELOPE: { ok, data } on success, { ok:false, code, message }
      on refusal. This read `data.parsed` directly and would have silently found undefined the moment
      the function adopted the contract — a shape change on one side and a stale reader on the other.
@@ -4762,6 +4776,38 @@ function _whWriteErrorText(err, fallback) {
   // falls through to the caller's wording.
   var code = err && err.code != null ? String(err.code) : '';
   var msg  = err && err.message ? String(err.message) : '';
+  /* ★A LIMIT WAS ANSWERED "TRY AGAIN" (SL RL2, 2026-10-22). The platform's own limits refuse a write in words written
+     for a person - the daily caps' "You have reached today's free limit (200). Resets at midnight.", a hive's quota,
+     the feedback limit - under the codes Postgres keeps for limits: 54000 (program_limit_exceeded), and 23P01 for the
+     feedback trigger. Neither was on the deliberate list below, so every save answered through this function told the
+     person "That did not go through. Please try again." - no limit named, and the one remedy that cannot work until
+     the limit clears. A gateway's 429 met the same sentence. A limit's own sentence names it and when it clears, and
+     is shown as it is; a quota still worded as a table, a hive id and two counts (a database without migration
+     20261022000001) is said for a person from its own hint; a 429 with no sentence of its own is told to wait. */
+  // an edge function's refusal arrives as a FunctionsHttpError: its status and its Retry-After ride on .context (the
+  // Response) - readable here without waiting for the body (whFnError reads the function's own sentence, where a
+  // caller can wait for it)
+  var _ctx = err && err.context;
+  var _st = String((err && (err.status != null ? err.status : (err._httpStatus != null ? err._httpStatus
+    : (_ctx && _ctx.status)))) || '');
+  var _ra = null;
+  try { _ra = (_ctx && _ctx.headers && typeof _ctx.headers.get === 'function') ? Number(_ctx.headers.get('Retry-After')) : null; }
+  catch (_) { _ra = null; }   // empty-catch-allow: no window to read is the old sentence, not a failure
+  var _readable = !!msg && msg.length <= 300 && !_WH_RAW_PG.test(msg) && !/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(msg);
+  if (code === '54000' || (code === '23P01' && /limit/i.test(msg))) {
+    // only a limit's own sentence: Postgres raises 54000 for its own program limits too ("index row size ... exceeds
+    // ... maximum"), which are machinery and keep the caller's words
+    if (_readable && /\b(?:limit|quota|too many|too fast)\b/i.test(msg)) return msg;
+    if (/archiv/i.test(String((err && err.hint) || '')))
+      return T('This hive has reached its limit for these records, so nothing was saved. A supervisor can archive older ones or raise the limit.');
+  }
+  if (code === '429' || _st === '429' || /\brate.?limit|too many requests/i.test(msg)) {
+    if (_readable && /\b(?:limit|too many|too fast)\b/i.test(msg) && /\b(?:seconds?|minutes?|hours?|midnight|tomorrow|moment|later|shortly)\b/i.test(msg)) return msg;
+    var _m = (msg + ' ' + String((err && err.hint) || '') + ' ' + String((err && err.details) || '')).match(/(\d+)\s*(?:s|sec|secs|seconds?)\b/i);
+    var _secs = (_ra && isFinite(_ra) && _ra > 0) ? Math.ceil(_ra) : (_m ? Number(_m[1]) : 0);
+    var _wait = !_secs ? 'a moment' : _secs < 90 ? _secs + ' seconds' : 'about ' + Math.ceil(_secs / 60) + ' minutes';
+    return T('Too many requests just now, so nothing was saved. Try again in ' + _wait + '.');
+  }
   var deliberate = code === '23514' || code === '42501' || code === 'P0001' || code === 'check_violation';
   if (deliberate && msg && msg.length <= 300 && !_WH_RAW_PG.test(msg)) return msg;
   /* A COLLISION IS PERMANENT, AND "TRY AGAIN" IS THE ONE ACTION THAT CANNOT WORK. 23505 is a unique

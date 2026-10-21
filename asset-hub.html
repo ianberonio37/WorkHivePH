@@ -1991,8 +1991,9 @@
           el.setAttribute('role', 'button');
           el.tabIndex = 0;
           if (_name) el.setAttribute('aria-label', _name);
+          // a held key opens the asset once, not once per repeat - each open re-read its header (SL RL3, 2026-10-22)
           el.addEventListener('keydown', (ev) => {
-            if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); _open(); }
+            if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); if (!ev.repeat) _open(); }
           });
         } catch (_) { /* empty-catch-allow: the card still opens by pointer */ }
       });
@@ -3851,6 +3852,10 @@
           const i = list.indexOf(tab);
           if (i < 0) return;
           ev.preventDefault();
+          // ★A HELD ARROW SPUN THE TABS (SL RL3, 2026-10-22). The arrows wrap, and selection follows focus, so a held
+          // arrow cycled the tabs about 30 times a second and loaded the Weibull and P-F panels on every pass. One press
+          // moves one tab; a held key's repeats move nothing.
+          if (ev.repeat) return;
           const next = k === 'Home' ? list[0]
                      : k === 'End'  ? list[list.length - 1]
                      : list[(i + (k === 'ArrowRight' ? 1 : list.length - 1)) % list.length];

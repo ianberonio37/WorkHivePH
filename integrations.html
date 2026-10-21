@@ -923,7 +923,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Scripts -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whIsDismissed whListSkeleton whMoreNote whReadError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whStartupHive whUse whUseLink whWriteError">
+<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whFnError whIsDismissed whListSkeleton whMoreNote whReadError whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whStartupHive whUse whUseLink whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -2906,7 +2906,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     showToast('Sync started...');
     try {
       const { data, error } = await db.functions.invoke('cmms-sync', { body: { hive_id: HIVE_ID, config_id: configId } });
-      if (error) { showToast(whWriteError(error, _t('The sync did not start. Check the config row and try again.', 'Hindi nag-start ang sync. Suriin ang config row at subukan muli.'))); return; }
+      // SL RL1 (2026-10-22): cmms-sync counts against the person's allowance; its refusal names the limit and when it
+      // clears - the function's own sentence, which only whFnError reads off the response
+      if (error) { showToast(typeof whFnError === 'function' ? await whFnError(error, _t('The sync did not start. Check the config row and try again.', 'Hindi nag-start ang sync. Suriin ang config row at subukan muli.')) : whWriteError(error, _t('The sync did not start. Check the config row and try again.', 'Hindi nag-start ang sync. Suriin ang config row at subukan muli.'))); return; }
       const r = data?.results?.[0];
       if (typeof whUse === 'function') whUse(db, 'sync_run', { ok: !r?.error, synced: Number(r?.synced) || 0 });
       // r.error is the sync fn's own sentence (server-composed, human) - surface it; fall back if empty.

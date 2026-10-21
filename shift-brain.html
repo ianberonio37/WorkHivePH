@@ -676,7 +676,13 @@
           if (_limited) {
             const _sub = document.getElementById('sb-verdict-sub');
             const _lbl = document.getElementById('sb-verdict-label');
-            if (_lbl) _lbl.textContent = window.whAiError ? window.whAiError({ message: _m || '429' }) : _t('The AI is at its limit right now. Try again in a few minutes.', 'Nasa limitasyon ang AI ngayon. Subukan muli pagkalipas ng ilang minuto.');
+            // ★"SOMETHING WENT WRONG" FOR A SPENT LIMIT (SL RL2, 2026-10-22). _m is supabase-js's placeholder ("Edge
+            // Function returned a non-2xx status code"), which names no limit - so the shared mapper fell through to its
+            // generic sentence on the very branch that knew a limit had been hit. The function's own sentence says which
+            // limit and when it clears (whFnError reads it off the response); a refusal without one is told to wait.
+            if (_lbl) _lbl.textContent = (error && typeof window.whFnError === 'function')
+              ? await window.whFnError(error, _t('The AI is at its limit right now. Try again in a few minutes.', 'Nasa limitasyon ang AI ngayon. Subukan muli pagkalipas ng ilang minuto.'))
+              : (window.whAiError ? window.whAiError({ message: _m || '429' }) : _t('The AI is at its limit right now. Try again in a few minutes.', 'Nasa limitasyon ang AI ngayon. Subukan muli pagkalipas ng ilang minuto.'));
             if (_sub) _sub.textContent = _t('No briefing was generated for this window. Your last plan, if any, is untouched.', 'Walang nabuong briefing para sa window na ito. Hindi nagalaw ang huling plano mo, kung mayroon.');
           }
           return;
@@ -1313,9 +1319,11 @@
           const isRateLimited = /\b429\b|rate.?limit|too many requests/i.test(msg)
             || (error.context && error.context.status === 429);
           if (isRateLimited) {
-            // whAiError supplies the shared sentence; this page adds the one fact only it knows.
-            showToast((window.whAiError ? window.whAiError({ message: '429' })
-              : 'You have hit the AI rate limit.') + ' Your current plan is untouched.');
+            // whFnError reads the function's own sentence - which limit, and when it clears (SL RL2, 2026-10-22: a
+            // stand-in 429 here said "Wait a moment" to a hive with most of an hour to wait); this page adds the one
+            // fact only it knows.
+            showToast((typeof window.whFnError === 'function' ? await window.whFnError(error, 'You have hit the AI rate limit.')
+              : (window.whAiError ? window.whAiError(error) : 'You have hit the AI rate limit.')) + ' Your current plan is untouched.');
             return;
           }
           const isUnreachable = /404|Failed to fetch|Failed to send|non-2xx|FunctionsFetchError|FunctionsHttpError/i.test(msg);
@@ -1345,8 +1353,8 @@
         // branch leaves the same wrong sentence reachable by the other.
         if (/\b429\b|rate.?limit|too many requests/i.test(msg)
             || (err && err.context && err.context.status === 429)) {
-          showToast((window.whAiError ? window.whAiError({ message: '429' })
-            : 'You have hit the AI rate limit.') + ' Your current plan is untouched.');
+          showToast((typeof window.whFnError === 'function' ? await window.whFnError(err, 'You have hit the AI rate limit.')
+            : (window.whAiError ? window.whAiError(err) : 'You have hit the AI rate limit.')) + ' Your current plan is untouched.');
           return;
         }
         const isUnreachable = /404|Failed to fetch|Failed to send|non-2xx|FunctionsFetchError|FunctionsHttpError/i.test(msg);

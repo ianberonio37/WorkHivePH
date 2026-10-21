@@ -1416,6 +1416,12 @@
           if (t && /^(input|textarea|select)$/i.test(t.tagName)) return;
           if (t && t.isContentEditable) return;
           e.preventDefault();
+          // ★R RAN THE WHOLE REFRESH ON EVERY REPEAT (SL RL3, 2026-10-22). A held key repeats about 30 times a second,
+          // and each repeat started all 14 panel reads again; refreshAll aborts the last run's signal, which only 2 of
+          // those reads carry. R presses the Refresh button: a held key presses it once, and a press while it is still
+          // refreshing (the button disabled) does nothing. Latent while the console is retired - its boot never wires
+          // this - and live again the day the overlay is removed.
+          if (e.repeat || document.getElementById('refresh-btn').disabled) return;
           refreshAll();
         }
       });

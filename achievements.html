@@ -737,6 +737,9 @@
     const toNext = xpToNext(xp, lv);
     const isLegendary = def.pillar === 'legendary';
     const soon = !!def.soon;  // no XP trigger wired yet — show "Coming soon", not earnable-but-empty
+    // SL RL3 (2026-10-22): a card held under Enter or Space flipped open and shut about 30 times a second, and every
+    // opening recorded a usage event - a stream of inserts from one key. The card's onkeydown below acts on a press,
+    // never on a held key's repeats (the default is still stopped, so a held Space does not scroll the page).
 
     /* ★THE CARD'S NAME DROPPED ITS LEVEL (2026-10-06, achievements x assistive-tech). Each domain card is
        role="button", so its aria-label is the WHOLE card to a screen reader - a button's children are
@@ -745,7 +748,7 @@
        "level" spelled out because "Lv" is read letter by letter. */
     if (isLegendary) {
       const locked = lv === 0;
-      return `<div class="domain-card legendary${locked ? '' : ' unlocked'}" data-ach="${escHtml(achId)}" role="button" tabindex="0" aria-expanded="false" aria-label="${escHtml(def.name)}, ${escHtml(soon ? _t('Coming soon', 'Paparating') : (locked ? _t('Locked', 'Naka-lock') : tier.label + ' ' + _t('level', 'antas') + ' ' + lv))}, ${_t('expand details', 'ipakita ang detalye')}" onclick="toggleDomain('${escJsAttr(achId)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDomain('${escJsAttr(achId)}');}">
+      return `<div class="domain-card legendary${locked ? '' : ' unlocked'}" data-ach="${escHtml(achId)}" role="button" tabindex="0" aria-expanded="false" aria-label="${escHtml(def.name)}, ${escHtml(soon ? _t('Coming soon', 'Paparating') : (locked ? _t('Locked', 'Naka-lock') : tier.label + ' ' + _t('level', 'antas') + ' ' + lv))}, ${_t('expand details', 'ipakita ang detalye')}" onclick="toggleDomain('${escJsAttr(achId)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();if(!event.repeat)toggleDomain('${escJsAttr(achId)}');}">
         <div class="domain-badge-wrap">${renderDomainBadge(def.icon, lv, 56)}</div>
         <div class="legendary-info">
           <div class="domain-name">${escHtml(def.name)}</div>
@@ -757,7 +760,7 @@
       </div>`;
     }
 
-    return `<div class="domain-card" data-ach="${escHtml(achId)}" role="button" tabindex="0" aria-expanded="false" aria-label="${escHtml(def.name)}, ${escHtml(soon ? _t('Coming soon', 'Paparating') : (lv > 0 ? tier.label + ' ' + _t('level', 'antas') + ' ' + lv + (lv < 100 ? ', ' + toNext + _t(' XP to level ', ' XP papunta sa antas ') + (lv + 1) : '') : _t('Not started', 'Hindi pa nasisimulan')))}, ${_t('expand details', 'ipakita ang detalye')}" onclick="toggleDomain('${escJsAttr(achId)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDomain('${escJsAttr(achId)}');}"${soon ? ' style="opacity:0.6"' : ''}>
+    return `<div class="domain-card" data-ach="${escHtml(achId)}" role="button" tabindex="0" aria-expanded="false" aria-label="${escHtml(def.name)}, ${escHtml(soon ? _t('Coming soon', 'Paparating') : (lv > 0 ? tier.label + ' ' + _t('level', 'antas') + ' ' + lv + (lv < 100 ? ', ' + toNext + _t(' XP to level ', ' XP papunta sa antas ') + (lv + 1) : '') : _t('Not started', 'Hindi pa nasisimulan')))}, ${_t('expand details', 'ipakita ang detalye')}" onclick="toggleDomain('${escJsAttr(achId)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();if(!event.repeat)toggleDomain('${escJsAttr(achId)}');}"${soon ? ' style="opacity:0.6"' : ''}>
       <div class="domain-badge-wrap">${renderDomainBadge(def.icon, lv, 52)}</div>
       <div class="domain-name">${escHtml(def.name)}</div>
       <div class="domain-tier-label">${soon ? _t('Coming soon', 'Paparating') : (lv > 0 ? tier.label + ' · Lv ' + lv : _t('Not started', 'Hindi pa nasisimulan'))}</div>

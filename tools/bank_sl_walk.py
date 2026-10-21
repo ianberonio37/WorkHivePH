@@ -214,6 +214,36 @@ CONDITION["LB4"] = ("the page read as served in its own browser context (service
                     "it made on its own, every frame on its realtime socket and every repeating timer it started recorded: "
                     "no request repeating faster than every 10 s, no two copies of one request landing together, no realtime "
                     "channel joining again, no write while idle, and nothing refreshed while nobody could see it")
+GATES["RL1"] = ["ai-spend-in-budget", "ai_rate_limit_coverage", "rate_limit_key_is_verified", "limit-says-when", "skew-heal",
+                "scripts-parse"]
+CONDITION["RL1"] = ("the page read as served in its own browser context (service workers blocked, so a context route answered "
+                    "every edge call), signed in as the row's cast (or signed out, for the visitor's pages), every edge "
+                    "call carrying x-wh-walk-no-model: a healthy read recording every edge function the page called at "
+                    "start-up (each checked charged to a budget by ai-spend-in-budget's own reading of its source), then "
+                    "every edge call answered as the hive's spent daily allowance answers it (rate-limit.ts's own refusal, "
+                    "429, Retry-After 21600) - the page reloaded and settled 11 s - and, with the allowance still spent, "
+                    "the page's AI asks made as a person makes them (the companion opened from its trigger and a question "
+                    "sent; hive's coach and the assistant where the cast is offered them): every new sentence graded on "
+                    "naming the limit AND when it reopens, no machine text, no move off the page")
+GATES["RL2"] = ["limit-says-when", "refusal-has-a-sentence", "rate-limit-handling", "skew-heal", "scripts-parse"]
+CONDITION["RL2"] = ("the page read as served in its own browser context (service workers blocked, so a context route answered "
+                    "every request), signed in as the row's cast (or signed out, for the visitor's pages), every edge call "
+                    "carrying x-wh-walk-no-model: a healthy read, then every data read answered as a rate limit answers it "
+                    "(429, PostgREST's shape, Retry-After 30), then on a page that calls one at start-up every edge call "
+                    "answered with the platform's real 429 body (the hive's hourly limit and its window), each settled 11 s "
+                    "with every live region recorded; and the page's own save-sentence maker handed each limit the database "
+                    "refuses a save with (a daily cap, a hive quota, the feedback limit, the listing limit, a gateway 429): "
+                    "every new sentence graded on naming the limit AND when to try again, no machine text, no move off the "
+                    "page")
+GATES["RL3"] = ["one-person-cannot-flood", "refresh-stands-down-hidden", "timers", "skew-heal", "scripts-parse"]
+CONDITION["RL3"] = ("the page read as served in its own browser context (service workers blocked, so every request it made was "
+                    "seen), signed in as the row's cast (or signed out, for the visitor's pages), every edge call carrying "
+                    "x-wh-walk-no-model; every search or filter box on screen typed into as a person types (ten keys 90 ms "
+                    "apart) and every request from the first key to 3 s after the last recorded by its shape, then the box "
+                    "given one Enter and nine repeats 33 ms apart (a key held down), then emptied and the cast's remembered "
+                    "views put back; the page's own key-command card given the same held Enter; its idle polling read from "
+                    "the LB4 walk of the page, or walked 75 s here where LB4 never read it: no request shape more than twice "
+                    "in a burst, a held key acting once, nothing polled faster than every 10 s")
 CONDITION["L2"] = ("the page read as served in its own browser context (service workers blocked), signed in as the row's cast in "
                    "the cast's own hive; the page's OWN change function - or its control, pressed as a person presses it, its "
                    "confirm and prompt answered - made one real change to a probe seeded per viewport on the LOCAL stack "

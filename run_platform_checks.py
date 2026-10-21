@@ -7070,6 +7070,49 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # SL RL3 (2026-10-22): one person cannot flood the backend. Surveyed from the code the browser runs (tools/lib/
+        # js_reach.py) on the 36 RL3 pages and every shared script: every search already waited for the typing to pause.
+        # The flood was the Enter key - a button locks itself while it works, but Enter in the field beside it called the
+        # same function past the lock, and a held key repeats ~30 times a second: hive's coach (one AI call a repeat,
+        # charged to the hive's budget), its join, index's sign-in (the login proxy locks an account after 5 failures)
+        # and its sign-up (locked only after its first wait), founder-console's R refresh; and a held key on a card or a
+        # tab that stays focused (achievements, asset-hub's wrapping tabs) ran its read or usage event per repeat.
+        "id":      "one-person-cannot-flood",
+        "script":  os.path.join("tools", "validate_one_person_cannot_flood.py"),
+        "args":    [],
+        "label":   "One person cannot flood (SL RL3): every typing handler that reaches the network (in its file or through the shared scripts its page loads) waits for the typing to pause (debounce or a timer it cancels); every key command that reaches the network acts once per press (reads event.repeat, is an Escape dismissal, or runs a function that refuses while its last run works) and a function that locks its own control tests that lock before setting it, before its first wait; every network poll (the LB4 roster of setIntervals, whPoll/whLivePoll/pollMs, self-rescheduling timer loops) runs at 10 s or slower, ends itself, or is declared with why; utils.js debounce, whPoll's in-flight skip and floor, and whLivePoll's default hold (--self-test: 16 mutants)",
+        "group":   "Performance",
+        "skip_if_fast": False,
+    },
+    {
+        # SL RL2 (2026-10-22): a limit tells a person, in one sentence, that it was hit and when to try again. whWriteError
+        # knew the deliberate refusal codes and not the platform's LIMIT codes (54000: the daily caps on 31 tables, the
+        # logbook limit, five hive quotas; 23P01: feedback) nor a gateway 429 - each read "That did not go through. Please
+        # try again." The database's listing, rating and review limits never said when; the companion rewrote a hive's limit as the asker's; feedback said "later" and read an
+        # account id back; the quotas answered with a table, a hive id and two counts (migration 20261022000001, LOCAL).
+        # report-sender and shift-brain answered a limit with a stand-in 429 that threw the function's window away.
+        "id":      "limit-says-when",
+        "script":  os.path.join("tools", "validate_limit_says_when.py"),
+        "args":    [],
+        "label":   "A limit says when (SL RL2): the four sentence makers, called for real under node (tools/test_limit_says_when.mjs), answer 20 limit shapes - daily caps, hive quotas in both wordings, the feedback / listing / review / rating limits, posting too fast, gateway and read 429s, the AI limit with and without its window, a function's hour / per-person / day-budget / could-not-count refusals - with one sentence naming the limit and when it clears (an exclusion constraint and Postgres's own program limit fall through); every limit the database raises says when, read from the newest migration definition and the LOCAL pg_proc; the rating row and the feedback button speak the limit, and the companion (29 pages) shows the gateway's own limit sentence - whose limit and when - before any stock line; no page answers a limit with a stand-in 429; every list of self-speaking refusal codes lets 54000 speak; the sign-in lockout says how long; every edge limit refusal is handed the limiter's retry_after_seconds (--self-test: 11 mutants)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # SL RL1 (2026-10-22): what a page spends on AI and functions is charged to a budget before it is spent, and the
+        # page says when it is gone. gcash-receipt-ocr (a paid Azure OCR call the marketplace pages offer) had no limiter
+        # and verify_jwt accepts the publishable key - it escaped ai_rate_limit_coverage, whose model markers knew no OCR;
+        # export-hive-data (a hive's whole payload) counted against nothing. Marketplace's AI triage read a spent
+        # allowance as "No suggestion"; the receipt reader said "Could not read"; hive's export and integrations' sync
+        # answered through the save sentence, which cannot read a function's own words. Edge changes LOCAL.
+        "id":      "ai-spend-in-budget",
+        "script":  os.path.join("tools", "validate_ai_spend_in_budget.py"),
+        "args":    [],
+        "label":   "AI and function spend in budget (SL RL1): every edge function a served page or shared script calls (an invoke, or a fetch whose own URL names it - never a URL a page only shows) asks a limiter before it spends (hive / user / solo / route / classed, or its own ai_rate_limits counter) or is exempt with why - and a function that reaches a paid model (LLM, speech, OCR, embedding) can never be exempt; every call site of a budgeted function reads the refusal in the function's own words (whFnError, whAiError, the response's .context, a failed response's .error, an inline 429 / limit test), is fire-and-forget, or is quiet with why (a fallback that gives the person the same thing) (--self-test: 7 mutants)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         # SL LB3 (2026-10-21): a lookup by many keys reaches the database in pieces the gateway accepts. `.in(col, keys)`
         # carries every key in the URL, and past ~8 KB the gateway answers 414 (measured: 400 names = 8.7 KB; ~200 UUIDs).
         # Walked with a thousand rows: pm-scheduler read no PM work for a plant of a few hundred assets, project-manager

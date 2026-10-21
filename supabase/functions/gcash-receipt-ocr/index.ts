@@ -33,6 +33,9 @@ import { handleHealth } from "../_shared/health.ts";
 import { beginRequest, ok, fail } from "../_shared/envelope.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 import { log, logRequestStart } from "../_shared/logger.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
+import { resolveIdentity } from "../_shared/tenant-context.ts";
+import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 const FN_NAME = "gcash-receipt-ocr";
 
@@ -122,6 +125,22 @@ serveObserved(FN_NAME, async (req: Request) => {
       note: "Receipt reading is not configured on this deployment. Type the amount and reference, "
           + "or paste the receipt text instead.",
     });
+  }
+
+  // ★A PAID MODEL CALL WITH NO BUDGET (SL RL1, 2026-10-22). Every other function that reaches a model is charged to a
+  // budget before it spends - equipment-label-ocr, whose pipeline this one mirrors, bounds each caller by the solo
+  // limiter - and this one had none: verify_jwt accepts the publishable key, so any client could send receipt after
+  // receipt to Azure on the platform's account, and the marketplace pages that call it could never say the allowance
+  // was spent. Bounded the same way (the person, or the IP when there is no one signed in), checked before the first
+  // call to Azure; the trusted service-role path is exempt. A refusal carries its window (soloRateLimitedResponse).
+  {
+    const _rlDb = createClient(Deno.env.get("SUPABASE_URL") || "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "");
+    const _id   = await resolveIdentity(_rlDb, req);
+    if (!_id.isServiceRole) {
+      const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+      const _rl = await checkSoloRateLimit(_rlDb, soloRateLimitKey(_id.authUid, _ip));
+      if (!_rl.allowed) return soloRateLimitedResponse(cors, _rl.retry_after_seconds, _rl.scope);
+    }
   }
 
   try {

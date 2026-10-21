@@ -1215,7 +1215,19 @@ happens to know maintenance, not a manual.`;
       // SDKs use, so the fall-through says the connection sentence it was always meant to say.
       const OPAQUE_NETWORK = /non-2xx|failed to fetch|failed to send a request|networkerror|network request failed|load failed/i;
       let friendly;
-      if (/burst of activity|handling a burst|very busy/i.test(m)) {
+      // ★WHOSE LIMIT, AND WHEN - BOTH WERE REWRITTEN AWAY (SL RL1, 2026-10-22). The gateway's refusal says exactly whose
+      // allowance is spent and when it reopens: "AI call limit reached for this hive. Try again in about 12 minutes.",
+      // "Daily AI limit reached for this hive. Try again in about 6 hours.", "Per-user AI call limit reached (25/hour).
+      // Other hive members are unaffected. Try again in about 20 minutes." The scope branches below replaced every one
+      // with a stock line - "You've used up your AI questions for this hour. Try again in a little while - your
+      // teammates aren't affected" - so a HIVE's spent allowance was blamed on the one person asking, told the
+      // teammates it had stopped too were fine, and the window became "a little while" (or "tomorrow" for a rolling day
+      // with six hours left). A sentence of the server's that names a limit and when it clears is shown as it is; the
+      // stock lines stay for a refusal that carries no window.
+      if (m && /\b(?:limit|budget)\b/i.test(m) && /\b(?:try again in|in about|tomorrow|midnight|\d+\s*(?:seconds?|minutes?|hours?))\b/i.test(m)
+          && !OPAQUE_NETWORK.test(m)) {
+        friendly = '⚠️ ' + m;
+      } else if (/burst of activity|handling a burst|very busy/i.test(m)) {
         friendly = '⚠️ ' + _tt('The assistant is very busy right now. Give it a few seconds and try again.',
           'Abalang-abala ang katulong ngayon. Sandali lang at subukan ulit.');
       } else if (/platform.*budget|shared ai budget/i.test(m)) {

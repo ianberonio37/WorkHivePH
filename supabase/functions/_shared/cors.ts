@@ -32,6 +32,10 @@ export function getCorsHeaders(req: Request): Record<string, string> {
     "Access-Control-Allow-Origin":  effective,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    // SL RL1/RL2 (2026-10-22): a limit's refusal carries its wait as Retry-After, and a page on another origin
+    // cannot read that header unless it is exposed - so utils.js read null and told a person whose daily allowance
+    // reopens in 6 hours to "try again in a moment". Exposing it lets the page say the real wait.
+    "Access-Control-Expose-Headers": "Retry-After",
   };
 }
 // NOTE (2026-05-28): there is intentionally NO static `corsHeaders` export.

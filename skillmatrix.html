@@ -1241,7 +1241,8 @@ function renderDisciplineCards() {
 
   container.querySelectorAll('.disc-card').forEach(card => {
     card.addEventListener('click', () => openDiscipline(card.dataset.disc));
-    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openDiscipline(card.dataset.disc); });
+    // a held key opens the discipline once - each open reads the last exam attempt (SL RL3, 2026-10-22)
+    card.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) openDiscipline(card.dataset.disc); });
   });
 }
 
