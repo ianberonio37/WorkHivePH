@@ -15,8 +15,12 @@ from a file (deterministic, replayable) and never from a live connection:
     embeddings, the images stored inside rows, and the page-called functions production refuses a signed-in member
   - the local tree and database, read-only: the list reads that ship an inline photo column, and the reference corpora
     the AI is given locally
+  - Vercel's own dashboard, signed in as the owner (2026-10-21, --dashboard): the projects that exist, the deployments
+    stored and their aliases, the project's retention setting, and the Deployment Storage line by day. The repository's
+    record is history - a project deleted in Vercel keeps its records there - so what Vercel STORES is read from Vercel.
+    No credential is kept; a run without --dashboard carries the last dashboard read forward.
     python tools/free_plan_evidence.py --prod .tmp/mail/free_plan_prod.txt --deployments .tmp/gh_deployments_all.json \
-        [--out free_plan_evidence.json]
+        [--dashboard .tmp/vercel_dashboard.json] [--out free_plan_evidence.json]
 How the production input was read (SELECT only; no credential leaves the connector):
   claude -p "<run these read-only queries on project hzyvnjtisfgbksicrouu>" --tools "" \
       --allowedTools mcp__claude_ai_Supabase__execute_sql --setting-sources user --no-session-persistence
@@ -87,6 +91,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--prod", required=True)
     ap.add_argument("--deployments", required=True)
+    ap.add_argument("--dashboard", default=None)
     ap.add_argument("--out", default=str(ROOT / "free_plan_evidence.json"))
     a = ap.parse_args()
     q = blocks(Path(a.prod).read_text(encoding="utf-8"))
@@ -96,6 +101,13 @@ def main() -> int:
     for env, n in by_env.items():
         ds = sorted(d["created_at"] for d in deps if (d.get("environment") or "?") == env)
         projects[env] = {"deployments": n, "first": ds[0][:10], "last": ds[-1][:10]}
+    # the production builds by day: the cadence that, times what each build uploads, is what Vercel stores
+    builds_per_day = dict(sorted(Counter(d["created_at"][:10] for d in deps if d.get("environment") == "Production").items()))
+    if a.dashboard:
+        dashboard = json.loads(Path(a.dashboard).read_text(encoding="utf-8"))
+    else:
+        prev = Path(a.out)
+        dashboard = (json.loads(prev.read_text(encoding="utf-8")).get("vercel") or {}).get("dashboard") if prev.exists() else None
     q2 = {r["tbl"]: r for r in q.get("Q2", [])}
     growth = {r["tbl"]: r for r in q.get("Q13", [])}
     jobs = q.get("Q4", [])
@@ -125,7 +137,8 @@ def main() -> int:
         "_doc": "Committed evidence for BRH classes Z..AE (tools/free_plan_evidence.py). Re-read production and re-run to refresh.",
         "read": "2026-10-21",
         "vercel": {"plan": "Hobby", "allowance_gb": 10, "reported_use_pct": 70, "payload_mb_denylist": 612.7,
-                   "payload_mb_allowlist": 19.7, "projects": projects},
+                   "payload_mb_allowlist": 19.7, "projects": projects, "builds_per_day": builds_per_day,
+                   "dashboard": dashboard},
         "db": {"bytes": (q.get("Q1") or [{}])[0].get("bytes"), "free_limit_bytes": 500 * 1024 * 1024,
                "largest": [{"table": r["tbl"], "bytes": r["bytes"]} for r in q.get("Q2", [])[:8]]},
         "growth_no_purge": no_purge,

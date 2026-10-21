@@ -18,6 +18,229 @@
     "first": "2026-04-25",
     "last": "2026-04-26"
    }
+  },
+  "builds_per_day": {
+   "2026-04-04": 2,
+   "2026-04-05": 3,
+   "2026-04-06": 3,
+   "2026-04-07": 26,
+   "2026-04-08": 18,
+   "2026-04-09": 16,
+   "2026-04-10": 16,
+   "2026-04-11": 11,
+   "2026-04-12": 18,
+   "2026-04-13": 7,
+   "2026-04-14": 2,
+   "2026-04-17": 26,
+   "2026-04-18": 13,
+   "2026-04-19": 35,
+   "2026-04-20": 17,
+   "2026-04-21": 11,
+   "2026-04-22": 70,
+   "2026-04-23": 26,
+   "2026-04-24": 5,
+   "2026-04-25": 55,
+   "2026-04-26": 70,
+   "2026-04-27": 14,
+   "2026-04-28": 85,
+   "2026-04-29": 33,
+   "2026-04-30": 37,
+   "2026-05-01": 11,
+   "2026-05-02": 9,
+   "2026-05-04": 1,
+   "2026-05-05": 1,
+   "2026-07-18": 14,
+   "2026-07-19": 2,
+   "2026-07-20": 5,
+   "2026-07-23": 2,
+   "2026-07-24": 6,
+   "2026-07-26": 18,
+   "2026-07-27": 5,
+   "2026-08-05": 1,
+   "2026-08-22": 1,
+   "2026-08-23": 1,
+   "2026-09-04": 4,
+   "2026-09-11": 3,
+   "2026-09-29": 10,
+   "2026-10-13": 8,
+   "2026-10-15": 4
+  },
+  "dashboard": {
+   "read": "2026-10-21",
+   "how": "the Vercel dashboard, signed in as the owner, read through its own API from the dashboard page (projects, deployments, each deployment's aliases, the project's retention setting) and the Usage page's Deployment Storage chart (its drawn line, 0 B to the 10 GB gridline). No credential is kept.",
+   "plan": "hobby",
+   "projects": [
+    "work-hive-ph"
+   ],
+   "retention": {
+    "production_days": 30,
+    "preview_days": 30,
+    "canceled_days": 30,
+    "errored_days": 30,
+    "keep_newest": 10
+   },
+   "storage_gb_by_day": {
+    "2026-09-21": 6.07,
+    "2026-09-22": 6.07,
+    "2026-09-23": 5.16,
+    "2026-09-24": 5.16,
+    "2026-09-25": 5.16,
+    "2026-09-26": 4.98,
+    "2026-09-27": 4.98,
+    "2026-09-28": 4.98,
+    "2026-09-29": 9.95,
+    "2026-09-30": 9.77,
+    "2026-10-01": 9.59,
+    "2026-10-02": 9.59,
+    "2026-10-03": 9.42,
+    "2026-10-04": 9.24,
+    "2026-10-05": 6.96,
+    "2026-10-06": 6.96,
+    "2026-10-07": 6.78,
+    "2026-10-08": 6.78,
+    "2026-10-09": 6.61,
+    "2026-10-10": 6.61,
+    "2026-10-11": 6.61,
+    "2026-10-12": 5.15,
+    "2026-10-13": 9.83,
+    "2026-10-14": 9.83,
+    "2026-10-15": 9.9,
+    "2026-10-16": 9.9,
+    "2026-10-17": 9.9,
+    "2026-10-18": 9.9,
+    "2026-10-19": 9.9,
+    "2026-10-20": 9.9
+   },
+   "deployments_before": 22,
+   "allowlist_commit": "cd7bcfca",
+   "deleted_pre_allowlist": [
+    {
+     "uid": "dpl_FAkDbE2qqZb4HL1oWxCxTry2BGNe",
+     "created": "2026-10-13T22:46",
+     "sha": "03d4d056"
+    },
+    {
+     "uid": "dpl_7fwMt5mrQi5PVkAxjzCUTTxRCumu",
+     "created": "2026-10-13T22:43",
+     "sha": "a2f9a45f"
+    },
+    {
+     "uid": "dpl_F85oUXEwVm2fQaxowvYh1y6ZRvyd",
+     "created": "2026-10-13T21:55",
+     "sha": "90ed9a8e"
+    },
+    {
+     "uid": "dpl_61inKtmZ8bSyWGBSSkpbEk6B12na",
+     "created": "2026-10-13T21:34",
+     "sha": "efd83d52"
+    },
+    {
+     "uid": "dpl_FMV2StR1p1m97yU8WVGczXVm64PU",
+     "created": "2026-10-13T21:11",
+     "sha": "14757a33"
+    },
+    {
+     "uid": "dpl_AfYxKdnHvLQxGg2UiSbRdyDWX9i1",
+     "created": "2026-10-13T21:09",
+     "sha": "ea9ed822"
+    },
+    {
+     "uid": "dpl_3ynyjCGFcjccfXs54Xqqwi2ETZ4n",
+     "created": "2026-10-13T11:08",
+     "sha": "b112a351"
+    },
+    {
+     "uid": "dpl_8xgo6vYHbJND7mQw6pC546aASRRZ",
+     "created": "2026-10-13T11:06",
+     "sha": "c458e051"
+    },
+    {
+     "uid": "dpl_CHjEDRhWK1LSFn4oxv8JPcqnqRP7",
+     "created": "2026-09-29T03:02",
+     "sha": "3d53143a"
+    },
+    {
+     "uid": "dpl_5Jgdjc8h6Vz5EotKoHGMPq49aEqy",
+     "created": "2026-09-29T03:00",
+     "sha": "5d1224c9"
+    },
+    {
+     "uid": "dpl_CMZL6CJwRAJPj8rpJyqSv2fdunWa",
+     "created": "2026-09-29T02:55",
+     "sha": "3120294a"
+    },
+    {
+     "uid": "dpl_6t1ySATXunbkotQMj8EiouwW9TmK",
+     "created": "2026-09-29T02:19",
+     "sha": "596d449b"
+    },
+    {
+     "uid": "dpl_CiyGg1g9e4JiTKSFdfU1FmiKzzDe",
+     "created": "2026-09-29T02:13",
+     "sha": "48653874"
+    },
+    {
+     "uid": "dpl_2r3FdFj8NZfS7eBB4C2RKpfvxtkP",
+     "created": "2026-09-29T02:09",
+     "sha": "d2ff45f6"
+    },
+    {
+     "uid": "dpl_JBe62qftrPhYqie5VVdyXc6h77GM",
+     "created": "2026-09-29T02:01",
+     "sha": "51797362"
+    },
+    {
+     "uid": "dpl_HCy3iig23pccMi8QZwfZnQbgxt5a",
+     "created": "2026-09-29T01:57",
+     "sha": "1f8f7153"
+    },
+    {
+     "uid": "dpl_3beVm7VEnBdaa9CaYSV8enoxrSTg",
+     "created": "2026-09-29T00:35",
+     "sha": "8d7b7044"
+    },
+    {
+     "uid": "dpl_6Uw3FxixtfRPqX4GnUDiJfqp3PPZ",
+     "created": "2026-09-29T00:20",
+     "sha": "15a5fd9f"
+    }
+   ],
+   "kept": [
+    {
+     "uid": "dpl_8B64JKu6FNN3Mth5mrNDMttaeeVU",
+     "created": "2026-10-15T19:48",
+     "sha": "683ecea5",
+     "aliases": [
+      "workhiveph.com",
+      "work-hive-ph-ianberonio37-6634s-projects.vercel.app",
+      "work-hive-ph-git-master-ianberonio37-6634s-projects.vercel.app"
+     ]
+    },
+    {
+     "uid": "dpl_HguxBo1UfKFGHA1iB9sHt97d3ZeT",
+     "created": "2026-10-15T19:37",
+     "sha": "71c82c3e",
+     "aliases": []
+    },
+    {
+     "uid": "dpl_5JNDcZ2ev1Lpf2K7K4ks2zShzxCc",
+     "created": "2026-10-15T18:31",
+     "sha": "44bedbdd",
+     "aliases": []
+    },
+    {
+     "uid": "dpl_3iJ3qSaoCpjFXyYBzwKLbwZKz2XS",
+     "created": "2026-10-15T18:12",
+     "sha": "73335a30",
+     "aliases": []
+    }
+   ],
+   "production": "dpl_8B64JKu6FNN3Mth5mrNDMttaeeVU",
+   "site_after": {
+    "https://workhiveph.com/": 200,
+    "https://workhiveph.com/logbook.html": 200,
+    "https://workhiveph.com/utils.js": 200
+   }
   }
  },
  "db": {

@@ -57,6 +57,19 @@ def _rank(s: str) -> int:
     return ORDER.index(s) if s in ORDER else -1
 
 
+def _indent() -> int:
+    """The registry's own indentation, read from its second line. The seeders and the bankers write indent=2; this tool
+    wrote indent=1, so advancing ONE row after a banker flipped the whole 56 MB file (2026-10-21: a 3-row change became
+    a 2,068,124-line diff). Keep whatever the file already uses."""
+    try:
+        with io.open(REGISTRY, encoding="utf-8") as fh:
+            fh.readline()
+            second = fh.readline()
+        return max(1, len(second) - len(second.lstrip(" ")))
+    except OSError:
+        return 2
+
+
 def _check(st, pct, basis, gate, ids, rows, allow_regress):
     """Every honesty rule, applied to one entry BEFORE anything is written. Returns an error string or None."""
     if not ids or not st:
@@ -247,7 +260,7 @@ def main() -> int:
             applied += len(ids)
         reg["updated"] = TODAY
         tmp = REGISTRY.with_suffix(".json.tmp")
-        tmp.write_text(json.dumps(reg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        tmp.write_text(json.dumps(reg, ensure_ascii=False, indent=_indent()) + "\n", encoding="utf-8")
         os.replace(tmp, REGISTRY)
         print(f"advanced {applied} row(s) in one pass from {a.batch}")
         subprocess.run([sys.executable, str(ROOT / "tools" / "update_trajectory_scoreboard.py")],
@@ -307,7 +320,7 @@ def main() -> int:
 
     reg["updated"] = TODAY
     tmp = REGISTRY.with_suffix(".json.tmp")     # atomic: open(w) truncates before the write
-    tmp.write_text(json.dumps(reg, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    tmp.write_text(json.dumps(reg, ensure_ascii=False, indent=_indent()) + "\n", encoding="utf-8")
     os.replace(tmp, REGISTRY)
     print(f"advanced {len(ids)} row(s) -> {st} (pct {pct})"
           + (f" · gates {a.gate}" if a.gate else ""))

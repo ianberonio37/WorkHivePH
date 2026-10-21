@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""bank_brh_db.py - bank BRH database-class rows (P..Y, §BRH.8) once their fix is in and gated (2026-10-21).
+"""bank_brh_db.py - bank BRH rows that close by probe, not page walk (P..Y, §BRH.8; Z..AE, §BRH.9) once their fix
+is in and gated (2026-10-21).
 
 A P..Y row is an API probe made as the person the defect exposes, not a page walk: it closes when the exposure was shown
 on demand, the fix landed as a migration, and a registered gate reddens on revert. This banks a set of such rows to
@@ -22,6 +23,10 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import bank_sl_walk as bsw  # noqa: E402
 
+# P..Y: the database classes (§BRH.8). Z..AE: the free-plan classes (§BRH.9) - what Vercel stores, what the database
+# keeps, the AI's production corpus, a refused function, the plan's gaps - each closed by a read, a fix and a gate.
+PROBE_CLASSES = set("PQRSTUVWXY") | {"Z", "AA", "AB", "AC", "AD", "AE"}
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -30,7 +35,8 @@ def main() -> int:
     a = ap.parse_args()
     spec = json.loads(Path(a.spec).read_text(encoding="utf-8"))
     for script in spec.get("gate_scripts", []):
-        ok, last = bsw._run_gate(str(ROOT / script))
+        exe, *args = script.split()     # "tools/deploy_payload.py --check": a gate that takes its mode as an argument
+        ok, last = bsw._run_gate(str(ROOT / exe), *args)
         print(f"  gate {script}: {'PASS' if ok else 'FAIL'} - {last}")
         if not ok:
             print("  refused: a row is never banked on a red gate")
@@ -40,8 +46,8 @@ def main() -> int:
     banked = 0
     for rid, own in spec["rows"].items():
         t = ids.get(rid)
-        if not t or (t.get("brh") or {}).get("cls") not in set("PQRSTUVWXY"):
-            print(f"  skip {rid}: not a BRH P..Y row")
+        if not t or (t.get("brh") or {}).get("cls") not in PROBE_CLASSES:
+            print(f"  skip {rid}: not a BRH P..Y or Z..AE row")
             continue
         basis = f"[{spec.get('date', '2026-10-21')}] pct -> {{pct}}. {own} {spec['common']}"
         if a.dry:

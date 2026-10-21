@@ -4898,6 +4898,15 @@ VALIDATORS = [
     {"id":"breached-password-check","script":os.path.join("tools", "validate_breached_password_check.py"),"args":[],
      "label":"Breached-password check (BRH-W): index.html asks the Pwned Passwords range API (a 5-character SHA-1 prefix only) before sign-up and before a reset link sets a password; sw.js never intercepts it (its own CSP would refuse it and the check would fail open); the sign-in page's CSP reaches it (--self-test: 5 mutants)",
      "group":"Platform","skip_if_fast":False},
+    # BRH 9 (2026-10-21): the platform stays on the free plans - "I am not upgrading to pro". Supabase Free holds 500 MB;
+    # pg_cron's run history was 77 MB of production's 134 MB (443,228 runs, ~5,800 a day) and five more operational
+    # tables grew with no purge. Migration 20261015997000 keeps 7 days of cron history; this holds every operational
+    # table to a scheduled purge (the pending ones may only leave) and the photo-shipping list reads to a falling count.
+    # Vercel Hobby holds 10 GB of deployments; its dashboard drew 9.90 GB (the old 612.7 MB builds, kept 30 days) - F4
+    # holds a build's upload times the builds the project keeps under a tenth of it.
+    {"id":"free-plan-budget","script":os.path.join("tools", "validate_free_plan_budget.py"),"args":[],
+     "label":"Free-plan budget (BRH 9): every operational table (cron history, traces, analytics events, automation log, AI cost log, client errors) has a scheduled purge in a migration and live in the database, or stands in a pending list that may only shrink; list reads that ship an inline photo column may only fall from 23; what Vercel stores - each build's upload times the builds the project keeps (its keep-newest count, or the busiest 30 days of builds in the last 90) - stays under a tenth of the free 10 GB, which the old 612.7 MB builds had filled to 9.90 GB (--self-test: 5 mutants)",
+     "group":"Platform","skip_if_fast":False},
     {"id":"api-grants-explicit","script":os.path.join("tools", "validate_api_grants_explicit.py"),"args":[],
      "label":"API grants explicit (BRH-X): a migration that creates a public table, view or sequence grants it (or closes it to anon and authenticated outright); every API privilege the local database holds is written in a migration; a replay under the no-automatic-grant default (simulated in a rolled-back transaction) restores every object production serves (--self-test: static, live and replay mutants)",
      "group":"Platform","skip_if_fast":False},

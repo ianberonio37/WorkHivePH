@@ -431,12 +431,21 @@ def free_plan_sites(ev: dict) -> list[dict]:
         out.append({"cls": cls, "page": page, "line": line, "key": key, "persona": persona, "detail": detail})
 
     v = ev.get("vercel") or {}
+    dash = v.get("dashboard") or {}
+    series = dash.get("storage_gb_by_day") or {}
     for proj, p in (v.get("projects") or {}).items():
         if proj == "Production":
+            if series:      # what Vercel's own Usage page drew, not the emailed figure
+                last = max(series)
+                read = f"{series[last]} of {v.get('allowance_gb')} GB on {last}"
+            else:
+                read = f"{v.get('reported_use_pct')}% of {v.get('allowance_gb')} GB"
             add("Z", proj, f"Vercel built the production project {p['deployments']} times ({p['first']} to {p['last']}); each "
                            f"build stored {v.get('payload_mb_denylist')} MB under the denylist .vercelignore, and Hobby keeps the "
-                           f"newest production builds - Deployment Storage read {v.get('reported_use_pct')}% of "
-                           f"{v.get('allowance_gb')} GB for a site of {v.get('payload_mb_allowlist')} MB")
+                           f"newest production builds - Deployment Storage read {read} for a site of "
+                           f"{v.get('payload_mb_allowlist')} MB")
+        elif dash.get("projects") and proj.split(" /")[0] not in dash["projects"]:
+            continue    # the repository keeps a deleted project's records; Vercel stores nothing for it (2026-10-21)
         else:
             add("Z", proj, f"a second Vercel project, '{proj.split(' /')[0]}', built this repository {p['deployments']} times "
                            f"({p['first']} to {p['last']}) and still holds the builds Hobby protects - storage for a project "
