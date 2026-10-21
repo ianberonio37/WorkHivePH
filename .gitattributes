@@ -1,0 +1,4 @@
+# Vendored scripts are pinned by an SRI integrity hash (vendor/supabase-js, vendor/plotly-basic): their bytes must never
+# change, so git must never convert their line endings on checkout (core.autocrlf would turn LF into CRLF on Windows,
+# and the browser would then refuse the script as tampered).
+vendor/** -text

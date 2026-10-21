@@ -3876,8 +3876,23 @@ Rosa's part photo went the same way. Ben, as her teammate, sees its thumbnail.
    grants (drift). `whUseThen` had an unmarked empty `.catch`.
 5. **An instrument hazard.** The local gateway answers a refused upload before reading a large body, and the unread
    bytes stall the next request on that connection for a minute. The proof's refused upload uses a small body.
-6. **`cdn.plot.ly` answered 503** to the host and to the browser on 2026-10-21/22. `analytics.html` loads Plotly only
-   from there, so its charts fail whenever that CDN does.
+6. **`cdn.plot.ly` answered 503** to the host and to the browser on 2026-10-21/22. `analytics.html` loaded Plotly only
+   from there, so its charts failed whenever that CDN did. **Fixed the same day:**
+   - Plotly 2.26.0 is now served from this origin (`vendor/plotly-basic-2.26.0.min.js`). It was taken from the npm
+     mirrors, and its SHA-384 equals the integrity value the page had always pinned, so it is the same file. Like
+     `vendor/supabase-js`, it is not precached.
+   - `.gitattributes` keeps `vendor/**` out of line-ending conversion, so a Windows checkout cannot change the bytes
+     the hash pins.
+   - Analytics' policy and the base policy no longer name the CDN. `build_csp_profiles` merged analytics into the
+     group whose policy names only what its code loads; 10 policies became 9. Analytics was re-measured into its own
+     file and merged, so the full sweep's record was not overwritten.
+   - Walked as Rosa: the script loaded 200 from the origin at 390 and 1280, and the Predictive phase drew its charts.
+7. **`csp-ratchet` had been red since ENH-R (2026-10-19).** The Sources nudge was index.html's 13th un-nonced inline
+   script. It is now the first line of the inline script that already follows the area: the same moment, and the same
+   guard, so skew-heal still names it. `render_sources_area` accepts and holds that form; there are 3 new self-test
+   cases. The count is back to 12.
+8. **`prove_recovery_path` found controls by `innerText` only.** It now falls back to `textContent`, so a card below
+   the fold of a long list is still found by its words. `prove_stored_text_escaped` already counted with `textContent`.
 
 **Gates.**
 - `photos-in-storage`, new: 21 mutants. The pre-fix files of the six pages, `utils.js` and `offline-queue.js` turn it
@@ -3896,9 +3911,8 @@ Rosa's part photo went the same way. Ben, as her teammate, sees its thumbnail.
 3. Once the new pages are live, run it again with `--clear`.
 
 **NEXT:**
-- analytics' Plotly from a vendored copy, verified against the same SRI hash;
-- the `innerText`-on-long-lists prover audit;
-- LB3's six open rows with the CPU-time instrument;
+- LB3's six open rows with the CPU-time instrument (the walk now traces every measured visit and books each task at
+  its main-thread CPU time x the throttle);
 - then LB4 (35), RL1 (31), RL2 (24), RL3 (36).
 
 ## §SL · The SUB-LAYER wave — every full-stack layer's sub-layers, on every production, founder and public page (Ian, 2026-10-14)

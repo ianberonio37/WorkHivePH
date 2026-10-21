@@ -26,7 +26,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://challenges.cloudflare.com https://cdn.plot.ly https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://tiles.openfreemap.org https://engineering-calc-api.onrender.com https://api.pwnedpasswords.com; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://challenges.cloudflare.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://tiles.openfreemap.org https://engineering-calc-api.onrender.com https://api.pwnedpasswords.com; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'"
         }
       ]
     },
@@ -287,7 +287,7 @@
       ]
     },
     {
-      "source": "/(achievements.html|alert-hub.html|analytics-report.html|assistant.html|audit-log.html|community.html|dayplanner.html|design-system.html|founder-console.html|hive.html|llm-observability.html|marketplace-admin.html|marketplace-seller-profile.html|marketplace-seller.html|ph-intelligence.html|plant-connections.html|platform-actions.html|pm-scheduler.html|project-manager.html|project-report.html|public-feed.html|report-sender.html|shift-brain.html|voice-journal.html)",
+      "source": "/(achievements.html|alert-hub.html|analytics-report.html|analytics.html|assistant.html|audit-log.html|community.html|dayplanner.html|design-system.html|founder-console.html|hive.html|llm-observability.html|marketplace-admin.html|marketplace-seller-profile.html|marketplace-seller.html|ph-intelligence.html|plant-connections.html|platform-actions.html|pm-scheduler.html|project-manager.html|project-report.html|public-feed.html|report-sender.html|shift-brain.html|voice-journal.html)",
       "headers": [
         {
           "key": "Content-Security-Policy",
@@ -337,15 +337,6 @@
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co https://www.googletagmanager.com; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://api.pwnedpasswords.com; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self' https://challenges.cloudflare.com; frame-ancestors 'none'"
-        }
-      ]
-    },
-    {
-      "source": "/(analytics.html)",
-      "headers": [
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.plot.ly; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://hzyvnjtisfgbksicrouu.supabase.co; connect-src 'self' https://hzyvnjtisfgbksicrouu.supabase.co wss://hzyvnjtisfgbksicrouu.supabase.co; media-src 'self' blob: https://hzyvnjtisfgbksicrouu.supabase.co; worker-src 'self' blob:; frame-src 'self'; frame-ancestors 'none'"
         }
       ]
     },

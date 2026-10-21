@@ -282,7 +282,9 @@ for (const [file, heads] of Object.entries(ROSTER)) {
           // that calls it - the OPENER is called by hand, never the control under test
           if (sel.startsWith('js:')) { try { (0, eval)(sel.slice(3)); } catch (e) { /* empty-catch-allow: a missing opener leaves the control NOT REACHED */ } return; }
           const pool = sel.startsWith('text=')
-            ? [...document.querySelectorAll('button, [role="button"], a, .asset-card, .pcard, [onclick]')].filter((e) => new RegExp(sel.slice(5), 'i').test((e.innerText || e.getAttribute('aria-label') || '').trim()))
+            // textContent after innerText (2026-10-22): a card in a long list (content-visibility:auto) has no RENDERED text
+            // until it nears the screen, so innerText was '' for every card below the fold and the step read NOT REACHED
+            ? [...document.querySelectorAll('button, [role="button"], a, .asset-card, .pcard, [onclick]')].filter((e) => new RegExp(sel.slice(5), 'i').test((e.innerText || e.textContent || e.getAttribute('aria-label') || '').trim()))
             : [...document.querySelectorAll(sel)];
           // a step is an OPENER (a tab, a card, a menu): press the visible one, else the first - a hidden tab
           // button still switches its panel, and the control under test is judged for visibility on its own

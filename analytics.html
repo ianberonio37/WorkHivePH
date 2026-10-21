@@ -15,7 +15,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
-  <script src="https://cdn.plot.ly/plotly-basic-2.26.0.min.js" integrity="sha384-4zPMCkaV0wO70MQq0L4L61dbpYMWn2Br91U2s3eYnKsTPhwH+2D3PTs0OrvLO8h9" crossorigin="anonymous"></script>
+  <!-- Plotly is served from this origin (2026-10-22): cdn.plot.ly answered 503 and the charts went with it. The vendored file is
+       byte-identical to what the CDN served - it hashes to the same pinned integrity value below. -->
+  <script src="vendor/plotly-basic-2.26.0.min.js" integrity="sha384-4zPMCkaV0wO70MQq0L4L61dbpYMWn2Br91U2s3eYnKsTPhwH+2D3PTs0OrvLO8h9"></script>
   <link rel="stylesheet" href="tokens.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

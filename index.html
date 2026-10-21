@@ -3453,9 +3453,10 @@
 </div>
 </div>
 </section>
-<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
+<!-- wh-sources-nudge: the first line of the next script (index.html's inline scripts may only fall) -->
 <!-- /wh-sources -->
 <script>
+  typeof whSourcesSync === 'function' && whSourcesSync();   // the Sources area's nudge (tools/render_sources_area.py)
   // ── WorkHive Auth (C1) ────────────────────────────────────────────────────
   // Supabase Auth with username + password.
   // Synthetic email = username@auth.workhiveph.com: workers never see it.

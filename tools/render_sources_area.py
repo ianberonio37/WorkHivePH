@@ -48,6 +48,12 @@ ANCHOR = "<!-- wh-sources-anchor -->"
 # - the reason it is a typeof guard - it puts whSourcesSync on the page's skew-heal list (bug_hunt_inventory reads guarded
 # utils functions), so a page met with an OLDER utils.js, which would leave the area hidden for good, heals itself.
 NUDGE = "<script>typeof whSourcesSync === 'function' && whSourcesSync();</script>"
+# index.html is held by the strict-CSP ratchet (tools/validate_csp.py: its un-nonced inline scripts may only fall), and the
+# nudge as a script of its own was its 13th (2026-10-19). There the call is the FIRST LINE of the inline script that
+# already follows the area - the same moment, the same guard (so the skew-heal list still names it) - and the area
+# carries this mark instead; the check holds the call in that place. (2026-10-22)
+NUDGE_CALL = "typeof whSourcesSync === 'function' && whSourcesSync();"
+MERGED_MARK = "<!-- wh-sources-nudge: the first line of the next script (index.html's inline scripts may only fall) -->"
 AREA_RX =re.compile(re.escape(OPEN_MARK) + r"[\s\S]*?" + re.escape(CLOSE_MARK))
 STATIC_CHIP_RX = re.compile(r'\n?[ \t]*<p\b[^>]*\bclass="wh-source-chip"[^>]*>[\s\S]*?</p>')
 EXPLAINER_BTN_RX = re.compile(r'[ \t]*<button\b[^>]*\bid="details-toggle-btn"[^>]*>[\s\S]*?</button>[ \t]*\n?')
@@ -394,7 +400,11 @@ def problems_of(page: str, src: str) -> list[str]:
     if NOTE_RX.search(rest):
         bad.append(f"{page}: a how-it-is-computed note sits outside the Sources area: {NOTE_RX.search(rest).group(0)!r}")
     if _live(src):
-        if NUDGE not in m.group(0):
+        if MERGED_MARK in m.group(0):
+            if NUDGE in m.group(0) or not re.match(r"\s*<script>\s*" + re.escape(NUDGE_CALL), src[m.end():]):
+                bad.append(f"{page}: its Sources area hands the whSourcesSync nudge to the next script, and that script "
+                           f"does not start with it - an older utils.js would leave the area hidden")
+        elif NUDGE not in m.group(0):
             bad.append(f"{page}: its Sources area lacks the whSourcesSync nudge - an older utils.js would leave it hidden")
         if _OPEN_TAG + 'hidden ' not in m.group(0):
             bad.append(f"{page}: its Sources area does not ship hidden - it can paint before the page's content")
@@ -472,7 +482,7 @@ def _tidy(src: str) -> str:
         return _columned(src)                # a static page's area is shown, has no runtime to nudge or align it
     src = src.replace(_OPEN_TAG + 'style=', _OPEN_TAG + 'hidden style=')
     m = AREA_RX.search(src)
-    if m and NUDGE not in m.group(0):        # an area written before the nudge existed is brought under it
+    if m and NUDGE not in m.group(0) and MERGED_MARK not in m.group(0):   # an area written before the nudge existed
         blk = m.group(0)[:-len(CLOSE_MARK)].rstrip("\n") + "\n" + NUDGE + "\n" + CLOSE_MARK
         src = src[:m.start()] + blk + src[m.end():]
     return src
@@ -568,6 +578,13 @@ def self_test() -> int:
         ("a script mentioning the note is not provenance", bool(problems_of("t", out.replace("renderSourceChip({})</script>", "renderSourceChip({}); 'How we compute'</script>"))), False),
         ("an area without the skew-heal nudge is caught", bool(problems_of("t", out.replace(NUDGE, ""))), True),
         ("applying twice changes nothing", apply_to(out) == out, True),
+        # index.html's form: the mark in the area, the call as the first line of the script after it
+        ("the nudge merged into the next script holds",
+         bool(problems_of("t", out.replace(NUDGE + "\n" + CLOSE_MARK, MERGED_MARK + "\n" + CLOSE_MARK + "\n<script>\n  " + NUDGE_CALL + "\n</script>"))), False),
+        ("...and the merged form is left as it is by --apply",
+         apply_to(out.replace(NUDGE + "\n" + CLOSE_MARK, MERGED_MARK + "\n" + CLOSE_MARK + "\n<script>\n  " + NUDGE_CALL + "\n</script>")).count(NUDGE), 0),
+        ("the mark with no call in the next script is caught",
+         bool(problems_of("t", out.replace(NUDGE + "\n" + CLOSE_MARK, MERGED_MARK + "\n" + CLOSE_MARK + "\n<script>\n  let x = 1;\n</script>"))), True),
     ]
     pg2 = ('<head><script src="utils.js"></script></head>' + '<main><h1>T</h1>\n<div id="card" class="hidden">\n  <button id="details-toggle-btn" type="button" '
            'aria-controls="x-summary-details">Show details</button>\n  <button id="keep">Recently deleted</button>\n'
