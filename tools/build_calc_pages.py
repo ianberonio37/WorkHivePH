@@ -514,6 +514,15 @@ CALC_DATA: dict[str, dict] = {
         "example_inputs": {"system_kw": 100, "load_kw": 80, "location": "Manila", "system_type": "Grid-Tie", "derating_pct": 20, "inverter_eff_pct": 97},
         "example_desc": "a 100 kWp grid-tie solar array in Manila",
         "headline": [("Total panels", "total_panels", "panels"), ("Array size", "array_kWp", "kWp"), ("Roof area", "roof_area_required_m2", "m²")],
+        # ENH-S (Ian, 2026-10-14): the off-grid solar power-station planner, built once in solar-planner.js
+        "steps": ["Plan an off-grid station on this page: list the appliances, choose your nearest place and the days without sun, and read each step from the daily energy to the cost.",
+                  "Read the worked example. It uses a 100 kWp grid-tie solar array in Manila and shows every number in the method.",
+                  "To size a grid-tie array with every input and save it to your hive, open the Solar PV System Calculator inside WorkHive's free Engineering Design suite (link below)."],
+        "tool": {"id": "planner", "title": "Plan an off-grid solar power station",
+                 "intro": "List what the station will power and where it is. The planner adds up the daily energy, sizes the battery, panels, inverter and charge controller step by step, and estimates the cost. It runs on this page: nothing you enter is sent anywhere, and no account is needed.",
+                 "mount": '<div data-wh-solar-planner><noscript>The planner needs JavaScript. The worked example below shows the method.</noscript></div>',
+                 "script": "/solar-planner.js",
+                 "chip": "Worked example computed when this page was built · the planner calculates on your device from what you enter · no live data"},
     },
     "ups-sizing-calculator": {
         "module": "ups_sizing", "title": "UPS Sizing Calculator", "discipline": "Electrical & Power",
@@ -983,6 +992,19 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
         f'      <details class="faq-item"><summary>{e(q)}</summary><div class="faq-answer">{e(a)}</div></details>' for q, a in faqs)
     # same list the JSON-LD HowTo uses — rendered, so the markup describes visible content
     steps_html = "\n".join(f"        <li>{e(x)}</li>" for x in _steps(data))
+    # ENH-S (2026-10-22): a calculator may carry a working tool on the page itself - the solar power-station planner -
+    # after the method and before the worked example. Its script loads right where it mounts, so the tool is drawn
+    # during the parse and nothing below it moves when it appears; and the chip says where the numbers come from.
+    tool = data.get("tool")
+    tool_html = ""
+    if tool:
+        tool_html = (f'\n    <section aria-labelledby="{e(tool["id"])}">\n'
+                     f'      <h2 id="{e(tool["id"])}">{e(tool["title"])}</h2>\n'
+                     f'      <p>{e(tool["intro"])}</p>\n'
+                     f'      {tool["mount"]}\n'
+                     f'      <script src="{e(tool["script"])}"></script>\n'
+                     f'    </section>\n')
+    chip = (tool or {}).get("chip") or "Static · formula-only · worked example computed when this page was built · no live data"
     sibs = data.get("siblings") or _siblings(slug, data)
     # ~W46330: `rel` defaulted to PILLAR, so 57 of 60 pages listed the pillar TWICE
     # in one <ul> - same href, same anchor text, differing only by a "(pillar)"
@@ -1072,7 +1094,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
          whether the chip is TRUE - a page can hold two contradictory false claims and read 100% on the
          trust dimension ([[feedback_metric_label_is_a_claim_add_the_missing_half]]). Both now state the
          one true thing: the platform's real engine produced these numbers when the page was built. -->
-    <p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size: 0.75rem; opacity:.85; margin:.25rem 0 1rem;">Static · formula-only · worked example computed when this page was built · no live data</p><!-- G1+E3 -->
+    <p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size: 0.75rem; opacity:.85; margin:.25rem 0 1rem;">{e(chip)}</p><!-- G1+E3 -->
 
     <p class="answer-first"><strong>{e(answer)}</strong></p>
 
@@ -1080,7 +1102,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
       <h2 id="formula" data-i="calc_how">How it works</h2>
       <p>{e(formula)}</p>
     </section>
-
+{tool_html}
     <section aria-labelledby="worked" style="min-height:240px"><!-- I2: reserved block -->
       <h2 id="worked"><span data-i="calc_worked">Worked example</span> ({e(data['discipline'])})</h2>
       <p>Inputs: {e(data['example_desc'])}.</p>

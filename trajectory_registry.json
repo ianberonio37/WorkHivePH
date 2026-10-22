@@ -1004750,8 +1004750,8 @@
     },
     {
       "id": "ENH1",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must list the appliances the station will power, each with its watts and its hours a day (appliance list builder on the solar power-station planner) - solo-owner · engineering design",
       "pages": [
@@ -1004808,12 +1004808,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on engineering design itself (not described), used end to end as solo-owner at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's appliance list, BUILT in the Engineering Design suite's Solar PV type (the 'Plan it from your appliances' section under its daily energy; 'Use this plan in the calculation' carries the plan into the suite's own calculation, which ran) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:42:24.652Z (.tmp/slw/results/enhs_suite1.json) on http://localhost:5000/workhive/engineering-design.html?calc=solar-pv-system signed in as the solo owner junvanowner (no hive), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: three appliances listed (two from the common list, one typed in), one removed: [['Electric fan', 60, 1, 8, 2], ['Refrigerator (non-inverter)', 120, 1, 24, 3]] || desktop-1280: three appliances listed (two from the common list, one typed in), one removed: [['Electric fan', 60, 1, 8, 2], ['Refrigerator (non-inverter)', 120, 1, 24, 3]] Receipt .tmp/mcp_walks/ENH1.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH2",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must list the appliances the station will power, each with its watts and its hours a day (appliance list builder on the solar power-station planner) - an anonymous visitor · solar pv calculator",
       "pages": [
@@ -1004864,12 +1004872,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on solar pv calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's appliance list, BUILT on the public calculator (solar-planner.js, the page's Plan an off-grid solar power station section) and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page as it was before the build, 11 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:32:23.005Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: three appliances listed (two from the common list, one typed in), one removed: [['Electric fan', 60, 1, 8, 2], ['Refrigerator (non-inverter)', 120, 1, 24, 3]] || desktop-1280: three appliances listed (two from the common list, one typed in), one removed: [['Electric fan', 60, 1, 8, 2], ['Refrigerator (non-inverter)', 120, 1, 24, 3]] Receipt .tmp/mcp_walks/ENH2.json. || [2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's appliance list, BUILT on the public calculator (the page's Plan an off-grid solar power station section) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:43:40.564Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: three appliances listed (two from the common list, one typed in), one removed: [['Electric fan', 60, 1, 8, 2], ['Refrigerator (non-inverter)', 120, 1, 24, 3]] || desktop-1280: three appliances listed (two from the common list, one typed in), one removed: [['Electric fan', 60, 1, 8, 2], ['Refrigerator (non-inverter)', 120, 1, 24, 3]] Receipt .tmp/mcp_walks/ENH2.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH3",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must add the list up to the daily energy in watt-hours, with the losses stated (daily energy Wh on the solar power-station planner) - solo-owner · engineering design",
       "pages": [
@@ -1004926,12 +1004942,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on engineering design itself (not described), used end to end as solo-owner at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's daily energy with losses stated, BUILT in the Engineering Design suite's Solar PV type (the 'Plan it from your appliances' section under its daily energy; 'Use this plan in the calculation' carries the plan into the suite's own calculation, which ran) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:42:24.652Z (.tmp/slw/results/enhs_suite1.json) on http://localhost:5000/workhive/engineering-design.html?calc=solar-pv-system signed in as the solo owner junvanowner (no hive), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 3,360 Wh a day - The appliances use 3,360 Wh. Losses stated: inverter 93%, wiring 97%, battery round trip 95% - so the battery delivers 3,725 Wh and the panels must put in 3,921 Wh a day. || desktop-1280: 3,360 Wh a day - The appliances use 3,360 Wh. Losses stated: inverter 93%, wiring 97%, battery round trip 95% - so the battery delivers 3,725 Wh and the panels must put in 3,921 Wh a day. Receipt .tmp/mcp_walks/ENH3.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH4",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must add the list up to the daily energy in watt-hours, with the losses stated (daily energy Wh on the solar power-station planner) - an anonymous visitor · solar pv calculator",
       "pages": [
@@ -1004982,12 +1005006,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on solar pv calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's daily energy with losses stated, BUILT on the public calculator (solar-planner.js, the page's Plan an off-grid solar power station section) and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page as it was before the build, 11 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:32:23.005Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 3,360 Wh a day - The appliances use 3,360 Wh. Losses stated: inverter 93%, wiring 97%, battery round trip 95% - so the battery delivers 3,725 Wh and the panels must put in 3,921 Wh a day. || desktop-1280: 3,360 Wh a day - The appliances use 3,360 Wh. Losses stated: inverter 93%, wiring 97%, battery round trip 95% - so the battery delivers 3,725 Wh and the panels must put in 3,921 Wh a day. Receipt .tmp/mcp_walks/ENH4.json. || [2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's daily energy with losses stated, BUILT on the public calculator (the page's Plan an off-grid solar power station section) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:43:40.564Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 3,360 Wh a day - The appliances use 3,360 Wh. Losses stated: inverter 93%, wiring 97%, battery round trip 95% - so the battery delivers 3,725 Wh and the panels must put in 3,921 Wh a day. || desktop-1280: 3,360 Wh a day - The appliances use 3,360 Wh. Losses stated: inverter 93%, wiring 97%, battery round trip 95% - so the battery delivers 3,725 Wh and the panels must put in 3,921 Wh a day. Receipt .tmp/mcp_walks/ENH4.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH5",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must size for the peak load and the starting surge of motors and compressors (peak & surge W on the solar power-station planner) - solo-owner · engineering design",
       "pages": [
@@ -1005044,12 +1005076,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on engineering design itself (not described), used end to end as solo-owner at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's peak load and starting surge, BUILT in the Engineering Design suite's Solar PV type (the 'Plan it from your appliances' section under its daily energy; 'Use this plan in the calculation' carries the plan into the suite's own calculation, which ran) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:42:24.652Z (.tmp/slw/results/enhs_suite1.json) on http://localhost:5000/workhive/engineering-design.html?calc=solar-pv-system signed in as the solo owner junvanowner (no hive), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 180 W running, 420 W at a start - If everything runs at once: 180 W. The largest start is the Refrigerator (non-inverter), adding 240 W for a second or two. || desktop-1280: 180 W running, 420 W at a start - If everything runs at once: 180 W. The largest start is the Refrigerator (non-inverter), adding 240 W for a second or two. Receipt .tmp/mcp_walks/ENH5.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH6",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must size for the peak load and the starting surge of motors and compressors (peak & surge W on the solar power-station planner) - an anonymous visitor · solar pv calculator",
       "pages": [
@@ -1005100,12 +1005140,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on solar pv calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's peak load and starting surge, BUILT on the public calculator (solar-planner.js, the page's Plan an off-grid solar power station section) and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page as it was before the build, 11 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:32:23.005Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 180 W running, 420 W at a start - If everything runs at once: 180 W. The largest start is the Refrigerator (non-inverter), adding 240 W for a second or two. || desktop-1280: 180 W running, 420 W at a start - If everything runs at once: 180 W. The largest start is the Refrigerator (non-inverter), adding 240 W for a second or two. Receipt .tmp/mcp_walks/ENH6.json. || [2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's peak load and starting surge, BUILT on the public calculator (the page's Plan an off-grid solar power station section) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:43:40.564Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 180 W running, 420 W at a start - If everything runs at once: 180 W. The largest start is the Refrigerator (non-inverter), adding 240 W for a second or two. || desktop-1280: 180 W running, 420 W at a start - If everything runs at once: 180 W. The largest start is the Refrigerator (non-inverter), adding 240 W for a second or two. Receipt .tmp/mcp_walks/ENH6.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH7",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must ask how many days without sun the station must carry the load (autonomy days on the solar power-station planner) - an anonymous visitor · solar pv calculator",
       "pages": [
@@ -1005156,12 +1005204,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on solar pv calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's days of autonomy, BUILT on the public calculator (solar-planner.js, the page's Plan an off-grid solar power station section) and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page as it was before the build, 11 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:32:23.005Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: battery 4.7 kWh at 1 day, 9.3 kWh at 2 days || desktop-1280: battery 4.7 kWh at 1 day, 9.3 kWh at 2 days Receipt .tmp/mcp_walks/ENH7.json. || [2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's days of autonomy, BUILT on the public calculator (the page's Plan an off-grid solar power station section) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:43:40.564Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: battery 4.7 kWh at 1 day, 9.3 kWh at 2 days || desktop-1280: battery 4.7 kWh at 1 day, 9.3 kWh at 2 days Receipt .tmp/mcp_walks/ENH7.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH8",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must size the battery bank by chemistry and depth of discharge (battery bank (DoD, chemistry) on the solar power-station planner) - an anonymous visitor · solar pv calculator",
       "pages": [
@@ -1005212,12 +1005268,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on solar pv calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's battery chemistry and depth of discharge, BUILT on the public calculator (solar-planner.js, the page's Plan an off-grid solar power station section) and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page as it was before the build, 11 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:32:23.005Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: LiFePO4 9.3 kWh -> lead-acid 14.9 kWh (x1.6, '50% depth of discharge') || desktop-1280: LiFePO4 9.3 kWh -> lead-acid 14.9 kWh (x1.6, '50% depth of discharge') Receipt .tmp/mcp_walks/ENH8.json. || [2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's battery chemistry and depth of discharge, BUILT on the public calculator (the page's Plan an off-grid solar power station section) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:43:40.564Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: LiFePO4 9.3 kWh -> lead-acid 14.9 kWh (x1.6, '50% depth of discharge') || desktop-1280: LiFePO4 9.3 kWh -> lead-acid 14.9 kWh (x1.6, '50% depth of discharge') Receipt .tmp/mcp_walks/ENH8.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH9",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must size the inverter for the continuous load and the surge (inverter sizing on the solar power-station planner) - an anonymous visitor · solar pv calculator",
       "pages": [
@@ -1005268,12 +1005332,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on solar pv calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's inverter sized for the load and the start, BUILT on the public calculator (solar-planner.js, the page's Plan an off-grid solar power station section) and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page as it was before the build, 11 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:32:23.005Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 300 W pure sine wave, 24 V - Running load x 1.25 = 225 W. Its surge rating (usually 2x for a few seconds, 600 W - check the datasheet) covers the 420 W start. || desktop-1280: 300 W pure sine wave, 24 V - Running load x 1.25 = 225 W. Its surge rating (usually 2x for a few seconds, 600 W - check the datasheet) covers the 420 W start. Receipt .tmp/mcp_walks/ENH9.json. || [2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's inverter sized for the load and the start, BUILT on the public calculator (the page's Plan an off-grid solar power station section) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:43:40.564Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 300 W pure sine wave, 24 V - Running load x 1.25 = 225 W. Its surge rating (usually 2x for a few seconds, 600 W - check the datasheet) covers the 420 W start. || desktop-1280: 300 W pure sine wave, 24 V - Running load x 1.25 = 225 W. Its surge rating (usually 2x for a few seconds, 600 W - check the datasheet) covers the 420 W start. Receipt .tmp/mcp_walks/ENH9.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH10",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must use the peak sun hours of the person's own province (PAGASA) (peak sun hours by location on the solar power-station planner) - an anonymous visitor · solar pv calculator",
       "pages": [
@@ -1005324,12 +1005396,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on solar pv calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's peak sun hours by place and a custom value, BUILT on the public calculator (solar-planner.js, the page's Plan an off-grid solar power station section) and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page as it was before the build, 11 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:32:23.005Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: Wp needed: Metro Manila 1281, Baguio 1373, a custom 5.5 h 1048 || desktop-1280: Wp needed: Metro Manila 1281, Baguio 1373, a custom 5.5 h 1048 Receipt .tmp/mcp_walks/ENH10.json. || [2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's peak sun hours by place and a custom value, BUILT on the public calculator (the page's Plan an off-grid solar power station section) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:43:40.564Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: Wp needed: Metro Manila 1281, Baguio 1373, a custom 5.5 h 1048 || desktop-1280: Wp needed: Metro Manila 1281, Baguio 1373, a custom 5.5 h 1048 Receipt .tmp/mcp_walks/ENH10.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH11",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must size the charge controller, MPPT or PWM, for the array and the battery voltage (charge controller on the solar power-station planner) - solo-owner · engineering design",
       "pages": [
@@ -1005386,12 +1005466,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on engineering design itself (not described), used end to end as solo-owner at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's charge controller, BUILT in the Engineering Design suite's Solar PV type (the 'Plan it from your appliances' section under its daily energy; 'Use this plan in the calculation' carries the plan into the suite's own calculation, which ran) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:42:24.652Z (.tmp/slw/results/enhs_suite1.json) on http://localhost:5000/workhive/engineering-design.html?calc=solar-pv-system signed in as the solo owner junvanowner (no hive), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 100 A MPPT at 24 V - 1,650 Wp / 24 V x 1.25 = 85.9 A. MPPT, because a 550 Wp panel runs near 40 V, far above the battery - a PWM controller would waste the difference. || desktop-1280: 100 A MPPT at 24 V - 1,650 Wp / 24 V x 1.25 = 85.9 A. MPPT, because a 550 Wp panel runs near 40 V, far above the battery - a PWM controller would waste the difference. Receipt .tmp/mcp_walks/ENH11.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH12",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must size the charge controller, MPPT or PWM, for the array and the battery voltage (charge controller on the solar power-station planner) - an anonymous visitor · solar pv calculator",
       "pages": [
@@ -1005442,12 +1005530,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on solar pv calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's charge controller, BUILT on the public calculator (solar-planner.js, the page's Plan an off-grid solar power station section) and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page as it was before the build, 11 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:32:23.005Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 100 A MPPT at 24 V - 1,650 Wp / 24 V x 1.25 = 85.9 A. MPPT, because a 550 Wp panel runs near 40 V, far above the battery - a PWM controller would waste the difference. || desktop-1280: 100 A MPPT at 24 V - 1,650 Wp / 24 V x 1.25 = 85.9 A. MPPT, because a 550 Wp panel runs near 40 V, far above the battery - a PWM controller would waste the difference. Receipt .tmp/mcp_walks/ENH12.json. || [2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's charge controller, BUILT on the public calculator (the page's Plan an off-grid solar power station section) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:43:40.564Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 100 A MPPT at 24 V - 1,650 Wp / 24 V x 1.25 = 85.9 A. MPPT, because a 550 Wp panel runs near 40 V, far above the battery - a PWM controller would waste the difference. || desktop-1280: 100 A MPPT at 24 V - 1,650 Wp / 24 V x 1.25 = 85.9 A. MPPT, because a 550 Wp panel runs near 40 V, far above the battery - a PWM controller would waste the difference. Receipt .tmp/mcp_walks/ENH12.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH13",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must estimate what the station costs in pesos, part by part (cost estimate ₱ on the solar power-station planner) - solo-owner · engineering design",
       "pages": [
@@ -1005504,12 +1005600,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on engineering design itself (not described), used end to end as solo-owner at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's cost estimate in pesos, with prices replaced, BUILT in the Engineering Design suite's Solar PV type (the 'Plan it from your appliances' section under its daily energy; 'Use this plan in the calculation' carries the plan into the suite's own calculation, which ran) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:42:24.652Z (.tmp/slw/results/enhs_suite1.json) on http://localhost:5000/workhive/engineering-design.html?calc=solar-pv-system signed in as the solo owner junvanowner (no hive), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: ₱126,350 - Panels ₱33,000, battery ₱55,870, inverter ₱3,000, controller ₱18,000, cables, breakers and mounting ₱16,480. These prices are a starting point - replace them with your supplier's quote below. || desktop-1280: ₱126,350 - Panels ₱33,000, battery ₱55,870, inverter ₱3,000, controller ₱18,000, cables, breakers and mounting ₱16,480. These prices are a starting point - replace them with your supplier's quote below. Receipt .tmp/mcp_walks/ENH13.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH14",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must save the plan and share it by link (save/share the plan on the solar power-station planner) - solo-owner · engineering design",
       "pages": [
@@ -1005566,12 +1005670,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on engineering design itself (not described), used end to end as solo-owner at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's save and share the plan, BUILT in the Engineering Design suite's Solar PV type (the 'Plan it from your appliances' section under its daily energy; 'Use this plan in the calculation' carries the plan into the suite's own calculation, which ran) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:42:24.652Z (.tmp/slw/results/enhs_suite1.json) on http://localhost:5000/workhive/engineering-design.html?calc=solar-pv-system signed in as the solo owner junvanowner (no hive), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 'Saved on this device. It opens here next time.' then after a reload 'Your saved plan is back.'; the share link (http://localhost:5000/workhive/engineering-design.html?calc=solar-pv-system#plan=...) opened in a new tab with the device copy removed - the planner opened itself (True), 'This plan came from a shared link. Change anything - your copy is your own.', read back ['Electric fan', 'Refrigerator (non-inverter)'] || desktop-1280: 'Saved on this device. It opens here next time.' then after a reload 'Your saved plan is back.'; the share link (http://localhost:5000/workhive/engineering-design.html?calc=solar-pv-system#plan=...) opened in a new tab with the device copy removed - the planner opened itself (True), 'This plan came from a shared link. Change anything - your copy is your own.', read back ['Electric fan', 'Refrigerator (non-i Receipt .tmp/mcp_walks/ENH14.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH15",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must save the plan and share it by link (save/share the plan on the solar power-station planner) - an anonymous visitor · solar pv calculator",
       "pages": [
@@ -1005622,12 +1005734,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on solar pv calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's save and share the plan, BUILT on the public calculator (solar-planner.js, the page's Plan an off-grid solar power station section) and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page as it was before the build, 11 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:32:23.005Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 'Saved on this device. It opens here next time.' then after a reload 'Your saved plan is back.'; the share link (269 chars) opened in a fresh browser (storage 0) read back ['Electric fan', 'Refrigerator (non-inverter)'] || desktop-1280: 'Saved on this device. It opens here next time.' then after a reload 'Your saved plan is back.'; the share link (269 chars) opened in a fresh browser (storage 0) read back ['Electric fan', 'Refrigerator (non-inverter)'] Receipt .tmp/mcp_walks/ENH15.json. || [2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's save and share the plan, BUILT on the public calculator (the page's Plan an off-grid solar power station section) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:43:40.564Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: 'Saved on this device. It opens here next time.' then after a reload 'Your saved plan is back.'; the share link (269 chars) opened in a fresh browser (storage 0) read back ['Electric fan', 'Refrigerator (non-inverter)'] || desktop-1280: 'Saved on this device. It opens here next time.' then after a reload 'Your saved plan is back.'; the share link (269 chars) opened in a fresh browser (storage 0) read back ['Electric fan', 'Refrigerator (non-inverter)'] Receipt .tmp/mcp_walks/ENH15.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH16",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must print a spec sheet a supplier or an electrician can quote from (printable spec sheet on the solar power-station planner) - solo-owner · engineering design",
       "pages": [
@@ -1005684,12 +1005804,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on engineering design itself (not described), used end to end as solo-owner at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's printable spec sheet, BUILT in the Engineering Design suite's Solar PV type (the 'Plan it from your appliances' section under its daily energy; 'Use this plan in the calculation' carries the plan into the suite's own calculation, which ran) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:42:24.652Z (.tmp/slw/results/enhs_suite1.json) on http://localhost:5000/workhive/engineering-design.html?calc=solar-pv-system signed in as the solo owner junvanowner (no hive), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: Print spec sheet -> the browser's print view held the sheet alone: Solar power station - spec sheet Off-grid, 24 V. Sun: 4.5 peak sun hours a day, +25% for the rainy season. Backup: 1 day without sun. What to buy Solar panels 3 x 550 Wp (1.7 kWp) Battery bank 4.7 kWh, 194 Ah at 24 V - Lithium iron phosphat || desktop-1280: Print spec sheet -> the browser's print view held the sheet alone: Solar power station - spec sheet Off-grid, 24 V. Sun: 4.5 peak sun hours a day, +25% for the rainy season. Backup: 1 day without sun. What to buy Solar panels 3 x 550 Wp (1.7 kWp) Battery bank 4.7 kWh, 194 Ah at 24 V - Lithium iron phosphat Receipt .tmp/mcp_walks/ENH16.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
       "id": "ENH17",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-S",
       "title": "The platform must print a spec sheet a supplier or an electrician can quote from (printable spec sheet on the solar power-station planner) - an anonymous visitor · solar pv calculator",
       "pages": [
@@ -1005740,6 +1005868,14 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on solar pv calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's printable spec sheet, BUILT on the public calculator (solar-planner.js, the page's Plan an off-grid solar power station section) and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page as it was before the build, 11 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:32:23.005Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: Print spec sheet -> the browser's print view held the sheet alone: Solar power station - spec sheet Off-grid, 24 V. Sun: 4.5 peak sun hours a day, +25% for the rainy season. Backup: 2 days without sun. What to buy Solar panels 3 x 550 Wp (1.7 kWp) Battery bank 9.3 kWh, 388 Ah at 24 V - Lithium iron phospha || desktop-1280: Print spec sheet -> the browser's print view held the sheet alone: Solar power station - spec sheet Off-grid, 24 V. Sun: 4.5 peak sun hours a day, +25% for the rainy season. Backup: 2 days without sun. What to buy Solar panels 3 x 550 Wp (1.7 kWp) Battery bank 9.3 kWh, 388 Ah at 24 V - Lithium iron phospha Receipt .tmp/mcp_walks/ENH17.json. || [2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked: the solar planner used end to end at each width - appliances added from the list and typed in, edited and removed; the place, its peak sun hours and a custom value; the days without sun and the battery chemistry; each step's figures read off the page and checked against the hand-worked method; the plan saved on the device and read back after a reload; the share link opened in a fresh browser and the plan read back from it; the print view taken and the spec sheet read as the only printed content; page errors recorded): ENH-S: the solar power-station planner's printable spec sheet, BUILT on the public calculator (the page's Plan an off-grid solar power station section) - solar-planner.js, built once - and used at phone-390 and desktop-1280. Held by solar-planner (fails on the page and the suite as they were before the build, 15 mutants), scripts-parse and design-detector-ratchet. Witness: MCP walk 2026-10-22T03:43:40.564Z (.tmp/slw/results/enhs1.json) on http://localhost:5000/tools/solar-pv-calculator/ as a visitor (signed out), each width a fresh context with service workers blocked; the planner used end to end and each figure checked against the hand-worked method: phone-390: Print spec sheet -> the browser's print view held the sheet alone: Solar power station - spec sheet Off-grid, 24 V. Sun: 4.5 peak sun hours a day, +25% for the rainy season. Backup: 2 days without sun. What to buy Solar panels 3 x 550 Wp (1.7 kWp) Battery bank 9.3 kWh, 388 Ah at 24 V - Lithium iron phospha || desktop-1280: Print spec sheet -> the browser's print view held the sheet alone: Solar power station - spec sheet Off-grid, 24 V. Sun: 4.5 peak sun hours a day, +25% for the rainy season. Backup: 2 days without sun. What to buy Solar panels 3 x 550 Wp (1.7 kWp) Battery bank 9.3 kWh, 388 Ah at 24 V - Lithium iron phospha Receipt .tmp/mcp_walks/ENH17.json.",
+      "artifacts": {
+        "gates": [
+          "design-detector-ratchet",
+          "scripts-parse",
+          "solar-planner"
+        ]
       }
     },
     {
@@ -1036132,5 +1036268,5 @@
       }
     }
   ],
-  "next": "the open trajectories in the header's walk order, the F layer first (python tools/live_walk_manifest.py --layer F); LB3's last two CPU-ms rows (logbook, inventory) and the scroll-up layout shift wait at the end of the roadmap"
+  "next": "the F layer's product rows in the header's walk order: ENH-C (41 open critic cells on signed-in pages), then OPC (99, the one operator console); public ENH-P and ENH-L after every product lane; LB3's two CPU-ms rows wait at the end of the roadmap"
 }

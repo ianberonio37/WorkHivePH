@@ -4429,6 +4429,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "solar-planner",
+        "script":  "tools/validate_solar_planner.py",
+        "args":    [],
+        "label":   "ENH-S (2026-10-22, Ian by name: the solar power-station planner): the sizing chain holds its hand-worked cases (tools/test_solar_planner.mjs - losses, surge, inverter, battery by chemistry and depth of discharge, panels, system voltage, charge controller, cost, the share link); the public calculator carries the planner, its script after its element so it is drawn during the parse; the chip says the planner calculates on the reader's device; the generator keeps the block; and every capability's mechanism - add/remove, autonomy, peak sun hours by place or custom, save, share link, printed sheet - is in solar-planner.js (self-test: 11 mutants, the page as it was before the build among them)",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "offline-is-not-no",
         "script":  "tools/validate_offline_is_not_no.py",
         "args":    [],

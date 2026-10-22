@@ -60,17 +60,17 @@
         {
           "@type": "HowToStep",
           "position": 1,
-          "text": "Read the worked example. It uses a 100 kWp grid-tie solar array in Manila and shows every number in the method."
+          "text": "Plan an off-grid station on this page: list the appliances, choose your nearest place and the days without sun, and read each step from the daily energy to the cost."
         },
         {
           "@type": "HowToStep",
           "position": 2,
-          "text": "Follow the formula with your own figures: it returns Total panels, Array size, Roof area, computed per IEC 62548:2016, IEC 61215, IEC 62109, PEC 2017 Art.6.90 and PAGASA."
+          "text": "Read the worked example. It uses a 100 kWp grid-tie solar array in Manila and shows every number in the method."
         },
         {
           "@type": "HowToStep",
           "position": 3,
-          "text": "To compute interactively, open the Solar PV System Calculator inside WorkHive's free Engineering Design suite (link below). It runs the same method with your inputs."
+          "text": "To size a grid-tie array with every input and save it to your hive, open the Solar PV System Calculator inside WorkHive's free Engineering Design suite (link below)."
         }
       ]
     },
@@ -219,6 +219,13 @@
       <p>The calculator follows IEC 62548:2016, IEC 61215, IEC 62109, PEC 2017 Art.6.90 and PAGASA. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.</p>
     </section>
 
+    <section aria-labelledby="planner">
+      <h2 id="planner">Plan an off-grid solar power station</h2>
+      <p>List what the station will power and where it is. The planner adds up the daily energy, sizes the battery, panels, inverter and charge controller step by step, and estimates the cost. It runs on this page: nothing you enter is sent anywhere, and no account is needed.</p>
+      <div data-wh-solar-planner><noscript>The planner needs JavaScript. The worked example below shows the method.</noscript></div>
+      <script src="/solar-planner.js"></script>
+    </section>
+
     <section aria-labelledby="worked" style="min-height:240px"><!-- I2: reserved block -->
       <h2 id="worked"><span data-i="calc_worked">Worked example</span> (Electrical &amp; Power)</h2>
       <p>Inputs: a 100 kWp grid-tie solar array in Manila.</p>
@@ -236,9 +243,9 @@
     <section aria-labelledby="howto">
       <h2 id="howto" data-i="calc_howto">How to use this calculator</h2>
       <ol>
+        <li>Plan an off-grid station on this page: list the appliances, choose your nearest place and the days without sun, and read each step from the daily energy to the cost.</li>
         <li>Read the worked example. It uses a 100 kWp grid-tie solar array in Manila and shows every number in the method.</li>
-        <li>Follow the formula with your own figures: it returns Total panels, Array size, Roof area, computed per IEC 62548:2016, IEC 61215, IEC 62109, PEC 2017 Art.6.90 and PAGASA.</li>
-        <li>To compute interactively, open the Solar PV System Calculator inside WorkHive&#x27;s free Engineering Design suite (link below). It runs the same method with your inputs.</li>
+        <li>To size a grid-tie array with every input and save it to your hive, open the Solar PV System Calculator inside WorkHive&#x27;s free Engineering Design suite (link below).</li>
       </ol>
     </section>
 
@@ -267,7 +274,7 @@
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="source-line-1">
-<p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size: 0.75rem; opacity:.85; margin:.25rem 0 1rem;">Static · formula-only · worked example computed when this page was built · no live data</p>
+<p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size: 0.75rem; opacity:.85; margin:.25rem 0 1rem;">Worked example computed when this page was built · the planner calculates on your device from what you enter · no live data</p>
 </div>
 </div>
 </section>

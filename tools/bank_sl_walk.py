@@ -154,6 +154,7 @@ CONDITION["BRH-AB"] = ("each page the row names opened as its cast, every GET of
                        "checked drawn by name from Storage; the photo saved, edited, replaced, removed and saved offline "
                        "through the page's own form, and the row and the bucket read back from the LOCAL database")
 GATES["ENH-R"] = ["provenance-at-foot", "skew-heal", "scripts-parse", "design-detector-ratchet"]
+GATES["ENH-S"] = ["solar-planner", "scripts-parse", "design-detector-ratchet"]
 GATES["D1"] = ["figure-sources-written", "provenance-at-foot", "skew-heal", "scripts-parse"]
 GATES["D4"] = ["file-storage-owned", "media-fails-alone", "skew-heal", "scripts-parse"]
 GATES["A1"] = ["refusal-has-a-sentence", "offline-is-not-no", "write-failure-speaks", "skew-heal", "scripts-parse"]
@@ -341,6 +342,12 @@ CONDITION["ENH-R"] = ("the page read as served, signed in as the row's cast, its
                       "excluded (none), the area's own lines read, the explainer opened and closed with a real click, the "
                       "area's words checked for fixed chrome over them at the bottom of the scroll, the load's layout shift "
                       "and every page error recorded")
+CONDITION["ENH-S"] = ("the page read as served to the row's cast, the service worker blocked: the solar planner used end to end "
+                      "at each width - appliances added from the list and typed in, edited and removed; the place, its peak "
+                      "sun hours and a custom value; the days without sun and the battery chemistry; each step's figures "
+                      "read off the page and checked against the hand-worked method; the plan saved on the device and read "
+                      "back after a reload; the share link opened in a fresh browser and the plan read back from it; the "
+                      "print view taken and the spec sheet read as the only printed content; page errors recorded")
 CONDITION_DEFAULT = "the condition induced by the MCP's initScript before any page script"
 # a bug-hunt class is walked by the sub-layer that meets its defect (its gates and wording follow that sub-layer)
 BRH_CLASS_SUBLAYER = {"F": "AU2", "L": "AU4", "M": "AU1",   # BRH.2: L - a control offered to a person the page behind it refuses; M - copy that contradicts the session (the AU1 three-state walk settles it)
@@ -828,8 +835,12 @@ def bank_walk(rid: str, steps: str, witness: str, note: str, webkit: str | None,
     view = ("a TRUE 390 and 1280 through CDP" if instrument.startswith("chrome-devtools")
             else "390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context "
                  "route, so no model was called")
+    # a visitor's row (a public page's cast) is walked signed out - "signed in as anon" would describe a sign-in that
+    # never happened (ENH-S, 2026-10-22: the first enhancement rows walked as a visitor)
+    who = ("as a visitor, signed out" if (t.get("persona") or "") == "anon"
+           else f"signed in as {t.get('persona')} through the product's own sign-in form")
     basis = (f"[{today}] pct -> {{pct}}. WALKED LIVE {today} via {instrument} ({view}, "
-             f"signed in as {t.get('persona')} through the product's own sign-in form; {how}): {note} "
+             f"{who}; {how}): {note} "
              f"Witness: {witness[:1200]} Receipt .tmp/mcp_walks/{rid}.json.")
     reg = _load_registry()
     _bank(reg, rid, basis, GATES.get(key, ["page-survives-optional-failures"]))

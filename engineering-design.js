@@ -4679,6 +4679,13 @@ function renderInputForm(calcType) {
         </div>
       </div>
 
+      <!-- ENH-S (2026-10-22): the off-grid planner - appliances to daily energy, surge, battery, panels, charge controller
+           and cost, saved, shared and printed - the same one the public calculator carries (solar-planner.js) -->
+      <details class="mb-4" id="pv-planner-box">
+        <summary style="cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;font-size:0.875rem;color:var(--wh-blue-light,#5FCCE8);">Not sure of the daily energy? Plan it from your appliances (off-grid)</summary>
+        <div id="pv-planner" style="padding-top:0.5rem;"></div>
+      </details>
+
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
           <div class="field-label">Panel Wp Rating</div>
@@ -4771,6 +4778,7 @@ function renderInputForm(calcType) {
       </div>
     `;
     togglePVBatteryFields();
+    _edSolarPlanner();
     setStep(4);
     document.getElementById('calc-btn').disabled = false;
   }
@@ -8504,6 +8512,57 @@ function applyVDLimit(circuitType) {
 function applyVDPhaseDefaults(phase) {
   const el = document.getElementById('f-vd-voltage');
   if (el) el.value = phase === 'Three-phase' ? 400 : 230;
+}
+
+// ★THE OFF-GRID PLANNER, BUILT ONCE (ENH-S, Ian 2026-10-14, by name: "list the appliances, add up the daily
+// watt-hours, size for the surge ... size the charge controller, then save, share and print the plan"). The Solar PV
+// type took the daily energy as a typed number; a person who does not know it now lists the appliances instead, in the
+// same planner the public calculator carries (solar-planner.js - loaded only when this type opens, so no other
+// calculator pays for it). "Use this plan in the calculation" carries the plan into this form: the daily energy,
+// off-grid, its days and depth of discharge, its battery voltage, its panel size and its place's sun hours - and the
+// suite's own calculation, saved to the person's account, runs from there. A share link opens this calculator.
+const PV_PLANNER_PLACE = { 'Cagayan de Oro': 'CDO' };   // the planner's place names where the form shortens one
+let _edPlannerLoading = false;
+function _edSolarPlanner() {
+  const box = document.getElementById('pv-planner-box'), host = document.getElementById('pv-planner');
+  if (!box || !host) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = String(v); };
+  const mount = () => {
+    if (!window.WhSolarPlanner || host.classList.contains('wh-sp')) return;
+    window.WhSolarPlanner.mount(host, {
+      shareBase: location.origin + location.pathname + '?calc=solar-pv-system',
+      useLabel: 'Use this plan in the calculation',
+      onUse: (r) => {
+        const kwh = Math.round(r.loadWh / 10) / 100;
+        set('f-pv-energy', kwh);
+        toggle('tg-pv-type', 'Off-Grid'); togglePVBatteryFields();
+        set('f-pv-autonomy', r.days || 1);
+        set('f-pv-dod', Math.round(r.dod * 100));
+        toggle('tg-pv-bvolt', String(r.systemV));
+        toggle('tg-pv-wp', String(r.panelWp));
+        const place = r.place;   // by name: two places can share a sun-hours value
+        const known = place && document.querySelector('#tg-pv-loc .toggle-btn[data-val="' + (PV_PLANNER_PLACE[place] || place) + '"]');
+        if (known) setPVLocation(PV_PLANNER_PLACE[place] || place, String(r.psh));
+        else { setPVLocation('Custom', ''); set('f-pv-psh', r.psh); }
+        return 'Filled in: ' + kwh + ' kWh a day, off-grid, ' + r.days + ' day' + (r.days === 1 ? '' : 's') + ' without sun, ' +
+          Math.round(r.dod * 100) + '% depth of discharge, ' + r.systemV + ' V, ' + r.panelWp + ' Wp panels, ' + r.psh +
+          ' sun hours. Press Calculate for the full design.';
+      }
+    });
+  };
+  const load = () => {
+    if (window.WhSolarPlanner) return mount();
+    if (_edPlannerLoading) return;
+    _edPlannerLoading = true;
+    const sc = document.createElement('script');
+    sc.src = 'solar-planner.js';
+    sc.onload = () => { _edPlannerLoading = false; mount(); };
+    sc.onerror = () => { _edPlannerLoading = false; sc.remove(); host.textContent = 'The planner could not load - check the connection, then close and open this section again.'; };
+    document.head.appendChild(sc);
+  };
+  // a shared plan in the link opens the planner at once; otherwise it loads the first time the person opens it
+  if (/(?:^|[#&])plan=/.test(location.hash || '')) { box.open = true; load(); }
+  box.addEventListener('toggle', () => { if (box.open) load(); });
 }
 
 const PV_T_MIN = { 'Metro Manila':18,'Cebu':20,'Davao':20,'Iloilo':20,'Baguio':8,'CDO':19,'Zamboanga':21,'Batangas':18,'Legazpi':17,'Tacloban':19 };

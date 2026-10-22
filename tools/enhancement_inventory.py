@@ -98,6 +98,7 @@ CALC_FEATURES = OrderedDict([
     ("scenario compare", (r"compare|scenario|what-if|versus", "compare two scenarios side by side")),
 ])
 SOLAR_CALC = "solar-pv-calculator"
+PLANNER = "solar-planner.js"   # the planner both solar surfaces load (ENH-S, 2026-10-22)
 SOLAR_COVERS = frozenset(("recommendation", "export/print", "share/save"))   # carried by the S planner rows
 LEARN_CTA = r'href="/tools/|learn-link'
 # R: what counts as provenance in a page's source, and the marker of the bottom Sources area that ends the cell
@@ -129,9 +130,14 @@ def _solar(sources: dict | None) -> list[dict]:
     out = []
     for page, measured, anchor in SOLAR_SURFACES:
         s = sources.get(measured, "") if sources is not None else _read(measured)
+        # ENH-S (2026-10-22): the planner is built ONCE in solar-planner.js and both surfaces load it - a surface that
+        # loads it carries its capabilities, so they are measured in the script it loads, not looked for in its own text
+        planner = "solar-planner.js" in s
         if anchor:
             i = s.find(anchor)
             s = s[max(0, i - 3000): i + 12000] if i >= 0 else ""     # the calc type's neighbourhood
+        if planner:
+            s += "\n" + (sources.get(PLANNER, "") if sources is not None else _read(PLANNER))
         for cap, (rx, ask) in SOLAR_CAPS.items():
             if not re.search(rx, s, re.I):
                 out.append({"cls": "S", "page": page, "key": cap, "ask": ask,
