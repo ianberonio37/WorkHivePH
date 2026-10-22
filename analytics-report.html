@@ -103,6 +103,18 @@
       border: 1px solid rgba(167,139,250,0.3); white-space: nowrap; margin-top: 0.25rem;
     }
 
+    /* ── The no-hive gate (ENH-C, 2026-10-22) ── it sat outside <main> as bare centred text, so a solo owner's screen
+       had no title, no heading the page owned and nothing grouped (critic A1/A2/C3/I2 on every solo walk). It is now
+       one declared card under the page's own header, on the toolbar's surface. */
+    #hive-gate { display: none; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem;
+      padding: 2rem 1.25rem; margin-bottom: 1rem; background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; }
+    #hive-gate h2 { font-size: 1.125rem; font-weight: 700; }
+    #hive-gate p  { color: rgba(255,255,255,0.80); font-size: 0.875rem; max-width: 360px; }
+    #hive-gate a  { display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
+      padding: 0 1.25rem; margin-top: 0.75rem; border-radius: var(--wh-radius-sm); background: var(--wh-orange);
+      color: var(--wh-navy); font-weight: 700; font-size: 0.875rem; text-decoration: none; }
+
     /* ── Toolbar (period + role + actions) ── */
     .ar-toolbar {
       display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
@@ -672,17 +684,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        (shift-brain "Shift Brain needs a hive", asset-hub "Asset Hub needs a hive"), so this is the
        same gate in the same words rather than a new invention: a first-time reader should be told
        the precondition, not handed a button that can only disappoint. -->
-  <div id="hive-gate" style="display:none; flex-direction:column; align-items:center; justify-content:center;
-       text-align:center; min-height:60vh; padding:2rem 1.25rem; gap:0.5rem;">
-    <h2 data-i="gatetitle" style="font-size:1.15rem; font-weight:700; margin-bottom:0.5rem;">Reports need a hive</h2>
-    <p data-i="p_areportisbuiltfromyourteamsl_7b31" style="color:rgba(255,255,255,0.80); font-size:0.85rem; max-width:360px;">A report is built from your
-      team's logbook entries, PM completions and asset history. Join or create a hive, and this page fills in
-      as your team works.</p>
-    <a data-i="p_gotohive_f399" href="hive.html" style="display:inline-flex; align-items:center; justify-content:center; min-height:44px;
-       padding:8px 18px; margin-top:0.75rem; border-radius:var(--wh-radius,12px); background:var(--wh-orange,#F7A21B);
-       color:var(--wh-navy,#162032); font-weight:700; text-decoration:none;">Go to Hive</a>
-  </div>
-
   <main id="ar-page">
 
     <!-- Header ────────────────────────────────────────── -->
@@ -716,6 +717,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       </div>
       <span class="ar-badge">BETA</span>
     </header>
+
+    <!-- The no-hive gate, inside the page it gates (ENH-C, 2026-10-22): the reader keeps the page's title and its way
+         back, and the generator below is what the gate replaces (see T175 above <main>). -->
+    <div id="hive-gate" data-wh-gate="no-hive">
+      <h2 data-i="gatetitle">Reports need a hive</h2>
+      <p data-i="p_areportisbuiltfromyourteamsl_7b31">A report shows your team's logbook entries, PM work and asset
+        history. Join or create a hive, and this page fills in as your team works.</p>
+      <a data-i="p_gotohive_f399" href="hive.html">Go to Hive</a>
+    </div>
 
     <!-- Toolbar ───────────────────────────────────────── -->
     <div class="ar-toolbar" id="ar-toolbar" aria-labelledby="ar-toolbar-title">
@@ -758,7 +768,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            met "Click Gumawa ng Report to compile the latest analytics into a print-ready document." - one
            sentence in two languages. A sentence that contains a control's name is translated whole, by the
            same key, or it is guaranteed to split the moment the label changes. -->
-      <div class="ar-status" id="ar-empty" data-i="ar_empty">
+      <!-- the report area's state is announced (ENH-C G1, 2026-10-22): before a report exists this line IS the page's system
+           status, and generation replaces it with its own role="status" lines -->
+      <div class="ar-status" id="ar-empty" data-i="ar_empty" role="status">
         Press Generate Report to compile the latest analytics into a print-ready document.
       </div>
     </div>
@@ -819,10 +831,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // generator that can only return nothing. Same shape as shift-brain / asset-hub.
     if (!HIVE_ID) _hiveSeated.then(function () {
       if (HIVE_ID) return;
+      // the gate lives inside #ar-page under the page's header, so it is the GENERATOR that goes, not the page
       var _gate = document.getElementById('hive-gate');
-      var _arp  = document.getElementById('ar-page');
+      var _tb   = document.getElementById('ar-toolbar');
       if (_gate) _gate.style.display = 'flex';
-      if (_arp)  _arp.style.display  = 'none';
+      if (_tb)   _tb.style.display   = 'none';
       // #ar-print-wrapper is a deliberate SIBLING of <main> (the @media print rule needs it as a
       // direct child of body), so hiding the main alone left its empty-state hint on screen telling
       // a hive-less reader to "Click Generate Report" directly beneath a gate saying Go to Hive.

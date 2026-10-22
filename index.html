@@ -3733,7 +3733,7 @@
       if (error) {
         console.error('index enterprise-SSO refused:', error);
         btn.disabled = false; setSsoLabel();
-        showToast(_t('SSO is not set up for this domain yet. Ask your IT team to register WorkHive as an SSO application in your identity provider.',
+        showToast(_t('SSO is not set up for this domain yet. Ask your IT team to add WorkHive as an SSO app in your sign-in system.',
                      'Hindi pa naka-set up ang SSO para sa domain na ito. Ipa-register sa IT team ninyo ang WorkHive bilang SSO application sa inyong identity provider.'), 'error');
         return;
       }
@@ -3948,7 +3948,7 @@
       // 2026-10-06 (index x assistive-tech, PostgREST stopped): this blamed the connection for every thrown failure,
       // including a sign-in service that did not answer while navigator.onLine was TRUE.
       errEl.textContent = (navigator.onLine === false)
-        ? _t('You are offline, so you could not be signed in. Try again when your connection is back.', 'Offline ka, kaya hindi ka ma-sign in. Subukan muli kapag bumalik ang koneksyon mo.')
+        ? _t('You are offline, so we could not sign you in. Try again when your connection is back.', 'Offline ka, kaya hindi ka ma-sign in. Subukan muli kapag bumalik ang koneksyon mo.')
         : _t('Sign-in failed - WorkHive did not answer. Try again in a moment.', 'Hindi natuloy ang sign-in - hindi sumagot ang WorkHive. Subukan muli maya-maya.');
       errEl.classList.remove('hidden'); return;
     }
@@ -4337,7 +4337,7 @@
     // to this person, and it is the sentence that tells them it actually worked
     // native-dialog-allow: fires AFTER signOut(), when this page's toast host is gone, and
     // it is the last sentence the platform ever shows this person.
-    window.alert(_t('Your account has been deactivated and your personal data anonymized.',
+    window.alert(_t('We closed your account and removed your personal details from your records.',
                     'Na-deactivate na ang account mo at na-anonymize na ang personal na data mo.'));
   }
   window.deactivateAccount = deactivateAccount;

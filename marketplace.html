@@ -2125,12 +2125,14 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       whRenderRows(_inqCard.querySelector('[data-mk-inq-rows]'), data, function (r) {
           var when = r.replied_at ? (typeof whFmtDate === 'function' ? whFmtDate(r.replied_at) : String(r.replied_at).slice(0, 10)) : '';
           var sent = r.created_at ? (typeof whFmtDate === 'function' ? whFmtDate(r.created_at) : String(r.created_at).slice(0, 10)) : '';
+          // the buyer's question and the seller's reply are people's own words, marked as such (data-user-content), so
+          // nothing grades a seller's sentence as the marketplace's copy (ENH-C B3, 2026-10-22)
           return '<div style="padding:6px 0;border-top:1px solid rgba(255,255,255,0.06);">' +
-            '<div style="font-size: 0.75rem;opacity:0.75;">You asked: ' + e(String(r.message || '').slice(0, 90)) + '</div>' +
+            '<div style="font-size: 0.75rem;opacity:0.75;">You asked: <span data-user-content>' + e(String(r.message || '').slice(0, 90)) + '</span></div>' +
             (r.reply_text
               ? '<div style="font-size:0.8rem;margin-top:2px;"><strong>' + e(r.seller_name || 'The seller') + '</strong> replied' +
                 (when ? ' <span style="opacity:0.7;font-size: 0.75rem;">' + e(when) + '</span>' : '') + ': ' +
-                e(String(r.reply_text).slice(0, 220)) + '</div>'
+                '<span data-user-content>' + e(String(r.reply_text).slice(0, 220)) + '</span></div>'
               /* Pending: say it is SENT and waiting, and when - "waiting" with no date is the
                  same silence one step quieter, since the whole question is how long it has been. */
               : '<div style="font-size:0.8rem;margin-top:2px;opacity:0.85;">Sent to <strong>' +
@@ -2485,16 +2487,16 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       // A rate limit does NOT mean "check your connection" — telling someone to debug a working
       // connection sends them off to fix the wrong thing, and retrying is what extends the limit.
       if (actE) actE.textContent = _rateLimited
-        ? `The marketplace is limiting how often it can be read, so the figures above are unknown rather than zero. Your connection is fine: wait about ${_rateLimited}, then use Retry in the grid below.`
+        ? `The marketplace is slowing its answers for a while. So the figures above are unknown, not zero. Your connection is fine: wait about ${_rateLimited}, then use Retry in the grid below.`
         : _authExpired
-        ? 'Your sign-in is no longer valid, so the figures above are unknown rather than zero, not an empty marketplace. Sign in again using the button below. Nothing you did was lost.'
+        ? 'Your sign-in is no longer valid, so the figures above are unknown, not zero. The marketplace is not empty. Sign in again using the button below. You lost nothing.'
         : _accessDenied
         ? _mkDeniedSaid('the marketplace listings') + ' The figures above are unknown rather than zero.'
         : (navigator.onLine === false)
-        ? _t('You are offline, so the figures above are unknown rather than zero, not an empty marketplace. They will load when your connection is back.', 'Offline ka, kaya hindi alam ang mga bilang sa itaas, hindi zero, at hindi walang-laman na marketplace. Maglo-load ang mga ito kapag bumalik ang koneksyon mo.')
+        ? _t('You are offline, so the figures above are unknown, not zero. The marketplace is not empty. They will load when your connection is back.', 'Offline ka, kaya hindi alam ang mga bilang sa itaas, hindi zero, at hindi walang-laman na marketplace. Maglo-load ang mga ito kapag bumalik ang koneksyon mo.')
         // 2026-10-06 (marketplace x assistive-tech, PostgREST stopped): "if it keeps failing, check your connection" was
         // the advice for a SERVICE outage with navigator.onLine TRUE - the one check that cannot help.
-        : _t('WorkHive did not answer, so the figures above are unknown rather than zero, not an empty marketplace. Use Retry in the grid below in a moment.', 'Hindi sumagot ang WorkHive, kaya hindi alam ang mga bilang sa itaas, hindi zero, at hindi walang-laman na marketplace. Gamitin ang Retry sa grid sa ibaba maya-maya.');
+        : _t('WorkHive did not answer, so the figures above are unknown, not zero. The marketplace is not empty. Use Retry in the grid below in a moment.', 'Hindi sumagot ang WorkHive, kaya hindi alam ang mga bilang sa itaas, hindi zero, at hindi walang-laman na marketplace. Gamitin ang Retry sa grid sa ibaba maya-maya.');
       return;
     }
 
@@ -2627,12 +2629,12 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       // is guidance they cannot follow. Tell them what IS free to them here, and name the requirement.
       if (!canPost) {
         text = total === 0
-          ? _t(`No ${section} listings match this view yet. Browsing is free and open: contacting a seller or posting your own listing needs a WorkHive account.`,
+          ? _t(`No ${section} listings match this view yet. Browsing is free and open. To contact a seller or post a listing, you need a WorkHive account.`,
                `Wala pang ${section} na listing na tumutugma sa view na ito. Libre at bukas ang pagba-browse: kailangan ng WorkHive account para makipag-ugnayan sa seller o mag-post ng sarili mong listing.`)
           : _t(`Browse the ${total} listing${total === 1 ? '' : 's'} below, free and without an account. Contacting a seller or posting your own listing needs one, and joining is free.`,
                `Tingnan ang ${total} listing sa ibaba, libre at walang account. Kailangan ito para makipag-ugnayan sa seller o mag-post ng sarili mong listing, at libre ang pagsali.`);
       } else if (total === 0 && mine === 0) {
-        text = _t(`No ${section} listings yet. Click + Post to add the first one: listings are free, and the trust bar above shows what buyers care about (ID-verified sellers, secure inquiries).`,
+        text = _t(`No ${section} listings yet. Tap + Post to add the first one. Listings are free. The trust bar above shows what buyers look for: verified sellers and safe inquiries.`,
                   `Wala pang ${section} na listing. Pindutin ang + Post para idagdag ang una: libre ang mga listing, at ipinapakita ng trust bar sa itaas kung ano ang mahalaga sa mga buyer (ID-verified na seller, secure na inquiry).`);
       } else if (total === 0) {
         text = _t('No listings match your current filter. Clear the search box, switch section tab, or expand your price/location range.', 'Walang listing na tumutugma sa filter mo. I-clear ang search box, lumipat ng section tab, o palawakin ang price/location range mo.');
@@ -3724,7 +3726,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       const n = row ? Number(row.n) : 0;
       if (error || n < 3) {
         hint.style.display = n > 0 ? 'block' : 'none';
-        if (n > 0) hint.textContent = _t(`Only ${n} comparable listing${n > 1 ? 's' : ''} so far, not enough for a reliable price range yet.`,
+        if (n > 0) hint.textContent = _t(`Only ${n} similar listing${n > 1 ? 's' : ''} so far, too few for a price range yet.`,
       `${n} maihahambing na listing pa lang, hindi pa sapat para sa maaasahang price range.`);
         return;
       }
@@ -5486,7 +5488,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       console.error('[svcRaiseObjection] objection failed for request', requestId, err);
       showToast(whIsAuthFailure(err)
         ? 'Your session expired, so nothing was reported. Sign in again and try once more.'
-        : _t('Couldn\'t report the problem, and nothing was changed. Try again.', 'Hindi mai-report ang problema, at walang nabago. Subukan muli.'));
+        : _t('We could not report the problem, and nothing changed. Try again.', 'Hindi mai-report ang problema, at walang nabago. Subukan muli.'));
     }
   }
   window.svcRaiseObjection = svcRaiseObjection;
@@ -6112,7 +6114,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           const _malformed = _dlErr && /22P02|invalid input syntax/i.test(String(_dlErr.code || '') + ' ' + String(_dlErr.message || ''));
           if (typeof showToast === 'function') {
             showToast((_dlErr && !_malformed)
-              ? _t('That listing could not be loaded - WorkHive did not answer.', 'Hindi ma-load ang listing - hindi sumagot ang WorkHive.')
+              ? _t('That listing did not load - WorkHive did not answer.', 'Hindi ma-load ang listing - hindi sumagot ang WorkHive.')
               : _t('That listing is gone - sold or taken down.', 'Wala na ang listing - naibenta o tinanggal.'),
               (_dlErr && !_malformed) ? 'error' : 'info');
           }

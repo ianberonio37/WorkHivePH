@@ -14,7 +14,7 @@
 import { chromium } from 'playwright';
 import { takeBrowserSlot } from './browser_slot.mjs';
 import { PAGE_QUERY, PAGE_REVEAL, revealWorkedState } from './page_walk_state.mjs';   // one copy of the state a page needs to be graded
-import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, statSync } from 'fs';
 import { execFileSync } from 'child_process';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
@@ -112,6 +112,16 @@ async function signIn(context, w) {
 // tell a walk that rendered each page from one that inherited a reading. --no-reuse turns it off.
 const REUSE = !args.includes('--no-reuse');
 const SURVEY_CACHE = new Map();
+// ★A REUSED READING IS OF THE SAME CODE (ENH-C, 2026-10-22). A fix to utils.js landed mid-run; three later offline walks
+// inherited hive's and logbook's surveys from W3521, taken 40 s before the fix, and banked the defect the fix had
+// removed. The key now carries a stamp of the page file and every root script, so a screen re-renders once its code moves.
+function srcStamp(rel) {
+  const h = createHash('sha1');
+  for (const f of [String(rel).split('?')[0], ...readdirSync('.').filter((x) => x.endsWith('.js'))]) {
+    try { const s = statSync(f); h.update(`${f}:${s.mtimeMs}:${s.size};`); } catch (_) { h.update(`${f}:-;`); }
+  }
+  return h.digest('hex').slice(0, 10);
+}
 const release = await takeBrowserSlot('critic_walk_batch');
 const browser = await chromium.launch({ headless: !HEADED });
 let banked = 0, surveyed = 0, failed = 0;
@@ -154,7 +164,7 @@ try {
     const files = [];
     let anyDenied = false, pageErr = null, reused = 0;
     for (const rel of w.pages) {
-      const cacheKey = [isAnon(w) ? 'anon' : (w.email || ''), w.device, w.language, COND, w.moment || 'present', rel].join('|');
+      const cacheKey = [isAnon(w) ? 'anon' : (w.email || ''), w.device, w.language, COND, w.moment || 'present', rel, srcStamp(rel)].join('|');
       if (REUSE && SURVEY_CACHE.has(cacheKey)) {
         const hit = SURVEY_CACHE.get(cacheKey);
         const pid = pageIdOf(rel);
@@ -215,7 +225,7 @@ try {
         + `vertical ${w.vertical || 'n/a'}, cast ${(w.email || 'anon').split('@')[0]}${isAnon(w) ? '' : ' pinned to live-membership hive'}. `
         + condNote + momentNote
         + `${w.pages.length} page(s) surveyed live, denied=false on all. ${totFail} failing dim(s).`
-        + (reused ? ` ${reused} of ${w.pages.length} page survey(s) reused from an identical screen (same cast, device, language, condition, page) walked earlier in this run.` : '');
+        + (reused ? ` ${reused} of ${w.pages.length} page survey(s) reused from an identical screen (same cast, device, language, condition, page, unchanged code) walked earlier in this run.` : '');
       // ★ONE RETRY, AND THE ERROR'S END (2026-10-13). Two banks in a 700-walk run failed with only "Traceback (most
       // recent call last):" printed - the first 240 characters of the error, never its cause - and re-banked by hand
       // they went through: a transient lock on critic_registry.json while it was being replaced. One retry after a

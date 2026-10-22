@@ -2937,7 +2937,16 @@ function whAiTrustRow(container, opts) {
     chip.className = 'wh-source-chip';
     chip.setAttribute('data-source-chip', '');
     chip.style.cssText = 'border:1px solid var(--border,rgba(255,255,255,.18));border-radius:999px;padding:2px 8px;';
-    chip.textContent = _t('Based on: ', 'Batay sa: ') + opts.groundedOn;
+    // ★AN ANSWER READ FROM STORAGE SAYS WHEN IT WAS COMPOSED (ENH-C E3, 2026-10-22). The shift briefing a supervisor acts
+    // on is a stored row that can be hours old, and "Based on: ..." named its sources with no age at all - the critic read
+    // shift-brain's first source chip as one with no freshness. A caller that knows when its answer was generated passes
+    // generatedAt; one that does not says nothing rather than guess.
+    var _when = '';
+    if (opts.generatedAt && !isNaN(new Date(opts.generatedAt).getTime())) {
+      _when = ' · generated ' + (typeof whFmtDate === 'function' ? whFmtDate(opts.generatedAt, { time: true }) + ' PHT'
+        : new Date(opts.generatedAt).toISOString());
+    }
+    chip.textContent = _t('Based on: ', 'Batay sa: ') + opts.groundedOn + _when;
     row.appendChild(chip);
   }
   var note = document.createElement('span');
@@ -7656,7 +7665,11 @@ function whAuditView(row) {
   // ── Recently deleted: a sheet over the page, newest first, one Restore per row ──
   window.whRecentlyDeleted = function whRecentlyDeleted(db, table, opts) {
     opts = opts || {};
-    var opener = document.activeElement;
+    var opener = opts.opener || document.activeElement;   // a page passes its button: Safari does not focus a clicked one
+    // the button that opened it says so while it is open (ENH-C T8, 2026-10-22): pm-scheduler's and dayplanner's
+    // "Recently deleted" declare aria-haspopup="dialog" and carried no state at all
+    var _popup = opener && opener.getAttribute && opener.getAttribute('aria-haspopup') === 'dialog' ? opener : null;
+    if (_popup) _popup.setAttribute('aria-expanded', 'true');
     var titleId = 'wh-rd-title-' + Math.random().toString(36).slice(2, 8);
     var overlay = document.createElement('div');
     overlay.setAttribute('data-wh-recently-deleted', '');
@@ -7692,6 +7705,7 @@ function whAuditView(row) {
     function close() {
       document.removeEventListener('keydown', onKey, true);
       overlay.remove();
+      if (_popup) _popup.setAttribute('aria-expanded', 'false');
       try { if (opener && opener.focus) opener.focus(); } catch (_) { /* empty-catch-allow: opener gone */ }
     }
     function onKey(e) {
@@ -7797,8 +7811,17 @@ function whAuditView(row) {
     var s = document.createElement('style');
     s.id = 'wh-fig-style';
     // No layout properties: the class lands after the data renders, so it must not move a single box.
+    // ★A FIGURE IS A TAP TARGET, SO IT ANSWERS A 48px AREA (ENH-C, 2026-10-22). Made tappable, every figure became a
+    // role=button the size of its own text - "57%" 33x21, a tile's count 137x28 - and a gloved thumb on a phone missed
+    // it; the critic read it as under-44 (F1, K2) and crowded (Z3) on every page with figures, and its 4px corner was
+    // off the 8/12/16 radius scale (S1). An empty positioned ::after now takes the taps around the number out to 48px
+    // in each direction it falls short (44px is the floor; an exact 44 measured 43.99 after sub-pixel rounding):
+    // nothing is drawn, nothing moves (position:relative with no offset), and both rules sit in :where() so a page that
+    // positions or decorates its own number keeps what it set.
     s.textContent =
-      '.wh-fig{cursor:pointer;border-radius:4px;-webkit-tap-highlight-color:transparent}' +
+      '.wh-fig{cursor:pointer;border-radius:8px;-webkit-tap-highlight-color:transparent}' +
+      ':where(.wh-fig){position:relative}' +
+      ':where(.wh-fig)::after{content:"";position:absolute;inset:min(0px, calc((100% - 48px) / 2))}' +
       '.wh-fig:hover,.wh-fig:focus-visible{text-decoration:underline dotted;text-decoration-thickness:1px;text-underline-offset:0.2em}' +
       '.wh-fig:focus-visible{outline:2px solid var(--wh-amber, #F7A21B);outline-offset:2px}' +
       '.wh-fig-card code{font:600 0.8125rem ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--wh-cyan-light, #5FCCE8);overflow-wrap:anywhere}';
@@ -8386,9 +8409,27 @@ function _whLiveState(name, state, pollMs) {
         }
       }
     });
-    if (down && !wasDown && typeof _whShowNotice === 'function') {
+    // ★ONE CONDITION, ONE MESSAGE (ENH-C, 2026-10-22). This notice is for a connection that is ONLINE but cannot hold a
+    // live channel (a plant firewall, a proxy that strips the upgrade). A device that is OFFLINE is already told so by the
+    // offline banner, and the notice repeated that news mid-screen on every offline walk, over logbook's "Voice Journal"
+    // and hive's language button (critic V1). Offline it waits; if the channel is still down once the device is back
+    // online, it is shown then.
+    const _offlineNow = (typeof navigator !== 'undefined' && navigator.onLine === false);
+    if (down && !wasDown && typeof _whShowNotice === 'function' && !_offlineNow) {
       _whShowNotice('wh-live-notice', 'Live updates are off on this connection, so this page checks for changes every ' + secs
         + ' seconds. Your work is not affected.', '304px');
+    } else if (down && !wasDown && _offlineNow && !window.__whLiveNoticeOnline) {
+      window.__whLiveNoticeOnline = true;
+      window.addEventListener('online', function () {
+        window.__whLiveNoticeOnline = false;
+        const r = window.__whLiveState || {};
+        const still = Object.keys(r).filter(function (k) { return r[k] && r[k].state === 'offline'; });
+        if (still.length && typeof _whShowNotice === 'function') {
+          const s2 = Math.round(Math.min.apply(null, still.map(function (k) { return r[k].ms; })) / 1000);
+          _whShowNotice('wh-live-notice', 'Live updates are off on this connection, so this page checks for changes every ' + s2
+            + ' seconds. Your work is not affected.', '304px');
+        }
+      }, { once: true });
     } else if (!down && wasDown) {
       const n = document.getElementById('wh-live-notice');
       if (n && n.parentNode) n.parentNode.removeChild(n);

@@ -2145,7 +2145,7 @@
         // everyone - a state change on shared data with nothing said about it. The dismissal path
         // has announced its scope since it was written; this one had a toast on the way in and
         // nothing on the way out, so the crew could see an alert reappear with no idea who or why.
-        showToast(_t('No longer marked seen → it is unseen for your whole hive again.',
+        showToast(_t('Seen is off again, so the alert is back for your whole hive.',
                      'Hindi na nakamarkang nakita → hindi na ito nakita para sa buong hive.'));
       } else {
         const { error } = await db.from('alert_dismissals')
@@ -2342,7 +2342,7 @@
         tone = 'watch'; icon = '!';
         label = _t('Worth a look this shift', 'Sulit tingnan ngayong shift');
         sub = anomalyCount > 0
-          ? _t('Anomaly signals are brewing: a fault may be forming across your assets.', 'May nabubuong anomaly signals: baka may fault na umuusbong sa mga asset mo.')
+          ? _t('Anomaly signals are building up: a fault may be forming in your assets.', 'May nabubuong anomaly signals: baka may fault na umuusbong sa mga asset mo.')
           : _t("Today's AMC brief is waiting on your approval before crew dispatch.", 'Naghihintay ng pag-apruba mo ang AMC brief ngayong araw bago i-dispatch ang crew.');
       } else if (total > 0) {
         tone = 'watch'; icon = '!';
@@ -2396,7 +2396,7 @@
           `${critical} critical/high na alert ang nasa itaas ng feed. Unahin ang mga iyon, tapos bumaba. Pindutin ang alert para buksan ito sa pinagmulang page.`);
         setCta(_t(`Show the ${critical} critical and high →`, `Ipakita ang ${critical} critical at high →`), '#feed', () => { _sevFocus = true; _alertDisplayCount = 30; _mirrorSevFocus(); renderFeed(); });
       } else if (anomalyCount > 0) {
-        text = _t(`Open the Anomaly Engine 2.0 panel below: multi-source signals mean a fault is brewing across logbook + sensors + PM drift, not just one signal.`,
+        text = _t(`Open the Anomaly Engine 2.0 panel below. Signals from the logbook, sensors and PM drift point to one fault forming.`,
           `Buksan ang Anomaly Engine 2.0 panel sa ibaba: ang multi-source na signal ay nangangahulugang may fault na nabubuo sa logbook + sensors + PM drift, hindi lang isang signal.`);
         setCta(_t('Review anomaly signals →', 'Suriin ang anomaly signals →'), '#feed');
       } else if (amcStatus === 'pending') {

@@ -124,12 +124,15 @@ def shared_problems(utils: str) -> list[str]:
     if not re.search(r"if \(!\(_isAccess && !_isSession\)(?: && id !== 'wh-live-notice')?\) el\.appendChild\(_rb\);", sn):
         bad.append("utils.js: a refused member's notice offers a Reload that cannot turn a no into a yes")
     pa = _fn(u, "whPlatformAdminAnswer")
-    if not re.search(r"if \(r1\.error\) return 'unreachable';", pa) or not re.search(r"if \(r2\.error\) return 'unreachable';", pa):
+    # SL RL2 (2026-10-22) keeps the error before answering 'unreachable' (`{ window._whAdminCheckError = r1.error; return
+    # 'unreachable'; }`), so the gate reads the answer, not the one-line spelling it was first written in
+    if not re.search(r"if \(r1\.error\) (?:\{[^}]*?)?return 'unreachable';", pa) or not re.search(r"if \(r2\.error\) (?:\{[^}]*?)?return 'unreachable';", pa):
         bad.append("utils.js: whPlatformAdminAnswer answers 'no' for a check the server failed or refused - an admin is told the page is not for them")
     if re.search(r"return 'no';\s*\}\s*\}\s*$", pa.strip()[-80:]):
         bad.append("utils.js: whPlatformAdminAnswer's catch answers 'no' when it could not ask")
     ot = _fn(u, "whAdminCheckOfflineText")
-    if "onLine === false" not in ot or "could not check your access just now" not in ot:
+    # the ONLINE sentence itself (SL RL2 added a limit branch that also says "could not check your access just now")
+    if "onLine === false" not in ot or "could not check your access just now, so it stays closed" not in ot:
         bad.append("utils.js: whAdminCheckOfflineText says 'you're offline' to a connected admin whose check failed")
     return bad
 
@@ -197,8 +200,10 @@ def self_test() -> int:
         "    if (_whSignedOut()) return T('WorkHive does not show ' + thing", "    if (false) return T('WorkHive does not show ' + thing"))))
     expect("the notice keying Sign in on /session/ fails", bool(shared_problems(u.replace(
         "var _isAccess = (id === 'wh-access-denied-notice');", "var _isAccess = /session|/.test(String(msg||''));"))))
+    # SL RL2 keeps the error before answering, so the mutant follows the block form the code now has
     expect("an admin check answering 'no' on error fails", bool(shared_problems(u.replace(
-        "    if (r1.error) return 'unreachable';", "    if (r1.error) return 'no';"))))
+        "    if (r1.error) { window._whAdminCheckError = r1.error; return 'unreachable'; }",
+        "    if (r1.error) { window._whAdminCheckError = r1.error; return 'no'; }"))))
     # SL L4 reshaped the function to build its sentence, log it, then return it - the mutant follows the online branch
     expect("an offline-only admin sentence fails", bool(shared_problems(u.replace(
         "    : w + ' could not check your access just now, so it stays closed. Reload the page to try again.';",

@@ -844,7 +844,7 @@
         // C-BT: the EMPTY branch is the only one a person with no logged work ever sees, and it was the
         // one left in English. A solo owner with no hive meets nothing else on this page.
         : weekXP === 0 ? _t('No XP earned in the past 7 days', 'Walang XP na nakuha sa nakaraang 7 araw')
-        : weekXP < 0 ? _t(`${weekXP} XP this week; more was taken back by deleted work than earned`, `${weekXP} XP ngayong linggo; mas marami ang binawi ng binurang trabaho kaysa sa kinita`)
+        : weekXP < 0 ? _t(`${weekXP} XP this week; deleted work took back more than you earned`, `${weekXP} XP ngayong linggo; mas marami ang binawi ng binurang trabaho kaysa sa kinita`)
         : _t('From logbook, PM and community work in the last 7 days', 'Mula sa logbook, PM at community work sa nakaraang 7 araw'),
       _weekXPCapped ? _t('Great week', 'Magandang linggo') : weekXP === 0 ? _t('No XP yet', 'Wala pang XP') : weekXP >= 100 ? _t('Great week', 'Magandang linggo') : weekXP >= 50 ? _t('On pace', 'Nasa tamang takbo') : _t('Keep going', 'Ituloy'),
       weekXP === 0 ? 'grey' : weekXP >= 50 ? 'green' : 'amber'
@@ -866,7 +866,7 @@
     let tone, label, sub;
     if (composite === 0) {
       tone = 'empty'; label = _t('No achievements yet', 'Wala pang achievement');
-      sub  = _t('Open Logbook, log your first breakdown or PM, and XP starts flowing immediately.',
+      sub  = _t('Open Logbook and log your first breakdown or PM. XP starts with that first entry.',
                 'Buksan ang Logbook at mag-log ng unang sira o PM. Agad na dadaloy ang XP mo.');
     } else if (weekXP >= 50) {
       tone = 'healthy'; label = _t(`${weekXP} XP this week, solid pace`, `${weekXP} XP ngayong linggo, maganda ang takbo`);
@@ -908,7 +908,7 @@
         text = _t(`Only ${active}/12 domains active. Try a new kind of entry. A PM completion earns Maintenance XP. A shared tip earns Knowledge XP.`,
                   `${active}/12 domain lang ang aktibo. Subukan ang bagong uri ng entry. Ang natapos na PM ay kumikita ng Maintenance XP. Ang ibinahaging tip ay kumikita ng Knowledge XP.`);
       } else if (weekXP < 50) {
-        text = _t(`${weekXP} XP this week. Push to 50 for the weekly target: a couple of logbook entries with a good knowledge field will get you there.`,
+        text = _t(`${weekXP} XP this week. Push to 50 for the weekly target. A couple of logbook entries with a good knowledge field will get you there.`,
                   `${weekXP} XP ngayong linggo. Itulak sa 50 para sa lingguhang target: sapat na ang ilang logbook entry na may magandang knowledge field.`);
       } else {
         // clarify.md: instructional text names the action, not the mood - what to do, what it earns, where it shows (2026-09-15)

@@ -528,7 +528,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         text = 'You have not linked a CMMS yet. Most hives start with SAP PM or a weekly spare-parts CSV drop. Open CMMS Integration under Operations.';
         cta = { href: 'integrations.html', label: 'Open CMMS Integration' };
       } else if (cards.cmms.tone === 'red') {
-        text = 'A CMMS integration has not synced in over a week. Open Show details below, then click into the stale row to check API credentials and the endpoint URL.';
+        text = 'A CMMS integration has not synced in over a week. Open Show details below and tap the stale row. Check its API key and its endpoint.';
       } else if (cards.api.tone === 'red') {
         const errors = s.audit.filter(a => Number(a.status_code) >= 400).length;
         text = `${errors} API calls failed in the last 7 days. Open Show details and check the Gateway audit panel: most failures are 401 (auth) or 429 (rate limit).`;

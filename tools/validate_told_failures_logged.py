@@ -166,7 +166,8 @@ def check_static(files: dict[str, str] | None = None) -> list[str]:
     le = re.search(r"function whListError\(el, message, onRetry\) \{(.*?)\n\}", u, re.S)
     if not le or "whTold('list'" not in le.group(1):
         issues.append("T3 the inline list error no longer logs the sentence it shows")
-    ac = re.search(r"function whAdminCheckOfflineText\(what\) \{(.*?)\n\}", u, re.S)
+    # SL RL2 (2026-10-22) passes the lookup's error in (a limit says its wait), so the signature grew a parameter
+    ac = re.search(r"function whAdminCheckOfflineText\(what(?:, err)?\) \{(.*?)\n\}", u, re.S)
     if not ac or "whTold('access', s)" not in ac.group(1):
         issues.append("T3 the access-check sentence no longer logs itself")
     ids = re.search(r"var IDS = \[([^\]]*)\];", u)

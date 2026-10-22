@@ -1903,20 +1903,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // hunt for a batch button that was never built is the failure asset-hub already warned
         // about in its own comment: naming a control that is not there. Both languages carried the
         // same false promise, so both are corrected to describe the path that exists.
-        text = _t(`PM compliance at ${pmPct}%, this drags every other KPI. Open PM Scheduler, filter to the overdue items, and reschedule them across the next two weeks.`,
+        text = _t(`PM compliance at ${pmPct}%, this drags every other KPI. Open PM Scheduler and show only the overdue items. Spread them over the next two weeks.`,
                   `Nasa ${pmPct}% ang PM compliance, hinihila nito pababa ang lahat ng ibang KPI. Buksan ang PM Scheduler, i-filter ang mga lumipas na item, at i-reschedule ang mga ito sa susunod na dalawang linggo.`);
         setCta(_t('Open PM Scheduler →','Buksan ang PM Scheduler →'), { href: 'pm-scheduler.html' });
       } else if (oeeBad) {
-        text = _t(`OEE at ${oeeAvg}%. Open the Downtime Pareto and Repeat Failures cards below: they pinpoint which assets are consuming the most uptime.`,
+        text = _t(`OEE at ${oeeAvg}%. Open the Downtime Pareto and Repeat Failures cards below. They show which assets cost the most uptime.`,
                   `Nasa ${oeeAvg}% ang OEE. Buksan ang Downtime Pareto at Repeat Failures na card sa ibaba: itinuturo ng mga ito kung aling asset ang kumakain ng pinakamaraming uptime.`);
         setCta(_t('See the downtime breakdown →','Tingnan ang downtime breakdown →'), { phase: 'descriptive' });
       } else if (mtbfWatch) {
         const a = (worstMTBF.machine || worstMTBF.asset_name || 'asset');
-        text = _t(`Worst MTBF (${a}, ${worstMTBF.mtbf_days}d) is in the warning band. Schedule a PRO PM cycle or condition-based check before it slips under 14 days.`,
+        text = _t(`Worst MTBF (${a}, ${worstMTBF.mtbf_days}d) is in the warning band. Plan a proactive PM or a condition check before it drops under 14 days.`,
                   `Nasa warning band ang pinakamababang MTBF (${a}, ${worstMTBF.mtbf_days}d). Mag-schedule ng PRO PM cycle o condition-based check bago ito bumaba sa 14 araw.`);
         setCta(_t('Open the Predictive tab →','Buksan ang Predictive tab →'), { phase: 'predictive' });
       } else if (pmWatch) {
-        text = _t(`PM compliance ${pmPct}%. Bring it above 80% to clear the Reliability dimension on the Maturity Stairway.`,
+        text = _t(`PM compliance ${pmPct}%. Get it past 80% and the Reliability step on the stairway is done.`,
                   `PM compliance ${pmPct}%. Itaas ito lampas 80% para malampasan ang Reliability dimension sa Maturity Stairway.`);
         setCta(_t('Open PM Scheduler →','Buksan ang PM Scheduler →'), { href: 'pm-scheduler.html' });
       } else if (oeeAvg == null) {
@@ -1927,7 +1927,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // button that could take them there. The way out is a press, not a hunt through the menu.
         setCta(_t('Open the Logbook →'), { href: 'logbook.html' });
       } else {
-        text = _t('KPIs are healthy. Use the Predictive tab to see which assets are trending up in risk, and the Prescriptive tab for the recommended next interventions.',
+        text = _t('KPIs are healthy. The Predictive tab shows which assets are rising in risk. The Prescriptive tab shows what to do next.',
                   'Malusog ang mga KPI. Gamitin ang Predictive tab para makita kung aling asset ang tumataas ang panganib, at ang Prescriptive tab para sa mga inirerekomendang susunod na hakbang.');
         setCta(_t('Explore the Predictive tab →','Tuklasin ang Predictive tab →'), { phase: 'predictive' });
       }

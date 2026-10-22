@@ -172,6 +172,9 @@
     .btn-sm.primary:hover { background: rgba(247,162,27,0.2); }
     .btn-sm.danger { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.2); color: var(--wh-red-text); }
     .btn-sm.danger:hover { background: rgba(248,113,113,0.16); }
+    /* a draft's Delete sat 6px from its Edit - one thumb's slip from destroying the listing being edited (critic Z3,
+       WCAG 2.5.8). The destructive action keeps to the far end of the row (ENH-C, 2026-10-22). */
+    .li-actions .btn-sm.danger { margin-left: auto; }
     .btn-sm:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* Inquiry items */

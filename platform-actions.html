@@ -58,6 +58,9 @@
     .mod-btn.no { background:rgba(248,113,113,0.12); color:var(--wh-red-text); border-color:rgba(248,113,113,0.3); }
     .mod-btn:disabled { opacity:0.5; cursor:default; }
     .mod-empty { color:var(--muted); font-size:0.85rem; padding:0.5rem 0; }
+    /* a label beside a figure, a list's heading or its updated-time: muted like an empty state, but it says what IS
+       there (ENH-C E2, 2026-10-22 - the usage card's labels wore .mod-empty) */
+    .mod-label { color:var(--muted); font-size:0.75rem; font-weight:600; }
     .updated { color:var(--muted); font-size: 0.75rem; }
     .gate { max-width:520px; margin:12vh auto; text-align:center; background:var(--card); border:1px solid var(--border);
             border-radius:1rem; padding:2rem; }
@@ -199,7 +202,7 @@
          landed on two lines of refusal (173 characters) that never said what Platform Actions does, so the
          person could not tell whether they had the wrong page or the wrong account: W3-PG W31340 / W31343,
          both locking, read BAD. One sentence answers it; the sign-in route serves an admin on another account. -->
-    <p>Platform Actions is a desk for WorkHive's platform admins: verifying credit top-ups, reviewing marketplace listings and sellers, and answering feedback. If you are an admin on another account, sign in with that one.</p>
+    <p>Platform Actions is where WorkHive's admins work. They check credit top-ups, review listings and sellers, and answer feedback. If you are an admin on another account, sign in with that one.</p>
     <p data-i="p_thispageisforplatformadminso_4f0c">This page is for platform admins only. If you think you should have access, ask an existing platform admin to add you.</p>
     <a data-i="p_backtoworkhive_9aff" href="index.html" class="btn">Back to WorkHive</a>
   </div>
@@ -289,16 +292,16 @@
            was measured on four other surfaces; this is the first of them to say it. -->
       <p class="mod-sub" style="margin:0 0 0.6rem;">Approve publishes the listing to every buyer
         immediately. You can still remove it later. Reject asks you for a reason, and the seller
-        sees that reason and can fix and resubmit. A listing can only go live if its seller holds 10%
-        of the price in credits, so a refusal here may be about their balance rather than your
+        sees that reason and can fix and resubmit. A listing goes live only when its seller holds
+        credits worth 10% of the price. So a refusal here may be about their balance, not your
         decision.</p>
       <div id="mkt-listings-content"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
     </div>
     <div class="card">
       <div class="card-hdr"><h2 data-i="p_sellersawaitingverification_b209">Sellers awaiting verification</h2><span id="mkt-sellers-count" class="count">-</span></div>
-      <p class="mod-sub" style="margin:0 0 0.6rem;">Verifying a seller changes what buyers see of them
-        everywhere on the platform. The ID-verified badge then shows on every listing they
-        have and on their public profile, and buyers filter for it by default.</p>
+      <p class="mod-sub" style="margin:0 0 0.6rem;">When you verify a seller, buyers see the change everywhere.
+        The ID-verified badge then shows on all their listings and their profile. Buyers filter
+        for it by default.</p>
       <div id="mkt-sellers-content"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
     </div>
     <!-- RETIRED 2026-08-03: an "Open disputes" card read `marketplace_disputes` — 0 rows, no client
@@ -346,7 +349,7 @@
          bound to the account that acted, whichever path made the change; this is where an admin reads them. -->
     <div class="card" id="sec-decisions">
       <div class="card-hdr"><h2>Recent decisions</h2><span id="decisions-count" class="count">-</span></div>
-      <div class="sub" style="margin:-0.4rem 0 0.75rem;">Who decided what on this console, newest first: top-ups, listings, sellers and feedback.</div>
+      <div class="sub" style="margin:-0.4rem 0 0.75rem;">Who decided what here, newest first: top-ups, listings, sellers and feedback.</div>
       <div id="decisions-list" aria-live="polite"><div class="mod-empty">Loading…</div></div>
     </div>
   </div>
@@ -362,7 +365,7 @@
   <div class="card" id="usage-card" hidden>
     <div class="card-hdr">
       <h2 data-i="p_platformusage_c12d">Platform usage</h2>
-      <span class="mod-empty" id="usage-updated">-</span>
+      <span class="mod-label" id="usage-updated">-</span>
     </div>
     <div id="usage-body" aria-live="polite"><div data-i="p_loading_33ce" class="mod-empty">Loading…</div></div>
     <script>
@@ -623,7 +626,7 @@
     // (founder_feature_use), because one "people" figure would add an account to a browser tab.
     function _usesBlock(uses) {
       if (!Array.isArray(uses)) {
-        return '<div class="mod-empty" style="margin-top:14px;">What the pages were used for could not be read, so it is unknown - not unused.</div>';
+        return '<div class="mod-empty" style="margin-top:14px;">We could not read what people used the pages for, so this is unknown, not unused.</div>';
       }
       if (!uses.length) {
         return '<div class="mod-empty" style="margin-top:14px;">No uses recorded in the last 30 days - only page visits.</div>';
@@ -637,10 +640,10 @@
           + '<span>' + escHtml(String(r.page || '-')) + ' · ' + escHtml(String(r.action || '').replace(/_/g, ' ')) + '</span>'
           + '<span style="font-variant-numeric:tabular-nums;">' + (Number(r.uses) || 0).toLocaleString() + ' by ' + who + '</span></li>';
       };
-      return '<div style="margin-top:14px;"><div class="mod-empty">What the pages were used for (30d)</div>'
+      return '<div style="margin-top:14px;"><div class="mod-label">What people used each page for (30d)</div>'
         + '<ul style="list-style:none; margin:6px 0 0; padding:0; display:grid; gap:4px;">' + top.map(line).join('') + '</ul>'
         + (uses.length > top.length
-          ? '<div class="mod-empty" style="margin-top:4px;">and ' + (uses.length - top.length) + ' more page '
+          ? '<div class="mod-label" style="margin-top:4px;">and ' + (uses.length - top.length) + ' more page '
             + (uses.length - top.length === 1 ? 'action' : 'actions') + ' with fewer uses</div>'
           : '')
         + '</div>';
@@ -694,11 +697,11 @@
       const topPage = Array.isArray(u.heat) && u.heat.length ? (u.heat[0].page || u.heat[0].path || '-') : '-';
       host.innerHTML =
         '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px;">'
-        + '<div><div class="mod-empty">Active hives (30d)</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(one(u.hives)) + '</div></div>'
-        + '<div><div class="mod-empty">People (30d)</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(one(u.mau)) + '</div></div>'
-        + '<div><div class="mod-empty">Signed-out sessions (30d)</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(one(u.anon)) + '</div></div>'
-        + '<div><div class="mod-empty">People today</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(dauToday) + '</div></div>'
-        + '<div><div class="mod-empty">Most-opened page (30d)</div><div style="font-size:1rem; font-weight:700;">' + escHtml(String(topPage)) + '</div></div>'
+        + '<div><div class="mod-label">Active hives (30d)</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(one(u.hives)) + '</div></div>'
+        + '<div><div class="mod-label">People (30d)</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(one(u.mau)) + '</div></div>'
+        + '<div><div class="mod-label">Signed-out sessions (30d)</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(one(u.anon)) + '</div></div>'
+        + '<div><div class="mod-label">People today</div><div style="font-size:1.25rem; font-weight:800; font-variant-numeric:tabular-nums;">' + num(dauToday) + '</div></div>'
+        + '<div><div class="mod-label">Most-opened page (30d)</div><div style="font-size:1rem; font-weight:700;">' + escHtml(String(topPage)) + '</div></div>'
         + '</div>'
         + _usesBlock(u.uses);
       const st = document.getElementById('usage-updated');
@@ -868,7 +871,7 @@
           showToast(refusalMessage(err)
             || (whIsAuthFailure(err)
                 ? 'Your admin session expired, so nothing was changed. Sign in again to continue.'
-                : _t('Could not record that decision, and nothing was minted. Try again.', 'Hindi naitala ang desisyong iyon, at walang na-mint. Subukan muli.')), 'error');
+                : _t('We could not record that decision, and nothing changed. Try again.', 'Hindi naitala ang desisyong iyon, at walang na-mint. Subukan muli.')), 'error');
           _restore();
         }
       });
@@ -1640,7 +1643,7 @@
          page for the listing-rejection reason, so using it costs nothing and keeps one dialog. */
       if (isPublic && !wasPublic) {
         if (typeof whConfirm !== 'function') {
-          showToast(_t('Cannot confirm publishing right now. Nothing was saved, so reload and try again.', 'Hindi makumpirma ang pag-publish ngayon. Walang na-save, kaya i-reload at subukan muli.'), 'error');
+          showToast(_t('We cannot confirm publishing right now. Nothing changed, so reload and try again.', 'Hindi makumpirma ang pag-publish ngayon. Walang na-save, kaya i-reload at subukan muli.'), 'error');
           return;
         }
         const okToPublish = await whConfirm(

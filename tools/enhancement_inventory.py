@@ -106,6 +106,7 @@ PROVENANCE = re.compile(r'renderSourceChip\(|class="wh-source-chip"|How (we comp
                         re.I)
 SOURCES_AREA = 'data-wh-sources'
 CRITIC_DIM = re.compile(r"^(?P<page>[\w./-]+?)(?:\.html)?:\s*(?P<dim>[A-Z]{1,2}\d)\s+\d+%")
+TRAJ = ROOT / "trajectory_registry.json"
 
 
 def _force_utf8_stdout() -> None:
@@ -188,15 +189,34 @@ def _journeys(prod: list[str]) -> list[dict]:
              "detail": f"{p} has no entry in live_page_journeys_results.json"} for p in prod if p not in have]
 
 
-def _critic(prod: list[str]) -> list[dict]:
-    if not CRITIC.exists():
-        return []
+def _filipino_walks() -> set:
+    """The ids of the walks taken in Filipino: a trajectory whose axis or journey language is fil (the descope's own
+    definition, feedback_filipino_and_dictionary_work_is_out). A critic row shares its trajectory's id."""
+    if not TRAJ.exists():
+        return set()
+    d = json.loads(TRAJ.read_text(encoding="utf-8"))
+    rows = d["trajectories"] if isinstance(d, dict) and "trajectories" in d else d
+    return {t["id"] for t in rows if (t.get("axis") or {}).get("language") == "fil"
+            or (t.get("journey") or {}).get("language") == "fil"}
+
+
+def _critic(prod: list[str], rows: list | None = None, fil: set | None = None) -> list[dict]:
+    if rows is None:
+        if not CRITIC.exists():
+            return []
+        doc = json.loads(CRITIC.read_text(encoding="utf-8"))
+        rows = doc["rows"] if isinstance(doc, dict) and "rows" in doc else doc
     stems = {p[:-5] for p in prod}
-    doc = json.loads(CRITIC.read_text(encoding="utf-8"))
-    rows = doc["rows"] if isinstance(doc, dict) and "rows" in doc else doc
+    # ★A FINDING ONLY A FILIPINO WALK MAKES IS FILIPINO WORK (2026-10-22). Ian took Filipino and the dictionary work
+    # behind it out of the roadmap (2026-09-30, 2026-10-06), and N1 - Filipino label coverage - was already left out
+    # here. Six of the 41 C cells seeded on 2026-10-14 came only from walks taken in Filipino; walked in English as the
+    # same cast, the dim passed (2026-10-22 probes: alert-hub X1, assistant T8, community Z3, platform-actions W1,
+    # project-report C3, shift-brain X1). A Filipino walk's findings stay on its critic row as the record; they no
+    # longer make an English enhancement cell.
+    fil = _filipino_walks() if fil is None else fil
     cells: dict[tuple, Counter] = {}
     for x in rows:
-        if x.get("status") != "critiqued":
+        if x.get("status") != "critiqued" or x.get("id") in fil:
             continue
         cell = x.get("cell") or ""
         persona = cell.split("|")[1] if "|" in cell else ""
@@ -275,6 +295,13 @@ def self_test() -> int:
           and p_solar == {"scenario compare"} and p_fan == {"share/save", "scenario compare"}
           and by["L"] == 1
           and {s["page"] for s in got if s["cls"] == "R"} == {"inventory.html"})
+    # C: a cell from an English walk stays; a cell only a Filipino walk carries does not (the descope)
+    ev = lambda pg, d: [{"dim": d, "evidence": f"{pg}: {d} 67% - x"}]
+    crit = [{"id": "W1", "status": "critiqued", "cell": "phone-390|worker|x|y", "findings": ev("skillmatrix", "B3")},
+            {"id": "W2", "status": "critiqued", "cell": "phone-390|worker|x|y", "findings": ev("assistant", "T8")},
+            {"id": "W3", "status": "critiqued", "cell": "phone-390|anon|x|y", "findings": ev("hive", "A1")}]
+    c_cells = {(c["page"], c["key"]) for c in _critic(["skillmatrix.html", "assistant.html", "hive.html"], crit, {"W2"})}
+    ok = ok and c_cells == {("skillmatrix.html", "B3")}
     print(("PASS" if ok else "FAIL") + f" enhancement inventory self-test - {dict(by)}")
     return 0 if ok else 1
 

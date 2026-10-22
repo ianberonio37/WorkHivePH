@@ -1310,7 +1310,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         console.error('vehicle-doc-extract call failed:', e);  // L-layer: surface AND capture
         st.textContent = (typeof whReadError === 'function'
                            ? whReadError(e, 'the document reader')
-                           : _t('The document reader could not be reached.', 'Hindi maabot ang document reader.'))
+                           : _t('We could not reach the document reader.', 'Hindi maabot ang document reader.'))
           + ' The template below still works.';
         return;
       } finally { clearTimeout(_t); }
@@ -1362,7 +1362,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         : 'No schedule rows or parts could be read from those pages. For a big manual, upload just the maintenance-schedule or parts-list pages - the template below still works.'];
       if (note) bits.push('Note: ' + note + '.');
       if (raw.partial) bits.push(`Only ${raw.chunks_read} of ${raw.chunks_total} sections could be read - trailing rows may be missing.`);
-      if (raw.miner_fallback) bits.push(_t('The AI reader was unavailable; the table reader alone did this pass.', 'Hindi available ang AI reader; ang table reader lang ang gumawa ng pass na ito.'));
+      if (raw.miner_fallback) bits.push(_t('The AI reader was not available, so the table reader did this pass alone.', 'Hindi available ang AI reader; ang table reader lang ang gumawa ng pass na ito.'));
       if (raw.injection_stripped) bits.push(`${raw.injection_stripped} suspicious instruction line${raw.injection_stripped === 1 ? ' was' : 's were'} ignored.`);
       st.textContent = bits.join(' ');
     } catch (err) {
@@ -1782,7 +1782,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       }
     } catch (_) {
       showToast((navigator.onLine === false)
-        ? _t('You are offline, so the file reader could not be loaded. Try the upload again when your connection is back.', 'Offline ka, kaya hindi ma-load ang file reader. Subukan muli ang upload kapag bumalik ang koneksyon mo.')
+        ? _t('You are offline, so the file reader did not load. Try the upload again when your connection is back.', 'Offline ka, kaya hindi ma-load ang file reader. Subukan muli ang upload kapag bumalik ang koneksyon mo.')
         : _t('The file reader did not load - its server did not answer. Try the upload again in a moment.', 'Hindi na-load ang file reader - hindi sumagot ang server nito. Subukan muli ang upload maya-maya.'));
     }
   }
@@ -2655,7 +2655,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       tone = 'attn'; label = _t(`${stale.length} integration${stale.length === 1 ? '' : 's'} stale`,
                                 `${stale.length} integration ang luma na`);
       // device-neutral (2026-10-13, the W45933 copy walk): "click into" is a verb a finger does not do
-      sub  = _t('In the Live Sync tab, open each stale row: the cause is usually an expired API key or a changed endpoint URL.',
+      sub  = _t('In the Live Sync tab, open each stale row. The cause is usually an expired API key or a changed endpoint URL.',
                 'Buksan ang Live Sync tab at pindutin ang bawat lumang row: kadalasan ay expired na API key o nabagong endpoint URL.');
     } else if (configs.length === 0) {
       tone = 'empty'; label = _t('No integrations configured yet', 'Wala pang na-configure na integration');
@@ -2698,10 +2698,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         text = _t('No integrations yet. Click the "Import File" tab below. Drop a CSV from your CMMS. You get history on day one. Then turn on Live Sync for daily updates.',
                   'Wala pang integration. Pindutin ang "Import File" tab sa ibaba. Mag-drop ng CSV mula sa CMMS mo. May history ka na sa unang araw. Tapos buksan ang Live Sync para sa araw-araw na update.');
       } else if (stale.length > 0) {
-        text = _t(`${stale.length} stale integration${stale.length === 1 ? '' : 's'}. Open the Live Sync tab below, click the row, and check (1) API key not expired, (2) endpoint URL still reachable, (3) auth method still matches the CMMS side.`,
+        text = _t(`${stale.length} stale integration${stale.length === 1 ? '' : 's'}. Open the Live Sync tab below and tap the row. Check three things. Is the API key still valid? Does the endpoint URL still answer? Does the sign-in method still match the CMMS?`,
                   `${stale.length} lumang integration. Buksan ang Live Sync tab sa ibaba, pindutin ang row, at suriin ang (1) hindi pa expired ang API key, (2) naaabot pa ang endpoint URL, (3) tugma pa ang auth method sa panig ng CMMS.`);
       } else if (disabled.length > 0 && active.length > 0) {
-        text = _t('Some integrations are disabled. If you no longer need them, delete the config row to keep this page clean. If they are paused, re-enable from the Live Sync tab.',
+        text = _t('Some integrations are off. If you no longer need them, delete the config row to keep this page clean. If you paused them, turn them back on from the Live Sync tab.',
                   'May ilang integration na naka-disable. Kung hindi mo na kailangan, burahin ang config row para manatiling malinis ang page. Kung naka-pause lang, i-enable muli mula sa Live Sync tab.');
       } else if (disabled.length > 0) {
         // T63 (2026-08-25): with 12 disabled and 0 active, the old else said "Everything is
@@ -2843,7 +2843,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (_updRows && _updRows.length === 0) { showToast('This connector was changed by someone else, reload and re-edit.'); return; }
     } else {
       const { error: insErr } = await db.from('integration_configs').insert(row);
-      if (insErr) { showToast(whWriteError(insErr, _t('Could not save the config. Nothing was stored; try again.', 'Hindi ma-save ang config. Walang na-store; subukan muli.'))); return; }
+      if (insErr) { showToast(whWriteError(insErr, _t('Could not save the config. WorkHive stored nothing; try again.', 'Hindi ma-save ang config. Walang na-store; subukan muli.'))); return; }
     }
     _editingConfigId = null;
     document.getElementById('sc-label').value = '';
@@ -3350,7 +3350,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           .update({ status }).eq('id', logId).select('id');
         if (error) { showToast(whWriteError(error, _t('The resolution was not recorded. Nothing changed; try again.', 'Hindi naitala ang resolution. Walang nagbago; subukan muli.'))); return; }
         if (!data || data.length === 0) {
-          showToast(_t('Could not update that entry. A logbook entry can only be changed by the worker who wrote it, so ask them to set it to "', 'Hindi ma-update ang entry na iyon. Ang worker lang na sumulat ng logbook entry ang puwedeng magbago nito, kaya hilingin sa kanila na itakda ito sa "') + status + '".', '⚠️');
+          showToast(_t('Could not update that entry. Only the worker who wrote a logbook entry can change it, so ask them to set it to "', 'Hindi ma-update ang entry na iyon. Ang worker lang na sumulat ng logbook entry ang puwedeng magbago nito, kaya hilingin sa kanila na itakda ito sa "') + status + '".', '⚠️');
           return;
         }
         showToast('Resolved: logbook updated to match SAP.');

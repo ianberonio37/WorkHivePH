@@ -1761,7 +1761,7 @@
         <div class="flex items-center justify-between mb-2">
           <p role="heading" aria-level="2" data-i="p_shifthandover_e502" class="text-xs font-semibold text-white/80 uppercase tracking-widest">Shift Handover</p>
         </div>
-        <p data-i="p_autogeneratesashiftsummaryco_bba5" class="text-xs mb-3" style="color:rgba(255,255,255,0.80);">Auto-generates a shift summary. Completed jobs, open items, lock-out/tag-out (LOTO) alerts and the watch list, ready for the next team.</p>
+        <p data-i="p_autogeneratesashiftsummaryco_bba5" class="text-xs mb-3" style="color:rgba(255,255,255,0.80);">Auto-generates a shift summary. Jobs done, jobs still open, lock-out/tag-out (LOTO) alerts and the watch list, ready for the next team.</p>
         <p id="handover-source-chip" hidden data-wh-sources-collapsed></p>
         <!-- C-AH (2026-09-11): this whole panel was UNSTAMPED - heading, description and button all
              English on a page a Filipino worker reads, and INVISIBLE to every i18n measurement, which
@@ -6102,7 +6102,9 @@ async function checkTeamStockAlert() {
     const isOut = it.severity === 'out';
     const dotColor = isOut ? '#f87171' : '#F7A21B';
     const tagBg    = isOut ? 'rgba(248,113,113,0.14)' : 'rgba(247,162,27,0.14)';
-    const tagFg    = isOut ? '#f87171' : '#F7A21B';
+    // the pill's WORDS take the text-safe tokens: "OUT" in the fill red measured 4.44:1 on its tint (critic C2, ENH-C
+    // 2026-10-22); the dot and the frame keep the fill colours
+    const tagFg    = isOut ? 'var(--wh-red-text, #FDC9C9)' : 'var(--wh-orange-text, #FDB94A)';
     const tagText  = isOut ? _t('OUT', 'UBOS') : `${it.qty} ${_t('of', 'sa')} ${it.min_qty} ${escHtml(it.unit)}`;
     return `<div class="flex items-center gap-2">
       <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};flex-shrink:0;"></span>

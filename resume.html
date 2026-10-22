@@ -402,11 +402,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
 
     <div class="card" id="ai-card">
-      <div class="sec-head"><div><h2 data-i="rs-aihelpers" class="sec-title" role="heading" aria-level="2">✨ AI helpers</h2><div data-i="p_turnroughnotesintoprofession_f75a" class="sec-sub">Turn rough notes into professional wording. You review every suggestion before it is used.</div></div></div>
+      <div class="sec-head"><div><h2 data-i="rs-aihelpers" class="sec-title" role="heading" aria-level="2">✨ AI helpers</h2><div data-i="p_turnroughnotesintoprofession_f75a" class="sec-sub">Turn rough notes into professional wording. You check every suggestion before you use it.</div></div></div>
       <button data-i="rs-writesummary" class="btn btn-ghost" id="btn-summary" type="button" style="width:100%;margin-bottom:0.75rem;">🧬 Write my summary from my whole resume</button>
       <button data-i="rs-polish" class="btn btn-ghost" id="btn-polish" type="button" style="width:100%;margin-bottom:0.75rem;">✨ Polish my experience wording</button>
-      <div class="field"><label data-i="rs-tailorlabel">Tailor to a job (paste the job ad)</label>
-        <textarea class="wh-input" id="jd-input" aria-label="Paste a job description to tailor your resume" rows="3" placeholder="Paste the job description here, then tap Tailor."></textarea>
+      <!-- the label is bound to its field (ENH-C M1, 2026-10-22): unbound, the box was named only by an aria-label a
+           sighted reader never sees, and its visible label named nothing -->
+      <div class="field"><label data-i="rs-tailorlabel" for="jd-input">Tailor to a job (paste the job ad)</label>
+        <textarea class="wh-input" id="jd-input" rows="3" placeholder="Paste the job description here, then tap Tailor."></textarea>
       </div>
       <button data-i="rs-tailor" class="btn btn-ghost" id="btn-tailor" type="button" style="width:100%;">🎯 Tailor my resume to this job</button>
       <button data-i="rs-matchscore" class="btn btn-ghost" id="btn-jdscore" type="button" style="width:100%;margin-top:0.6rem;">📊 Check my match score for this job</button>
@@ -1876,7 +1878,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           body: JSON.stringify(Object.assign({ hive_id: HIVE_ID || null, worker_name: WORKER_NAME, auth_uid: _authUid }, payload)),
         }, 45000);
         hideWaitingToast();   // the call settled: the "…" toast it was showing is withdrawn before any result or error toast
-      } catch (_) { hideWaitingToast(); console.error('resume AI-helper unreachable:', _); toast((navigator.onLine === false) ? _t('You are offline, so the AI helper could not be reached. Try again when your connection is back.', 'Offline ka, kaya hindi maabot ang AI helper. Subukan muli kapag bumalik ang koneksyon mo.') : _t('Could not reach the AI helper - it did not answer. Your resume is unchanged; try again in a moment.', 'Hindi maabot ang AI helper - hindi ito sumagot. Hindi nagbago ang resume mo; subukan muli maya-maya.')); return null; } // 2026-10-06 assistive-tech walk: no longer blames the connection while navigator.onLine is TRUE
+      } catch (_) { hideWaitingToast(); console.error('resume AI-helper unreachable:', _); toast((navigator.onLine === false) ? _t('You are offline, so we could not reach the AI helper. Try again when your connection is back.', 'Offline ka, kaya hindi maabot ang AI helper. Subukan muli kapag bumalik ang koneksyon mo.') : _t('Could not reach the AI helper - it did not answer. Your resume stays as it was; try again in a moment.', 'Hindi maabot ang AI helper - hindi ito sumagot. Hindi nagbago ang resume mo; subukan muli maya-maya.')); return null; } // 2026-10-06 assistive-tech walk: no longer blames the connection while navigator.onLine is TRUE
       if (res === null) { hideWaitingToast(); toast(_t('That took too long. Please try again.', 'Masyadong matagal iyon. Pakisubukan muli.')); return null; }
       let raw; try { raw = await res.json(); } catch (_) { console.error('resume AI-helper error:', _); toast(_t('AI helper error. Please try again.', 'Error sa AI helper. Pakisubukan muli.')); return null; }
       if (!res.ok || (raw && raw.ok === false) || (raw && raw.error)) {

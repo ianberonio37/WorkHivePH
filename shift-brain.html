@@ -99,18 +99,30 @@
     .page-title { font-size: 1.125rem; font-weight: 700; }
     .page-sub   { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
 
-    #hive-gate {
-      display: none; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 60vh; padding: 2rem; text-align: center;
+    /* ★THE NO-HIVE SCREEN HAD NO TITLE, NO WAY BACK AND A 35px BUTTON (ENH-C, 2026-10-22). Anyone without an active
+       hive - every solo owner - got this block instead of the board: centred text below a page whose header lived
+       inside the hidden board, so there was no h1, no back link, nothing grouped, and "Go to Hive" stood 35px tall.
+       The critic read it on every solo walk (A1, A2, C3, E3, F1, K2, W1). The header now stays in every state, the
+       gate is one card the page declares (data-wh-gate="no-hive", the platform's contract for a screen that shows no
+       data), and its one action is the platform's 44px primary (.action-card .ac-cta in components.css). */
+    #hive-gate { display: none; padding-top: 0; }
+    #hive-gate .sb-gate-card {
+      flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center;
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 1rem;
+      padding: 2rem 1.25rem;
     }
     #hive-gate h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
     #hive-gate p  { color: var(--muted); font-size: 0.875rem; max-width: 360px; }
-    #hive-gate a {
-      margin-top: 1.25rem; padding: 0.65rem 1.25rem;
-      background: linear-gradient(135deg, var(--orange-wh), var(--wh-orange-light));
-      color: var(--navy-wh); border-radius: 8px; font-weight: 700;
-      text-decoration: none; font-size: 0.75rem;
+    #hive-gate .sb-gate-cta {
+      display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
+      margin-top: 1.25rem; padding: 0 1.25rem;
+      background: var(--wh-orange); color: var(--wh-navy); border-radius: var(--wh-radius-sm);
+      font-weight: 700; font-size: 0.875rem; text-decoration: none;
+      transition: background var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
     }
+    #hive-gate .sb-gate-cta:hover { background: var(--wh-orange-dark); }
+    /* the header has its own .page-wrap above the gate and the board, so neither repeats its top padding */
+    #page-wrap { padding-top: 0; }
 
     .shift-toolbar {
       display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;
@@ -239,14 +251,8 @@
 
   <div data-i="p_saved_9d4a" id="toast" class="hidden" role="alert" aria-live="polite">Saved.</div>
 
-  <div id="hive-gate">
-    <h2 data-i="gatetitle">Shift Brain needs a hive</h2>
-    <p data-i="p_theautonomousshiftplannerrun_c7f7">The autonomous shift planner runs hive-by-hive. Join or create a hive to see briefings for your team.</p>
-    <a data-i="p_gotohive_f399" href="hive.html">Go to Hive</a>
-  </div>
-
-  <div id="page-wrap" class="page-wrap" style="display:none;">
-
+  <!-- the page's name and its way back, in every state: the board, the no-hive gate, and the moment between -->
+  <div class="page-wrap">
     <div class="page-header">
       <a href="hive.html" class="back-btn" aria-label="Back" data-i-aria="aria_back">
         <span class="ic ic-back" aria-hidden="true"></span>
@@ -257,6 +263,17 @@
         <p id="shift-source-chip" hidden data-wh-sources-collapsed></p>
       </div>
     </div>
+  </div>
+
+  <div id="hive-gate" class="page-wrap" data-wh-gate="no-hive">
+    <div class="sb-gate-card">
+      <h2 data-i="gatetitle">Shift Brain needs a hive</h2>
+      <p data-i="p_theautonomousshiftplannerrun_c7f7">The autonomous shift planner runs hive-by-hive. Join or create a hive to see briefings for your team.</p>
+      <a data-i="p_gotohive_f399" href="hive.html" class="sb-gate-cta">Go to Hive</a>
+    </div>
+  </div>
+
+  <div id="page-wrap" class="page-wrap" style="display:none;">
 
     <div class="shift-toolbar">
       <button class="shift-pill" data-window="06-14" data-i="shiftmorning">06-14 Morning</button>
@@ -683,7 +700,7 @@
             if (_lbl) _lbl.textContent = (error && typeof window.whFnError === 'function')
               ? await window.whFnError(error, _t('The AI is at its limit right now. Try again in a few minutes.', 'Nasa limitasyon ang AI ngayon. Subukan muli pagkalipas ng ilang minuto.'))
               : (window.whAiError ? window.whAiError({ message: _m || '429' }) : _t('The AI is at its limit right now. Try again in a few minutes.', 'Nasa limitasyon ang AI ngayon. Subukan muli pagkalipas ng ilang minuto.'));
-            if (_sub) _sub.textContent = _t('No briefing was generated for this window. Your last plan, if any, is untouched.', 'Walang nabuong briefing para sa window na ito. Hindi nagalaw ang huling plano mo, kung mayroon.');
+            if (_sub) _sub.textContent = _t('No briefing exists for this window yet. Your last plan, if any, stays as it was.', 'Walang nabuong briefing para sa window na ito. Hindi nagalaw ang huling plano mo, kung mayroon.');
           }
           return;
         }
@@ -815,6 +832,7 @@
         whAiTrustRow(_bt.parentElement || _bt, { db, agent: 'shift-planner-orchestrator', source: 'briefing', page: 'shift-brain',
           traceId: whTraceIdOf(_sbTraceFor(_activePlan)),   // null unless this page's own call just wrote this row
           question: 'shift briefing ' + (_activePlan.shift_window || _activePlan.window || ''), answer: _activePlan.briefing,
+          generatedAt: _activePlan.generated_at,   // the stored plan says how old it is (ENH-C E3)
           groundedOn: _t('top-risk assets, PMs due, carry-forward items and parts for this window', 'mga top-risk na asset, PM na due, carry-forward na item at parts para sa window na ito') });
       }
 
@@ -835,7 +853,7 @@
       if (_degBanner) {
         if (_degraded) {
           const lanes = (Array.isArray(_pl.fetch_errors) ? _pl.fetch_errors : []).join(', ') || 'some data';
-          _degBanner.textContent = '⚠ This plan is incomplete: ' + lanes + _t(' failed to load when it was generated. Re-run the plan before relying on any empty section.', ' ay hindi na-load noong ginawa ito. I-re-run ang plano bago umasa sa anumang walang-laman na section.');
+          _degBanner.textContent = '⚠ This plan is incomplete: ' + lanes + _t(' did not load when the plan ran. Re-run the plan before relying on any empty section.', ' ay hindi na-load noong ginawa ito. I-re-run ang plano bago umasa sa anumang walang-laman na section.');
           _degBanner.style.display = 'block';
         } else {
           _degBanner.style.display = 'none';
@@ -902,7 +920,10 @@
             _note.className = 'sb-brief-refresh-note';
             _note.setAttribute('role', 'status');
             _note.style.cssText = 'font-size:0.8rem;color:var(--muted,rgba(255,255,255,0.8));margin:4px 0 8px;';
-            _note.textContent = 'The live refresh did not run' + (_why ? ': ' + _why : '.') + ' The briefing below is the stored one.';
+            // separate sentences (ENH-C B3, 2026-10-22): the function's own reason, glued on with a colon and no full stop,
+            // made one run-on sentence of three ("...did not run: <reason> The briefing below...")
+            _note.textContent = 'The live refresh did not run. ' + (_why ? String(_why).trim().replace(/[.!?]?$/, '.') + ' ' : '')
+              + 'The briefing below is the stored one.';
             try { bt.parentNode && bt.parentNode.insertBefore(_note, bt); } catch (_) { /* empty-catch-allow: a note must never break the briefing */ }
           }
           // an EMPTY plan (no model answered) must not replace the stored briefing on screen (utils.js whActionPlanHasContent)
@@ -970,7 +991,7 @@
           // The risk strip and the carry list beside it both got a translated, non-dead-end zero
           // state; this one was still an English full stop. Same remedy, same house style: say what
           // the absence MEANS, then name where to look.
-          : '<div class="empty-row">' + escHtml(_t('No PMs land in this shift window - nothing is scheduled. Open the PM planner to see what is coming.',
+          : '<div class="empty-row">' + escHtml(_t('No PMs land in this shift window - nothing is due. Open the PM planner to see what is coming.',
                                                    'Walang PM na papasok sa window ng shift na ito - walang nakatakda. Buksan ang PM planner para makita ang susunod.')) + '</div>';
       })();
       // ★THE SECOND DEAD END THE SAME WALK FOUND. "No carry-forward items from the prior shift." is
@@ -1204,7 +1225,7 @@
                     `${carryCount} bukas na item ang naipasa sa shift na ito. Unahin ang pinakamadali para lumuwag ang pila, tapos ilaan ang natirang oras sa iba.`);
           setCta(_t(`Clear ${carryCount} carry-forward →`, `Linisin ang ${carryCount} carry-forward →`), '#carry-list');
         } else if (riskCount > 0) {
-          text = _t(`${riskCount} risk asset${riskCount === 1 ? '' : 's'} this window. Walk past those first thing. Early eyes on a degrading asset usually beat a reactive call-out later.`,
+          text = _t(`${riskCount} risk asset${riskCount === 1 ? '' : 's'} this window. Walk past those first thing. Checking a failing asset early beats a breakdown call later.`,
                     `${riskCount} risk asset ngayong window. Unahin mong daanan ang mga ito. Mas mabuti ang maagang tingin sa sumasamang asset kaysa sa reactive na tawag mamaya.`);
           setCta(_t(`Walk past ${riskCount} risk asset${riskCount === 1 ? '' : 's'} →`, `Daanan ang ${riskCount} risk asset →`), '#risk-list');
         } else if (pmsCount >= 5) {
@@ -1220,7 +1241,7 @@
                     `${carryCount} carry-forward na item. Gamitin ang libreng oras ng shift para tapusin ang mga naiwan kahapon.`);
           setCta(_t(`Close ${carryCount} carry-forward →`, `Isara ang ${carryCount} carry-forward →`), '#carry-list');
         } else {
-          text = _t('Light shift: use the open time for asset-hub walkarounds, condition checks on critical equipment, or knowledge-base contributions.',
+          text = _t('Light shift. Use the free time to walk the assets, check critical equipment, or add to the knowledge base.',
                     'Magaan ang shift: gamitin ang libreng oras sa walkaround sa Asset Hub, condition check sa critical na equipment, o pag-ambag sa knowledge base.');
           setCta(_t('Review the shift plan →', 'Suriin ang shift plan →'), '#risk-list');
         }
@@ -1288,7 +1309,7 @@
     // reached - offline included - Re-run told the person to 'Run npx supabase functions serve'. Offline it now refuses
     // before sending, as Publish does; a planner that was unreachable or failed gets a sentence a supervisor can act on.
     // (The console warning below still names the local cause for a developer.)
-    const _SB_PLANNER_UNREACHED = 'The shift planner did not finish, so the plan was not re-generated. The plan on screen is unchanged; try again in a moment.';
+    const _SB_PLANNER_UNREACHED = 'The shift planner did not finish, so the plan was not re-generated. The plan on screen stays the same; try again in a moment.';
     async function rerunPlan() {
       if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only.'); return; }
       if (typeof whRequireOnline === 'function' && !whRequireOnline('Re-running this shift plan', (m) => showToast(m))) return;
@@ -1335,7 +1356,7 @@
           }
           return;
         }
-        if (data && data.error) { showToast(whAiError(data.error, _t('The plan was NOT re-generated. The plan on screen is unchanged; try again.', 'HINDI na-regenerate ang plano. Hindi nagbago ang plano sa screen; subukan muli.'))); return; }
+        if (data && data.error) { showToast(whAiError(data.error, _t('The plan was NOT re-generated. The plan on screen stays the same; try again.', 'HINDI na-regenerate ang plano. Hindi nagbago ang plano sa screen; subukan muli.'))); return; }
         // ★NAME WHAT WAS REBUILT AND THAT IT IS STILL PRIVATE. 'Plan refreshed.' told a supervisor that
         // something happened but not the two things they need: that the plan was rebuilt from CURRENT data,
         // and - critically - that it is still a DRAFT the crew cannot see until Publish. Those are the two

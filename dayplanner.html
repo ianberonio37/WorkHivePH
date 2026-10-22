@@ -63,7 +63,8 @@
        <=767px unlock below already does, so the two layouts stop disagreeing. The floor on the
        calendar is belt-and-braces: even when the band grows again, the grid cannot be squeezed to
        nothing, it pushes the column into scroll instead. */
-    .main-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+    /* overscroll-behavior: the desktop shell's own scroll area keeps a fling inside it (ENH-C T4, 2026-10-22) */
+    .main-area { flex: 1; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
 
     /* Mobile scroll fix (live prod journey 2026-07-18): the desktop shell locks .app-layout
        to 100vh + overflow:hidden and scrolls .calendar-wrap internally. On a short phone
@@ -573,8 +574,8 @@
     </div>
     <span data-wh-source-anchor="dp-summary-details" hidden></span>
     <!-- D3 (2026-10-16): a removed plan item waits here for 30 days. -->
-    <button id="dp-recently-deleted" type="button" class="details-toggle"
-            onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'schedule_items', { title: 'Recently deleted plan items', onRestored: () => loadSchedule() })">
+    <button id="dp-recently-deleted" type="button" class="details-toggle" aria-haspopup="dialog" aria-expanded="false"
+            onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'schedule_items', { title: 'Recently deleted plan items', opener: this, onRestored: () => loadSchedule() })">
       Recently deleted
     </button>
 

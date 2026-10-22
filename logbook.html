@@ -1168,7 +1168,9 @@
 
         <!-- Search + Filter -->
         <div class="card p-4 mb-4">
-          <div class="flex flex-col sm:flex-row gap-3">
+          <!-- wraps from 640px up (ENH-C, 2026-10-22): five controls in one unwrapped row pushed "Recently deleted" to 1312px
+               of a 1280 desktop (critic R2); the phone column is unaffected -->
+          <div class="flex flex-col sm:flex-row gap-3" style="flex-wrap:wrap;">
             <div class="relative flex-1">
               <span class="ic ic-search" aria-hidden="true"></span>
               <input aria-label="Search machine, failure, keyword..." id="search-input" type="text" class="wh-input pl-9 w-full" style="min-width:180px;" placeholder="Search machine, failure, keyword..." />
@@ -1198,8 +1200,8 @@
               CSV
             </button>
             <!-- D3 (2026-10-16): a deleted entry waits here for 30 days. -->
-            <button id="btn-recently-deleted" type="button"
-                    onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'logbook', { hiveId: HIVE_ID || null, title: 'Recently deleted entries', onRestored: () => renderEntries() })"
+            <button id="btn-recently-deleted" type="button" aria-haspopup="dialog" aria-expanded="false"
+                    onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'logbook', { hiveId: HIVE_ID || null, title: 'Recently deleted entries', opener: this, onRestored: () => renderEntries() })"
                     style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; padding:0 0.875rem; color:rgba(255,255,255,0.80); font-size:0.75rem; font-weight:600; cursor:pointer; white-space:nowrap;">
               Recently deleted
             </button>
@@ -1451,8 +1453,8 @@
         Register another asset
       </button>
       <!-- D3 (2026-10-16): a removed asset - and its reliability history - waits here for 30 days. -->
-      <button id="asset-recently-deleted-btn" type="button" class="btn-secondary w-full text-xs mt-2"
-              onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'asset_nodes', { hiveId: HIVE_ID || null, title: 'Recently deleted assets', onRestored: () => initAssets() })">
+      <button id="asset-recently-deleted-btn" type="button" class="btn-secondary w-full text-xs mt-2" aria-haspopup="dialog" aria-expanded="false"
+              onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'asset_nodes', { hiveId: HIVE_ID || null, title: 'Recently deleted assets', opener: this, onRestored: () => initAssets() })">
         Recently deleted assets
       </button>
     </div>
@@ -3974,7 +3976,7 @@ function renderDetailFaultHistory(entries) {
   list.innerHTML = entries.map(e => {
     const isOpen      = e.status === 'Open';
     const statusBg    = isOpen ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)';
-    const statusTx    = isOpen ? '#f87171' : '#4ade80';
+    const statusTx    = isOpen ? 'var(--wh-red-text, #FDC9C9)' : '#4ade80';   // text-safe red for the word (critic C2)
     const borderColor = isOpen ? '#f87171' : '#4ade80';
     const catColor    = catColors[e.category] || '#9ca3af';
     const date        = e.created_at ? new Date(e.created_at).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' }) : (e.date || '').slice(0, 10);
@@ -4770,7 +4772,8 @@ function statusBadge(status) {
   if (status === 'Closed') {
     return `<span class="badge-category" style="background:rgba(34,197,94,0.15);color:var(--wh-green);border:1px solid rgba(34,197,94,0.25);">Closed</span>`;
   }
-  return `<span class="badge-category" style="background:rgba(239,68,68,0.15);color:var(--wh-red);border:1px solid rgba(239,68,68,0.25);">Open</span>`;
+  // the badge's WORD takes the text-safe red: the fill red read 4.19:1 on its tint (critic C2, ENH-C 2026-10-22)
+  return `<span class="badge-category" style="background:rgba(239,68,68,0.15);color:var(--wh-red-text, #FDC9C9);border:1px solid rgba(239,68,68,0.25);">Open</span>`;
 }
 
 // Phase E.4: WO state pill — only renders when wo_state is non-null. Color-coded

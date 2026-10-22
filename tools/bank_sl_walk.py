@@ -155,6 +155,7 @@ CONDITION["BRH-AB"] = ("each page the row names opened as its cast, every GET of
                        "through the page's own form, and the row and the bucket read back from the LOCAL database")
 GATES["ENH-R"] = ["provenance-at-foot", "skew-heal", "scripts-parse", "design-detector-ratchet"]
 GATES["ENH-S"] = ["solar-planner", "scripts-parse", "design-detector-ratchet"]
+GATES["ENH-C"] = ["critic-cells", "rubric-teeth", "scripts-parse", "design-detector-ratchet"]
 GATES["D1"] = ["figure-sources-written", "provenance-at-foot", "skew-heal", "scripts-parse"]
 GATES["D4"] = ["file-storage-owned", "media-fails-alone", "skew-heal", "scripts-parse"]
 GATES["A1"] = ["refusal-has-a-sentence", "offline-is-not-no", "write-failure-speaks", "skew-heal", "scripts-parse"]
@@ -348,6 +349,12 @@ CONDITION["ENH-S"] = ("the page read as served to the row's cast, the service wo
                       "read off the page and checked against the hand-worked method; the plan saved on the device and read "
                       "back after a reload; the share link opened in a fresh browser and the plan read back from it; the "
                       "print view taken and the spec sheet read as the only printed content; page errors recorded")
+CONDITION["ENH-C"] = ("the page read as served to each cast, the service worker blocked, every edge-function call carrying "
+                      "x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the "
+                      "row's journey walked page by page at each width - each page's characters, horizontal overflow and page "
+                      "errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run "
+                      "as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the "
+                      "cell's dim required to pass; the session's user and the device's worker name read back at the end")
 CONDITION_DEFAULT = "the condition induced by the MCP's initScript before any page script"
 # a bug-hunt class is walked by the sub-layer that meets its defect (its gates and wording follow that sub-layer)
 BRH_CLASS_SUBLAYER = {"F": "AU2", "L": "AU4", "M": "AU1",   # BRH.2: L - a control offered to a person the page behind it refuses; M - copy that contradicts the session (the AU1 three-state walk settles it)

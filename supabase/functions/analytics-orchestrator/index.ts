@@ -553,7 +553,8 @@ function deterministicActionPlan(results: Record<string, unknown>, canonicalRisk
   });
   if (!items.length && !watch.length) return null;
   return {
-    summary: "No AI model answered, so this brief is built from your hive's records. Nothing in it was written by AI.",
+    // active voice (ENH-C B3, 2026-10-22): "Nothing in it was written by AI" was the analytics page's one passive sentence
+    summary: "No AI model answered, so this brief comes from your hive's records alone. AI wrote none of it.",
     this_week: items.slice(0, 6),
     watch_list: watch,
     narration: "This brief comes from your records, not from AI.",

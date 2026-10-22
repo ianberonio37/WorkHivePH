@@ -2767,7 +2767,7 @@ function renderLinked() {
       <div class="small" style="color: var(--muted);">${_links.length} ${escHtml(_t('linked item(s): pull existing logbook entries, PMs, parts, contractor info into this project', 'naka-link na item: hilahin ang mga umiiral na logbook entry, PM, parts at contractor info papasok sa proyektong ito'))}</div>
       <span class="row" style="gap: 8px;">
         <!-- D3 (2026-10-16): a removed link waits in Recently deleted for 30 days. -->
-        <button class="btn small" type="button" onclick="_pmRecentlyRemoved(this)" data-table="project_links" data-title="Recently removed links">Recently removed</button>
+        <button class="btn small" type="button" aria-haspopup="dialog" aria-expanded="false" onclick="_pmRecentlyRemoved(this)" data-table="project_links" data-title="Recently removed links">Recently removed</button>
         <button class="btn primary small" onclick="openModal('modal-link'); loadLinkOptions();" data-i="linkwork">+ Link work</button>
       </span>
     </div>
@@ -2851,7 +2851,7 @@ async function saveLink() {
 // D3 (2026-10-16): the Recently removed list for a pane - its table and title ride on the button's data-*.
 function _pmRecentlyRemoved(btn) {
   if (typeof whRecentlyDeleted !== 'function' || !btn) return;
-  whRecentlyDeleted(db, btn.dataset.table, { hiveId: HIVE_ID, title: btn.dataset.title, onRestored: () => refreshDetail() });
+  whRecentlyDeleted(db, btn.dataset.table, { hiveId: HIVE_ID, title: btn.dataset.title, opener: btn, onRestored: () => refreshDetail() });
 }
 async function removeLink(id) {
   // Online-only class: this page registers no offline write queue, so a write fired here
@@ -3125,7 +3125,7 @@ function renderRoles() {
   $('pane-roles')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
       <div class="small" style="color: var(--muted);">${_roles.length} ${_t(`role assignment${_roles.length === 1 ? '' : 's'}. Same worker can hold multiple roles.`, 'role assignment. Pwedeng humawak ng maraming role ang isang worker.')}</div>
-      ${isSupervisor() ? '<span class="row" style="gap: 8px;"><button class="btn small" type="button" onclick="_pmRecentlyRemoved(this)" data-table="project_roles" data-title="Recently removed roles">Recently removed</button><button class="btn primary small" onclick="openAddRole()" data-i="assignrole">+ Assign role</button></span>' : ''}
+      ${isSupervisor() ? '<span class="row" style="gap: 8px;"><button class="btn small" type="button" aria-haspopup="dialog" aria-expanded="false" onclick="_pmRecentlyRemoved(this)" data-table="project_roles" data-title="Recently removed roles">Recently removed</button><button class="btn primary small" onclick="openAddRole()" data-i="assignrole">+ Assign role</button></span>' : ''}
     </div>
     ${rolesHtml || (legacyOwnerHtml || '<div class="empty">No roles assigned yet. Supervisor can assign owner / planner / safety officer / cost engineer / reviewer.</div>')}
     ${legacyOwnerHtml}

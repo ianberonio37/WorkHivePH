@@ -1,6 +1,6 @@
 {
   "_doc": "Trajectory registry — the 500-arc program's status SSOT. pct rules: specced=5, walked=25, fixed=60, locked=100; in-flight trajectories carry an explicit basis. The roadmap header scoreboard is GENERATED from this file (tools/update_trajectory_scoreboard.py) and validate_trajectory_registry.py fails on any drift between the two — the anti-drift discipline Ian asked for (2026-08-24).",
-  "updated": "2026-10-21",
+  "updated": "2026-10-22",
   "count": 18374,
   "trajectories": [
     {
@@ -1021410,8 +1021410,8 @@
     },
     {
       "id": "ENH295",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding B3 on this page and keep it closed (B3) - worker · achievements",
       "pages": [
@@ -1021468,12 +1021468,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on achievements itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell achievements.html B3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:35:59.814Z (.tmp/slw/results/enhc_walk_ac.json): achievements.html reached through index.html -> hive.html -> skillmatrix.html -> achievements.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on achievements.html as each cast: phone-390 davidvelasco (worker, Lucena Pharmaceutical Mfg.): B3 100% - sentences=22 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 davidvelasco (worker, Lucena Pharmaceutical Mfg.): B3 100% - sentences=22 · >20w=0 · passive=0 · grade>8=0 || phone-390 junvanowner (the critic's solo owner (no hive)): B3 100% - sentences=15 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 junvanowner (the critic's solo owner (no hive)): B3 100% - sentences=15 · >20w=0 · passive=0 · grade>8=0 Receipt .tmp/mcp_walks/ENH295.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH296",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding B3 on this page and keep it closed (B3) - worker · alert hub",
       "pages": [
@@ -1021530,12 +1021539,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on alert hub itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell alert-hub.html B3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:38:48.566Z (.tmp/slw/results/enhc_walk_ah.json): alert-hub.html reached through index.html -> hive.html -> alert-hub.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on alert-hub.html as each cast: phone-390 driverben (worker, Dela Cruz Delivery Fleet): B3 100% - sentences=33 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 driverben (worker, Dela Cruz Delivery Fleet): B3 100% - sentences=33 · >20w=0 · passive=0 · grade>8=0 || phone-390 christinedizon (the critic's C1 cast (worker, Lucena Pharmaceutical Mfg.)): B3 100% - sentences=31 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 christinedizon (the critic's C1 cast (worker, Lucena Pharmaceutical Mfg.)): B3 100% - sentences=31 · >20w=0 · passive=0 · grade>8=0 Receipt .tmp/mcp_walks/ENH296.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH297",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding C1 on this page and keep it closed (C1) - worker · alert hub",
       "pages": [
@@ -1021592,12 +1021610,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on alert hub itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell alert-hub.html C1 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:38:48.566Z (.tmp/slw/results/enhc_walk_ah.json): alert-hub.html reached through index.html -> hive.html -> alert-hub.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on alert-hub.html as each cast: phone-390 driverben (worker, Dela Cruz Delivery Fleet): C1 100% - bigSizes=[32,24,20] distinct=8 || desktop-1280 driverben (worker, Dela Cruz Delivery Fleet): C1 100% - bigSizes=[38,24,20] distinct=8 || phone-390 christinedizon (the critic's C1 cast (worker, Lucena Pharmaceutical Mfg.)): C1 100% - bigSizes=[32,24,20] distinct=8 || desktop-1280 christinedizon (the critic's C1 cast (worker, Lucena Pharmaceutical Mfg.)): C1 100% - bigSizes=[38,24,20] distinct=8 Receipt .tmp/mcp_walks/ENH297.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH298",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding X1 on this page and keep it closed (X1) - worker · alert hub",
       "pages": [
@@ -1021654,12 +1021681,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on alert hub itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-22] DESCOPED 2026-10-22: Filipino work - Ian took Filipino and the dictionary work behind it out of the roadmap (2026-09-30, 2026-10-06). The only signed-in critic walks carrying alert-hub X1 (W41494, W41497, W41500) were taken in Filipino, where the alert hub's empty state reads 'Walang pinagsamang anomalya sa hive mo...' with no next step. Walked in English as the same cast (christinedizon, supervisor, hive 084c113b, phone-390, rubric lens, 2026-10-22) X1 passes. enhancement_inventory.py no longer makes an English C cell from a walk taken in Filipino (the descope's own definition: axis or journey language fil); the Filipino walks' findings stay on their critic rows as the record."
     },
     {
       "id": "ENH299",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding A1 on this page and keep it closed (A1) - fleet-supervisor · analytics report",
       "pages": [
@@ -1021716,12 +1021744,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on analytics report itself (not described), used end to end as fleet-supervisor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell analytics-report.html A1 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as fleet-supervisor and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:34:41.539Z (.tmp/slw/results/enhc_walk_ar.json): analytics-report.html reached through index.html -> hive.html -> analytics.html -> analytics-report.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on analytics-report.html as each cast: phone-390 jeepneyoscarph (fleet supervisor, Ramos Jeepney Line): A1 100% - h1=1 focalTier=22px×1 bigTiers=1 cta=1 || desktop-1280 jeepneyoscarph (fleet supervisor, Ramos Jeepney Line): A1 100% - h1=1 focalTier=22px×1 bigTiers=1 cta=1 || phone-390 junvanowner (the critic's solo owner (no hive)): A1 100% - h1=1 focalTier=22px×1 bigTiers=1 cta=1 || desktop-1280 junvanowner (the critic's solo owner (no hive)): A1 100% - h1=1 focalTier=22px×1 bigTiers=1 cta=1 Receipt .tmp/mcp_walks/ENH299.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH300",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding A2 on this page and keep it closed (A2) - fleet-supervisor · analytics report",
       "pages": [
@@ -1021778,12 +1021815,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on analytics report itself (not described), used end to end as fleet-supervisor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell analytics-report.html A2 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as fleet-supervisor and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:34:41.539Z (.tmp/slw/results/enhc_walk_ar.json): analytics-report.html reached through index.html -> hive.html -> analytics.html -> analytics-report.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on analytics-report.html as each cast: phone-390 jeepneyoscarph (fleet supervisor, Ramos Jeepney Line): A2 100% - headings=2 (sub-heads=1: h2/h3=1 + role=heading L2/L3=0) blocks=2 || desktop-1280 jeepneyoscarph (fleet supervisor, Ramos Jeepney Line): A2 100% - headings=2 (sub-heads=1: h2/h3=1 + role=heading L2/L3=0) blocks=2 || phone-390 junvanowner (the critic's solo owner (no hive)): A2 n/a - a gate (access refused, or a declared start screen): one short block, nothing to scan || desktop-1280 junvanowner (the critic's solo owner (no hive)): A2 n/a - a gate (access refused, or a declared start screen): one short block, nothing to scan Receipt .tmp/mcp_walks/ENH300.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH301",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding C3 on this page and keep it closed (C3) - fleet-supervisor · analytics report",
       "pages": [
@@ -1021840,12 +1021886,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on analytics report itself (not described), used end to end as fleet-supervisor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell analytics-report.html C3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as fleet-supervisor and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:34:41.539Z (.tmp/slw/results/enhc_walk_ar.json): analytics-report.html reached through index.html -> hive.html -> analytics.html -> analytics-report.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on analytics-report.html as each cast: phone-390 jeepneyoscarph (fleet supervisor, Ramos Jeepney Line): C3 100% - grouped into common regions with padding || desktop-1280 jeepneyoscarph (fleet supervisor, Ramos Jeepney Line): C3 100% - grouped into common regions with padding || phone-390 junvanowner (the critic's solo owner (no hive)): C3 100% - grouped into common regions with padding || desktop-1280 junvanowner (the critic's solo owner (no hive)): C3 100% - grouped into common regions with padding Receipt .tmp/mcp_walks/ENH301.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH302",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding I2 on this page and keep it closed (I2) - fleet-supervisor · analytics report",
       "pages": [
@@ -1021902,12 +1021957,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on analytics report itself (not described), used end to end as fleet-supervisor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell analytics-report.html I2 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as fleet-supervisor and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:34:41.539Z (.tmp/slw/results/enhc_walk_ar.json): analytics-report.html reached through index.html -> hive.html -> analytics.html -> analytics-report.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on analytics-report.html as each cast: phone-390 jeepneyoscarph (fleet supervisor, Ramos Jeepney Line): I2 100% - 3 reserved block(s) || desktop-1280 jeepneyoscarph (fleet supervisor, Ramos Jeepney Line): I2 100% - 3 reserved block(s) || phone-390 junvanowner (the critic's solo owner (no hive)): I2 100% - 3 reserved block(s) || desktop-1280 junvanowner (the critic's solo owner (no hive)): I2 100% - 3 reserved block(s) Receipt .tmp/mcp_walks/ENH302.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH303",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding T8 on this page and keep it closed (T8) - worker · assistant",
       "pages": [
@@ -1021964,12 +1022028,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on assistant itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-22] DESCOPED 2026-10-22: Filipino work - Ian took Filipino and the dictionary work behind it out of the roadmap (2026-09-30, 2026-10-06). The only signed-in critic walks carrying assistant T8 (W41530, W41533, W41536, W41539) were taken in Filipino. Walked in English as the same cast (christinedizon, worker, hive b4f7fe63, phone-390 and desktop-1280, rubric lens, 2026-10-22) T8 passes; in Filipino the language button's translated name reads to the lens as a held toggle. enhancement_inventory.py no longer makes an English C cell from a walk taken in Filipino (the descope's own definition: axis or journey language fil); the Filipino walks' findings stay on their critic rows as the record."
     },
     {
       "id": "ENH304",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding Z3 on this page and keep it closed (Z3) - fleet-supervisor · community",
       "pages": [
@@ -1022026,12 +1022091,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on community itself (not described), used end to end as fleet-supervisor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-22] DESCOPED 2026-10-22: Filipino work - Ian took Filipino and the dictionary work behind it out of the roadmap (2026-09-30, 2026-10-06). The only signed-in critic walks carrying community Z3 (W3399, W3400, W3402, W3403) were taken in Filipino, where the unpin control reads 'Alisin sa pin ang...'. Walked in English as the same cast (hectorsalvador, fleet supervisor, hive b4f7fe63, phone-390 and desktop-1280, rubric lens, 2026-10-22) Z3 passes. enhancement_inventory.py no longer makes an English C cell from a walk taken in Filipino (the descope's own definition: axis or journey language fil); the Filipino walks' findings stay on their critic rows as the record."
     },
     {
       "id": "ENH305",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding V1 on this page and keep it closed (V1) - fleet-supervisor · dayplanner",
       "pages": [
@@ -1022088,12 +1022154,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on dayplanner itself (not described), used end to end as fleet-supervisor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell dayplanner.html V1 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as fleet-supervisor and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:50:50.556Z (.tmp/slw/results/enhc_walk_dp.json): dayplanner.html reached through index.html -> hive.html -> dayplanner.html -> analytics.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on dayplanner.html as each cast: phone-390 vanfleetgloriaph (fleet supervisor, Tan Delivery Vans): V1 100% - no overlapping elements or widgets, no control occluded || desktop-1280 vanfleetgloriaph (fleet supervisor, Tan Delivery Vans): V1 100% - no overlapping elements or widgets, no control occluded || phone-390 christinedizon (the critic's cast, edge functions down (supervisor, Lucena); edge functions down): V1 100% - no overlapping elements or widgets, no control occluded || desktop-1280 christinedizon (the critic's cast, edge functions down (supervisor, Lucena); edge functions down): V1 100% - no overlapping elements or widgets, no control occluded Receipt .tmp/mcp_walks/ENH305.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH306",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding A1 on this page and keep it closed (A1) - worker · hive",
       "pages": [
@@ -1022150,12 +1022225,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on hive itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell hive.html A1 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:52:29.849Z (.tmp/slw/results/enhc_walk_hv.json): hive.html reached through index.html -> hive.html -> logbook.html -> pm-scheduler.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on hive.html as each cast: phone-390 driverben (worker, Tan Delivery Vans): A1 100% - h1=1 focalTier=24px×4 bigTiers=1 cta=1 || desktop-1280 driverben (worker, Tan Delivery Vans): A1 100% - h1=1 focalTier=24px×4 bigTiers=1 cta=1 || phone-390 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): A1 100% - h1=1 focalTier=24px×5 bigTiers=1 cta=2 || desktop-1280 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): A1 100% - h1=1 focalTier=24px×6 bigTiers=1 cta=2 || phone-390 vanfleetgloriaph (the critic's DD1 cast, edge functions down (supervisor, Tan Delivery Vans); edge functions down): A1 100% - h1=1 focalTier=24px×3 bigTiers=1 cta=2 || desktop-1280 vanfleetgloriaph (the critic's DD1 cast, edge functions down (superv Receipt .tmp/mcp_walks/ENH306.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH307",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding C1 on this page and keep it closed (C1) - worker · hive",
       "pages": [
@@ -1022212,12 +1022296,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on hive itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell hive.html C1 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:52:29.849Z (.tmp/slw/results/enhc_walk_hv.json): hive.html reached through index.html -> hive.html -> logbook.html -> pm-scheduler.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on hive.html as each cast: phone-390 driverben (worker, Tan Delivery Vans): C1 100% - bigSizes=[24] distinct=4 || desktop-1280 driverben (worker, Tan Delivery Vans): C1 100% - bigSizes=[24] distinct=4 || phone-390 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): C1 100% - bigSizes=[24] distinct=6 || desktop-1280 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): C1 100% - bigSizes=[24] distinct=6 || phone-390 vanfleetgloriaph (the critic's DD1 cast, edge functions down (supervisor, Tan Delivery Vans); edge functions down): C1 100% - bigSizes=[24] distinct=6 || desktop-1280 vanfleetgloriaph (the critic's DD1 cast, edge functions down (supervisor, Tan Delivery Vans); edge functions down): C1 100% - bigSizes=[24 Receipt .tmp/mcp_walks/ENH307.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH308",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding DD1 on this page and keep it closed (DD1) - worker · hive",
       "pages": [
@@ -1022274,12 +1022367,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on hive itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell hive.html DD1 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:52:29.849Z (.tmp/slw/results/enhc_walk_hv.json): hive.html reached through index.html -> hive.html -> logbook.html -> pm-scheduler.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on hive.html as each cast: phone-390 driverben (worker, Tan Delivery Vans): DD1 n/a - not a KPI dashboard (fewer than 3 stat tiles) || desktop-1280 driverben (worker, Tan Delivery Vans): DD1 n/a - not a KPI dashboard (fewer than 3 stat tiles) || phone-390 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): DD1 100% - the largest KPI is in the top glance zone (preattentive 2D-position) || desktop-1280 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): DD1 100% - the largest KPI is in the top glance zone (preattentive 2D-position) || phone-390 vanfleetgloriaph (the critic's DD1 cast, edge functions down (supervisor, Tan Delivery Vans); edge functions down): DD1 100% - the largest KPI is in the top glance zone (pre Receipt .tmp/mcp_walks/ENH308.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH309",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding B3 on this page and keep it closed (B3) - worker · index",
       "pages": [
@@ -1022336,12 +1022438,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on index itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell index.html B3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:54:53.691Z (.tmp/slw/results/enhc_walk_ix.json): index.html reached through index.html -> hive.html -> logbook.html -> pm-scheduler.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on index.html as each cast: phone-390 driverben (worker, Tan Delivery Vans): B3 100% - sentences=6 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 driverben (worker, Tan Delivery Vans): B3 100% - sentences=6 · >20w=0 · passive=0 · grade>8=0 || phone-390 christinedizon (the critic's new user, edge functions down (supervisor, Lucena); edge functions down): B3 100% - sentences=5 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 christinedizon (the critic's new user, edge functions down (supervisor, Lucena); edge functions down): B3 100% - sentences=5 · >20w=0 · passive=0 · grade>8=0 Receipt .tmp/mcp_walks/ENH309.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH310",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding A1 on this page and keep it closed (A1) - solo-owner · integrations",
       "pages": [
@@ -1022398,12 +1022509,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on integrations itself (not described), used end to end as solo-owner at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell integrations.html A1 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as solo-owner and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:56:46.596Z (.tmp/slw/results/enhc_walk_ig.json): integrations.html reached through index.html -> hive.html -> integrations.html -> analytics.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on integrations.html as each cast: phone-390 junvanowner (the critic's solo owner (no hive)): A1 100% - h1=1 focalTier=24px×3 bigTiers=1 cta=1 || desktop-1280 junvanowner (the critic's solo owner (no hive)): A1 100% - h1=1 focalTier=24px×3 bigTiers=1 cta=1 || phone-390 hectorsalvador (the critic's machine client, edge functions down (Manila Electronics Assembly); edge functions down): A1 100% - h1=1 focalTier=24px×5 bigTiers=1 cta=2 || desktop-1280 hectorsalvador (the critic's machine client, edge functions down (Manila Electronics Assembly); edge functions down): A1 100% - h1=1 focalTier=24px×5 bigTiers=1 cta=2 Receipt .tmp/mcp_walks/ENH310.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH311",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding B3 on this page and keep it closed (B3) - solo-owner · integrations",
       "pages": [
@@ -1022460,12 +1022580,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on integrations itself (not described), used end to end as solo-owner at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell integrations.html B3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as solo-owner and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:56:46.596Z (.tmp/slw/results/enhc_walk_ig.json): integrations.html reached through index.html -> hive.html -> integrations.html -> analytics.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on integrations.html as each cast: phone-390 junvanowner (the critic's solo owner (no hive)): B3 100% - sentences=7 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 junvanowner (the critic's solo owner (no hive)): B3 100% - sentences=7 · >20w=0 · passive=0 · grade>8=0 || phone-390 hectorsalvador (the critic's machine client, edge functions down (Manila Electronics Assembly); edge functions down): B3 100% - sentences=28 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 hectorsalvador (the critic's machine client, edge functions down (Manila Electronics Assembly); edge functions down): B3 100% - sentences=28 · >20w=0 · passive=0 · grade>8=0 Receipt .tmp/mcp_walks/ENH311.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH312",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding E3 on this page and keep it closed (E3) - solo-owner · integrations",
       "pages": [
@@ -1022522,12 +1022651,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on integrations itself (not described), used end to end as solo-owner at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as solo-owner through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell integrations.html E3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as solo-owner and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:56:46.596Z (.tmp/slw/results/enhc_walk_ig.json): integrations.html reached through index.html -> hive.html -> integrations.html -> analytics.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on integrations.html as each cast: phone-390 junvanowner (the critic's solo owner (no hive)): E3 n/a - permission wall: no data is shown to this persona, so there is no source or freshness to chip || desktop-1280 junvanowner (the critic's solo owner (no hive)): E3 n/a - permission wall: no data is shown to this persona, so there is no source or freshness to chip || phone-390 hectorsalvador (the critic's machine client, edge functions down (Manila Electronics Assembly); edge functions down): E3 100% - chip: \"Live · refreshed on load · as of 14:58 P\" || desktop-1280 hectorsalvador (the critic's machine client, edge functions down (Manila Electronics Assembly); edge functions down): E3 100% - chip: \"Live · refreshed on load · as of 14:58 P\" Receipt .tmp/mcp_walks/ENH312.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH313",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding A3 on this page and keep it closed (A3) - worker · inventory",
       "pages": [
@@ -1022584,12 +1022722,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on inventory itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell inventory.html A3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:58:51.265Z (.tmp/slw/results/enhc_walk_iv.json): inventory.html reached through index.html -> hive.html -> inventory.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on inventory.html as each cast: phone-390 davidvelasco (worker, Lucena Pharmaceutical Mfg.): A3 100% - disclosures=21 longTables=0 · blocks=16 tabs=0 primaryCta=2/2 || desktop-1280 davidvelasco (worker, Lucena Pharmaceutical Mfg.): A3 100% - disclosures=21 longTables=0 · blocks=16 tabs=0 primaryCta=2/2 || phone-390 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): A3 100% - disclosures=21 longTables=0 · blocks=16 tabs=0 primaryCta=2/2 || desktop-1280 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): A3 100% - disclosures=21 longTables=0 · blocks=16 tabs=0 primaryCta=2/2 Receipt .tmp/mcp_walks/ENH313.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH314",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding G3 on this page and keep it closed (G3) - worker · inventory",
       "pages": [
@@ -1022646,12 +1022793,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on inventory itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell inventory.html G3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:58:51.265Z (.tmp/slw/results/enhc_walk_iv.json): inventory.html reached through index.html -> hive.html -> inventory.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on inventory.html as each cast: phone-390 davidvelasco (worker, Lucena Pharmaceutical Mfg.): G3 100% - 52 controls, 2 primary CTA || desktop-1280 davidvelasco (worker, Lucena Pharmaceutical Mfg.): G3 100% - 52 controls, 2 primary CTA || phone-390 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): G3 100% - 53 controls, 2 primary CTA || desktop-1280 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): G3 100% - 53 controls, 2 primary CTA Receipt .tmp/mcp_walks/ENH314.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH315",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding R4 on this page and keep it closed (R4) - worker · inventory",
       "pages": [
@@ -1022708,12 +1022864,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on inventory itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell inventory.html R4 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:58:51.265Z (.tmp/slw/results/enhc_walk_iv.json): inventory.html reached through index.html -> hive.html -> inventory.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on inventory.html as each cast: phone-390 davidvelasco (worker, Lucena Pharmaceutical Mfg.): R4 100% - 0 orphan void(s) || desktop-1280 davidvelasco (worker, Lucena Pharmaceutical Mfg.): R4 100% - 0 orphan void(s) || phone-390 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): R4 100% - 0 orphan void(s) || desktop-1280 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): R4 100% - 0 orphan void(s) Receipt .tmp/mcp_walks/ENH315.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH316",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding Z3 on this page and keep it closed (Z3) - buyer · marketplace seller",
       "pages": [
@@ -1022770,12 +1022935,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on marketplace seller itself (not described), used end to end as buyer at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell marketplace-seller.html Z3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as buyer and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T07:00:17.553Z (.tmp/slw/results/enhc_walk_ms.json): marketplace-seller.html reached through index.html -> hive.html -> marketplace-seller.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on marketplace-seller.html as each cast: phone-390 bryangarcia (buyer, Baguio Textile Mills): Z3 100% - all 33 targets clear the 24px + spacing floor || desktop-1280 bryangarcia (buyer, Baguio Textile Mills): Z3 100% - all 33 targets clear the 24px + spacing floor || phone-390 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): Z3 100% - all 24 targets clear the 24px + spacing floor || desktop-1280 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): Z3 100% - all 24 targets clear the 24px + spacing floor Receipt .tmp/mcp_walks/ENH316.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH317",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding B3 on this page and keep it closed (B3) - buyer · marketplace",
       "pages": [
@@ -1022832,12 +1023006,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on marketplace itself (not described), used end to end as buyer at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as buyer through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell marketplace.html B3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as buyer and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T07:01:45.879Z (.tmp/slw/results/enhc_walk_mk.json): marketplace.html reached through index.html -> hive.html -> marketplace.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on marketplace.html as each cast: phone-390 christinedizon (buyer, Manila Electronics Assembly): B3 100% - sentences=14 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 christinedizon (buyer, Manila Electronics Assembly): B3 100% - sentences=14 · >20w=0 · passive=0 · grade>8=0 || phone-390 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): B3 100% - sentences=11 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 hectorsalvador (the critic's fleet supervisor (Manila Electronics Assembly)): B3 100% - sentences=11 · >20w=0 · passive=0 · grade>8=0 Receipt .tmp/mcp_walks/ENH317.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH318",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding C3 on this page and keep it closed (C3) - fleet-supervisor · ph intelligence",
       "pages": [
@@ -1022894,12 +1023077,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on ph intelligence itself (not described), used end to end as fleet-supervisor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as fleet-supervisor through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell ph-intelligence.html C3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as fleet-supervisor and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:37:16.981Z (.tmp/slw/results/enhc_walk_pi.json): ph-intelligence.html reached through index.html -> hive.html -> analytics.html -> ph-intelligence.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on ph-intelligence.html as each cast: phone-390 christinedizon (fleet supervisor, Lucena Pharmaceutical Mfg.): C3 100% - grouped into common regions with padding || desktop-1280 christinedizon (fleet supervisor, Lucena Pharmaceutical Mfg.): C3 100% - grouped into common regions with padding || phone-390 junvanowner (the critic's solo owner (no hive)): C3 100% - grouped into common regions with padding || desktop-1280 junvanowner (the critic's solo owner (no hive)): C3 100% - grouped into common regions with padding Receipt .tmp/mcp_walks/ENH318.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH319",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding B3 on this page and keep it closed (B3) - machine-client · plant connections",
       "pages": [
@@ -1022956,12 +1023148,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on plant connections itself (not described), used end to end as machine-client at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as machine-client through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell plant-connections.html B3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as machine-client and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T07:03:27.074Z (.tmp/slw/results/enhc_walk_pc.json): plant-connections.html reached through index.html -> hive.html -> plant-connections.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on plant-connections.html as each cast: phone-390 christinedizon (machine client (supervisor), Baguio Textile Mills): B3 100% - sentences=11 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 christinedizon (machine client (supervisor), Baguio Textile Mills): B3 100% - sentences=11 · >20w=0 · passive=0 · grade>8=0 || phone-390 hectorsalvador (the critic's machine client, edge functions down (Manila Electronics Assembly); edge functions down): B3 100% - sentences=13 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 hectorsalvador (the critic's machine client, edge functions down (Manila Electronics Assembly); edge functions down): B3 100% - sentences=13 · >20w=0 · passive=0 · grade>8=0 Receipt .tmp/mcp_walks/ENH319.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH320",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding B3 on this page and keep it closed (B3) - oversight · platform actions",
       "pages": [
@@ -1023012,12 +1023213,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on platform actions itself (not described), used end to end as oversight at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell platform-actions.html B3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as oversight and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T07:04:54.029Z (.tmp/slw/results/enhc_walk_pa.json): platform-actions.html reached through platform-actions.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on platform-actions.html as each cast: phone-390 christinedizon (oversight (a supervisor, not an admin), Baguio Textile Mills): B3 100% - sentences=5 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 christinedizon (oversight (a supervisor, not an admin), Baguio Textile Mills): B3 100% - sentences=5 · >20w=0 · passive=0 · grade>8=0 || phone-390 leandromarquez (the critic's founder view: a platform admin (Leandro Marquez)): B3 100% - sentences=31 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 leandromarquez (the critic's founder view: a platform admin (Leandro Marquez)): B3 100% - sentences=31 · >20w=0 · passive=0 · grade>8=0 Receipt .tmp/mcp_walks/ENH320.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH321",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding E2 on this page and keep it closed (E2) - oversight · platform actions",
       "pages": [
@@ -1023068,12 +1023278,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on platform actions itself (not described), used end to end as oversight at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as oversight through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell platform-actions.html E2 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as oversight and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T07:04:54.029Z (.tmp/slw/results/enhc_walk_pa.json): platform-actions.html reached through platform-actions.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on platform-actions.html as each cast: phone-390 christinedizon (oversight (a supervisor, not an admin), Baguio Textile Mills): E2 100% - no empty states in this state || desktop-1280 christinedizon (oversight (a supervisor, not an admin), Baguio Textile Mills): E2 100% - no empty states in this state || phone-390 leandromarquez (the critic's founder view: a platform admin (Leandro Marquez)): E2 100% - 1/1 empties explain themselves || desktop-1280 leandromarquez (the critic's founder view: a platform admin (Leandro Marquez)): E2 100% - 1/1 empties explain themselves Receipt .tmp/mcp_walks/ENH321.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH322",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding W1 on this page and keep it closed (W1) - oversight · platform actions",
       "pages": [
@@ -1023124,12 +1023343,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on platform actions itself (not described), used end to end as oversight at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-22] DESCOPED 2026-10-22: Filipino work - Ian took Filipino and the dictionary work behind it out of the roadmap (2026-09-30, 2026-10-06). The only signed-in critic walks carrying platform-actions W1 (W3426, W3429, W3432, W41719 and their pairs) were taken in Filipino. Walked in English as the same casts (christinedizon and driverben, phone-390, rubric lens, 2026-10-22) W1 passes; in Filipino the way back's label is outside the lens's English back-link vocabulary. enhancement_inventory.py no longer makes an English C cell from a walk taken in Filipino (the descope's own definition: axis or journey language fil); the Filipino walks' findings stay on their critic rows as the record."
     },
     {
       "id": "ENH323",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding B3 on this page and keep it closed (B3) - worker · pm scheduler",
       "pages": [
@@ -1023186,12 +1023406,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on pm scheduler itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell pm-scheduler.html B3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T07:05:26.212Z (.tmp/slw/results/enhc_walk_pm.json): pm-scheduler.html reached through index.html -> hive.html -> pm-scheduler.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on pm-scheduler.html as each cast: phone-390 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): B3 100% - sentences=14 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): B3 100% - sentences=14 · >20w=0 · passive=0 · grade>8=0 || phone-390 vanfleetgloriaph (the critic's fleet supervisor (Tan Delivery Vans)): B3 100% - sentences=13 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 vanfleetgloriaph (the critic's fleet supervisor (Tan Delivery Vans)): B3 100% - sentences=13 · >20w=0 · passive=0 · grade>8=0 || phone-390 junvanowner (the critic's solo owner (no hive)): B3 100% - sentences=9 · >20w=0 · passive=0 · grade>8=0 || desktop- Receipt .tmp/mcp_walks/ENH323.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH324",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding C3 on this page and keep it closed (C3) - fleet-supervisor · project report",
       "pages": [
@@ -1023248,12 +1023477,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on project report itself (not described), used end to end as fleet-supervisor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-22] DESCOPED 2026-10-22: Filipino work - Ian took Filipino and the dictionary work behind it out of the roadmap (2026-09-30, 2026-10-06). The only signed-in critic walks carrying project-report C3 (W3351, W3352, W3354, W3355) were taken in Filipino. Walked in English as the same cast (junvanowner, solo owner, phone-390 and desktop-1280, rubric lens, 2026-10-22) C3 passes. enhancement_inventory.py no longer makes an English C cell from a walk taken in Filipino (the descope's own definition: axis or journey language fil); the Filipino walks' findings stay on their critic rows as the record."
     },
     {
       "id": "ENH325",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding B3 on this page and keep it closed (B3) - worker · resume",
       "pages": [
@@ -1023310,12 +1023540,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on resume itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell resume.html B3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T07:07:35.104Z (.tmp/slw/results/enhc_walk_rs.json): resume.html reached through index.html -> hive.html -> skillmatrix.html -> resume.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on resume.html as each cast: phone-390 christinedizon (worker, Manila Electronics Assembly): B3 100% - sentences=16 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 christinedizon (worker, Manila Electronics Assembly): B3 100% - sentences=16 · >20w=0 · passive=0 · grade>8=0 || phone-390 junvanowner (the critic's solo owner (no hive)): B3 100% - sentences=23 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 junvanowner (the critic's solo owner (no hive)): B3 100% - sentences=23 · >20w=0 · passive=0 · grade>8=0 Receipt .tmp/mcp_walks/ENH325.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH326",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding M1 on this page and keep it closed (M1) - worker · resume",
       "pages": [
@@ -1023372,12 +1023611,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on resume itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell resume.html M1 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T07:07:35.104Z (.tmp/slw/results/enhc_walk_rs.json): resume.html reached through index.html -> hive.html -> skillmatrix.html -> resume.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on resume.html as each cast: phone-390 christinedizon (worker, Manila Electronics Assembly): M1 100% - 8/8 labelled, 0 placeholder-as-label || desktop-1280 christinedizon (worker, Manila Electronics Assembly): M1 100% - 8/8 labelled, 0 placeholder-as-label || phone-390 junvanowner (the critic's solo owner (no hive)): M1 100% - 24/24 labelled, 0 placeholder-as-label || desktop-1280 junvanowner (the critic's solo owner (no hive)): M1 100% - 24/24 labelled, 0 placeholder-as-label Receipt .tmp/mcp_walks/ENH326.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH327",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding A1 on this page and keep it closed (A1) - worker · shift brain",
       "pages": [
@@ -1023434,12 +1023682,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on shift brain itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell shift-brain.html A1 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:32:36.966Z (.tmp/slw/results/enhc_walk_sb.json): shift-brain.html reached through index.html -> hive.html -> shift-brain.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on shift-brain.html as each cast: phone-390 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): A1 100% - h1=1 focalTier=18px×1 bigTiers=0 cta=1 || desktop-1280 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): A1 100% - h1=1 focalTier=18px×1 bigTiers=0 cta=1 || phone-390 junvanowner (the critic's solo owner (no hive)): A1 100% - h1=1 focalTier=18px×2 bigTiers=0 cta=1 || desktop-1280 junvanowner (the critic's solo owner (no hive)): A1 100% - h1=1 focalTier=18px×2 bigTiers=0 cta=1 Receipt .tmp/mcp_walks/ENH327.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH328",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding A2 on this page and keep it closed (A2) - worker · shift brain",
       "pages": [
@@ -1023496,12 +1023753,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on shift brain itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell shift-brain.html A2 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:32:36.966Z (.tmp/slw/results/enhc_walk_sb.json): shift-brain.html reached through index.html -> hive.html -> shift-brain.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on shift-brain.html as each cast: phone-390 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): A2 100% - headings=6 (sub-heads=5: h2/h3=5 + role=heading L2/L3=0) blocks=10 || desktop-1280 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): A2 100% - headings=6 (sub-heads=5: h2/h3=5 + role=heading L2/L3=0) blocks=10 || phone-390 junvanowner (the critic's solo owner (no hive)): A2 n/a - a gate (access refused, or a declared start screen): one short block, nothing to scan || desktop-1280 junvanowner (the critic's solo owner (no hive)): A2 n/a - a gate (access refused, or a declared start screen): one short block, nothing to scan Receipt .tmp/mcp_walks/ENH328.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH329",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding C3 on this page and keep it closed (C3) - worker · shift brain",
       "pages": [
@@ -1023558,12 +1023824,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on shift brain itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell shift-brain.html C3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:32:36.966Z (.tmp/slw/results/enhc_walk_sb.json): shift-brain.html reached through index.html -> hive.html -> shift-brain.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on shift-brain.html as each cast: phone-390 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): C3 100% - grouped into common regions with padding || desktop-1280 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): C3 100% - grouped into common regions with padding || phone-390 junvanowner (the critic's solo owner (no hive)): C3 100% - grouped into common regions with padding || desktop-1280 junvanowner (the critic's solo owner (no hive)): C3 100% - grouped into common regions with padding Receipt .tmp/mcp_walks/ENH329.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH330",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding E3 on this page and keep it closed (E3) - worker · shift brain",
       "pages": [
@@ -1023620,12 +1023895,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on shift brain itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell shift-brain.html E3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:32:36.966Z (.tmp/slw/results/enhc_walk_sb.json): shift-brain.html reached through index.html -> hive.html -> shift-brain.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on shift-brain.html as each cast: phone-390 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): E3 100% - chip: \"Based on: top-risk assets, PMs due, carr\" || desktop-1280 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): E3 100% - chip: \"Based on: top-risk assets, PMs due, carr\" || phone-390 junvanowner (the critic's solo owner (no hive)): E3 n/a - permission wall: no data is shown to this persona, so there is no source or freshness to chip || desktop-1280 junvanowner (the critic's solo owner (no hive)): E3 n/a - permission wall: no data is shown to this persona, so there is no source or freshness to chip Receipt .tmp/mcp_walks/ENH330.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH331",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding F1 on this page and keep it closed (F1) - worker · shift brain",
       "pages": [
@@ -1023682,12 +1023966,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on shift brain itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell shift-brain.html F1 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:32:36.966Z (.tmp/slw/results/enhc_walk_sb.json): shift-brain.html reached through index.html -> hive.html -> shift-brain.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on shift-brain.html as each cast: phone-390 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): F1 100% - all >= 44px || desktop-1280 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): F1 100% - all >= 44px || phone-390 junvanowner (the critic's solo owner (no hive)): F1 100% - all >= 44px || desktop-1280 junvanowner (the critic's solo owner (no hive)): F1 100% - all >= 44px Receipt .tmp/mcp_walks/ENH331.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH332",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding K2 on this page and keep it closed (K2) - worker · shift brain",
       "pages": [
@@ -1023744,12 +1024037,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on shift brain itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell shift-brain.html K2 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:32:36.966Z (.tmp/slw/results/enhc_walk_sb.json): shift-brain.html reached through index.html -> hive.html -> shift-brain.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on shift-brain.html as each cast: phone-390 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): K2 100% - 0/no glanceable KPI(s), 0 under-44 target(s) || desktop-1280 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): K2 100% - 0/no glanceable KPI(s), 0 under-44 target(s) || phone-390 junvanowner (the critic's solo owner (no hive)): K2 100% - 0/no glanceable KPI(s), 0 under-44 target(s) || desktop-1280 junvanowner (the critic's solo owner (no hive)): K2 100% - 0/no glanceable KPI(s), 0 under-44 target(s) Receipt .tmp/mcp_walks/ENH332.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH333",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding W1 on this page and keep it closed (W1) - worker · shift brain",
       "pages": [
@@ -1023806,12 +1024108,21 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on shift brain itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell shift-brain.html W1 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T06:32:36.966Z (.tmp/slw/results/enhc_walk_sb.json): shift-brain.html reached through index.html -> hive.html -> shift-brain.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on shift-brain.html as each cast: phone-390 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): W1 100% - in-layout way back: back/home ctl || desktop-1280 driverben (worker (Ramos Jeepney Line has no worker member: driverben, Tan Delivery Vans)): W1 100% - in-layout way back: back/home ctl || phone-390 junvanowner (the critic's solo owner (no hive)): W1 100% - in-layout way back: back/home ctl || desktop-1280 junvanowner (the critic's solo owner (no hive)): W1 100% - in-layout way back: back/home ctl Receipt .tmp/mcp_walks/ENH333.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH334",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding X1 on this page and keep it closed (X1) - worker · shift brain",
       "pages": [
@@ -1023868,12 +1024179,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on shift brain itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-22] DESCOPED 2026-10-22: Filipino work - Ian took Filipino and the dictionary work behind it out of the roadmap (2026-09-30, 2026-10-06). The only signed-in critic walks carrying shift-brain X1 (W41818, W41821, W41824) were taken in Filipino, where the empty reorder list reads 'Walang part na nasa reorder point o mas...' without the 'Open Inventory' step the English sentence has. Walked in English as the same cast (jeepneyoscarph, worker, hive 042e2176, phone-390, rubric lens, 2026-10-22) X1 passes. enhancement_inventory.py no longer makes an English C cell from a walk taken in Filipino (the descope's own definition: axis or journey language fil); the Filipino walks' findings stay on their critic rows as the record."
     },
     {
       "id": "ENH335",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-C",
       "title": "The platform must close the critic finding B3 on this page and keep it closed (B3) - worker · skillmatrix",
       "pages": [
@@ -1023930,6 +1024242,15 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on skillmatrix itself (not described), used end to end as worker at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-22] pct -> 60. WALKED LIVE 2026-10-22 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served to each cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the row's journey walked page by page at each width - each page's characters, horizontal overflow and page errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the cell's dim required to pass; the session's user and the device's worker name read back at the end): ENH-C: the critic cell skillmatrix.html B3 - left critiqued with a finding by signed-in walks - is closed on the page itself and walked as worker and as the critic's own cast at both widths. Held by critic-cells (C1: the cell may not reopen in the critic registry; C2: the fix's mechanism, failing on the page and the lens as they were before the build, 5bf88960; C3: every English sentence a B3-cell page passes to _t() passes the lens's own ruler) and rubric-teeth. Witness: MCP walk 2026-10-22T07:09:05.692Z (.tmp/slw/results/enhc_walk_sk.json): skillmatrix.html reached through index.html -> hive.html -> skillmatrix.html -> logbook.html at phone-390 and desktop-1280, each cast in a fresh context with service workers blocked, signed in through the product's sign-in form (a cast in several hives moved to its hive through hive.html's switch sheet), and the critic's own lens (survey_ufai_rubric.js) run on skillmatrix.html as each cast: phone-390 davidvelasco (worker, Lucena Pharmaceutical Mfg.): B3 100% - sentences=14 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 davidvelasco (worker, Lucena Pharmaceutical Mfg.): B3 100% - sentences=14 · >20w=0 · passive=0 · grade>8=0 || phone-390 christinedizon (the critic's new user (supervisor, Lucena)): B3 100% - sentences=14 · >20w=0 · passive=0 · grade>8=0 || desktop-1280 christinedizon (the critic's new user (supervisor, Lucena)): B3 100% - sentences=14 · >20w=0 · passive=0 · grade>8=0 Receipt .tmp/mcp_walks/ENH335.json.",
+      "artifacts": {
+        "gates": [
+          "critic-cells",
+          "design-detector-ratchet",
+          "rubric-teeth",
+          "scripts-parse"
+        ]
       }
     },
     {
@@ -1036268,5 +1036589,5 @@
       }
     }
   ],
-  "next": "the F layer's product rows in the header's walk order: ENH-C (41 open critic cells on signed-in pages), then OPC (99, the one operator console); public ENH-P and ENH-L after every product lane; LB3's two CPU-ms rows wait at the end of the roadmap"
+  "next": "the F layer's product rows in the header's walk order: OPC (99, the one operator console: the console's own reads bounded first, then un-retire it with four tabs - Operations, Platform, Feeds, Developer); public ENH-P and ENH-L after every product lane; LB3's two CPU-ms rows wait at the end of the roadmap"
 }

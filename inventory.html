@@ -326,8 +326,8 @@
             <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
           </button>
           <!-- D3 (2026-10-16): a removed part waits here for 30 days, with its stock ledger. -->
-          <button id="btn-recently-deleted" type="button" class="text-xs py-2 px-3"
-                  onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'inventory_items', { hiveId: HIVE_ID || null, title: 'Recently deleted parts', onRestored: () => initData() })"
+          <button id="btn-recently-deleted" type="button" class="text-xs py-2 px-3" aria-haspopup="dialog" aria-expanded="false"
+                  onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'inventory_items', { hiveId: HIVE_ID || null, title: 'Recently deleted parts', opener: this, onRestored: () => initData() })"
                   style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:rgba(255,255,255,0.80); cursor:pointer; font-weight:600; white-space:nowrap;">
             Recently deleted
           </button>

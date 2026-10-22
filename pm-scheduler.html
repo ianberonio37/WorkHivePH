@@ -476,8 +476,8 @@
 
     <span data-wh-source-anchor="pm-summary-details" hidden></span>
     <!-- D3 (2026-10-16): a deleted PM asset, with its tasks and completion records, waits here for 30 days. -->
-    <button id="pm-recently-deleted" type="button" class="details-toggle"
-            onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'pm_assets', { hiveId: HIVE_ID || null, title: 'Recently deleted PM assets', onRestored: () => _pmReloadAfterRestore() })">
+    <button id="pm-recently-deleted" type="button" class="details-toggle" aria-haspopup="dialog" aria-expanded="false"
+            onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'pm_assets', { hiveId: HIVE_ID || null, title: 'Recently deleted PM assets', opener: this, onRestored: () => _pmReloadAfterRestore() })">
       Recently deleted
     </button>
 
@@ -1923,7 +1923,7 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
        Every Filipino string below names the chip by the label it actually wears. */
     let text;
     if (total === 0) {
-      text = _t('Open the asset list below and click "Add asset" to register your first equipment. Once you add a PM scope item, this dashboard tracks compliance automatically.',
+      text = _t('Tap "Add Asset" at the bottom to add your first machine. Add one PM scope item. This page then tracks compliance for you.',
                 'Buksan ang listahan ng asset sa ibaba at pindutin ang "Magdagdag ng Asset" para irehistro ang unang kagamitan mo. Kapag nakapagdagdag ka ng PM scope item, awtomatikong susubaybayan ng dashboard na ito ang compliance.');
       setCta(_t('Review the asset list →', 'Tingnan ang listahan ng asset →'), { scroll: '#filter-bar' });
     } else if (overdue > 5) {
@@ -1939,11 +1939,11 @@ function renderPMSummary(enriched, overdue, duesoon, ontrack) {
                 `${duesoon} asset ang may PM na due sa susunod na 14 araw. Isingit ang mga ito sa susunod na dalawang lingguhang shift plan bago lumampas sa takda.`);
       setCta(_t(`Schedule ${duesoon} due-soon →`, `I-schedule ang ${duesoon} malapit nang ma-due →`), { scroll: '#filter-bar', click: '.filter-chip[data-filter="duesoon"]' });
     } else if (compliance < 80) {
-      text = _t(`Compliance is at ${compliance}%. Walk through the list below: assets with no completion history yet show as on-track but contribute zero signal. Run an initial PM to lock in the timer.`,
+      text = _t(`Compliance is at ${compliance}%. Check the list below. An asset with no PM done yet shows as on track, but it tells you nothing yet. Run a first PM to start its timer.`,
                 `Nasa ${compliance}% ang compliance. Dumaan sa listahan sa ibaba: ang mga asset na wala pang natapos na PM ay lumalabas na nasa takbo pero walang naiaambag na signal. Magpatakbo ng unang PM para maumpisahan ang timer.`);
       setCta(_t('Review the asset list →', 'Tingnan ang listahan ng asset →'), { scroll: '#filter-bar' });
     } else {
-      text = _t('PM compliance is healthy. Check the asset list below to confirm criticals (red border) are still being prioritized in your team plan.',
+      text = _t('PM compliance is healthy. Check that critical assets (red border) still come first in your team plan.',
                 'Malusog ang PM compliance. Tingnan ang listahan ng asset sa ibaba para makumpirmang nauuna pa rin ang mga critical (pulang border) sa plano ng team mo.');
       setCta(_t('Review the asset list →', 'Tingnan ang listahan ng asset →'), { scroll: '#filter-bar' });
     }
@@ -3232,7 +3232,7 @@ async function saveAsset() {
 
   if (assetErr || !asset) {
     console.error('save asset:', assetErr && assetErr.message);
-    showToast(whWriteError(assetErr, _t('The asset and its PM tasks did NOT save - nothing was created. Try again.', 'HINDI na-save ang asset at ang mga PM task nito - walang nagawa. Subukan muli.')));
+    showToast(whWriteError(assetErr, _t('The asset and its PM tasks did NOT save. Nothing changed. Try again.', 'HINDI na-save ang asset at ang mga PM task nito - walang nagawa. Subukan muli.')));
     btn.disabled = false; btn.textContent = 'Save Asset';
     return;
   }
@@ -3438,7 +3438,7 @@ async function deleteAsset() {
         onRestored: () => _pmReloadAfterRestore(),
       })
     : { ok: false, error: { code: 'P0001', message: 'Deleting needs this page reloaded first. Nothing was deleted.' } };
-  if (!_tr.ok) { showToast(whWriteError(_tr.error, _t('Nothing was deleted - it is all still here. Try again.', 'Walang na-delete - nandito pa lahat. Subukan muli.'))); return; }
+  if (!_tr.ok) { showToast(whWriteError(_tr.error, _t('We deleted nothing - it is all still here. Try again.', 'Walang na-delete - nandito pa lahat. Subukan muli.'))); return; }
 
   assets      = assets.filter(a => a.id !== deletedId);
   scopeItems  = scopeItems.filter(i => i.asset_id !== deletedId);

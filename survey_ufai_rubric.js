@@ -93,6 +93,34 @@
   //      exactly one - so `display: inline` plus >1 rect is a stronger signal than the height ever was.
   // Verified this is not a page change: overriding the callout colour live left the height at 43.66 both
   // ways, and the element's parent is a DIV in both, so the geometry never moved.
+  // ★A TARGET IS WHERE A TAP LANDS, NOT ONLY ITS TEXT BOX (ENH-C, 2026-10-22). WCAG 2.5.8 measures the area that
+  // answers the pointer, and a positioned ::before/::after belongs to it - a tap on the pseudo box is a tap on its
+  // element. The platform's tappable figures (utils.js whFigureSources) draw nothing and answer a 44px area through an
+  // empty positioned ::after, so their 21-35px text boxes read as under-44 (F1, K2) and crowded (Z3) on every page with
+  // figures. A pseudo box counts only when the element is its containing block (positioned) and the pseudo is
+  // absolutely positioned, generated and takes pointer events - a decorative ::after cannot inflate a small control
+  // whose own box is what a finger meets.
+  const _hitRect = (e) => {
+    const r = e.getBoundingClientRect();
+    let L = r.left, T = r.top, Rt = r.right, B = r.bottom;
+    try {
+      const st = getComputedStyle(e);
+      if (st.position !== 'static') {
+        const bl = parseFloat(st.borderLeftWidth) || 0, bt = parseFloat(st.borderTopWidth) || 0;
+        const br = parseFloat(st.borderRightWidth) || 0, bb = parseFloat(st.borderBottomWidth) || 0;
+        for (const pe of ['::before', '::after']) {
+          const ps = getComputedStyle(e, pe);
+          if (!ps || ps.content === 'none' || ps.content === 'normal' || ps.position !== 'absolute'
+            || ps.display === 'none' || ps.pointerEvents === 'none' || ps.visibility === 'hidden') continue;
+          const t = parseFloat(ps.top), l = parseFloat(ps.left), rr = parseFloat(ps.right), b = parseFloat(ps.bottom);
+          if ([t, l, rr, b].some((v) => !isFinite(v))) continue;
+          L = Math.min(L, r.left + bl + l); T = Math.min(T, r.top + bt + t);
+          Rt = Math.max(Rt, r.right - br - rr); B = Math.max(B, r.bottom - bb - b);
+        }
+      }
+    } catch (_) { /* empty-catch-allow: the element's own box stands */ }
+    return { left: L, top: T, right: Rt, bottom: B, width: Rt - L, height: B - T };
+  };
   const _inlineProse = (e) => {
     if (!e || e.tagName !== 'A') return false;
     if (e.closest('nav, [role="navigation"], [role="tablist"]')) return false;
@@ -283,6 +311,13 @@
       // a <br> is a line break the reader sees: it is inline and has no text, so without this the sentence before it
       // and the words after it arrived as one run ("...then Print Report.Go to Project Manager", 2026-10-13)
       else if (n.nodeType === 1 && n.tagName === 'BR') out += ' ';
+      // ★AN EXEMPT CHILD'S WORDS CAME BACK THROUGH ITS PARENT (ENH-C, 2026-10-22). textEls skips anything inside
+      // [data-ai-generated] / [data-user-content] - an agent's words and a person's words are graded by their own lenses,
+      // never as interface copy - but this run read every visible inline child, so alert-hub's feed line
+      // `<div class="alert-msg"><span data-ai-generated>{the brief's headline}</span> (expired)</div>` handed B3 the
+      // agent's headline as the PAGE's sentence: three grade>8 findings on 107 worker walks for words the page did not
+      // write. The marked child is a gap in the run, as a block child is.
+      else if (n.nodeType === 1 && n.matches && n.matches('[data-ai-generated], [data-user-content]')) out += ' ';
       else if (n.nodeType === 1 && !/^(SCRIPT|STYLE|TEMPLATE)$/.test(n.tagName) && _isInlineEl(n) && vis(n)) out += flowText(n);
       else if (n.nodeType === 1) out += ' ';
     }
@@ -334,7 +369,7 @@
   // audit_filter_vocab (STABLE, no DML), so a read-only viewer graded 0% for "no instant acknowledgment". These are the
   // STABLE/IMMUTABLE public functions the pages call without a read prefix. The line below is written from the
   // database by tools/sync_lens_read_rpcs.py, and the gate lens-read-rpcs fails when it drifts. Do not edit by hand.
-  const _READ_RPCS = new Set(['audit_filter_vocab', 'check_username_available', 'find_hive_by_code', 'founder_active_hives', 'founder_anon_sessions', 'founder_dau_series', 'founder_mau', 'founder_page_heatmap', 'listing_reservation_amount', 'marketplace_platform_response_hours', 'provider_credit_balance', 'seller_credit_balance', 'service_knob', 'service_knob_pct', 'service_request_price']); // sync_lens_read_rpcs
+  const _READ_RPCS = new Set(['audit_filter_vocab', 'check_username_available', 'find_hive_by_code', 'founder_active_hives', 'founder_anon_sessions', 'founder_dau_series', 'founder_feature_use', 'founder_mau', 'founder_page_heatmap', 'listing_reservation_amount', 'logbook_synced_machines', 'marketplace_platform_response_hours', 'marketplace_seller_reply_stats', 'seller_credit_balance', 'service_knob', 'service_knob_pct']); // sync_lens_read_rpcs
   const pageBase = () => rgb(getComputedStyle(document.body).backgroundColor)
     || rgb(getComputedStyle(document.documentElement).backgroundColor)
     || { r: 255, g: 255, b: 255, a: 1 };
@@ -394,7 +429,20 @@
   // FIRST stop, so "worst-stop gradient scoring" was silently first-stop-only.
   const ratioVs = (fg, bg) => bg.stops ? Math.min(...bg.stops.map((st) => ratio(fg, st))) : ratio(fg, bg);
 
+  // ★A ROW THE BROWSER IS SKIPPING HAS NO REAL GEOMETRY (ENH-C, 2026-10-22). Long lists draw their rows with
+  // content-visibility:auto (utils.js whRenderRows `long: true`, .wh-rows-cv): a row off screen keeps a 160px placeholder
+  // box while its contents, laid out on demand for a measurement, take their real height and spill past it. So V1 read
+  // the last skipped alert's "Snooze 7d" and "Handled" lying across alert-hub's "Load More" - an overlap no person can
+  // see, because a row scrolled into view is drawn at its real size and pushes Load More down - and innerText read every
+  // skipped row as "". The survey measures the page a person scrolls through, so for the length of this synchronous call
+  // every long-list row is drawn; the rule goes before the browser renders a frame, so nothing is painted, no row's size
+  // is remembered, and the page is left exactly as it was found.
   function survey(opts) {
+    const _cv = document.querySelector('.wh-rows-cv') ? document.createElement('style') : null;
+    if (_cv) { _cv.textContent = '.wh-rows-cv>*{content-visibility:visible!important}'; (document.head || document.documentElement).appendChild(_cv); }
+    try { return surveyDrawn(opts); } finally { if (_cv) _cv.remove(); }
+  }
+  function surveyDrawn(opts) {
     opts = opts || {};
     const R = root(opts.root);   // opts.root lets a caller pin the artifact explicitly
     const out = [];
@@ -1453,7 +1501,7 @@
       return Math.min(lr.width, lr.height) >= TH.F1.minTapPx;
     };
     // _inlineProse (WCAG 2.5.8 Inline exception) is defined once beside vis() and shared with Z3.
-    const small = inter.map(e => ({ e, r: e.getBoundingClientRect() }))
+    const small = inter.map(e => ({ e, r: _hitRect(e) }))
       .filter(o => o.r.width > 0 && o.r.height > 0 && (o.r.width < TH.F1.minTapPx || o.r.height < TH.F1.minTapPx) && !isDurationBlock(o.e) && !_labelTarget44(o.e) && !_inlineProse(o.e))
       .map(o => ({ w: Math.round(o.r.width), h: Math.round(o.r.height), t: (o.e.innerText || o.e.getAttribute('aria-label') || '').slice(0, 18) }));
     out.push(inter.length
@@ -1472,7 +1520,14 @@
     // This is the same substring trap that once matched a COMMENT instead of a <link>: a class
     // NAME is not a role. G1 now requires SYSTEM-status semantics -- an explicit live region or
     // a declared status bar -- so the number drops to the truth.
-    const status = $$('#status-bar, [role="status"], [aria-live]:not([aria-live="off"])', R)
+    // ★THE PAGE'S CONTENT CAN BE TWO CONTAINERS (ENH-C, 2026-10-22). analytics-report keeps its report in
+    // #ar-print-wrapper, a sibling of <main> by design (the print rule needs it as a child of <body>; see root()). Before a
+    // report exists, root() picks the heavier <main> - the generator - and the report area's own status line ("Press
+    // Generate Report...", role=status) sat outside it, so G1 read "no status region" on every hive walk. The page's
+    // content containers are the root candidates; chrome (hub, companion, toasts outside them) still does not count.
+    const _g1Roots = [R].concat(['.page', '#ar-print-wrapper', '#ar-page', 'main'].map((s) => document.querySelector(s))
+      .filter((e) => e && e !== R && !R.contains(e) && !e.contains(R)));
+    const status = _g1Roots.flatMap((g1r) => $$('#status-bar, [role="status"], [aria-live]:not([aria-live="off"])', g1r))
       // a live region holding only a data value is still a data badge, not system status
       .filter((e) => !/^(status-badge|status-pill|sev-chip|tag)/.test(
         (typeof e.className === 'string' ? e.className : '')))
@@ -2520,6 +2575,28 @@
           const hit = document.elementFromPoint(cx, cy);
           if (!hit || hit === c || c.contains(hit) || hit.contains(c)) continue;
           if (hit.closest('label') && hit.closest('label').control === c) continue;
+          // ★A BAR DOCKED AT THE BOTTOM COVERS WHATEVER SITS AT THE FOLD (ENH-C, 2026-10-22). pm-scheduler's bottom nav read
+          // "covers the All chip" on a 1280x900 desktop: the filter row happened to sit at the fold at rest. Any page with a
+          // bottom bar covers something there, chosen by the window's height. The defect is a control the page can never
+          // lift above the bar; one the page still has the scroll room to lift clear is a fold, not an occlusion. The same
+          // holds for anything fixed in the lower half - the connection notice that floats above the bottom chrome on an
+          // offline walk covered logbook's "Voice Journal" at rest, and one scroll lifts it clear. What stays a finding: a
+          // cover in the upper half (a header over a tab), a fixed control under fixed chrome (a FAB over a sticky Save),
+          // and a control at the very end of the page with no room left to lift it.
+          {
+            let fx = null;
+            for (let a = hit; a && a !== document.body; a = a.parentElement) {
+              const ap = getComputedStyle(a).position;
+              if (ap === 'fixed' || ap === 'sticky') { fx = a; break; }
+            }
+            if (fx && !fx.contains(c)) {
+              const fr = fx.getBoundingClientRect();
+              const se = document.scrollingElement || document.documentElement;
+              const roomBelow = se.scrollHeight - innerHeight - se.scrollTop;
+              const cfix = (() => { for (let a = c; a && a !== document.body; a = a.parentElement) { const q = getComputedStyle(a).position; if (q === 'fixed' || q === 'sticky') return true; } return false; })();
+              if (!cfix && fr.top > innerHeight / 2 && roomBelow >= r.bottom - fr.top + 1) continue;
+            }
+          }
           // ★NAME THE ELEMENT THAT COVERS, AND MEASURE THAT ONE (2026-10-13). This climbed from `hit` to the nearest
           // chrome-looking ancestor, and `[id^="wh-"]` matches the page's own <main id="wh-main-content"> - an ancestor of
           // the control, the box it sits in, never its coverer - so 226 assistant rows read "wh-main-content (static, z
@@ -2692,7 +2769,11 @@
       for (const e of _tAll) {
         const s = _tcs(e); if (!s) continue;
         if (s.position === 'fixed' || s.position === 'sticky' || s.pointerEvents === 'none') continue;
-        if (!/hidden|clip/.test(s.overflowY) && !/hidden|clip/.test(s.overflow)) continue;
+        // ★THE SHORTHAND NAMES BOTH AXES (ENH-C, 2026-10-22). This also tested `overflow`, whose computed value is the
+        // pair "<x> <y>": dayplanner's .main-area is overflow-x:hidden; overflow-y:auto - a box that SCROLLS - and its
+        // shorthand "hidden auto" matched /hidden/, so T1 called the page's own scroll area a trap on desktop walks.
+        // A vertical trap is a vertical property: overflow-y alone (it reflects the shorthand when only that is set).
+        if (!/hidden|clip/.test(s.overflowY)) continue;
         if (e.scrollHeight - e.clientHeight <= 40 || e.clientHeight <= 150) continue;
         if ((e.innerText || '').trim().length < 20) continue;
         if (!_t1Traps(e)) continue;
@@ -2821,7 +2902,7 @@
       // while a genuinely-too-small real control (13-23px) still counts. Calibrate the instrument, not the page.
       const _tooTiny = (e) => { const r = e.getBoundingClientRect(); return Math.min(r.width, r.height) < 6; };
       const _ia = Array.from(document.querySelectorAll('button, a[href], input:not([type=hidden]), select, textarea, [role=button], [role=link], [onclick]')).filter((e) => _vz(e) && !_inChrome(e) && !_tooTiny(e));
-      const _rects = _ia.map((e) => ({ e, r: e.getBoundingClientRect() }));
+      const _rects = _ia.map((e) => ({ e, r: _hitRect(e) }));
       // ONLY genuinely IRREVERSIBLE actions get the destructive-adjacency danger flag — a conventional
       // form Clear/Reset/Cancel next to Submit is a universal, low-consequence pattern (reversible by re-entry),
       // not an accidental-touch hazard; flagging it would be ruler noise (per §16.1 instrument-artifact discipline).
@@ -2850,7 +2931,11 @@
       const _destMarker = (e) => e.getAttribute('data-action') === 'delete'
         || /\b(danger|destructive)\b/.test(typeof e.className === 'string' ? e.className : '');
       const _destWordFil = /\b(burahin|alisin|tanggalin)\b/i;
-      const _isDest = (e) => !_isFilterish(e) && !_isNavTile(e)
+      // ★A CONTROL THAT OPENS A DIALOG DESTROYS NOTHING ON A SLIP (ENH-C, 2026-10-22). "Recently deleted" - the 30-day
+      // restore list on six pages - matched _destRe's "delete" and read as a mis-tap hazard beside its neighbours, while
+      // a mis-tap on it opens a list to RESTORE things. A control that declares aria-haspopup="dialog" hands the decision
+      // to the dialog; whether that dialog guards a real delete is J1's question, not this one.
+      const _isDest = (e) => !_isFilterish(e) && !_isNavTile(e) && e.getAttribute('aria-haspopup') !== 'dialog'
         && (_destMarker(e)
             || _destRe.test((e.innerText || '') + ' ' + (e.getAttribute('aria-label') || '') + ' ' + (e.id || '') + ' ' + (e.className || ''))
             || _destWordFil.test((e.innerText || '') + ' ' + (e.getAttribute('aria-label') || '')));

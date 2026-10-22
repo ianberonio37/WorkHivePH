@@ -4429,6 +4429,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "critic-cells",
+        "script":  "tools/validate_critic_cells.py",
+        "args":    [],
+        "label":   "ENH-C (2026-10-22): an open critic cell on a signed-in production page, once built and banked, stays closed. C1: every ENH-C row at locking/locked names a (page, dim) cell tools/enhancement_inventory.py no longer measures - no signed-in English critic row carries the finding, so a later critic walk that banks it again fails here. C2: each fix's mechanism is where it was built - the no-hive gates of shift-brain, analytics-report and ph-intelligence (page title and way back in every state, a declared data-wh-gate card, a 44px action), resume's bound job-ad label, platform-actions' figure labels out of the empty-state class, marketplace's people's words marked data-user-content, marketplace-seller's Delete kept apart from Edit, the lens leaving an agent's marked words to the AI lenses - and every rewritten sentence graded by the lens's OWN B3 ruler (tools/b3_ruler.mjs reads syllables, fk, PASSIVE and the thresholds out of survey_ufai_rubric.js). C3: a B3 cell stays closed in every state a later walk can reach - every English _t() sentence on the ten B3-cell pages passes that ruler (offline, refusal and empty-state copy included). Self-test: the pages, the lens and the critic registry as they were before the build (5bf88960) fail (C3 catches 9 of the 10 B3-cell pages as they were); six mutants are caught.",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "solar-planner",
         "script":  "tools/validate_solar_planner.py",
         "args":    [],

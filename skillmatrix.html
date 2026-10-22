@@ -401,7 +401,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
       <h2 data-i="chooseprimary">Choose Your Primary Discipline</h2>
       <!-- SL F1 (2026-10-16): the first-run state is the matrix's EMPTY state, and it never said so - it opened on the
            target levels. It now names what is empty and the one step that starts it. -->
-      <p>No skill matrix yet. Pick your primary discipline to start one: it targets Level 5, every other discipline defaults to Level 2, and you can change any target later.</p>
+      <p>No skill matrix yet. Pick your primary discipline to start one. It aims for Level 5, and every other discipline starts at Level 2. You can change any target later.</p>
       <div class="primary-picker" id="primary-picker">
         <!-- injected by JS -->
       </div>
@@ -1316,7 +1316,7 @@ function renderSkillSummary() {
   if (primaryGap >= 2) {
     tone = 'attn'; label = _t(`Primary discipline ${primaryGap} levels behind target`,
                               `${primaryGap} level ang agap ng primary discipline sa target`);
-    sub  = _t(`${primaryDisc} is your declared primary skill. Quiz on it before anything else: every other discipline target depends on your primary momentum.`,
+    sub  = _t(`${primaryDisc} is your declared primary skill. Quiz on it first. Every other target depends on how your primary skill moves.`,
               `${primaryDisc} ang idineklara mong primary skill. Mag-quiz dito bago ang iba: nakadepende sa momentum ng primary mo ang bawat target ng ibang discipline.`);
   } else if (anyBehind || primaryGap > 0) {
     tone = 'watch'; label = _t('Skill matrix is climbing', 'Umaakyat ang skill matrix');
@@ -1327,7 +1327,7 @@ function renderSkillSummary() {
     // verdict was previously firing red against a phantom gap. Now we
     // surface the data mismatch instead of a contradiction.
     tone = 'watch'; label = _t('Primary skill not yet trackable', 'Hindi pa masusubaybayan ang primary skill');
-    sub  = _t(`Your declared primary "${primaryDisc}" isn't one of the standard disciplines (${DISCIPLINES.join(', ')}). All ${onTarget}/${totalDisc} tracked disciplines are at or above target, so set primary to one of those to enable per-skill goal tracking.`,
+    sub  = _t(`Your declared primary "${primaryDisc}" isn't one of the standard disciplines (${DISCIPLINES.join(', ')}). All ${onTarget} of ${totalDisc} tracked disciplines are at or above target. Set your primary to one of them to track goals per skill.`,
               `Ang idineklara mong primary na "${primaryDisc}" ay hindi isa sa mga standard na discipline (${DISCIPLINES.join(', ')}). Lahat ng ${onTarget}/${totalDisc} na sinusubaybayang discipline ay nasa target o mas mataas, kaya itakda ang primary sa isa sa mga iyon para gumana ang per-skill na goal tracking.`);
   } else if (totalBadges === 0) {
     tone = 'empty'; label = _t('No badges earned yet', 'Wala pang naipong badge');
@@ -1368,7 +1368,7 @@ function renderSkillSummary() {
                 `${quizzesAvail} discipline ang may available na quiz ngayon. Pindutin ang discipline card sa ibaba at "Take quiz" para umangat ng isang level.`);
     } else if (!anyBehind) {
       ctaHref = '#target-grid';
-      text = _t('Every discipline is on target. Raise a target in "Your Targets" below if you want to push higher, or wait for cooldowns to unlock more quizzes.',
+      text = _t('Every discipline is on target. Raise a target in "Your Targets" below to push higher, or wait for a cooldown to unlock more quizzes.',
                 'Nasa target ang bawat discipline. Itaas ang target sa "Target Adjustment" kung gusto mong umangat pa, o hintayin ang cooldown para mabuksan ang iba pang quiz.');
     } else {
       text = _t('Some quizzes are on cooldown right now. Check back later or work on disciplines that are still ready.',
@@ -1797,7 +1797,7 @@ async function submitExam() {
     // sitting an exam - whether their answers are gone. They are not: the answers live in the
     // wh_exam_draft_* key and are restored when the exam reopens, so say so. whWriteError names the
     // real cause (session / not allowed / collision) and this fallback carries the work state.
-    showToast(whWriteError(gradeErr, _t('Could not grade your exam. Your answers are saved on this device, so reopen the exam and submit again.', 'Hindi ma-grade ang exam mo. Naka-save ang mga sagot mo sa device na ito, kaya buksan muli ang exam at i-submit ulit.')), '✗');
+    showToast(whWriteError(gradeErr, _t('Could not grade your exam. Your answers stay on this device, so reopen the exam and submit again.', 'Hindi ma-grade ang exam mo. Naka-save ang mga sagot mo sa device na ito, kaya buksan muli ang exam at i-submit ulit.')), '✗');
   } else {
     srvScore  = graded.score;
     srvPassed = graded.passed;

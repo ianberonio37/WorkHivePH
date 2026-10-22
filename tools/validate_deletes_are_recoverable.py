@@ -56,6 +56,9 @@ FN_ALLOW = {
     "sync_asset_identity": "keeps asset and PM-asset identity consistent whether or not either is deleted",
     "sync_pm_asset_identity": "same as sync_asset_identity",
     "guard_staged_stock": "reads one item's quantity by id for a staging guard",
+    # BRH 9 AB (2026-10-21): the trigger reads the row being written, by its own id, only to let a re-send of that
+    # row's own stored photo through (an upsert's INSERT half fires first); it returns a boolean and shows nothing
+    "check_inline_image_size": "reads only the row being written, by its own id, to let it re-send its own stored photo",
     "roll_vehicle_odometer": "writes the odometer of the asset a new entry names",
     "notify_submission_decided": "notifies about one row by id, on its own decision",
     "notify_wo_assigned": "notifies about one entry by id, on its own assignment",
