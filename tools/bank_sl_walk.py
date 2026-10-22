@@ -175,6 +175,8 @@ GATES["ENH-S"] = ["solar-planner", "scripts-parse", "design-detector-ratchet"]
 # ENH-P (2026-10-23): the share link and scenario compare built once in the calculator every tools page opens, and the
 # OEE and MTBF calculators working on their own pages
 GATES["ENH-P"] = ["calc-share-compare", "kpi-calc", "calc-handoff", "scripts-parse", "design-detector-ratchet"]
+# ENH-J (2026-10-23): a live journey on the page in Chromium and WebKit - CI2's gates, read through bank_prover
+GATES["ENH-J"] = ["page-journeys", "live-page-journeys", "live-page-journeys-webkit"]
 GATES["ENH-C"] = ["critic-cells", "rubric-teeth", "scripts-parse", "design-detector-ratchet"]
 # OPC (2026-10-22): a panel in the one operator console - its home held by operator-console, its reads by the generated
 # migration and the lens's read list, the page's scripts by scripts-parse
@@ -677,11 +679,14 @@ def _closed(rids: list[str]) -> dict:
 
 
 def bank_prover(results_path: str, sublayer: str, gates_only: bool) -> int:
-    if sublayer not in PROVER_READS:
+    # ENH-J (2026-10-23): "a production page with no live journey" is CI2's own question, asked of the six pages the
+    # enhancement inventory measured - read through CI2's prover readings, banked under ENH-J's gates
+    reads = "CI2" if sublayer == "ENH-J" else sublayer
+    if reads not in PROVER_READS:
         print(f"no prover reading is defined for {sublayer} - nothing banked")
         return 1
     results = json.load(io.open(results_path, encoding="utf-8"))
-    spec = PROVER_READS[sublayer]
+    spec = PROVER_READS[reads]
     condition, engines = spec["condition"], spec["engines"]
     gate_lines = []
     for g in GATES[sublayer]:
@@ -710,10 +715,18 @@ def bank_prover(results_path: str, sublayer: str, gates_only: bool) -> int:
     today = time.strftime("%Y-%m-%d")
     banked, skipped = [], []
     for t in reg["trajectories"]:
-        s = t.get("sl") or {}
-        if s.get("sublayer") != sublayer or t.get("status") in ("locking", "locked", "descoped"):
+        if t.get("status") in ("locking", "locked", "descoped"):
             continue
-        page = s.get("page")
+        if sublayer == "ENH-J":
+            e = t.get("enh") or {}
+            if e.get("cls") != "J":
+                continue
+            page = e.get("page")
+        else:
+            s = t.get("sl") or {}
+            if s.get("sublayer") != sublayer:
+                continue
+            page = s.get("page")
         per = {e: _readings(results, page, condition, e) for e in engines}
         if not all(per.values()):
             continue                                 # the prover never read this page in every engine
@@ -721,7 +734,7 @@ def bank_prover(results_path: str, sublayer: str, gates_only: bool) -> int:
         if bad:
             skipped.append(f"{t['id']} {page}: " + " | ".join(bad)[:200])
             continue
-        basis = _basis(sublayer, t, page, per, gate_lines, results_path, results, today)
+        basis = _basis(reads, t, page, per, gate_lines, results_path, results, today)
         if not gates_only:
             _bank(reg, t["id"], basis, GATES[sublayer])
         banked.append(t["id"])

@@ -61,10 +61,13 @@ def psql(sql):
     return json.loads((p.stdout or "[]").strip() or "[]")
 
 
-def as_person(uid, body_sql):
-    """Run SQL with a real caller identity, inside a transaction that is always rolled back."""
+def as_person(uid, body_sql, setup_sql=""):
+    """Run SQL with a real caller identity, inside a transaction that is always rolled back. setup_sql runs first, as
+    the database owner, in the SAME transaction - so a fixture it stages is visible to the caller's query through
+    the caller's own RLS, and leaves with the rollback."""
     script = (
         "begin;\n"
+        f"{setup_sql}"
         "set local role authenticated;\n"
         f"set local request.jwt.claims = '{{\"sub\":\"{uid}\",\"role\":\"authenticated\"}}';\n"
         f"{body_sql}\n"
@@ -74,7 +77,8 @@ def as_person(uid, body_sql):
         input=script, capture_output=True, text=True, timeout=120)
     if p.returncode != 0:
         raise RuntimeError((p.stderr or p.stdout).strip()[:300])
-    return [l for l in (p.stdout or "").splitlines() if l and l not in ("BEGIN", "SET", "ROLLBACK")]
+    return [l for l in (p.stdout or "").splitlines()
+            if l and l not in ("BEGIN", "SET", "ROLLBACK") and not l.startswith("INSERT 0 ")]   # a staged fixture's status line
 
 
 def main():
@@ -103,13 +107,30 @@ def main():
               f"probe needs other people's drafts to hide, or it passes vacuously")
         return 1
 
+    # ── the person's own hidden object. The read and the two-context probes need one that EXISTS: "sees 0" proves
+    #    nothing if there was nothing of theirs to see. The seed drifted to none for this seller (2026-10-23: three
+    #    probes FAILED as "could not be asked"), so when the data holds none, one draft owned by the person
+    #    (auth_uid - what my_listing_ids() keys on) is staged inside each probe's own transaction and leaves with its
+    #    rollback. Nothing is ever committed.
+    own = psql("""select id::text as id, title from marketplace_listings
+                   where auth_uid = '%s'::uuid and status <> 'published' limit 1""" % uid)
+    staged, setup = "", ""
+    if not own:
+        fid = "1d1d1d1d-0000-4000-8000-000000000b01"
+        setup = ("insert into marketplace_listings (id, seller_name, auth_uid, hive_id, title, section, category, price, "
+                 "status) select '%s'::uuid, '%s', '%s'::uuid, hive_id, 'identity-boundary probe draft', 'parts', "
+                 "'other', 900, 'draft' from marketplace_listings where hive_id is not null limit 1;\n"
+                 % (fid, name.replace("'", "''"), uid))
+        own = [{"id": fid, "title": "identity-boundary probe draft"}]
+        staged = " (one draft of his staged in this probe's transaction, rolled back with it)"
+
     # ── 1 · BOLA read — another person's draft must be invisible ─────────────────────────────────
     out = as_person(uid, "select count(*), coalesce(bool_and(seller_name = '%s'), true) "
-                         "from marketplace_listings where status <> 'published';" % name.replace("'", "''"))
+                         "from marketplace_listings where status <> 'published';" % name.replace("'", "''"), setup)
     seen, all_mine = out[0].split("|")
     results.append(("bola_object (read)", int(seen) > 0 and all_mine == "t",
-                    f"{name} sees {seen} of the {truth['drafts']} unpublished listings held across "
-                    f"{truth['draft_sellers']} sellers, and every one is his own"))
+                    f"{name} sees {seen} unpublished listing(s), every one his own{staged}; none of the "
+                    f"{truth['drafts']} other unpublished listings held across {truth['draft_sellers']} sellers"))
 
     # ── 2 · BOLA write — another person's published object must be unwritable ────────────────────
     out = as_person(uid, "with u as (update marketplace_listings set title = 'PROBE' "
@@ -175,18 +196,18 @@ def main():
                        and s.worker_name <> '%s'
                        and s.worker_name not in (select worker_name from marketplace_platform_admins)
                      order by s.worker_name limit 1""" % name.replace("'", "''"))
-    obj = psql("""select id::text as id, title from marketplace_listings
-                   where seller_name = '%s' and status <> 'published' limit 1""" % name.replace("'", "''"))
+    obj = own
     if not other or not obj:
         results.append(("two_context_same_object", False,
                         "could not assemble two non-admin identities plus an unpublished object "
                         "belonging to the first — the probe was not run, which is not a pass"))
     else:
         b_name, b_uid, oid = other[0]["name"], other[0]["uid"], obj[0]["id"]
-        a_sees = as_person(uid, f"select count(*) from marketplace_listings where id = '{oid}';")
-        b_sees = as_person(b_uid, f"select count(*) from marketplace_listings where id = '{oid}';")
+        # a staged object is staged again in each call's transaction (the same id), so all three ask about it
+        a_sees = as_person(uid, f"select count(*) from marketplace_listings where id = '{oid}';", setup)
+        b_sees = as_person(b_uid, f"select count(*) from marketplace_listings where id = '{oid}';", setup)
         b_write = as_person(b_uid, "with u as (update marketplace_listings set title = 'PROBE' "
-                                   f"where id = '{oid}' returning 1) select count(*) from u;")
+                                   f"where id = '{oid}' returning 1) select count(*) from u;", setup)
         a, b, bw = a_sees[0].strip(), b_sees[0].strip(), b_write[0].strip()
         passed = a == "1" and b == "0" and bw == "0"
         results.append(("two_context_same_object", passed,

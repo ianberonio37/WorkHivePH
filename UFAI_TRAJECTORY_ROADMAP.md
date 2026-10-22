@@ -6553,6 +6553,20 @@ must come back. Then Compare, change one input and Run, and the card must set A 
 report's recommendation line. Share and compare rows close as built; export/print and the recommendation rows that
 already had the line close as refuted on the walk's evidence. The walk waits for host memory.
 
+### §ENH.J · A production page with no live journey: the readings on file are older than the pages (2026-10-23) - 6 rows
+
+The six pages (marketplace-seller-profile, ph-intelligence, platform-actions, public-feed, report-sender, shift-brain)
+gained journeys on 2026-10-15: SP1, PI1, PA1, PF1, RS1 and SB1. The results on file read all six live in Chromium and
+WebKit, and `prove_page_journeys.py` passes them 6/6. **They are not banked on that.** Every one of these pages
+changed after its run, by 6 to 24 commits:
+- PA1's reading is of a page OPC has since retired. Its journey is now the retired page onward to the console.
+- SB1 and PI1 ran before ENH-C rebuilt those pages' no-hive gates.
+
+The bank path is in place. `bank_sl_walk --prover <results> --sublayer ENH-J` reads CI2's prover readings under
+ENH-J's gates (page-journeys, live-page-journeys, live-page-journeys-webkit), and its dry run would bank all six. What
+remains is a fresh run of the six journeys in each engine (`--journey`, folded into the results by
+`fold_journey_rerun.py`), which is a few minutes of browser work, not the full sweep. It waits for host memory.
+
 ## §OPC · The OPERATOR CONSOLE wave — every founder panel in one console (Ian, 2026-10-14)
 
 Ian runs the platform from scattered surfaces: a retired founder console whose panels moved to Grafana, a retired
