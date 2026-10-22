@@ -10196,7 +10196,21 @@ async function runCalculation() {
 // ★ONE PATH FROM THE ENGINE'S REPLY TO THE REPORT (ENH-P, 2026-10-23). Moved here unchanged from runCalculation so a
 // shared link renders exactly as a Run does: the same result aliases (Water Softener, Water Treatment), the same
 // renderer, the same was-this-right row. A second copy of this block would be a second place to forget an alias.
+// ★THE ENGINE'S GENERIC SENTENCE HID EACH REPORT'S OWN ADVICE (ENH-P walk, 2026-10-23). When no model answers, the
+// engine writes calculator-specific advice for 40 types and, for the rest, "Refer to the results summary table for
+// specific design values...". 45 renderers carry their own advice for exactly that case (`narrative?.recommendations
+// || ...`: Fluid Power's "Specify cylinder", Heat Exchanger's "Specify TEMA class", Vibration's remedies), and the
+// generic sentence - never empty - pre-empted all of it, so 14 calculators said nothing useful whenever the free-tier
+// model was busy. The sentence is no advice, so it is read as none. tools/validate_calc_reco_fallback.py holds the
+// pattern to the engine's literal.
+const ED_GENERIC_RECO = /^Refer to the results summary table for specific design values\b/;
+function edNarrative(n) {
+  if (!n || typeof n !== 'object' || typeof n.recommendations !== 'string') return n;
+  return ED_GENERIC_RECO.test(n.recommendations.trim()) ? Object.assign({}, n, { recommendations: '' }) : n;
+}
+
 function _renderComputed(inputs, data) {
+  data = Object.assign({}, data, { narrative: edNarrative(data.narrative) });
   _lastResults   = data.results;
   _lastNarrative = data.narrative;
   _lastInputs    = inputs;
@@ -13340,7 +13354,7 @@ function renderTransformerReport(inputs, results, narrative) {
     <div class="narrative-block" style="background:#f8faff;border:1px solid #e0e8f0;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;">
       <p><strong>Objective:</strong> ${escHtml(narrative.objective||'')}</p>
       <p><strong>Assumptions:</strong> ${escHtml(narrative.assumptions||'')}</p>
-      <p><strong>Recommendations:</strong> ${escHtml(narrative.recommendations||'')}</p>
+      ${narrative.recommendations ? `<p><strong>Recommendations:</strong> ${escHtml(narrative.recommendations)}</p>` : ''}
     </div>` : ''}
   `;
   showReport();
@@ -13393,7 +13407,7 @@ function renderHarmonicReport(inputs, results, narrative) {
     <div class="narrative-block" style="background:#f8faff;border:1px solid #e0e8f0;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;">
       <p><strong>Objective:</strong> ${escHtml(narrative.objective||'')}</p>
       <p><strong>Assumptions:</strong> ${escHtml(narrative.assumptions||'')}</p>
-      <p><strong>Recommendations:</strong> ${escHtml(narrative.recommendations||'')}</p>
+      ${narrative.recommendations ? `<p><strong>Recommendations:</strong> ${escHtml(narrative.recommendations)}</p>` : ''}
     </div>` : ''}
   `;
   showReport();
@@ -13749,7 +13763,7 @@ function renderCleanAgentReport(inputs, results, narrative) {
     <div class="narrative-block" style="background:#f8faff;border:1px solid #e0e8f0;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;">
       <p><strong>Objective:</strong> ${escHtml(narrative.objective||'')}</p>
       <p><strong>Assumptions:</strong> ${escHtml(narrative.assumptions||'')}</p>
-      <p><strong>Recommendations:</strong> ${escHtml(narrative.recommendations||'')}</p>
+      ${narrative.recommendations ? `<p><strong>Recommendations:</strong> ${escHtml(narrative.recommendations)}</p>` : ''}
     </div>` : ''}
   `;
   showReport();
@@ -28900,6 +28914,7 @@ function viewHistoryById(id) {
 }
 
 function viewHistoryReport(row) {
+  row = Object.assign({}, row, { narrative: edNarrative(row.narrative) });   // a saved report reads as a fresh one
   switchTab('calculator');
   _discipline    = row.discipline;
   _calcType      = row.calc_type;
@@ -32233,6 +32248,9 @@ function renderFluidPowerReport(inputs, r, narrative) {
   const vExt      = Number(cyl.v_extend_m_s || 0);
   const pumpRpm   = Number(inputs.pump_speed_rpm || 1450);
   const Vg        = Number(r.pump_displacement_cm3 || 0);
+  // the advice says "next std size with 25 percent margin", so it names that size (IEC 60072 ratings), not the input power
+  const motorStdKw = [0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3, 4, 5.5, 7.5, 11, 15, 18.5, 22, 30, 37, 45, 55, 75, 90, 110, 132, 160, 200, 250, 315, 355, 400]
+    .find((k) => k >= Number(pump.P_motor_kW || 0) * 1.25) || null;
   const accUsable = Number(acc.V_fluid_usable_L || inputs.V_fluid_L || 0);
   const accRec    = Number(acc.V_recommended_L || 0);
   // Bore area for force formula display
@@ -32342,7 +32360,7 @@ function renderFluidPowerReport(inputs, r, narrative) {
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Steady-state hydraulic circuit; transient pressure spikes (water-hammer) require separate analysis with pressure-relief or accumulator damping.\n2. Pump volumetric efficiency 0.95, mechanical efficiency 0.92, motor efficiency 0.92 - typical values for axial-piston pumps; substitute manufacturer data for specific selection.\n3. Hydraulic fluid ${fluidStr} viscosity 46 cSt at 40 deg C; cold-start viscosity may exceed pump rating below 0 deg C - use heater or VG 32 in cold climates.\n4. Cylinder loaded purely axially; side-load and buckling not considered (verify via ISO 6020-2 buckling chart for stroke / rod-dia ratios above 10:1).\n5. Pipe flow regime laminar to transitional; turbulent flow at Re above 2300 increases pressure drop and noise.\n6. Reservoir sized 3 x flow rate per ISO 4413 industry practice; cooler may be required if heat rejection exceeds reservoir surface area dissipation (typical 50 W/m^2/deg C).\n7. Cleanliness target ISO 4406 class 17/15/12 maintained by 10-micron return filter; component life shortens significantly if cleanliness slips below class 19/17/14.`)}</p>
 
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify cylinder Phi ${boreMm} mm bore x Phi ${rodMm} mm rod x ${strokeMm} mm stroke per ISO 6020-2; verify mounting style (foot/clevis/trunnion) per drawing.\n2. Specify pump V_g = ${Vg} cm3/rev axial-piston with pressure-compensator; couple via bell-housing to ${pump.P_motor_kW} kW IE3 motor (next std size with 25 percent margin).\n3. Pressure relief valve set at 1.0 x system pressure = ${pBar} bar; cracking pressure not less than 10 percent below set; sized for full pump flow.\n4. Filtration: 10-micron absolute return filter (beta-10 not less than 200) plus 150-micron suction strainer; maintain ISO 4406 class 17/15/12 cleanliness target.\n5. Hose selection: ${pBar <= 350 ? 'SAE 100R2 (Type 2 wire-braid)' : 'SAE 100R12 (spiral-wire)'} per SAE J517 with JIC 37-degree flared end fittings per SAE J514; pressure-test 1.5 x working with EN ISO 1402 certificate.\n6. Reservoir baffle separates suction from return per ISO 4413 Annex G; include breather filter (3-micron desiccant), sight glass with thermometer, magnetic drain plug, and fluid-level switch.\n7. Pre-commissioning: flush all piping to ISO 4406 class 17/15/12 using offline filter cart for not less than 8 hours before cylinder connection.\n8. Pressure-test the assembled system at 1.5 x ${pBar} = ${(pBar * 1.5).toFixed(0)} bar for 30 minutes; document leak inspection and pressure-decay (not more than 2 percent over 5 min hold).\n9. Operating temperature steady-state not more than 60 deg C; if exceeded, add air-cooler or oil-cooler sized for heat rejection at duty cycle.\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the commissioning hydraulic test report before placing the system into service.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify cylinder Phi ${boreMm} mm bore x Phi ${rodMm} mm rod x ${strokeMm} mm stroke per ISO 6020-2; verify mounting style (foot/clevis/trunnion) per drawing.\n2. Specify pump V_g = ${Vg} cm3/rev axial-piston with pressure-compensator; couple via bell-housing to ${motorStdKw ? motorStdKw + ' kW IE3 motor (next standard size above the ' + pump.P_motor_kW + ' kW motor input plus 25 percent margin)' : 'an IE3 motor of the next standard size above ' + pump.P_motor_kW + ' kW motor input plus 25 percent margin'}.\n3. Pressure relief valve set at 1.0 x system pressure = ${pBar} bar; cracking pressure not less than 10 percent below set; sized for full pump flow.\n4. Filtration: 10-micron absolute return filter (beta-10 not less than 200) plus 150-micron suction strainer; maintain ISO 4406 class 17/15/12 cleanliness target.\n5. Hose selection: ${pBar <= 350 ? 'SAE 100R2 (Type 2 wire-braid)' : 'SAE 100R12 (spiral-wire)'} per SAE J517 with JIC 37-degree flared end fittings per SAE J514; pressure-test 1.5 x working with EN ISO 1402 certificate.\n6. Reservoir baffle separates suction from return per ISO 4413 Annex G; include breather filter (3-micron desiccant), sight glass with thermometer, magnetic drain plug, and fluid-level switch.\n7. Pre-commissioning: flush all piping to ISO 4406 class 17/15/12 using offline filter cart for not less than 8 hours before cylinder connection.\n8. Pressure-test the assembled system at 1.5 x ${pBar} = ${(pBar * 1.5).toFixed(0)} bar for 30 minutes; document leak inspection and pressure-decay (not more than 2 percent over 5 min hold).\n9. Operating temperature steady-state not more than 60 deg C; if exceeded, add air-cooler or oil-cooler sized for heat rejection at duty cycle.\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the commissioning hydraulic test report before placing the system into service.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
