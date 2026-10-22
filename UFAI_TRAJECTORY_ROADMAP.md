@@ -74,7 +74,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 
 **↳ HOW FAST WE MOVE: walk and bank continuously; after a batch run ONLY the gates that cover the files it changed (plus `trajectory-registry` and `live-walk-manifest`), never the whole board — the full board is Ian's gate.** Batch close, in this order: regenerate the header → `build_md_twins` → `build_substrate` → bump `sw.js` once if a precached shell file changed → the relevant gates.
 
-**NEXT: ENH-L: the stranger's walk of the 45 learn guides at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<vp>.js), appended to each refuted row's basis; then LB3's two CPU-ms rows at the end. BRH 19 are external.**
+**NEXT: LB3 2 (SL3129 inventory, SL3130 logbook): re-walk a thousand-row list through the MCP browser, booking each long task by its main-thread CPU time scaled by the throttle (trace tdur x 4) beside its wall time, and bank (SL.19). BRH 19 are external.**
 
 | Wave | Completion per trajectory |
 |---|---|
@@ -6460,6 +6460,14 @@ Asset Hub →"). The basis also names the W4 walk ids that tapped it live, where
 does not depend on a browser: the shipped page either links its declared tool or it does not, and tool-aligned-cta L4
 reads that body for all 54 guides. The stranger's walk at both widths will still be appended to each basis once host
 memory allows.
+
+**Walked (2026-10-23): 45 of 45 at both widths, appended to each basis.** Each guide's own call to action (a
+`.cta-btn`, or the button in its `.tool-cta` box) sits in the article, is at least 44 px tall and is met by a finger
+at its centre. Tapping it arrives at the tool (6) or at the tool's sign-in wall carrying it in `?return=` and
+`wh_return_to` (39), at phone-390 and desktop-1280, with no page error and no sideways scroll. The first pass read 25
+guides as having no link. That was the instrument: the local server's base-path shim rewrites `/x.html` to
+`/workhive/x.html` after load (production serves from the root), and the matcher stripped only the production
+origin. The walk also now prefers the guide's call-to-action box over a later inline link to the same tool.
 
 ### §ENH.P · The calculator features: two built in the calculator itself, two already there (2026-10-23) - 226 rows
 
