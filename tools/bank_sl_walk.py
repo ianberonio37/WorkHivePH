@@ -174,7 +174,7 @@ GATES["ENH-R"] = ["provenance-at-foot", "skew-heal", "scripts-parse", "design-de
 GATES["ENH-S"] = ["solar-planner", "scripts-parse", "design-detector-ratchet"]
 # ENH-P (2026-10-23): the share link and scenario compare built once in the calculator every tools page opens, and the
 # OEE and MTBF calculators working on their own pages
-GATES["ENH-P"] = ["calc-share-compare", "kpi-calc", "calc-handoff", "scripts-parse", "design-detector-ratchet"]
+GATES["ENH-P"] = ["calc-share-compare", "kpi-calc", "calc-handoff", "preset-chip-field-read", "scripts-parse", "design-detector-ratchet"]
 # ENH-J (2026-10-23): a live journey on the page in Chromium and WebKit - CI2's gates, read through bank_prover
 GATES["ENH-J"] = ["page-journeys", "live-page-journeys", "live-page-journeys-webkit"]
 GATES["ENH-C"] = ["critic-cells", "rubric-teeth", "scripts-parse", "design-detector-ratchet"]

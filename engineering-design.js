@@ -5164,7 +5164,7 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="1000"  onclick="toggle('tg-eg-soil','1000');document.getElementById('f-eg-rho').value='1000'">1000 (gravel)</button>
             <button class="toggle-btn" data-val="custom" onclick="toggle('tg-eg-soil','custom')">Custom</button>
           </div>
-          <input aria-label="Soil resistivity (Ohm*m)" id="f-eg-rho" class="wh-input mt-2" type="number" value="100" min="1" placeholder="Soil resistivity (Ohm*m)" />
+          <input aria-label="Soil resistivity (Ohm*m)" id="f-eg-rho" class="wh-input mt-2" type="number" value="100" min="1" placeholder="Soil resistivity (Ohm*m)" oninput="egSoilTyped(this)" />
         </div>
         <div>
           <div class="field-label">Number of Parallel Electrodes</div>
@@ -8438,6 +8438,14 @@ function toggleEGElecFields() {
   if (ring)  ring.style.display  = t === 'Ring'  ? '' : 'none';
 }
 
+// The soil chips fill the resistivity field and the field is what the calculation reads, so a typed value lights the
+// chip it matches, or Custom - a lit "100 (loam)" beside a typed 125 would say the run used 100.
+function egSoilTyped(input) {
+  const val = String(parseFloat(input.value));
+  const preset = [...document.querySelectorAll('#tg-eg-soil .toggle-btn')].some((b) => b.dataset.val === val);
+  toggle('tg-eg-soil', preset ? val : 'custom');
+}
+
 // ─── Expansion Tank Sizing helpers ────────────────────────────────────────────
 const ET_DEFAULTS = {
   'Chilled Water':     { maxTemp: 7,   maxPress: 400 },  // CHW supply temp (PH standard 7°C)
@@ -8931,9 +8939,9 @@ function collectInputs() {
   }
 
   if (_calcType === 'Earthing / Grounding System') {
-    const soilToggle = getToggle('tg-eg-soil') || '100';
-    const soilInput  = parseFloat(v('f-eg-rho')) || 100;
-    const soilRho    = soilToggle === 'custom' ? soilInput : (parseFloat(soilToggle) || soilInput);
+    // the field, always: the chips only fill it. Reading the chip unless Custom was lit computed a typed 125 Ohm*m as
+    // the lit chip's 100 - the ENH-P compare walk changed the field and got "Scenario A is this calculation" back.
+    const soilRho = parseFloat(v('f-eg-rho')) || 100;
     return {
       project_name:       v('f-project') || 'Earthing System',
       system_type:        getToggle('tg-eg-systype')   || 'Residential / Commercial',
