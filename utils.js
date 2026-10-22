@@ -4335,11 +4335,45 @@ function whRenderRows(listEl, items, rowHtml, opts) {
 }
 if (typeof window !== 'undefined') window.whRenderRows = whRenderRows;
 
+// whSearchList - SL LB3 (2026-10-23): a search shows its matches in a list of its own, and the grown list waits behind it.
+// Typing the first letter into a search over a thousand rows replaced the whole list with its first few matches, and the
+// browser had to tear down every card it had ever laid out - 142-221 ms at phone speed (CPU 4x slower) on inventory's
+// 1,088 parts, whichever way the list was emptied (innerHTML, replaceChildren, a fresh element). Clearing the search then
+// rebuilt the list from its first 20, so a person who had grown it to a thousand lost their place. Now the matches draw
+// into a results list beside it, and the grown list is parked with content-visibility: hidden, which keeps every card's
+// layout and takes it out of sight and out of the accessibility tree (33-58 ms on the same list). Clearing the search
+// brings it back exactly as it stood. Returns the element the page draws into.
+//   const target = whSearchList(document.getElementById('entries-list'), !!query);
+function whSearchList(listEl, searching) {
+  if (!listEl || typeof document === 'undefined') return listEl;
+  var res = listEl.__whResults;
+  if (!res && searching) {
+    res = document.createElement(listEl.tagName || 'div');
+    res.id = (listEl.id || 'wh-list') + '-results';
+    res.className = listEl.className.replace(/\bwh-list-parked\b/g, '').trim();
+    res.hidden = true;
+    listEl.insertAdjacentElement('afterend', res);
+    listEl.__whResults = res;
+  }
+  if (searching) {
+    listEl.classList.add('wh-list-parked');
+    res.hidden = false;
+    return res;
+  }
+  if (res && !res.hidden) { res.hidden = true; res.innerHTML = ''; res.__whRows = null; }
+  listEl.classList.remove('wh-list-parked');
+  return listEl;
+}
+if (typeof window !== 'undefined') window.whSearchList = whSearchList;
+
 if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-css')) {
   var whListStatesCss = document.createElement('style');
   whListStatesCss.id = 'wh-list-states-css';
   whListStatesCss.textContent =
     '.wh-skeleton{display:flex;flex-direction:column;gap:8px;padding:4px 0}' +
+    /* whSearchList: the grown list parked behind a search keeps its layout (content-visibility, not display) and takes no
+       room - !important because a page reserves its list's first-screen height by id (logbook's #entries-list) */
+    '.wh-list-parked{content-visibility:hidden;min-height:0!important;margin:0!important;padding:0!important}' +
     /* SL F1: the wait names its list - a caption above the bars, the same muted line the boot-wait panels use */
     '.wh-skeleton-label{grid-column:1/-1;margin:0;font-size:0.875rem;line-height:1.4;color:var(--wh-text-muted,rgba(255,255,255,0.80))}' +
     /* composited sweep, not an animated background-position - DevTools named the old rule a non-composited

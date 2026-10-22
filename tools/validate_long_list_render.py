@@ -709,7 +709,9 @@ def check_row_cost(utils: str, dayplanner: str, logbook: str) -> list[str]:
         issues.append("R21 utils.js whRenderRows no longer keeps a row's default key with the row when the page says its "
                       "rows are replaced, never edited (immutable) - every press serialises every drawn row again")
     lb = blank_comments(logbook)
-    i = lb.find("whRenderRows(list, visible")
+    # the list it draws into, or the search's own list beside it (whSearchList, SL LB3 2026-10-23)
+    _m = re.search(r"whRenderRows\((?:list|_lbListEl\(_searching\)), visible", lb)
+    i = _m.start() if _m else -1
     j = lb.find("sig: JSON.stringify([query, _viewMode", i) if i >= 0 else -1
     opts = lb[j:lb.find("});", j)] if j >= 0 else ""
     if "immutable: true" not in opts:

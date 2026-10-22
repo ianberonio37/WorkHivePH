@@ -834,7 +834,15 @@ function writeAuditLog(action, targetType, targetId, targetName, meta) {
 
 let _invDisplayCount = 8;  // Arc P Wave 2 (P2 list-discipline): glance-first slice — the list sorts out/low-first, so the 8 shown are the "needs me" parts; Load More reveals the rest (+12).
 let _invFiltered = [], _invQuery = '';   // SL LB3: the list Load More continues (set by renderParts)
-function loadMoreInventory() { _invDisplayCount += 12; _invRenderList(); }   // SL LB3: the next 12, appended - nothing recomputed
+// SL LB3 (2026-10-23): a search's matches have a count of their own, so the list a person grew is still that long when
+// the search is cleared (whSearchList parks it behind the matches)
+let _invSearchCount = 8;
+function loadMoreInventory() { if (_invQuery) _invSearchCount += 12; else _invDisplayCount += 12; _invRenderList(); }   // SL LB3: the next 12, appended - nothing recomputed
+// the element the list draws into: the matches' own list while a search is typed, else the grown list (whSearchList)
+function _invListEl(searching) {
+  const main = document.getElementById('parts-list');
+  return (typeof whSearchList === 'function') ? whSearchList(main, searching) : main;
+}
 
 // ────────────────────────────────────────────
 // IN-MEMORY CACHE (populated from Supabase on init)
@@ -1331,6 +1339,7 @@ function renderParts() {
 
   if (items.length === 0) {
     _invFiltered = [];
+    _invListEl(false);   // no parts at all: a search's matches go too, and the list stands unparked
     list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
     noRes.classList.add('hidden');
     // An empty set from a FAILED read is not an empty inventory. #empty-state says "No parts in
@@ -1406,7 +1415,8 @@ function renderParts() {
 
   if (filtered.length === 0) {
     _invFiltered = [];
-    list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
+    // a search with no match empties its own list; the grown one stays parked behind it (whSearchList)
+    _invListEl(!!query)/* xss-allow: an empty string */ .innerHTML = '';
     noRes.classList.remove('hidden');
     document.getElementById('inv-load-more-wrap').classList.add('hidden');
     return;
@@ -1431,11 +1441,12 @@ function renderParts() {
    a press only renders the next slice of the list it already has, and whRenderRows appends it. */
 function _invRenderList() {
   const filtered = _invFiltered;
-  const list = document.getElementById('parts-list');
-  const visible = filtered.slice(0, _invDisplayCount);
+  const list = _invListEl(!!_invQuery);
+  const count = _invQuery ? _invSearchCount : _invDisplayCount;
+  const visible = filtered.slice(0, count);
   const wrap = document.getElementById('inv-load-more-wrap');
   const lbl  = document.getElementById('inv-count-label');
-  wrap.classList.toggle('hidden', _invDisplayCount >= filtered.length);
+  wrap.classList.toggle('hidden', count >= filtered.length);
   lbl.textContent = _t(`Showing ${visible.length} of ${filtered.length} part${filtered.length === 1 ? '' : 's'}`, `Ipinapakita ang ${visible.length} sa ${filtered.length} parts`);
 
   const q = _invQuery;
@@ -2105,7 +2116,8 @@ async function submitPart() {
   closePartModal();
   renderParts();
   if (_addedId) {
-    const card = document.querySelector('#parts-list [data-part-id="' + CSS.escape(String(_addedId)) + '"]');
+    const _sel = '[data-part-id="' + CSS.escape(String(_addedId)) + '"]';
+    const card = document.querySelector('#parts-list-results:not([hidden]) ' + _sel + ', #parts-list ' + _sel);
     if (card) card.classList.add('new-entry');
   }
 }
@@ -2829,9 +2841,10 @@ function _invSyncUrlQ() {
 // fresh visit loses, and which never carried category/status.
 const _invView = (window.whRememberView || function () { return { restore() {}, save() {}, clear() {} }; })(
   'inv-filters', () => ({ q: document.getElementById('search-input').value, cat: document.getElementById('filter-category').value, status: document.getElementById('filter-status').value }));
-document.getElementById('search-input').addEventListener('input',    debounce(() => { _invDisplayCount = 8; renderParts(); _invSyncUrlQ(); _invView.save(); }, 300));
-['input', 'change'].forEach(ev => document.getElementById('filter-category').addEventListener(ev, () => { _invDisplayCount = 8; renderParts(); _invView.save(); }));
-document.getElementById('filter-status').addEventListener('change',   () => { _invDisplayCount = 8; renderParts(); _invView.save(); });
+// a new search starts its matches at 8; the grown list keeps its own count behind it (SL LB3, whSearchList)
+document.getElementById('search-input').addEventListener('input',    debounce(() => { _invSearchCount = 8; renderParts(); _invSyncUrlQ(); _invView.save(); }, 300));
+['input', 'change'].forEach(ev => document.getElementById('filter-category').addEventListener(ev, () => { _invDisplayCount = 8; _invSearchCount = 8; renderParts(); _invView.save(); }));
+document.getElementById('filter-status').addEventListener('change',   () => { _invDisplayCount = 8; _invSearchCount = 8; renderParts(); _invView.save(); });
 // on a FRESH visit (no ?q= set an active search), restore the last-used filter so the choice persists cross-session.
 if (!document.getElementById('search-input').value) {
   _invView.restore((s) => {

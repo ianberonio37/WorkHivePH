@@ -1873,6 +1873,7 @@ function setViewMode(mode) {
   mine.setAttribute('aria-pressed', mode === 'mine' ? 'true' : 'false');
   team.setAttribute('aria-pressed', mode === 'team' ? 'true' : 'false');
   _logbookDisplayCount = 20;
+  _lbSearchCount = 20;
 
   const teamRow    = document.getElementById('team-filter-row');
   const teamPrompt = document.getElementById('team-prompt');
@@ -1904,6 +1905,14 @@ let _mineTrueOpen  = null;   // T9: true worker-scoped open count; closed = tota
 // by the 13s sample — while "0 entries · 0 machines · 0 open" stayed up against 516/30/6 real values.
 let _lbReadFailed = false;
 let _logbookDisplayCount = 20;
+// SL LB3 (2026-10-23): a search's matches have a count of their own, so the list a person grew is still that long when
+// the search is cleared - whSearchList parks it behind the matches instead of tearing down every card it had laid out
+let _lbSearchCount = 20;
+// the element the list draws into: the matches' own list while a search is typed in your own logbook, else the list
+function _lbListEl(searching) {
+  const main = document.getElementById('entries-list');
+  return (typeof whSearchList === 'function') ? whSearchList(main, searching) : main;
+}
 
 // H1 goal-gradient for the supervisor's team-default state: hive-level closed/total
 // via two head-count queries (no row fetch). Fetched once per load; called from BOTH
@@ -2036,11 +2045,13 @@ window.addEventListener('beforeunload', () => {
 
 async function loadMoreLogbook() {
   if (_viewMode === 'team') { searchTeam(true); return; }
-  _logbookDisplayCount += 20;
+  // a search's matches grow by their own count; the list parked behind them keeps its own (SL LB3, whSearchList)
+  const _searching = !!document.getElementById('search-input').value.trim();
+  if (_searching) _lbSearchCount += 20; else _logbookDisplayCount += 20;
   // Once the display counter has caught up with what is loaded, the next 20 have to be FETCHED -
   // before this, Load More simply vanished at the 200-row cap and the rest of the person's own
   // logbook had no route to the screen at all.
-  if (_logbookDisplayCount > _allEntries.length && _mineHasMore) {
+  if ((_searching ? _lbSearchCount : _logbookDisplayCount) > _allEntries.length && _mineHasMore) {
     await loadEntries(true);
   }
   // SL LB3: showing more changes no count the stat pills show (they are the server's exact totals), so the press does
@@ -3019,7 +3030,8 @@ async function addEntry(entry) {
 // The one card on this list that moves: the entry a person has just logged slides into place (see .entry-card.new-entry).
 function _lbMarkArrived(id) {
   if (!id) return;
-  const card = document.querySelector('#entries-list [data-entry-id="' + CSS.escape(String(id)) + '"]');
+  const _sel = '[data-entry-id="' + CSS.escape(String(id)) + '"]';
+  const card = document.querySelector('#entries-list-results:not([hidden]) ' + _sel + ', #entries-list ' + _sel);
   if (card) card.classList.add('new-entry');
 }
 
@@ -4954,6 +4966,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
   if (_viewMode === 'team') {
     if (!_teamSearched) {
       teamPrompt.classList.remove('hidden');
+      _lbListEl(false);   // the team view searches on the server: its list is the list, never parked
       document.getElementById('entries-list').innerHTML = '';
       document.getElementById('empty-state').classList.add('hidden');
       document.getElementById('no-results').classList.add('hidden');
@@ -5025,7 +5038,11 @@ async function renderEntries(reload = true, fromStatPills = false) {
 
   const readFailed = document.getElementById('read-failed-state');
 
+  // SL LB3: a search in your own logbook draws its matches into a list of their own (whSearchList); the team view's
+  // search is the server's, and its list is the list
+  const _searching = _viewMode !== 'team' && !!query;
   if (entries.length === 0) {
+    _lbListEl(false);
     list.innerHTML = '';
     // A FAILED read also lands here with 0 entries, and "No entries yet. Log your first repair to
     // get started." is then a false statement about the reader's own work history — measured both
@@ -5052,15 +5069,17 @@ async function renderEntries(reload = true, fromStatPills = false) {
   if (readFailed) readFailed.classList.add('hidden');
 
   if (filtered.length === 0) {
-    list.innerHTML = '';
+    _lbListEl(_searching).innerHTML = '';   // a search with no match empties its own list; the grown one stays parked
     noResults.classList.remove('hidden');
     return;
   }
 
   noResults.classList.add('hidden');
 
-  // Team mode: show all loaded entries (keyset Load More). Mine: display-count slice.
-  const visible = _viewMode === 'team' ? filtered : filtered.slice(0, _logbookDisplayCount);
+  // Team mode: show all loaded entries (keyset Load More). Mine: display-count slice - a search's own count while one
+  // is typed, so the list behind it keeps the length a person grew it to.
+  const _count = _searching ? _lbSearchCount : _logbookDisplayCount;
+  const visible = _viewMode === 'team' ? filtered : filtered.slice(0, _count);
   const wrap    = document.getElementById('logbook-load-more-wrap');
   const lbl     = document.getElementById('logbook-count-label');
 
@@ -5077,7 +5096,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
   } else {
     // Load More stays reachable while EITHER more rows are already loaded OR the server has more to
     // give. Testing only the loaded window is what hid the control at the 200-row cap.
-    wrap.classList.toggle('hidden', _logbookDisplayCount >= filtered.length && !_mineHasMore);
+    wrap.classList.toggle('hidden', _count >= filtered.length && !_mineHasMore);
     const _e2 = (n) => `${n} entr${n === 1 ? 'y' : 'ies'}`;
     // ★THE DENOMINATOR IS THE PERSON'S LOGBOOK, NOT THE FETCH. filtered.length cannot exceed the
     // MINE_PAGE cap, so printing it after "of" told a worker with 2,277 entries that they had 200.
@@ -5113,7 +5132,7 @@ async function renderEntries(reload = true, fromStatPills = false) {
      the whole list - 49 presses to reach 1,000, each rebuilding everything: 642 ms a press on a desktop, 2 s at phone
      speed. whRenderRows appends the 20 new cards when the list only grew (the same search, filter, view and machine
      labels, and the cards already on screen unchanged), and lets the browser skip the cards that are off screen. */
-  whRenderRows(list, visible, e => {
+  whRenderRows(_lbListEl(_searching), visible, e => {
     const q         = query;
     const machine   = highlight(e.machine, q);
     const problem   = highlight(e.problem, q);
@@ -7196,18 +7215,20 @@ function _lbHaystack(e) {
 // follows the typing 150 ms after it pauses; the keystroke itself paints at once.
 const _lbMineSearch = debounce(() => renderEntries(false), 150);
 document.getElementById('search-input').addEventListener('input', () => {
-  _logbookDisplayCount = 20;
+  _lbSearchCount = 20;   // a new search starts its matches at 20; the list behind it keeps its own count (SL LB3)
   _viewMode === 'team' ? _teamSearchDebounce() : _lbMineSearch();
   _logSyncUrl();
 });
 window.addEventListener('load', () => { if (window.whAutoRememberFilters) whAutoRememberFilters('logbook-filters', ['filter-category', 'filter-status']); });   // G5a: remember the logbook filters cross-session
 document.getElementById('filter-category').addEventListener('change', () => {
   _logbookDisplayCount = 20;
+  _lbSearchCount = 20;
   if (_viewMode === 'team' && _teamSearched) { searchTeam(); } else { renderEntries(false); }
   _logSyncUrl();
 });
 document.getElementById('filter-status').addEventListener('change', () => {
   _logbookDisplayCount = 20;
+  _lbSearchCount = 20;
   if (_viewMode === 'team' && _teamSearched) { searchTeam(); } else { renderEntries(false); }
   _logSyncUrl();
 });
