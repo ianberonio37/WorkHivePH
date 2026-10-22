@@ -161986,12 +161986,12 @@
     "depends_on": [
      "tools/verify_identity_boundaries.py"
     ],
-    "sha": "29297aa4f6381b45",
+    "sha": "35235d76fb00346a",
     "fn_digests": {},
     "walked_at": "2026-08-04",
     "checked": "answered AT THE SERVER by bola_object (read) + (write): read: Bryan Garcia sees 2 of the 6 unpublished listings held across 5 sellers, and every one is his own \u00b7 write: tried to retitle every listing NOT belonging to Bryan Garcia: 0 rows changed (of 21 published). Rolled back either way. The harness probes as a verified NON-admin identity inside rolled-back transactions; a page can hide a control while the endpoint stays open, so the server answer is the stronger one.",
     "replay": "python tools/verify_identity_boundaries.py",
-    "restamped_at": "2026-09-01 \u2014 re-keyed from the retired 2026-08-21 server-boundary harness to the current registered green gate identity_boundaries (its migrations blast-radius dep over-stalled a claim the hive-FK/type migrations do not touch); gate run green this session"
+    "restamped_at": "2026-10-23 \u2014 gate identity_boundaries re-ran green against the current state (identity_boundaries_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
@@ -162123,12 +162123,12 @@
     "depends_on": [
      "tools/verify_identity_boundaries.py"
     ],
-    "sha": "29297aa4f6381b45",
+    "sha": "35235d76fb00346a",
     "fn_digests": {},
     "walked_at": "2026-08-04",
     "checked": "answered AT THE SERVER by bola_object (read) + (write): read: Bryan Garcia sees 2 of the 6 unpublished listings held across 5 sellers, and every one is his own \u00b7 write: tried to retitle every listing NOT belonging to Bryan Garcia: 0 rows changed (of 21 published). Rolled back either way. The harness probes as a verified NON-admin identity inside rolled-back transactions; a page can hide a control while the endpoint stays open, so the server answer is the stronger one.",
     "replay": "python tools/verify_identity_boundaries.py",
-    "restamped_at": "2026-09-01 \u2014 re-keyed from the retired 2026-08-21 server-boundary harness to the current registered green gate identity_boundaries (its migrations blast-radius dep over-stalled a claim the hive-FK/type migrations do not touch); gate run green this session"
+    "restamped_at": "2026-10-23 \u2014 gate identity_boundaries re-ran green against the current state (identity_boundaries_report.json); sha re-anchored, claim unchanged"
    }
   },
   {
