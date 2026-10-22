@@ -1,6 +1,6 @@
 {
   "_doc": "Trajectory registry — the 500-arc program's status SSOT. pct rules: specced=5, walked=25, fixed=60, locked=100; in-flight trajectories carry an explicit basis. The roadmap header scoreboard is GENERATED from this file (tools/update_trajectory_scoreboard.py) and validate_trajectory_registry.py fails on any drift between the two — the anti-drift discipline Ian asked for (2026-08-24).",
-  "updated": "2026-10-22",
+  "updated": "2026-10-23",
   "count": 18378,
   "trajectories": [
     {
@@ -1005941,8 +1005941,8 @@
     },
     {
       "id": "ENH19",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · ahu sizing calculator",
       "pages": [
@@ -1005993,7 +1005993,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on ahu sizing calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/ahu-sizing-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=ahu-sizing (AHU Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41174 (phone-390), W41175 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderAHUSizingReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH20",
@@ -1006165,8 +1006166,8 @@
     },
     {
       "id": "ENH23",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · beam design calculator",
       "pages": [
@@ -1006217,7 +1006218,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on beam design calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/beam-design-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=beam-column-design (Beam / Column Design), and its report prints with the inputs and the standard it follows: W4's compute walks W41177 (phone-390), W41178 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderBeamColumnReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH24",
@@ -1006389,8 +1006391,8 @@
     },
     {
       "id": "ENH27",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · bearing life calculator",
       "pages": [
@@ -1006441,7 +1006443,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on bearing life calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/bearing-life-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=bearing-life-l10 (Bearing Life (L10)), and its report prints with the inputs and the standard it follows: W4's compute walks W41180 (phone-390), W41181 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderBearingLifeReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH28",
@@ -1006613,8 +1006616,8 @@
     },
     {
       "id": "ENH31",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · boiler steam calculator",
       "pages": [
@@ -1006665,7 +1006668,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on boiler steam calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/boiler-steam-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=boiler-system (Boiler System), and its report prints with the inputs and the standard it follows: W4's compute walks W41183 (phone-390), W41184 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderBoilerReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH32",
@@ -1006837,8 +1006841,8 @@
     },
     {
       "id": "ENH35",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · boiler system calculator",
       "pages": [
@@ -1006889,7 +1006893,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on boiler system calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/boiler-system-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=boiler-system (Boiler System), and its report prints with the inputs and the standard it follows: W4's compute walks W41186 (phone-390), W41187 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderBoilerReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH36",
@@ -1007061,8 +1007066,8 @@
     },
     {
       "id": "ENH39",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · bolt torque calculator",
       "pages": [
@@ -1007113,7 +1007118,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on bolt torque calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/bolt-torque-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=bolt-torque-and-preload (Bolt Torque & Preload), and its report prints with the inputs and the standard it follows: W4's compute walks W41189 (phone-390), W41190 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderBoltTorqueReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH40",
@@ -1007285,8 +1007291,8 @@
     },
     {
       "id": "ENH43",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · cable tray sizing calculator",
       "pages": [
@@ -1007337,7 +1007343,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on cable tray sizing calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/cable-tray-sizing-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=cable-tray-sizing (Cable Tray Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41192 (phone-390), W41193 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderCableTrayReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH44",
@@ -1007453,8 +1007460,8 @@
     },
     {
       "id": "ENH46",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · chiller sizing calculator",
       "pages": [
@@ -1007505,7 +1007512,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on chiller sizing calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/chiller-sizing-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=chiller-system-air-cooled (Chiller System — Air Cooled), and its report prints with the inputs and the standard it follows: W4's compute walks W41195 (phone-390), W41196 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderChillerAirCooledReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH47",
@@ -1007677,8 +1007685,8 @@
     },
     {
       "id": "ENH50",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · clean agent suppression calculator",
       "pages": [
@@ -1007729,7 +1007737,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on clean agent suppression calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/clean-agent-suppression-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=clean-agent-suppression (Clean Agent Suppression), and its report prints with the inputs and the standard it follows: W4's compute walks W41198 (phone-390), W41199 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderCleanAgentReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH51",
@@ -1007845,8 +1007854,8 @@
     },
     {
       "id": "ENH53",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · compressed air calculator",
       "pages": [
@@ -1007897,7 +1007906,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on compressed air calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/compressed-air-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=compressed-air (Compressed Air), and its report prints with the inputs and the standard it follows: W4's compute walks W41201 (phone-390), W41202 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderAirReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH54",
@@ -1008069,8 +1008079,8 @@
     },
     {
       "id": "ENH57",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · cooling tower calculator",
       "pages": [
@@ -1008121,7 +1008131,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on cooling tower calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/cooling-tower-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=cooling-tower-sizing (Cooling Tower Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41204 (phone-390), W41205 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderCoolingTowerReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH58",
@@ -1008293,8 +1008304,8 @@
     },
     {
       "id": "ENH61",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · domestic water demand calculator",
       "pages": [
@@ -1008345,7 +1008356,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on domestic water demand calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/domestic-water-demand-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=water-supply-pipe-sizing (Water Supply Pipe Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41207 (phone-390), W41208 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderWaterSupplyReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH62",
@@ -1008461,8 +1008473,8 @@
     },
     {
       "id": "ENH64",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · drainage pipe sizing calculator",
       "pages": [
@@ -1008513,7 +1008525,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on drainage pipe sizing calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/drainage-pipe-sizing-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=drainage-pipe-sizing (Drainage Pipe Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41210 (phone-390), W41211 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderDrainageReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH65",
@@ -1008685,8 +1008698,8 @@
     },
     {
       "id": "ENH68",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · duct sizing calculator",
       "pages": [
@@ -1008737,7 +1008750,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on duct sizing calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/duct-sizing-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=duct-sizing-equal-friction (Duct Sizing (Equal Friction)), and its report prints with the inputs and the standard it follows: W4's compute walks W41213 (phone-390), W41214 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderDuctSizingReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH69",
@@ -1008909,8 +1008923,8 @@
     },
     {
       "id": "ENH72",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · earthing grounding calculator",
       "pages": [
@@ -1008961,7 +1008975,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on earthing grounding calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/earthing-grounding-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=earthing-grounding-system (Earthing / Grounding System), and its report prints with the inputs and the standard it follows: W4's compute walks W41216 (phone-390), W41217 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderEarthingReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH73",
@@ -1009133,8 +1009148,8 @@
     },
     {
       "id": "ENH76",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · elevator traffic calculator",
       "pages": [
@@ -1009185,7 +1009200,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on elevator traffic calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/elevator-traffic-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=elevator-traffic-analysis (Elevator Traffic Analysis), and its report prints with the inputs and the standard it follows: W4's compute walks W41219 (phone-390), W41220 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderElevatorTrafficReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH77",
@@ -1009357,8 +1009373,8 @@
     },
     {
       "id": "ENH80",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · expansion tank calculator",
       "pages": [
@@ -1009409,7 +1009425,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on expansion tank calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/expansion-tank-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=expansion-tank-sizing (Expansion Tank Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41222 (phone-390), W41223 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderExpansionTankReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH81",
@@ -1009581,8 +1009598,8 @@
     },
     {
       "id": "ENH84",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · fcu selection calculator",
       "pages": [
@@ -1009633,7 +1009650,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on fcu selection calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/fcu-selection-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=fcu-selection (FCU Selection), and its report prints with the inputs and the standard it follows: W4's compute walks W41225 (phone-390), W41226 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderFCUSelectionReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH85",
@@ -1009805,8 +1009823,8 @@
     },
     {
       "id": "ENH88",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · fire alarm battery calculator",
       "pages": [
@@ -1009857,7 +1009875,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on fire alarm battery calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/fire-alarm-battery-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=fire-alarm-battery (Fire Alarm Battery), and its report prints with the inputs and the standard it follows: W4's compute walks W41228 (phone-390), W41229 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderFireAlarmBatteryReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH89",
@@ -1009973,8 +1009992,8 @@
     },
     {
       "id": "ENH91",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · fire pump calculator",
       "pages": [
@@ -1010025,7 +1010044,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on fire pump calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/fire-pump-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=fire-pump-sizing (Fire Pump Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41231 (phone-390), W41232 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderFirePumpReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH92",
@@ -1010197,8 +1010217,8 @@
     },
     {
       "id": "ENH95",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · fire sprinkler calculator",
       "pages": [
@@ -1010249,7 +1010269,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on fire sprinkler calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/fire-sprinkler-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=fire-sprinkler-hydraulic (Fire Sprinkler Hydraulic), and its report prints with the inputs and the standard it follows: W4's compute walks W41234 (phone-390), W41235 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderFireSprinklerReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH96",
@@ -1010365,8 +1010386,8 @@
     },
     {
       "id": "ENH98",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · generator sizing calculator",
       "pages": [
@@ -1010417,7 +1010438,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on generator sizing calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/generator-sizing-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=generator-sizing (Generator Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41237 (phone-390), W41238 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderGeneratorReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH99",
@@ -1010589,8 +1010611,8 @@
     },
     {
       "id": "ENH102",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · grease trap calculator",
       "pages": [
@@ -1010641,7 +1010663,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on grease trap calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/grease-trap-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=grease-trap-sizing (Grease Trap Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41240 (phone-390), W41241 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderGreaseTrapReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH103",
@@ -1010813,8 +1010836,8 @@
     },
     {
       "id": "ENH106",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · harmonic distortion calculator",
       "pages": [
@@ -1010865,7 +1010888,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on harmonic distortion calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/harmonic-distortion-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=harmonic-distortion (Harmonic Distortion), and its report prints with the inputs and the standard it follows: W4's compute walks W41243 (phone-390), W41244 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderHarmonicReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH107",
@@ -1011037,8 +1011061,8 @@
     },
     {
       "id": "ENH110",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · heat exchanger calculator",
       "pages": [
@@ -1011089,7 +1011113,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on heat exchanger calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/heat-exchanger-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=heat-exchanger (Heat Exchanger), and its report prints with the inputs and the standard it follows: W4's compute walks W41246 (phone-390), W41247 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderHeatExchangerReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH111",
@@ -1011261,8 +1011286,8 @@
     },
     {
       "id": "ENH114",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · hoist capacity calculator",
       "pages": [
@@ -1011313,7 +1011338,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on hoist capacity calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/hoist-capacity-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=hoist-capacity (Hoist Capacity), and its report prints with the inputs and the standard it follows: W4's compute walks W41249 (phone-390), W41250 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderHoistCapacityReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH115",
@@ -1011485,8 +1011511,8 @@
     },
     {
       "id": "ENH118",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · hot water demand calculator",
       "pages": [
@@ -1011537,7 +1011563,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on hot water demand calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/hot-water-demand-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=hot-water-demand (Hot Water Demand), and its report prints with the inputs and the standard it follows: W4's compute walks W41252 (phone-390), W41253 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderHotWaterReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH119",
@@ -1011653,8 +1011680,8 @@
     },
     {
       "id": "ENH121",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · hvac cooling load calculator",
       "pages": [
@@ -1011705,7 +1011732,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on hvac cooling load calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/hvac-cooling-load-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=hvac-cooling-load (HVAC Cooling Load), and its report prints with the inputs and the standard it follows: W4's compute walks W41255 (phone-390), W41256 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH122",
@@ -1011877,8 +1011905,8 @@
     },
     {
       "id": "ENH125",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · hydraulic cylinder calculator",
       "pages": [
@@ -1011929,7 +1011957,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on hydraulic cylinder calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/hydraulic-cylinder-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=fluid-power (Fluid Power), and its report prints with the inputs and the standard it follows: W4's compute walks W41258 (phone-390), W41259 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderFluidPowerReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH126",
@@ -1012101,8 +1012130,8 @@
     },
     {
       "id": "ENH129",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · lighting design calculator",
       "pages": [
@@ -1012153,7 +1012182,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on lighting design calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/lighting-design-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=lighting-design (Lighting Design), and its report prints with the inputs and the standard it follows: W4's compute walks W41261 (phone-390), W41262 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderLightingDesignReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH130",
@@ -1012325,8 +1012355,8 @@
     },
     {
       "id": "ENH133",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · lightning protection calculator",
       "pages": [
@@ -1012377,7 +1012407,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on lightning protection calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/lightning-protection-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=lightning-protection-system-lps (Lightning Protection System (LPS)), and its report prints with the inputs and the standard it follows: W4's compute walks W41264 (phone-390), W41265 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderLPSReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH134",
@@ -1012549,8 +1012580,8 @@
     },
     {
       "id": "ENH137",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · load estimation calculator",
       "pages": [
@@ -1012601,7 +1012632,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on load estimation calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/load-estimation-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=load-estimation (Load Estimation), and its report prints with the inputs and the standard it follows: W4's compute walks W41267 (phone-390), W41268 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderLoadReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH138",
@@ -1012773,8 +1012805,8 @@
     },
     {
       "id": "ENH141",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · load schedule calculator",
       "pages": [
@@ -1012825,7 +1012857,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on load schedule calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/load-schedule-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=load-estimation (Load Estimation), and its report prints with the inputs and the standard it follows: W4's compute walks W41270 (phone-390), W41271 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderLoadReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH142",
@@ -1013221,8 +1013254,8 @@
     },
     {
       "id": "ENH149",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · noise acoustics calculator",
       "pages": [
@@ -1013273,7 +1013306,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on noise acoustics calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/noise-acoustics-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=noise-acoustics (Noise / Acoustics), and its report prints with the inputs and the standard it follows: W4's compute walks W41276 (phone-390), W41277 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderNoiseAcousticsReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH150",
@@ -1013557,8 +1013591,8 @@
     },
     {
       "id": "ENH155",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · pipe sizing calculator",
       "pages": [
@@ -1013609,7 +1013643,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on pipe sizing calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/pipe-sizing-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=pipe-sizing (Pipe Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41282 (phone-390), W41283 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderPipeReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH156",
@@ -1013781,8 +1013816,8 @@
     },
     {
       "id": "ENH159",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · power factor correction calculator",
       "pages": [
@@ -1013833,7 +1013868,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on power factor correction calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/power-factor-correction-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=power-factor-correction (Power Factor Correction), and its report prints with the inputs and the standard it follows: W4's compute walks W41285 (phone-390), W41286 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderPFCReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH160",
@@ -1014005,8 +1014041,8 @@
     },
     {
       "id": "ENH163",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · pressure vessel calculator",
       "pages": [
@@ -1014057,7 +1014093,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on pressure vessel calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/pressure-vessel-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=pressure-vessel (Pressure Vessel), and its report prints with the inputs and the standard it follows: W4's compute walks W41288 (phone-390), W41289 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderPressureVesselReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH164",
@@ -1014173,8 +1014210,8 @@
     },
     {
       "id": "ENH166",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · pump tdh calculator",
       "pages": [
@@ -1014225,7 +1014262,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on pump tdh calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/pump-tdh-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=pump-sizing-tdh (Pump Sizing (TDH)), and its report prints with the inputs and the standard it follows: W4's compute walks W41291 (phone-390), W41292 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderPumpReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH167",
@@ -1014397,8 +1014435,8 @@
     },
     {
       "id": "ENH170",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · refrigerant pipe calculator",
       "pages": [
@@ -1014449,7 +1014487,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on refrigerant pipe calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/refrigerant-pipe-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=refrigerant-pipe-sizing (Refrigerant Pipe Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41294 (phone-390), W41295 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderRefrigPipeReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH171",
@@ -1014621,8 +1014660,8 @@
     },
     {
       "id": "ENH174",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · roof drain calculator",
       "pages": [
@@ -1014673,7 +1014712,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on roof drain calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/roof-drain-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=roof-drain-sizing (Roof Drain Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41297 (phone-390), W41298 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderRoofDrainReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH175",
@@ -1014845,8 +1014885,8 @@
     },
     {
       "id": "ENH178",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · septic tank calculator",
       "pages": [
@@ -1014897,7 +1014937,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on septic tank calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/septic-tank-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=septic-tank-sizing (Septic Tank Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41300 (phone-390), W41301 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderSepticReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH179",
@@ -1015069,8 +1015110,8 @@
     },
     {
       "id": "ENH182",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · sewer drainage calculator",
       "pages": [
@@ -1015121,7 +1015162,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on sewer drainage calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/sewer-drainage-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=drainage-pipe-sizing (Drainage Pipe Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41303 (phone-390), W41304 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderDrainageReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH183",
@@ -1015293,8 +1015335,8 @@
     },
     {
       "id": "ENH186",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · shaft design calculator",
       "pages": [
@@ -1015345,7 +1015387,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on shaft design calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/shaft-design-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=shaft-design (Shaft Design), and its report prints with the inputs and the standard it follows: W4's compute walks W41306 (phone-390), W41307 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderShaftDesignReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH187",
@@ -1015517,8 +1015560,8 @@
     },
     {
       "id": "ENH190",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · short circuit calculator",
       "pages": [
@@ -1015569,7 +1015612,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on short circuit calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/short-circuit-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=short-circuit (Short Circuit), and its report prints with the inputs and the standard it follows: W4's compute walks W41309 (phone-390), W41310 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderShortCircuitReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH191",
@@ -1015797,8 +1015841,8 @@
     },
     {
       "id": "ENH195",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · stairwell pressurization calculator",
       "pages": [
@@ -1015849,7 +1015893,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on stairwell pressurization calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/stairwell-pressurization-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=stairwell-pressurization (Stairwell Pressurization), and its report prints with the inputs and the standard it follows: W4's compute walks W41315 (phone-390), W41316 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderStairwellPressReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH196",
@@ -1016021,8 +1016066,8 @@
     },
     {
       "id": "ENH199",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · storm drain calculator",
       "pages": [
@@ -1016073,7 +1016118,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on storm drain calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/storm-drain-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=storm-drain-stormwater (Storm Drain / Stormwater), and its report prints with the inputs and the standard it follows: W4's compute walks W41318 (phone-390), W41319 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderStormDrainReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH200",
@@ -1016245,8 +1016291,8 @@
     },
     {
       "id": "ENH203",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · transformer sizing calculator",
       "pages": [
@@ -1016297,7 +1016343,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on transformer sizing calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/transformer-sizing-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=transformer-sizing (Transformer Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41321 (phone-390), W41322 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderTransformerReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH204",
@@ -1016413,8 +1016460,8 @@
     },
     {
       "id": "ENH206",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · ups sizing calculator",
       "pages": [
@@ -1016465,7 +1016512,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on ups sizing calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/ups-sizing-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=ups-sizing (UPS Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41324 (phone-390), W41325 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderUPSSizingReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH207",
@@ -1016637,8 +1016685,8 @@
     },
     {
       "id": "ENH210",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · v belt drive calculator",
       "pages": [
@@ -1016689,7 +1016737,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on v belt drive calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/v-belt-drive-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=v-belt-drive-design (V-Belt Drive Design), and its report prints with the inputs and the standard it follows: W4's compute walks W41327 (phone-390), W41328 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderVBeltReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH211",
@@ -1016861,8 +1016910,8 @@
     },
     {
       "id": "ENH214",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · ventilation ach calculator",
       "pages": [
@@ -1016913,7 +1016962,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on ventilation ach calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/ventilation-ach-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=ventilation-ach (Ventilation / ACH), and its report prints with the inputs and the standard it follows: W4's compute walks W41330 (phone-390), W41331 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderVentReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH215",
@@ -1017085,8 +1017135,8 @@
     },
     {
       "id": "ENH218",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · vibration isolation calculator",
       "pages": [
@@ -1017137,7 +1017187,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on vibration isolation calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/vibration-isolation-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=vibration-analysis (Vibration Analysis), and its report prints with the inputs and the standard it follows: W4's compute walks W41333 (phone-390), W41334 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderVibrationReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH219",
@@ -1017309,8 +1017360,8 @@
     },
     {
       "id": "ENH222",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · voltage drop calculator",
       "pages": [
@@ -1017361,7 +1017412,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on voltage drop calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/voltage-drop-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=voltage-drop (Voltage Drop), and its report prints with the inputs and the standard it follows: W4's compute walks W41336 (phone-390), W41337 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderVDReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH223",
@@ -1017533,8 +1017585,8 @@
     },
     {
       "id": "ENH226",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · wastewater stp calculator",
       "pages": [
@@ -1017585,7 +1017637,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on wastewater stp calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/wastewater-stp-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=wastewater-treatment-stp (Wastewater Treatment (STP)), and its report prints with the inputs and the standard it follows: W4's compute walks W41339 (phone-390), W41340 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderSTPReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH227",
@@ -1017757,8 +1017810,8 @@
     },
     {
       "id": "ENH230",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · water softener calculator",
       "pages": [
@@ -1017809,7 +1017862,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on water softener calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/water-softener-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=water-softener-sizing (Water Softener Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41342 (phone-390), W41343 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderWaterSoftenerReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH231",
@@ -1017925,8 +1017979,8 @@
     },
     {
       "id": "ENH233",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · water supply pipe calculator",
       "pages": [
@@ -1017977,7 +1018031,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on water supply pipe calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/water-supply-pipe-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=water-supply-pipe-sizing (Water Supply Pipe Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41345 (phone-390), W41346 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderWaterSupplyReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH234",
@@ -1018149,8 +1018204,8 @@
     },
     {
       "id": "ENH237",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · water treatment calculator",
       "pages": [
@@ -1018201,7 +1018256,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on water treatment calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/water-treatment-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=water-treatment-system (Water Treatment System), and its report prints with the inputs and the standard it follows: W4's compute walks W41348 (phone-390), W41349 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderWaterTreatmentReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH238",
@@ -1018373,8 +1018429,8 @@
     },
     {
       "id": "ENH241",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · wire sizing calculator",
       "pages": [
@@ -1018425,7 +1018481,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on wire sizing calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure read the SEO door (tools/wire-sizing-calculator/index.html, a worked example and a button), not the calculator a person uses. That page opens engineering-design.html?calc=wire-sizing (Wire Sizing), and its report prints with the inputs and the standard it follows: W4's compute walks W41351 (phone-390), W41352 (narrow-320), 2026-10-09, went from this page through the sign-in wall and a free sign-up to the calculator preselected, pressed Run, then pressed the report's own Download PDF, and a file was handed over. renderWireSizingReport prints a project/inputs section and its standard. At desktop-1280 the control is the same report action row (engineering-design.html, Download PDF beside Save); the ENH-P walk records it there and is appended here."
     },
     {
       "id": "ENH242",
@@ -1018541,8 +1018598,8 @@
     },
     {
       "id": "ENH244",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · ai companion hezekiah zaniah personas",
       "pages": [
@@ -1018593,12 +1018650,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on ai companion hezekiah zaniah personas itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/ai-companion-hezekiah-zaniah-personas/ the guide's own call to action, 'Open the AI Companion', links /index.html?companion=1, the tool wh_pages.LEARN_ARTICLES declares for it (/index.html?companion=1); W4 walked that tap live as the stranger (W4814 phone-390, W4815 narrow-320) and it arrived on /index.html?companion=1. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH245",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · ai quality and roi stage 2 plants",
       "pages": [
@@ -1018649,12 +1018707,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on ai quality and roi stage 2 plants itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/ai-quality-and-roi-stage-2-plants/ the guide's own call to action, 'Open AI Quality + ROI', links /ai-quality.html, the tool wh_pages.LEARN_ARTICLES declares for it (/ai-quality.html); W4 walked that tap live as the stranger (W4823 phone-390, W4824 narrow-320) and it arrived on /ai-quality.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH246",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · ai work assistant maintenance technicians",
       "pages": [
@@ -1018705,12 +1018764,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on ai work assistant maintenance technicians itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/ai-work-assistant-maintenance-technicians/ the guide's own call to action, 'Open the AI Assistant', links /assistant.html, the tool wh_pages.LEARN_ARTICLES declares for it (/assistant.html); W4 walked that tap live as the stranger (W4832 phone-390, W4833 narrow-320) and it arrived on /assistant.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH247",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · asset brain 360 one machine history philippine plant",
       "pages": [
@@ -1018761,12 +1018821,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on asset brain 360 one machine history philippine plant itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/asset-brain-360-one-machine-history-philippine-plant/ the guide's own call to action, 'Open Asset Hub →', links /asset-hub.html, the tool wh_pages.LEARN_ARTICLES declares for it (/asset-hub.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH248",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · autonomous shift planning philippine plants",
       "pages": [
@@ -1018817,12 +1018878,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on autonomous shift planning philippine plants itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/autonomous-shift-planning-philippine-plants/ the guide's own call to action, 'Open Shift Brain →', links /shift-brain.html, the tool wh_pages.LEARN_ARTICLES declares for it (/shift-brain.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH249",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · bms facilities maintenance peza buildings",
       "pages": [
@@ -1018873,12 +1018935,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on bms facilities maintenance peza buildings itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/bms-facilities-maintenance-peza-buildings/ the guide's own call to action, 'Open Hive →', links /hive.html, the tool wh_pages.LEARN_ARTICLES declares for it (/hive.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH250",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · building asset register zero budget",
       "pages": [
@@ -1018929,12 +1018992,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on building asset register zero budget itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/building-asset-register-zero-budget/ the guide's own call to action, 'Open Asset Hub', links /asset-hub.html, the tool wh_pages.LEARN_ARTICLES declares for it (/asset-hub.html); W4 walked that tap live as the stranger (W4856 phone-390, W4857 narrow-320) and it arrived on /asset-hub.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH251",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · cmms vs excel spreadsheet maintenance",
       "pages": [
@@ -1018985,12 +1019049,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on cmms vs excel spreadsheet maintenance itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/cmms-vs-excel-spreadsheet-maintenance/ the guide's own call to action, 'Open the Logbook', links /logbook.html, the tool wh_pages.LEARN_ARTICLES declares for it (/logbook.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH252",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · connecting workhive to sap maximo cmms",
       "pages": [
@@ -1019041,12 +1019106,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on connecting workhive to sap maximo cmms itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/connecting-workhive-to-sap-maximo-cmms/ the guide's own call to action, 'Open CMMS Integration', links /integrations.html, the tool wh_pages.LEARN_ARTICLES declares for it (/integrations.html); W4 walked that tap live as the stranger (W4868 phone-390, W4869 narrow-320) and it arrived on /integrations.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH253",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · dilo wilo day planner supervisors",
       "pages": [
@@ -1019097,12 +1019163,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on dilo wilo day planner supervisors itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/dilo-wilo-day-planner-supervisors/ the guide's own call to action, 'Open the Day Planner', links /dayplanner.html, the tool wh_pages.LEARN_ARTICLES declares for it (/dayplanner.html); W4 walked that tap live as the stranger (W4877 phone-390, W4878 narrow-320) and it arrived on /dayplanner.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH254",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · dole iso audit trail from logbook",
       "pages": [
@@ -1019153,12 +1019220,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on dole iso audit trail from logbook itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/dole-iso-audit-trail-from-logbook/ the guide's own call to action, 'Open Audit Log', links /audit-log.html, the tool wh_pages.LEARN_ARTICLES declares for it (/audit-log.html); W4 walked that tap live as the stranger (W4886 phone-390, W4887 narrow-320) and it arrived on /audit-log.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH255",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · fmea worked example philippine bottling line",
       "pages": [
@@ -1019209,12 +1019277,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on fmea worked example philippine bottling line itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/fmea-worked-example-philippine-bottling-line/ the guide's own call to action, 'Open Asset Hub →', links /asset-hub.html, the tool wh_pages.LEARN_ARTICLES declares for it (/asset-hub.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH256",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · food beverage plant maintenance philippines",
       "pages": [
@@ -1019265,12 +1019334,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on food beverage plant maintenance philippines itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/food-beverage-plant-maintenance-philippines/ the guide's own call to action, 'Open Hive →', links /hive.html, the tool wh_pages.LEARN_ARTICLES declares for it (/hive.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH257",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · four phases maintenance analytics philippine plants",
       "pages": [
@@ -1019321,12 +1019391,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on four phases maintenance analytics philippine plants itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/four-phases-maintenance-analytics-philippine-plants/ the guide's own call to action, 'Open Analytics →', links /analytics.html, the tool wh_pages.LEARN_ARTICLES declares for it (/analytics.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH258",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · free pm checklist templates",
       "pages": [
@@ -1019377,12 +1019448,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on free pm checklist templates itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/free-pm-checklist-templates/ the guide's own call to action, 'Open the PM Scheduler', links /pm-scheduler.html, the tool wh_pages.LEARN_ARTICLES declares for it (/pm-scheduler.html); W4 walked that tap live as the stranger (W4916 phone-390, W4917 narrow-320) and it arrived on /pm-scheduler.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH259",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · gamifying maintenance for engagement",
       "pages": [
@@ -1019433,12 +1019505,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on gamifying maintenance for engagement itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/gamifying-maintenance-for-engagement/ the guide's own call to action, 'Open Achievements', links /achievements.html, the tool wh_pages.LEARN_ARTICLES declares for it (/achievements.html); W4 walked that tap live as the stranger (W4925 phone-390, W4926 narrow-320) and it arrived on /achievements.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH260",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · industrial community of practice philippines",
       "pages": [
@@ -1019489,12 +1019562,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on industrial community of practice philippines itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/industrial-community-of-practice-philippines/ the guide's own call to action, 'Open the Community', links /community.html, the tool wh_pages.LEARN_ARTICLES declares for it (/community.html); W4 walked that tap live as the stranger (W4934 phone-390, W4935 narrow-320) and it arrived on /community.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH261",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · industrial marketplace philippine specialists",
       "pages": [
@@ -1019545,12 +1019619,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on industrial marketplace philippine specialists itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/industrial-marketplace-philippine-specialists/ the guide's own call to action, 'Open the Marketplace', links /marketplace.html, the tool wh_pages.LEARN_ARTICLES declares for it (/marketplace.html); W4 walked that tap live as the stranger (W4943 phone-390, W4944 narrow-320) and it arrived on /marketplace.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH262",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · joining and growing your hive",
       "pages": [
@@ -1019601,12 +1019676,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on joining and growing your hive itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/joining-and-growing-your-hive/ the guide's own call to action, 'Open the Hive Dashboard', links /hive.html, the tool wh_pages.LEARN_ARTICLES declares for it (/hive.html); W4 walked that tap live as the stranger (W4952 phone-390, W4953 narrow-320) and it arrived on /hive.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH263",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · loto procedures dole oshs template",
       "pages": [
@@ -1019657,12 +1019733,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on loto procedures dole oshs template itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/loto-procedures-dole-oshs-template/ the guide's own call to action, 'Keep your LOTO permits in a dated audit trail', links /logbook.html, the tool wh_pages.LEARN_ARTICLES declares for it (/logbook.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH264",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · maintenance project planning template",
       "pages": [
@@ -1019713,12 +1019790,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on maintenance project planning template itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/maintenance-project-planning-template/ the guide's own call to action, 'Open Project Manager', links /project-manager.html, the tool wh_pages.LEARN_ARTICLES declares for it (/project-manager.html); W4 walked that tap live as the stranger (W4970 phone-390, W4971 narrow-320) and it arrived on /project-manager.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH265",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · maintenance shift handover template",
       "pages": [
@@ -1019769,12 +1019847,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on maintenance shift handover template itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/maintenance-shift-handover-template/ the guide's own call to action, 'Open Shift Brain', links /shift-brain.html, the tool wh_pages.LEARN_ARTICLES declares for it (/shift-brain.html); W4 walked that tap live as the stranger (W4979 phone-390, W4980 narrow-320) and it arrived on /shift-brain.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH266",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · ofw engineer portable portfolio",
       "pages": [
@@ -1019825,12 +1019904,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on ofw engineer portable portfolio itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/ofw-engineer-portable-portfolio/ the guide's own call to action, 'Open Skill Matrix →', links /skillmatrix.html, the tool wh_pages.LEARN_ARTICLES declares for it (/skillmatrix.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH267",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · ph industrial benchmarks intelligence",
       "pages": [
@@ -1019881,12 +1019961,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on ph industrial benchmarks intelligence itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/ph-industrial-benchmarks-intelligence/ the guide's own call to action, 'Open PH Intelligence', links /ph-intelligence.html, the tool wh_pages.LEARN_ARTICLES declares for it (/ph-intelligence.html); W4 walked that tap live as the stranger (W41003 phone-390, W41004 narrow-320) and it arrived on /ph-intelligence.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH268",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · philippine plants now pay the highest power rates",
       "pages": [
@@ -1019937,12 +1020018,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on philippine plants now pay the highest power rates itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/philippine-plants-now-pay-the-highest-power-rates/ the guide's own call to action, 'Open Engineering Design Calculator →', links /engineering-design.html, the tool wh_pages.LEARN_ARTICLES declares for it (/engineering-design.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH269",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · plant alert inbox amc daily brief",
       "pages": [
@@ -1019993,12 +1020075,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on plant alert inbox amc daily brief itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/plant-alert-inbox-amc-daily-brief/ the guide's own call to action, 'Open Alert Hub →', links /alert-hub.html, the tool wh_pages.LEARN_ARTICLES declares for it (/alert-hub.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH270",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · power plant reliability metrics philippines",
       "pages": [
@@ -1020049,12 +1020132,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on power plant reliability metrics philippines itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/power-plant-reliability-metrics-philippines/ the guide's own call to action, 'Open Analytics →', links /analytics-report.html, the tool wh_pages.LEARN_ARTICLES declares for it (/analytics-report.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH271",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · predictive alert thresholds plants",
       "pages": [
@@ -1020105,12 +1020189,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on predictive alert thresholds plants itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/predictive-alert-thresholds-plants/ the guide's own call to action, 'Open Alert Hub', links /alert-hub.html, the tool wh_pages.LEARN_ARTICLES declares for it (/alert-hub.html); W4 walked that tap live as the stranger (W41027 phone-390, W41028 narrow-320) and it arrived on /alert-hub.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH272",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · predictive maintenance on a budget philippines",
       "pages": [
@@ -1020161,12 +1020246,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on predictive maintenance on a budget philippines itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/predictive-maintenance-on-a-budget-philippines/ the guide's own call to action, 'Open Predictive Maintenance', links /analytics.html, the tool wh_pages.LEARN_ARTICLES declares for it (/analytics.html); W4 walked that tap live as the stranger (W41036 phone-390, W41037 narrow-320) and it arrived on /analytics.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH273",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · print ready maintenance analytics report",
       "pages": [
@@ -1020217,12 +1020303,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on print ready maintenance analytics report itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/print-ready-maintenance-analytics-report/ the guide's own call to action, 'Open Analytics Report →', links /analytics-report.html, the tool wh_pages.LEARN_ARTICLES declares for it (/analytics-report.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH274",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · psme iiee piche which association to join",
       "pages": [
@@ -1020273,12 +1020360,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on psme iiee piche which association to join itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/psme-iiee-piche-which-association-to-join/ the guide's own call to action, 'Open Community →', links /community.html, the tool wh_pages.LEARN_ARTICLES declares for it (/community.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH275",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · ra 11285 energy efficiency plant checklist",
       "pages": [
@@ -1020329,12 +1020417,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on ra 11285 energy efficiency plant checklist itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/ra-11285-energy-efficiency-plant-checklist/ the guide's own call to action, 'Keep your RA 11285 action record in WorkHive', links /audit-log.html, the tool wh_pages.LEARN_ARTICLES declares for it (/audit-log.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH276",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · reduce unplanned downtime guide",
       "pages": [
@@ -1020385,12 +1020474,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on reduce unplanned downtime guide itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/reduce-unplanned-downtime-guide/ the guide's own call to action, 'Open the PM Scheduler', links /pm-scheduler.html, the tool wh_pages.LEARN_ARTICLES declares for it (/pm-scheduler.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH277",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · reliability centered maintenance philippine plants",
       "pages": [
@@ -1020441,12 +1020531,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on reliability centered maintenance philippine plants itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/reliability-centered-maintenance-philippine-plants/ the guide's own call to action, 'Open PM Scheduler →', links /pm-scheduler.html, the tool wh_pages.LEARN_ARTICLES declares for it (/pm-scheduler.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH278",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · resume builder for filipino industrial workers",
       "pages": [
@@ -1020497,12 +1020588,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on resume builder for filipino industrial workers itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/resume-builder-for-filipino-industrial-workers/ the guide's own call to action, 'Open Resume Builder →', links /resume.html, the tool wh_pages.LEARN_ARTICLES declares for it (/resume.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH279",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · sensor cmms gateway operations",
       "pages": [
@@ -1020553,12 +1020645,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on sensor cmms gateway operations itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/sensor-cmms-gateway-operations/ the guide's own call to action, 'Open Plant Connections', links /plant-connections.html, the tool wh_pages.LEARN_ARTICLES declares for it (/plant-connections.html); W4 walked that tap live as the stranger (W41063 phone-390, W41064 narrow-320) and it arrived on /plant-connections.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH280",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · skill matrix for maintenance technicians",
       "pages": [
@@ -1020609,12 +1020702,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on skill matrix for maintenance technicians itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/skill-matrix-for-maintenance-technicians/ the guide's own call to action, 'Open the Skill Matrix', links /skillmatrix.html, the tool wh_pages.LEARN_ARTICLES declares for it (/skillmatrix.html); W4 walked that tap live as the stranger (W41072 phone-390, W41073 narrow-320) and it arrived on /skillmatrix.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH281",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · spare parts inventory philippine plants",
       "pages": [
@@ -1020665,12 +1020759,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on spare parts inventory philippine plants itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/spare-parts-inventory-philippine-plants/ the guide's own call to action, 'Open the Inventory', links /inventory.html, the tool wh_pages.LEARN_ARTICLES declares for it (/inventory.html); W4 walked that tap live as the stranger (W41081 phone-390, W41082 narrow-320) and it arrived on /inventory.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH282",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · start digital logbook philippine factory",
       "pages": [
@@ -1020721,12 +1020816,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on start digital logbook philippine factory itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/start-digital-logbook-philippine-factory/ the guide's own call to action, 'Open the Logbook', links /logbook.html, the tool wh_pages.LEARN_ARTICLES declares for it (/logbook.html); W4 walked that tap live as the stranger (W41090 phone-390, W41091 narrow-320) and it arrived on /logbook.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH283",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · start digital maintenance guide",
       "pages": [
@@ -1020777,12 +1020873,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on start digital maintenance guide itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/start-digital-maintenance-guide/ the guide's own call to action, 'Open the Logbook', links /logbook.html, the tool wh_pages.LEARN_ARTICLES declares for it (/logbook.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH284",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · tesda nc mapping to skill matrix",
       "pages": [
@@ -1020833,12 +1020930,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on tesda nc mapping to skill matrix itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/tesda-nc-mapping-to-skill-matrix/ the guide's own call to action, 'Open Skill Matrix →', links /skillmatrix.html, the tool wh_pages.LEARN_ARTICLES declares for it (/skillmatrix.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH285",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · thermography for pm philippine plants",
       "pages": [
@@ -1020889,12 +1020987,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on thermography for pm philippine plants itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/thermography-for-pm-philippine-plants/ the guide's own call to action, 'Open PM Scheduler →', links /pm-scheduler.html, the tool wh_pages.LEARN_ARTICLES declares for it (/pm-scheduler.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH286",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · vibration analysis on a phone budget",
       "pages": [
@@ -1020945,12 +1021044,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on vibration analysis on a phone budget itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/vibration-analysis-on-a-phone-budget/ the guide's own call to action, 'Open Voice Journal →', links /voice-journal.html, the tool wh_pages.LEARN_ARTICLES declares for it (/voice-journal.html). Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH287",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · voice to text maintenance philippine plant floor",
       "pages": [
@@ -1021001,12 +1021101,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on voice to text maintenance philippine plant floor itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/voice-to-text-maintenance-philippine-plant-floor/ the guide's own call to action, 'Open Voice Journal', links /voice-journal.html, the tool wh_pages.LEARN_ARTICLES declares for it (/voice-journal.html); W4 walked that tap live as the stranger (W41111 phone-390, W41112 narrow-320) and it arrived on /voice-journal.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH288",
-      "status": "specced",
-      "pct": 5,
+      "status": "descoped",
+      "pct": 0,
       "wave": "ENH-L",
       "title": "The platform must send the reader of this guide to the tool it is about, from the guide itself (tool cta) - an anonymous visitor · workhive ai companion complete capabilities",
       "pages": [
@@ -1021057,7 +1021158,8 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on workhive ai companion complete capabilities itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
-      }
+      },
+      "basis": "[2026-10-23] [2026-10-23] DESCOPED - refuted: the measure was wrong, not the guide. Class L counted a guide as missing its tool when its source had no calculator link and no 'learn-link' token, and no guide can carry that token (learn-link.js returns on every /learn/ page), so every guide about an app tool was counted. In learn/workhive-ai-companion-complete-capabilities/ the guide's own call to action, 'Open My Work Assistant', links /assistant.html, the tool wh_pages.LEARN_ARTICLES declares for it (/assistant.html); W4 walked that tap live as the stranger (W41147 phone-390, W41148 narrow-320) and it arrived on /assistant.html. Held by tool-aligned-cta L4, which reads the article body (54/54 guides, 5cc9d41e); the corrected class-L measure reads 0. The stranger's walk at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<viewport>.js) is queued for host memory and will be appended here."
     },
     {
       "id": "ENH289",
@@ -1037727,5 +1037829,5 @@
       }
     }
   ],
-  "next": "ENH-P 226 (the calculator features - export/print, share/save, scenario compare, recommendation - built once in the calculator generator, then walked); ENH-L 45 walk the guides as the stranger at both widths and descope the refuted rows (the scripts are ready, they wait for host memory); ENH-J 6 (the full live-journey sweeps in Chromium and WebKit, also waiting on memory); BRH's remaining 19 wait outside this machine; LB3's two CPU-ms rows at the end of the roadmap"
+  "next": "ENH-P 169: the stranger's walk of the share link and compare per calculator at both widths (scripts ready: .tmp/slw/enhp_walk.template.js), recording each report's recommendation line (47 workbench reports say what to buy or do; the walk is the evidence) and the OEE/MTBF calculators on their pages; then the ENH-L stranger's walk appended to its 45 refuted rows; ENH-J 6 (the full live-journey sweeps in Chromium and WebKit). All three wait for host memory (0.2-0.6 GB free, browser work pauses under about 2 GB). BRH's remaining 19 wait outside this machine; LB3's two CPU-ms rows at the end of the roadmap"
 }
