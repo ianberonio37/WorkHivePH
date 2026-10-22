@@ -1012974,8 +1012974,8 @@
     },
     {
       "id": "ENH144",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-P",
       "title": "The platform must say what to buy or do with the result, not only the number (recommendation) - an anonymous visitor · mtbf calculator",
       "pages": [
@@ -1013026,12 +1013026,22 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on mtbf calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (no model called): a stranger signed up once through the wall's own form, then for each calculator its landing page's own button to the calculator preselected, the form filled as W4's driver fills it, Run, the report's headline figures and recommendation lines read off the page; Share link (the link recorded where the page hands it to the share sheet or the clipboard) opened by a second signed-in account, whose report must show the same figures and drop the fragment; Compare kept as A, one input changed, Run, and the card read for A beside B; OEE and MTBF worked on their own pages with no account - typed, printed under print media, shared to a fresh browser, saved and reloaded, compared; page errors recorded): ENH-P: mtbf recommendation worked on the page at both widths. Witness: MCP walk (.tmp/slw/results/enhp_walk_* / kpi_walk_*, playwright-mcp, x-wh-walk-no-model): mtbf recommendation worked on the page at both widths. Receipt .tmp/mcp_walks/ENH144.json.",
+      "artifacts": {
+        "gates": [
+          "calc-handoff",
+          "calc-share-compare",
+          "design-detector-ratchet",
+          "kpi-calc",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH145",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · mtbf calculator",
       "pages": [
@@ -1013082,12 +1013092,22 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on mtbf calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (no model called): a stranger signed up once through the wall's own form, then for each calculator its landing page's own button to the calculator preselected, the form filled as W4's driver fills it, Run, the report's headline figures and recommendation lines read off the page; Share link (the link recorded where the page hands it to the share sheet or the clipboard) opened by a second signed-in account, whose report must show the same figures and drop the fragment; Compare kept as A, one input changed, Run, and the card read for A beside B; OEE and MTBF worked on their own pages with no account - typed, printed under print media, shared to a fresh browser, saved and reloaded, compared; page errors recorded): ENH-P: mtbf export/print worked on the page at both widths. Witness: MCP walk (.tmp/slw/results/enhp_walk_* / kpi_walk_*, playwright-mcp, x-wh-walk-no-model): mtbf export/print worked on the page at both widths. Receipt .tmp/mcp_walks/ENH145.json.",
+      "artifacts": {
+        "gates": [
+          "calc-handoff",
+          "calc-share-compare",
+          "design-detector-ratchet",
+          "kpi-calc",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH146",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-P",
       "title": "The platform must save the calculation and share it by link (share/save) - an anonymous visitor · mtbf calculator",
       "pages": [
@@ -1013138,12 +1013158,22 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on mtbf calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (no model called): a stranger signed up once through the wall's own form, then for each calculator its landing page's own button to the calculator preselected, the form filled as W4's driver fills it, Run, the report's headline figures and recommendation lines read off the page; Share link (the link recorded where the page hands it to the share sheet or the clipboard) opened by a second signed-in account, whose report must show the same figures and drop the fragment; Compare kept as A, one input changed, Run, and the card read for A beside B; OEE and MTBF worked on their own pages with no account - typed, printed under print media, shared to a fresh browser, saved and reloaded, compared; page errors recorded): ENH-P: mtbf share/save worked on the page at both widths. Witness: MCP walk (.tmp/slw/results/enhp_walk_* / kpi_walk_*, playwright-mcp, x-wh-walk-no-model): mtbf share/save worked on the page at both widths. Receipt .tmp/mcp_walks/ENH146.json.",
+      "artifacts": {
+        "gates": [
+          "calc-handoff",
+          "calc-share-compare",
+          "design-detector-ratchet",
+          "kpi-calc",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH147",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-P",
       "title": "The platform must compare two scenarios side by side (scenario compare) - an anonymous visitor · mtbf calculator",
       "pages": [
@@ -1013194,6 +1013224,16 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on mtbf calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (no model called): a stranger signed up once through the wall's own form, then for each calculator its landing page's own button to the calculator preselected, the form filled as W4's driver fills it, Run, the report's headline figures and recommendation lines read off the page; Share link (the link recorded where the page hands it to the share sheet or the clipboard) opened by a second signed-in account, whose report must show the same figures and drop the fragment; Compare kept as A, one input changed, Run, and the card read for A beside B; OEE and MTBF worked on their own pages with no account - typed, printed under print media, shared to a fresh browser, saved and reloaded, compared; page errors recorded): ENH-P: mtbf scenario compare worked on the page at both widths. Witness: MCP walk (.tmp/slw/results/enhp_walk_* / kpi_walk_*, playwright-mcp, x-wh-walk-no-model): mtbf scenario compare worked on the page at both widths. Receipt .tmp/mcp_walks/ENH147.json.",
+      "artifacts": {
+        "gates": [
+          "calc-handoff",
+          "calc-share-compare",
+          "design-detector-ratchet",
+          "kpi-calc",
+          "scripts-parse"
+        ]
       }
     },
     {
@@ -1013423,8 +1013463,8 @@
     },
     {
       "id": "ENH152",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-P",
       "title": "The platform must say what to buy or do with the result, not only the number (recommendation) - an anonymous visitor · oee calculator",
       "pages": [
@@ -1013475,12 +1013515,22 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on oee calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (no model called): a stranger signed up once through the wall's own form, then for each calculator its landing page's own button to the calculator preselected, the form filled as W4's driver fills it, Run, the report's headline figures and recommendation lines read off the page; Share link (the link recorded where the page hands it to the share sheet or the clipboard) opened by a second signed-in account, whose report must show the same figures and drop the fragment; Compare kept as A, one input changed, Run, and the card read for A beside B; OEE and MTBF worked on their own pages with no account - typed, printed under print media, shared to a fresh browser, saved and reloaded, compared; page errors recorded): ENH-P: oee recommendation worked on the page at both widths. Witness: MCP walk (.tmp/slw/results/enhp_walk_* / kpi_walk_*, playwright-mcp, x-wh-walk-no-model): oee recommendation worked on the page at both widths. Receipt .tmp/mcp_walks/ENH152.json.",
+      "artifacts": {
+        "gates": [
+          "calc-handoff",
+          "calc-share-compare",
+          "design-detector-ratchet",
+          "kpi-calc",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH153",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-P",
       "title": "The platform must print or export the result with its inputs and the standard it follows (export/print) - an anonymous visitor · oee calculator",
       "pages": [
@@ -1013531,12 +1013581,22 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on oee calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (no model called): a stranger signed up once through the wall's own form, then for each calculator its landing page's own button to the calculator preselected, the form filled as W4's driver fills it, Run, the report's headline figures and recommendation lines read off the page; Share link (the link recorded where the page hands it to the share sheet or the clipboard) opened by a second signed-in account, whose report must show the same figures and drop the fragment; Compare kept as A, one input changed, Run, and the card read for A beside B; OEE and MTBF worked on their own pages with no account - typed, printed under print media, shared to a fresh browser, saved and reloaded, compared; page errors recorded): ENH-P: oee export/print worked on the page at both widths. Witness: MCP walk (.tmp/slw/results/enhp_walk_* / kpi_walk_*, playwright-mcp, x-wh-walk-no-model): oee export/print worked on the page at both widths. Receipt .tmp/mcp_walks/ENH153.json.",
+      "artifacts": {
+        "gates": [
+          "calc-handoff",
+          "calc-share-compare",
+          "design-detector-ratchet",
+          "kpi-calc",
+          "scripts-parse"
+        ]
       }
     },
     {
       "id": "ENH154",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-P",
       "title": "The platform must save the calculation and share it by link (share/save) - an anonymous visitor · oee calculator",
       "pages": [
@@ -1013587,6 +1013647,16 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the capability is BUILT on oee calculator itself (not described), used end to end as an anonymous visitor at phone-390 AND desktop-1280, and a gate fails on the page as it was before the build"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, as a visitor, signed out; the page read as served to the row's cast, the service worker blocked, every edge-function call carrying x-wh-walk-no-model (no model called): a stranger signed up once through the wall's own form, then for each calculator its landing page's own button to the calculator preselected, the form filled as W4's driver fills it, Run, the report's headline figures and recommendation lines read off the page; Share link (the link recorded where the page hands it to the share sheet or the clipboard) opened by a second signed-in account, whose report must show the same figures and drop the fragment; Compare kept as A, one input changed, Run, and the card read for A beside B; OEE and MTBF worked on their own pages with no account - typed, printed under print media, shared to a fresh browser, saved and reloaded, compared; page errors recorded): ENH-P: oee share/save worked on the page at both widths. Witness: MCP walk (.tmp/slw/results/enhp_walk_* / kpi_walk_*, playwright-mcp, x-wh-walk-no-model): oee share/save worked on the page at both widths. Receipt .tmp/mcp_walks/ENH154.json.",
+      "artifacts": {
+        "gates": [
+          "calc-handoff",
+          "calc-share-compare",
+          "design-detector-ratchet",
+          "kpi-calc",
+          "scripts-parse"
+        ]
       }
     },
     {
