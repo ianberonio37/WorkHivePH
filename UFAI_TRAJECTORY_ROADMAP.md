@@ -74,7 +74,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 
 **↳ HOW FAST WE MOVE: walk and bank continuously; after a batch run ONLY the gates that cover the files it changed (plus `trajectory-registry` and `live-walk-manifest`), never the whole board — the full board is Ian's gate.** Batch close, in this order: regenerate the header → `build_md_twins` → `build_substrate` → bump `sw.js` once if a precached shell file changed → the relevant gates.
 
-**NEXT: ENH-J 6 (the full live-journey sweep in Chromium and WebKit - PA1/FC1 registered; the page-journeys gate reads the full results); then the public ENH-P 226 and ENH-L 45; BRH's remaining 19 wait outside this machine (N 11 + Z 1 re-probed after the deploy, BRH445 pg_net's dashboard switch, BRH515 backups and AC 5 on production); LB3's two CPU-ms rows at the end of the roadmap**
+**NEXT: ENH-P 226 (the calculator features - export/print, share/save, scenario compare, recommendation - built once in the calculator generator, then walked); ENH-L 45 walk the guides as the stranger at both widths and descope the refuted rows (the scripts are ready, they wait for host memory); ENH-J 6 (the full live-journey sweeps in Chromium and WebKit, also waiting on memory); BRH's remaining 19 wait outside this machine; LB3's two CPU-ms rows at the end of the roadmap**
 
 | Wave | Completion per trajectory |
 |---|---|
@@ -6397,6 +6397,62 @@ figure itself (SL D1's per-figure reveal takes no space at all).
 **Walk order.** The production pages first (the screens a crew works in every shift), founder pages next, then the 60
 calculators through their generator in one change (calculator promotion stays Ian's gate), then the learn index and the
 feedback page. SL D1 resumes after: its per-figure reveal is the other half of the same intent.
+
+### §ENH.L · A learn guide sends its reader to the tool: the measure was wrong, and four things around it were (2026-10-23) - 45 rows
+
+**The measure was wrong.** Class L counted a guide as missing its tool when its source had no calculator link and no
+"learn-link" token. No guide can carry that token: `learn-link.js` returns on every /learn/ page, because it links a
+TOOL page to its guide, not the other way. So only a calculator link could pass, and every guide about an app tool was
+counted. Read one by one, **all 45 end on a button to their tool** ("Open the Logbook", "Open the PM Scheduler", "Open
+the AI Companion"), and 22 of them were already walked live by W4's "follow the tool this guide is about" rows. It is
+the same miss `cta_gate.py` recorded on 2026-08-17: a gate's vocabulary narrower than the content it grades. The fix is
+to teach the measure, not to bend 45 pages.
+
+**What was really broken, found while checking it.**
+- **Nine shipped guides were outside the catalog** that seven validators read (`wh_pages.LEARN_ARTICLES`). The pillar,
+  problem and comparison generators wrote them, and so did one hand-made page. So tool-aligned-CTA, audience-block,
+  em-dash, GA4, sitemap, llms and contact graded 45 of the 54 guides a reader can open.
+- **`learn_links.json` said it was generated from the catalog, and nothing generated it.** It still filed the LOTO guide
+  under Audit three and a half weeks after the catalog moved it to the Logbook. It was also missing the power-rates
+  guide on Engineering Design and all nine uncatalogued guides.
+- **The pillar builder was a loaded trap.** Run once to see what it emits, it wrote three shipped pillars back to its
+  template, and its post-build sweeps put back none of what mattered. It removed 122 lines: the critic batch's contrast
+  (text back to 0.78, 0.55 and 0.5 alpha), its readability rewrites, the CMMS `<abbr>`, `touch-action`, and the
+  end-of-article button turned back into a bold inline link. The pages were restored from git.
+- **Eight of the nine had no "Who this is for" block.** The catalog's audience gate had never read them.
+
+**Built, and what holds it.**
+- `wh_pages.py`: the nine are catalogued, each with the tool its own button opens. The three platform comparisons
+  declare the landing page, as the overview does.
+- **tool-aligned-cta**, now five layers:
+  - **L0:** every guide on disk must be in the catalog.
+  - **L1 and L4:** both read the article body, not the header or footer.
+  - **Deep links count:** `/index.html?companion=1` reaches its declared target.
+  - **Guides about WorkHive itself** must end on sign-up or the landing page.
+  - **`--self-test`:** seven mutants, registered as `tool-aligned-cta-selftest`.
+  - **Teeth:** on the catalog as it was, L0 names the nine; on the pages as they are, 54 of 54 pass.
+- `tools/build_learn_links.py` generates the file and has a `--check` mode. `pull-help-coverage` now fails when the file
+  is not what the catalog generates, and its self-test gained that mutant. On the file as it was it names three
+  drifted pages; regenerated it passes. No page's first guide changed, so every tool page's chip is the same.
+- `build_pillar_pages.py` writes new pillars only. A shipped pillar is kept unless `--force`. The problem and comparison
+  data modules now say they are not rendered: their pages carry 147 to 177 lines that the data does not.
+- The audience block went onto the eight pages as whole new lines only. It is the majority variant of the 46 guides
+  that already carry one. Gates: audience-block 54/54, em-dash, jargon-glossed, design-detector-ratchet (0 primary),
+  cta and public-surface all green. The header did not move: 16,573 of 16,871 before and after the edit.
+- `enhancement_inventory.py` class L is now the gate's own predicate (uncatalogued, or the body never links the
+  declared tool). It measures **0**, and its self-test has the new cases. The seeder's dry run adds nothing, so no id
+  moves.
+
+**The 45 rows.** Every row's premise ("links no calculator, carries no learn-link CTA") is refuted, and each closes as
+**descoped, refuted** in the BRH496 shape. The basis is the live walk of each guide as the stranger who reads it, at
+phone-390 and desktop-1280, using W4's semantics:
+- the link to the declared tool is in the article;
+- it is what a finger meets at its own first line box's centre;
+- tapping it arrives on the tool, or on the tool's sign-in wall carrying the tool in `?return=` and in the stored
+  `wh_return_to`.
+
+The walk scripts are ready (`.tmp/slw/enhl_walk_<viewport>.js`, one viewport per call). They wait for host memory: on
+2026-10-23 the host had 0.36-0.57 GB free with Memory Compression at 2.1 GB, and browser work pauses under about 2 GB.
 
 ## §OPC · The OPERATOR CONSOLE wave — every founder panel in one console (Ian, 2026-10-14)
 

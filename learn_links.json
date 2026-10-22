@@ -3,6 +3,22 @@
     {
       "slug": "start-digital-logbook-philippine-factory",
       "title": "How to Start a Digital Logbook in a Philippine Factory"
+    },
+    {
+      "slug": "loto-procedures-dole-oshs-template",
+      "title": "Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template"
+    },
+    {
+      "slug": "start-digital-maintenance-guide",
+      "title": "How to Start Digital Maintenance in a Philippine Factory (Zero-Budget Guide)"
+    },
+    {
+      "slug": "ph-plant-compliance-guide",
+      "title": "Philippine Plant Compliance Guide: DOLE OSHS, LOTO & RA 11285 Records"
+    },
+    {
+      "slug": "cmms-vs-excel-spreadsheet-maintenance",
+      "title": "CMMS vs Excel Spreadsheet for Maintenance: When to Switch"
     }
   ],
   "analytics.html": [
@@ -21,6 +37,10 @@
     {
       "slug": "four-phases-maintenance-analytics-philippine-plants",
       "title": "The 4 Phases of Maintenance Analytics: From What Happened to What To Do Next"
+    },
+    {
+      "slug": "maintenance-metrics-reliability-guide",
+      "title": "Maintenance Metrics Guide: OEE, MTBF, MTTR & Reliability for Philippine Plants"
     }
   ],
   "shift-brain.html": [
@@ -51,6 +71,10 @@
     {
       "slug": "thermography-for-pm-philippine-plants",
       "title": "Thermography for Preventive Maintenance in Philippine Plants"
+    },
+    {
+      "slug": "reduce-unplanned-downtime-guide",
+      "title": "How to Reduce Unplanned Equipment Downtime in a Factory"
     }
   ],
   "skillmatrix.html": [
@@ -77,6 +101,10 @@
     {
       "slug": "free-engineering-calculators-philippine-plants",
       "title": "Free Engineering Design Calculators for Philippine Plants"
+    },
+    {
+      "slug": "philippine-plants-now-pay-the-highest-power-rates",
+      "title": "Philippine plants now pay the highest power rates in Southeast Asia"
     }
   ],
   "assistant.html": [
@@ -177,10 +205,6 @@
       "title": "DOLE OSHS and ISO Audit Trail from Your Logbook"
     },
     {
-      "slug": "loto-procedures-dole-oshs-template",
-      "title": "Lock-Out Tag-Out (LOTO) Procedures: DOLE OSHS Template"
-    },
-    {
       "slug": "ra-11285-energy-efficiency-plant-checklist",
       "title": "RA 11285 Energy Efficiency: a Plant-Floor Compliance Checklist"
     }
@@ -223,6 +247,22 @@
     {
       "slug": "what-is-workhive-complete-platform-guide",
       "title": "What is WorkHive? The Complete Guide to the Free Platform for Filipino Industrial Teams"
+    },
+    {
+      "slug": "ai-companion-hezekiah-zaniah-personas",
+      "title": "Meet the WorkHive AI Companion: Hezekiah and Zaniah (Two Expert Personas)"
+    },
+    {
+      "slug": "best-free-cmms-software-philippines",
+      "title": "Best Free CMMS Software for Philippine Plants (2026 Comparison)"
+    },
+    {
+      "slug": "workhive-vs-maintainx-comparison",
+      "title": "WorkHive vs MaintainX: Free vs Mobile-First CMMS (2026)"
+    },
+    {
+      "slug": "workhive-vs-upkeep-free-cmms-comparison",
+      "title": "WorkHive vs UpKeep: Free Alternative Compared (2026)"
     }
   ]
 }

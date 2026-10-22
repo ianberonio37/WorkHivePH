@@ -18,7 +18,12 @@ never typed: every cell is a capability a page's own source does not contain, me
                                        missing) and is NOT seeded: the Philippines works in SI (PEC 2017), so it is
                                        not a gain a PH crew would feel. The solar calculator's recommendation,
                                        export and share cells are carried by S's planner rows, not twice.
-  L  a learn guide -> its tool         a guide whose source never links a calculator or the learn-link CTA
+  L  a learn guide -> its tool         a shipped guide the catalog (wh_pages.LEARN_ARTICLES) records no tool for, or
+                                       whose article body never links the tool it declares - the predicate the
+                                       tool-aligned-cta gate holds (L0 + L4). CORRECTED 2026-10-23: this first
+                                       credited only a calculator link or a "learn-link" token, and no guide can
+                                       carry that token (learn-link.js returns on /learn/ pages), so 45 guides that
+                                       end on a button to their tool were measured as having none.
   J  a production page with no live journey  live_page_journeys_results.json has no entry for the page
   C  an open critic cell, signed in    a (production page, rubric dim) a signed-in critic walk left critiqued with
                                        a finding (critic_registry.json), N1 excluded
@@ -100,7 +105,6 @@ CALC_FEATURES = OrderedDict([
 SOLAR_CALC = "solar-pv-calculator"
 PLANNER = "solar-planner.js"   # the planner both solar surfaces load (ENH-S, 2026-10-22)
 SOLAR_COVERS = frozenset(("recommendation", "export/print", "share/save"))   # carried by the S planner rows
-LEARN_CTA = r'href="/tools/|learn-link'
 # R: what counts as provenance in a page's source, and the marker of the bottom Sources area that ends the cell
 PROVENANCE = re.compile(r'renderSourceChip\(|class="wh-source-chip"|How (we compute|this is computed|it.s computed|we calculate)',
                         re.I)
@@ -165,17 +169,24 @@ def _calculators(sources: dict | None) -> list[dict]:
     return out
 
 
-def _guides(sources: dict | None) -> list[dict]:
+def _guides(sources: dict | None, declared: dict | None = None) -> list[dict]:
+    sys.path.insert(0, str(ROOT))
+    from validate_tool_aligned_cta import reaches_declared_tool
+    if declared is None:
+        from wh_pages import article_tool_map
+        declared = {slug: tool for slug, (tool, _name) in article_tool_map().items()}
     out = []
     guides = sorted(p for p in (sources or {}) if p.startswith("learn/")) if sources is not None else sorted(
         p.replace(os.sep, "/").replace(str(ROOT).replace(os.sep, "/") + "/", "")
         for p in glob.glob(str(ROOT / "learn" / "*" / "index.html")))
     for g in guides:
         s = sources[g] if sources is not None else _read(g)
-        if not re.search(LEARN_CTA, s, re.I):
+        tool = declared.get(g.split("/")[1])
+        if tool is None or not reaches_declared_tool(s, tool):
             out.append({"cls": "L", "page": g, "key": "tool cta",
                         "ask": "send the reader of this guide to the tool it is about, from the guide itself",
-                        "detail": f"{g} links no calculator and carries no learn-link CTA"})
+                        "detail": (f"{g} has no tool recorded in the catalog" if tool is None else
+                                   f"{g}'s article never links {tool}, the tool it declares")})
     return out
 
 
@@ -293,8 +304,17 @@ def self_test() -> int:
     ok = ("array Wp & panel count" not in solar_calc and "cost estimate ₱" not in solar_calc and len(solar_calc) == 10
           and "inverter sizing" not in ed and "appliance list builder" in ed
           and p_solar == {"scenario compare"} and p_fan == {"share/save", "scenario compare"}
-          and by["L"] == 1
+          and by["L"] == 2      # learn/a and learn/b are in no catalog: each is a cell, a calculator link or not
           and {s["page"] for s in got if s["cls"] == "R"} == {"inventory.html"})
+    # L against a declared tool (2026-10-23): a body link to it closes the cell, a link to another tool does not,
+    # a link only in the header chrome does not, and an uncatalogued guide is a cell whatever it links
+    l_src = {"learn/ok/index.html": '<main><a href="/logbook.html" class="cta-btn">Open the Logbook</a></main>',
+             "learn/other/index.html": '<main><a href="/hive.html" class="cta-btn">Open the Hive</a></main>',
+             "learn/chrome/index.html": '<header><a href="/logbook.html">Logbook</a></header><main>text</main>',
+             "learn/orphan/index.html": '<main><a href="/logbook.html" class="cta-btn">Open</a></main>'}
+    l_cells = {s["page"] for s in _guides(l_src, {"ok": "/logbook.html", "other": "/logbook.html",
+                                                    "chrome": "/logbook.html"})}
+    ok = ok and l_cells == {"learn/other/index.html", "learn/chrome/index.html", "learn/orphan/index.html"}
     # C: a cell from an English walk stays; a cell only a Filipino walk carries does not (the descope)
     ev = lambda pg, d: [{"dim": d, "evidence": f"{pg}: {d} 67% - x"}]
     crit = [{"id": "W1", "status": "critiqued", "cell": "phone-390|worker|x|y", "findings": ev("skillmatrix", "B3")},

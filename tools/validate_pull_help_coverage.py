@@ -55,9 +55,18 @@ def check(links: dict | None) -> list[str]:
     return problems
 
 
+def generated_drift() -> list[str]:
+    """The file must BE what the catalog generates (ENH-L, 2026-10-23): it claimed to be generated and
+    nothing generated it, so it still filed the LOTO guide under Audit weeks after the catalog moved it."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import build_learn_links
+    return [f"learn_links.json is not what the catalog generates - {d} (run python tools/build_learn_links.py)"
+            for d in build_learn_links.drift()]
+
+
 def main() -> int:
     links = _load()
-    problems = check(links)
+    problems = check(links) + (generated_drift() if links is not None else [])
     if problems:
         print("FAIL pull-help-coverage — pull-help is incomplete or points at missing guides:")
         for p in problems[:12]:
@@ -84,9 +93,19 @@ def self_test() -> int:
             fails.append("a dangling guide link should FAIL")
     if not any("no data source" in p for p in check(None)):
         fails.append("missing learn_links.json should FAIL")
+    import build_learn_links as bl
+    real = bl.OUT.read_text(encoding="utf-8")
+    drifted = json.loads(real)
+    drifted["audit-log.html"] = drifted.get("audit-log.html", []) + [{"slug": "loto-procedures-dole-oshs-template", "title": "T"}]
+    with m.patch.object(bl.Path, "read_text", return_value=json.dumps(drifted)):
+        if not bl.drift():
+            fails.append("a file that differs from the catalog should FAIL")
+    if bl.drift():
+        fails.append("the shipped learn_links.json should match the catalog")
     if fails:
         print("SELF-TEST FAIL:", "; ".join(fails)); return 1
-    print("PASS validate_pull_help_coverage self-test (missing-core-page / dangling-guide / no-data-source redden)")
+    print("PASS validate_pull_help_coverage self-test (missing-core-page / dangling-guide / no-data-source / "
+          "drift-from-the-catalog redden)")
     return 0
 
 

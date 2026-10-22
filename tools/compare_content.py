@@ -19,6 +19,11 @@ HONESTY RULE: every competitor claim here is from published vendor/di rectory so
 of 2026-08 and is date-stamped + hedged ("published entry pricing; verify current"). We
 name cases where a competitor is the better choice, because that is true and because a
 page that only flatters itself does not get cited.
+
+NOTHING RENDERS THIS NOW (2026-10-23): the four shipped pages are the source. They carry the
+critic batches' fixes, and the CMMS-vs-Excel page ends on its own tool button (Open the Logbook,
+not the "/#join" below) - re-rendering any of them through build_pillar_pages._page() would revert
+151 to 177 lines.
 """
 
 _STAMP = "Pricing verified against vendor and directory listings on 5 August 2026; SaaS pricing moves, so confirm current terms with the vendor before deciding. This comparison is reviewed quarterly for pricing and feature accuracy."

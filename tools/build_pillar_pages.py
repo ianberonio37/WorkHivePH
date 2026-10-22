@@ -496,13 +496,26 @@ def _run_post_build_sweeps() -> int:
 
 def main() -> int:
     from pillar_content import PILLARS  # sibling data module
+    # ★A REBUILD REVERTED THE SHIPPED PAGES (ENH-L, 2026-10-23). Run to check what it emits, this wrote all
+    # three pillars back to the template and the sweeps below restored none of what mattered: the critic
+    # batch's contrast (text at 0.85 back to 0.78, 0.55 and 0.5), its readability rewrites, the CMMS <abbr>,
+    # touch-action, and the end-of-article button turned back into a bold inline link - 122 lines removed.
+    # Once a pillar ships, the PAGE is the source; this writes new pillars, and --force is the explicit
+    # "every later fix is now in pillar_content and _page" switch (the shipped pages were restored from git).
+    force = "--force" in _sys.argv
     built = []
     for p in PILLARS:
         d = LEARN / p["slug"]
+        if (d / "index.html").exists() and not force:
+            print(f"  kept /learn/{p['slug']}/  (it ships; a rebuild would revert its later fixes - see --force)")
+            continue
         d.mkdir(parents=True, exist_ok=True)
         (d / "index.html").write_text(_page(p), encoding="utf-8")
         built.append(p["slug"])
         print(f"  built /learn/{p['slug']}/  ({len((d/'index.html').read_text(encoding='utf-8'))} bytes)")
+    if not built:
+        print("\nNo new pillar to write.")
+        return 0
     rc = _run_post_build_sweeps()
     print(f"\n{len(built)} pillar page(s) written to learn/. Add to sitemap.xml, then run_platform_checks.")
     return rc

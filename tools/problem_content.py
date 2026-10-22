@@ -8,6 +8,10 @@ they reward is an ordered procedure with numbers attached, not an essay.
 
 Rendered through build_pillar_pages._page(), so it inherits the /learn article template,
 schema graph, and every gate the other articles pass.
+
+NOTHING RENDERS THIS NOW (2026-10-23): the shipped page is the source. It ends on its own tool
+button (Open the PM Scheduler, not the "/#join" below) and carries the critic batches' fixes,
+none of which is in this data - re-rendering it through _page() would revert 147 lines.
 """
 
 PROBLEM_PAGES = [

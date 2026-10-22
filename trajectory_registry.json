@@ -1037727,5 +1037727,5 @@
       }
     }
   ],
-  "next": "ENH-J 6 (the full live-journey sweep in Chromium and WebKit - PA1/FC1 registered; the page-journeys gate reads the full results); then the public ENH-P 226 and ENH-L 45; BRH's remaining 19 wait outside this machine (N 11 + Z 1 re-probed after the deploy, BRH445 pg_net's dashboard switch, BRH515 backups and AC 5 on production); LB3's two CPU-ms rows at the end of the roadmap"
+  "next": "ENH-P 226 (the calculator features - export/print, share/save, scenario compare, recommendation - built once in the calculator generator, then walked); ENH-L 45 walk the guides as the stranger at both widths and descope the refuted rows (the scripts are ready, they wait for host memory); ENH-J 6 (the full live-journey sweeps in Chromium and WebKit, also waiting on memory); BRH's remaining 19 wait outside this machine; LB3's two CPU-ms rows at the end of the roadmap"
 }

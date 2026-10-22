@@ -121,6 +121,23 @@ LEARN_ARTICLES = [
     ("what-is-workhive-complete-platform-guide",          "What is WorkHive? The Complete Guide to the Free Platform for Filipino Industrial Teams", "/index.html",       "WorkHive"),
     ("workhive-ai-companion-complete-capabilities",       "The WorkHive AI Companion: Everything It Can Do (and How to Get the Most From It)",         "/assistant.html",   "AI Companion"),
     ("philippine-plants-now-pay-the-highest-power-rates", "Philippine plants now pay the highest power rates in Southeast Asia", "/engineering-design.html", "Engineering Design Calculator"),
+
+    # ── Shipped OUTSIDE this catalog, catalogued 2026-10-23 (ENH-L) ────────────
+    # Nine guides on disk were never listed here: the pillar, problem and comparison pages
+    # (tools/pillar_content.py, problem_content.py, compare_content.py) and the hand-made
+    # personas guide. Every validator that reads this file - the tool-aligned CTA among them -
+    # graded 45 of the 54 guides a reader can open. tool_path is the tool each one's own
+    # end-of-article button opens. The three platform comparisons are about WorkHive itself
+    # and end on sign-up, so they declare the landing page, as the overview above does.
+    ("ai-companion-hezekiah-zaniah-personas",             "Meet the WorkHive AI Companion: Hezekiah and Zaniah (Two Expert Personas)", "/index.html?companion=1", "AI Companion"),
+    ("start-digital-maintenance-guide",                   "How to Start Digital Maintenance in a Philippine Factory (Zero-Budget Guide)", "/logbook.html", "Logbook"),
+    ("maintenance-metrics-reliability-guide",             "Maintenance Metrics Guide: OEE, MTBF, MTTR & Reliability for Philippine Plants", "/analytics.html", "Analytics"),
+    ("ph-plant-compliance-guide",                         "Philippine Plant Compliance Guide: DOLE OSHS, LOTO & RA 11285 Records", "/logbook.html", "Logbook"),
+    ("reduce-unplanned-downtime-guide",                   "How to Reduce Unplanned Equipment Downtime in a Factory", "/pm-scheduler.html", "PM Scheduler"),
+    ("cmms-vs-excel-spreadsheet-maintenance",             "CMMS vs Excel Spreadsheet for Maintenance: When to Switch", "/logbook.html", "Logbook"),
+    ("best-free-cmms-software-philippines",               "Best Free CMMS Software for Philippine Plants (2026 Comparison)", "/index.html", "WorkHive"),
+    ("workhive-vs-maintainx-comparison",                  "WorkHive vs MaintainX: Free vs Mobile-First CMMS (2026)", "/index.html", "WorkHive"),
+    ("workhive-vs-upkeep-free-cmms-comparison",           "WorkHive vs UpKeep: Free Alternative Compared (2026)", "/index.html", "WorkHive"),
 ]
 
 
