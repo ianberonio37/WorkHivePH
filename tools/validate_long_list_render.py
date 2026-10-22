@@ -66,6 +66,8 @@ STATIC  R1 utils.js whRenderRows appends a grown list, patches a few changed row
         R17 a row drawn through whRenderRows carries no HTML comment in its template: a comment is one more node in
            every row, parsed, kept and traced by the collector - inventory's part card carried three (~1.5 KB of notes a
            card), and around each press the browser's collections were the longest tasks; notes live as JS comments.
+           The scan follows a row builder the call passes or calls by name (project-manager's pcardHtml carried a
+           note R17 never read), taking each builder's extent from comment-blanked source.
         R18 only a row the browser is drawing is a scroll anchor: the long-list rows are out of the anchor choice
            (overflow-anchor:none) and utils.js marks the rows the browser starts drawing (a contentvisibilityautostatechange
            listener setting the data-wh-drawn ATTRIBUTE - every page's observer answers class changes) and lets those
@@ -76,6 +78,16 @@ STATIC  R1 utils.js whRenderRows appends a grown list, patches a few changed row
         R19 the shared chrome's quarter-second passes run after the paint, not before it: learn-link.js runFull hands the
            guide chip's full pass from its frame callback to a task (33-41 ms of each press at phone speed ran inside the
            press's own frame), and nav-hub.js runs every pass but a dialog's the same way (afterPaint; 14-16 ms a press).
+        R20 a row's hidden part is drawn when it is shown, not on every press: the day planner's open-item card draws its
+           body (the problem, its badges, "+ Place on Schedule") only for the SELECTED card, and the card's key carries
+           the selection so a tap redraws it with its body. Every "Show more" press parsed fifty cards' hidden bodies:
+           23-54 ms of the click at 390 with the CPU 4x slower (6-8 ms without), and the thousand cards held 14,584
+           elements (9,584 without).
+        R21 a list whose rows are REPLACED, never edited in place, keeps each row's key with the row: whRenderRows'
+           immutable option keeps the default key in a WeakMap, and the logbook - whose entries change only by
+           replacement (a spread of the old entry, the offline copy, the edit) - sets it and writes no listed entry in
+           place. Each Load More re-serialised every entry it had drawn, and its slowest press at 390 (CPU 4x) held a
+           19 ms major collection inside the click.
 SELF-TEST (--self-test): each check broken in a copy of a real file (or on a synthetic page appended to one), each
         caught; the clean run is green.
 
@@ -166,8 +178,10 @@ def _block_end(src: str, i: int) -> int:
     return len(src)
 
 
-def fn_body(src: str, name: str) -> str | None:
-    """The body of the function `name` defined on the page (function name( / name = (...) => / name = function)."""
+def fn_span(src: str, name: str) -> tuple[int, int] | None:
+    """Where the body of the function `name` defined on the page sits (function name( / name = (...) => / name =
+    function): (start, end) of its braces. Pass comment-blanked source - on the raw page an apostrophe in a comment
+    reads as a string, and formatDate's braces ran on for 1,863 lines."""
     m = re.search(r"(?:\bfunction\s+" + re.escape(name) + r"\s*\(|\b" + re.escape(name)
                   + r"\s*=\s*(?:async\s*)?(?:function\b[^{]*|\([^)]*\)\s*=>\s*|[\w$]+\s*=>\s*))", src)
     if not m:
@@ -175,7 +189,13 @@ def fn_body(src: str, name: str) -> str | None:
     k = src.find("{", m.end() - 1)
     if k < 0:
         return None
-    return src[k:_block_end(src, k + 1) + 1]
+    return k, _block_end(src, k + 1) + 1
+
+
+def fn_body(src: str, name: str) -> str | None:
+    """The body of the function `name` defined on the page (function name( / name = (...) => / name = function)."""
+    sp = fn_span(src, name)
+    return src[sp[0]:sp[1]] if sp else None
 
 
 def calls_in(text: str) -> list[str]:
@@ -336,8 +356,89 @@ def check_page(page: str, raw: str) -> list[str]:
 
 
 def comments_in_row_templates(src: str) -> list[tuple[int, int]]:
-    """For each whRenderRows( call whose template literals hold '<!--': (its line, how many)."""
-    return [(src.count("\n", 0, s) + 1, f) for s, _e, f in row_calls(src) if f]
+    """For each whRenderRows( call whose template literals hold '<!--' - its own, or those of a row builder it passes or
+    calls by name and the page defines (project-manager passes pcardHtml; hive's feed calls buildFeedCard): (its line,
+    how many)."""
+    out = []
+    bsrc = blank_comments(src)   # extents read here (an apostrophe in a comment is no string); markup read in src
+    for s, e, f in row_calls(src):
+        # names only from the call's CODE (its ${...} included): a name inside template text - onclick="openModal(..)" -
+        # is a handler the row points at, not markup the row is built from
+        _n, call = scan_js(src[s + len("whRenderRows("):e])
+        names = set(re.findall(r"\b([A-Za-z_$][\w$]*)\s*\(", call)) | set(re.findall(r"[,(]\s*([A-Za-z_$][\w$]*)\s*(?=[,)])", call))
+        for nm in sorted(names - {"whRenderRows", "JSON", "String", "Number", "Math", "Object", "Array", "escHtml", "escJsAttr"}):
+            sp = fn_span(bsrc, nm)
+            if sp:
+                f += scan_js(src[sp[0]:sp[1]])[0]
+        if f:
+            out.append((src.count("\n", 0, s) + 1, f))
+    return out
+
+
+def scan_js(text: str) -> tuple[int, str]:
+    """A piece of JS read as row_calls reads it (strings, comments, template literals and the ${...} in them followed):
+    how many '<!--' sit inside its template literals, and its code alone - template text, quoted strings and comments as
+    spaces."""
+    i, n, stack, found = 0, len(text), [], 0
+    code = list(text)
+
+    def blank(a, b):
+        for k in range(a, min(b, n)):
+            if code[k] != "\n":
+                code[k] = " "
+    while i < n:
+        ch = text[i]
+        top = stack[-1] if stack else None
+        if top == "tpl":
+            if ch == "\\":
+                blank(i, i + 2)
+                i += 2
+                continue
+            if ch == "`":
+                stack.pop()
+            elif ch == "$" and text[i + 1:i + 2] == "{":
+                stack.append(["expr", 0])
+                i += 2
+                continue
+            else:
+                if text.startswith("<!--", i):
+                    found += 1
+                blank(i, i + 1)
+            i += 1
+            continue
+        if ch in "'\"":
+            j = i + 1
+            while j < n and text[j] != ch:
+                j += 2 if text[j] == "\\" else 1
+            blank(i, j + 1)
+            i = j + 1
+            continue
+        if ch == "`":
+            stack.append("tpl")
+            i += 1
+            continue
+        if text.startswith("//", i):
+            j = text.find("\n", i)
+            j = n if j < 0 else j
+            blank(i, j)
+            i = j
+            continue
+        if text.startswith("/*", i):
+            j = text.find("*/", i + 2)
+            j = n if j < 0 else j + 2
+            blank(i, j)
+            i = j
+            continue
+        if isinstance(top, list):
+            if ch == "{":
+                top[1] += 1
+            elif ch == "}":
+                if top[1] == 0:
+                    stack.pop()
+                else:
+                    top[1] -= 1
+        i += 1
+    return found, "".join(code)
 
 
 def row_calls(src: str) -> list[tuple[int, int, int]]:
@@ -586,12 +687,50 @@ def check_anchor_and_paint(utils: str, learn: str, nav: str) -> list[str]:
                       "runs before the paint, every other one after it (afterPaint)")
     return issues
 
+# R20: the day planner's card body is drawn for the selected card only, and the key carries the selection
+DP_BODY_LAZY = re.compile(r'class="lb-card-body"\s+id="lbc-body-\$\{item\.id\}">\$\{isSelected\s*\?')
+# R21: a listed logbook entry written in place - the kept key would hide the change
+LB_IN_PLACE = re.compile(r"\b(?:_allEntries|_teamEntries)\[[^\]]+\]\.[A-Za-z_$][\w$]*\s*=(?!=)|Object\.assign\(\s*(?:_allEntries|_teamEntries)\[")
+
+
+def check_row_cost(utils: str, dayplanner: str, logbook: str) -> list[str]:
+    """R20 + R21: what each press builds for rows it does not change."""
+    issues = []
+    dp = blank_comments(dayplanner)
+    k = dp.find("sig: 'dp-open-items'")
+    key = dp[k:dp.find("});", k)] if k >= 0 else ""
+    if not DP_BODY_LAZY.search(dp) or "r.isSelected" not in key:
+        issues.append("R20 dayplanner.html draws every open-item card's hidden body on every Show more press - draw the body "
+                      "only for the selected card (${isSelected ? ...}) and keep the selection in the card's key, so a tap "
+                      "redraws the card with its body (fifty hidden bodies cost 23-54 ms of each press at phone speed)")
+    rb = fn_body(blank_comments(utils), "whRenderRows") or ""
+    if not re.search(r"opts\.immutable\s*&&\s*_whRowKeyMemo\s*\)\s*\?", rb) or "_whRowKeyMemo.get(x)" not in rb \
+            or "_whRowKeyMemo.set(x, k)" not in rb or "var _whRowKeyMemo" not in utils:
+        issues.append("R21 utils.js whRenderRows no longer keeps a row's default key with the row when the page says its "
+                      "rows are replaced, never edited (immutable) - every press serialises every drawn row again")
+    lb = blank_comments(logbook)
+    i = lb.find("whRenderRows(list, visible")
+    j = lb.find("sig: JSON.stringify([query, _viewMode", i) if i >= 0 else -1
+    opts = lb[j:lb.find("});", j)] if j >= 0 else ""
+    if "immutable: true" not in opts:
+        issues.append("R21 logbook.html re-serialises every entry it has drawn on each Load More - its entries change only "
+                      "by replacement, so its whRenderRows call says so (immutable: true)")
+    m = LB_IN_PLACE.search(lb)
+    if m:
+        line = lb.count("\n", 0, m.start()) + 1
+        issues.append(f"R21 logbook.html:{line} writes a listed entry in place ({m.group(0)[:60]}) - its list keeps each "
+                      "entry's key with the entry (immutable), so a changed entry must be a NEW object or its card never "
+                      "redraws")
+    return issues
+
+
 def check(files: dict[str, str] | None = None, utils_override: str | None = None) -> list[str]:
     def text(rel: str) -> str:
         return files[rel] if files and rel in files else (ROOT / rel).read_text(encoding="utf-8", errors="replace")
     issues = check_helper(text("utils.js"), utils_override)
     issues += check_shared(text("utils.js"), text("learn-link.js"))
     issues += check_anchor_and_paint(text("utils.js"), text("learn-link.js"), text("nav-hub.js"))
+    issues += check_row_cost(text("utils.js"), text("dayplanner.html"), text("logbook.html"))
     for page in DATA_PAGES:
         issues += check_page(page, text(page))
     for page in STATIC_PAGES:
@@ -731,6 +870,18 @@ def self_test() -> list[str]:
             "var afterPaint = function () { requestAnimationFrame(run); };", 1)}, None, "R19"),
         ("the nav hub's waited pass back inside a frame", {"nav-hub.js": (ROOT / "nav-hub.js").read_text(encoding="utf-8").replace(
             "else if (wait > 0) setTimeout(afterPaint, wait);", "else if (wait > 0) setTimeout(function () { requestAnimationFrame(run); }, wait);", 1)}, None, "R19"),
+        ("a comment in a row builder passed by name", {"project-manager.html": (ROOT / "project-manager.html").read_text(encoding="utf-8").replace(
+            '<div class="pname">${e(p.name)}</div>', '<div class="pname">${e(p.name)}</div><!-- a note -->', 1)}, None, "R17"),
+        ("every planner card's body drawn on every press", {"dayplanner.html": (ROOT / "dayplanner.html").read_text(encoding="utf-8").replace(
+            '<div class="lb-card-body" id="lbc-body-${item.id}">${isSelected ? `', '<div class="lb-card-body" id="lbc-body-${item.id}">${true ? `', 1)}, None, "R20"),
+        ("a planner card's key without its selection", {"dayplanner.html": (ROOT / "dayplanner.html").read_text(encoding="utf-8").replace(
+            "const st = r.isSelected + '|' + r.hasDone", "const st = r.hasDone", 1)}, None, "R20"),
+        ("whRenderRows never keeping a row's key", {"utils.js": utils.replace(
+            "(opts.immutable && _whRowKeyMemo) ?", "(false) ?", 1)}, None, "R21"),
+        ("the logbook not saying its entries are replaced", {"logbook.html": (ROOT / "logbook.html").read_text(encoding="utf-8").replace(
+            "    immutable: true,\n  });", "  });", 1)}, None, "R21"),
+        ("the logbook writing a listed entry in place", {"logbook.html": (ROOT / "logbook.html").read_text(encoding="utf-8").replace(
+            "async function loadMoreLogbook() {", "async function loadMoreLogbook() {\n  if (_allEntries[0]) _allEntries[0].status = 'Closed';", 1)}, None, "R21"),
     ]
     MUTANTS_RUN[0] = len(mutants)
     for name, files, utils_src, want in mutants:

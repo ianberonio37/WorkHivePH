@@ -188,6 +188,17 @@
     .lb-card-body { padding: 0 0.75rem 0.625rem; display: none; }
     .lb-card-body.open { display: block; }
     .lb-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    /* SL LB3: an open-item card's header, as classes rather than six inline styles on every card - each "Show more" press
+       parses fifty cards' markup (the same values the inline styles carried) */
+    .lb-card.lb-card-done { opacity: 0.55; }
+    .lb-card-main { flex: 1; min-width: 0; }
+    .lb-card-title { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lb-card-meta { font-size: 0.75rem; color: rgba(255,255,255,0.80); margin-top: 4px; font-weight: 400; }
+    .lb-card-side { display: flex; align-items: center; gap: 4px; }
+    .lb-caret { display: inline-block; transition: transform 150ms var(--wh-ease-out, ease-out); }
+    .badge.lb-badge-done { background: rgba(74,222,128,0.15); color: var(--wh-green); border: 1px solid rgba(74,222,128,0.3); }
+    .badge.lb-badge-missed { background: rgba(248,113,113,0.15); color: var(--wh-red-text); border: 1px solid rgba(248,113,113,0.3); }
+    .badge.lb-badge-sched { background: rgba(41,182,217,0.15); color: var(--wh-blue-text); border: 1px solid rgba(41,182,217,0.3); }
 
     /* Calendar content */
     .calendar-wrap { flex: none; min-height: 320px; overflow: visible; padding: 1rem 1.5rem 1.5rem; }
@@ -718,6 +729,7 @@ let currentDate = _phtWallNow();
 let logbookItems = [];
 let logbookMore = false;   // SL LB1: the open-items read found more than it shows
 let _dpOpenShown = 50;     // SL LB3: the open items drawn at once (newest first); "Show more open items" adds 50
+const _dpCardKey = new WeakMap();   // SL LB3: an open item -> its card's key, built once per item and card state
 let scheduleItems = [];
 let selectedLogbookItem = null;
 let plantWork = [];
@@ -1692,18 +1704,12 @@ function renderSidebar() {
     // Badge config
     let schedBadge = '';
     if (hasDone) {
-      schedBadge = `<span class="badge" style="background:rgba(74,222,128,0.15);color:var(--wh-green);border:1px solid rgba(74,222,128,0.3)">
-        <span class="ic ic-check" aria-hidden="true"></span>Done</span>`;
+      schedBadge = `<span class="badge lb-badge-done"><span class="ic ic-check" aria-hidden="true"></span>Done</span>`;
     } else if (hasMissed) {
-      schedBadge = `<span class="badge" style="background:rgba(248,113,113,0.15);color:var(--wh-red-text);border:1px solid rgba(248,113,113,0.3)">
-        <span class="ic ic-back" aria-hidden="true"></span>Missed</span>`;
+      schedBadge = `<span class="badge lb-badge-missed"><span class="ic ic-back" aria-hidden="true"></span>Missed</span>`;
     } else if (hasLinked) {
-      schedBadge = `<span class="badge" style="background:rgba(41,182,217,0.15);color:var(--wh-blue-text);border:1px solid rgba(41,182,217,0.3)">
-        <span class="ic ic-back" aria-hidden="true"></span>Scheduled</span>`;
+      schedBadge = `<span class="badge lb-badge-sched"><span class="ic ic-back" aria-hidden="true"></span>Scheduled</span>`;
     }
-
-    // Dim card slightly if done
-    const dimStyle = hasDone ? 'opacity:0.55;' : '';
 
     // KEYBOARD OPERABILITY. This card is a <div> carrying its own onclick, which makes it
     // mouse-only: no tab stop, no Enter/Space, invisible to a switch device and announced as
@@ -1715,20 +1721,24 @@ function renderSidebar() {
     // enters the focus denominator at all. A skipped partition reads as a covered one.
     // Fix: role=button + tabindex=0 + an Enter/Space keydown, which is exactly what the audit
     // names as expected. aria-pressed carries the selected state the .selected class shows.
+    // SL LB3: the body (the problem, its badges, "+ Place on Schedule") is drawn only for the SELECTED card. It is hidden
+    // until a tap opens it, and that tap selects the card, which re-renders it (its key carries isSelected) before
+    // selectLogbookItem opens it. Traced at 390 with the CPU 4x slower, each "Show more" press parsed fifty cards' whole
+    // markup, the hidden bodies included: 23-54 ms of the click, in the three slowest presses.
     return `
-    <div class="lb-card ${isSelected ? 'selected selected-pulse' : ''}" id="lbc-${item.id}" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}" onclick="selectLogbookItem('${escJsAttr(item.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectLogbookItem('${escJsAttr(item.id)}');}" style="${dimStyle}">
+    <div class="lb-card ${isSelected ? 'selected selected-pulse' : ''}${hasDone ? ' lb-card-done' : ''}" id="lbc-${item.id}" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}" onclick="selectLogbookItem('${escJsAttr(item.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectLogbookItem('${escJsAttr(item.id)}');}">
       <div class="lb-card-header">
         <div class="lb-dot" style="background:${c.text}"></div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(item.machine) || 'Unknown Machine'}</div>
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-top:4px;font-weight:400">${item.date ? escHtml(whFmtDate(item.date, { year: false })) : ''} &bull; ${escHtml(item.category) || ''}</div>
+        <div class="lb-card-main">
+          <div class="lb-card-title">${escHtml(item.machine) || 'Unknown Machine'}</div>
+          <div class="lb-card-meta">${item.date ? escHtml(whFmtDate(item.date, { year: false })) : ''} &bull; ${escHtml(item.category) || ''}</div>
         </div>
-        <div style="display:flex;align-items:center;gap:4px">
+        <div class="lb-card-side">
           ${schedBadge}
-          <span class="ic ic-caret" id="lbc-arrow-${item.id}" style="display:inline-block;transition:transform 150ms var(--wh-ease-out, ease-out)" aria-hidden="true"></span>
+          <span class="ic ic-caret lb-caret" id="lbc-arrow-${item.id}" aria-hidden="true"></span>
         </div>
       </div>
-      <div class="lb-card-body" id="lbc-body-${item.id}">
+      <div class="lb-card-body" id="lbc-body-${item.id}">${isSelected ? `
         <div style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:0.5rem;line-height:1.4">${escHtml((item.problem || '').substring(0,120))}${(item.problem||'').length > 120 ? '...' : ''}</div>
         <div style="display:flex;gap:0.375rem;flex-wrap:wrap;margin-bottom:0.5rem">
           <span class="badge" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">${escHtml(item.category)}</span>
@@ -1736,11 +1746,18 @@ function renderSidebar() {
         </div>
         ${linked.length ? `<div style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin-bottom:0.375rem">${linked.length} scheduled slot${linked.length>1?'s':''}</div>` : ''}
         <button class="btn-ghost" style="width:100%;font-size:0.75rem;min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')" data-i="placeonschedule">+ Place on Schedule</button>
-      </div>
+      ` : ''}</div>
     </div>`;
   }, { sig: 'dp-open-items', long: true,
-       // a card shows its item, whether it is selected, and its schedule links' state - so those are its key
-       key: (r) => JSON.stringify(r.item) + '|' + r.isSelected + '|' + r.hasDone + '|' + r.hasMissed + '|' + r.linked.length });
+       // a card shows its item, whether it is selected, and its schedule links' state - so those are its key. Kept per
+       // item (the items are replaced, never edited in place), so a press does not serialise every card again, and an
+       // unchanged card hands back the same string, which compares at once
+       key: (r) => {
+         const st = r.isSelected + '|' + r.hasDone + '|' + r.hasMissed + '|' + r.linked.length;
+         let k = _dpCardKey.get(r.item);
+         if (!k || k.st !== st) { k = { st, key: JSON.stringify(r.item) + '|' + st }; _dpCardKey.set(r.item, k); }
+         return k.key;
+       } });
   const plantEl = container.querySelector(':scope > [data-dp-plant]');
   const plantHtml = renderPlantWorkSection();
   plantEl.innerHTML = plantHtml;

@@ -1213,6 +1213,9 @@ async function loadProjects() {
   renderList();
 }
 
+// SL F4: the card read "active 25%" - 25% of what; the figure is the project's work done, so it says "% done". (A JS
+// comment, not an HTML one in the card: that was one more node in every card of a thousand-card grid - SL LB3 R17.)
+// The card reads nothing from outside its project - the grid's key below is exactly the fields read here.
 function pcardHtml(p) {
   return `
     <div class="pcard" onclick="openDetail('${escJsAttr(p.id)}')">
@@ -1230,7 +1233,7 @@ function pcardHtml(p) {
       <div class="progress"><div class="progress-bar ${progressColor(p._pct)}" style="width: ${p._pct || 0}%"></div></div>
       <div class="pcard-foot">
         <span class="status-pill status-${p.status}">${e(p.status.replace('_', ' '))}</span>
-        <span>${p._pct || 0}% done</span><!-- SL F4: the card read "active 25%" - 25% of what; it is the project's work done -->
+        <span>${p._pct || 0}% done</span>
       </div>
     </div>`;
 }
@@ -1445,8 +1448,13 @@ function renderList() {
     grid.style.display = 'grid';
     const visible = list.slice(0, _pmDisplayCount);
     if (lmWrap) lmWrap.classList.toggle('hidden', visible.length >= list.length);
-    // SL LB3: "Load more" (30 a press) appends the new cards instead of rebuilding every one; a card's own HTML is its key
-    whRenderRows(grid, visible, pcardHtml, { key: 'html', long: true });
+    // SL LB3: "Load more" (30 a press) appends the new cards instead of rebuilding every one. The key is the fields the
+    // card shows (pcardHtml reads nothing else), not the card's HTML: key 'html' built every card's markup on every
+    // press just to compare it. The rollup fields (_pct, _items_*, _nature) are written onto the projects in place,
+    // and a field key reads them on every render, so a card whose rollup arrives later still redraws
+    whRenderRows(grid, visible, pcardHtml, { sig: 'pm-cards', long: true,
+      key: (p) => [p.id, p.project_code, p.project_type, p._nature, p.name, p.owner_name, p.end_date,
+                   p._items_done, p._items_total, p._pct, p.status].join('|') });
     return;
   }
 

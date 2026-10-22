@@ -4254,13 +4254,28 @@ if (typeof window !== 'undefined') window.whInChunks = whInChunks;
 // them cost 340 ms a press at phone speed.
 // `long: true` lets the browser skip rendering rows that are off screen (content-visibility); only for rows that hold no
 // popover or menu that must draw outside the row. Returns 'appended', 'patched' or 'replaced'.
+// `immutable: true` (with the default key) says the page REPLACES a changed row object and never edits one in place, so
+// each row's key is kept with the row and a press does not serialise every row again. SL LB3, traced at 390 with the
+// CPU 4x slower: the logbook re-serialised every entry it had drawn on each Load More, and its slowest press held a
+// 19 ms major collection inside the click. A page that edits a row object in place must not set it - its changed row
+// would keep its old key and never redraw.
+var _whRowKeyMemo = typeof WeakMap === 'function' ? new WeakMap() : null;
 function whRenderRows(listEl, items, rowHtml, opts) {
   opts = opts || {};
   // key 'html': a row's key IS its HTML - every row's string is built (cheap), the DOM is touched only for rows that are
   // new, and a row that would render differently (a relative time, a name, a badge) is always caught. No sig is needed.
   var html = opts.key === 'html' ? items.map(rowHtml) : null;
   var sig = opts.sig !== undefined ? String(opts.sig) : (html ? '' : undefined);
-  var keyOf = typeof opts.key === 'function' ? opts.key : function (x) { try { return JSON.stringify(x); } catch (_) { return String(Math.random()); } };
+  // a row that cannot be serialised gets a fresh key on every call (it always redraws), and is never kept
+  var rowKey = function (x) { try { return JSON.stringify(x); } catch (_) { return null; } };
+  var keyOf = typeof opts.key === 'function' ? opts.key
+    : (opts.immutable && _whRowKeyMemo) ? function (x) {
+        if (!x || typeof x !== 'object') { var p = rowKey(x); return p === null ? String(Math.random()) : p; }
+        var k = _whRowKeyMemo.get(x);
+        if (k === undefined) { k = rowKey(x); if (k === null) return String(Math.random()); _whRowKeyMemo.set(x, k); }
+        return k;
+      }
+    : function (x) { var k = rowKey(x); return k === null ? String(Math.random()) : k; };
   var keys = html || items.map(function (x, i) { return String(keyOf(x, i)); });
   var rowsHtml = function (from) { return html ? html.slice(from).join('') : items.slice(from).map(rowHtml).join(''); };
   if (opts.long) listEl.classList.add('wh-rows-cv');

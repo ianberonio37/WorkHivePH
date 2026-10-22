@@ -5165,6 +5165,9 @@ async function renderEntries(reload = true, fromStatPills = false) {
     // the search it highlights, the view (team cards name who logged them) and the CMMS source labels that arrive later.
     sig: JSON.stringify([query, _viewMode, Object.keys(_syncedMachineSource).length]),
     long: true,
+    // an entry that changes is replaced (a spread of the old one with the new fields, the offline copy, the edit),
+    // never edited in place - so each entry's key is kept with it instead of re-serialised on every Load More
+    immutable: true,
   });
   // photos by name: one signed-URL request for the thumbnails on screen (BRH 9 AB); a list with none asks nothing
   if (typeof whPhotoHydrate === 'function' && visible.some(e => e.photo_thumb_path || e.photo_path)) whPhotoHydrate(db, list);
