@@ -1236,6 +1236,19 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
   }
 }
 
+// one collator for the list's name order (the order localeCompare gives - it is defined by this collator)
+const _invCollator = new Intl.Collator();
+// a part's searchable fields, folded once and kept with the part (folded again if the part's own fields change)
+const _invFoldMemo = new WeakMap();
+function _invFolded(item) {
+  let f = _invFoldMemo.get(item);
+  if (!f || f.pn !== item.part_number || f.nm !== item.part_name || f.bin !== item.bin_location) {
+    f = [item.part_number, item.part_name, item.bin_location].map(v => (v ? whFold(v) : ''));
+    f.pn = item.part_number; f.nm = item.part_name; f.bin = item.bin_location;
+    _invFoldMemo.set(item, f);
+  }
+  return f;
+}
 function renderParts() {
   const items   = loadInventory();
   // C1 (Arc X recall->recognition): keep the Add-Part "Part Number" datalist in
@@ -1356,6 +1369,9 @@ function renderParts() {
   empty.classList.add('hidden');
 
   // Filter
+  // SL LB3 (2026-10-22): the query is folded once, not once per field per part, and a part's own fields once per part
+  // (_invFolded) - a search over a thousand parts folded 8,000 strings a keystroke, inside a 280 ms task at phone speed
+  const qf = query ? whFold(query) : '';
   let filtered = items.filter(item => {
     if (catF    && item.category !== catF)             return false;
     const st = stockStatus(item);
@@ -1371,19 +1387,22 @@ function renderParts() {
     if (!query) return true;
     // Phase 5b.2: linked_asset_ids is gone; map uuids back to display codes
     // for the search filter so the user can still match by "PMP-001" etc.
+    if (_invFolded(item).some(f => f && f.includes(qf))) return true;
     const linked = (item.linked_asset_node_ids || [])
       .map(uuid => _nodeIdToAssetId[uuid] || '')
       .join(' ').toLowerCase();
-    return [item.part_number, item.part_name, item.bin_location, linked]
-      .some(f => f && whFold(f).includes(whFold(query)));
+    return !!linked && whFold(linked).includes(qf);
   });
 
-  // Sort: out first, then critical, low, ok, surplus last; alpha within each group
-  const sortOrder = { out: 0, critical: 1, low: 2, ok: 3, surplus: 4 };
-  filtered.sort((a, b) => {
-    const sd = sortOrder[stockStatus(a)] - sortOrder[stockStatus(b)];
-    return sd !== 0 ? sd : (a.part_name || '').localeCompare(b.part_name || '');
-  });
+  // Sort: out first, then a part whose quantity is unknown, then critical, low, ok, surplus last; alpha within each group.
+  // SL LB3 (2026-10-22): each part's rank is read once and the names compared by one collator - the same order
+  // localeCompare gives (it is defined by that collator), without building it again for each of ~10,000 comparisons.
+  // 'unknown' had no rank, so its comparisons returned NaN and its parts landed anywhere; it now sits after 'out' -
+  // stock nobody can vouch for needs a look before anything that is merely low.
+  const sortOrder = { out: 0, unknown: 0.5, critical: 1, low: 2, ok: 3, surplus: 4 };
+  const _rank = new Map();
+  const rankOf = (it) => { let r = _rank.get(it); if (r === undefined) { r = sortOrder[stockStatus(it)]; _rank.set(it, r); } return r; };
+  filtered.sort((a, b) => (rankOf(a) - rankOf(b)) || _invCollator.compare(a.part_name || '', b.part_name || ''));
 
   if (filtered.length === 0) {
     _invFiltered = [];

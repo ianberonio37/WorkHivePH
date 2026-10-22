@@ -519,10 +519,17 @@ def check_shared(utils: str, learn: str) -> list[str]:
     cb = fn_body(ub, "clearBottom") or ""
     io = ub[ub.find("new IntersectionObserver(function (es)"):]
     io = io[:io.find("observe(area)")]
-    if "needAt.key === key" not in cb or "bottomChanged()" not in sa or "roomSoon()" not in io or "queue()" in io:
-        issues.append("R16 utils.js's Sources area samples the foot of the screen on every pass - keep the sample until a "
-                      "fixed control or the window changes (needAt, bottomChanged), and let the area coming within reach "
-                      "run only the room pass (roomSoon), not the full one")
+    # ...and (2026-10-22) the sample is kept until a fixed control's BOX changes, not its class: the connectivity popover,
+    # hidden, changed its class on every request, and dropping the sample for it re-ran all 21 samples on every press
+    # (1.5 s of an inventory walk at 390). The key is the window and column (needAt.key) and the controls' boxes
+    # (bottomSig, which reads boxes and never a class), and nothing in the observer throws the sample away
+    sg = fn_body(ub, "bottomSig") or ""
+    if ("needAt.key === key" not in cb or "needAt.sig === sig" not in cb or "var sig = bottomSig();" not in cb
+            or "getBoundingClientRect()" not in sg or re.search(r"className|classList|getAttribute", sg)
+            or re.search(r"needAt\s*=\s*null", sa) or "roomSoon()" not in io or "queue()" in io):
+        issues.append("R16 utils.js's Sources area samples the foot of the screen on every pass - keep the sample until "
+                      "the window, the column or a fixed control's box changes (needAt keyed on bottomSig, never on a "
+                      "class), and let the area coming within reach run only the room pass (roomSoon), not the full one")
     # ...each sample asks for the TOP element at its point (elementsFromPoint walked every row's paint layer: ~1.5 ms a
     # sample at phone speed, 2.6 s of an 82-press walk; elementFromPoint ~0.15 ms), and the guide chip moving itself is not a change at the
     # foot of the screen (it moved twice a press, and each move re-ran the pass and the samples)
@@ -677,7 +684,13 @@ def self_test() -> list[str]:
         ("the Sources area's full pass on every Load More", {"utils.js": utils.replace(
             "if (es[i].isIntersecting) { roomSoon(); break; }", "if (es[i].isIntersecting) { queue(); break; }", 1)}, None, "R16"),
         ("the Sources area sampling the foot of the screen every pass", {"utils.js": utils.replace(
-            "if (needAt && needAt.key === key) need = needAt.need;", "if (false) need = 0;", 1)}, None, "R16"),
+            "if (needAt && needAt.key === key && needAt.sig === sig) need = needAt.need;", "if (false) need = 0;", 1)}, None, "R16"),
+        ("the Sources area dropping its samples on any change at the foot again", {"utils.js": utils.replace(
+            "if (!holdsMark(t) && (t.closest('.wh-rows-cv') || !t.closest(BOTTOM))) continue;",
+            "if (!holdsMark(t) && (t.closest('.wh-rows-cv') || !t.closest(BOTTOM))) continue;\n          needAt = null;", 1)}, None, "R16"),
+        ("the Sources area's samples keyed on a control's class", {"utils.js": utils.replace(
+            "+ cs.visibility.charAt(0) + cs.pointerEvents.charAt(0) + ';';",
+            "+ cs.visibility.charAt(0) + cs.pointerEvents.charAt(0) + el.className + ';';", 1)}, None, "R16"),
         ("a note written into every inventory card as an HTML comment", {"inventory.html": (ROOT / "inventory.html").read_text(encoding="utf-8").replace(
             '<div class="part-card stock-${st} p-5 mb-3"', '<!-- a note --><div class="part-card stock-${st} p-5 mb-3"', 1)}, None, "R17"),
         ("the Sources area walking every layer under a sample", {"utils.js": utils.replace(

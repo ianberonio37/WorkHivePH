@@ -3298,18 +3298,40 @@ function renderSourceChip(opts) {
   // every paint layer under each point - each row of a long list is one - and the pass came back on every press of a Load
   // More, because each press scrolls to the list's end and brings the area within reach: 2.6 s of an 82-press inventory
   // walk at phone speed. What they find - how far the controls fixed at the foot of the screen reach up over the area's
-  // column - changes only when one of those controls changes (bottomChanged, from the observer) or the window or the
+  // column - changes only when one of those controls' boxes changes (bottomSig, below) or the window or the
   // column does, so it is kept and sampled again then.
+  // the fixed controls that can sit at the foot of the screen (the toasts' stack list, utils.js whToast)
+  var BOTTOM = '#wh-hub, .wh-conn-chip, .wh-conn-popover, .wh-fb-fab, #wh-guide-link, #wh-ai-widget, #fab, '
+             + '.wh-companion-trigger, #sticky-mobile-cta, .sheet-inner, .bottom-sheet, #wh-consent, [data-wh-bottom-bar]';
+  // ★SAMPLED AGAIN WHEN A CONTROL'S BOX CHANGED, NOT WHEN ITS CLASS DID (SL LB3, 2026-10-22). Any class or style change on
+  // one of them threw the samples away, and the connectivity popover - hidden, a 0x0 box - changes its class on every
+  // request: walked at 390 on inventory, every Show more press took all 21 hit tests again, through a thousand rows' paint
+  // layers (1.5 s of the walk's main thread at phone speed). What the samples find depends only on those controls' boxes
+  // and whether a hit test can land on them, so that is what the cache is keyed on. The guide chip is left out, as the
+  // observer below leaves out its moves: it lifts itself clear of the page's controls, never the other way round.
+  function bottomSig() {
+    var els = document.querySelectorAll(BOTTOM), s = '';
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (el.id === 'wh-guide-link') continue;
+      var r = el.getBoundingClientRect();
+      if (!r.width || !r.height) continue;
+      var cs = getComputedStyle(el);
+      s += Math.round(r.left) + ',' + Math.round(r.top) + ',' + Math.round(r.width) + ',' + Math.round(r.height) + ','
+         + cs.visibility.charAt(0) + cs.pointerEvents.charAt(0) + ';';
+    }
+    return s;
+  }
   var needAt = null;
-  function bottomChanged() { needAt = null; }
   function clearBottom(area) {
     var de = document.documentElement, H = window.innerHeight;
     var cur = parseFloat(area.style.marginBottom) || BASE_BOTTOM;
     var ar = area.getBoundingClientRect();
     if (!ar.width || de.scrollHeight <= H + 4) { if (cur !== BASE_BOTTOM) area.style.marginBottom = BASE_BOTTOM + 'px'; return; }
     var key = window.innerWidth + 'x' + H + ':' + Math.round(ar.left) + '-' + Math.round(ar.right);
+    var sig = bottomSig();
     var need = 0;
-    if (needAt && needAt.key === key) need = needAt.need;
+    if (needAt && needAt.key === key && needAt.sig === sig) need = needAt.need;
     else {
       var seen = [];
       var xs = [ar.left + 12, ar.left + ar.width / 2, ar.right - 12];
@@ -3330,7 +3352,7 @@ function renderSourceChip(opts) {
           }
         }
       }
-      needAt = { key: key, need: need };
+      needAt = { key: key, sig: sig, need: need };
     }
     var tail = de.scrollHeight - (ar.bottom + window.scrollY) - (cur - BASE_BOTTOM);
     var want = BASE_BOTTOM + Math.max(0, Math.round(need - tail));
@@ -3456,9 +3478,7 @@ function renderSourceChip(opts) {
     // passing pointer, the guide chip lifting - and the pass reads layout (21 hit tests at the foot of the screen): 4.5 s
     // of an inventory walk at phone speed. A line's place is shown or hidden only by a change on an element that holds a
     // carrier, an anchor or a slot, and the room below moves only with the fixed controls at the foot of the screen
-    // (BOTTOM: the toasts' stack list, utils.js whToast); a change anywhere else moves neither.
-    var BOTTOM = '#wh-hub, .wh-conn-chip, .wh-conn-popover, .wh-fb-fab, #wh-guide-link, #wh-ai-widget, #fab, '
-               + '.wh-companion-trigger, #sticky-mobile-cta, .sheet-inner, .bottom-sheet, #wh-consent, [data-wh-bottom-bar]';
+    // (BOTTOM, beside clearBottom above); a change anywhere else moves neither.
     // every carrier, anchor and slot on the page and each of their ancestors - one lookup per change - kept until a burst
     // adds or removes one
     var marks = null;
@@ -3470,16 +3490,10 @@ function renderSourceChip(opts) {
       }
       return marks.has(t);
     }
-    // a control fixed to the foot of the screen arriving or leaving changes the room the area needs below it
-    function bottomIn(nodes) {
-      for (var k = 0; k < nodes.length; k++) {
-        var nd = nodes[k];
-        if (nd.nodeType === 1 && (nd.matches(BOTTOM) || nd.querySelector(BOTTOM))) return true;
-      }
-      return false;
-    }
+    // A control fixed to the foot of the screen arriving, leaving or changing moves the room the area needs below it only
+    // through its box, and clearBottom compares the boxes (bottomSig) - so nothing here has to drop its samples.
     new MutationObserver(function (muts) {
-      var outside = false, added = false, bottom = false;
+      var outside = false, added = false;
       for (var i = 0; i < muts.length; i++) {
         var m = muts[i];
         if (area.contains(m.target)) continue;
@@ -3491,13 +3505,10 @@ function renderSourceChip(opts) {
           // logbook cards with twenty had each removed card searched twice here (63 ms of the keystroke, SL LB3)
           if (m.target.closest && m.target.closest('.wh-rows-cv')) continue;
           var inMark = m.target.nodeType === 1 && m.target.closest && m.target.closest(MARK);
-          if (!inMark && !carries(m.addedNodes) && !carries(m.removedNodes)) {
-            if (!bottom && (bottomIn(m.addedNodes) || bottomIn(m.removedNodes))) { bottom = true; bottomChanged(); }
-            continue;
-          }
+          if (!inMark && !carries(m.addedNodes) && !carries(m.removedNodes)) continue;
           added = true;
           marks = null;
-        } else if (!outside || !bottom) {
+        } else if (!outside) {
           var t = m.target;
           if (t.nodeType !== 1) continue;
           // the guide chip moving itself (learn-link lifts it clear of a control and lowers it back) changes no line and
@@ -3507,7 +3518,6 @@ function renderSourceChip(opts) {
           // inside a long list's row nothing is fixed to the screen (the row's containment holds it), so there only a
           // mark counts - that is where a thousand figures are marked and a thousand cards restyled
           if (!holdsMark(t) && (t.closest('.wh-rows-cv') || !t.closest(BOTTOM))) continue;
-          if (!bottom && !t.closest('.wh-rows-cv') && t.closest(BOTTOM)) { bottom = true; bottomChanged(); }
         }
         outside = true;
       }
@@ -5165,7 +5175,11 @@ if (typeof window !== 'undefined') {
 // Search-only: never fold stored VALUES, only the comparison keys — the record keeps the real name.
 function whFold(s) {
   try {
-    return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    var str = String(s == null ? '' : s);
+    // plain ASCII has no accents to strip and NFD leaves it as it is, so it only needs its case folded - the same answer,
+    // without normalizing (SL LB3, 2026-10-22: a first search over a thousand parts folded 3,000 part numbers and names)
+    if (!/[^\x00-\x7f]/.test(str)) return str.toLowerCase();
+    return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   } catch (_) {
     return String(s == null ? '' : s).toLowerCase();   // engines without NFD still get case-folding
   }
