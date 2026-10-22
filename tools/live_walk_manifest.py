@@ -138,6 +138,24 @@ OTHER = "other"
 # re-walk - including rows already banked `live` by a library sweep, when their lens is journey-shaped or needs an
 # outside witness. A kind whose server we do not have is marked MISSING, which is a queue item, never an excuse.
 MCP_FOR_KIND = [
+    # ★THE NAME OF THE THING IS NOT THE QUESTION, A FOURTH TIME (2026-10-22, the BRH database classes, §BRH.8/§BRH.9).
+    # These lenses ask what a STRANGER (or a member) can reach in the database and what the catalog holds, and every row
+    # names the object it is about - which routed eight walked rows wrong: "embedding_cache", "tts_cache" and
+    # "ai_cache_bump" to the performance profiler ("cache"), "cap_early_access_emails_text" and
+    # "get_pm_ontime_delivery" to the mail catcher ("email", "deliver"), "cron.job_run_details" to grafana ("cron").
+    # The lens's own sentence decides: a probe made from the page as the exposed person, and the catalog through
+    # postgres - the instrument each row declares. Matched first, because the object names reach every later rule.
+    # DISCLOSED: this rule was added in the same session as the walks it lets close (tools/brh_db_walk.py). It routes
+    # by the class's QUESTION only, it grants no marker, and 169 of the 177 walked rows already routed here by their
+    # own words; removing it re-opens exactly the eight named above.
+    ("playwright-mcp + postgres-mcp",
+     r"a public table anyone holding the public key can read|an object production holds that no migration creates|"
+     r"a view that runs as its owner, past the reader's row policies|a SECURITY DEFINER function anyone may execute|"
+     r"a function whose search_path the caller can change|an extension installed in the public schema|"
+     r"a materialized view the API serves past every row policy|accept passwords known to be leaked|"
+     r"API access that rests on Supabase's automatic grant|a revoke a migration meant, which does not hold|"
+     r"a table that grows with every use and that nothing ever purges|a page that calls a function production refuses|"
+     r"a free-plan gap the platform covers with nothing"),
     # ★WAVE 4 FIRST OF ALL (2026-09-14) - its lenses say what they are. A "Lived start to end" action story
     # is a journey walked with both eyes (the browser for each step's transition, postgres for what the step
     # wrote); the whole nav-hub is a browser walk on its host page; a "lived start to end" LAYER story is
