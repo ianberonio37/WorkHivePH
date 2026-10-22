@@ -6555,7 +6555,7 @@ report's recommendation line. Share and compare rows close as built; export/prin
 already had the line close as refuted on the walk's evidence. The walk waits for host memory.
 
 **What the walk found (2026-10-23).** OEE and MTBF closed first: their 7 rows were walked on their own pages at both
-widths as the stranger with no account. The workbench walk then found three defects in what had been built or was
+widths as the stranger with no account. The workbench walk then found four defects in what had been built or was
 already there, each fixed, gated and re-walked:
 - **A shared Cable Tray lost its cable weight** (e154e929). The form leaves an optional field empty (`null`) until a
   person types it, and the sanitiser kept only values whose type matched the form's default, so a shared 10 kg/m
@@ -6572,6 +6572,16 @@ already there, each fixed, gated and re-walked:
   already did, and a typed value lights its matching chip or Custom. Live at 390, a typed 125 gives 37.269 Ω,
   1.25 × the 100 result. New gate `preset-chip-field-read` (16 chip groups) names the earthing chips on the file
   as it was.
+- **When no model answered, 14 calculators said nothing useful** (67ed5e0c). The recommendation read found four
+  reports with no advice line. All four carry their own advice: 45 renderers write calculator-specific text for the
+  no-model case. When every model is busy, the engine writes advice for 40 types and, for the rest, "Refer to the
+  results summary table for specific design values". That sentence is never empty, so it pre-empted the renderers'
+  own advice, such as Fluid Power's "Specify cylinder Ø63 bore × Ø28 rod" and Heat Exchanger's "Specify TEMA class".
+  The page now reads the generic sentence as no advice wherever a report is drawn (a Run, a shared link, a saved
+  report). Three renderers drop a bare "Recommendations:" line that their report already answers in its body. The
+  uncovered Fluid Power text said "couple to 20.558 kW IE3 motor (next std size…)", and it now names that size
+  from the IEC 60072 ratings: 30 kW. New gate `calc-reco-fallback` holds the page's pattern to the engine's own
+  sentence.
 
 The walk's own instrument needed four corrections before its verdicts could be trusted:
 - **"Same report" is the engine's result.** Headline pairs were vacuous for a report with none, and the report's
