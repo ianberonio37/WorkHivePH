@@ -6454,6 +6454,57 @@ phone-390 and desktop-1280, using W4's semantics:
 The walk scripts are ready (`.tmp/slw/enhl_walk_<viewport>.js`, one viewport per call). They wait for host memory: on
 2026-10-23 the host had 0.36-0.57 GB free with Memory Compression at 2.1 GB, and browser work pauses under about 2 GB.
 
+### §ENH.P · The calculator features: two built in the calculator itself, two already there (2026-10-23) - 226 rows
+
+**What the measure read.** Class P read each `tools/<slug>/index.html`, which is an SEO door: a worked example computed
+at build time, and a button to the calculator. The calculator a person actually uses is
+`engineering-design.html?calc=<slug>` for 58 of the pages. The other two (MTBF and OEE) send the reader to
+`analytics.html`, which works the figures out from their own log. W4's 120 compute walks covered all 60 calculators at
+both widths. Each one went from the landing page through the sign-in wall and a free sign-up, reached the calculator
+preselected, pressed Run and got the report. Then "⬇ Download PDF" handed over a file and "💾 Save" was there. The
+four features, measured against that calculator:
+- **Export / print (59):** already there. Download PDF is on every calculator's report, which carries the inputs and the
+  standard. The rows are refuted by W4's walks. The Analytics pair is checked on its own page.
+- **Share / save (59):** Save was there; sharing by link was not. **Built.**
+- **Scenario compare (59):** missing. **Built.**
+- **Recommendation (49):** most reports already say what to buy or do from the engine's own results:
+  - "Selected AHU Size", "Recommended Wire", "Recommended Service / MCCB Size", "Selected Capacitor Bank";
+  - a PASS or FAIL with its remedy, such as "FAIL. Minimum N bolts required. Add bolts or increase bolt size/grade" or
+    "BEARING UNDERSIZED: select a bearing with…".
+
+  The Recommendations section itself is the AI narrative, so it is empty when no model runs. `.tmp/enhp_reco_audit.json`
+  is the static audit. The walk records each report's own recommendation line. Where none exists (harmonic distortion
+  and voltage drop may give a verdict without a remedy, and lighting needs a closer look), it gets built.
+
+**Built, once, for every calculator type** (`engineering-design.js` / `.html`, shell v565):
+- **Share link** sits beside Download PDF and Save (the row wraps at 390).
+  - **What travels:** the link names the calculator in `?calc=` and carries the inputs in the `#share=` fragment.
+    Nothing in a fragment ever reaches a server, a log or a page view: `logPageView` records the page name only.
+  - **How it is sent:** a phone uses its share sheet, a desktop copies the link, and a browser with neither shows the
+    link in a field.
+  - **Opening it** reduces the inputs to what that calculator's own form produces: the form's keys, each coerced to the
+    form's type, text stripped of the characters markup needs, and lists capped and shaped by the form's first row.
+    Some renderers still print an input raw, so a link must not carry markup.
+  - **Then it runs** the same engine and the same `_renderComputed` a Run does. That is runCalculation's post-engine
+    block, moved unchanged (184 lines, proved byte-identical) so a Run and a link cannot draw differently.
+  - **Through sign-in:** the identity gate now carries the fragment, so a signed-out colleague signs in and lands on the
+    calculation. The C27 deep-link poller stands aside for a link: its late `selectCalcType` would empty the report.
+- **Compare** keeps a calculation as scenario A: its headline figures exactly as its report shows them (each
+  `.res-label` beside its `.res-value`), and its inputs. The next run of the same calculator sets A beside it, figure
+  by figure, with a changed figure in bold (and said, for a screen reader), plus the inputs that differ, named in words
+  ("Flow rate (L/h)"). It is a card on the page, outside the printed report.
+- **Gates.** `calc-share-compare` holds the wiring (S1-S6) and names 17 failures on the page as it was. Its self-test
+  shows five weakened copies each fail, and a sanitiser that keeps `<` fails the node core test.
+  `tools/test_calc_share_compare.mjs` runs the pure core: round trip, damaged links, sanitising, compare. Also green:
+  skew-heal, scripts-parse, sw-shell membership, design-detector-ratchet (0 primary), and calc-handoff's static half
+  (60/60).
+
+**How the rows close.** The walk follows W4's path per calculator, at phone-390 and desktop-1280, as the stranger
+who signs up. Run, then Share link. The link is opened in a second, signed-in context, and the same headline figures
+must come back. Then Compare, change one input and Run, and the card must set A beside B. The walk also records the
+report's recommendation line. Share and compare rows close as built; export/print and the recommendation rows that
+already had the line close as refuted on the walk's evidence. The walk waits for host memory.
+
 ## §OPC · The OPERATOR CONSOLE wave — every founder panel in one console (Ian, 2026-10-14)
 
 Ian runs the platform from scattered surfaces: a retired founder console whose panels moved to Grafana, a retired

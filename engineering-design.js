@@ -2861,6 +2861,9 @@ function _orNA(v, dec) {
 // aliased), select it, open the calculator tab and bring the form into view. An unknown slug leaves the grid as before.
 const CALC_SLUG_ALIASES = { 'boiler-steam': 'Boiler System', 'chiller-sizing': 'Chiller System — Air Cooled', 'load-schedule': 'Load Estimation', 'vibration-isolation': 'Vibration Analysis', 'sewer-drainage': 'Drainage Pipe Sizing' };   // domestic-water-demand deliberately unaliased: "Hot Water Demand" is a different calculation
 function applyCalcDeepLink() {
+  // A shared link selects its own calculator (edOpenSharedFromHash); this poller's later selectCalcType would end in
+  // showEmpty() and hide the report the link just drew.
+  if (/(?:^|[#&])share=/.test(window.location.hash || '')) return;
   let slug = '';
   try { slug = String(new URLSearchParams(location.search).get('calc') || '').toLowerCase().replace(/-calculator$/, '').trim(); } catch (_) { return; }   /* empty-catch-allow: no query, nothing to do */
   if (!slug) return;
@@ -10172,190 +10175,7 @@ async function runCalculation() {
     if (error || !data) throw new Error(error?.message || 'No response from calculation engine.');
     if (data.error) throw new Error(data.error);
 
-    _lastResults   = data.results;
-    _lastNarrative = data.narrative;
-    _lastInputs    = inputs;
-
-    // Normalize Water Softener result + input aliases. Form input field names diverge from
-    // the names used by the diagram builder, BOM/SOW HTML templates, and edge function:
-    //   form: inlet_hardness, target_hardness, regen_interval, demand_lpd
-    //   consumers: inlet_hardness_mg, target_hardness_mg_l, raw_hardness_mg_l, daily_volume_m3, regen_interval_days
-    // Calc result uses yet another convention (selected_resin_L, tank_dia_mm, salt_per_regen_kg, etc.).
-    // Populate every alias on _lastResults and _lastInputs so all consumers find their expected keys.
-    if (_calcType === 'Water Softener Sizing' && _lastResults) {
-      const r = _lastResults;
-      _lastResults = {
-        ...r,
-        resin_volume_L:       r.selected_resin_L ?? r.resin_L_per_unit ?? r.resin_volume_L,
-        resin_volume_l:       r.selected_resin_L ?? r.resin_L_per_unit ?? r.resin_volume_l,
-        resin_L:              r.selected_resin_L ?? r.resin_L_per_unit ?? r.resin_L,
-        mineral_tank_size:    (r.tank_dia_mm && r.tank_ht_mm)
-                                ? `Ø${r.tank_dia_mm}mm × ${r.tank_ht_mm}mm H`
-                                : r.mineral_tank_size,
-        tank_diameter_mm:     r.tank_dia_mm ?? r.tank_diameter_mm,
-        vessel_dia_mm:        r.tank_dia_mm ?? r.vessel_dia_mm,
-        brine_tank_size_L:    r.brine_tank_L ?? r.brine_tank_size_L,
-        salt_kg_per_regen:    r.salt_per_regen_kg ?? r.salt_kg_per_regen,
-        regen_freq_days:      r.regen_interval_days ?? r.regen_freq_days,
-        regen_days:           r.regen_interval_days ?? r.regen_days,
-        raw_hardness_mg_l:    r.inlet_hardness_mgL ?? r.raw_hardness_mg_l,
-        target_hardness_mg_l: r.target_hardness_mgL ?? r.target_hardness_mg_l,
-        daily_volume_m3:      r.demand_lpd != null ? Number(r.demand_lpd) / 1000 : r.daily_volume_m3,
-        design_flow_Lpm:      r.design_flow_lpm ?? r.design_flow_Lpm,
-        min_flow_Lpm:         r.min_flow_lpm ?? r.min_flow_Lpm,
-      };
-      _lastInputs = {
-        ..._lastInputs,
-        inlet_hardness_mg:    _lastInputs.inlet_hardness ?? _lastInputs.inlet_hardness_mg,
-        raw_hardness_mg_l:    _lastInputs.inlet_hardness ?? _lastInputs.raw_hardness_mg_l,
-        target_hardness_mg_l: _lastInputs.target_hardness ?? _lastInputs.target_hardness_mg_l,
-        regen_interval_days:  _lastInputs.regen_interval ?? _lastInputs.regen_interval_days,
-        regen_freq_days:      _lastInputs.regen_interval ?? _lastInputs.regen_freq_days,
-        daily_volume_m3:      _lastInputs.demand_lpd != null ? Number(_lastInputs.demand_lpd) / 1000 : _lastInputs.daily_volume_m3,
-      };
-    }
-
-    // ── Water Treatment System: normalize result field names for edge function (BOM/SOW) ──
-    //   calc returns: demand_m3d, peak_flow_m3hr, selected_filter_dia_mm, selected_filter_area_m2,
-    //                 pns_1998_status, proj_turbidity_ntu, proj_iron_mg_L
-    //   edge function (BOM prompt) expects: peak_flow_Lpm, filter_vessel_dia_mm, filter_area_m2,
-    //                                       filter_type, pns_compliance_status,
-    //                                       projected_turbidity_out, projected_iron_out
-    if (_calcType === 'Water Treatment System' && _lastResults) {
-      const r = _lastResults;
-      const peakFlowLpm = r.peak_flow_m3hr != null
-        ? parseFloat((Number(r.peak_flow_m3hr) * 1000 / 60).toFixed(2))
-        : r.peak_flow_Lpm;
-      const filterType = r.filter_type
-        ?? (r.needs_iron_removal ? 'Greensand' : 'Multimedia');
-      _lastResults = {
-        ...r,
-        peak_flow_Lpm:             peakFlowLpm,
-        filter_vessel_dia_mm:      r.selected_filter_dia_mm ?? r.filter_vessel_dia_mm,
-        filter_area_m2:            r.selected_filter_area_m2 ?? r.filter_area_m2,
-        filter_type:               filterType,
-        pns_compliance_status:     r.pns_1998_status ?? r.pns_compliance_status,
-        projected_turbidity_out:   r.proj_turbidity_ntu ?? r.projected_turbidity_out,
-        projected_iron_out:        r.proj_iron_mg_L ?? r.projected_iron_out,
-      };
-    }
-
-    if (_calcType === 'Ventilation / ACH') {
-      renderVentReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Pump Sizing (TDH)') {
-      renderPumpReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Pipe Sizing') {
-      renderPipeReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Boiler System') {
-      renderBoilerReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Compressed Air') {
-      renderAirReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Water Supply Pipe Sizing') {
-      renderWaterSupplyReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Hot Water Demand') {
-      renderHotWaterReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Drainage Pipe Sizing') {
-      renderDrainageReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Septic Tank Sizing') {
-      renderSepticReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Grease Trap Sizing') {
-      renderGreaseTrapReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Roof Drain Sizing') {
-      renderRoofDrainReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Generator Sizing') {
-      renderGeneratorReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Solar PV System') {
-      renderSolarPVReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Power Factor Correction') {
-      renderPFCReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Cable Tray Sizing') {
-      renderCableTrayReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'UPS Sizing') {
-      renderUPSSizingReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Lightning Protection System (LPS)') {
-      renderLPSReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Earthing / Grounding System') {
-      renderEarthingReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Duct Sizing (Equal Friction)') {
-      renderDuctSizingReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Refrigerant Pipe Sizing') {
-      renderRefrigPipeReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Expansion Tank Sizing') {
-      renderExpansionTankReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'FCU Selection') {
-      renderFCUSelectionReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Load Estimation') {
-      renderLoadReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Voltage Drop') {
-      renderVDReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Wire Sizing') {
-      renderWireSizingReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Stairwell Pressurization') {
-      renderStairwellPressReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Fire Pump Sizing') {
-      renderFirePumpReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Fire Sprinkler Hydraulic') {
-      renderFireSprinklerReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Fire Alarm Battery') {
-      renderFireAlarmBatteryReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Elevator Traffic Analysis') {
-      renderElevatorTrafficReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Bolt Torque & Preload') {
-      renderBoltTorqueReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Shaft Design') {
-      renderShaftDesignReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Bearing Life (L10)') {
-      renderBearingLifeReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'V-Belt Drive Design') {
-      renderVBeltReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Gear / Belt Drive') {
-      renderGearBeltDriveReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Hoist Capacity') {
-      renderHoistCapacityReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Short Circuit') {
-      renderShortCircuitReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Lighting Design') {
-      renderLightingDesignReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Chiller System — Water Cooled') {
-      renderChillerWaterCooledReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Chiller System — Air Cooled') {
-      renderChillerAirCooledReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'AHU Sizing') {
-      renderAHUSizingReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Cooling Tower Sizing') {
-      renderCoolingTowerReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Water Softener Sizing') {
-      renderWaterSoftenerReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Water Treatment System') {
-      renderWaterTreatmentReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Wastewater Treatment (STP)') {
-      renderSTPReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Storm Drain / Stormwater') {
-      renderStormDrainReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Beam / Column Design') {
-      renderBeamColumnReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Pressure Vessel') {
-      renderPressureVesselReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Heat Exchanger') {
-      renderHeatExchangerReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Vibration Analysis') {
-      renderVibrationReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Fluid Power') {
-      renderFluidPowerReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Noise / Acoustics') {
-      renderNoiseAcousticsReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Boiler / Steam System') {
-      renderBoilerSteamReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Transformer Sizing') {
-      renderTransformerReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Harmonic Distortion') {
-      renderHarmonicReport(inputs, data.results, data.narrative);
-    } else if (_calcType === 'Clean Agent Suppression') {
-      renderCleanAgentReport(inputs, data.results, data.narrative);
-    } else {
-      renderReport(inputs, data.results, data.narrative);
-    }
-    _edTrustNarrative(data.narrative, data);
+    _renderComputed(inputs, data);
     showToast('Calculation complete!');
 
   } catch (err) {
@@ -10363,6 +10183,446 @@ async function runCalculation() {
     showToast(friendlyAiError(err), 5000);   // AI-8: friendly, non-leaking message
     console.error(err);
   }
+}
+
+// ★ONE PATH FROM THE ENGINE'S REPLY TO THE REPORT (ENH-P, 2026-10-23). Moved here unchanged from runCalculation so a
+// shared link renders exactly as a Run does: the same result aliases (Water Softener, Water Treatment), the same
+// renderer, the same was-this-right row. A second copy of this block would be a second place to forget an alias.
+function _renderComputed(inputs, data) {
+  _lastResults   = data.results;
+  _lastNarrative = data.narrative;
+  _lastInputs    = inputs;
+
+  // Normalize Water Softener result + input aliases. Form input field names diverge from
+  // the names used by the diagram builder, BOM/SOW HTML templates, and edge function:
+  //   form: inlet_hardness, target_hardness, regen_interval, demand_lpd
+  //   consumers: inlet_hardness_mg, target_hardness_mg_l, raw_hardness_mg_l, daily_volume_m3, regen_interval_days
+  // Calc result uses yet another convention (selected_resin_L, tank_dia_mm, salt_per_regen_kg, etc.).
+  // Populate every alias on _lastResults and _lastInputs so all consumers find their expected keys.
+  if (_calcType === 'Water Softener Sizing' && _lastResults) {
+    const r = _lastResults;
+    _lastResults = {
+      ...r,
+      resin_volume_L:       r.selected_resin_L ?? r.resin_L_per_unit ?? r.resin_volume_L,
+      resin_volume_l:       r.selected_resin_L ?? r.resin_L_per_unit ?? r.resin_volume_l,
+      resin_L:              r.selected_resin_L ?? r.resin_L_per_unit ?? r.resin_L,
+      mineral_tank_size:    (r.tank_dia_mm && r.tank_ht_mm)
+                              ? `Ø${r.tank_dia_mm}mm × ${r.tank_ht_mm}mm H`
+                              : r.mineral_tank_size,
+      tank_diameter_mm:     r.tank_dia_mm ?? r.tank_diameter_mm,
+      vessel_dia_mm:        r.tank_dia_mm ?? r.vessel_dia_mm,
+      brine_tank_size_L:    r.brine_tank_L ?? r.brine_tank_size_L,
+      salt_kg_per_regen:    r.salt_per_regen_kg ?? r.salt_kg_per_regen,
+      regen_freq_days:      r.regen_interval_days ?? r.regen_freq_days,
+      regen_days:           r.regen_interval_days ?? r.regen_days,
+      raw_hardness_mg_l:    r.inlet_hardness_mgL ?? r.raw_hardness_mg_l,
+      target_hardness_mg_l: r.target_hardness_mgL ?? r.target_hardness_mg_l,
+      daily_volume_m3:      r.demand_lpd != null ? Number(r.demand_lpd) / 1000 : r.daily_volume_m3,
+      design_flow_Lpm:      r.design_flow_lpm ?? r.design_flow_Lpm,
+      min_flow_Lpm:         r.min_flow_lpm ?? r.min_flow_Lpm,
+    };
+    _lastInputs = {
+      ..._lastInputs,
+      inlet_hardness_mg:    _lastInputs.inlet_hardness ?? _lastInputs.inlet_hardness_mg,
+      raw_hardness_mg_l:    _lastInputs.inlet_hardness ?? _lastInputs.raw_hardness_mg_l,
+      target_hardness_mg_l: _lastInputs.target_hardness ?? _lastInputs.target_hardness_mg_l,
+      regen_interval_days:  _lastInputs.regen_interval ?? _lastInputs.regen_interval_days,
+      regen_freq_days:      _lastInputs.regen_interval ?? _lastInputs.regen_freq_days,
+      daily_volume_m3:      _lastInputs.demand_lpd != null ? Number(_lastInputs.demand_lpd) / 1000 : _lastInputs.daily_volume_m3,
+    };
+  }
+
+  // ── Water Treatment System: normalize result field names for edge function (BOM/SOW) ──
+  //   calc returns: demand_m3d, peak_flow_m3hr, selected_filter_dia_mm, selected_filter_area_m2,
+  //                 pns_1998_status, proj_turbidity_ntu, proj_iron_mg_L
+  //   edge function (BOM prompt) expects: peak_flow_Lpm, filter_vessel_dia_mm, filter_area_m2,
+  //                                       filter_type, pns_compliance_status,
+  //                                       projected_turbidity_out, projected_iron_out
+  if (_calcType === 'Water Treatment System' && _lastResults) {
+    const r = _lastResults;
+    const peakFlowLpm = r.peak_flow_m3hr != null
+      ? parseFloat((Number(r.peak_flow_m3hr) * 1000 / 60).toFixed(2))
+      : r.peak_flow_Lpm;
+    const filterType = r.filter_type
+      ?? (r.needs_iron_removal ? 'Greensand' : 'Multimedia');
+    _lastResults = {
+      ...r,
+      peak_flow_Lpm:             peakFlowLpm,
+      filter_vessel_dia_mm:      r.selected_filter_dia_mm ?? r.filter_vessel_dia_mm,
+      filter_area_m2:            r.selected_filter_area_m2 ?? r.filter_area_m2,
+      filter_type:               filterType,
+      pns_compliance_status:     r.pns_1998_status ?? r.pns_compliance_status,
+      projected_turbidity_out:   r.proj_turbidity_ntu ?? r.projected_turbidity_out,
+      projected_iron_out:        r.proj_iron_mg_L ?? r.projected_iron_out,
+    };
+  }
+
+  if (_calcType === 'Ventilation / ACH') {
+    renderVentReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Pump Sizing (TDH)') {
+    renderPumpReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Pipe Sizing') {
+    renderPipeReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Boiler System') {
+    renderBoilerReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Compressed Air') {
+    renderAirReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Water Supply Pipe Sizing') {
+    renderWaterSupplyReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Hot Water Demand') {
+    renderHotWaterReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Drainage Pipe Sizing') {
+    renderDrainageReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Septic Tank Sizing') {
+    renderSepticReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Grease Trap Sizing') {
+    renderGreaseTrapReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Roof Drain Sizing') {
+    renderRoofDrainReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Generator Sizing') {
+    renderGeneratorReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Solar PV System') {
+    renderSolarPVReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Power Factor Correction') {
+    renderPFCReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Cable Tray Sizing') {
+    renderCableTrayReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'UPS Sizing') {
+    renderUPSSizingReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Lightning Protection System (LPS)') {
+    renderLPSReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Earthing / Grounding System') {
+    renderEarthingReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Duct Sizing (Equal Friction)') {
+    renderDuctSizingReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Refrigerant Pipe Sizing') {
+    renderRefrigPipeReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Expansion Tank Sizing') {
+    renderExpansionTankReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'FCU Selection') {
+    renderFCUSelectionReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Load Estimation') {
+    renderLoadReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Voltage Drop') {
+    renderVDReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Wire Sizing') {
+    renderWireSizingReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Stairwell Pressurization') {
+    renderStairwellPressReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Fire Pump Sizing') {
+    renderFirePumpReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Fire Sprinkler Hydraulic') {
+    renderFireSprinklerReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Fire Alarm Battery') {
+    renderFireAlarmBatteryReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Elevator Traffic Analysis') {
+    renderElevatorTrafficReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Bolt Torque & Preload') {
+    renderBoltTorqueReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Shaft Design') {
+    renderShaftDesignReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Bearing Life (L10)') {
+    renderBearingLifeReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'V-Belt Drive Design') {
+    renderVBeltReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Gear / Belt Drive') {
+    renderGearBeltDriveReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Hoist Capacity') {
+    renderHoistCapacityReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Short Circuit') {
+    renderShortCircuitReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Lighting Design') {
+    renderLightingDesignReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Chiller System — Water Cooled') {
+    renderChillerWaterCooledReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Chiller System — Air Cooled') {
+    renderChillerAirCooledReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'AHU Sizing') {
+    renderAHUSizingReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Cooling Tower Sizing') {
+    renderCoolingTowerReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Water Softener Sizing') {
+    renderWaterSoftenerReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Water Treatment System') {
+    renderWaterTreatmentReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Wastewater Treatment (STP)') {
+    renderSTPReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Storm Drain / Stormwater') {
+    renderStormDrainReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Beam / Column Design') {
+    renderBeamColumnReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Pressure Vessel') {
+    renderPressureVesselReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Heat Exchanger') {
+    renderHeatExchangerReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Vibration Analysis') {
+    renderVibrationReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Fluid Power') {
+    renderFluidPowerReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Noise / Acoustics') {
+    renderNoiseAcousticsReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Boiler / Steam System') {
+    renderBoilerSteamReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Transformer Sizing') {
+    renderTransformerReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Harmonic Distortion') {
+    renderHarmonicReport(inputs, data.results, data.narrative);
+  } else if (_calcType === 'Clean Agent Suppression') {
+    renderCleanAgentReport(inputs, data.results, data.narrative);
+  } else {
+    renderReport(inputs, data.results, data.narrative);
+  }
+  _edTrustNarrative(data.narrative, data);
+  edAfterReport();
+}
+
+// ─── Share a calculation by link, and keep scenario A beside B (ENH-P, 2026-10-23) ─────────────────────────────────
+// The calculator printed and saved, and that was all: a supervisor who sized a pump could not send the sizing to the
+// supplier or a colleague, and could not see two options side by side without writing the first one down. A share
+// link carries the calculator in ?calc= and its inputs in the address's FRAGMENT (#share=), which a browser never sends
+// to a server - not in a request, a log or a page view (logPageView records the page name only) - and the page that
+// opens it runs the same engine and the same _renderComputed a Run does. A link is someone else's words arriving in
+// this page, and some renderers still print an input raw, so the inputs it carries are reduced to what this
+// calculator's own form produces: the form's keys, each coerced to the type the form gives it, text stripped of the
+// characters markup needs (edShareSanitize). Compare keeps a calculation as scenario A - its headline figures as its
+// report shows them, and its inputs - and puts the next run of the same calculator beside it. The core below is pure;
+// tools/test_calc_share_compare.mjs runs it in node.
+/* ENH-P share-compare core: BEGIN */
+const ED_SHARE_TEXT_MAX = 120;
+const ED_SHARE_LIST_MAX = 80;
+
+function edShareEncode(calcType, inputs) {
+  const bytes = new TextEncoder().encode(JSON.stringify({ v: 1, t: calcType, i: inputs }));
+  let bin = '';
+  for (let k = 0; k < bytes.length; k++) bin += String.fromCharCode(bytes[k]);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function edShareDecode(s) {
+  try {
+    const b64 = String(s || '').replace(/-/g, '+').replace(/_/g, '/');
+    const bin = atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4));
+    const bytes = new Uint8Array(bin.length);
+    for (let k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+    const p = JSON.parse(new TextDecoder().decode(bytes));
+    return p && p.v === 1 && typeof p.t === 'string' && p.i && typeof p.i === 'object' && !Array.isArray(p.i) ? p : null;
+  } catch (_) { return null; }   // empty-catch-allow: a damaged link is no payload, and the caller says so
+}
+
+function edShareText(v) {
+  return String(v).replace(/[<>"'`&\\]/g, '').replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, ED_SHARE_TEXT_MAX);
+}
+
+function edShareValue(def, v) {
+  if (typeof def === 'number') { const n = Number(v); return Number.isFinite(n) ? n : def; }
+  if (typeof def === 'boolean') return v === true || v === 'true';
+  if (typeof def === 'string') return (typeof v === 'string' || typeof v === 'number') ? edShareText(v) : def;
+  return def;
+}
+
+function edShareRow(proto, row) {
+  if (!row || typeof row !== 'object' || Array.isArray(row)) return null;
+  const r = {};
+  if (proto && typeof proto === 'object' && !Array.isArray(proto)) {
+    for (const k of Object.keys(proto)) r[k] = edShareValue(proto[k], row[k] === undefined ? proto[k] : row[k]);
+    return r;
+  }
+  // a list the form starts empty: a row keeps only plain values under plain names
+  for (const k of Object.keys(row).slice(0, 16)) {
+    if (!/^[A-Za-z_][A-Za-z0-9_]{0,40}$/.test(k)) continue;
+    const v = row[k];
+    if (typeof v === 'number' && Number.isFinite(v)) r[k] = v;
+    else if (typeof v === 'boolean') r[k] = v;
+    else if (typeof v === 'string') r[k] = edShareText(v);
+  }
+  return r;
+}
+
+function edShareSanitize(defaults, shared) {
+  const out = {};
+  const src = shared && typeof shared === 'object' && !Array.isArray(shared) ? shared : {};
+  for (const k of Object.keys(defaults || {})) {
+    const d = defaults[k];
+    const v = src[k];
+    if (v === undefined || v === null) { out[k] = d; continue; }
+    if (Array.isArray(d)) {
+      const prim = d.length > 0 && (d[0] === null || typeof d[0] !== 'object');
+      out[k] = !Array.isArray(v) ? d : v.slice(0, ED_SHARE_LIST_MAX)
+        .map((row) => (prim ? edShareValue(d[0], row) : edShareRow(d[0], row)))
+        .filter((row) => row !== null);
+    } else if (d && typeof d === 'object') {
+      out[k] = edShareSanitize(d, v);
+    } else {
+      out[k] = edShareValue(d, v);
+    }
+  }
+  return out;
+}
+
+const ED_KEY_UNITS = { lhr: 'L/h', lpd: 'L/day', lpm: 'L/min', m3hr: 'm3/h', kw: 'kW', kva: 'kVA', kvar: 'kVAR', mm: 'mm',
+  m: 'm', m2: 'm2', c: 'deg C', pct: '%', hp: 'hp', kpa: 'kPa', v: 'V', a: 'A', hz: 'Hz', kg: 'kg', h: 'h', s: 's' };
+
+function edHumanKey(k) {
+  const parts = String(k).split('_').filter(Boolean);
+  const unit = parts.length > 1 ? ED_KEY_UNITS[parts[parts.length - 1].toLowerCase()] : '';
+  const words = (unit ? parts.slice(0, -1) : parts).join(' ');
+  const s = words ? words.charAt(0).toUpperCase() + words.slice(1) : '';
+  return unit ? s + ' (' + unit + ')' : s;
+}
+
+function edCompareRows(a, b) {
+  const labels = [];
+  for (const r of (a || []).concat(b || [])) if (r && r.label && !labels.includes(r.label)) labels.push(r.label);
+  const val = (list, l) => { const r = (list || []).find((x) => x.label === l); return r ? r.value : '-'; };
+  return labels.slice(0, 16).map((l) => ({ label: l, a: val(a, l), b: val(b, l), same: val(a, l) === val(b, l) }));
+}
+
+function edInputDiff(ai, bi) {
+  const A = ai || {}, B = bi || {};
+  const keys = [];
+  for (const k of Object.keys(A).concat(Object.keys(B))) if (!keys.includes(k)) keys.push(k);
+  const show = (v) => (v === undefined || v === null || v === '') ? '-'
+    : Array.isArray(v) ? v.length + (v.length === 1 ? ' row' : ' rows') : (typeof v === 'object' ? 'set' : String(v));
+  return keys.filter((k) => JSON.stringify(A[k]) !== JSON.stringify(B[k]))
+    .slice(0, 12).map((k) => ({ label: edHumanKey(k), a: show(A[k]), b: show(B[k]) }));
+}
+/* ENH-P share-compare core: END */
+
+let _edScenarioA = null;   // { t, at, highlights, inputs } - this tab only; a reload starts without one
+
+// The figures the report itself shows as its answer: each .res-label beside its .res-value. A report with none falls
+// back to its plain numeric results, named from their keys.
+function edReportHighlights() {
+  const out = [];
+  const panel = document.getElementById('report-panel');
+  if (panel) {
+    panel.querySelectorAll('.res-label').forEach((lab) => {
+      if (out.length >= 16) return;
+      let val = lab.nextElementSibling;
+      if (!val || !val.classList.contains('res-value')) val = lab.parentElement ? lab.parentElement.querySelector('.res-value') : null;
+      const label = (lab.textContent || '').replace(/\s+/g, ' ').trim();
+      const value = val ? (val.textContent || '').replace(/\s+/g, ' ').trim() : '';
+      if (label && value) out.push({ label: label.slice(0, 80), value: value.slice(0, 80) });
+    });
+  }
+  if (!out.length && _lastResults && typeof _lastResults === 'object') {
+    for (const k of Object.keys(_lastResults)) {
+      if (out.length >= 12) break;
+      const v = _lastResults[k];
+      if (typeof v === 'number' && Number.isFinite(v)) out.push({ label: edHumanKey(k), value: String(Math.round(v * 1000) / 1000) });
+    }
+  }
+  return out;
+}
+
+function edShareLink() {
+  if (!_calcType || !_lastInputs) { showToast('Run the calculation first, then share it.'); return; }
+  const slug = String(_calcType).toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const url = location.origin + location.pathname + '?calc=' + encodeURIComponent(slug) + '#share=' + edShareEncode(_calcType, _lastInputs);
+  const box = document.getElementById('ed-share-box');
+  const field = document.getElementById('ed-share-url');
+  const said = (how) => showToast(how + ' It carries this calculation\'s inputs: anyone with a WorkHive account who opens it sees it run again.', 7000);
+  const offer = () => {
+    if (box && field) { box.hidden = false; field.value = url; field.focus(); field.select(); }
+    showToast('Copy the link below to share this calculation.', 6000);
+  };
+  if (navigator.share && window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+    navigator.share({ title: whCalcLabel(_calcType) + ' calculation', url }).then(() => said('Shared.'), (err) => {
+      if (err && err.name === 'AbortError') return;   // the person closed the share sheet
+      offer();
+    });
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(() => said('Link copied.'), offer);
+  else offer();
+}
+
+// Opens the calculation a link carries: the calculator it names, the inputs reduced to that form's own keys and types,
+// one engine run, the same report a Run draws. The fragment leaves the address once it has rendered, so a reload does
+// not run it again; a link that fails to run keeps it, so a reload can try again.
+async function edOpenSharedFromHash() {
+  const m = /(?:^|[#&])share=([A-Za-z0-9_-]+)/.exec(window.location.hash || '');
+  if (!m) return;
+  const drop = () => { try { history.replaceState(null, '', location.pathname + location.search); } catch (_) { /* empty-catch-allow: the address keeps the fragment; nothing re-runs it without a reload */ } };
+  const p = edShareDecode(m[1]);
+  if (!p) { drop(); showToast('That shared link is damaged, so no calculation was opened.', 6000); return; }
+  let disc = null;
+  for (const [d, calcs] of Object.entries(CALC_TYPES_UI)) { if (calcs.some((c) => c.id === p.t)) { disc = d; break; } }
+  if (!disc) { drop(); showToast('That shared link names a calculator this page does not have.', 6000); return; }
+  selectDiscipline(disc);
+  selectCalcType(p.t);
+  const restore = _toSIForSubmit();
+  const defaults = collectInputs();
+  _restoreInputDisplay(restore);
+  const inputs = edShareSanitize(defaults, p.i);
+  showLoading();
+  try {
+    const { data, error } = await invokeWithTimeout('engineering-calc-agent', { body: { calc_type: p.t, inputs } });
+    if (error || !data) throw new Error(error?.message || 'No response from calculation engine.');
+    if (data.error) throw new Error(data.error);
+    _renderComputed(inputs, data);
+    drop();
+    showToast('Opened a shared ' + whCalcLabel(p.t) + ' calculation. The form keeps its own values: run yours, then Compare.', 8000);
+  } catch (err) {
+    showEmpty();
+    showToast(friendlyAiError(err), 5000);
+    console.error(err);
+  }
+}
+
+function edCompareKeep() {
+  if (!_calcType || !_lastInputs) { showToast('Run the calculation first, then keep it as scenario A.'); return; }
+  _edScenarioA = { t: _calcType, at: new Date(), highlights: edReportHighlights(), inputs: JSON.parse(JSON.stringify(_lastInputs)) };
+  edCompareRender();
+  showToast('Kept as scenario A. Change the inputs and run again to see A beside the new result.', 6000);
+}
+
+function edCompareClear() {
+  _edScenarioA = null;
+  edCompareRender();
+}
+
+function edCompareRender() {
+  const btn = document.getElementById('ed-compare-btn');
+  if (btn) btn.textContent = _edScenarioA ? '\u21c4 Keep this as A' : '\u21c4 Compare';
+  const box = document.getElementById('ed-compare');
+  if (!box) return;
+  const A = _edScenarioA;
+  if (!A || A.t !== _calcType || !_lastInputs) { box.hidden = true; box.innerHTML = ''; return; }
+  const e = escHtml;
+  let at = '';
+  try { at = A.at.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' }); } catch (_) { at = ''; }   // empty-catch-allow: no time zone data; the note just omits the time
+  const actions = '<div class="ed-compare-actions">'
+    + '<button type="button" class="btn-ghost text-sm py-2 px-4" onclick="edCompareKeep()">Keep this result as A</button>'
+    + '<button type="button" class="btn-ghost text-sm py-2 px-4" onclick="edCompareClear()">Clear scenario A</button></div>';
+  if (JSON.stringify(A.inputs) === JSON.stringify(_lastInputs)) {
+    box.innerHTML = '<h3 class="ed-compare-h">Scenario A is this calculation</h3>'
+      + '<p class="ed-compare-note">Change an input and run again: the new result will sit beside this one.</p>' + actions;
+    box.hidden = false;
+    return;
+  }
+  const rows = edCompareRows(A.highlights, edReportHighlights());
+  const diffs = edInputDiff(A.inputs, _lastInputs);
+  const cell = (v, changed) => '<td' + (changed ? ' class="is-diff"' : '') + '>' + e(v) + (changed ? '<span class="sr-only"> (changed)</span>' : '') + '</td>';
+  const table = (caption, list, isDiff) => '<div class="ed-compare-scroll" role="region" tabindex="0" aria-label="' + e(caption) + '">'
+    + '<table class="ed-compare-table"><caption class="sr-only">' + e(caption) + '</caption>'
+    + '<thead><tr><th scope="col">' + (isDiff ? 'Input' : 'Figure') + '</th><th scope="col">Scenario A</th><th scope="col">This result</th></tr></thead><tbody>'
+    + list.map((r) => '<tr><th scope="row">' + e(r.label) + '</th><td>' + e(r.a) + '</td>' + cell(r.b, isDiff || !r.same) + '</tr>').join('')
+    + '</tbody></table></div>';
+  box.innerHTML = '<h3 class="ed-compare-h">Scenario A beside this result</h3>'
+    + '<p class="ed-compare-note">A was kept' + (at ? ' at ' + e(at) : '') + '. Each figure is as its report shows it; a changed one is in bold.</p>'
+    + (rows.length ? table('Scenario A and this result, figure by figure', rows, false) : '<p class="ed-compare-note">These reports show no headline figures to set side by side.</p>')
+    + (diffs.length ? '<h4 class="ed-compare-sub">Inputs that differ</h4>' + table('The inputs that differ between scenario A and this result', diffs, true) : '')
+    + actions;
+  box.hidden = false;
+}
+
+// After every report is drawn - a Run, a shared link, a saved calculation reopened: the link offer from the last
+// report goes, and scenario A is set beside the new one when it is the same calculator.
+function edAfterReport() {
+  const box = document.getElementById('ed-share-box');
+  if (box) box.hidden = true;
+  edCompareRender();
 }
 
 // ─── Report states ────────────────────────────────────────────────────────────
@@ -28693,6 +28953,7 @@ function viewHistoryReport(row) {
   } else {
     renderReport(row.inputs, row.results, row.narrative);
   }
+  edAfterReport();
 }
 
 async function deleteCalc(id) {
@@ -32273,7 +32534,10 @@ async function init() {
     // Carry the requested calculator THROUGH the sign-in round trip. Without this a person who clicked
     // "Open the interactive Bolt Torque Calculator" on the SEO page signs up and lands on HVAC step 1.
     const _want = _deepLinkSlug();
-    const _ret  = 'engineering-design.html' + (_want ? '?calc=' + encodeURIComponent(_want) : '');
+    // ...and a shared calculation's #share= fragment (ENH-P): index.html's return guard accepts page.html?..#.. and
+    // base64url, so the link opens after sign-in or sign-up instead of arriving as an empty calculator.
+    const _share = /(?:^|[#&])share=[A-Za-z0-9_-]+/.test(window.location.hash || '') ? window.location.hash : '';
+    const _ret  = 'engineering-design.html' + (_want ? '?calc=' + encodeURIComponent(_want) : '') + _share;
     window.location.href = 'index.html?signin=1&return=' + encodeURIComponent(_ret); return;
   }
   syncCalcCounts();
@@ -32297,6 +32561,7 @@ async function init() {
   const _deep = _resolveDeepLink();
   if (_deep) { selectDiscipline(_deep.disc); selectCalcType(_deep.id); }
   else selectDiscipline('HVAC & Cooling');
+  edOpenSharedFromHash();   // ENH-P: a shared calculation's link
 }
 
 /** The requested calculator slug, from ?calc= or #calc=. */
