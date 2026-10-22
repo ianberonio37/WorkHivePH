@@ -10417,6 +10417,14 @@ function edShareValue(def, v) {
   if (typeof def === 'number') { const n = Number(v); return Number.isFinite(n) ? n : def; }
   if (typeof def === 'boolean') return v === true || v === 'true';
   if (typeof def === 'string') return (typeof v === 'string' || typeof v === 'number') ? edShareText(v) : def;
+  // an optional field the fresh form leaves empty (a cable row's weight is null until typed): its default says
+  // nothing about its type, so a plain shared value is kept - the walk caught a shared 10 kg/m being dropped and the
+  // colleague's tray reading NEMA class 8A where the sender's read Custom
+  if (def === null || def === undefined) {
+    if (typeof v === 'number' && Number.isFinite(v)) return v;
+    if (typeof v === 'boolean') return v;
+    if (typeof v === 'string') return edShareText(v);
+  }
   return def;
 }
 

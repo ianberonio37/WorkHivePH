@@ -72,6 +72,14 @@ eq('a list is capped', many.loads.length, 80);
 eq('a list the form starts empty keeps plain values under plain names',
   C.edShareSanitize({ rows: [] }, { rows: [{ name: 'a<b', n: 2, bad: { x: 1 }, 'bad key': 1 }] }).rows, [{ name: 'ab', n: 2 }]);
 eq('a missing key keeps the form\'s value', C.edShareSanitize({ a: 5, b: 'x' }, { a: 9 }), { a: 9, b: 'x' });
+// a field the fresh form leaves empty (null) keeps a plain shared value - the ENH-P walk caught Cable Tray dropping a
+// shared 10 kg/m cable weight, so the colleague's report read NEMA class 8A where the sender's read Custom
+eq('an optional field the form leaves empty keeps the shared number', C.edShareSanitize(
+  { cables: [{ cable_type: 'Power', od_mm: 25, qty: 1, weight_kg_m: null }] },
+  { cables: [{ cable_type: 'Power', od_mm: 25, qty: 3, weight_kg_m: 10 }] }).cables,
+  [{ cable_type: 'Power', od_mm: 25, qty: 3, weight_kg_m: 10 }]);
+eq('...and strips markup from shared text there too', C.edShareSanitize({ note: null }, { note: '<b>x</b>' }), { note: 'bx/b' });
+eq('...and refuses an object there', C.edShareSanitize({ note: null }, { note: { a: 1 } }), { note: null });
 eq('a payload that is not an object opens the form as it is', C.edShareSanitize({ a: 5 }, 'nope'), { a: 5 });
 
 // 4. compare sets two reports' figures side by side and names what differs, in words
