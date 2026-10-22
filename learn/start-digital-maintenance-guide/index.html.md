@@ -8,6 +8,15 @@ By WorkHive Editorial Team · Published 2026-08-05 · 8 min read
 
 To go from spreadsheets to digital maintenance, do four things in order. First, start a **digital logbook**, so every job is recorded the day it happens. Second, build an **asset register** on the ISO 14224 hierarchy, so every record is tagged to equipment. Third, turn recurring jobs into a **preventive-maintenance schedule**. Fourth, run a structured **shift handover**, so nothing is lost between crews. A small plant can do all four in about 30 days at zero software cost. A preventive programme runs about **12–18% cheaper** than running reactive. Predictive maintenance saves a further 8–12% (US Department of Energy / PNNL).
 
+Who this is for
+
+- Maintenance supervisors moving a crew off paper and spreadsheets
+- Plant owners and plant managers with no budget for a CMMS
+- Maintenance technicians who record the job on the floor
+- Reliability engineers setting up the first asset register
+- Maintenance planners building the first PM schedule
+- Safety officers who need dated records for DOLE
+
 ## Why digitise maintenance at all
 
 A spreadsheet inherited from a departed engineer is a liability. Its formulas drift, its tabs multiply, and the one person who understood it is gone. Digital maintenance replaces that with structured, searchable, portable records. The payoff is not fancy dashboards. It is a technician answering “when did we last replace this seal, and why?” in ten seconds instead of never. The US Department of Energy puts a preventive programme at roughly **12-18% cheaper** than running reactive. Predictive maintenance saves a further 8-12%. That is why the steps below start with recording and scheduling.
@@ -65,4 +74,4 @@ Yes, if the tool is offline-first. WorkHive captures entries locally and syncs w
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 7dd6dd4bc21a3baa -->
+<!-- md-twin source-sha: 3dc4720028477ff1 -->

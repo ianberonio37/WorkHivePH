@@ -6499,6 +6499,35 @@ four features, measured against that calculator:
   skew-heal, scripts-parse, sw-shell membership, design-detector-ratchet (0 primary), and calc-handoff's static half
   (60/60).
 
+**MTBF and OEE: the calculator a stranger could not use (built 2026-10-23).** These two pages sent their reader to
+Analytics, which works the figures out from the person's own logbook, so a stranger who searched for an OEE
+calculator had none. Both pages' third step was also false: "open the OEE Calculator inside WorkHive's free Engineering
+Design suite", and that suite has no OEE or MTBF calculator.
+
+The two formulas are short, so `kpi-calc.js` works them out on the page, on the device. It is built the way
+`solar-planner.js` is.
+- **OEE:** from shift records (planned time, downtime, ideal cycle time, units, good units) or from the three
+  percentages.
+- **MTBF:** from operating hours, failures and repair hours.
+- **What to do about the number:**
+  - OEE names the factor furthest below Nakajima's world-class level, and what reaching it would lift OEE to.
+  - MTBF works out how many hours between failures one hour less repair is worth (M / (R − 1)).
+- **The features:** print or save as PDF (a sheet with the inputs, the result, the advice, the method, the standard and
+  when it was printed), copy a share link, save on this device, and keep scenario A beside the next result.
+- **Steps and generator:** the steps changed in the visible list and the HowTo JSON-LD together, and the false one is
+  gone. `build_calc_pages.py` carries the section, so a rebuild keeps it.
+
+Gates:
+- `kpi-calc` (K1-K5) names 11 failures on the pages as they were. Its self-test shows five weakened copies each fail,
+  and a broken OEE fails the arithmetic test.
+- `tools/test_kpi_calc.mjs` holds the arithmetic to the pages' worked examples: 83.8%; 800 h, 8 h, 99.0%.
+- Also green: calc-pages 120/120, calc-handoff, scripts-parse, md-twins, and design-detector-ratchet (0 primary).
+- Three advisories are kept on purpose: the inputs stay 16 px so iOS does not zoom on focus, and black and grey are
+  the print sheet's paper colours.
+
+These two pages' rows close on the stranger's walk with no sign-up. The markdown twins of the eight learn guides from
+the ENH-L commit are rebuilt here too; that commit missed them, so `validate_md_twins` named them.
+
 **How the rows close.** The walk follows W4's path per calculator, at phone-390 and desktop-1280, as the stranger
 who signs up. Run, then Share link. The link is opened in a second, signed-in context, and the same headline figures
 must come back. Then Compare, change one input and Run, and the card must set A beside B. The walk also records the

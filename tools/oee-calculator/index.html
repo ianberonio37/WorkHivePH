@@ -60,17 +60,17 @@
         {
           "@type": "HowToStep",
           "position": 1,
-          "text": "Read the worked example. It uses a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles and shows every number in the method."
+          "text": "Work out your own OEE on this page: enter one shift's planned time, stops and counts, or the three percentages, and read the result and what to do about it."
         },
         {
           "@type": "HowToStep",
           "position": 2,
-          "text": "Follow the formula with your own figures: it returns OEE, Availability, Performance, Quality, TPM benchmark, computed per Nakajima TPM and ISO 22400-2."
+          "text": "Read the worked example. It uses a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles and shows every number in the method."
         },
         {
           "@type": "HowToStep",
           "position": 3,
-          "text": "To compute interactively, open the OEE Calculator inside WorkHive's free Engineering Design suite (link below). It runs the same method with your inputs."
+          "text": "To follow OEE from your own logbook over weeks, open Analytics in WorkHive (free, link below)."
         }
       ]
     },
@@ -227,6 +227,13 @@
       <p>OEE = Availability x Performance x Quality. Availability = run time / planned production time; Performance = (ideal cycle time x total count) / run time; Quality = good count / total count. For the example: 0.90 x 0.95 x 0.98 = 0.838, i.e. 83.8%. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.</p>
     </section>
 
+    <section aria-labelledby="work-it-out">
+      <h2 id="work-it-out">Work out your own OEE</h2>
+      <p>Enter one shift or one week from your records - planned time, stops and counts - or the three percentages if you already have them. It works out OEE and its three factors, says which loss is the biggest and what fixing it is worth, and lets you print it, save it, share it by link and set two scenarios side by side. It runs on this page: nothing you enter is sent anywhere, and no account is needed.</p>
+      <div data-wh-kpi-calc="oee"><noscript>The calculator needs JavaScript. The worked example below shows the method.</noscript></div>
+      <script src="/kpi-calc.js"></script>
+    </section>
+
     <section aria-labelledby="worked" style="min-height:240px"><!-- I2: reserved block -->
       <h2 id="worked"><span data-i="calc_worked">Worked example</span> (Reliability &amp; Metrics)</h2>
       <p>Inputs: a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles.</p>
@@ -246,9 +253,9 @@
     <section aria-labelledby="howto">
       <h2 id="howto" data-i="calc_howto">How to use this calculator</h2>
       <ol>
+        <li>Work out your own OEE on this page: enter one shift&#x27;s planned time, stops and counts, or the three percentages, and read the result and what to do about it.</li>
         <li>Read the worked example. It uses a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles and shows every number in the method.</li>
-        <li>Follow the formula with your own figures: it returns OEE, Availability, Performance, Quality, TPM benchmark, computed per Nakajima TPM and ISO 22400-2.</li>
-        <li>To compute interactively, open the OEE Calculator inside WorkHive&#x27;s free Engineering Design suite (link below). It runs the same method with your inputs.</li>
+        <li>To follow OEE from your own logbook over weeks, open Analytics in WorkHive (free, link below).</li>
       </ol>
     </section>
 
@@ -278,7 +285,7 @@
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="source-line-1">
-<p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size: 0.75rem; opacity:.85; margin:.25rem 0 1rem;">Static · formula-only · worked example computed when this page was built · no live data</p>
+<p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size: 0.75rem; opacity:.85; margin:.25rem 0 1rem;">Worked example computed when this page was built · the calculator works on your device from what you enter · no live data</p>
 </div>
 </div>
 </section>

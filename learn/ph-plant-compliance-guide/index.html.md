@@ -8,6 +8,15 @@ By WorkHive Editorial Team · Published 2026-08-05 · 8 min read
 
 Three regimes cover most Philippine plant maintenance compliance: **DOLE OSHS** (the Occupational Safety and Health Standards, made mandatory and penalised under RA 11058 and DO 198-18) requires documented safety procedures and training; **lockout/tagout** under the same DO 198-18 requires a written, auditable energy-isolation procedure for every maintenance intervention; and **RA 11285** (the Energy Efficiency and Conservation Act) requires designated establishments to report energy use and run a conservation programme. In every case an inspector asks the same thing : *show me the records*, and a dated digital audit trail is the fastest way to pass. RA 11058 penalties for wilful violations reach **₱100,000 per day**.
 
+Who this is for
+
+- Safety officers preparing for a DOLE inspection
+- Maintenance supervisors who run lockout/tagout
+- Plant and facility managers who answer for compliance
+- Energy managers and engineers reporting under RA 11285
+- Internal auditors and compliance coordinators
+- Contractors who work under the plant's permits
+
 ## DOLE OSHS and the audit trail
 
 The Occupational Safety and Health Standards are no longer advisory: RA 11058 and its IRR, DO 198-18, make them mandatory and set administrative fines of up to **₱100,000 per day** for wilful violations. What an inspector actually checks is documentation: safety induction records, equipment inspection logs, incident reports, and permits. A digital logbook that timestamps every entry turns a frantic pre-inspection scramble into a search box. The full method is in [building a DOLE/ISO audit trail from your logbook](https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/).
@@ -61,4 +70,4 @@ Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tag
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 6ad1329b54341387 -->
+<!-- md-twin source-sha: 4286d1d632c94d5e -->

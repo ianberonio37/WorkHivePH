@@ -8,6 +8,15 @@ By WorkHive Editorial Team · Published 2026-08-05 · 7 min read
 
 Most "free" CMMS products are **freemium**: a feature-capped tier designed to convert to paid seats (typically around **$20 per user per month**). The commonly listed free tiers are **Coast, MaintainX, Limble, Fiix and Maintenance Care**. **WorkHive** is the outlier: free at the worker tier as the actual model rather than a funnel, offline-first, and built for the Philippine context (DOLE OSHS records, Filipino/Taglish capture, 60 engineering calculators). If you need enterprise depth and have budget, the paid products are more mature; if the binding constraint is cost per seat or plant-floor connectivity, start free and stay free.
 
+Who this is for
+
+- Plant managers and owners choosing a first CMMS
+- Maintenance supervisors comparing free tiers
+- Reliability and maintenance engineers
+- Procurement officers checking what a free plan really includes
+- Maintenance planners
+- Technicians who will use it on a phone every shift
+
 ## Free and freemium CMMS options compared
 
 | Product | Free tier | Paid entry | Best for |
@@ -80,4 +89,4 @@ Or see it working first: the [OEE calculator](https://workhiveph.com/tools/oee-c
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 04a9a87c4eb16a34 -->
+<!-- md-twin source-sha: 71ce58b023c00617 -->

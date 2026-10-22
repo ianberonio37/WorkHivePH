@@ -9,6 +9,8 @@ MTBF & MTTR Calculator
 **The MTBF & MTTR Calculator computes Mean Time Between Failures, Mean Time To Repair, and the availability they produce together. Example: for a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total, MTBF = 800 h, MTTR = 8 h, Availability = 99 %, Failures = 5 (per ISO 14224, IEC 60050-192 and SMRP).**
 How it works
 MTBF = operating hours / number of failures. MTTR = total repair time / number of repairs. Availability = MTBF / (MTBF + MTTR). For the example: MTBF = 4000/5 = 800 h, MTTR = 40/5 = 8 h, Availability = 800/808 = 99.0%. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
+Work out your own MTBF and MTTR
+Enter one asset over one period: how long it ran, how many times it failed and how long the repairs took in total. It works out MTBF, MTTR and availability, says whether repair time or failures cost you more, and lets you print it, save it, share it by link and set two scenarios side by side. It runs on this page: nothing you enter is sent anywhere, and no account is needed.
 I2: reserved block 
 Worked example (Reliability & Metrics)
 Inputs: a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total.
@@ -19,9 +21,9 @@ Availability99 %
 Failures5
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 14224, IEC 60050-192 and SMRP.
 How to use this calculator
+Work out MTBF, MTTR and availability on this page: enter how long the asset ran, how many times it failed and the total repair hours, and read what to do about it.
 Read the worked example. It uses a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total and shows every number in the method.
-Follow the formula with your own figures: it returns MTBF, MTTR, Availability, Failures, computed per ISO 14224, IEC 60050-192 and SMRP.
-To compute interactively, open the MTBF & MTTR Calculator inside WorkHive's free Engineering Design suite (link below). It runs the same method with your inputs.
+To follow them from your own logbook, open Analytics in WorkHive (free, link below).
 FAQ
 How do you calculate MTBF?Divide total operating hours by the number of failures in that period. A pump that ran 4,000 hours and failed 5 times has an MTBF of 800 hours.
 How do you calculate MTTR?Divide total repair time by the number of repairs. Five repairs totalling 40 hours gives an MTTR of 8 hours.
@@ -35,7 +37,7 @@ Related calculators
 [MTBF vs MTTR for supervisors](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/)
  wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime 
 Where these figures come from
-Static · formula-only · worked example computed when this page was built · no live data
+Worked example computed when this page was built · the calculator works on your device from what you enter · no live data
  /wh-sources
 
-<!-- md-twin source-sha: f2251a6f02f02de6 -->
+<!-- md-twin source-sha: f588a059229e4063 -->

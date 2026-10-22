@@ -99,6 +99,14 @@ CALC_DATA: dict[str, dict] = {
             ("Why is my OEE lower than my availability?", "Because availability is only one of three factors. A line that is available 90% of the time but runs slow and scraps 5% of output lands near 80% OEE. Measuring availability alone is the most common OEE mistake."),
             ("Do I need sensors to measure OEE?", "No. You can calculate OEE from shift records: planned time, downtime, counts produced, and rejects. A disciplined logbook is enough to start; sensors improve resolution later."),
         ],
+        # ENH-P (2026-10-23): the calculator, worked out on the page (kpi-calc.js) - the page sent a stranger to
+        # Analytics, which reads a logbook they do not have yet
+        "steps": ["Work out your own OEE on this page: enter one shift's planned time, stops and counts, or the three percentages, and read the result and what to do about it.", "Read the worked example. It uses a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles and shows every number in the method.", "To follow OEE from your own logbook over weeks, open Analytics in WorkHive (free, link below)."],
+        "tool": {"id": "work-it-out", "title": "Work out your own OEE",
+                 "intro": "Enter one shift or one week from your records - planned time, stops and counts - or the three percentages if you already have them. It works out OEE and its three factors, says which loss is the biggest and what fixing it is worth, and lets you print it, save it, share it by link and set two scenarios side by side. It runs on this page: nothing you enter is sent anywhere, and no account is needed.",
+                 "mount": "<div data-wh-kpi-calc=\"oee\"><noscript>The calculator needs JavaScript. The worked example below shows the method.</noscript></div>",
+                 "script": "/kpi-calc.js",
+                 "chip": "Worked example computed when this page was built · the calculator works on your device from what you enter · no live data"},
         "related_article": ("/learn/what-is-oee-how-to-calculate/", "What is OEE and how to calculate it"),
         "siblings": [("/tools/mtbf-calculator/", "MTBF & MTTR Calculator")],
     },
@@ -121,6 +129,14 @@ CALC_DATA: dict[str, dict] = {
             ("What is the difference between MTBF and MTTR?", "MTBF measures reliability — how long the asset runs before failing. MTTR measures maintainability — how long it takes to restore. You raise MTBF with better preventive maintenance and root-cause fixes; you lower MTTR with spares availability and standard work."),
             ("How do MTBF and MTTR give availability?", "Availability = MTBF / (MTBF + MTTR). With MTBF 800 h and MTTR 8 h, availability is 99.0%. That figure is also what feeds the availability factor inside OEE."),
         ],
+        # ENH-P (2026-10-23): the calculator, worked out on the page (kpi-calc.js) - the page sent a stranger to
+        # Analytics, which reads a logbook they do not have yet
+        "steps": ["Work out MTBF, MTTR and availability on this page: enter how long the asset ran, how many times it failed and the total repair hours, and read what to do about it.", "Read the worked example. It uses a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total and shows every number in the method.", "To follow them from your own logbook, open Analytics in WorkHive (free, link below)."],
+        "tool": {"id": "work-it-out", "title": "Work out your own MTBF and MTTR",
+                 "intro": "Enter one asset over one period: how long it ran, how many times it failed and how long the repairs took in total. It works out MTBF, MTTR and availability, says whether repair time or failures cost you more, and lets you print it, save it, share it by link and set two scenarios side by side. It runs on this page: nothing you enter is sent anywhere, and no account is needed.",
+                 "mount": "<div data-wh-kpi-calc=\"mtbf\"><noscript>The calculator needs JavaScript. The worked example below shows the method.</noscript></div>",
+                 "script": "/kpi-calc.js",
+                 "chip": "Worked example computed when this page was built · the calculator works on your device from what you enter · no live data"},
         "related_article": ("/learn/mtbf-vs-mttr-for-supervisors/", "MTBF vs MTTR for supervisors"),
         "siblings": [("/tools/oee-calculator/", "OEE Calculator")],
     },

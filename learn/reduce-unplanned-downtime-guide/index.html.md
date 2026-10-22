@@ -8,6 +8,15 @@ By WorkHive Editorial Team · Published 2026-08-05 · 8 min read
 
 Cut unplanned downtime in four steps, in this order: **(1) measure it by cause** so you know what actually stops the line, **(2) fix the recurring few at root cause** instead of repeatedly restoring them, **(3) hold PM compliance above the SMRP benchmark of 90%**, and **(4) add condition monitoring to the critical assets only**. Most plants find their downtime hours concentrated in a small minority of assets, which is why measurement comes first, and preventive maintenance done on schedule runs **12-18% cheaper** than the reactive repair it replaces. Programmes that follow this order typically report a **15 to 25% reduction in unplanned downtime by month 18**.
 
+Who this is for
+
+- Maintenance supervisors fighting the same breakdowns every week
+- Reliability engineers running root-cause analysis
+- Plant and operations managers who own the downtime number
+- Maintenance planners holding PM compliance above 90%
+- Production operators who report the stoppages
+- Technicians who fix the recurring few
+
 ## Why downtime persists in most plants
 
 Unplanned downtime rarely persists because nobody is working hard. It persists because the work is aimed by memory rather than by data. The senior mechanic knows which machine is “always a problem,” so attention flows there, but nobody can say how many hours it actually cost last quarter, or whether it was one failure mode or six.
@@ -84,4 +93,4 @@ The PM Scheduler is the step after recording stoppages, where a due date chases 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: ebbef7cdc11b6103 -->
+<!-- md-twin source-sha: 946d6b5a8789f851 -->

@@ -8,6 +8,15 @@ By WorkHive Editorial Team · Published 2026-08-05 · 9 min read
 
 The five metrics every Philippine plant should track are **OEE** (Overall Equipment Effectiveness = Availability × Performance × Quality; the TPM benchmark is 85%), **MTBF** (Mean Time Between Failures = operating hours ÷ number of failures), **MTTR** (Mean Time To Repair = total repair time ÷ number of repairs), **Availability** (MTBF ÷ (MTBF + MTTR)), and **PM compliance** (PMs completed on time ÷ PMs scheduled; the SMRP benchmark is ≥90%). Together they turn “the line keeps breaking” into a number you can act on.
 
+Who this is for
+
+- Maintenance and reliability engineers
+- Production supervisors and line leaders
+- Plant managers who report the numbers upward
+- Maintenance planners tracking PM compliance
+- Continuous improvement and Lean teams
+- New engineering graduates learning the formulas
+
 ## Why maintenance metrics matter
 
 Most Philippine plants run maintenance on memory and firefighting: the senior mechanic knows which pump is “always a problem,” and everyone reacts when a line stops. The trouble is that memory does not scale, does not transfer when the senior mechanic retires, and cannot be put in a budget request. Metrics fix that. A plant that measures reliability can say “this filler cost us 62 hours of downtime last quarter, and 80% of it was the same bearing” a sentence that unlocks a purchase order.
@@ -83,4 +92,4 @@ No. You can start with a disciplined logbook and a checklist. The value is in co
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 54f1ab94a6a2ec36 -->
+<!-- md-twin source-sha: dbf980e0d87baa68 -->

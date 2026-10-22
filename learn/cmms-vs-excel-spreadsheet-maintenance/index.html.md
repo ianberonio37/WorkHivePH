@@ -8,6 +8,15 @@ By WorkHive Editorial Team · Published 2026-08-05 · 6 min read
 
 A spreadsheet is genuinely fine when **one person** maintains **under ~50 assets** and nobody needs history older than the current year. Switch to a CMMS when any of four things is true: **more than one person edits it**, **you need PM due-dates to trigger** rather than be remembered, **you need history that survives staff turnover**, or **an auditor will ask for dated records**. The deciding factor is rarely features: it is that a spreadsheet has one owner and no memory, and preventive maintenance run on a real schedule runs **12-18% cheaper** than the reactive breakdowns it prevents.
 
+Who this is for
+
+- Maintenance supervisors who keep the spreadsheet today
+- Plant managers and owners deciding whether to switch
+- Maintenance planners who schedule PM from a sheet
+- Engineers who inherited a workbook from someone who left
+- Technicians who type the jobs in
+- Auditors who need a record nobody can quietly edit
+
 ## When a spreadsheet is genuinely fine
 
 This deserves saying plainly, because "you need software" is usually a sales line. A spreadsheet is a reasonable tool when:
@@ -79,4 +88,4 @@ The digital Logbook is the surface that replaces the spreadsheet, with the asset
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 8a66735d2628461c -->
+<!-- md-twin source-sha: 1c55fd992b58e9ad -->
