@@ -1022674,8 +1022674,8 @@
     },
     {
       "id": "ENH289",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-J",
       "title": "The platform must keep a live journey on this page that a person's real path passes, in Chromium and WebKit (live journey) - buyer · marketplace seller profile",
       "pages": [
@@ -1022731,12 +1022731,20 @@
         ],
         "instrument": "library sweep (tools/live_page_journeys.mjs, the journey runner, in Chromium and WebKit)",
         "closes": "a live journey for marketplace seller profile exists, passes in Chromium and WebKit, and the live-page-journeys gate holds it"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via tools/prove_page_journeys.py (gate page-journeys; real Chromium AND Webkit): CI2 on marketplace-seller-profile.html - the page's registered jobs-to-be-done (tools/live_page_journeys.mjs, the same registry in both engines) - Chromium: 1/1 journey(s) live (SP1); WebKit: 1/1 journey(s) live (SP1). Runs: public 2026-10-15T12:22:51.966Z, journeys-chromium 2026-10-15T08:16:14.834Z, journeys-webkit 2026-10-15T08:36:45.109Z. Teeth: a page whose WebKit walk is taken away, and a page whose only journeys turn gap, each read open (True). Gates: live-page-journeys RECORD (run 2026-10-15T08:16:14.834Z), live-page-journeys-webkit RECORD (run 2026-10-15T08:36:45.109Z). Receipt .tmp/enhj_page_journeys.json (generated 2026-10-23T10:35:42).",
+      "artifacts": {
+        "gates": [
+          "live-page-journeys",
+          "live-page-journeys-webkit",
+          "page-journeys"
+        ]
       }
     },
     {
       "id": "ENH290",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-J",
       "title": "The platform must keep a live journey on this page that a person's real path passes, in Chromium and WebKit (live journey) - fleet-supervisor · ph intelligence",
       "pages": [
@@ -1022792,12 +1022800,20 @@
         ],
         "instrument": "library sweep (tools/live_page_journeys.mjs, the journey runner, in Chromium and WebKit)",
         "closes": "a live journey for ph intelligence exists, passes in Chromium and WebKit, and the live-page-journeys gate holds it"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via tools/prove_page_journeys.py (gate page-journeys; real Chromium AND Webkit): CI2 on ph-intelligence.html - the page's registered jobs-to-be-done (tools/live_page_journeys.mjs, the same registry in both engines) - Chromium: 1/1 journey(s) live (PI1); WebKit: 1/1 journey(s) live (PI1). Runs: public 2026-10-15T12:22:51.966Z, journeys-chromium 2026-10-15T08:16:14.834Z, journeys-webkit 2026-10-15T08:36:45.109Z. Teeth: a page whose WebKit walk is taken away, and a page whose only journeys turn gap, each read open (True). Gates: live-page-journeys RECORD (run 2026-10-15T08:16:14.834Z), live-page-journeys-webkit RECORD (run 2026-10-15T08:36:45.109Z). Receipt .tmp/enhj_page_journeys.json (generated 2026-10-23T10:35:42).",
+      "artifacts": {
+        "gates": [
+          "live-page-journeys",
+          "live-page-journeys-webkit",
+          "page-journeys"
+        ]
       }
     },
     {
       "id": "ENH291",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-J",
       "title": "The platform must keep a live journey on this page that a person's real path passes, in Chromium and WebKit (live journey) - oversight · platform actions",
       "pages": [
@@ -1022847,12 +1022863,20 @@
         ],
         "instrument": "library sweep (tools/live_page_journeys.mjs, the journey runner, in Chromium and WebKit)",
         "closes": "a live journey for platform actions exists, passes in Chromium and WebKit, and the live-page-journeys gate holds it"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via tools/prove_page_journeys.py (gate page-journeys; real Chromium AND Webkit): CI2 on platform-actions.html - the page's registered jobs-to-be-done (tools/live_page_journeys.mjs, the same registry in both engines) - Chromium: 1/1 journey(s) live (PA1); WebKit: 1/1 journey(s) live (PA1). Runs: public 2026-10-15T12:22:51.966Z, journeys-chromium 2026-10-15T08:16:14.834Z, journeys-webkit 2026-10-15T08:36:45.109Z. Teeth: a page whose WebKit walk is taken away, and a page whose only journeys turn gap, each read open (True). Gates: live-page-journeys RECORD (run 2026-10-15T08:16:14.834Z), live-page-journeys-webkit RECORD (run 2026-10-15T08:36:45.109Z). Receipt .tmp/enhj_page_journeys.json (generated 2026-10-23T10:35:42).",
+      "artifacts": {
+        "gates": [
+          "live-page-journeys",
+          "live-page-journeys-webkit",
+          "page-journeys"
+        ]
       }
     },
     {
       "id": "ENH292",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-J",
       "title": "The platform must keep a live journey on this page that a person's real path passes, in Chromium and WebKit (live journey) - an anonymous visitor · public feed",
       "pages": [
@@ -1022902,12 +1022926,20 @@
         ],
         "instrument": "library sweep (tools/live_page_journeys.mjs, the journey runner, in Chromium and WebKit)",
         "closes": "a live journey for public feed exists, passes in Chromium and WebKit, and the live-page-journeys gate holds it"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via tools/prove_page_journeys.py (gate page-journeys; real Chromium AND Webkit): CI2 on public-feed.html - the page's registered jobs-to-be-done (tools/live_page_journeys.mjs, the same registry in both engines) - Chromium: 1/1 journey(s) live (PF1); WebKit: 1/1 journey(s) live (PF1). Runs: public 2026-10-15T12:22:51.966Z, journeys-chromium 2026-10-15T08:16:14.834Z, journeys-webkit 2026-10-15T08:36:45.109Z. Teeth: a page whose WebKit walk is taken away, and a page whose only journeys turn gap, each read open (True). Gates: live-page-journeys RECORD (run 2026-10-15T08:16:14.834Z), live-page-journeys-webkit RECORD (run 2026-10-15T08:36:45.109Z). Receipt .tmp/enhj_page_journeys.json (generated 2026-10-23T10:35:42).",
+      "artifacts": {
+        "gates": [
+          "live-page-journeys",
+          "live-page-journeys-webkit",
+          "page-journeys"
+        ]
       }
     },
     {
       "id": "ENH293",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-J",
       "title": "The platform must keep a live journey on this page that a person's real path passes, in Chromium and WebKit (live journey) - fleet-supervisor · report sender",
       "pages": [
@@ -1022963,12 +1022995,20 @@
         ],
         "instrument": "library sweep (tools/live_page_journeys.mjs, the journey runner, in Chromium and WebKit)",
         "closes": "a live journey for report sender exists, passes in Chromium and WebKit, and the live-page-journeys gate holds it"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via tools/prove_page_journeys.py (gate page-journeys; real Chromium AND Webkit): CI2 on report-sender.html - the page's registered jobs-to-be-done (tools/live_page_journeys.mjs, the same registry in both engines) - Chromium: 1/1 journey(s) live (RS1); WebKit: 1/1 journey(s) live (RS1). Runs: public 2026-10-15T12:22:51.966Z, journeys-chromium 2026-10-15T08:16:14.834Z, journeys-webkit 2026-10-15T08:36:45.109Z. Teeth: a page whose WebKit walk is taken away, and a page whose only journeys turn gap, each read open (True). Gates: live-page-journeys RECORD (run 2026-10-15T08:16:14.834Z), live-page-journeys-webkit RECORD (run 2026-10-15T08:36:45.109Z). Receipt .tmp/enhj_page_journeys.json (generated 2026-10-23T10:35:42).",
+      "artifacts": {
+        "gates": [
+          "live-page-journeys",
+          "live-page-journeys-webkit",
+          "page-journeys"
+        ]
       }
     },
     {
       "id": "ENH294",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ENH-J",
       "title": "The platform must keep a live journey on this page that a person's real path passes, in Chromium and WebKit (live journey) - worker · shift brain",
       "pages": [
@@ -1023024,6 +1023064,14 @@
         ],
         "instrument": "library sweep (tools/live_page_journeys.mjs, the journey runner, in Chromium and WebKit)",
         "closes": "a live journey for shift brain exists, passes in Chromium and WebKit, and the live-page-journeys gate holds it"
+      },
+      "basis": "[2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via tools/prove_page_journeys.py (gate page-journeys; real Chromium AND Webkit): CI2 on shift-brain.html - the page's registered jobs-to-be-done (tools/live_page_journeys.mjs, the same registry in both engines) - Chromium: 1/1 journey(s) live (SB1); WebKit: 1/1 journey(s) live (SB1). Runs: public 2026-10-15T12:22:51.966Z, journeys-chromium 2026-10-15T08:16:14.834Z, journeys-webkit 2026-10-15T08:36:45.109Z. Teeth: a page whose WebKit walk is taken away, and a page whose only journeys turn gap, each read open (True). Gates: live-page-journeys RECORD (run 2026-10-15T08:16:14.834Z), live-page-journeys-webkit RECORD (run 2026-10-15T08:36:45.109Z). Receipt .tmp/enhj_page_journeys.json (generated 2026-10-23T10:35:42).",
+      "artifacts": {
+        "gates": [
+          "live-page-journeys",
+          "live-page-journeys-webkit",
+          "page-journeys"
+        ]
       }
     },
     {
@@ -1039340,5 +1039388,5 @@
       }
     }
   ],
-  "next": "ENH-J 6: re-run SP1 PI1 PA1 PF1 RS1 SB1 alone in Chromium then WebKit (bash .tmp/slw/run_enhj.sh), fold each engine's runs (fold_journey_rerun.py), prove (prove_page_journeys.py) and bank (bank_sl_walk --prover <results> --sublayer ENH-J); then the ENH-L stranger's walk appended to its 45 refuted rows (.tmp/slw/enhl_walk_<vp>.js); then LB3's two CPU-ms rows at the end. BRH 19 are external."
+  "next": "ENH-L: the stranger's walk of the 45 learn guides at phone-390 and desktop-1280 (.tmp/slw/enhl_walk_<vp>.js), appended to each refuted row's basis; then LB3's two CPU-ms rows at the end. BRH 19 are external."
 }

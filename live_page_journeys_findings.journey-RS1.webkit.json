@@ -1,0 +1,74 @@
+{
+  "ran": "2026-10-22T21:29:29.491Z",
+  "findings": [
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "floor",
+      "rule": "tap-target≥44px",
+      "severity": 2,
+      "evidence": "1/23 interactive <44px",
+      "owner": "mobile-maestro"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div#contact-sheet — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-header — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-body — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Modal/bottom-sheet must carry role=\"dialog\" + aria-modal=\"true\" + an accessible name (aria-label OR a resolving aria-labelledby)",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 2,
+      "evidence": "div.sheet-field — role=null aria-modal=null name=MISSING (no aria-label and no resolving aria-labelledby)",
+      "owner": "designer"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "report-sender.html",
+      "role": "supervisor",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    }
+  ]
+}

@@ -5341,8 +5341,8 @@
       "evidence": {
         "brief": true,
         "empty": false,
-        "window": "14-22",
-        "brief_len": 888
+        "window": "22-06",
+        "brief_len": 668
       },
       "err": null
     },
@@ -5429,40 +5429,40 @@
       "page": "platform-actions.html",
       "role": "supervisor",
       "state": "authed-admin",
-      "title": "The admin opens Platform Actions and the feedback queue counts every report on the platform",
+      "title": "The admin opens the retired Platform Actions and is sent on to the operator console's Operations tab",
       "lenses": [
         "R",
         "J",
-        "T"
+        "X"
       ],
       "ufai": [
         "U",
-        "F"
+        "I"
       ],
       "external": false,
       "verdict": {
         "R": true,
         "J": true,
-        "T": true,
+        "T": null,
         "C": null,
-        "X": null
+        "X": true
       },
       "live": true,
       "applicable_lenses": [
         "R",
         "J",
-        "T"
+        "X"
       ],
       "passed_lenses": [
         "R",
         "J",
-        "T"
+        "X"
       ],
       "evidence": {
-        "actions": true,
-        "refused": false,
-        "all": 10,
-        "truth": 10
+        "shown": true,
+        "said": "Platform Actions has moved into the operator console",
+        "onward": "founder-console.html#operations",
+        "landed": true
       },
       "err": null
     },
@@ -7465,8 +7465,8 @@
       "pct": 100.0
     },
     "T": {
-      "applicable": 86,
-      "pass": 86,
+      "applicable": 85,
+      "pass": 85,
       "pct": 100.0
     },
     "C": {
@@ -7475,8 +7475,8 @@
       "pct": 100.0
     },
     "X": {
-      "applicable": 51,
-      "pass": 51,
+      "applicable": 52,
+      "pass": 52,
       "pct": 100.0
     }
   },
@@ -7512,6 +7512,54 @@
       "was_live": false,
       "now_live": true,
       "reason": "the report did not finish compiling inside the long sweep while AR1 compiled it; alone it compiles and the PM KPI matches the database"
+    },
+    {
+      "id": "SP1",
+      "from": "live_page_journeys_results.journey-SP1.json",
+      "ran": "2026-10-22T21:03:53.966Z",
+      "was_live": true,
+      "now_live": true,
+      "reason": "ENH-J: each page changed after its 2026-10-15 reading (6-24 commits); re-walked alone on 2026-10-23"
+    },
+    {
+      "id": "PI1",
+      "from": "live_page_journeys_results.journey-PI1.json",
+      "ran": "2026-10-22T21:06:28.033Z",
+      "was_live": true,
+      "now_live": true,
+      "reason": "ENH-J: each page changed after its 2026-10-15 reading (6-24 commits); re-walked alone on 2026-10-23"
+    },
+    {
+      "id": "PA1",
+      "from": "live_page_journeys_results.journey-PA1.json",
+      "ran": "2026-10-22T21:09:02.388Z",
+      "was_live": true,
+      "now_live": true,
+      "reason": "ENH-J: each page changed after its 2026-10-15 reading (6-24 commits); re-walked alone on 2026-10-23"
+    },
+    {
+      "id": "PF1",
+      "from": "live_page_journeys_results.journey-PF1.json",
+      "ran": "2026-10-22T21:11:33.475Z",
+      "was_live": true,
+      "now_live": true,
+      "reason": "ENH-J: each page changed after its 2026-10-15 reading (6-24 commits); re-walked alone on 2026-10-23"
+    },
+    {
+      "id": "RS1",
+      "from": "live_page_journeys_results.journey-RS1.json",
+      "ran": "2026-10-22T21:14:07.792Z",
+      "was_live": true,
+      "now_live": true,
+      "reason": "ENH-J: each page changed after its 2026-10-15 reading (6-24 commits); re-walked alone on 2026-10-23"
+    },
+    {
+      "id": "SB1",
+      "from": "live_page_journeys_results.journey-SB1.json",
+      "ran": "2026-10-22T21:16:40.476Z",
+      "was_live": true,
+      "now_live": true,
+      "reason": "ENH-J: each page changed after its 2026-10-15 reading (6-24 commits); re-walked alone on 2026-10-23"
     }
   ]
 }

@@ -44,6 +44,9 @@ def _ts(s: str) -> datetime:
 def _registry_title(jid: str) -> str | None:
     src = REGISTRY.read_text(encoding="utf-8")
     m = re.search(r"id:\s*'" + re.escape(jid) + r"'[^\n]*\n\s*title:\s*(\"(?:[^\"\\]|\\.)*\"|'(?:[^'\\]|\\.)*')", src)
+    # ...or a journey built by a helper, `retired('PA1', 'platform-actions.html', "<title>", ...)` (ENH-J, 2026-10-23:
+    # the fold refused PA1's fresh run because it could read only the `id:`/`title:` form)
+    m = m or re.search(r"\w+\(\s*'" + re.escape(jid) + r"'\s*,\s*'[^']*'\s*,\s*(\"(?:[^\"\\]|\\.)*\"|'(?:[^'\\]|\\.)*')", src)
     return json.loads(m.group(1)) if m and m.group(1).startswith('"') else (m.group(1)[1:-1] if m else None)
 
 
