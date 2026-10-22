@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 8e4b22a2e738132b
+source_sha: 8d9ac54d189318c4
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1416) — the 'what's already gated' brain
+## gate · registered validators (1429) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -367,16 +367,21 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `substrate-manifest` ⚡ [info] — Substrate Manifest (L-1.5: aggregate all 13 pattern miners + drift detectors into one view)
 - `truth-view-contract` ⚡ [blocker] — Truth-View Contract (every v_*_truth declares _source_count/_freshness_ts/_canonical_version)
 
-### Performance (7)
+### Performance (12)
 - `consumption-bound` ⚡ [fail] — Consumption bounds (a page that caps what it loads says so where a reader can see it)
 - `growth-honesty` [fail] — Growth honesty (reads bounded before growth exposes them, load-more reaches what it promises, concurrent writes detectable)
+- `in-list-chunked` ⚡ [fail] — In-list lookups chunked (SL LB3): every .in() on the served pages and shared scripts is a fixed list, asked through utils.js whInChunks (100 keys a request, de-
 - `list-caps-say-more` ⚡ [fail] — List caps say more (SL LB1): every capped list read on the 33 LB1 pages is paged, says when more exists (a probe or a count, and whMoreNote or the page's own se
+- `long-list-render` ⚡ [fail] — Long-list render (SL LB3): every show-more on the 34 LB3 data pages appends through utils.js whRenderRows instead of rebuilding every row (its 21-case unit test
+- `one-person-cannot-flood` ⚡ [fail] — One person cannot flood (SL RL3): every typing handler that reaches the network (in its file or through the shared scripts its page loads) waits for the typing 
+- `prover-reads-whole-list` ⚡ [fail] — Prover reads the whole list (SL LB3): every instrument that reads innerText on a long-list page draws every row (ALL_ROWS_DRAWN on each context it opens) or rea
+- `refresh-stands-down-hidden` ⚡ [fail] — Refresh stands down when hidden (SL LB4): every setInterval that reaches the network on a served page or shared script skips a hidden tab (document.hidden, whPo
 - `tw-public-sheets` ⚡ [fail] — Public pages on compiled Tailwind (no Play CDN; every class compiled; the sheet last in <head>)
 - `w4-layer-availability` ⚡ [fail] — Wave-4 layer-A stories: every A-layer row's page catches a slow/absent service and shows a legible degraded state, or makes no network call of its own (source-l
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1043)
+### Platform (1051)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -440,6 +445,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `ai-safety` ⚡ [fail] — AI Input Bounds / Safety (4-layer: field slices + any slice + slice constants + input inventory)
 - `ai-seam-coverage` ⚡ [fail] — AI Seam Contract-Test Coverage (C4 Phase 2a: forward-only on uncovered seam count; floor auto-lowers as tests get wired)
 - `ai-seams-inventory` ⚡ [fail] — AI Seams Inventory (C4 Phase 1: catalog SaaS→AI / AI→tenant / AI→quota boundaries + forward-only ratchet)
+- `ai-spend-in-budget` ⚡ [fail] — AI and function spend in budget (SL RL1): every edge function a served page or shared script calls (an invoke, or a fetch whose own URL names it - never a URL a
 - `ai-surface-quota` [warn] — D12 per-SURFACE AI cost/quota adoption (2026-07-23, the D-ledger's 'per-surface oracle unbuilt' cell, now built). `ai_rate_limits` is keyed by hive_id ALONE - o
 - `alert-loop-closes` [fail] — T29: acting on an alert must make the ALERT GO AWAY (2026-08-27). An alert inbox that never empties is an inbox people stop reading, so the chain has to close: 
 - `alert-scope-is-told` ⚡ [fail] — T19: hiding a plant alert is a HIVE action and must say so (2026-08-27). alert_dismissals is keyed onConflict 'hive_id,alert_key' — ONE row per alert per hive —
@@ -634,6 +640,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `credit-loop-closes` ⚡ [fail] — THE CREDIT LOOP - cash enters once, and the credits go round. This is the central claim of the whole economy and the plan's verification #3, and every OTHER cre
 - `credit-posture` ⚡ [fail] — CREDIT POSTURE - the structural facts that keep WorkHive Credits out of the heavy regimes, asserted against the LIVE CATALOG instead of documented. Migration 20
 - `credit-solvency` ⚡ [fail] — CREDIT SOLVENCY - are the credits given away backed by anything? MARKETPLACE_CREDIT_SUSTAINABILITY §5 named liability cover the number that matters, and §4.5 na
+- `critic-cells` ⚡ [fail] — ENH-C (2026-10-22): an open critic cell on a signed-in production page, once built and banked, stays closed. C1: every ENH-C row at locking/locked names a (page
 - `critic-closer-guards` ⚡ [fail] — the critic closer clears a finding only with a sweep newer than its bank, of the same signed-in/out screen; a descoped dim (N1) stops blocking and is receipted 
 - `critic-lock-promote` ⚡ [fail] — a critic row locks only on a FULL board that ran after its evidence, with every gate its receipt names PASS (improving and clean critiques; never one with open 
 - `critic-registry` ⚡ [fail] — CRITIC DEEPWALK anti-drift: the UI/UX extension's critique bank cannot overstate. critic_registry.json (480 rows, one per in-scope trajectory) is the SSOT behin
@@ -793,6 +800,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `formula-invocation` ⚡ [fail] — Formula Invocation Drift (Tier D-f refinement: same formula called with different period_days across consumers)
 - `founder-console-honest` [regression] — T488 (founder console shows honest platform state): founder-gated (isPlatformAdmin), grounded in the v_*_truth canonical views + platform_health across many liv
 - `founder-feedback-backfill` [fail] — founder-console feedback inbox backfills after a realtime drop (live: network cut mid-subscription, DB insert, reconnect -> card appears)
+- `free-plan-budget` ⚡ [fail] — Free-plan budget (BRH 9): every operational table (cron history, traces, analytics events, automation log, AI cost log, client errors) has a scheduled purge in 
 - `frequency-map-consistency` ⚡ [blocker] — Frequency-Map Consistency (every PM frequency maps to its canonical interval days; live view + code copies agree)
 - `freshness-stamp-tracks-content` [fail] — T39: a freshness stamp tracks its content — alert-hub's background-upgrade oracle (2026-08-26). The AMC card serves the stored 6am brief instantly, then calls a
 - `frontend-floor-cells` [fail] — Frontend floor cells (fix-to-ZERO ratchet over the live-mined F-lens in frontend_ufai_results.json: F1 consoleErrors==0 [D17 SMOKE — page loads clean] + F6 load
@@ -922,6 +930,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `lens-read-rpcs` ⚡ [fail] — the rubric lens's read-only RPC list matches the database (STABLE/IMMUTABLE functions the pages call)
 - `lifecycle-state-reachability` [fail] — LIFECYCLE STATE REACHABILITY (§10 MK4) — every state in a `status` CHECK must be both SURFACED and REACHABLE. A CHECK vocabulary is a promise about what the pro
 - `like-escape` ⚡ [fail] — SQL LIKE Escape (.ilike/.like templates escape % and _; tracks file-wide escape-helper vars; forward-only ratchet)
+- `limit-says-when` ⚡ [fail] — A limit says when (SL RL2): the four sentence makers, called for real under node (tools/test_limit_says_when.mjs), answer 20 limit shapes - daily caps, hive quo
 - `link-target-existence` ⚡ [fail] — Link Target Existence (every <a href>/location.href to a .html target must exist on disk; T1 2026-08-24: roster DERIVED from the served root (42 pages, was a st
 - `listing-cost-transparency` ⚡ [regression] — T34: the listing composer tells the WHOLE cost truth at the commit point - the 10% credit reservation held at publish AND that it returns if the listing does no
 - `listing-preview` [fail] — T100: see it as a buyer before it is a commitment. The walk found the AI listing assist SOUND - it names its own inputs and invented no specs from a bare title 
@@ -1031,6 +1040,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `old-draft-says-its-age` [fail] — T57: an old draft says its age — the dormant-return oracle (2026-08-26). whAutoSaveDraft is X2 interruption resilience, and it is careful work: it refuses a dra
 - `onconflict-index` [fail] — Per-page P3/P4 gate: every supabase-js `.upsert(rows,{onConflict:'a,b'})` in the page HTML must have a MATCHING unique index in the live DB (Postgres ON CONFLIC
 - `one-clock-per-string` ⚡ [fail] — Cluster 1 (critic deepwalk): every rendered timestamp keeps ONE clock, and the ops-home shift line is plant-anchored + labeled. Walked live 2026-09-02 at GMT+12
+- `operator-console` ⚡ [fail] — OPC (2026-10-22, Ian 2026-10-14: founder-console.html un-retired as the ONE operator console, Grafana as live numbers in it plus a link per dashboard). K1: ever
 - `ops-liveness` [fail] — Ops liveness (every Grafana panel's own query returns data - no observability claim without a producer)
 - `ops-snapshot-agents` [fail] — Ops-Snapshot Agent Coverage (every factual-answer agent is grounded, not just the companion)
 - `optimistic-concurrency` ⚡ [fail] — Optimistic Concurrency (4-layer: content-without-guard + no-defence-available + writer matrix + adoption count)
@@ -1055,6 +1065,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `page-reachable` [fail] — SL F3 (2026-10-15): every control on every page is reached, named and pressed - axe's own name rules at 1280, a REAL Tab walk at 1280 (every offered control foc
 - `page-registries` ⚡ [fail] — SL CI4 (2026-10-15): every page of the roster is in every registry its class needs, read from each registry's own source - the SL classes, the design ratchet's 
 - `page-roster` ⚡ [fail] — Page Roster Parity (T1.4: ONE roster (substrate/reference/page_roster.json), every consumer's scope checked inside it — sw.js SHELL_FILES (a precached 404 fails
+- `page-rpcs-callable` ⚡ [fail] — Page RPCs callable (BRH 9 AD): every function a shipped page or script calls with db.rpc() is one a signed-in reader may EXECUTE in the local database (the cata
 - `page-survives-optional-failures` [fail] — SL A3/AV1/H1 (2026-10-14): every page production's client_errors named (production_error_groups.json) starts up in real WebKit AND Chromium under the SHIPPED ve
 - `paginated-order-totality` ⚡ [fail] — PAGINATED ORDER TOTALITY — every query that pages or truncates must sort by a TOTAL order, i.e. end its ORDER BY with a column unique per row. Found live 2026-0
 - `param-route-registry` ⚡ [regression] — Param-Route Registry current (T43: the param->page routing registry on disk matches a fresh derivation; a changed param route must regenerate it)
@@ -1083,6 +1094,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `phone-fit-320-fil` [fail] — Phone fit at 320 wide, signed out, Filipino, with the interaction sweep: occlusion + element overflow + the P-M lenses on the public funnel (10 pages)
 - `phone-fit-360` [fail] — Phone fit at 360 wide: the P-M lenses on the narrower phone class (the SL roster)
 - `photo-survives-queue` [fail] — T14's LAST PROBE (LIVE Playwright): the dead-zone entry a worker most wants to keep is the one with the PICTURE on it — the cracked bearing, the leak, the burnt
+- `photos-in-storage` ⚡ [fail] — Photos in Storage (BRH 9 AB): no list read of logbook / inventory or their truth views ships the picture (select * or a list naming photo; utils.js whRowCols is
 - `pick-prefills-category` ⚡ [fail] — Critic-deepwalk T21 lock: pick-from-registered prefills the REQUIRED Category. Walked live: name/tag/location prefilled but Category stayed empty - TYPE_TO_CATE
 - `picker-arrow-keys` ⚡ [regression] — T48: the logbook asset-picker is a keyboard combobox, not a Tab-only list - ArrowDown/ArrowUp move focus through the options (the keyboard-a11y gap T48 measured
 - `pii-egress` ⚡ [fail] — PII Egress to Third Parties (4-layer: direct-fetch+PII + AI-prompt+PII + host distribution + PII reach)
@@ -1283,6 +1295,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `slow-read-honest` ⚡ [fail] — SL A4 (2026-10-19): a slow read is said, a hung one fails ONCE and is said - a REST timeout reaches supabase-js as an AbortError (it silently re-asked every tim
 - `soft-delete` ⚡ [fail] — Soft-Delete Read-Path Validator (.is(deleted_at, null) on every SELECT)
 - `soft-delete-not-aggregated` [regression] — T432 (soft-delete leaks into aggregate): every view that counts/sums a soft-deletable table (community_posts, projects) filters deleted_at IS NULL - a deleted r
+- `solar-planner` ⚡ [fail] — ENH-S (2026-10-22, Ian by name: the solar power-station planner): the sizing chain holds its hand-worked cases (tools/test_solar_planner.mjs - losses, surge, in
 - `someone-to-you` [fail] — T108: someone->you event coverage gate — T108's registry discipline (2026-08-25). The registry (substrate/reference/someone_to_you_event_registry.json) enumerat
 - `source-chip-names-a-real-relation` [fail] — CF: a provenance chip must name a relation that EXISTS (2026-08-27). MEASURED: hive.html's readiness chip named `v_maturity_truth` and there is no such relation
 - `source-chip-truth` ⚡ [fail] — Source-Chip Truth (every renderSourceChip view is actually .from()-read on the page; forward-only ratchet)

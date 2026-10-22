@@ -1,4 +1,5 @@
-/* prove_admin_queues.mjs — the platform-actions "populated" oracle, executable.
+/* prove_admin_queues.mjs — the platform-actions "populated" oracle, executable. Since OPC (2026-10-22) the queues live on
+ * the operator console's Operations tab (founder-console.html#operations, from operator-actions.js), so that is the page walked.
  *
  * The 25 stale LM-*-admin-*-populated rows claim that on /workhive/platform-actions.html the surface
  * renders real rows and EVERY visible number matches its source of truth. A generic structural walk
@@ -94,7 +95,7 @@ for (const [persona, acct] of Object.entries(PERSONAS)) {
     if (!s.ok) { check(persona, 'sign-in', false, `sign-in failed: ${s.err} — harness, not the surface`); await ctx.close(); continue; }
   }
 
-  await p.goto(`${ORIGIN}/platform-actions.html`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+  await p.goto(`${ORIGIN}/founder-console.html#operations`, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await p.waitForTimeout(5000);
   await p.waitForFunction(() => {
     const sync = document.getElementById('last-sync');
@@ -114,6 +115,9 @@ for (const [persona, acct] of Object.entries(PERSONAS)) {
       cover:    el('cp-cover')?.textContent ?? null,
     };
     const bypassNote = (() => { const n = el('local-bypass-note'); return n && vis(n) ? (n.textContent || '').trim() : null; })();
+    // a refused visitor gets the no-access gate instead of the queues (the console, and the loopback bypass is opt-in
+    // since 2026-10-09): the page itself saying the queues are not theirs is the limitation named
+    const refused = (() => { const n = el('no-access-gate'); return n && vis(n) ? (n.innerText || '').trim().slice(0, 140) : null; })();
 
     const db = window._whSupabaseClient || (typeof window.getDb === 'function' ? window.getDb(undefined, window.SUPABASE_KEY) : null);
     const truth = { topups: null, listings: null, sellers: null, gcash: null, err: null, isAdmin: null };
@@ -143,12 +147,12 @@ for (const [persona, acct] of Object.entries(PERSONAS)) {
         .select('reference', { count: 'exact', head: true });
       if (e4) truth.err = truth.err || e4.message; else truth.gcash = gc ?? null;
     } catch (e) { truth.err = String(e).slice(0, 160); }
-    return { shown, truth, bypassNote, chars: txt.length };
+    return { shown, truth, bypassNote, refused, topupsVisible: vis(el('svc-topups-count')), chars: txt.length };
   });
 
   if (!acct) {
     check(persona, 'anon-not-a-false-all-clear',
-          reading.bypassNote !== null || reading.shown.topups === null,
+          reading.bypassNote !== null || reading.refused !== null || !reading.topupsVisible,
           `a signed-out visitor is either told the queues are not theirs to see, or shown no queue `
           + `count at all (bypassNote=${JSON.stringify((reading.bypassNote || '').slice(0, 60))})`);
     await ctx.close();
@@ -164,9 +168,10 @@ for (const [persona, acct] of Object.entries(PERSONAS)) {
 
   if (!acct.platformAdmin) {
     // The whole point: an empty queue a non-admin cannot see must NOT read as "nothing waiting".
-    check(persona, 'names-the-limitation', !!reading.bypassNote,
+    check(persona, 'names-the-limitation', !!(reading.bypassNote || reading.refused),
           reading.bypassNote
             ? `the console says so: "${reading.bypassNote.slice(0, 110)}"`
+            : reading.refused ? `the console refuses this caller outright: "${reading.refused.slice(0, 110)}"`
             : `the queues render with NO notice that this caller cannot see what is waiting — a zero `
               + `here is indistinguishable from an all-clear, which is the most expensive empty state `
               + `this console can show`);

@@ -160,7 +160,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAdminCheckOfflineText whAuditView whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whIsRateLimited whManilaYmd whMoreNote whPlatformAdminAnswer whQueryTimeout whReloadWhenBack whSignInWall whSourcesSync whStartupHive whStatUnknown whStatValue whTold whUse whWorker">
+<script data-wh-skew-heal="whAdminCheckOfflineText whApplyRetiredInert whAuditView whAutoRememberFilters whAutoSaveDraft whIsAuthFailure whIsRateLimited whManilaYmd whMoreNote whPlatformAdminAnswer whQueryTimeout whReloadWhenBack whSignInWall whSourcesSync whStartupHive whStatUnknown whStatValue whTold whUse whWorker">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -181,6 +181,22 @@
 </script>
 </head>
 <body>
+<!-- ══ RETIRED (OPC, 2026-10-22) ════════════════════════════════════════════════════════════════════════════════
+     The queues on this page - the credit position, top-ups, the GCash receipts the automatic match left, listing and
+     seller review, feedback and who decided what - moved into the operator console's Operations tab, beside the
+     platform's figures. Their code is still written here: tools/build_operator_actions.py cuts operator-actions.js
+     from this page's script, and the gates that pin those mechanisms read them here. The boot below stops at this
+     overlay, after the admin check and before any queue reads; the overlay starts hidden and opens only for an admin.
+     To un-retire: delete this <div id="wh-retired-overlay"> block. -->
+<div id="wh-retired-overlay" style="position:fixed; inset:0; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); box-sizing:border-box; z-index:100000; background:rgba(11,15,26,0.98); color:rgba(244,246,250,0.92); display:none; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
+  <div style="max-width:560px;">
+    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(247,162,27,0.95);">Platform Actions has moved into the operator console</h1>
+    <p style="color:rgba(244,246,250,0.6); font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">Its Operations tab now holds the top-ups and the receipts. It also holds the listings and sellers to review, and the feedback inbox.</p>
+    <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
+      <a href="founder-console.html#operations" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(247,162,27,0.12); color:var(--wh-orange-light, #FDB94A); border:1px solid rgba(247,162,27,0.4); text-decoration:none; font-weight:700; min-height:44px; border-radius:8px;">Open the Operations tab →</a>
+    </div>
+  </div>
+</div>
 <!-- W45988 audit: this page had NO skip link by any route. The platform's shared one lives in
      wayfinding.js, which nav-hub.js injects at runtime - and this console loads neither, so a
      keyboard reader arriving here had to travel the header on every visit with nothing to jump
@@ -691,7 +707,7 @@
       // {day, dau, events}; this read .count / .value, so the figure printed "-" beside 13 people that day. And it took
       // the LAST row, which is the last day anyone came - not today. Today's row by the platform's day (Manila), else
       // 0 from a read that worked.
-      const _todayPh = (typeof whManilaYmd === 'function') ? whManilaYmd() : new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);
+      const _todayPh = (typeof whManilaYmd === 'function') ? whManilaYmd() : new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);   // device-clock-allow: shifted +8h, Manila's day (UTC+8, no DST) when whManilaYmd is missing
       const _dauRow = Array.isArray(u.dau) ? u.dau.find((r) => String(r && r.day).slice(0, 10) === _todayPh) : null;
       const dauToday = Array.isArray(u.dau) ? (_dauRow ? Number(_dauRow.dau) : 0) : null;
       const topPage = Array.isArray(u.heat) && u.heat.length ? (u.heat[0].page || u.heat[0].path || '-') : '-';
@@ -1012,7 +1028,7 @@
         // Bounded, same as the top-up queue above: unreviewed GCash receipts are money waiting on a
         // human, and a stalled read that never resolves reads as "nothing to review".
         const _q = db.from('v_gcash_receipts_needing_eyes')
-          .select('reference, amount, sender_name, match_state, match_note, created_at', { count: 'exact' }).limit(20);   // more-said: by renderGcashLeftovers - the badge paints the EXACT server count; the list shows the first 20 and says so (P355 a claim a query enforces, 2026-09-05)
+          .select('reference, amount, sender_name, received_at, match_state, match_note, created_at', { count: 'exact' }).limit(20);   // more-said: by renderGcashLeftovers - the badge paints the EXACT server count; the list shows the first 20 and says so (P355 a claim a query enforces, 2026-09-05)
         const { data, error, count } = await (typeof whQueryTimeout === 'function'
           ? whQueryTimeout(_q, 15000, 'the GCash receipts') : _q);
         _gcashCount = (typeof count === 'number') ? count : null;
@@ -1063,7 +1079,12 @@
       box.innerHTML = rows.map(r => `
         <div class="mod-row">
           <div class="mod-main"><strong>${_amtOrGap(r.amount)} · ref ${e(r.reference)}</strong>
-            <span class="mod-sub">${e(WHY[r.match_state] || r.match_state)}${r.sender_name ? ' · from ' + e(r.sender_name) : ''} · ${e(new Date(r.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))}</span>
+            <span class="mod-sub">${e(WHY[r.match_state] || r.match_state)}${r.sender_name ? ' · from ' + e(r.sender_name) : ''} · ${r.received_at
+              /* ★THE TIME THE FOUNDER MATCHES ON (OPC walk, 2026-10-22): this printed created_at, unlabelled - when the forwarded
+                 receipt reached WorkHive. The founder checks a receipt against the GCash app, which lists GCash's own time, the
+                 receipt's received_at. Seeded receipts showed today beside a July payment. Both times are named now. */
+              ? 'GCash time ' + e(new Date(r.received_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))
+              : 'reached WorkHive ' + e(new Date(r.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))}</span>
             <span class="mod-sub">${e(r.match_note || '')}</span></div>
         </div>`).join('');
       setCount('gcash-receipts-count', (typeof _gcashCount === 'number' ? _gcashCount : rows.length), 'warn');   // exact count, not the 20-row page
@@ -1823,6 +1844,18 @@
           + 'reads empty no matter what is actually waiting. Sign in as an admin to work them.';
       }
       if (typeof logPageView === 'function') logPageView(db, { page: 'platform-actions' });
+      /* ★RETIRED INTO THE OPERATOR CONSOLE (OPC, 2026-10-22). The queues run on founder-console.html#operations now, from
+         operator-actions.js, which tools/build_operator_actions.py cuts from THIS script - so the code above stays (it is
+         the one source) and this page stops here, after its admin check and its page view, before any queue reads. The
+         overlay opens only for the admins the check let in. Reading the overlay keeps the reversal honest: delete it to
+         un-retire, and the load below comes back with it. */
+      const _retiredOv = document.getElementById('wh-retired-overlay');
+      if (_retiredOv) {
+        document.getElementById('checking-gate').hidden = true;
+        _retiredOv.style.display = 'flex';
+        if (typeof whApplyRetiredInert === 'function') whApplyRetiredInert();
+        return;
+      }
       wireMktModeration();
       wireSvcTopups();
       wireFeedback();
@@ -1909,7 +1942,5 @@ window.addEventListener('load', function () { setTimeout(function () {
   m.insertBefore(d, m.firstChild);
   var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
 }, 2500); });</script>
-<!-- wh-figure-sources: generated by tools/render_figure_sources.py from figure_sources.json - do not edit -->
-<script type="application/json" id="wh-figure-sources">[{"sel":"#cp-cover","shows":"liability cover: cash in against credits owed","basedOn":"verified top-ups and starter grants divided by the credits outstanding","reads":"v_service_credit_ledger_truth","period":"Now: the credit ledger when the page loaded"},{"sel":"#cp-content","shows":"the credit position: liability, cover and the treasury","basedOn":"the credit ledger, and the treasury's cap and credits issued","reads":"v_service_credit_ledger_truth, v_credit_posture","period":"Now: the credit ledger when the page loaded"},{"sel":"#svc-topups-count","shows":"top-ups waiting for verification (read up to 50)","basedOn":"service credit top-ups not yet verified","reads":"v_service_credit_topups_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#mkt-listings-count","shows":"listing drafts waiting for review (read up to 50)","basedOn":"marketplace listings still in draft","reads":"v_marketplace_listings_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#mkt-sellers-count","shows":"sellers waiting for review (read up to 50)","basedOn":"marketplace sellers not yet verified","reads":"v_marketplace_sellers_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#fb-count-badge","shows":"feedback waiting for triage","basedOn":"feedback marked new or not yet answered","reads":"platform_feedback","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#usage-body","shows":"platform usage over the last 30 days, and what each page was used for","basedOn":"active hives, people seen, signed-out sessions and daily actives rolled up per day; uses counted per page and action, accounts and signed-out sessions apart","reads":"founder_active_hives, founder_mau, founder_anon_sessions, founder_dau_series, founder_feature_use","period":"The last 30 days, rolling to now"}]</script>
 </body>
 </html>

@@ -2,16 +2,16 @@
 name: page-hive
 type: page
 source: file:hive.html
-source_sha: aced30144dd69ce3
+source_sha: 2ff01ae860be1c69
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `hive.html` — Hive Live Board: WorkHive
 
-Size: 509KB · 122 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 516KB · 123 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (7): `hive_audit_log.insert`, `hive_members.delete`, `hive_members.update`, `hive_members.upsert`, `hives.insert`, `hives.update`, `logbook.update`
-**RPC calls**: `bring_personal_history_into_hive`, `compute_adoption_risk`, `compute_hive_readiness`, `deactivate_my_account`, `find_hive_by_code`, `get_adoption_risk_current`, `get_hive_board_dashboard`, `get_hive_readiness_current`, `join_hive_by_code`, `my_personal_history_count`, `notify_submission_decided`, `set_federated_benchmark_opt_in`, `set_worker_display_name`
+**RPC calls**: `bring_personal_history_into_hive`, `compute_adoption_risk`, `deactivate_my_account`, `find_hive_by_code`, `get_adoption_risk_current`, `get_hive_board_dashboard`, `get_hive_readiness_current`, `join_hive_by_code`, `my_personal_history_count`, `notify_submission_decided`, `refresh_hive_readiness`, `set_federated_benchmark_opt_in`, `set_worker_display_name`
 **Edge invokes**: `ai-gateway`, `ai-orchestrator`, `export-hive-data`, `supervisor-reset-password`
 **Truth views read**: `v_ai_reports_truth`, `v_alert_truth`, `v_amc_truth`, `v_hive_value_summary`, `v_hives_truth`, `v_inventory_items_truth`, `v_knowledge_freshness_truth`, `v_logbook_truth`, `v_pm_compliance_truth`, `v_pm_scope_items_truth`, `v_skill_badges_truth`, `v_worker_assignment_truth`, `v_worker_truth`
 

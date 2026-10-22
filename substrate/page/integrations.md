@@ -2,13 +2,13 @@
 name: page-integrations
 type: page
 source: file:integrations.html
-source_sha: b99f71e2a341f6c6
+source_sha: 7ef9481ed7be9c3a
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `integrations.html` — CMMS Integration | WorkHive
 
-Size: 235KB · 65 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 236KB · 65 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (22): `api_keys.insert`, `api_keys.update`, `asset_nodes.delete`, `asset_nodes.insert`, `asset_nodes.upsert`, `cmms_audit_log.insert`, `cmms_audit_log.update`, `external_sync.delete`, `external_sync.update`, `external_sync.upsert`, `integration_configs.delete`, `integration_configs.insert`, `integration_configs.update`, `inventory_items.delete`, `inventory_items.insert`, `inventory_items.upsert`, `logbook.insert`, `logbook.update`, `pm_assets.delete`, `pm_assets.insert`, `pm_scope_items.delete`, `pm_scope_items.insert`
 **RPC calls**: (none)

@@ -2,19 +2,19 @@
 name: page-logbook
 type: page
 source: file:logbook.html
-source_sha: ebd89eebed0fdc0b
+source_sha: 07a4343ac53e1901
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `logbook.html` — Digital Maintenance Logbook: WorkHive
 
-Size: 498KB · 161 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 513KB · 166 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (7): `asset_nodes.update`, `asset_nodes.upsert`, `hive_audit_log.insert`, `logbook.insert`, `logbook.update`, `pm_completions.insert`, `project_links.insert`
 **RPC calls**: `inventory_deduct`, `logbook_synced_machines`, `notify_wo_assigned`, `sync_asset_identity`
 **Edge invokes**: `cmms-push-completion`, `embed-entry`, `equipment-label-ocr`, `visual-defect-capture`, `voice-logbook-entry`
 **Truth views read**: `v_inventory_items_truth`, `v_inventory_transactions_truth`, `v_logbook_truth`, `v_pm_compliance_truth`, `v_pm_scope_items_truth`
 
-**Functions**: _MINE, _assetToNode, _autoLinkLogbookToProject, _b64bytes, _canWriteEntry, _d, _drainOfflineQueue, _e, _e2, _exportPageAll, _exportTeamAll, _hiveOf, _isMine, _lbIsRefusal, _lbPersonalEmpty, _lbQueueError, _lbQueuedInsertLanded, _lbSaveUnexplained, _lbShowHiveAssets, _lbSyncFailurePanel, _logRestoreFilters, _logSyncUrl, _logXpNote, _mineFilter, _norm, _pollLogbookTeam, _queuedHive, _registerLogbookQueue, _setIf, _setPill, _setRadio, _setVal, _val, _vn, addEntry, applyRoleUI, applySmartVoiceFill, applyWoStateUI, cancelEditMode, catBadge, clearAssetForm, clearForm, closeAssetModal, closeAssetPicker, closeEditAsset, closePartsPicker, collectProductionOutput, collectReadings, confirmDelete, consequenceBadge, criticalityBadge, daysLabel, deleteAsset, deleteEntry, embedFaultEntry, explainZeroRowWrite, fitsAsset, formatDate, getPendingEntries, getTasklist …
+**Functions**: _MINE, _assetToNode, _autoLinkLogbookToProject, _b64bytes, _canWriteEntry, _d, _drainOfflineQueue, _e, _e2, _exportPageAll, _exportTeamAll, _hiveOf, _isMine, _lbHaystack, _lbIsRefusal, _lbMarkArrived, _lbPersonalEmpty, _lbQueueError, _lbQueuedInsertLanded, _lbSaveUnexplained, _lbShowHiveAssets, _lbSyncFailurePanel, _logRestoreFilters, _logSyncUrl, _logXpNote, _mineFilter, _norm, _pollLogbookTeam, _queuedHive, _registerLogbookQueue, _setIf, _setPill, _setRadio, _setVal, _val, _vn, addEntry, applyRoleUI, applySmartVoiceFill, applyWoStateUI, cancelEditMode, catBadge, clearAssetForm, clearForm, closeAssetModal, closeAssetPicker, closeEditAsset, closePartsPicker, collectProductionOutput, collectReadings, confirmDelete, consequenceBadge, criticalityBadge, daysLabel, deleteAsset, deleteEntry, embedFaultEntry, explainZeroRowWrite, fitsAsset, formatDate …
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

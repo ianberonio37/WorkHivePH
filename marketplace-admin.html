@@ -257,22 +257,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 </head>
 <body>
 <!-- ══ RETIRED (Operator-Console → Grafana arc P2, 2026-07-18) ══════════════════
-     Marketplace-admin's moderation moved to platform-actions.html; its volumes are
+     Marketplace-admin's moderation moved to platform-actions.html, and from there (OPC, 2026-10-22) to the operator
+     console's Operations tab (founder-console.html#operations); its volumes are
      panels on the Grafana "Founder / Platform Ops" dashboard. Redirect-first + REVERSIBLE:
      the original markup is preserved below (validators that scan this file still pass).
      To un-retire: delete this <div id="wh-retired-overlay"> block. -->
 <div id="wh-retired-overlay" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:var(--wh-cloud); display:none; align-items:center; justify-content:center; padding:1.5rem; padding-bottom:max(1.5rem, env(safe-area-inset-bottom)); font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
     <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
-    <h1 data-i="p_marketplaceadminhasmoved_adb1" style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--wh-orange);">Marketplace Admin has moved</h1>
-    <p data-i="p_listingsellerdisputevolumesa_317d" style="color:var(--wh-cloud); opacity:0.62; font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">
-      Listing / seller / dispute VOLUMES are now live Grafana panels; approve / verify / resolve
-      ACTIONS moved to the Platform Actions page (Grafana also alerts you when a queue has items).
-    </p>
+    <!-- OPC (2026-10-22): the review queues moved again, with Platform Actions, into the one operator console - this
+         pointed at Platform Actions, which is retired too, so a founder reached a second "has moved" screen -->
+    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:var(--wh-orange);">Marketplace Admin has moved into the operator console</h1>
+    <p style="color:var(--wh-cloud); opacity:0.62; font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">Listing and seller review is on its Operations tab now. Its Platform tab shows the marketplace figures.</p>
     <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
+      <a href="founder-console.html#operations" class="btn" style="min-height:44px; display:inline-flex; align-items:center; justify-content:center;">Open the Operations tab →</a>
       <a href="http://127.0.0.1:3001/d/workhive-founder-ops" class="btn" style="min-height:44px; display:inline-flex; align-items:center; justify-content:center;">📊 Founder Ops dashboard →</a>
-      <a href="platform-actions.html" class="btn" style="min-height:44px; display:inline-flex; align-items:center; justify-content:center;">⚡ Platform Actions →</a>
-      
     </div>
     <!-- T69 (2026-08-25): the Grafana credential POINTER ('password in infra/mcp/.env.mcp')
          is removed — this overlay renders for ANY signed-in visitor to the URL, not only the

@@ -156,6 +156,9 @@ CONDITION["BRH-AB"] = ("each page the row names opened as its cast, every GET of
 GATES["ENH-R"] = ["provenance-at-foot", "skew-heal", "scripts-parse", "design-detector-ratchet"]
 GATES["ENH-S"] = ["solar-planner", "scripts-parse", "design-detector-ratchet"]
 GATES["ENH-C"] = ["critic-cells", "rubric-teeth", "scripts-parse", "design-detector-ratchet"]
+# OPC (2026-10-22): a panel in the one operator console - its home held by operator-console, its reads by the generated
+# migration and the lens's read list, the page's scripts by scripts-parse
+GATES["OPC"] = ["operator-console", "lens-read-rpcs", "scripts-parse", "design-detector-ratchet"]
 GATES["D1"] = ["figure-sources-written", "provenance-at-foot", "skew-heal", "scripts-parse"]
 GATES["D4"] = ["file-storage-owned", "media-fails-alone", "skew-heal", "scripts-parse"]
 GATES["A1"] = ["refusal-has-a-sentence", "offline-is-not-no", "write-failure-speaks", "skew-heal", "scripts-parse"]
@@ -355,6 +358,9 @@ CONDITION["ENH-C"] = ("the page read as served to each cast, the service worker 
                       "errors recorded - and on the cell's page the critic's own lens (survey_ufai_rubric.js, served) run "
                       "as the row's persona AND as the cast whose walk carried the finding; every failing dim recorded, the "
                       "cell's dim required to pass; the session's user and the device's worker name read back at the end")
+CONDITION["OPC"] = ("the operator console opened as a platform admin (oversight), the service worker blocked, every edge-function "
+                    "call carrying x-wh-walk-no-model: the panel's tab opened, its element found by its mark (data-opc) with "
+                    "its figures drawn and no page error, and each figure read against the database through the postgres MCP")
 CONDITION_DEFAULT = "the condition induced by the MCP's initScript before any page script"
 # a bug-hunt class is walked by the sub-layer that meets its defect (its gates and wording follow that sub-layer)
 BRH_CLASS_SUBLAYER = {"F": "AU2", "L": "AU4", "M": "AU1",   # BRH.2: L - a control offered to a person the page behind it refuses; M - copy that contradicts the session (the AU1 three-state walk settles it)
@@ -795,12 +801,14 @@ def bank_walk(rid: str, steps: str, witness: str, note: str, webkit: str | None,
     # settled by the same walk as the SL sub-layer that met its defect class (BRH-F <- AU2, 2026-10-14)
     # ...and so does an ENH row (an enhancement built, then walked as the page's cast at both viewports): its key is
     # its class, ENH-<cls>, with its own gates and condition below (ENH-R first, 2026-10-19)
-    if not t or not (t.get("sl") or t.get("brh") or t.get("enh")):
-        print(f"{rid}: not an SL, BRH or ENH row")
+    # ...and an OPC row (a panel of the one operator console, 2026-10-22): walked as oversight at both viewports, its
+    # figures read against the database - one walk and one gate set for the whole wave
+    if not t or not (t.get("sl") or t.get("brh") or t.get("enh") or t.get("opc")):
+        print(f"{rid}: not an SL, BRH, ENH or OPC row")
         return 1
-    s = t.get("sl") or t.get("brh") or t["enh"]
+    s = t.get("sl") or t.get("brh") or t.get("enh") or t["opc"]
     key = (s.get("sublayer") if t.get("sl") else BRH_CLASS_SUBLAYER.get(s.get("cls"), "") if t.get("brh")
-           else "ENH-" + str(s.get("cls") or ""))
+           else "OPC" if t.get("opc") else "ENH-" + str(s.get("cls") or ""))
     if t.get("enh") and key not in GATES:
         print(f"{rid}: no walk is defined for enhancement class {s.get('cls')} - nothing banked")
         return 1
@@ -824,7 +832,7 @@ def bank_walk(rid: str, steps: str, witness: str, note: str, webkit: str | None,
         witness = (f"WebKit half: {PROVER} ({webkit}, {res.get('generated')}): {s.get('page')} "
                    + "; ".join(f"{r['condition']} {r.get('chars')} chars, clean" for r in wk) + f". {witness}")
     cmd = [sys.executable, "tools/record_mcp_walk.py", "--id", rid, "--instrument", instrument,
-           "--layer", s["layer"], "--as-persona", t.get("persona") or "",
+           "--layer", s.get("layer") or (t.get("layers") or ["F"])[0], "--as-persona", t.get("persona") or "",
            "--viewports", "phone-390,desktop-1280", "--engine", engine, "--steps", steps,
            "--witness", witness[:1900], "--note", note[:1500]]
     if t.get("sl"):

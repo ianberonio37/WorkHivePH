@@ -61,7 +61,9 @@ const PAGES = ['index', 'hive', 'logbook', 'inventory', 'pm-scheduler', 'project
   // roster was the 22 product pages. Safe to widen mid-suite ONLY because the contrast gates
   // were registered AFTER suite_v5 loaded its registry, so v5 never runs this prover.
   // Re-run clean and confirm --teeth still fires on these surfaces before banking.
-  'marketplace', 'marketplace-seller', 'marketplace-seller-profile', 'platform-actions'];
+  'marketplace', 'marketplace-seller', 'marketplace-seller-profile', 'platform-actions',
+  // OPC (2026-10-22): the operator console is live again and holds Platform Actions' queues - a measurement change
+  'founder-console'];
 
 const AXE = path.join(ROOT, 'tools', 'vendor', 'axe.min.js');
 

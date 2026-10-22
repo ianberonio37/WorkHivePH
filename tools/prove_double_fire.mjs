@@ -547,8 +547,9 @@ const FLOWS = {
     letThrough: ['rpc/get_', 'rpc/is_'],
     submit: '[data-wh-probe=approve]',
     note: 'listing approval - an update that publishes; a doubled approve writes two audit rows' },
-  // Platform Actions' FEEDBACK triage: open an item, add a note, save (optimistic-lock PATCH).
-  'platform-actions-triage': { page: 'platform-actions',
+  // Platform Actions' FEEDBACK triage: open an item, add a note, save (optimistic-lock PATCH). The inbox runs on the
+  // operator console's Operations tab since OPC (2026-10-22), so that is where it is pressed.
+  'platform-actions-triage': { page: 'founder-console',
     steps: [{ wait: 5000 },
             { eval: "(() => { const c = document.querySelector('button[data-fb-id]'); if (!c) throw new Error('no feedback item to triage'); c.click(); })()" },
             { wait: 900 },

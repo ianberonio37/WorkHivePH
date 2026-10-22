@@ -48,6 +48,11 @@ def called_rpcs():
         except OSError:
             continue
         names.update(re.findall(r"\.rpc\(\s*['\"]([a-z0-9_]+)['\"]", s))
+    # the operator console calls its dashboard reads by the name the generated manifest gives them (db.rpc(d.fn, ...)),
+    # so a literal scan cannot see them; the manifest is where those names are written (OPC, 2026-10-22)
+    manifest = ROOT / "operator-console-panels.js"
+    if manifest.exists():
+        names.update(re.findall(r'"fn":\s*"([a-z0-9_]+)"', manifest.read_text(encoding="utf-8", errors="replace")))
     return names
 
 

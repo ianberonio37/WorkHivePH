@@ -107,9 +107,10 @@ ANCHORS = [
     ("marketplace.html", r"rtConn\(undefined, undefined, \{ name: 'new listings', reload: _pollNewListings \}\)",
      "marketplace never shows a new listing when live is off"),
     ("marketplace.html", r"async function _pollNewListings\(\)", "marketplace has no new-listing check to poll"),
-    ("founder-console.html", r"rtConn\(undefined, undefined, \{ name: 'the feedback inbox', reload: _pollFeedbackInbox \}\)",
-     "the founder console's inbox (on the day it is un-retired) freezes when live is off"),
-    ("founder-console.html", r"async function _pollFeedbackInbox\(\)", "the founder console has no quiet inbox re-read"),
+    # the operator console's inbox is Platform Actions' since OPC (2026-10-22): run there from operator-actions.js, the cut
+    # of platform-actions.html's script, it keeps the same 60 s refresh and says so when live is off
+    ("operator-actions.js", r"rtConn\(undefined, undefined, \{ name: 'the feedback inbox', pollMs: 60000 \}\)",
+     "the operator console's inbox does not say it is not live (the queues' own 60 s refresh keeps it current)"),
     ("alert-hub.html", r"rtConn\(undefined, undefined, \{ name: 'the alert board', pollMs: 60000 \}\)",
      "alert-hub does not say its board is not live (its own 60 s refresh keeps it current)"),
     ("alert-hub.html", r"rtConn\(undefined, undefined, \{ name: 'anomaly signals', pollMs: 60000 \}\)",
@@ -233,8 +234,8 @@ def self_test() -> int:
         "freshness: 'Live · refreshes every 30 s'", "freshness: 'Live · updates automatically'"))
     expect("community's presence claim back fails", mut("community.html",
         "setConn('offline');\n          _presenceUnavailable(true);", "setConn('offline');"))
-    expect("founder-console's inbox without its re-read fails", mut("founder-console.html",
-        "{ name: 'the feedback inbox', reload: _pollFeedbackInbox }", "{ name: 'the feedback inbox' }"))
+    expect("the operator console's inbox without its poll fails", mut("operator-actions.js",
+        "{ name: 'the feedback inbox', pollMs: 60000 }", "{ name: 'the feedback inbox' }"))
     print("PASS self-test" if ok else "FAIL self-test")
     return 0 if ok else 1
 

@@ -43,6 +43,8 @@ const PAGES = ['index', 'hive', 'logbook', 'inventory', 'pm-scheduler', 'project
   // that family. The seller console is exactly where edge-pinned chrome lives (a wallet bar, a
   // job-list footer), so this roster gap mattered more here than anywhere.
   'marketplace', 'marketplace-seller', 'marketplace-seller-profile', 'platform-actions',
+  // OPC (2026-10-22): the operator console is live again and holds Platform Actions' queues - a measurement change
+  'founder-console',
                // reference surfaces (2026-09-05, P326 safe area & chrome): static pages meet the notch too
                'architecture', 'design-system', 'offline-fallback', 'symbol-gallery', 'validator-catalog', 'llm-observability'];
 

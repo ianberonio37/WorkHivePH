@@ -81,9 +81,9 @@ const REACH = {
     { steps: [], trigger: '#amc-reject-btn', heads: ['Reject today'] },
   ],
   'founder-console.html': [
-    { steps: [], trigger: 'button[onclick*="svcTopupDecide"][onclick*="false"]', heads: ['Reject this top-up?'] },
-    // the mint confirm comes after the form validates: a code, a kind and a value are filled the way a person would
-    { steps: ["js:(function(){const g=(i)=>document.getElementById(i);g('vm-code').value='RVPROBE1';const k=g('vm-kind');if(k&&k.options.length>1&&!k.value)k.selectedIndex=1;g('vm-value').value='10';})()"], trigger: 'button[onclick="svcMintVoucher()"]', heads: ['Mint voucher'] },
+    // OPC (2026-10-22): the top-up queue is Platform Actions' delegated one now (operator-actions.js); the voucher mint
+    // left the console - vouchers are retired and the database refuses a new one (guard_vouchers_retired)
+    { steps: [], trigger: '#sec-svc-topups button[data-topup-act="reject"]', heads: ['Reject this top-up?'] },
     // the listing-moderation reject is its own control (wireMktModeration, delegated data-mkt-act), not the top-up reject
     { steps: [], trigger: '#sec-mkt-mod button[data-mkt-act="reject-listing"]', heads: ['Reject this listing. Tell the seller'] },
   ],

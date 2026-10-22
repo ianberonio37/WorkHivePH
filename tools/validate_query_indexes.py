@@ -84,13 +84,15 @@ INDEXES = [
                "sql": "SELECT meta, created_at FROM public.hive_audit_log WHERE hive_id = '{hive}' AND action = 'report_post' "
                       "ORDER BY created_at DESC, id LIMIT 200"}},
     {"name": "idx_hive_audit_log_created", "table": "hive_audit_log", "cols": ["created_at desc"], "where": None,
-     "reads": [("founder-console.html", chain("hive_audit_log", r"\.order\('created_at', \{ ascending: false \}\)", r"\.limit\(50\)"))],
+     # OPC (2026-10-22): the console's trail is every hive's, read by the admin-only founder_audit_feed
+     "reads": [("supabase/migrations", r"from hive_audit_log\s+order by created_at desc, id limit least\(")],
      "probe": {"cast": "leandromarquez",
                "sql": "SELECT id, action, actor, target_type, target_name, hive_id, created_at, meta FROM public.hive_audit_log "
                       "ORDER BY created_at DESC, id LIMIT 50"}},
     {"name": "idx_platform_feedback_created", "table": "platform_feedback", "cols": ["created_at desc"], "where": None,
-     "reads": [("founder-console.html", chain("platform_feedback", r"\.order\('created_at', \{ ascending: false \}\)", r"\.limit\(500\)")),
-               ("platform-actions.html", chain("platform_feedback", r"\.order\('created_at', \{ ascending: false \}\)", r"\.limit\(500\)"))],
+     # the inbox's one read (SL LB1 probes one past 500); the console runs it from operator-actions.js since OPC
+     "reads": [("platform-actions.html", chain("platform_feedback", r"\.order\('created_at', \{ ascending: false \}\)", r"\.limit\(500 \+ 1\)")),
+               ("operator-actions.js", chain("platform_feedback", r"\.order\('created_at', \{ ascending: false \}\)", r"\.limit\(500 \+ 1\)"))],
      "probe": {"cast": "leandromarquez",
                "sql": "SELECT id, created_at, kind, subject, status FROM public.platform_feedback ORDER BY created_at DESC, id LIMIT 500"}},
     {"name": "idx_platform_feedback_votes_token", "table": "platform_feedback_votes", "cols": ["voter_token"], "where": None,
@@ -102,15 +104,15 @@ INDEXES = [
                "sql": "SELECT id, order_id, listing_id, opened_by, seller_name, reason, status, created_at FROM public.marketplace_disputes "
                       "ORDER BY created_at, id LIMIT 100"}},
     {"name": "idx_marketplace_sellers_created", "table": "marketplace_sellers", "cols": ["created_at desc"], "where": None,
-     "reads": [("marketplace-admin.html", chain("v_marketplace_sellers_truth", r"\.order\('created_at', \{ ascending: false \}\)", r"\.limit\(100\)")),
-               ("founder-console.html", chain("v_marketplace_sellers_truth", r"\.order\('created_at',\s*\{ascending:false\}\)")),
-               ("platform-actions.html", chain("v_marketplace_sellers_truth", r"\.order\('created_at', \{ ascending: false \}\)"))],
+     "reads": [("marketplace-admin.html", chain("v_marketplace_sellers_truth", r"\.order\('created_at', \{ ascending: false \}\)", r"\.limit\(100 \+ 1\)")),
+               ("platform-actions.html", chain("v_marketplace_sellers_truth", r"\.order\('created_at', \{ ascending: false \}\)")),
+               ("operator-actions.js", chain("v_marketplace_sellers_truth", r"\.order\('created_at', \{ ascending: false \}\)"))],
      "probe": {"cast": "leandromarquez",
                "sql": "SELECT id, worker_name, tier, kyb_verified, created_at, active_listings_count FROM public.v_marketplace_sellers_truth "
                       "ORDER BY created_at DESC, id LIMIT 100"}},
     {"name": "idx_mkt_listings_status_created", "table": "marketplace_listings", "cols": ["status", "created_at"], "where": None,
      "reads": [("marketplace-admin.html", chain("v_marketplace_listings_truth", r"\.eq\('status', status\)", r"\.order\('created_at', \{ ascending: true \}\)")),
-               ("founder-console.html", chain("v_marketplace_listings_truth", r"\.eq\('status','draft'\)\.order\('created_at',\{ascending:true\}\)"))],
+               ("operator-actions.js", chain("v_marketplace_listings_truth", r"\.eq\('status', 'draft'\)\.order\('created_at', \{ ascending: true \}\)"))],
      "probe": {"cast": "leandromarquez",
                "sql": "SELECT id, title, status, created_at FROM public.v_marketplace_listings_truth WHERE status = 'published' "
                       "ORDER BY created_at, id LIMIT 100"}},
@@ -134,7 +136,8 @@ INDEXES = [
                "sql": "SELECT problem, created_at FROM public.fault_knowledge WHERE machine = '{machine}' AND problem IS NOT NULL "
                       "ORDER BY created_at DESC, id LIMIT 5"}},
     {"name": "idx_xp_log_source_live", "table": "achievement_xp_log", "cols": ["source_id"], "where": "reversed_at is null",
-     "reads": [("logbook.html", chain("achievement_xp_log", r"\.eq\('source_id', entry\.id\)\.is\('reversed_at', null\)")),
+     # the logbook's receipt read, named _logXpNote(sourceId) by SL LB1 (the same query: one source's live awards)
+     "reads": [("logbook.html", chain("achievement_xp_log", r"\.eq\('source_id', sourceId\)\.is\('reversed_at', null\)")),
                ("pm-scheduler.html", chain("achievement_xp_log", r"\.eq\('source_id', sourceId\)\.is\('reversed_at', null\)"))],
      "probe": {"cast": "bryangarcia", "hive": "Baguio Textile Mills",
                "sql": "SELECT xp_earned FROM public.achievement_xp_log WHERE source_id = '{source}' AND reversed_at IS NULL LIMIT 20"}},
@@ -208,10 +211,12 @@ SHAPES = [
      "name": "v_marketplace_inquiries_truth", "invoker": True,
      "must": [r"my_listing_ids\(\)[\s\S]*AS\s+to_me", r"my_inquiry_ids\(\)[\s\S]*AS\s+from_me"],
      "mustnot": [r"listing_is_mine\(", r"inquiry_is_from_me\("], "live": r"my_inquiry_ids\(\)"},
-    {"label": "v_marketplace_listings_public.is_mine compares auth_uid where an index can use it", "kind": "view",
-     "name": "v_marketplace_listings_public",
-     "must": [r"l\.auth_uid\s*=\s*auth\.uid\(\)\s*\)\s*AS\s+is_mine"], "mustnot": [r"COALESCE\(\s*l\.auth_uid\s*=\s*auth\.uid\(\)"],
-     "live": r"l\.auth_uid = auth\.uid\(\)\)?\s*AS is_mine"},   # pg_get_viewdef drops the outer parenthesis
+    # LB2 x BRH-R (20261022000005): the public grid runs as its reader, who may not read auth_uid - so is_mine is the
+    # reader's listing ids asked once (the truth view's shape), never auth_uid and never a definer call per row
+    {"label": "v_marketplace_listings_public.is_mine is the reader's listing ids, asked once", "kind": "view",
+     "name": "v_marketplace_listings_public", "invoker": True,
+     "must": [r"l\.id\s*=\s*ANY\s*\(\s*ARRAY\s*\(\s*SELECT\s+public\.my_listing_ids\(\)[^)]*\)\s*\)\s*\)\s*AS\s+is_mine"],
+     "mustnot": [r"listing_is_mine\(", r"l\.auth_uid"], "live": r"my_listing_ids\(\)"},
     {"label": "my_service_provider_ids() is a UNION of its two arms, each on an index", "kind": "function",
      "name": "my_service_provider_ids", "must": [r"\bunion\b"], "mustnot": [r"\bor\s*\(\s*sp\.provider_type"], "live": r"\bunion\b"},
     {"label": "v_service_provider_truth counts each provider's jobs and reviews per provider (LATERAL)", "kind": "view",
@@ -236,8 +241,9 @@ SHAPE_PROBES = [
      "sql": "SELECT count(*) FROM public.v_marketplace_inquiries_truth WHERE to_me = true"},
     {"label": "from_me on v_marketplace_inquiries_truth", "cast": "isidrosuarez", "kind": "explain", "noseq": ["marketplace_inquiries"],
      "sql": "SELECT id FROM public.v_marketplace_inquiries_truth WHERE from_me = true ORDER BY created_at DESC LIMIT 50"},
+    # the reader's ids are found inside my_listing_ids() on idx_marketplace_listings_auth_uid; the view then looks rows up by id
     {"label": "is_mine on v_marketplace_listings_public", "cast": "isidrosuarez", "kind": "explain", "noseq": ["marketplace_listings"],
-     "uses": "idx_marketplace_listings_auth_uid", "sql": "SELECT count(*) FROM public.v_marketplace_listings_public WHERE is_mine = true"},
+     "sql": "SELECT count(*) FROM public.v_marketplace_listings_public WHERE is_mine = true"},
     {"label": "v_service_provider_truth for one provider", "cast": "davidvelasco", "kind": "explain",
      "noseq": ["service_requests", "marketplace_reviews"],
      "sql": "SELECT display_name, tier, completed_jobs, rating_avg FROM public.v_service_provider_truth WHERE id = '{provider}'"},

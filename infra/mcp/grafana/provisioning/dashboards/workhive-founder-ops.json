@@ -71,7 +71,7 @@
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
       "options": { "legend": { "showLegend": false }, "xField": "stair" },
-      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select 'Stair ' || coalesce(current_stair, 0) as stair, count(*) as hives from (select distinct on (hive_id) hive_id, current_stair from hive_readiness order by hive_id, snapshot_date desc nulls last) s group by 1 order by 1" } ]
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select 'Stair ' || coalesce(current_stair, 0) as stair, count(*) as hives from v_hive_readiness_truth group by 1 order by 1" } ]
     },
     {
       "id": 9, "type": "table", "title": "Recent admin activity",
@@ -138,7 +138,7 @@
       "gridPos": { "h": 6, "w": 12, "x": 0, "y": 42 },
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
       "fieldConfig": { "defaults": {}, "overrides": [] }, "options": {},
-      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as calls, round(100.0 * count(*) filter (where provider ilike '%ai_cache%') / nullif(count(*),0), 1) as cache_hit_pct, round(100.0 * count(*) filter (where status = 'fallback') / nullif(count(*),0), 1) as fallback_pct, round(100.0 * count(*) filter (where status = 'fallback' or schema_compliance = false) / nullif(count(*),0), 1) as error_pct, round(percentile_cont(0.5) within group (order by case when provider not ilike '%ai_cache%' then latency_ms end)) as p50_latency_ms, sum(coalesce(prompt_tokens,0) + coalesce(output_tokens,0)) as total_tokens from ai_cost_log where $__timeFilter(created_at)" } ]
+      "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as calls, round(100.0 * count(*) filter (where provider ilike '%ai_cache%' or model like 'cache:%') / nullif(count(*),0), 1) as cache_hit_pct, round(100.0 * count(*) filter (where status = 'fallback') / nullif(count(*),0), 1) as fallback_pct, round(100.0 * count(*) filter (where status in ('failed', 'fallback') or schema_compliance = false) / nullif(count(*),0), 1) as error_pct, round(percentile_cont(0.5) within group (order by case when provider not ilike '%ai_cache%' and model not like 'cache:%' then latency_ms end)) as p50_latency_ms, sum(coalesce(prompt_tokens,0) + coalesce(output_tokens,0)) as total_tokens from ai_cost_log where $__timeFilter(created_at)" } ]
     },
     {
       "id": 18, "type": "table", "title": "LLM token burn by hive (range)",

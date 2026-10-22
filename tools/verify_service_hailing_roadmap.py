@@ -114,7 +114,8 @@ ITEMS = [
  # §1 DASHBOARD + DRIVER
  ("§1 Dashboard", "marketplace.html client hail flow + tracker", lambda: page_has("marketplace.html", "svcHailNow")),
  ("§1 Dashboard", "marketplace-seller.html provider console", lambda: page_has("marketplace-seller.html", "renderSvcConsole")),
- ("§1 Dashboard", "founder-console GCash verification queue", lambda: page_has("founder-console.html", "svcTopupDecide")),
+ # OPC (2026-10-22): the queue is Platform Actions' delegated one, run on the operator console from operator-actions.js
+ ("§1 Dashboard", "operator-console GCash verification queue", lambda: page_has("founder-console.html", 'src="operator-actions.js"') and 'data-topup-act="verify"' in read("operator-actions.js")),
  ("§1 Dashboard", "provider credit wallet on the seller console", lambda: page_has("marketplace-seller.html", "svcWalletHtml")),
  ("§1 Dashboard", "skillmatrix -> become-a-provider bridge", lambda: page_has("skillmatrix.html", "marketplace-seller")),
  ("§1 Driver", "consumer persona works hive-less (no hive_id)", lambda: "hive_id" in MIGS and "NULL = consumer" in MIGS.replace("null = consumer", "NULL = consumer")),
@@ -187,7 +188,9 @@ ITEMS = [
  ("§4 Phase", "P6b commission mints on settle", lambda: "commission" in MIGS),
  ("§4 Phase", "P6b min-balance / debt gate", lambda: has_fn("provider_credit_balance") and "insufficient_credits" in MIGS),
  ("§4 Phase", "P6b voucher redemption RPC (completion-gated)", lambda: has_fn("redeem_service_voucher")),
- ("§4 Phase", "P6b founder can MINT a voucher in-product", lambda: page_has("founder-console.html", "svcMintVoucher")),
+ # vouchers were retired by decision after this roadmap (Ian: no vouchers, mig 20260803000036): redemption refuses, and no
+ # live page may offer to mint one (OPC removed the console's form, 2026-10-22)
+ ("§4 Phase", "P6b vouchers retired: redemption refuses and no page mints one", lambda: "Vouchers are retired" in MIGS and not anywhere("svcMintVoucher")),
  ("§4 Phase", "P6b computed tiers (no forgeable counter)", lambda: "tier" in MIGS and has_view("v_service_provider_truth")),
  ("§4 Phase", "P8 consumer door open (anon browse)", lambda: page_has("marketplace.html", "consumer")),
  ("§4 Phase", "P9 deep-link landing pad (?section=services)", lambda: page_has("marketplace.html", "section=services")),

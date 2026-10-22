@@ -391,7 +391,9 @@ def sites_of(page: str, raw: str, unattributed: list[int] | None = None) -> list
 # it) behind #wh-retired-overlay and returns before refreshAll(), so none of its reads ever executes. Held structurally -
 # the overlay must be in the markup and a return must stand between the overlay branch and the work - so the day the
 # console is brought back, the exemption stops holding and every read comes due.
-RETIRED_INERT = {"founder-console.html": "refreshAll"}
+# a retired page whose boot stops at its overlay before its reads: those reads never run, so they are not counted.
+# founder-console.html left this list with OPC (2026-10-22): it is the live operator console again, every read counted.
+RETIRED_INERT: dict[str, str] = {}
 
 
 def retired_inert(page: str, raw: str) -> bool:
@@ -646,6 +648,13 @@ RPC_CAPS = {
     ("get_hive_dashboard", "v_risk_truth", 5): ("index.html", "risks", "renderOnboardingLadder"),
     ("get_hive_dashboard", "v_inventory_items_truth", 100): ("index.html", "low_stock_items", "renderOnboardingLadder"),
     ("marketplace_platform_response_hours", "marketplace_inquiries", 500): ("marketplace-seller.html", "", "sample: up to the latest 500 replies"),
+    # the operator console (OPC, 2026-10-22): live again, so its rollups' inner caps are counted - each names its N on the page
+    ("founder_ai_cost", "w", 5): ("founder-console.html", "top_hives", "sample: The 5 hives spending the most"),
+    ("founder_maturity", "x", 5): ("founder-console.html", "bottom", "sample: Bottom 5 needing intervention"),
+    ("founder_dev_reads", "calls", 3): ("founder-console.html", "providers", "sample: Top 3 providers"),
+    # two arrays capped from the same relation at the same N: one declaration per array (V3 counts them)
+    ("founder_dev_reads", "traces", 10): [("founder-console.html", "rag_heavy", "sample: Top 10 most token-heavy queries"),
+                                          ("founder-console.html", "rag_recent", "sample: The 10 most recent traces")],
 }
 
 
@@ -663,7 +672,10 @@ def rpc_called(files: dict[str, str] | None = None) -> list[str]:
 def check_rpc_decl(text, decl: dict | None = None) -> list[str]:
     """S10 (static): each declared inner cap names a page that still calls the function, reads the key, and says it."""
     issues = []
-    for (fn, table, n), (page, key, how) in (RPC_CAPS if decl is None else decl).items():
+    # a key may hold one declaration per array when a function caps two arrays from one relation at one N
+    flat = [((fn, table, n), d) for (fn, table, n), v in (RPC_CAPS if decl is None else decl).items()
+            for d in (v if isinstance(v, list) else [v])]
+    for (fn, table, n), (page, key, how) in flat:
         raw = text(page)
         where = f"{fn} caps {table} at {n}"
         if not re.search(r"\.rpc\(\s*['\"]" + re.escape(fn) + r"['\"]", blank_comments(raw)):
@@ -716,8 +728,9 @@ def check_rpc_live(names: list[str], decl: dict | None = None) -> list[str]:
         if k not in decl:
             issues.append(f"V3 {k[0]} caps {k[1]} at {k[2]} inside the function, and no page is declared to say when that "
                           "array comes back full - declare it in RPC_CAPS (page, key, how the page says it)")
-        elif times > 1:
-            issues.append(f"V3 {k[0]} caps {k[1]} at {k[2]} {times} times, and one declaration cannot tell them apart")
+        elif times > (len(decl[k]) if isinstance(decl[k], list) else 1):
+            issues.append(f"V3 {k[0]} caps {k[1]} at {k[2]} {times} times, and one declaration cannot tell them apart"
+                          " - declare a list, one (page, key, how) per array")
     for k in decl:
         if k[0] in names and k not in caps:
             issues.append(f"V3 RPC_CAPS declares {k[0]} capping {k[1]} at {k[2]}, and the function no longer does - remove the entry")
@@ -797,9 +810,6 @@ def self_test() -> list[str]:
         ("a read built in steps loses its note", {page0: real0 + SYNTH.replace(".limit(10);   // more-said: by loadE", ".limit(10);", 1)}, "S1"),
         ("a cap on something no read reaches", {page0: real0 + SYNTH.replace("let q = db.from('logbook')", "let q = makeQuery('logbook')", 1)}, "S0"),
         ("a read that chains two caps", {page0: real0 + SYNTH.replace(".limit(20 + 1);   // more-said", ".limit(50).limit(20 + 1);   // more-said", 1)}, "S9"),
-        ("the retired console brought back (its early return gone)", {"founder-console.html": (ROOT / "founder-console.html").read_text(encoding="utf-8").replace(
-            "        else document.getElementById('no-access-gate').hidden = false;\n        return;\n      }",
-            "        else document.getElementById('no-access-gate').hidden = false;\n      }", 1)}, "S"),
         ("the way to the rest shrinks below 44px", {"utils.js": utils.replace(".wh-more-note .wh-more-btn{min-height:44px;", ".wh-more-note .wh-more-btn{min-height:32px;", 1)}, "S4"),
     ]
     for name, files, want in mutants:
@@ -812,6 +822,16 @@ def self_test() -> list[str]:
         got, _ = check_static(merged)
         if not any(g.startswith(want) for g in got):
             fails.append(f"mutant '{name}' was not caught (got {got[:2]})")
+    # a retired page's inert boot is excused only while its overlay branch ends in its own return (a synthetic page:
+    # since OPC no real page's reads depend on it)
+    RETIRED_INERT["synthetic-retired.html"] = "refreshAll"
+    syn = ('<div id="wh-retired-overlay"></div><script>(async () => {\n  if (_retiredOv) {\n    if (typeof whApplyRetiredInert '
+           "=== 'function') whApplyRetiredInert();\n    return;\n  }\n  await refreshAll();\n})();</script>")
+    if not retired_inert("synthetic-retired.html", syn):
+        fails.append("a retired page whose overlay branch returns before its reads was not read as inert")
+    if retired_inert("synthetic-retired.html", syn.replace("    return;\n  }", "  }")):
+        fails.append("mutant 'the retired page's early return gone' was not caught - its reads would stay excused")
+    del RETIRED_INERT["synthetic-retired.html"]
     # live: the clean cap-ok set is green, and a cap-ok on a read whose largest group exceeds its cap is caught
     if check_live(live):
         fails.append("the clean live run is not green")

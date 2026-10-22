@@ -2287455,6 +2287455,62 @@
       "needs_review": false,
       "dims_graded": [],
       "findings": []
+    },
+    {
+      "id": "OPC106",
+      "wave": "OPC-O",
+      "status": "pending",
+      "pages": [
+        "founder-console.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OPC107",
+      "wave": "OPC-O",
+      "status": "pending",
+      "pages": [
+        "founder-console.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OPC108",
+      "wave": "OPC-G",
+      "status": "pending",
+      "pages": [
+        "founder-console.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OPC109",
+      "wave": "OPC-G",
+      "status": "pending",
+      "pages": [
+        "founder-console.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
     }
   ]
 }

@@ -2,7 +2,7 @@
 name: view-v_marketplace_listings_public
 type: view
 source: db:pg_get_viewdef:v_marketplace_listings_public
-source_sha: ec4fa4ab31f2be3a
+source_sha: 6319576d2a81e817
 last_verified: 2026-07-13
 supersedes: null
 ---

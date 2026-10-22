@@ -145,20 +145,24 @@ def _pm_scheduler(f):
 
 def _platform_actions(f):
     s = _read("platform-actions.html", f)
+    # OPC (2026-10-22): the queues and the copy that explains them moved to the operator console's Operations tab, where
+    # an admin reads them now; Platform Actions keeps only its refusal, which it still shows a visitor it turns away
+    c = _read("founder-console.html", f)
     runs = [
         _grab(s, r"<p>(Platform Actions is [^<]+)</p>"),
-        _grab(s, r"(Approve publishes the listing.*?)</p>"),
-        _grab(s, r'p_sellersawaitingverification_b209">[^<]*</h2>.*?<p class="mod-sub"[^>]*>(.*?)</p>'),
-        _grab(s, r'<div class="sub"[^>]*>(Who decided what[^<]*)</div>'),
-        _grab(s, r"if \(!Array\.isArray\(uses\)\) \{\s*return '<div class=\"mod-empty\"[^>]*>([^<]*)</div>'"),
+        _grab(c, r"(Approve publishes the listing.*?)</p>"),
+        _grab(c, r'<h2>Sellers awaiting verification</h2>.*?<p class="mod-sub"[^>]*>(.*?)</p>'),
+        _grab(c, r'>(Who decided what[^<]*)<'),
+        _grab(c, r"function usesBlock\(uses\) \{\s*if \(!Array\.isArray\(uses\)\) \{\s*return '<p[^>]*>([^<]*)</p>'"),
     ]
     p = []
     if not all(runs):
         p.append("a sentence the B3 fix rewrote is gone (cannot grade it)")
     p += [f"B3 {x}" for x in _b3_fails([x for r in runs if r for x in _sentences(_strip(r))])]
-    if re.search(r'class="mod-empty">(Active hives|People \(30d\)|People today|Most-opened page|Signed-out sessions)', s) \
-            or 'class="mod-empty" id="usage-updated"' in s:
-        p.append("a figure's label wears the empty-state class (E2: a label read as an empty that explains nothing)")
+    for t in (s, c):
+        if re.search(r'class="mod-empty">(Active hives|People \(30d\)|People today|Most-opened page|Signed-out sessions)', t) \
+                or 'class="mod-empty" id="usage-updated"' in t:
+            p.append("a figure's label wears the empty-state class (E2: a label read as an empty that explains nothing)")
     return p
 
 
@@ -292,7 +296,7 @@ def self_test() -> list[str]:
         rels = {"shift-brain no-hive gate": ["shift-brain.html"], "analytics-report no-hive gate": ["analytics-report.html"],
                 "ph-intelligence no-hive gate": ["ph-intelligence.html"], "resume copy and label": ["resume.html"],
                 "achievements copy": ["achievements.html"], "pm-scheduler copy": ["pm-scheduler.html"],
-                "platform-actions copy and labels": ["platform-actions.html"],
+                "platform-actions copy and labels": ["platform-actions.html", "founder-console.html"],
                 "marketplace people's words": ["marketplace.html"],
                 "marketplace-seller Delete apart": ["marketplace-seller.html"],
                 "alert-hub agent's words": [LENS, "alert-hub.html"],

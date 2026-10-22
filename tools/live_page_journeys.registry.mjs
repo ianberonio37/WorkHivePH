@@ -2893,23 +2893,25 @@ function k7Journeys() {
       },
     },
     {
-      id: 'PA1', phase: 'K7', page: 'platform-actions.html', role: 'supervisor', state: 'authed-admin',
-      title: "The admin opens Platform Actions and the feedback queue counts every report on the platform",
+      // OPC (2026-10-22): the operator console is the live page now, holding Platform Actions' queues on its Operations tab
+      id: 'FC1', phase: 'K7', page: 'founder-console.html', role: 'supervisor', state: 'authed-admin',
+      title: "The admin opens the operator console and the feedback queue counts every report on the platform",
       lenses: ['R', 'J', 'T'], ufai: ['U', 'F'],
       drive: async (page, h) => {
-        await h.goto('platform-actions.html');
-        const actions = await h.waitFor('#actions', 15000);
+        await h.goto('founder-console.html#operations');
+        const opened = await h.waitFor('#console', 15000);
         const refused = await h.exists('#no-access-gate');
+        await h.waitFor('#fb-count-all', 15000);
         await page.waitForTimeout(1500);
         const all = num(await h.qText('#fb-count-all'));
         const truth = sqlNum(h, 'select count(*) from public.platform_feedback;');
-        return { R: actions && !refused, J: all != null, T: truth == null || all == null ? false : all === Math.min(truth, 500), C: null, X: null,
-          evidence: { actions, refused, all, truth }, findings: [] };
+        return { R: opened && !refused, J: all != null, T: truth == null || all == null ? false : all === Math.min(truth, 500), C: null, X: null,
+          evidence: { opened, refused, all, truth }, findings: [] };
       },
     },
-    retired('FC1', 'founder-console.html', 'The admin opens the retired Founder Console and is sent on to Platform Actions', 'platform-actions.html', '#actions'),
-    retired('LO1', 'llm-observability.html', 'The admin opens the retired LLM observability page and is sent on to Platform Actions', 'platform-actions.html', '#actions'),
-    retired('AR1', 'agentic-rag-observability.html', 'The admin opens the retired agentic-RAG observability page and is sent on to Platform Actions', 'platform-actions.html', '#actions'),
-    retired('MA1', 'marketplace-admin.html', 'The admin opens the retired marketplace admin and is sent on to Platform Actions', 'platform-actions.html', '#actions'),
+    retired('PA1', 'platform-actions.html', "The admin opens the retired Platform Actions and is sent on to the operator console's Operations tab", 'founder-console.html#operations', '#console'),
+    retired('LO1', 'llm-observability.html', "The admin opens the retired LLM observability page and is sent on to the operator console's Developer tab", 'founder-console.html#developer', '#console'),
+    retired('AR1', 'agentic-rag-observability.html', "The admin opens the retired agentic-RAG observability page and is sent on to the operator console's Developer tab", 'founder-console.html#developer', '#console'),
+    retired('MA1', 'marketplace-admin.html', "The admin opens the retired marketplace admin and is sent on to the operator console's Operations tab", 'founder-console.html#operations', '#console'),
   ];
 }

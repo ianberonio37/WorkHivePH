@@ -2,19 +2,19 @@
 name: page-resume
 type: page
 source: file:resume.html
-source_sha: 568e2661a01ef61b
+source_sha: 99e647b85b3d103e
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `resume.html` — Resume / CV Builder | WorkHive
 
-Size: 195KB · 117 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 196KB · 118 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (5): `resume_documents.delete`, `resume_documents.insert`, `resume_documents.update`, `resume_versions.delete`, `resume_versions.insert`
 **RPC calls**: `my_logbook_summary`
 **Edge invokes**: `resume-extract`, `resume-polish`
 **Truth views read**: `v_logbook_truth`, `v_skill_badges_truth`
 
-**Functions**: _dateOrderWarning, _entryHasContent, _hasMetric, _norm, _normKw, _normLoose, _para, _parseYear, _present, _prettyKw, _resetAiPanels, _resumeFnHeaders, _resumeYears, _run, _syncJdAddBtn, _syncUndo, _toastHide, _updateEmptyNote, _wireBusy, _wordInCorpus, _xe, addSelectedJdSkills, basicsField, buildDocxBody, buildResumeCorpus, buildResumeFacts, buildResumeHTML, bullet, callResumeExtract, callResumePolish, cap, cleanResume, closePreview, closeResumeManager, closeReview, compressImage, deleteResume, downloadPDF, emptyResume, ensureWork0, entryExists, entryKey, exportDocx, exportJSON, extractDocx, extractItemsFromFile, extractJdKeywordsLocal, extractPdf, extractXlsx, fieldsToChecklist, fmtDate, focusables, handleFiles, hideWaitingToast, idb, idbGet, idbPut, isEmptyResume, keywordPresent, listResumes …
+**Functions**: _dateOrderWarning, _entryHasContent, _hasMetric, _norm, _normKw, _normLoose, _para, _parseYear, _present, _prettyKw, _resetAiPanels, _resumeFnHeaders, _resumeYears, _run, _syncJdAddBtn, _syncUndo, _toastHide, _updateEmptyNote, _wireBusy, _wordInCorpus, _xe, addSelectedJdSkills, basicsField, buildDocxBody, buildResumeCorpus, buildResumeFacts, buildResumeHTML, bullet, callResumeExtract, callResumePolish, cap, cleanResume, closePreview, closeResumeManager, closeReview, compressImage, deleteResume, downloadPDF, emptyResume, ensureWork0, entryExists, entryKey, exportDocx, exportJSON, extractDocx, extractItemsFromFile, extractJdKeywordsLocal, extractPdf, extractXlsx, fieldsToChecklist, fmtDate, focusables, gatherAutofill, handleFiles, hideWaitingToast, idb, idbGet, idbPut, isEmptyResume, keywordPresent …
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

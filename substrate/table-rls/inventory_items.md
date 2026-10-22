@@ -2,7 +2,7 @@
 name: table-rls-inventory_items
 type: table-rls
 source: db:pg_policies+pg_trigger:inventory_items
-source_sha: 80cf2be0a29ac221
+source_sha: 496ddb5f9d7e4e74
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: True
 
-Columns (*=NOT NULL): id*, worker_name*, part_number*, part_name*, category, unit, qty_on_hand*, min_qty*, bin_location, notes, photo, updated_at, created_at, status, hive_id, submitted_by, approved_by, approved_at, auth_uid, linked_asset_node_ids, lead_time_days, rejection_reason, deleted_at, deleted_by
+Columns (*=NOT NULL): id*, worker_name*, part_number*, part_name*, category, unit, qty_on_hand*, min_qty*, bin_location, notes, photo, updated_at, created_at, status, hive_id, submitted_by, approved_by, approved_at, auth_uid, linked_asset_node_ids, lead_time_days, rejection_reason, deleted_at, deleted_by, photo_path, photo_thumb_path
 
 Policies:
 - `inventory_items_write` [ALL · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (((hive_id IS NULL) AND (auth_uid = ( SELECT auth.uid() AS uid))) OR ((au` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (((hive_id IS NULL) AND (auth_uid = ( SELECT auth.uid() AS uid))) OR ((au`

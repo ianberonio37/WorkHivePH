@@ -101,16 +101,14 @@ DELIBERATE_DEFINER = {
     # PUBLISHED listings and the sellers behind them, but has no SELECT on the base tables' contact/owner columns, so
     # an invoker view naming those columns was permission-denied for exactly the visitor the page exists to persuade.
     # Each carries its own row filter instead - and its own masking of the signed-in-only columns.
-    "v_marketplace_listings_public":
-        "rows are published listings or the caller's own (status = 'published' OR auth_uid = auth.uid()); "
-        "LB2's equivalence proof read it as every account, anon and a stranger",
+    # (v_marketplace_listings_public left this list on 2026-10-21: BRH-R made it security_invoker, and since
+    # 20261022000005 it asks the reader's own ids once - it is held as an invoker view like the rest.)
     "v_marketplace_sellers_public":
         "rows are sellers with a published listing, or any seller for a signed-in caller; messenger, certifications "
         "and KYB time are masked for a stranger",
 }
 # the row filter each named view must still carry (a rewrite that drops it would re-open the table to every caller)
 DELIBERATE_PREDICATE = {
-    "v_marketplace_listings_public": ["status = 'published'", "auth.uid()"],
     "v_marketplace_sellers_public": ["seller_has_published_listing(", "auth.uid()"],
 }
 

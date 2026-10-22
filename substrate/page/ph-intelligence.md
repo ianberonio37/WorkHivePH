@@ -2,13 +2,13 @@
 name: page-ph-intelligence
 type: page
 source: file:ph-intelligence.html
-source_sha: 14239deb9a449d08
+source_sha: 8547f8a81d0f032b
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `ph-intelligence.html` — Philippine Industrial Intelligence Report | WorkHive
 
-Size: 54KB · 12 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 55KB · 12 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

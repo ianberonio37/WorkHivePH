@@ -54,7 +54,9 @@ const PAGES = ['index', 'hive', 'logbook', 'inventory', 'pm-scheduler', 'project
   // Widening the roster is a MEASUREMENT CHANGE, not a regression: expect new findings here
   // the way the no-em-dash gate went 0 -> 299 when its glob was widened. Re-run clean and
   // confirm the teeth still fire on these surfaces BEFORE banking anything against them.
-  'marketplace', 'marketplace-seller', 'marketplace-seller-profile', 'platform-actions'];
+  'marketplace', 'marketplace-seller', 'marketplace-seller-profile', 'platform-actions',
+  // OPC (2026-10-22): the operator console is live again and holds Platform Actions' queues - a measurement change
+  'founder-console'];
 
 const args = process.argv.slice(2);
 const GATE = args.includes('--gate');

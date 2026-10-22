@@ -23,10 +23,12 @@ const CLAIMS = [
     read: () => { const t = (document.body.innerText || '').replace(/\s+/g, ' '); const m = t.match(/(\d[\d,]*) pass · (\d[\d,]*) fail/); return { pass: m ? m[1] : null, fail: m ? m[2] : null }; },
     truth: () => { const h = json('platform_health.json'); const v = h.validators || []; return { pass: v.filter((x) => x.status === 'PASS').length, fail: v.filter((x) => x.status === 'FAIL').length }; },
   },
+  // the centralization axes left the component gallery for the operator console's Developer tab (OPC, 2026-10-22): the
+  // gallery printed a percentage, the console prints 'N of M pure' and 'K canonical' - the same baselines, read live
   {
-    file: 'design-system.html', wait: 6000,
-    read: () => { const t = (document.getElementById('ds-axes') || {}).innerText || ''; const p = t.match(/Purity:\s*(\d+)%/); const k = t.match(/(\d+)\s+canonical keys/); return { purity: p ? p[1] : null, canonical: k ? k[1] : null }; },
-    truth: () => { const pu = json('component_purity_baseline.json'); const files = pu.files || {}; const total = Object.keys(files).length; const pure = Object.values(files).filter((v) => v === 0).length; const st = json('storage_key_registry.json'); return { purity: total ? Math.round(100 * pure / total) : 0, canonical: (st.canonical || []).length }; },
+    file: 'founder-console.html', query: '#developer', wait: 12000, signin: true,
+    read: () => { const t = ((document.querySelector('[data-dash="dev-ds"]') || {}).innerText || '').replace(/,/g, ''); const p = t.match(/(\d+) of (\d+) pure/); const k = t.match(/(\d+) canonical/); return { pure: p ? p[1] : null, files: p ? p[2] : null, canonical: k ? k[1] : null }; },
+    truth: () => { const pu = json('component_purity_baseline.json'); const files = pu.files || {}; const st = json('storage_key_registry.json'); return { pure: Object.values(files).filter((v) => v === 0).length, files: Object.keys(files).length, canonical: (st.canonical || []).length }; },
   },
   {
     file: 'learn/index.html', wait: 4000,
@@ -40,7 +42,8 @@ const CLAIMS = [
   // 500 rows, so its truth is n/a when the table holds more than 500. An empty badge (a hidden zero-queue card) reads
   // as 0; an em-dash (a failed read) reads as null and mismatches on purpose.
   {
-    file: 'platform-actions.html', wait: 12000, signin: true,
+    // Platform Actions' queues and their badges are on the operator console's Operations tab since OPC (2026-10-22)
+    file: 'founder-console.html', query: '#operations', wait: 12000, signin: true,
     // '-' is the untouched default of a zero-queue card that stays hidden; an em-dash (a failed read) stays null (2026-09-05)
     read: () => { const g = (id) => { const t = ((document.getElementById(id) || {}).textContent || '').trim(); return (t === '' || t === '-') ? '0' : t; };return { topups: g('svc-topups-count'), drafts: g('mkt-listings-count'), sellers: g('mkt-sellers-count'), gcash: g('gcash-receipts-count'), waiting: g('fb-count-badge') }; },
     truth: () => {
@@ -91,7 +94,7 @@ const EXPLAIN = [
     checks: () => ({}), text: (t) => ({ 'source/status region present': t.trim().length > 12, 'window or freshness named': /last \d+|as of|updated|live|refreshed|this shift|today|snapshot|in the last|every \d+/i.test(t) }) },
   { file: 'community.html', wait: 9000, sel: '.wh-source-chip, [role="status"], #meta, .freshness, .source-chip', signin: true,
     checks: () => ({}), text: (t) => ({ 'source/status region present': t.trim().length > 12, 'window or freshness named': /last \d+|as of|updated|live|refreshed|this shift|today|snapshot|in the last|every \d+/i.test(t) }) },
-  { file: 'platform-actions.html', wait: 9000, sel: '.wh-source-chip, [role="status"], #meta, .freshness, .source-chip', signin: true,
+  { file: 'founder-console.html', wait: 9000, sel: '.wh-source-chip, [role="status"], #meta, .freshness, .source-chip', signin: true,   // Platform Actions' queues moved here (OPC)
     checks: () => ({}), text: (t) => ({ 'source/status region present': t.trim().length > 12, 'window or freshness named': /last \d+|as of|updated|live|refreshed|this shift|today|snapshot|in the last|every \d+/i.test(t) }) },
   // P-K 'health is a living producer' on plant-connections (P429, 2026-09-05): the gateway producer may be idle for
   // months locally - the page must SAY so ('No gateway calls in last 7 days · IDLE') when the table's newest row is

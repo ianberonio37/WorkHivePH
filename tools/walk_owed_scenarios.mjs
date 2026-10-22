@@ -1271,7 +1271,8 @@ const openComposer = async (page, cc) => {
 };
 const controlsFor = (url) => {
   if (/marketplace-seller\.html/.test(url)) return RECOVERY_CONTROLS.seller;
-  if (/platform-actions\.html/.test(url)) return RECOVERY_CONTROLS.admin;
+  // the feedback drawer moved with Platform Actions' queues to the operator console (OPC, 2026-10-22)
+  if (/(platform-actions|founder-console)\.html/.test(url)) return RECOVERY_CONTROLS.admin;
   if (/community\.html/.test(url)) return RECOVERY_CONTROLS.community;
   return null;
 };

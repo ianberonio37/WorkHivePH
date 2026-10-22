@@ -82,18 +82,24 @@ ALLOWLIST = {
         "the ghost queue's READER. It rendered 'No open disputes' for a queue no buyer could file "
         "into — the MK13 defect itself. Unreachable is the fix.",
 
-    # ── vouchers: RETIRED BY DECISION, so both the control and its reader are correctly gone ──
-    ("founder-console.html", "write:service_vouchers"):
-        "Vouchers were retired by decision (Ian: no vouchers). mig 36 replaced the redeem path with a "
-        "refusing stub and mig 45 repaired that stub's signature — so redemption REFUSES by design. A "
-        "create/pause control for a mechanic that refuses would be the defect, not its absence. "
-        "(Was BASELINE 'IAN'S CALL' until 2026-08-04; the call was made, so this is now deliberate.)",
-    ("founder-console.html", "read:service_vouchers"):
-        "reader for the same retired mechanic — see write:service_vouchers.",
-    ("founder-console.html", "read:service_voucher_redemptions"):
-        "redemption history for a mechanic that now refuses. No live surface should promise it.",
+    # ── vouchers: RETIRED BY DECISION (Ian: no vouchers; mig 36 made redemption refuse). The three founder-console
+    # entries that excused the console's create / pause / tally are gone with the code itself (OPC, 2026-10-22): the
+    # console was un-retired, and "a create/pause control for a mechanic that refuses would be the defect, not its
+    # absence" - so the control was deleted rather than shown again. ──
 
     # ── relocated into an RPC, which no table-name match can ever see ──
+    ("agentic-rag-observability.html", "read:agentic_rag_traces"):
+        "NOT stranded: relocated into an RPC (OPC, 2026-10-22). founder_dev_reads (migration 20261022000004) reads "
+        "agentic_rag_traces across every hive for a platform admin - the route breakdown, the ten heaviest queries and "
+        "the recent traces - and founder-console.html's Developer tab calls it (loadDeveloperTab, "
+        "db.rpc('founder_dev_reads', range)). The retired page read the viewer's own hive's latest 500 rows. Was "
+        "BASELINE 'WRITE-ONLY TRACES' until the reader got this live home.",
+    ("platform-actions.html", "rpc:founder_page_heatmap"):
+        "NOT stranded: relocated into an RPC (OPC, 2026-10-22). Platform Actions' usage card read it for one figure, "
+        "'Most-opened page (30d)'. The operator console's Platform tab draws 'Top surfaces (feature heatmap)' - every "
+        "surface's events over the range, the busiest first - from console_read_founder_ops "
+        "(migration 20261022000003, key top_surfaces_feature_heatmap), which founder-console.html calls through "
+        "operator-console-panels.js. Verified by reading the function, not inferred from the name.",
     ("founder-console.html", "read:v_hive_readiness_truth"):
         "NOT stranded: readiness relocated to an RPC. hive.html:2572 calls "
         "`get_hive_readiness_current`, and plant-connections / pm-scheduler / project-manager / "
@@ -112,19 +118,11 @@ ALLOWLIST = {
 #   · write:platform_feedback — LIFTED 2026-08-04 to platform-actions.html (triage card + drawer +
 #     realtime + the OCC guard). The gate now sees it live and says nothing, which is correct.
 #   · write:service_vouchers — DECIDED (no vouchers); moved to ALLOWLIST with the migration evidence.
-BASELINE = {
-    ("founder-console.html", "read:analytics_events"):
-        "WRITE-ONLY TELEMETRY. Live pages still emit analytics_events; the only page that ever READ "
-        "them back (hive reach over 30 days, event rollups) is retired. So the platform pays to "
-        "store rows no human can see. Not money and not urgent — but it is the treasury shape "
-        "exactly, and it stays printed until someone decides: surface it, or stop writing it.",
-    ("agentic-rag-observability.html", "read:agentic_rag_traces"):
-        "WRITE-ONLY TRACES. supabase/functions/agentic-rag-loop/index.ts writes a trace per RAG "
-        "call and the only reader is retired, so RAG behaviour is unobservable while still being "
-        "recorded. The page's own overlay says 'moved to Grafana' — if that is true the traces "
-        "should flow there and this table should stop being written; if it is not, the reader "
-        "needs a live home. Either way it is a decision, not a silence.",
-}
+#   · founder-console.html read:analytics_events — RESOLVED 2026-10-22 (OPC): the console is un-retired as the one
+#     operator console, so its reads are live again (hive reach, the Pareto and the usage rollups).
+#   · agentic-rag-observability.html read:agentic_rag_traces — RESOLVED 2026-10-22 (OPC): relocated into an RPC; the
+#     ALLOWLIST entry names the live caller.
+BASELINE = {}
 
 
 def page_files():
@@ -148,14 +146,25 @@ def capabilities(text):
     return caps
 
 
-def scan(files_text):
-    """files_text: {name: text} -> (findings, stats). Pure, so the self-test needs no disk."""
+# A page's code is its HTML AND the local scripts it loads (OPC, 2026-10-22): the operator console runs Platform Actions'
+# queues from operator-actions.js, so every write they make is reachable from a live page - one this gate, reading the
+# HTML alone, called stranded.
+SCRIPT_SRC_RE = re.compile(r"""<script\b[^>]*\bsrc\s*=\s*["']([^"'/:?#]+\.js)["']""", re.I)
+
+
+def scan(files_text, scripts=None):
+    """files_text: {name: text}; scripts: {local .js name: text} -> (findings, stats). Pure, so the self-test needs
+    no disk. A live page reaches what the scripts it loads reach."""
+    scripts = scripts or {}
     retired = {n: t for n, t in files_text.items() if RETIRED_RE.search(t)}
     live = {n: t for n, t in files_text.items() if n not in retired}
 
     live_caps = set()
     for t in live.values():
         live_caps |= capabilities(t)
+        for s in SCRIPT_SRC_RE.findall(t):
+            if s in scripts:
+                live_caps |= capabilities(scripts[s])
 
     findings, known = [], []
     for name, text in retired.items():
@@ -225,9 +234,19 @@ def selftest():
     if not any(c == "read:t" for _, c in f):
         print(f"  {RED}FAIL{RST} — an insert().select() was miscounted as a live READER"); ok = False
 
+    # relocated into a SCRIPT a live page loads (operator-actions.js on the console) -> reachable, not stranded
+    moved = "db.from('service_credit_topups').update({status:'verified'}).eq('id',x)"
+    f, _ = scan({"old.html": overlay + moved, "new.html": '<script src="queues.js"></script>'}, {"queues.js": moved})
+    if f:
+        print(f"  {RED}FAIL{RST} — a write moved into a script a live page loads was reported as stranded: {f}"); ok = False
+    # ...but a script NO live page loads reaches nothing: the same write is stranded
+    f, _ = scan({"old.html": overlay + moved, "new.html": "<p>no script</p>"}, {"queues.js": moved})
+    if not any(c == "write:service_credit_topups" for _, c in f):
+        print(f"  {RED}FAIL{RST} — a script no live page loads was counted as reachable"); ok = False
+
     if ok:
         print(f"  {GREEN}PASS{RST} — catches stranded writes, RPCs and READS; accepts relocated "
-              f"ones; does not mistake an insert().select() for a reader")
+              f"ones, a script a live page loads included; does not mistake an insert().select() for a reader")
     return 0 if ok else 1
 
 
@@ -245,7 +264,14 @@ def main(argv):
         except Exception:
             continue
 
-    findings, stats = scan(files_text)
+    scripts = {}
+    for f in sorted(x for x in os.listdir(ROOT) if x.endswith(".js")):
+        try:
+            scripts[f] = open(os.path.join(ROOT, f), encoding="utf-8", errors="replace").read()
+        except Exception:
+            continue
+
+    findings, stats = scan(files_text, scripts)
     print(f"  {DIM}pages: {stats['live']} live / {stats['retired']} retired · "
           f"{stats['live_caps']} capabilities reachable{RST}")
 

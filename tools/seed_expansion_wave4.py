@@ -1769,14 +1769,21 @@ def operator_console_rows(existing: list[dict], replay: bool = False) -> list[di
         operator_console_rows.arithmetic = {}
         return [{"wave": t["wave"], "opc": t["opc"]}
                 for t in _seeded(existing, "opc", ("kind", "operator-console"), OPC_PREFIX)]
-    from operator_console_inventory import CONSOLE, collect
+    from operator_console_inventory import CONSOLE, collect, key as _panel_key
     cells = collect()
     raw = dict(collect.arithmetic)
     carried = {((t.get("opc") or {}).get("surface"), (t.get("opc") or {}).get("panel"))
                for t in existing if (t.get("opc") or {}).get("kind") == "operator-console"}
+    # ★A MOVED PANEL IS STILL ITS ROW (OPC build, 2026-10-22). The console now carries the headings of the panels it took
+    # over ("GCash receipts needing your eyes", "Recent decisions", "Estimated 30-day ROI"), and the inventory reads the
+    # console first, so each comes back as a console cell - which is the row already seeded under its old home, not a new
+    # one. Same title, same panel: the inventory's own exact-fold rule.
+    carried_keys = {_panel_key(p) for _, p in carried if p}
     rows, arithmetic = [], Counter()
     for c in cells:
         if (c["surface"], c["panel"]) in carried:
+            continue
+        if c["surface"] == CONSOLE and _panel_key(c["panel"]) in carried_keys:
             continue
         wave = OPC_KIND_WAVE[c["kind"]]
         panel = c["panel"].replace(" - ", " – ")
@@ -1814,6 +1821,21 @@ def operator_console_rows(existing: list[dict], replay: bool = False) -> list[di
     arithmetic.update({"raw": raw.get("raw", 0), "exact": raw.get("exact", 0), "near": raw.get("near", 0)})
     operator_console_rows.arithmetic = arithmetic
     return rows
+
+
+def _place_by_wave(existing: list, created: list) -> list:
+    """Each new row goes directly after the last row of its own wave, or after the last row of its id space for a
+    wave's first row, so every wave stays one contiguous block in the order validate_trajectory_registry replays.
+    ★OPC106..109 (2026-10-22) were appended after the ENH-R block and failed the gate's order check: OPC-O and OPC-G
+    rows must follow OPC32 and OPC82, the last rows of their waves, not the end of the registry."""
+    out = list(existing)
+    for r in created:
+        prefix = re.match(r"[A-Z]+", r["id"]).group(0)
+        idx = max((i for i, t in enumerate(out) if t.get("wave") == r["wave"]), default=None)
+        if idx is None:
+            idx = max((i for i, t in enumerate(out) if re.fullmatch(rf"{prefix}\d+", t["id"])), default=len(out) - 1)
+        out.insert(idx + 1, r)
+    return out
 
 
 def _append_own_space(existing: list, rows: list, prefix: str) -> list:
@@ -1948,7 +1970,7 @@ def main() -> int:
             print(f"  {created[-1]['id']:<7} {created[-1]['title'][:150]}")
             print("  (nothing written)")
             return 0
-        doc["trajectories"] = existing + created
+        doc["trajectories"] = _place_by_wave(existing, created)
         doc["count"] = len(doc["trajectories"])
         _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
         from critic_seed_missing import seed_missing  # noqa: E402  - the same flow BRP, LXP, LXC, LM and BRH follow

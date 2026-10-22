@@ -148,47 +148,15 @@
   prov.textContent = 'Component registry v' + reg.version + ' · census ' + (base.generated || '').slice(0, 10) + ' · ' + (base.family_pages || 0) + ' family pages';
   prov.title = 'source: design_component_registry.json';
 
-  // ── C-P5: the 3 centralization axes, measured live from the real baselines ──
-  (async function renderAxes() {
+  // ── C-P5's axes moved to the operator console (OPC, 2026-10-22): its Developer tab measures them from these same
+  // baselines, and counts the one this gallery printed as a constant ("Pattern: 4/4") by reading wh-patterns.js. ──
+  (function axesPointer() {
     const axesEl = document.getElementById('ds-axes');
     if (!axesEl) return;
-    let purity = null, storage = null;
-    // fetchWithTimeout (utils.js, loaded on this page) so a hung server can't strand the panel
-    // (resilience floor); the call is inside try/catch (error-handling floor). No bare fetch().
-    // Paint FIRST with placeholders (null inputs -> 0 / '?'), then repaint in place once the four
-    // baselines arrive: the section's height is settled at first paint, so the help block and the
-    // gallery below it never move (CLS 0.25 <- div#ds-root, 2026-09-05).
-    const paint = (purity, storage, rubricSpec, rubricBoard) => {
-    const files = (purity && purity.files) || {};
-    const total = Object.keys(files).length;
-    const pure = Object.values(files).filter(v => v === 0).length;
-    const impure = purity ? (purity.total || 0) : '—';
-    const pPct = purity ? (total ? Math.round(100 * pure / total) : 0) : '—';   // the fourth state (2026-09-05): a missing baseline is unknown, not 0%
-    const canon = storage ? ((storage.canonical || []).length) : '—';
-    const aliases = (storage && storage.aliases) ? Object.keys(storage.aliases).length : 0;
-    const rDims = rubricSpec ? Object.keys(rubricSpec).filter(k => /^[A-Z][0-9]$/.test(k)).length : '—';
-    const rThr = rubricSpec ? Object.values(rubricSpec).reduce((n, d) => n + (d && d.thresholds ? Object.keys(d.thresholds).length : 0), 0) : 0;
-    const rPages = (rubricBoard && rubricBoard.summary) ? (rubricBoard.summary.measuredPages || 0) : '—';
-    const rMean = (rubricBoard && rubricBoard.summary && rubricBoard.summary.mean != null) ? rubricBoard.summary.mean : '?';
-    const card = 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:var(--wh-radius,12px);padding:12px 16px;';
-    const bar = 'height:6px;border-radius:var(--wh-radius-pill, 999px);background:rgba(255,255,255,0.08);overflow:hidden;margin-top:8px;';
-    axesEl.innerHTML =
-      '<section class="ds-class"><h2>Centralization axes: measured live</h2>' +
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">' +
-        '<div style="' + card + '"><strong>Axis 1 · Adoption</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Do surfaces USE the canonical? The layer boards below (F/A/D/AU/AV) are the measured census.</p></div>' +
-        '<div style="' + card + '"><strong>Axis 2 · Purity: ' + (pPct === '—' ? 'unavailable' : pPct + '%') + '</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Is the canonical itself built from tokens? <b>' + pure + '/' + total + '</b> shared-chrome files pure · <b>' + impure + '</b> raw brand literals.</p><div style="' + bar + '"><div style="height:100%;width:' + pPct + '%;background:var(--wh-green,#4ade80)"></div></div></div>' +
-        '<div style="' + card + '"><strong>Axis 3 · Pattern: 4/4</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Are behaviours centralized? <code>wh-patterns.js</code>: launchPanel · clickOutside · revealVia · capPanel.</p></div>' +
-        '<div style="' + card + '"><strong>Storage-key SSOT</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))"><b>' + canon + '</b> canonical keys · <b>' + aliases + '</b> drift-aliases tracked (<code>storage_key_registry.json</code>).</p></div>' +
-        '<div style="' + card + '"><strong>UFAI Rubric SSOT</strong><p style="margin:.4rem 0 0;font-size:.8rem;color:var(--wh-text-muted,rgba(255,255,255,.62))">Is the RULER itself centralized? <b>' + rDims + '</b> dims + <b>' + rThr + '</b> thresholds in one <code>ufai-rubric-spec.json</code>; the lens + battery single-source their floors from gate-locked mirror blocks (<code>rubric-parity</code> gate). <b>' + rPages + '/32</b> pages swept · mean <b>' + rMean + '</b>.</p></div>' +
-      '</div></section>';
-    };
-    paint(null, null, null, null);
-    try { purity = await window.fetchWithTimeout('component_purity_baseline.json', {}, 8000).then(r => r.json()); } catch (e) { console.warn('[design-system] component_purity_baseline.json unavailable', e && e.message); /* the panel paints 'unavailable' */ }
-    try { storage = await window.fetchWithTimeout('storage_key_registry.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits storage if absent */ }
-    let rubricSpec = null, rubricBoard = null;
-    try { rubricSpec = await window.fetchWithTimeout('ufai-rubric-spec.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits rubric SSOT if absent */ }
-    try { rubricBoard = await window.fetchWithTimeout('family_rubric_scoreboard.json', {}, 8000).then(r => r.json()); } catch (_) { /* empty-catch-allow: panel omits sweep coverage if absent */ }
-    paint(purity, storage, rubricSpec, rubricBoard);
+    axesEl.innerHTML = '<p style="margin:0 0 1rem;font-size:.85rem;color:var(--wh-text-muted,rgba(255,255,255,.80))">'
+      + 'The operator console now measures how central the design system is. Its Developer tab shows the tokens, the shared patterns and the storage keys. '
+      + '<a href="founder-console.html#developer" style="color:inherit;text-decoration:underline;display:inline-flex;align-items:center;min-height:44px">Open the Developer tab</a>'
+      + ' (that page is for platform admins).</p>';
   })();
 
   const e = escHtml;
@@ -331,6 +299,6 @@
 })();
 </script>
 <!-- wh-figure-sources: generated by tools/render_figure_sources.py from figure_sources.json - do not edit -->
-<script type="application/json" id="wh-figure-sources">[{"sel":"#ds-axes","shows":"the platform's centralization measures","basedOn":"the repository's component-purity, storage-key and rubric baselines, read when this page opens","reads":"component_purity_baseline.json, storage_key_registry.json, ufai-rubric-spec.json, family_rubric_scoreboard.json","period":"When the page loaded: the repository's latest measured baselines"},{"sel":"#ds-root","chrome":true}]</script>
+<script type="application/json" id="wh-figure-sources">[{"sel":"#ds-root","chrome":true}]</script>
 </body>
 </html>

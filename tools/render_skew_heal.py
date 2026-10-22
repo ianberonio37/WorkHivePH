@@ -35,6 +35,23 @@ sys.path.insert(0, str(ROOT / "tools"))
 from bug_hunt_inventory import DEFINED, production_pages, skew_needs  # noqa: E402
 
 
+SCRIPT_SRC = re.compile(r'<script\b[^>]*\bsrc="([^"/:?#]+\.js)"', re.I)
+
+
+def own_scripts_text(page: str) -> str:
+    """The text of the local scripts ONLY this page loads - its own code, kept in a file. ★A PAGE'S OWN SCRIPT IS THE
+    PAGE (OPC, 2026-10-22): the operator console runs its action queues from operator-actions.js, and engineering-design
+    keeps its logic in engineering-design.js. A function guarded there is guarded on that page, and an older utils.js
+    silences it the same way - the block measured the HTML alone and named none of them (the console's queues guard 11,
+    engineering-design.js 3). A script more than one page loads is shared, and stays out: it is no one page's code."""
+    loads = {}
+    for f in ROOT.glob("*.html"):
+        loads[f.name] = set(SCRIPT_SRC.findall(f.read_text(encoding="utf-8", errors="replace")))
+    mine = [s for s in sorted(loads.get(page, ())) if s != "utils.js" and (ROOT / s).exists()
+            and sum(1 for ss in loads.values() if s in ss) == 1]
+    return "".join("\n" + (ROOT / s).read_text(encoding="utf-8", errors="replace") for s in mine)
+
+
 def heal_pages() -> list[str]:
     """Every page that must heal: the LX production pages AND every root page of the SL program's roster (SL CA3,
     2026-10-16). The roster started as LX's production list, which leaves out design-system, status, voice-journal and
@@ -86,9 +103,10 @@ def defined_in(utils_src: str) -> set:
     return {a or b for a, b in DEFINED.findall(utils_src)}
 
 
-def render(src: str, defined: set) -> str:
-    """The page with its heal block present, current and in place (or absent, when it guards nothing)."""
-    names, nl = skew_needs(_strip_block(src), defined), _nl(src)
+def render(src: str, defined: set, own: str = "") -> str:
+    """The page with its heal block present, current and in place (or absent, when it guards nothing). `own` is the
+    text of the scripts only this page loads (own_scripts_text)."""
+    names, nl = skew_needs(_strip_block(src) + own, defined), _nl(src)
     out = _strip_block(src)
     if not names:
         return out
@@ -103,8 +121,8 @@ def _strip_block(src: str) -> str:
     return re.sub(r'(?:\r?\n)?<script data-wh-skew-heal="[^"]*">.*?</script>', "", src, count=1, flags=re.S)
 
 
-def problems(page: str, src: str, defined: set) -> list[str]:
-    names = skew_needs(_strip_block(src), defined)
+def problems(page: str, src: str, defined: set, own: str = "") -> list[str]:
+    names = skew_needs(_strip_block(src) + own, defined)
     blocks = BLOCK_RX.findall(src)
     if not names:
         return [f"{page}: a heal block, but the page guards no utils.js function - remove it (--apply)"] if blocks else []
@@ -137,15 +155,16 @@ def main(apply: bool, check: bool) -> int:
     for page in heal_pages():
         path = ROOT / page
         src = path.read_bytes().decode("utf-8", errors="replace")
-        probs = problems(page, src, defined)
+        own = own_scripts_text(page)
+        probs = problems(page, src, defined, own)
         if not probs:
             continue
         if apply:
-            new = render(src, defined)
+            new = render(src, defined, own)
             if new != src:
                 path.write_bytes(new.encode("utf-8"))
                 written.append(page)
-            probs = problems(page, new, defined)
+            probs = problems(page, new, defined, own)
         found += probs
     if apply:
         print(f"wrote {len(written)} page(s): {', '.join(written) or '-'}")
@@ -180,8 +199,12 @@ def self_test() -> int:
     ok &= problems("q.html", plain, d) == [] and render(plain, d) == plain    # guards nothing: no block
     ok &= bool(problems("q.html", plain.replace("</script><script>", "</script>" + block(["whHiveId"]) + "<script>"), d))
     ok &= skew_needs(fixed, d) == ["whHiveId", "whListError"]                 # the block does not count as a guard
+    own = "if (typeof whFmtAgo === 'function') {}"                               # a guard in a script only this page loads
+    ok &= bool(problems("p.html", fixed, d, own))                             # its own script guards one more: red
+    ok &= '"whFmtAgo whHiveId whListError"' in render(fixed, d, own) and problems("p.html", render(fixed, d, own), d, own) == []
     print(("PASS" if ok else "FAIL") + " skew-heal self-test - a missing, stale, edited or misplaced block reddens; a "
-          "rendered page is green and idempotent; a page that guards nothing carries no block")
+          "rendered page is green and idempotent; a page that guards nothing carries no block; a guard in a script only the page "
+          "loads counts as the page's")
     return 0 if ok else 1
 
 
@@ -191,7 +214,8 @@ def needs_map() -> dict:
     defined = defined_in((ROOT / "utils.js").read_text(encoding="utf-8", errors="replace"))
     out = {}
     for page in heal_pages():
-        names = skew_needs(_strip_block((ROOT / page).read_text(encoding="utf-8", errors="replace")), defined)
+        names = skew_needs(_strip_block((ROOT / page).read_text(encoding="utf-8", errors="replace"))
+                           + own_scripts_text(page), defined)
         if names:
             out[page] = names
     return out

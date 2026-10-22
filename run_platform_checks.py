@@ -4438,6 +4438,15 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "operator-console",
+        "script":  "tools/validate_operator_console_covers_surfaces.py",
+        "args":    [],
+        "label":   "OPC (2026-10-22, Ian 2026-10-14: founder-console.html un-retired as the ONE operator console, Grafana as live numbers in it plus a link per dashboard). K1: every OPC row at locking/locked has a home in the console - its mark data-opc=\"<surface>::<slug>\" (build_console_reads.opc_marker) is on founder-console.html or is a Grafana panel the generated manifest (operator-console-panels.js) has it draw. K2: the retired overlay is gone. K3: the dashboards' admin reads are generated and current (build_console_reads --check, the GlitchTip dashboard over the dblink bridge). K4: the console reads totals, never rows - none of the retired page's ~77,000-row scans is back and the founder_* rollups are called. K5: every founder_*/console_read_* read is SECURITY DEFINER and asks is_platform_admin() first (as the admin's own RLS, readiness, hive names and the audit trail were one hive's slice). K6: the retired observability pages and the component gallery's axes send a founder to the console. Self-test: the console as it was before OPC (76fe4884) fails K1/K2/K4/K6; five mutants are caught.",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+    },
+    {
         "id":      "solar-planner",
         "script":  "tools/validate_solar_planner.py",
         "args":    [],

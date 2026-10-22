@@ -62,6 +62,10 @@ services:
       - glitchtip_postgres_data:/var/lib/postgresql/data
     networks:
       - workhive_mcp
+      # OPC (2026-10-22): the operator console reads GlitchTip's numbers from the Supabase database
+      # (console_read_errors, over dblink as the read-only grafana_reader), so this database must be
+      # reachable from the Supabase network too - the same way Grafana reaches Supabase's.
+      - supabase_network_workhive
 
   glitchtip_redis:
     image: redis:7-alpine

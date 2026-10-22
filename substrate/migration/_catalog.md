@@ -1,25 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:692
-source_sha: a6644b8aac7d3601
+source: dir:supabase/migrations:702
+source_sha: 06917ce41b14e2a5
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (692 migrations)
+## migration · catalog (702 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260803000013_one_trigger_owns_the_sale` — fns:grant_listing_reward,release_reservation_on_delist
-- `20260803000014_the_guard_that_blocked_its_own_cashback` — fns:guard_credits_non_transferable
-- `20260803000015_adjudication_is_a_platform_act` — fns:apply_dispute_adjustment
-- `20260803000016_a_new_seller_proves_one_sale_before_flooding` — fns:guard_first_listings_need_a_sale · triggers:trg_first_listings_need_a_sale · tables:hive_service_settings
-- `20260803000017_the_spend_half_had_no_door` — fns:apply_credits_to_request,mint_service_cashback
-- `20260803000018_a_spend_that_destroyed_the_credits` — fns:apply_credits_to_request
-- `20260803000019_the_ten_percent_cap_never_bound` — fns:guard_reward_spend_cap
-- `20260803000020_one_definition_of_what_a_job_costs` — fns:guard_reward_spend_cap,service_request_price
-- `20260803000021_a_balance_is_one_number_not_a_page_of_rows` — fns:my_credit_balance
-- `20260803000022_v_credit_posture_must_not_bypass_rls` — (misc DDL/DML)
 - `20260803000023_only_the_singleton_treasury_row_is_public` — policies:credit_treasury_read
 - `20260803000024_a_read_only_view_holding_write_verbs` — (misc DDL/DML)
 - `20260803000025_register_the_credit_economy_in_the_canonical_registry` — (misc DDL/DML)
@@ -196,6 +186,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261015980000_brh_r_views_run_as_the_reader` — (misc DDL/DML)
 - `20261015990000_brh_r_owner_rights_in_functions` — fns:marketplace_sellers_public_rows,service_job_tracking_rows,service_open_broadcasts_rows
 - `20261015995000_brh_u_vector_out_of_public` — (misc DDL/DML)
+- `20261015997000_free_cron_history_retention` — (misc DDL/DML)
+- `20261015998000_free_telemetry_retention` — (misc DDL/DML)
 - `20261016000001_d3_deletes_are_recoverable_for_30_days` — fns:_wh_trash_id_type,audit_asset_node_delete,audit_logbook_post_close_amendment,audit_pm_asset_delete,audit_trash_transition,enqueue_for_embedding · triggers:trg_audit_trash_transition,trg_logbook_knowledge_on_trash,trg_logbook_xp_on_trash,trg_name_held_by_deleted,trg_replace_deleted_pairing · tables:public
 - `20261016000002_d3_every_reader_skips_deleted_rows` — fns:compute_adoption_risk,compute_anomaly_signals,compute_hive_readiness,ensure_pm_asset_for_node,get_hive_board_dashboard,get_marketplace_parts_for_my_assets
 - `20261016000003_a_supervisor_sets_the_hives_retention` — fns:set_hive_retention · tables:hive_retention_config
@@ -210,6 +202,14 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261021000006_brh_r_listings_runs_as_the_reader` — (misc DDL/DML)
 - `20261021000007_lb1_parts_for_my_assets_says_more` — fns:get_marketplace_parts_for_my_assets
 - `20261021000008_lb1_seller_reply_stats_for_every_visitor` — fns:marketplace_seller_reply_stats
+- `20261021000009_ad_readiness_refreshes_for_its_members` — fns:refresh_hive_readiness
+- `20261021000010_brh_ab_photos_live_in_storage` — policies:entry · fns:audit_logbook_post_close_amendment,check_inline_image_size,wh_entry_photo_named,wh_entry_photo_visible,wh_inline_photo_cleared,wh_inline_photo_moved · tables:inventory_items,logbook
+- `20261022000001_rl2_limit_says_when` — fns:check_hive_quota_ai_reports,check_hive_quota_community,check_hive_quota_inv_tx,check_hive_quota_logbook,check_hive_quota_pm_completions,check_listing_rate
+- `20261022000002_opc_console_reads_bounded` — fns:founder_ai_cost,founder_audit_feed,founder_hive_pareto,founder_marketplace_pulse,founder_maturity
+- `20261022000003_opc_console_reads` — fns:console_read_db_health,console_read_errors,console_read_founder_home,console_read_founder_ops,console_read_growth,console_read_slo_arct
+- `20261022000004_opc_developer_reads` — fns:founder_dev_reads
+- `20261022000005_listings_public_is_mine_asked_once` — (misc DDL/DML)
+- `20261022000006_anchor_ledger_totals_and_platform_trail` — (misc DDL/DML)
 
 (showing last 200)
 

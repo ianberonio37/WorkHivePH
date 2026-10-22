@@ -244,6 +244,20 @@ def seed_services(client, log, ctx: dict) -> dict:
     ]).execute()
     log(f"services: topups 3 ({verified_count} verified via real trigger path -> ledger minted) + 2 commissions")
 
+    # ---- 5b. Forwarded GCash receipts the automatic match could not settle (OPC, 2026-10-22) ----
+    # The operator console's "GCash receipts needing your eyes" panel showed nothing locally because no receipt existed,
+    # so a walk could not see it at all. Both go through the REAL match trigger (match_gcash_receipt): one reference no
+    # provider has filed, and one that names the pending ₱300 filing but carries ₱250 - neither may mint a credit.
+    client.table("gcash_inbound_receipts").insert([
+        {"reference": "1007778889990", "amount": 750, "sender_name": "RAMON D.", "source": "email",
+         "received_at": "2026-07-28T09:14:00+08:00",
+         "raw_text": "You have received PHP 750.00 of GCash from RAMON D. Ref. No. 1007778889990."},
+        {"reference": "1005556667770", "amount": 250, "sender_name": "JOEL M.", "source": "email",
+         "received_at": "2026-07-28T10:02:00+08:00",
+         "raw_text": "You have received PHP 250.00 of GCash from JOEL M. Ref. No. 1005556667770."},
+    ]).execute()
+    log("services: gcash receipts 2 (1 unmatched, 1 amount mismatch - both left for the founder)")
+
     # ---- 6. Vouchers ----
     client.table("service_vouchers").insert([
         {"code": "WELCOME100", "kind": "fixed", "value": 100, "segment": "consumer",

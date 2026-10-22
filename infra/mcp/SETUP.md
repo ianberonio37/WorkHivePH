@@ -61,6 +61,22 @@ Login passwords are in `infra/mcp/.env.mcp` (gitignored). Open the file to read 
 5. Copy the **DSN** from Project Settings → Client Keys
 6. Save it for step 5 (the Sentry MCP install)
 
+### 4b. Let the operator console read GlitchTip (optional)
+
+The operator console (`founder-console.html`, Platform tab) shows GlitchTip's open issues next to the other numbers. It
+reads them inside the Supabase database: `console_read_errors` connects to GlitchTip's Postgres over `dblink` as the
+read-only `grafana_reader`, the same role Grafana's GlitchTip datasource uses. Three things make it work:
+
+1. **The network.** `docker-compose.mcp.yml` puts `glitchtip_postgres` on `supabase_network_workhive` too, so the
+   Supabase database reaches it as `workhive_glitchtip_postgres`. Recreate it once after pulling:
+   `docker compose -f infra/mcp/docker-compose.mcp.yml up -d glitchtip_postgres`.
+2. **The connection string, in Supabase Vault, never in the repo.** In the local database (Studio SQL editor or psql):
+   `select vault.create_secret('host=workhive_glitchtip_postgres port=5432 dbname=postgres user=grafana_reader password=<GRAFANA_PG_READER_PASSWORD from .env.mcp>', 'glitchtip_read_url');`
+3. **Only GlitchTip's Postgres has to run.** The console reads the database, so on a small machine the GlitchTip web
+   and worker containers can stay stopped.
+
+Without the secret or the network the console does not guess: its GlitchTip panels say GlitchTip is not connected.
+
 ---
 
 ## 5. Install the MCP servers in Docker Desktop

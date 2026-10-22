@@ -216,8 +216,10 @@ def self_test() -> list[str]:
         if not any(g.startswith(want) for g in got):
             fails.append(f"mutant '{label}' was not caught (got {got[:2]})")
 
-    pa = texts["platform-actions.html"]
-    mut("platform-actions back on a bare interval", {"platform-actions.html": pa.replace(
+    # the queues' minute refresh runs from operator-actions.js on the operator console (OPC, 2026-10-22); Platform
+    # Actions is retired and its own copy of the loop sits past the retired page's early return
+    oa = texts["operator-actions.js"]
+    mut("the console's queues back on a bare interval", {"operator-actions.js": oa.replace(
         "const _refreshPoll = whPoll(refreshQueues, 60000, { immediate: false });", "const _refreshPoll = { stop() {} }; setInterval(refreshQueues, 60000);", 1)}, "H1")
     mut("the live-job map polling a hidden tab", {"marketplace.html": texts["marketplace.html"].replace(
         "setInterval(() => { if (!document.hidden) tick(); }, 10000);", "setInterval(tick, 10000);", 1)}, "H1")

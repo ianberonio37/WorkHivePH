@@ -19,7 +19,8 @@
  *   profile  /marketplace-seller-profile  #stat-rating vs v_marketplace_sellers_truth.rating_avg
  *                                         (rendered avg.toFixed(1)+'★' or 'Not rated'; MK1: the
  *                                         canonical column only, never recomputed from reviews)
- *   admin    /platform-actions.html       #mkt-listings-count vs the draft-moderation read the pane
+ *   admin    /founder-console.html#operations (Platform Actions' queues since OPC, 2026-10-22)
+ *                                         #mkt-listings-count vs the draft-moderation read the pane
  *                                         itself makes (v_marketplace_listings_truth status=draft,
  *                                         limit 50 — platform-actions.html:419)
  *
@@ -215,7 +216,7 @@ if (!only || only === 'admin') {
   const { ctx, p, signedIn, err } = await signedPage(ACCTS.admin);
   if (!signedIn) check('admin', 'sign-in', false, `harness: ${err}`);
   else {
-    await p.goto(`${ORIGIN}/platform-actions.html`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await p.goto(`${ORIGIN}/founder-console.html#operations`, { waitUntil: 'domcontentloaded', timeout: 45000 });   // the queues' home since OPC (2026-10-22)
     await p.waitForTimeout(8000);
     const r = await p.evaluate(async () => {
       const db = window._whSupabaseClient || window.getDb(undefined, window.SUPABASE_KEY);
@@ -280,7 +281,7 @@ if (!only || only === 'admin_money') {
   const { ctx, p, signedIn, err } = await signedPage(ACCTS.admin);
   if (!signedIn) check('admin_money', 'sign-in', false, `harness: ${err}`);
   else {
-    await p.goto(`${ORIGIN}/platform-actions.html`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await p.goto(`${ORIGIN}/founder-console.html#operations`, { waitUntil: 'domcontentloaded', timeout: 45000 });   // the queues' home since OPC (2026-10-22)
     await p.waitForTimeout(8000);
     const r = await p.evaluate(async () => {
       const db = window._whSupabaseClient || window.getDb(undefined, window.SUPABASE_KEY);
@@ -338,7 +339,7 @@ if (!only || only === 'admin_queue') {
   const { ctx, p, signedIn, err } = await signedPage(ACCTS.admin);
   if (!signedIn) check('admin_queue', 'sign-in', false, `harness: ${err}`);
   else {
-    await p.goto(`${ORIGIN}/platform-actions.html`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await p.goto(`${ORIGIN}/founder-console.html#operations`, { waitUntil: 'domcontentloaded', timeout: 45000 });   // the queues' home since OPC (2026-10-22)
     await p.waitForTimeout(8000);
     // R-topup-queue-reachable: the Verify button on the queue that mints every credit must be a
     // real 44px target AND actually hittable (elementFromPoint at its centre returns the button
@@ -522,7 +523,7 @@ if (!only || only === 'handoff_admin') {
                  queueReachable: !!queue && queue.getBoundingClientRect !== undefined };
       });
       check('handoff_admin', 'moderation-reachable',
-        /platform-actions/.test(dest.landed) && !dest.deadEnd && dest.queueReachable,
+        /founder-console/.test(dest.landed) && !dest.deadEnd && dest.queueReachable,
         `Admin link lands on ${dest.landed}; retired-overlay dead-end=${dest.deadEnd}; the moderation queue renders (its count badge exists)`);
     }
   }

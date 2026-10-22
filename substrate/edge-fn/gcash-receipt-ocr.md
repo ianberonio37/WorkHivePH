@@ -2,13 +2,13 @@
 name: edge-fn-gcash-receipt-ocr
 type: edge-fn
 source: file:supabase/functions/gcash-receipt-ocr/index.ts
-source_sha: 13c4cd905c4aefb4
+source_sha: d27dc7bd42b5c297
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## edge-fn · `gcash-receipt-ocr` (supabase/functions/gcash-receipt-ocr)
 
-Auth gate: **no auth idiom detected in body — the real gate is config.toml verify_jwt + the caller; VERIFY before trusting**
+Auth gate: **auth idiom detected in body (verify it gates the hive_id it uses)**
 
 Tables touched: (none)
 RPCs called: (none)

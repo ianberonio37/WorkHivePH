@@ -1342,5 +1342,25 @@
   <script defer src="connectivity-widget.js"></script>
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
+<script>
+/* OPC (2026-10-22): this page stays for supervisors, who read it for their own hive. The figures for every hive are in
+   the one operator console (founder-console.html), so a platform admin who lands here is pointed there - at the end of
+   the page, so nothing above it moves. */
+window.addEventListener('load', function () {
+  if (typeof whPlatformAdminAnswer !== 'function' || typeof getDb !== 'function') return;
+  Promise.resolve(whPlatformAdminAnswer(getDb())).then(function (ans) {
+    if (ans !== 'yes') return;
+    var host = document.querySelector('main') || document.body;
+    if (!host || host.querySelector('.wh-opc-pointer')) return;
+    var p = document.createElement('p');
+    p.className = 'wh-opc-pointer';
+    p.setAttribute('role', 'note');
+    p.style.cssText = 'margin:24px 0 8px;font-size:0.85rem;color:var(--wh-text-muted,rgba(255,255,255,.80));';
+    p.innerHTML = 'You are a platform admin, and this page shows one hive. The figures for every hive are in the '
+      + '<a href="founder-console.html#operations" style="color:inherit;text-decoration:underline;display:inline-flex;align-items:center;min-height:44px">operator console</a>.';
+    host.appendChild(p);
+  }).catch(function () { /* empty-catch-allow: a pointer that cannot be shown changes nothing on the page */ });
+});
+</script>
 </body>
 </html>

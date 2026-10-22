@@ -609,7 +609,23 @@
    "period": "All time: XP and public posts so far"
   }
  ],
- "platform-actions.html": [
+ "analytics.html": [
+  {
+   "sel": "#an-mtbf-hero",
+   "shows": "the worst machine's mean time between failures",
+   "basedOn": "breakdown entries in your logbook, per machine, over the period",
+   "reads": "get_mtbf_by_machine",
+   "period": "The period you picked (90 days unless you changed it), rolling to now"
+  }
+ ],
+ "design-system.html": [
+  {
+   "sel": "#ds-root",
+   "chrome": true,
+   "why": "specimen numbers in the component catalogue - examples of how each component renders, not data"
+  }
+ ],
+ "founder-console.html": [
   {
    "sel": "#cp-cover",
    "shows": "liability cover: cash in against credits owed",
@@ -653,34 +669,18 @@
    "period": "Now: waiting when the queues last refreshed (every 60 seconds)"
   },
   {
-   "sel": "#usage-body",
-   "shows": "platform usage over the last 30 days, and what each page was used for",
-   "basedOn": "active hives, people seen, signed-out sessions and daily actives rolled up per day; uses counted per page and action, accounts and signed-out sessions apart",
-   "reads": "founder_active_hives, founder_mau, founder_anon_sessions, founder_dau_series, founder_feature_use",
-   "period": "The last 30 days, rolling to now"
-  }
- ],
- "analytics.html": [
-  {
-   "sel": "#an-mtbf-hero",
-   "shows": "the worst machine's mean time between failures",
-   "basedOn": "breakdown entries in your logbook, per machine, over the period",
-   "reads": "get_mtbf_by_machine",
-   "period": "The period you picked (90 days unless you changed it), rolling to now"
-  }
- ],
- "design-system.html": [
-  {
-   "sel": "#ds-axes",
-   "shows": "the platform's centralization measures",
-   "basedOn": "the repository's component-purity, storage-key and rubric baselines, read when this page opens",
-   "reads": "component_purity_baseline.json, storage_key_registry.json, ufai-rubric-spec.json, family_rubric_scoreboard.json",
-   "period": "When the page loaded: the repository's latest measured baselines"
+   "sel": "#growth-content",
+   "shows": "people today and over 14 days, people in 30 days, and what each page was used for",
+   "basedOn": "people seen per Manila day, people and signed-out sessions over 30 days; uses counted per page and action, accounts and signed-out sessions apart",
+   "reads": "founder_dau_series, founder_mau, founder_anon_sessions, founder_feature_use",
+   "period": "The last 14 days for the daily line, the last 30 days for the rest"
   },
   {
-   "sel": "#ds-root",
-   "chrome": true,
-   "why": "specimen numbers in the component catalogue - examples of how each component renders, not data"
+   "sel": "[data-dash=\"dev-ds\"] .opc-dash-body",
+   "shows": "the platform's centralization measures",
+   "basedOn": "the repository's component-purity, storage-key and rubric baselines, and the shared behaviours wh-patterns.js holds, read when the tab opens",
+   "reads": "component_purity_baseline.json, storage_key_registry.json, ufai-rubric-spec.json, family_rubric_scoreboard.json, wh-patterns.js",
+   "period": "When the tab opened: the repository's latest measured baselines"
   }
  ]
 }

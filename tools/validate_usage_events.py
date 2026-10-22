@@ -6,7 +6,7 @@ migration promised "feature pages ALSO emit feature_use" - so the operator could
 page was used for. And a count by person or by hive was a count of claims: an anonymous insert kept whatever auth_uid it
 sent, and for everyone hive_id and worker_name were whatever the device remembered. Migration 20261021000002 binds the
 identity and adds founder_feature_use; utils.js whUse(db, action, props) records one use where the use is confirmed;
-the operator's usage card on platform-actions reads it.
+the operator's usage card on platform-actions read it (the operator console's Growth Pulse, since OPC 2026-10-22).
 
 STATIC (no database)
   U1 utils.js: whUse screens props (keys that can carry a person or their words, long strings, nested values), records
@@ -23,7 +23,8 @@ STATIC (no database)
   U6 the newest migration defining bind_analytics_events_submitter binds a visitor to no account / hive / name, a member
      to their account, an active-membership hive and their own name, and screens props; founder_feature_use counts
      accounts and signed-out sessions apart, as the caller (SECURITY INVOKER); the partial index exists.
-  U7 platform-actions reads founder_feature_use, renders it, and its figure-source names it.
+  U7 the operator console's Growth Pulse reads founder_feature_use, renders it, and its figure-source names it (it
+     carries Platform Actions' usage card, OPC 2026-10-22).
   U8 one page_view per load: one logPageView call site per L3 page (founder-console's two are exclusive branches).
 LIVE (the local database; one rolled-back transaction; the people are picked from the data)
   V1 a visitor inserting a forged account, hive and name keeps none of them; an email, a note, an 80-character string and
@@ -99,10 +100,16 @@ USES = {
     "skillmatrix.html": ["lesson_opened", "exam_started", "exam_graded", "targets_saved"],
     "ai-quality.html": ["details_opened"],
     "audit-log.html": ["trail_filtered", "trail_exported"],
-    "platform-actions.html": ["topup_verified", "topup_rejected", "listing_approved", "listing_rejected",
-                              "seller_identity_verified", "seller_certs_verified", "feedback_triaged"],
+    # the operator console's queues (OPC, 2026-10-22): recorded on founder-console.html from operator-actions.js, which
+    # tools/build_operator_actions.py cuts from retired platform-actions.html (GENERATED_FROM below)
+    "operator-actions.js": ["topup_verified", "topup_rejected", "listing_approved", "listing_rejected",
+                            "seller_identity_verified", "seller_certs_verified", "feedback_triaged"],
+    "founder-console.html": [],      # its uses are the queues' (operator-actions.js); listed for U8's one page view
 }
-RETIRED = {"founder-console.html", "marketplace-admin.html"}       # a retired page's use IS its visit
+RETIRED = {"platform-actions.html", "marketplace-admin.html"}      # a retired page's use IS its visit
+# a retired page whose script is the SOURCE a live file is generated from: its uses run there, so they are not a retired
+# page recording uses - provided every one of them reaches the generated file
+GENERATED_FROM = {"platform-actions.html": "operator-actions.js"}
 # shared components that record a use on whichever page shows them: the maturity gate IS the page for a hive below its
 # stair (ai-quality and ph-intelligence were walked locked), and opening how the stairway works is its one in-page act
 SHARED_USES = {"maturity-gate.js": ["stairway_explained", "stairway_opened"]}
@@ -289,7 +296,12 @@ def check_static(files: dict[str, str] | None = None, migrations_extra: str = ""
         src = strip_js_comments(text(page))
         if "logPageView(" not in src:
             issues.append(f"U2 {page} (retired) no longer records its visit")
-        if recorded_actions(src) - {"page_view"} and call_spans(src, ("whUse", "whUseThen")):
+        if page in GENERATED_FROM:
+            lost = recorded_actions(src) - recorded_actions(strip_js_comments(text(GENERATED_FROM[page])))
+            if lost:
+                issues.append(f"U2 {page} is retired and records {sorted(lost)} that {GENERATED_FROM[page]} (cut from "
+                              f"its script) does not - those uses cannot happen anywhere")
+        elif recorded_actions(src) - {"page_view"} and call_spans(src, ("whUse", "whUseThen")):
             issues.append(f"U2 {page} is retired and records uses - its page's work is skipped, so those cannot happen")
 
     for page, what, pat in REFUSAL_READBACKS:
@@ -338,16 +350,17 @@ def check_static(files: dict[str, str] | None = None, migrations_extra: str = ""
                for f in MIGRATIONS.glob("*.sql")):
         issues.append("U6 the partial index for use events is gone")
 
-    pa = text("platform-actions.html")
-    if "db.rpc('founder_feature_use'" not in pa or "_usesBlock(u.uses)" not in pa:
-        issues.append("U7 platform-actions no longer reads and renders founder_feature_use")
-    if '"reads":"founder_active_hives, founder_mau, founder_anon_sessions, founder_dau_series, founder_feature_use"' not in pa:
-        issues.append("U7 the usage card's figure-source no longer names founder_feature_use")
+    # the operator console's Growth Pulse carries the usage card Platform Actions had (OPC, 2026-10-22)
+    fc = text("founder-console.html")
+    if "db.rpc('founder_feature_use'" not in fc or "${usesBlock(uses)}" not in fc:
+        issues.append("U7 the operator console no longer reads and renders founder_feature_use")
+    if not re.search(r'"sel":"#growth-content"[^}]*"reads":"[^"]*founder_feature_use', fc):
+        issues.append("U7 the Growth Pulse's figure-source no longer names founder_feature_use")
     # founder_dau_series returns {day, dau, events}: "People today" read .count / .value and printed "-" for months
-    if "Number(_dauRow.dau)" not in pa or "u.dau.find((r) => String(r && r.day).slice(0, 10) === _todayPh)" not in pa:
+    if "byDay[String(r.day).slice(0, 10)] = Number(r.dau) || 0;" not in fc or "byDay[manilaKey(new Date())]" not in fc:
         issues.append("U7 'People today' no longer reads today's row of founder_dau_series by its dau column")
 
-    for page in sorted(set(USES) | RETIRED):
+    for page in sorted(p for p in set(USES) | RETIRED if p.endswith(".html")):   # a script is not a load
         n = len(re.findall(r"\blogPageView\(", strip_js_comments(text(page))))
         if n != PAGEVIEW_SITES.get(page, 1):
             issues.append(f"U8 {page} has {n} logPageView call sites (one load must be one page_view)")
@@ -532,6 +545,7 @@ def self_test() -> list[str]:
          "create or replace function public.bind_analytics_events_submitter() returns trigger language plpgsql as $$ begin "
          "if auth.uid() is null then return new; end if; new.auth_uid := auth.uid(); return new; end $$;", "U6"),
         ("a second page view site", {"hive.html": hive.replace("logPageView(db", "logPageView(db); logPageView(db", 1)}, "", "U8 hive.html"),
+        ("a retired source records a use its generated file lacks", {"operator-actions.js": (ROOT / "operator-actions.js").read_text(encoding="utf-8").replace("'feedback_triaged'", "'x_dropped'")}, "", "U2 platform-actions.html"),
     ]
     for name, files, extra, want in synthetic:
         got = check_static(files, extra, run_scope=False)
@@ -573,7 +587,7 @@ def main() -> int:
     if "--self-test" in sys.argv:
         fails = self_test()
         print(json.dumps({"self_test": "FAIL" if fails else "PASS", "fails": fails}, indent=1) if as_json else
-              ("SELF-TEST PASS (8 static mutants and the scope mutant caught; 7 live mutants each turn their probe red; "
+              ("SELF-TEST PASS (9 static mutants and the scope mutant caught; 7 live mutants each turn their probe red; "
                "the clean run is green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails)))
         return 1 if fails else 0
     issues = check_static()

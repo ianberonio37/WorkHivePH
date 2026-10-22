@@ -3,7 +3,7 @@
 // the settle ran. Explains the degradation prover's own verdicts rather than trusting them.
 import { chromium } from 'playwright';
 import { SEEDER, signIn, SETTLE_MS, assertSignedIn } from './prover_harness.mjs';
-const PAGES = process.argv.slice(2).length ? process.argv.slice(2) : ['hive.html', 'platform-actions.html', 'assistant.html', 'logbook.html'];
+const PAGES = process.argv.slice(2).length ? process.argv.slice(2) : ['hive.html', 'founder-console.html', 'assistant.html', 'logbook.html'];
 const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1280, height: 800 }, serviceWorkers: 'block' });
 await assertSignedIn(signIn(ctx));

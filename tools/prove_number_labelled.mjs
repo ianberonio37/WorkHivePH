@@ -56,7 +56,9 @@ const PAGES = ['index', 'hive', 'logbook', 'inventory', 'pm-scheduler', 'project
   // prover settles it, but the roster was the 22 product pages, so it never opened these.
   // A row citing cm_number_labelled for a marketplace surface would name a gate that did not
   // measure it. Widening first, converting second -- never the reverse.
-  'marketplace', 'marketplace-seller', 'marketplace-seller-profile', 'platform-actions'];
+  'marketplace', 'marketplace-seller', 'marketplace-seller-profile', 'platform-actions',
+  // OPC (2026-10-22): the operator console is live again and holds Platform Actions' queues - a measurement change
+  'founder-console'];
 
 const args = process.argv.slice(2);
 const GATE = args.includes('--gate');

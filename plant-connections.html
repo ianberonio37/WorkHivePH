@@ -694,6 +694,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     // D3 (2026-10-16): save the hive's deleted-items window through set_hive_retention (supervisors only, >= 30 days).
+    // capture-allow: a hive setting (how long deleted items stay restorable), saved through set_hive_retention - not a field-data capture
     async function _pcSaveRetention(ev) {
       if (ev) ev.preventDefault();
       const btn = document.getElementById('pc-ret-save');

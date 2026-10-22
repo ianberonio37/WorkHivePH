@@ -50,7 +50,7 @@ const PAGES = ['index.html', 'logbook.html', 'inventory.html', 'pm-scheduler.htm
                'public-feed.html', 'resume.html', 'shift-brain.html',
                // reference surfaces (2026-09-05, P311/P315/P319/P326 landscape & tablet): a static page overflows too
                'design-system.html', 'offline-fallback.html',
-               'llm-observability.html', 'platform-actions.html', 'learn/index.html',
+               'llm-observability.html', 'platform-actions.html', 'founder-console.html', 'learn/index.html',   // the console: OPC, live again
                'integrations.html', 'marketplace-seller.html'];   // P335/P339 landscape & tablet (2026-09-05)
 
 const probe = (w) => {

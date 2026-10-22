@@ -18,7 +18,7 @@ const CASES = [
   { file: 'logbook.html', input: '#search-input', text: 'pump', after: '#btn-search-team', wait: 9000, settle: 6000, signin: true },   // team view repaints only on Search Team (a debounce re-runs it afterwards)
   { file: 'marketplace.html', input: '#search-input', text: 'motor', wait: 9000, signin: true },
   { file: 'marketplace-admin.html', input: '#search-input', text: 'a', wait: 9000, signin: true },
-  { file: 'platform-actions.html', input: '#fb-filter-search', text: 'a', wait: 9000, signin: true },
+  { file: 'founder-console.html', input: '#fb-filter-search', text: 'a', wait: 9000, signin: true },   // Platform Actions' inbox, on the console since OPC
   // a draft typed in the coach box while the feed repaints (the realtime handler's own refetch)
   { file: 'hive.html', focus: '#feed button, #feed a, #feed [tabindex="0"]', repaint: 'loadFeed()', wait: 10000, signin: true },   // the coach box sits in a collapsed panel; the feed's own controls are what a realtime refetch rebuilds
   // no text input: a control inside the polled feed holds focus while the 60 s poll's loader repaints it

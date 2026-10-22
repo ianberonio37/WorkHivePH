@@ -20,7 +20,7 @@ const CASES = [
   { file: 'community.html', kind: 'listen', target: '#feed-list', appearMs: 45000,
     insert: () => psql(`insert into community_posts (hive_id, author_name, content) values ('${HIVE}', '${WORKER.name}', 'post ${TAG} written while the feed was offline')`),
     cleanup: () => psql(`delete from community_posts where content like '%${TAG}%'`) },
-  { file: 'platform-actions.html', kind: 'poll', target: '#fb-list', appearMs: 80000,   // refreshQueues every 60 s
+  { file: 'founder-console.html', kind: 'poll', target: '#fb-list', appearMs: 80000,   // refreshQueues every 60 s (Platform Actions' inbox, on the console since OPC)
     insert: () => psql(`insert into platform_feedback (kind, subject, body, is_public) values ('idea', '${TAG}', 'inserted while the console was offline', false)`),
     cleanup: () => psql(`delete from platform_feedback where subject = '${TAG}'`) },
   { file: 'alert-hub.html', kind: 'poll-refetch', appearMs: 80000 },   // loadAll every 60 s; the feed derives from views, so the proof is an observed re-read

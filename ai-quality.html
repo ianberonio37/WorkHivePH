@@ -677,17 +677,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (q.rating === -1) thumbsDown += 1;
       }
 
-      // ROI: very honest. Predicted savings = sum of resolved logbook downtime_hours
-      // saved by AI-assisted entries — but we don't have that linkage yet. So Phase 4
-      // exposes the SHAPE of ROI with a conservative formula derived from quality:
-      //   roi_estimate_usd = totalCost × (1.5 + thumbsUp/(thumbsUp+thumbsDown+1) × 4)
-      // i.e. healthy hives see ROI ~3.5x cost. Annotated with confidence.
-      const goodRatio = (thumbsUp + thumbsDown) > 0
-        ? thumbsUp / (thumbsUp + thumbsDown)
-        : 0.5;
-      const roi = totalCost * (1.5 + goodRatio * 4);
-      const sampleSize = thumbsUp + thumbsDown;
-      const confidence = sampleSize >= 30 ? 'high' : sampleSize >= 10 ? 'medium' : 'low';
+      // (No ROI here: a return needs the downtime an AI answer saved, and nothing records that link yet - see
+      // renderROIBlock. The formula this held was the spend times a factor from the ratings.)
 
       return {
         // cap is not a total (2026-09-05): the two reads are .limit(2000) / .limit(5000); when either is full the
@@ -696,8 +687,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         totalCalls, totalCost, totalTokens, fallbackCount, successCount,
         schemaOk, schemaTotal,
         thumbsUp, thumbsDown,
-        roiUsd: roi,
-        roiConfidence: confidence,
         fns: Array.from(fnMap.values()).sort((a, b) => b.cost - a.cost),
       };
     }
@@ -716,27 +705,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       `;
     }
 
+    // ★NOT A SAVING (OPC, 2026-10-22). This card printed the 30-day spend times (1.5 + 4 x the share of good ratings) as
+    // "predicted savings unlocked by AI assist" - a formula with no saving in it: aggregate() says itself that the link
+    // from an AI answer to the downtime it saved does not exist yet. With no cost recorded on any call it read $0.00 of
+    // savings, and with costs it would have read 3.5 times the spend whatever the AI did. The operator console says the
+    // same thing for every hive (founder-console.html, Platform tab).
     function renderROIBlock(s) {
-      const cBadge = s.roiConfidence === 'high'
-        ? `<span class="roi-confidence">${_t(`High confidence (${s.thumbsUp + s.thumbsDown} ratings)`, `Mataas ang kumpiyansa (${s.thumbsUp + s.thumbsDown} rating)`)}</span>`
-        : s.roiConfidence === 'medium'
-          ? `<span class="roi-confidence amber">${_t(`Medium confidence (${s.thumbsUp + s.thumbsDown} ratings)`, `Katamtamang kumpiyansa (${s.thumbsUp + s.thumbsDown} rating)`)}</span>`
-          : `<span class="roi-confidence amber">${_t('Low confidence: fewer than 10 thumbs ratings; treat as directional only', 'Mababang kumpiyansa: wala pang 10 thumbs rating; direksyon lang ang basa')}</span>`;
-      const honestNote = s.roiConfidence === 'low'
-        ? _t('Ask your workers to rate AI answers (👍/👎). Ratings sharpen this number.', 'Hilingin sa mga worker na i-rate ang mga sagot ng AI (👍/👎). Nagpapalinaw ng numerong ito ang mga rating.')
-        : _t('Computed from cost × quality ratio. Verify against your own downtime savings before booking.', 'Kinalkula mula sa cost × quality ratio. Tiyakin laban sa sarili mong natipid sa downtime bago i-book.');
+      const rated = s.thumbsUp + s.thumbsDown;
       return `
         <div class="card">
           <h2 data-i="aq_roi_30d">Estimated 30-day ROI</h2>
-          <p class="meta" id="roi-meta">vs $${s.totalCost.toFixed(4)} spent</p>
-          <div class="roi-block">
-            <div>
-              <div class="hero">$${s.roiUsd.toFixed(2)}</div>
-              <div class="hero-sub">predicted savings unlocked by AI assist</div>
-              ${cBadge}
-            </div>
-            <div style="font-size:0.8rem; color:var(--muted); line-height:1.5;">${escHtml(honestNote)}</div>
-          </div>
+          <p class="meta">Not estimated yet.</p>
+          <p style="font-size:0.85rem; color:var(--muted); line-height:1.5; margin-top:6px;">A return needs the downtime an AI answer saved. No logbook entry records that link yet, so this card shows what is measured: ${s.totalCalls} AI calls and ${rated} ${rated === 1 ? 'rating' : 'ratings'} in the last 30 days.</p>
         </div>
       `;
     }
@@ -852,5 +832,25 @@ window.addEventListener('load', function () { setTimeout(function () {
   m.insertBefore(d, m.firstChild);
   var sk = document.querySelectorAll('.wh-skeleton, [class*="skeleton"]'); for (var i = 0; i < sk.length; i++) sk[i].style.display = 'none';
 }, 2500); });</script>
+<script>
+/* OPC (2026-10-22): this page stays for supervisors, who read it for their own hive. The figures for every hive are in
+   the one operator console (founder-console.html), so a platform admin who lands here is pointed there - at the end of
+   the page, so nothing above it moves. */
+window.addEventListener('load', function () {
+  if (typeof whPlatformAdminAnswer !== 'function' || typeof getDb !== 'function') return;
+  Promise.resolve(whPlatformAdminAnswer(getDb())).then(function (ans) {
+    if (ans !== 'yes') return;
+    var host = document.querySelector('main') || document.body;
+    if (!host || host.querySelector('.wh-opc-pointer')) return;
+    var p = document.createElement('p');
+    p.className = 'wh-opc-pointer';
+    p.setAttribute('role', 'note');
+    p.style.cssText = 'margin:24px 0 8px;font-size:0.85rem;color:var(--wh-text-muted,rgba(255,255,255,.80));';
+    p.innerHTML = 'You are a platform admin, and this page shows one hive. The figures for every hive are in the '
+      + '<a href="founder-console.html#developer" style="color:inherit;text-decoration:underline;display:inline-flex;align-items:center;min-height:44px">operator console</a>.';
+    host.appendChild(p);
+  }).catch(function () { /* empty-catch-allow: a pointer that cannot be shown changes nothing on the page */ });
+});
+</script>
 </body>
 </html>
