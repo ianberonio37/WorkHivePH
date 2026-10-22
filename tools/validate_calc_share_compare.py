@@ -9,12 +9,13 @@ What a unit test cannot see is the wiring, so this holds it:
   S3  opening a link reduces its inputs to the form's own keys and types (edShareSanitize) BEFORE the engine call,
       and draws through _renderComputed, the one path a Run takes;
   S4  the identity gate carries a link's fragment through sign-in, and the C27 deep-link poller stands aside for it
-      (its late selectCalcType would empty the report the link just drew);
+      (its late selectCalcType would empty the report the link just drew), and a second link to the calculator
+      already open (only its #fragment differs, so init does not run again) opens on hashchange;
   S5  every report path - a Run, a link, a saved calculation reopened - ends in edAfterReport;
   S6  tools/test_calc_share_compare.mjs passes (the pure core: round trip, damaged links, sanitising, compare).
 
   python tools/validate_calc_share_compare.py
-  python tools/validate_calc_share_compare.py --self-test   (the files as they are pass; six weakened copies fail)
+  python tools/validate_calc_share_compare.py --self-test   (the files as they are pass; seven weakened copies fail)
 """
 from __future__ import annotations
 
@@ -75,6 +76,9 @@ def check(js: str, html: str, run_node=None) -> list[str]:
         bad.append("S4 the C27 deep-link poller does not stand aside for a shared link (it would empty the report)")
     if "edOpenSharedFromHash()" not in init:
         bad.append("S4 init never opens a shared link")
+    if not re.search(r"addEventListener\('hashchange',[\s\S]{0,200}?share=[\s\S]{0,120}?edOpenSharedFromHash\(\)", init):
+        bad.append("S4 a second link to the calculator already open is never opened (only its #fragment differs, so "
+                   "the browser jumps within the page and init does not run again)")
     # S5
     if "_renderComputed(inputs, data);" not in _fn(js, "runCalculation"):
         bad.append("S5 runCalculation does not draw through _renderComputed")
@@ -123,6 +127,8 @@ def self_test() -> int:
         ("the inputs in the query", js.replace("'#share=' + edShareEncode", "'&share=' + edShareEncode"), html, "S2"),
         ("no sanitising before the engine", js.replace("edShareSanitize(defaults, p.i)", "p.i"), html, "S3"),
         ("the gate drops the fragment", js.replace(": '') + _share;", ": '');"), html, "S4"),
+        ("a second link on the open page is ignored",
+         js.replace("  window.addEventListener('hashchange', () => {\n", "  window.addEventListener('pagehide', () => {\n"), html, "S4"),
         ("the poller does not stand aside",
          js.replace("  if (/(?:^|[#&])share=/.test(window.location.hash || '')) return;\n", ""), html, "S4"),
         ("the compare card inside the printed report",

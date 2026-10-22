@@ -32570,6 +32570,12 @@ async function init() {
   if (_deep) { selectDiscipline(_deep.disc); selectCalcType(_deep.id); }
   else selectDiscipline('HVAC & Cooling');
   edOpenSharedFromHash();   // ENH-P: a shared calculation's link
+  // A second link to the calculator already open differs only in its #fragment, so the browser jumps within the page
+  // and nothing above runs again: the ENH-P walk saw a colleague follow a second Boiler System link and keep the first
+  // report under the new address. Opening the link drops its own fragment with replaceState, which fires no hashchange.
+  window.addEventListener('hashchange', () => {
+    if (/(?:^|[#&])share=/.test(window.location.hash || '')) edOpenSharedFromHash();
+  });
 }
 
 /** The requested calculator slug, from ?calc= or #calc=. */
