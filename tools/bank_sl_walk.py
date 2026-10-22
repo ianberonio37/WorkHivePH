@@ -172,6 +172,9 @@ CONDITION["BRH-AD"] = ("signed in as the row's worker through the product's form
                        "readiness snapshot aged past 24 hours and again fresh, every readiness call read off the wire")
 GATES["ENH-R"] = ["provenance-at-foot", "skew-heal", "scripts-parse", "design-detector-ratchet"]
 GATES["ENH-S"] = ["solar-planner", "scripts-parse", "design-detector-ratchet"]
+# ENH-P (2026-10-23): the share link and scenario compare built once in the calculator every tools page opens, and the
+# OEE and MTBF calculators working on their own pages
+GATES["ENH-P"] = ["calc-share-compare", "kpi-calc", "calc-handoff", "scripts-parse", "design-detector-ratchet"]
 GATES["ENH-C"] = ["critic-cells", "rubric-teeth", "scripts-parse", "design-detector-ratchet"]
 # OPC (2026-10-22): a panel in the one operator console - its home held by operator-console, its reads by the generated
 # migration and the lens's read list, the page's scripts by scripts-parse
@@ -369,6 +372,15 @@ CONDITION["ENH-S"] = ("the page read as served to the row's cast, the service wo
                       "read off the page and checked against the hand-worked method; the plan saved on the device and read "
                       "back after a reload; the share link opened in a fresh browser and the plan read back from it; the "
                       "print view taken and the spec sheet read as the only printed content; page errors recorded")
+CONDITION["ENH-P"] = ("the page read as served to the row's cast, the service worker blocked, every edge-function call "
+                      "carrying x-wh-walk-no-model (no model called): a stranger signed up once through the wall's own "
+                      "form, then for each calculator its landing page's own button to the calculator preselected, the "
+                      "form filled as W4's driver fills it, Run, the report's headline figures and recommendation lines "
+                      "read off the page; Share link (the link recorded where the page hands it to the share sheet or "
+                      "the clipboard) opened by a second signed-in account, whose report must show the same figures and "
+                      "drop the fragment; Compare kept as A, one input changed, Run, and the card read for A beside B; "
+                      "OEE and MTBF worked on their own pages with no account - typed, printed under print media, "
+                      "shared to a fresh browser, saved and reloaded, compared; page errors recorded")
 CONDITION["ENH-C"] = ("the page read as served to each cast, the service worker blocked, every edge-function call carrying "
                       "x-wh-walk-no-model (and answered 503 for a cast the critic walked with its edge functions down): the "
                       "row's journey walked page by page at each width - each page's characters, horizontal overflow and page "
