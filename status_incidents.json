@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 2,
+ "open": 3,
  "resolved": 4,
  "incidents": [
   {
@@ -44,11 +44,20 @@
    "status": "resolved"
   },
   {
-   "id": "gate-status-incidents-derived",
+   "id": "gate-told-failures-logged",
    "source": "gate",
-   "title": "status-incidents-derived",
+   "title": "told-failures-logged",
    "severity": "major",
-   "started_at": "2026-10-23T09:15:16.869716+00:00",
+   "started_at": "2026-10-23T10:26:51.940808+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-substrate-freshness",
+   "source": "gate",
+   "title": "substrate-freshness",
+   "severity": "major",
+   "started_at": "2026-10-23T10:26:51.940808+00:00",
    "ended_at": null,
    "status": "open"
   },
@@ -57,7 +66,7 @@
    "source": "gate",
    "title": "md-twins-current",
    "severity": "major",
-   "started_at": "2026-10-23T09:15:16.869716+00:00",
+   "started_at": "2026-10-23T10:26:51.940808+00:00",
    "ended_at": null,
    "status": "open"
   }

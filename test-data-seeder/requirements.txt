@@ -17,3 +17,8 @@ Pillow>=10.0.0
 # below also overrides the numpy 2.x that unpinned pandas>=2.0.0 would otherwise pull in
 # (numpy 2.x breaks scipy/the calcs). See memory feedback-pyapi-validators-fail-in-gate-pass-standalone.
 -r ../python-api/requirements.txt
+
+# beautifulsoup4 is for tools/validate_md_twins.py (via tools/build_md_twins.py), which the release gate runs
+# under THIS venv: without it the twin gate died on import in 0.2s and blocked the push while passing standalone
+# under the system Python (2026-10-23 - same class as the python-api note above).
+beautifulsoup4>=4.12.0

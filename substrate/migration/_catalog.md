@@ -2,7 +2,7 @@
 name: migration-catalog
 type: migration
 source: dir:supabase/migrations:703
-source_sha: 8f43b8bf6142b635
+source_sha: 3338a7cc753d2855
 last_verified: 2026-07-13
 supersedes: null
 ---
