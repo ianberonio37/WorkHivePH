@@ -42,7 +42,11 @@ def is_static_doc(page: str) -> bool:
         return False
     has_utils = bool(re.search(r'<script[^>]+src="[^"]*utils\.js', src, re.I))
     has_client = bool(re.search(r'<script[^>]+src="[^"]*(supabase|@supabase)[^"]*"', src, re.I))
-    inline_fetch = any(_DATA.search(m.group(1) or "") for m in _INLINE.finditer(src))
+    # the page's own translation loader (<script id="wh-fil-page">) fetches i18n/pages/<page>.fil.json - a fixed
+    # file shipped beside the page, not data: it made privacy-policy and terms-of-service read as data pages
+    # that "grow until they stop" (consumption-bound, 2026-10-23)
+    inline_fetch = any(_DATA.search(m.group(1) or "") for m in _INLINE.finditer(src)
+                       if 'id="wh-fil-page"' not in m.group(0)[:60])
     _CACHE[page] = not (has_utils or has_client or inline_fetch)
     return _CACHE[page]
 
