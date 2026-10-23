@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1042-files
-source_sha: 7bf4f9e7821b8ac0
+source: memory-curated:1044-files
+source_sha: 01916a206aa2e0cb
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1042 durable topic files)
+## memory · curated auto-memory (1044 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=651 · project=301 · reference=90
+**By type:** feedback=653 · project=301 · reference=90
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -41,6 +41,7 @@ Entries (name · type · sha):
 - `feedback_a_click_that_changes_nothing_logs_as_ok` · feedback · bbb54b4a275f0fd9
 - `feedback_a_clone_metric_that_never_read_the_code` · feedback · ea97b606a37cab98
 - `feedback_a_closed_off_canvas_panel_still_widens_the_page` · feedback · 6ca0ba64e9732b3e
+- `feedback_a_closed_picker_drawn_at_load` · feedback · 44b8867d96421ec3
 - `feedback_a_closed_sheet_in_layout_is_an_open_dialog` · feedback · faa5666c33cfeb73
 - `feedback_a_closer_must_ask_when_and_which_screen` · feedback · e28c0afced7c5b46
 - `feedback_a_column_revoke_is_inert_under_a_table_grant` · feedback · 586a1d4ac609f6ae
@@ -88,6 +89,7 @@ Entries (name · type · sha):
 - `feedback_a_gates_reach_is_part_of_its_rule` · feedback · 7d0c6269c3685f6d
 - `feedback_a_generated_catalog_hides_its_own_distribution_bug` · feedback · 641a70eab7a44d01
 - `feedback_a_generator_found_main_inside_a_script` · feedback · 58a51e5a203bd325
+- `feedback_a_generator_over_shipped_pages_reverts_their_fixes` · feedback · 5540d58e738389fb
 - `feedback_a_generic_caller_must_classify_before_it_calls` · feedback · 07a1a9e4a870843c
 - `feedback_a_give_back_is_not_a_persons_back` · feedback · 7600fb61f94d12fe
 - `feedback_a_glob_is_a_claim_about_coverage` · feedback · 0e4b5b5dd37e2d7e
@@ -113,14 +115,14 @@ Entries (name · type · sha):
 - `feedback_a_long_boards_fail_count_is_a_claim_about_the_run` · feedback · 7fdedefaa1edfcbf
 - `feedback_a_lookup_by_every_key_listed_is_a_414_at_scale` · feedback · f2324e1b9a3a2b96
 - `feedback_a_manual_walk_must_resolve_the_pinned_hive_like_the_sweep_does` · feedback · 141437e9009500f6
-- `feedback_a_media_query_adds_no_specificity` · feedback · 2dd410ad84d19e7f
+- `feedback_a_media_query_adds_no_specificity` · feedback · 4794db519f472e6d
 - `feedback_a_metamorphic_relation_needs_a_non_vacuity_check` · feedback · 3ef9b3ad98824df5
 - `feedback_a_metric_that_samples_one_element_has_a_blind_spot` · feedback · 1b4abb9774f34b9b
 - `feedback_a_migration_expires_every_db_anchored_claim` · feedback · d122ca9d564b03b2
 - `feedback_a_migration_must_carry_the_rules_that_targeted_the_old_element` · feedback · 4cbd474ba1f5b8e3
 - `feedback_a_mirror_guarantees_agreement_not_correctness` · feedback · bc5c3bbb3df3713f
 - `feedback_a_more_specific_label_on_unchanged_behaviour_is_a_lie` · feedback · 5a19f1c03ab2a664
-- `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · f6318d5dda38f395
+- `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 0c67c5877d2e8bbb
 - `feedback_a_name_is_not_an_identity` · feedback · 33f4821e7a1aeaeb
 - `feedback_a_needs_ian_list_is_a_stop` · feedback · 2ebd443668a5d1d1
 - `feedback_a_new_audience_reveals_the_lane_you_forgot` · feedback · a09bf8f30cb84ea7
@@ -177,7 +179,7 @@ Entries (name · type · sha):
 - `feedback_a_skipped_gate_is_unrun_during_the_wave_that_breaks_it` · feedback · 0259465edc46e5b8
 - `feedback_a_skipped_partition_reads_as_a_covered_one` · feedback · 9e76bcb4ac3d26c9
 - `feedback_a_skipped_row_has_no_real_geometry` · feedback · e9e81f17aa49b804
-- `feedback_a_step_that_depends_on_remembering_does_not_happen` · feedback · 199b2079411adb11
+- `feedback_a_step_that_depends_on_remembering_does_not_happen` · feedback · 4cbfa509baf12872
 - `feedback_a_stored_hive_is_a_cache_of_a_server_fact` · feedback · c1406043300a7eb7
 - `feedback_a_stored_role_is_a_cache_of_a_server_fact` · feedback · ea5bd458dda7a433
 - `feedback_a_stranded_read_is_invisible_to_a_write_gate` · feedback · b077adcb12adc6cb
@@ -186,7 +188,7 @@ Entries (name · type · sha):
 - `feedback_a_symptom_gate_passes_when_the_race_is_winning` · feedback · 874ff553e754a2a5
 - `feedback_a_tailwind_class_the_purged_build_never_generated_is_inert` · feedback · 8dff42c840456b96
 - `feedback_a_tap_target_floor_only_applies_to_a_tappable_element` · feedback · 9236e1d813395f01
-- `feedback_a_tappable_figure_is_a_tap_target` · feedback · 593627c882621410
+- `feedback_a_tappable_figure_is_a_tap_target` · feedback · bee20d0322d2724c
 - `feedback_a_teeth_test_left_a_poisoned_report` · feedback · bdb6223db9e591d5
 - `feedback_a_test_asserting_a_state_it_does_not_control` · feedback · 1699da8f8a49120f
 - `feedback_a_three_option_fork_i_had_already_answered` · feedback · 60863bf3671e3d63
@@ -221,7 +223,7 @@ Entries (name · type · sha):
 - `feedback_an_inventory_wrong_in_both_directions` · feedback · fa98d1196b01ceaf
 - `feedback_an_offline_write_keeps_its_order_its_companions_and_its_promise` · feedback · 8159f46327153ac0
 - `feedback_an_oracle_that_does_not_match_the_claim` · feedback · 3e2f05e53d0fbe02
-- `feedback_an_oracles_vocabulary_is_part_of_the_oracle` · feedback · 001495ac3d6067c7
+- `feedback_an_oracles_vocabulary_is_part_of_the_oracle` · feedback · 793abc7b1630167c
 - `feedback_an_unexposed_header_reads_null_cross_origin` · feedback · d5fe601bc392b471
 - `feedback_an_upload_before_its_save_needs_an_exit` · feedback · 84729b1a6da34e20
 - `feedback_analytics_engine_ufai_chart_truths` · feedback · 46b99242f6940bd6
@@ -514,8 +516,6 @@ Entries (name · type · sha):
 - `feedback_rls_probe_needs_the_role_not_just_claims` · feedback · 927d71b637b841bb
 - `feedback_roadmap_header_scoreboard_generated_not_authored` · feedback · 0ed5d9036ba3bd82
 - `feedback_roadmap_percent_is_the_anti_drift_compass` · feedback · fabf57776225b1bb
-- `feedback_rpc_overload_pgrst203_kills_endpoint` · feedback · d5e03cfb65d06cdc
-- `feedback_run_the_battery_dont_hand_roll_probes` · feedback · ee851f13a166f5cf
-- … +542 more (all included in the fingerprint)
+- … +544 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

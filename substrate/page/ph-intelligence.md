@@ -2,7 +2,7 @@
 name: page-ph-intelligence
 type: page
 source: file:ph-intelligence.html
-source_sha: 8547f8a81d0f032b
+source_sha: 54af68f4b5ba01e7
 last_verified: 2026-07-13
 supersedes: null
 ---

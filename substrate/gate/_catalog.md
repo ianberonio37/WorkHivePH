@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 8d9ac54d189318c4
+source_sha: 49e71f58ad8911a9
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1429) — the 'what's already gated' brain
+## gate · registered validators (1438) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -381,7 +381,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1051)
+### Platform (1059)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -522,7 +522,11 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `cache-contract` ⚡ [fail] — SL CA2/H2 (2026-10-15): every page of the roster, at every path a person reaches it by (/x.html, and a directory page at /dir as the deploy serves it with trail
 - `cache-invalidation` ⚡ [fail] — Cache Invalidation (4-layer: shell missing + shell drift + version history + shell inventory)
 - `cache-keeps-no-no-answer` ⚡ [fail] — The shared response cache never files 'no model answered' (UFAI edge walk W4745, 2026-10-12): _shared/cache.ts cached() stored whatever its fetcher returned, an
+- `calc-reco-fallback` [fail] — ENH-P (2026-10-23): when no model answers, a calculator's report still says what to buy or do. The engine writes its own advice for 40 types and, for the rest, 
+- `calc-reco-fallback-selftest` [fail] — calc-reco-fallback's own teeth (ENH-P, 2026-10-23): the files pass, and four weakened copies each fail their check - a Run without the normaliser, a saved repor
 - `calc-related-links` ⚡ [fail] — every calculator is linked from a sibling block (0 orphans, 0 repeated pairs) and no Related list prints one destination twice
+- `calc-share-compare` [fail] — ENH-P (2026-10-23): a calculation can be shared by link and kept as scenario A, in the calculator every tools/<slug>/ page opens. The calculator printed and sav
+- `calc-share-compare-selftest` [fail] — calc-share-compare's own teeth (ENH-P, 2026-10-23): the files as they are pass, and six weakened copies each fail their check - the inputs moved into the query,
 - `calc-staging-not-stale` [fail] — calculator staging is not a trap: no staged page would REINTRODUCE a construct the live page has already had fixed (asked of the sweep tools, not of the timesta
 - `callout-accent-border` ⚡ [fail] — no public page gives a rounded callout a thick coloured left edge (DESIGN.md's side-tab don't)
 - `calm-canonical-audit` ⚡ [blocker] — Calm Dashboard Canonical-Wiring Audit (per-tile classify: canonical/drift/gap/allowed)
@@ -904,6 +908,8 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `kg-scope-split` ⚡ [fail] — KG Facts Scope Split (4-layer: platform table + RPC + voice-handler fan-out + no broadcast pattern)
 - `kicked-rejoin-is-explained` [fail] — T7: the code still works, and the door is still shut (2026-08-27). A removed worker usually still HAS the invite code — read aloud at a briefing, sitting in a c
 - `knowledge-freshness` ⚡ [fail] — Knowledge Base Freshness Validator
+- `kpi-calc` [fail] — ENH-P (2026-10-23): the OEE and MTBF & MTTR calculators work on their own pages. tools/oee-calculator and tools/mtbf-calculator sent a stranger to Analytics, wh
+- `kpi-calc-selftest` [fail] — kpi-calc's own teeth (ENH-P, 2026-10-23): the files pass, and five weakened copies each fail their check - no script after the mount, steps that differ from the
 - `kpi-chip-coverage` ⚡ [blocker] — KPI Chip Coverage Validator (pages reading v_*_truth must render renderSourceChip)
 - `kpi-count-query-safety` ⚡ [fail] — KPI Count-Query Safety (no .limit(N) + .length as canonical KPI count; forward-only ratchet)
 - `kpi-count-query-safety-selftest` ⚡ [fail] — KPI count-safety teeth (6 cases). The gate matched `v_*_truth` views only, so it could not see voice-journal.html - the page whose bug it describes - and 45 rea
@@ -1117,6 +1123,8 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `power-user-accelerator` [regression] — T194 (the power user ceiling): the one real accelerator - a Ctrl/Cmd+K global-search palette - genuinely exists and is reachable platform-wide (nav-hub.js binds
 - `predictive` ⚡ [fail] — Predictive Analytics Data Quality Validator
 - `presence-unavailable-is-not-absent` [fail] — T141 (2026-08-28): a fact about the NETWORK must not be rendered as a claim about PEOPLE. hive.html's presence bar answers 'who is here right now'; when the rea
+- `preset-chip-field-read` [fail] — ENH-P (2026-10-23): where a calculator's preset chips fill a number field, the calculation reads the FIELD. Sixteen chip groups fill a field a person can type i
+- `preset-chip-field-read-selftest` [fail] — preset-chip-field-read's own teeth (ENH-P, 2026-10-23): the file passes, and three weakened copies each fail their check - the earthing reader as it was (P2), a
 - `print-export-stamped` ⚡ [fail] — SL C3 (2026-10-20): what a page prints or exports carries the time it was made and the period it covers. Walked 88 pages printing the way the browser prints and
 - `print-is-readable-on-paper` [fail] — T124: the printed page must not be the dark theme (2026-08-26). Plants run on paper - a PM schedule goes on the noticeboard, an audit trail into a folder for DO
 - `printed-truncation-is-disclosed` [fail] — CF: a printed artifact that shortens free text must SAY so (T49, 2026-08-27). export-reads-its-own-set holds the ROW axis - a CSV must not inherit the render bu
@@ -1475,7 +1483,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `public-arrival` ⚡ [fail] — Public arrival (every public page arrives complete in the RAW served HTML, as a crawler that never runs JS receives it)
 - `public-trust` [fail] — Public trust (a snippet describes its own page, somebody to complain to, a living feed, fair comparisons)
 
-### SEO Closed Loop (8)
+### SEO Closed Loop (9)
 - `ai-chain-mirror` ⚡ [fail] — AI Chain Mirror Validator (4-layer: Python ai_chain.py mirrors TS _shared/ai-chain.ts PROVIDER_CHAIN)
 - `audience-block` ⚡ [fail] — Audience Block Validator (3-layer: every /learn/ article has Who-this-is-for + 4+ roles + beyond-technicians)
 - `contact-consistency` ⚡ [fail] — Contact Consistency Validator (3-layer: no stale hello@/ian.beronio37@ + canonical admin@ present)
@@ -1483,7 +1491,8 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `ga4-coverage` ⚡ [fail] — GA4 Coverage Validator (4-layer: GA4 block + wh-ga4.js load + canonical ID + custom-events file)
 - `llms-sync` ⚡ [fail] — llms.txt Sync Validator (4-layer: every article in llms.txt + no stale slugs + sections + contact)
 - `sitemap-sync` ⚡ [fail] — Sitemap Sync Validator (3-layer: sitemap URLs <-> filesystem in sync + metadata complete)
-- `tool-aligned-cta` ⚡ [fail] — Tool-Aligned CTA Validator (4-layer: every /learn/ article anchors to a /<tool>.html, names the tool, avoids a join-only CTA, and links the tool its REGISTRY EN
+- `tool-aligned-cta` ⚡ [fail] — Tool-Aligned CTA Validator (5-layer: every SHIPPED /learn/ guide is in the catalog (L0, ENH-L 2026-10-23: nine were not), every article body anchors to a /<tool
+- `tool-aligned-cta-selftest` [fail] — tool-aligned-cta's own teeth (ENH-L, 2026-10-23): L0 now asks whether every guide ON DISK is in the catalog the checks read - nine were not (the pillar, problem
 
 ### SEO/Content (3)
 - `calc-cta-crew-context` [fail] — Calculator CTAs say what the calculation is FOR (the hive, the project, the next technician) - not just what it saves - in sentences of 20 words or fewer, and t
