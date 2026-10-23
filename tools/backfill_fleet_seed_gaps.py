@@ -184,12 +184,17 @@ def main() -> int:
                 before = running - delta
                 tid = "txn-" + hashlib.sha256((iid + str(k)).encode()).hexdigest()[:16]
                 days = 5 + h(iid + "d" + str(k), 90)
+                # auth_uid from the worker's own membership (2026-10-23): the release gate's §21 found these 52
+                # rows with a name and no owner - every write the platform makes carries both
                 out = psql(
                     "INSERT INTO inventory_transactions (id, worker_name, item_id, type, qty_change, "
-                    "qty_after, note, job_ref, created_at, hive_id) VALUES ("
+                    "qty_after, note, job_ref, created_at, hive_id, auth_uid) VALUES ("
                     f"'{tid}', '{q(who)}', '{q(iid)}', '{kind}', {delta}, {running}, "
                     f"'seeded history so this hive''s parts have a past', '', "
-                    f"now() - interval '{days} days', '{hid}') ON CONFLICT (id) DO NOTHING RETURNING id;")
+                    f"now() - interval '{days} days', '{hid}', "
+                    f"(SELECT hm.auth_uid FROM hive_members hm WHERE hm.hive_id = '{hid}' "
+                    f"AND hm.worker_name = '{q(who)}' AND hm.auth_uid IS NOT NULL LIMIT 1)) "
+                    "ON CONFLICT (id) DO NOTHING RETURNING id;")
                 if out:
                     made_txn += 1
                 running = before

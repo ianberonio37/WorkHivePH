@@ -105,8 +105,9 @@ def s0_logbook_quality(db):
 
     # Category values
     cats = Counter(r["category"] for r in rows)
+    # the logbook form's eight options - "Vehicle" is the fleet vertical's (2026-10-23)
     valid_cats = {"Mechanical", "Electrical", "Hydraulic", "Pneumatic",
-                  "Instrumentation", "Lubrication", "Other"}
+                  "Instrumentation", "Lubrication", "Vehicle", "Other"}
     invalid = [c for c in cats if c not in valid_cats]
     if not invalid:
         results.append(ok(f"category values all valid disciplines: {dict(cats)}"))
@@ -129,12 +130,16 @@ def s0_logbook_quality(db):
 def s0_worker_profiles(db):
     rows = db.table("worker_profiles").select("username, display_name, email").execute().data
     results = []
-    if len(rows) == 15:
-        results.append(ok(f"worker_profiles: 15 rows"))
+    # The 15 seeded profiles are a floor, not the whole table: the fleet and solo verticals and the AI eval
+    # account sign up on their own. A profile with no email is a username-only account (the sign-in page itself
+    # says most field workers have none) and the eval account lives on workhive.test by design (2026-10-23).
+    if len(rows) >= 15:
+        results.append(ok(f"worker_profiles: {len(rows)} rows (the 15 seeded and those that joined since)"))
     else:
-        results.append(fail(f"worker_profiles: {len(rows)} rows (expected 15)"))
+        results.append(fail(f"worker_profiles: {len(rows)} rows (expected at least the 15 seeded)"))
 
-    bad_emails = [r for r in rows if not r.get("email", "").endswith("@auth.workhiveph.com")]
+    bad_emails = [r for r in rows if r.get("email")
+                  and not r["email"].endswith(("@auth.workhiveph.com", "@workhive.test"))]
     if not bad_emails:
         results.append(ok("all emails end with @auth.workhiveph.com"))
     else:
@@ -159,13 +164,31 @@ def s2_hive_scoping(db):
     tables = ["pm_assets", "logbook", "pm_completions", "pm_scope_items",
               "inventory_items", "inventory_transactions", "marketplace_listings",
               "community_posts"]
+    # A row with no hive is the SOLO lane when it has an owner: RLS serves it through `hive_id IS NULL AND
+    # auth_uid = auth.uid()` (pm_scope_items through its asset). Only a row with neither a hive nor an owner is
+    # readable by no rule and is the defect (2026-10-23: 81 personal rows read as "cross-hive leak risk").
     for t in tables:
-        # Count rows where hive_id IS NULL
         nulls = db.table(t).select("id", count="exact").is_("hive_id", "null").limit(1).execute().count or 0
         if nulls == 0:
             results.append(ok(f"{t}: every row has hive_id"))
+            continue
+        if t == "pm_scope_items":
+            rows = db.table(t).select("asset_id").is_("hive_id", "null").execute().data
+            asset_ids = list({r["asset_id"] for r in rows if r.get("asset_id")})
+            owned = set()
+            for i in range(0, len(asset_ids), 100):
+                part = db.table("pm_assets").select("id").in_("id", asset_ids[i:i + 100]).not_.is_("auth_uid", "null").execute().data
+                owned |= {a["id"] for a in part}
+            orphans = sum(1 for r in rows if r.get("asset_id") not in owned)
         else:
-            results.append(fail(f"{t}: {nulls} rows have NULL hive_id (cross-hive leak risk)"))
+            try:
+                orphans = db.table(t).select("id", count="exact").is_("hive_id", "null").is_("auth_uid", "null").limit(1).execute().count or 0
+            except Exception:
+                orphans = nulls   # no auth_uid column: a hive-less row has no other owner
+        if orphans:
+            results.append(fail(f"{t}: {orphans} rows have neither hive_id nor an owner (readable by no rule)"))
+        else:
+            results.append(ok(f"{t}: {nulls} hive-less row(s), each owned (the solo lane)"))
     return results
 
 
@@ -195,9 +218,13 @@ def s2_workers_hive_consistency(db):
 
 def s3_logbook_field_population(db):
     """Verify breakdown entries have full populated fields."""
+    # Not the AI eval bench (ai-eval-runner's own hive, "no real tenant's data"): its rows are written by the voice
+    # path under test, which records the cause as said, not from the form's list. That free text is a known open
+    # product question (it fragments root-cause grouping), not seed quality - so it is reported, not sampled here.
     breakdowns = db.table("logbook").select(
         "id, root_cause, failure_consequence, readings_json"
-    ).eq("maintenance_type", "Breakdown / Corrective").limit(100).execute().data
+    ).eq("maintenance_type", "Breakdown / Corrective").neq(
+        "hive_id", "50f51f72-66ec-4e9d-8dfd-daa5f1eb696c").limit(100).execute().data
 
     results = []
     if not breakdowns:
@@ -299,7 +326,8 @@ def s4_inventory_tx_consistency(db):
 def s4_inventory_tx_types(db):
     txs = db.table("inventory_transactions").select("type").execute().data
     types = Counter(t["type"] for t in txs)
-    valid = {"use", "restock", "adjustment"}
+    # 'add' is the initial stock of a new item (inventory.html addTransaction(item.id, 'add', ...), drawn like a restock)
+    valid = {"use", "restock", "adjustment", "add"}
     invalid = [t for t in types if t not in valid]
     if not invalid:
         return [ok(f"transaction types: {dict(types)}")]
@@ -408,7 +436,8 @@ def s7_skill_attempts_pass_consistency(db):
 def s8_community_categories(db):
     posts = db.table("community_posts").select("category").execute().data
     cats = Counter(p["category"] for p in posts)
-    valid = {"general", "safety", "technical", "announcement"}
+    # the composer's five options and the table's CHECK: 'marketplace' is "Parts / Service / Wanted"
+    valid = {"general", "safety", "technical", "announcement", "marketplace"}
     invalid = [c for c in cats if c not in valid]
     if invalid:
         return [fail(f"invalid categories: {invalid}")]

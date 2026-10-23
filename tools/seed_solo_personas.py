@@ -273,7 +273,8 @@ def apply(revert: bool) -> int:
                 # are built from - carried six jobs with no sign-off time, and the logbook's CSV has a
                 # "Signed Off (Closed At)" column that would have exported them blank. Measured on the
                 # rows that DO carry it: median half an hour open, p90 5.4 hours.
-                rows.append("(null,'%s','%s','%s','%s','Closed', now() - interval '%d days', "
+                # category 'Vehicle': the form requires one and offers Vehicle for an owner's unit (2026-10-23)
+                rows.append("(null,'%s','%s','Vehicle','%s','%s','Closed', now() - interval '%d days', "
                             "(now() - interval '%d days')::date,'%s',%s,'%s', "
                             "now() - interval '%d days' + interval '%s hours')"
                             % (p["worker_name"].replace("'", "''"), "Own unit",
@@ -281,7 +282,7 @@ def apply(revert: bool) -> int:
                                9 * (i + 1), 9 * (i + 1), mtype,
                                ("'" + cause + "'") if cause else "null", uid,
                                9 * (i + 1), CLOSE_HOURS[i % len(CLOSE_HOURS)]))
-            got = psql("insert into logbook (hive_id, worker_name, machine, problem, action, status, "
+            got = psql("insert into logbook (hive_id, worker_name, machine, category, problem, action, status, "
                        "created_at, date, maintenance_type, root_cause, auth_uid, closed_at) values "
                        + ",".join(rows) + " returning id")
             if got is None:

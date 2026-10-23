@@ -700,5 +700,6 @@
   "20261022000003_opc_console_reads.sql": "e6d827bb78d989eef89b06dd9472102137a3f980797c4bb5c354e6194b4f0a09",
   "20261022000004_opc_developer_reads.sql": "da2f34651e6b3fcf4bb189da21fb85e2b132bdac746c94a8e7e30705a8bb4a1c",
   "20261022000005_listings_public_is_mine_asked_once.sql": "c7d8c71d4e66f23a28328b7a400924c5c7387d13190da53556d5fc1fbce3b6a6",
-  "20261022000006_anchor_ledger_totals_and_platform_trail.sql": "164637de2272fa25560a1b24e662d78a276f391bda2cd72059a1177e58e96370"
+  "20261022000006_anchor_ledger_totals_and_platform_trail.sql": "164637de2272fa25560a1b24e662d78a276f391bda2cd72059a1177e58e96370",
+  "20261023000001_register_thermography_standards.sql": "87ded385abf90b7e243d3b159d9fea10841eba1e9666b4a34aa4d72e709b0769"
 }

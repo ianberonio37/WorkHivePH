@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:702
-source_sha: 06917ce41b14e2a5
+source: dir:supabase/migrations:703
+source_sha: 8f43b8bf6142b635
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (702 migrations)
+## migration · catalog (703 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260803000023_only_the_singleton_treasury_row_is_public` — policies:credit_treasury_read
 - `20260803000024_a_read_only_view_holding_write_verbs` — (misc DDL/DML)
 - `20260803000025_register_the_credit_economy_in_the_canonical_registry` — (misc DDL/DML)
 - `20260803000026_thirty_registrations_that_never_landed` — (misc DDL/DML)
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261022000004_opc_developer_reads` — fns:founder_dev_reads
 - `20261022000005_listings_public_is_mine_asked_once` — (misc DDL/DML)
 - `20261022000006_anchor_ledger_totals_and_platform_trail` — (misc DDL/DML)
+- `20261023000001_register_thermography_standards` — (misc DDL/DML)
 
 (showing last 200)
 
