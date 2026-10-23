@@ -88,6 +88,11 @@ STATIC  R1 utils.js whRenderRows appends a grown list, patches a few changed row
            replacement (a spread of the old entry, the offline copy, the edit) - sets it and writes no listed entry in
            place. Each Load More re-serialised every entry it had drawn, and its slowest press at 390 (CPU 4x) held a
            19 ms major collection inside the click.
+        R22 a picker draws what a person can scan when it OPENS, and searches the rest: the logbook's asset picker drew
+           every asset the hive has, at LOAD into the closed picker as well as on every open - with a thousand assets
+           one 940 KB string (9,771 lines) parsed in a single 153-237 ms task at 390 with the CPU 4x slower, booked for
+           months as the page's "document parse". It now draws the first 50 matches when it opens, says how many there
+           are (whMoreNote), and "Show 50 more" appends; the load path draws nothing into it.
 SELF-TEST (--self-test): each check broken in a copy of a real file (or on a synthetic page appended to one), each
         caught; the clean run is green.
 
@@ -726,6 +731,27 @@ def check_row_cost(utils: str, dayplanner: str, logbook: str) -> list[str]:
     return issues
 
 
+def check_picker(logbook: str) -> list[str]:
+    """R22: the logbook's asset picker draws its first matches when it opens, never every asset at load."""
+    issues = []
+    lb = blank_comments(logbook)
+    i = lb.find("initAssets().then(")
+    load = lb[i:_block_end(lb, lb.find("{", i))] if i >= 0 else ""
+    if not load:
+        issues.append("R22 logbook.html: the load path that fills the asset picker's assets (initAssets().then) was not found")
+    elif "renderAssetPickerList(" in load:
+        issues.append("R22 logbook.html draws the asset picker's list at LOAD, into the closed picker - with a thousand assets "
+                      "that is one 940 KB string parsed in a single task; the picker draws its list when it opens")
+    body = fn_body(lb, "renderAssetPickerList") or ""
+    if not re.search(r"\bfiltered\.slice\(\s*0\s*,\s*_apShown\s*\)", body):
+        issues.append("R22 logbook.html renderAssetPickerList draws every matching asset - draw the first ASSET_PICKER_STEP "
+                      "and let the search find the rest")
+    if not re.search(r"whMoreNote\(\s*list\s*,\s*\{", body):
+        issues.append("R22 logbook.html renderAssetPickerList draws a capped list without saying so - the note "
+                      "(whMoreNote) says how many assets there are and offers the next fifty")
+    return issues
+
+
 def check(files: dict[str, str] | None = None, utils_override: str | None = None) -> list[str]:
     def text(rel: str) -> str:
         return files[rel] if files and rel in files else (ROOT / rel).read_text(encoding="utf-8", errors="replace")
@@ -733,6 +759,7 @@ def check(files: dict[str, str] | None = None, utils_override: str | None = None
     issues += check_shared(text("utils.js"), text("learn-link.js"))
     issues += check_anchor_and_paint(text("utils.js"), text("learn-link.js"), text("nav-hub.js"))
     issues += check_row_cost(text("utils.js"), text("dayplanner.html"), text("logbook.html"))
+    issues += check_picker(text("logbook.html"))
     for page in DATA_PAGES:
         issues += check_page(page, text(page))
     for page in STATIC_PAGES:
@@ -884,9 +911,22 @@ def self_test() -> list[str]:
             "    immutable: true,\n  });", "  });", 1)}, None, "R21"),
         ("the logbook writing a listed entry in place", {"logbook.html": (ROOT / "logbook.html").read_text(encoding="utf-8").replace(
             "async function loadMoreLogbook() {", "async function loadMoreLogbook() {\n  if (_allEntries[0]) _allEntries[0].status = 'Closed';", 1)}, None, "R21"),
+        ("the asset picker drawn at load again", {"logbook.html": (ROOT / "logbook.html").read_text(encoding="utf-8").replace(
+            "    runAssetRefBackfill();\n", "    runAssetRefBackfill();\n    renderAssetPickerList('');\n", 1)}, None, "R22"),
+        ("the asset picker drawing every match", {"logbook.html": (ROOT / "logbook.html").read_text(encoding="utf-8").replace(
+            "const visible = filtered.slice(0, _apShown);", "const visible = filtered;", 1)}, None, "R22"),
+        ("the asset picker capped without a word", {"logbook.html": (ROOT / "logbook.html").read_text(encoding="utf-8").replace(
+            "  whMoreNote(list, {\n    shown: visible.length,", "  ({\n    shown: visible.length,", 1)}, None, "R22"),
     ]
     MUTANTS_RUN[0] = len(mutants)
     for name, files, utils_src, want in mutants:
+        # a mutant whose search text no longer matches changes nothing and "passes" by testing the clean file - the R22
+        # note mutant did exactly that on its first run (2026-10-23)
+        unchanged = (utils_src is not None and utils_src == utils) or (files is not None and all(
+            v == (ROOT / k).read_text(encoding="utf-8") for k, v in files.items()))
+        if unchanged:
+            fails.append(f"mutant '{name}' changed nothing - its search text no longer matches the file")
+            continue
         got = check(files, utils_src)
         if not any(g.startswith(want) for g in got):
             fails.append(f"mutant '{name}' was not caught (got {got[:2]})")

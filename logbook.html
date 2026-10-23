@@ -4046,7 +4046,15 @@ function closeAssetPicker() {
   document.getElementById('asset-picker-modal').style.display = 'none';
 }
 
-function renderAssetPickerList(query) {
+// ★THE PICKER DRAWS WHAT A PERSON CAN SCAN, AND SEARCHES THE REST (SL LB3, 2026-10-23). It drew every asset the hive
+// has, and it drew them at LOAD into the closed picker as well as on every open: with a thousand assets that was one
+// 940 KB string (9,771 lines) parsed in a single task - 153-237 ms of CPU at phone speed (CPU 4x slower), the logbook's
+// longest task after its rows arrived, booked for months as "the document parse". It now draws the first 50 matches and
+// says how many there are (whMoreNote); the search still reads every asset, and "Show 50 more" goes on from there.
+const ASSET_PICKER_STEP = 50;
+let _apShown = ASSET_PICKER_STEP;
+function renderAssetPickerList(query, keepShown) {
+  if (!keepShown) _apShown = ASSET_PICKER_STEP;   // a new search, or a fresh open, starts at the first 50
   const assets = loadAssets().filter(a => !a.status || a.status === 'approved');
   const q = whFold(query);
   const filtered = q ? assets.filter(a =>
@@ -4057,6 +4065,7 @@ function renderAssetPickerList(query) {
   ) : assets;
 
   const list = document.getElementById('asset-picker-list');
+  whMoreNote(list, null);   // the note speaks for the last render only
 
   if (filtered.length === 0 && !q && !HIVE_ID) { list.innerHTML = _lbPersonalEmpty(); return; }
   if (filtered.length === 0) {
@@ -4067,7 +4076,10 @@ function renderAssetPickerList(query) {
     return;
   }
 
-  list.innerHTML = filtered.map(a => {
+  const visible = filtered.slice(0, _apShown);
+  // drawn through whRenderRows, so "Show 50 more" appends the next fifty and a reopened picker with the same search
+  // keeps the rows it already drew
+  whRenderRows(list, visible, a => {
     const label = a.name ? escHtml(a.asset_id) + ' <span style="color:rgba(255,255,255,0.80);font-weight:400;">' + escHtml(a.name) + '</span>' : escHtml(a.asset_id);
     return `<button type="button" data-asset-id="${escHtml(a.asset_id)}" data-asset-name="${escHtml(a.name || a.asset_id)}" data-asset-ref="${a.id}"
       class="w-full text-left rounded-xl p-3.5 mb-1.5 transition-colors" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); min-height:44px; cursor:pointer;"
@@ -4080,10 +4092,18 @@ function renderAssetPickerList(query) {
         ${criticalityBadge(a.criticality)}
       </div>
     </button>`;
-  }).join('');
-
-  list.querySelectorAll('button[data-asset-id]').forEach(btn => {
-    btn.addEventListener('click', () => selectAsset(btn.dataset.assetId, btn.dataset.assetName, btn.dataset.assetRef));
+  }, { sig: JSON.stringify(['asset-picker', q]), key: a => [a.id, a.asset_id, a.name, a.location, a.criticality].join('|') });
+  // a choice is read by one listener on the list (below), not bound to each of the rows drawn
+  whMoreNote(list, {
+    shown: visible.length, more: filtered.length > visible.length, total: filtered.length,
+    said: 'Showing the first ' + visible.length.toLocaleString('en-PH') + ' of ' + filtered.length.toLocaleString('en-PH') + ' assets.',
+    where: 'Type a name, ID or location to find the rest.',
+    // the pressed button is replaced with the note, so focus goes on to the first asset it revealed
+    onMore: () => {
+      const from = _apShown; _apShown += ASSET_PICKER_STEP; renderAssetPickerList(query, true);
+      const next = list.querySelectorAll('button[data-asset-id]')[from]; if (next) next.focus();
+    },
+    moreLabel: 'Show ' + Math.min(ASSET_PICKER_STEP, filtered.length - visible.length) + ' more',
   });
 }
 
@@ -4579,6 +4599,10 @@ document.getElementById('logbook-scan-btn')?.addEventListener('click', function 
 document.getElementById('asset-picker-modal-close').addEventListener('click', closeAssetPicker);
 document.getElementById('asset-picker-modal').addEventListener('click', function(e) { if (e.target === this) closeAssetPicker(); });
 document.getElementById('asset-picker-search').addEventListener('input', debounce(function() { renderAssetPickerList(this.value.trim()); }, 200));
+document.getElementById('asset-picker-list').addEventListener('click', function (e) {
+  const btn = e.target.closest('button[data-asset-id]');
+  if (btn && this.contains(btn)) selectAsset(btn.dataset.assetId, btn.dataset.assetName, btn.dataset.assetRef);
+});
 // T48 (2026-08-25): the options are real BUTTONS (Tab+Enter already works), but a keyboard user
 // at the search box reaches for ArrowDown first - measured: ArrowDown+Enter selected nothing.
 // Wire the combobox expectation: ArrowDown from search enters the list; arrows move between
@@ -8174,7 +8198,8 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
 
   initAssets().then(() => {
     runAssetRefBackfill();
-    renderAssetPickerList('');
+    // (the picker draws its list when it opens - openAssetPicker; drawing it here into the closed picker was the
+    // logbook's longest load task with a thousand assets, SL LB3)
     restoreDraft();
   });
   loadInventoryForPicker();
