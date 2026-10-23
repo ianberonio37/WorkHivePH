@@ -93,6 +93,11 @@ STATIC  R1 utils.js whRenderRows appends a grown list, patches a few changed row
            one 940 KB string (9,771 lines) parsed in a single 153-237 ms task at 390 with the CPU 4x slower, booked for
            months as the page's "document parse". It now draws the first 50 matches when it opens, says how many there
            are (whMoreNote), and "Show 50 more" appends; the load path draws nothing into it.
+        R23 a list grown by Load More stops at a number of drawn rows the browser can keep, and says where the rest are:
+           every part inventory draws stays on the page's heap, and at a thousand drawn parts Blink's own heap
+           compaction froze the page for 292-555 ms at a time at 390 (CPU 4x). Grown the same way to 300 parts no task
+           passed 115 ms, to 500 none passed 136. Inventory draws at most INV_DRAWN_MAX (500); at the cap the button goes
+           and the label says to search or filter for the rest.
 SELF-TEST (--self-test): each check broken in a copy of a real file (or on a synthetic page appended to one), each
         caught; the clean run is green.
 
@@ -752,6 +757,23 @@ def check_picker(logbook: str) -> list[str]:
     return issues
 
 
+def check_drawn_cap(inventory: str) -> list[str]:
+    """R23: inventory draws at most INV_DRAWN_MAX parts, and at the cap says where the rest are."""
+    issues = []
+    inv = blank_comments(inventory)
+    m = re.search(r"\bconst\s+INV_DRAWN_MAX\s*=\s*(\d+)\s*;", inv)
+    if not m or int(m.group(1)) > 500:
+        issues.append("R23 inventory.html draws parts without a cap the browser can keep (INV_DRAWN_MAX, at most 500) - at a "
+                      "thousand drawn parts the heap compaction froze the page for 292-555 ms at phone speed")
+    body = fn_body(inv, "_invRenderList") or ""
+    if not re.search(r"Math\.min\([^;]*,\s*INV_DRAWN_MAX\s*\)", body):
+        issues.append("R23 inventory.html _invRenderList draws past INV_DRAWN_MAX - the count it slices to must be capped")
+    if "capped" not in body or "to find the rest" not in body:
+        issues.append("R23 inventory.html stops drawing at the cap without a word - at the cap the label says to search or "
+                      "filter for the rest")
+    return issues
+
+
 def check(files: dict[str, str] | None = None, utils_override: str | None = None) -> list[str]:
     def text(rel: str) -> str:
         return files[rel] if files and rel in files else (ROOT / rel).read_text(encoding="utf-8", errors="replace")
@@ -760,6 +782,7 @@ def check(files: dict[str, str] | None = None, utils_override: str | None = None
     issues += check_anchor_and_paint(text("utils.js"), text("learn-link.js"), text("nav-hub.js"))
     issues += check_row_cost(text("utils.js"), text("dayplanner.html"), text("logbook.html"))
     issues += check_picker(text("logbook.html"))
+    issues += check_drawn_cap(text("inventory.html"))
     for page in DATA_PAGES:
         issues += check_page(page, text(page))
     for page in STATIC_PAGES:
@@ -917,6 +940,13 @@ def self_test() -> list[str]:
             "const visible = filtered.slice(0, _apShown);", "const visible = filtered;", 1)}, None, "R22"),
         ("the asset picker capped without a word", {"logbook.html": (ROOT / "logbook.html").read_text(encoding="utf-8").replace(
             "  whMoreNote(list, {\n    shown: visible.length,", "  ({\n    shown: visible.length,", 1)}, None, "R22"),
+        ("inventory drawing every part again", {"inventory.html": (ROOT / "inventory.html").read_text(encoding="utf-8").replace(
+            "const count = Math.min(_invQuery ? _invSearchCount : _invDisplayCount, INV_DRAWN_MAX);",
+            "const count = _invQuery ? _invSearchCount : _invDisplayCount;", 1)}, None, "R23"),
+        ("inventory's cap raised past what the heap keeps", {"inventory.html": (ROOT / "inventory.html").read_text(encoding="utf-8").replace(
+            "const INV_DRAWN_MAX = 500;", "const INV_DRAWN_MAX = 5000;", 1)}, None, "R23"),
+        ("inventory's cap reached without a word", {"inventory.html": (ROOT / "inventory.html").read_text(encoding="utf-8").replace(
+            " Search, or filter by category or stock, to find the rest.`", "`", 1)}, None, "R23"),
     ]
     MUTANTS_RUN[0] = len(mutants)
     for name, files, utils_src, want in mutants:

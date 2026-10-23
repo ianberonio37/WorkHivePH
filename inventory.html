@@ -837,6 +837,11 @@ let _invFiltered = [], _invQuery = '';   // SL LB3: the list Load More continues
 // SL LB3 (2026-10-23): a search's matches have a count of their own, so the list a person grew is still that long when
 // the search is cleared (whSearchList parks it behind the matches)
 let _invSearchCount = 8;
+// ★LOAD MORE STOPS AT 500 DRAWN PARTS, AND SAYS WHERE THE REST ARE (SL LB3, 2026-10-23). Every part drawn stays on the
+// page's heap, and at a thousand drawn parts the browser's own clean-up froze the page for 292-555 ms at a time at 390 with
+// the CPU 4x slower (Blink compacting its heap: 411-565 ms of a 441-598 ms collection). Grown the same way to 300 parts no
+// task passed 115 ms, to 500 none passed 136. Past 500 a part is one search or filter away, and the label says so.
+const INV_DRAWN_MAX = 500;
 function loadMoreInventory() { if (_invQuery) _invSearchCount += 12; else _invDisplayCount += 12; _invRenderList(); }   // SL LB3: the next 12, appended - nothing recomputed
 // the element the list draws into: the matches' own list while a search is typed, else the grown list (whSearchList)
 function _invListEl(searching) {
@@ -1442,12 +1447,18 @@ function renderParts() {
 function _invRenderList() {
   const filtered = _invFiltered;
   const list = _invListEl(!!_invQuery);
-  const count = _invQuery ? _invSearchCount : _invDisplayCount;
+  const count = Math.min(_invQuery ? _invSearchCount : _invDisplayCount, INV_DRAWN_MAX);
   const visible = filtered.slice(0, count);
   const wrap = document.getElementById('inv-load-more-wrap');
   const lbl  = document.getElementById('inv-count-label');
+  // at the cap the button goes and the label stays, saying where the rest are
+  const capped = count >= INV_DRAWN_MAX && filtered.length > count;
   wrap.classList.toggle('hidden', count >= filtered.length);
-  lbl.textContent = _t(`Showing ${visible.length} of ${filtered.length} part${filtered.length === 1 ? '' : 's'}`, `Ipinapakita ang ${visible.length} sa ${filtered.length} parts`);
+  const moreBtn = wrap.querySelector('button');
+  if (moreBtn) moreBtn.classList.toggle('hidden', capped);
+  lbl.textContent = capped
+    ? `Showing the first ${visible.length.toLocaleString('en-PH')} of ${filtered.length.toLocaleString('en-PH')} parts. Search, or filter by category or stock, to find the rest.`
+    : _t(`Showing ${visible.length} of ${filtered.length} part${filtered.length === 1 ? '' : 's'}`, `Ipinapakita ang ${visible.length} sa ${filtered.length} parts`);
 
   const q = _invQuery;
   whRenderRows(list, visible, item => {
