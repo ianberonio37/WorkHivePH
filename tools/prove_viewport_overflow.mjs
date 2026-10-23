@@ -155,6 +155,35 @@ const TAP = (target) => {
     if (el.hasAttribute('onclick')) return true;
     return false;
   };
+  // ★A TARGET IS WHERE A TAP LANDS (2026-10-23, ported from survey_ufai_rubric.js _hitRect - one rule, not two). The
+  // platform's tappable figures (utils.js whFigureSources, role=button on the number itself) answer a 48px area through
+  // an empty positioned ::after, and the critic lens credits it as WCAG 2.5.8 does. This prover measured the text box
+  // alone and failed 12 pages on figures 28-35px tall ("div#mk-total-hero 136x35 via own box"). A pseudo box counts only
+  // when the element is its containing block (positioned) and the pseudo is absolutely positioned, generated and takes
+  // pointer events - a decorative ::after cannot inflate a small control.
+  const hitRect = (e) => {
+    const r = e.getBoundingClientRect();
+    let L = r.left, T = r.top, Rt = r.right, B = r.bottom, pseudo = false;
+    try {
+      const st = getComputedStyle(e);
+      if (st.position !== 'static') {
+        const bl = parseFloat(st.borderLeftWidth) || 0, bt = parseFloat(st.borderTopWidth) || 0;
+        const br = parseFloat(st.borderRightWidth) || 0, bb = parseFloat(st.borderBottomWidth) || 0;
+        for (const pe of ['::before', '::after']) {
+          const ps = getComputedStyle(e, pe);
+          if (!ps || ps.content === 'none' || ps.content === 'normal' || ps.position !== 'absolute'
+            || ps.display === 'none' || ps.pointerEvents === 'none' || ps.visibility === 'hidden') continue;
+          const t = parseFloat(ps.top), l = parseFloat(ps.left), rr = parseFloat(ps.right), b = parseFloat(ps.bottom);
+          if ([t, l, rr, b].some((v) => !isFinite(v))) continue;
+          const L2 = Math.min(L, r.left + bl + l), T2 = Math.min(T, r.top + bt + t);
+          const R2 = Math.max(Rt, r.right - br - rr), B2 = Math.max(B, r.bottom - bb - b);
+          if (L2 < L || T2 < T || R2 > Rt || B2 > B) pseudo = true;
+          L = L2; T = T2; Rt = R2; B = B2;
+        }
+      }
+    } catch (_) { /* the element's own box stands */ }
+    return { left: L, top: T, right: Rt, bottom: B, width: Rt - L, height: B - T, pseudo };
+  };
   for (const el of document.querySelectorAll(SEL)) {
     if (!vis(el)) { skip('not visible'); continue; }
     if (srOnly(el)) { skip('sr-only / visually hidden - not a pointer target'); continue; }
@@ -162,8 +191,8 @@ const TAP = (target) => {
     if (!actionable(el)) {
       skip('focusable but not actionable (tabindex on a non-interactive role)'); continue;
     }
-    let rect = el.getBoundingClientRect();
-    let via = 'own box';
+    let rect = hitRect(el);
+    let via = rect.pseudo ? 'own box + its positioned ::before/::after' : 'own box';
     const tag = el.tagName.toLowerCase();
     const type = (el.getAttribute('type') || '').toLowerCase();
     if (tag === 'input' && (type === 'checkbox' || type === 'radio')) {
@@ -182,7 +211,8 @@ const TAP = (target) => {
     }
     out.checked++;
     if (rect.width >= 44 && rect.height >= 44) out.pass++;
-    else if (out.small.length < 8) out.small.push({
+    // (a planted tooth is always listed: on a page with eight real small targets it would otherwise fall off the list)
+    else if (out.small.length < 8 || /^wh-teeth-/.test(el.id || '')) out.small.push({
       tag, type: type || null, id: el.id || null, cls: String(el.className || '').slice(0, 28),
       w: Math.round(rect.width), h: Math.round(rect.height), via,
       text: (el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 30),
@@ -333,6 +363,14 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
           mk('wh-teeth-of-satisfier', 'position:absolute;left:0;width:40px;height:20px');
           mk('wh-teeth-tap-violator', 'width:30px;height:30px', 'button');
           mk('wh-teeth-tap-satisfier', 'width:60px;height:60px', 'button');
+          // a 30px figure-like control: one answers a 50px area through a positioned ::after (credited), the other
+          // carries a decorative ::after that is not positioned (not credited - still small)
+          const st = document.createElement('style');
+          st.textContent = '#wh-teeth-tap-pseudo-satisfier::after{content:"";position:absolute;inset:-10px}'
+            + '#wh-teeth-tap-pseudo-violator::after{content:"";display:block;width:60px;height:60px}';
+          document.head.appendChild(st);
+          mk('wh-teeth-tap-pseudo-satisfier', 'width:30px;height:30px;position:relative', 'div').setAttribute('role', 'button');
+          mk('wh-teeth-tap-pseudo-violator', 'width:30px;height:30px;overflow:hidden', 'div').setAttribute('role', 'button');
           // COMPUTED, NOT ASSUMED -- see note 2 in .tmp/add_teeth_cj_ck.py.
           let clips = null;
           for (let a = document.getElementById('wh-teeth-of-violator').parentElement; a; a = a.parentElement) {
@@ -364,10 +402,13 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
       overflowSatisfierClean: !has(m.worstUnclipped, 'wh-teeth-of-satisfier'),
       tapCaught: has(tp.small, 'wh-teeth-tap-violator'),
       tapSatisfierClean: !has(tp.small, 'wh-teeth-tap-satisfier'),
+      tapPseudoCredited: !has(tp.small, 'wh-teeth-tap-pseudo-satisfier'),
+      tapDecorationNotCredited: has(tp.small, 'wh-teeth-tap-pseudo-violator'),
       clippedAt: rec.teethExpect.bodyClipsX,
     };
     rec.teeth.ok = rec.teeth.overflowCaught && rec.teeth.overflowSatisfierClean
-                && rec.teeth.tapCaught && rec.teeth.tapSatisfierClean;
+                && rec.teeth.tapCaught && rec.teeth.tapSatisfierClean
+                && rec.teeth.tapPseudoCredited && rec.teeth.tapDecorationNotCredited;
     if (!rec.teeth.ok) { console.log('    BLUNT ' + rec.page + ': ' + JSON.stringify(rec.teeth)); process.exitCode = 1; }
     else console.log('    TEETH ok ' + rec.page + (rec.teeth.clippedAt ? ' (clipped at ' + rec.teeth.clippedAt + ')' : ''));
   }
