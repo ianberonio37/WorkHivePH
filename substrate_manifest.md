@@ -1,4 +1,4 @@
-# Substrate Manifest — 2026-10-23T10:57:27.487355+00:00
+# Substrate Manifest — 2026-10-23T11:44:23.903119+00:00
 
 **Aggregates 13 pattern-miner + drift-detector outputs into one view.**
 

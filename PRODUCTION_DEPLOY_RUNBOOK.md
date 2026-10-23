@@ -1,3 +1,61 @@
+# Production Deploy Runbook — release `27733934` (2026-10-23/24) ✅ DEPLOYED
+
+> **✅ DEPLOYED 2026-10-24 (executed by Claude on Ian's explicit instruction: "ok now let us now push to production,"
+> then, asked how to ship a release with 71 red gates on the pre-flight board: "Fix everything, then push").**
+> Release `683ecea5..27733934`: 93 commits. Order A -> B -> C from the `Z:` subst drive. **Pushed WITHOUT
+> `--no-verify`** - the pre-push release gate ran and passed.
+>
+> **Pre-flight:** the first fast board read 71 red. All were cleared before anything shipped; about 45 were gates that
+> had stopped reading what they were written for (fixed windows outgrown, word boundaries, a page's own split-out
+> script unread, deleted pages read as regressions), and the sweep found two real product defects in the operator
+> console (below). The full fast board then read 858 PASS / 9 FAIL; each cleared. The release gate the hook runs
+> (`release_gate.py --skip-ui --no-seed`) has a DATA phase no earlier release saw (each was pushed --no-verify): it read
+> 12 FAIL, cleared by bringing its tests up to the product, the seed data up to the form, and one real gap (two
+> standards in canonical/standards.json the registry lacked). Final gate: **867 PASS / 0 FAIL static, 57 pass / 0 fail
+> data.** Two gate-only causes found on the way: the twin gate died on import under the seeder venv (bs4 now in its
+> requirements), and the substrate indexes the memory notes (rebuild after writing one).
+>
+> - **Leg A — DB: 24 migrations**, 20261015998000 .. 20261023000001 - free-tier telemetry retention crons, D3
+>   recoverable deletes (30-day window + purge cron), LB2 query indexes and read shapes, the credit-ledger totals, L2
+>   change trail, L3 usage events, L4 told sentence, LB1 summaries, BRH-S / BRH-R / BRH-AB, RL2, the operator console's
+>   reads, the two thermography standards. No statement deletes current data at apply time (every DELETE sits in a
+>   function body). **The first push stopped after six:** 20261020000003_lb2_read_shapes.sql, statement 29, `LOCK TABLE`
+>   -> ERROR 25P01 (only valid in a transaction block): `supabase db push` gives a file no transaction. The 28 statements
+>   before it were idempotent and the file was unrecorded, so its seed was wrapped in begin/commit (437c0b5d, rehearsed
+>   in psql autocommit - the CLI's mode) and the second push applied the other 18. `migration list`: 0 pending.
+> - **Leg B — Edge: 62/62 functions** (`_shared/cors.ts` changed, so every function that bundles it): deploy-functions.ps1
+>   (59, `--no-verify-jwt`), gcash-receipt-ocr + supervisor-reset-password (verify_jwt = true), login (`--no-verify-jwt`).
+>   ai-gateway /health 200 ok (supabase, groq, ai-chain-fallbacks); an anonymous agent-memory-store recall -> 401
+>   "Sign-in required."
+> - **Leg C — Frontend:** `git push origin master` 683ecea5..27733934 after the hook's release gate passed. Production
+>   serves `workhive-shell-v575` (was v533).
+>
+> **Post-deploy smoke:** `tools/post_deploy_smoke.mjs --tier=public` with EXPECT_SW=v575: **120/120 public pages load
+> clean.** index, logbook, inventory, founder-console, hive, marketplace, analytics, community answer 200 with content;
+> the shipped utils.js and operator-actions.js carry this release's fixes; trajectory_registry.json answers 404 (the
+> allowlist holds). **Not run:** the app tier and the manual Tier-0 flows need a production test account
+> (`WH_SMOKE_EMAIL` / `WH_SMOKE_PASS` are not in `.env`).
+>
+> **Product changes Ian will see (operator console):**
+> - **Liability cover now reads 0.00x in red on production.** It is cash in (top-ups alone) over credits owed (every
+>   ledger row). Production holds one 500-credit starter grant and no top-ups: the old formula counted the grant as
+>   cash and showed 1.00x. Nothing has been paid in; 500 credits are owed as services. The figure is honest, not broken.
+> - Warn/fail colours now apply to formatted figures ('50+' queues, a cover under 1.00x); they were silently dropped.
+> - A failed list no longer tells an online reader to check their connection.
+>
+> **Open for Ian:**
+> - Voice-captured breakdowns record the root cause as said; the logbook form uses a 12-item list, and analytics group
+>   root_cause by exact string, so a voice breakdown never matches a form one in repeat-failure detection or the Pareto.
+>   Pre-existing, already live; a product choice (constrain the voice path, or normalise in analytics).
+> - The adoption census's class matcher treats "-" as a word boundary, crediting pulse-card as .card and stat-pill as
+>   .pill on ~20 pages each; correcting it lowers several floors, which the gate reserves for Ian.
+> - Starter grants are free credit and sit outside the solvency gate's voucher rule (unbacked <= earned) by design;
+>   whether they should count against it is a policy question.
+> - Owner step from BRH-AB: `tools/move_inline_photos_to_storage.py --target prod`, then `--clear` (needs
+>   WH_PHOTO_MOVE_URL and WH_PHOTO_MOVE_SERVICE_KEY).
+
+---
+
 # Production Deploy Runbook — release `73335a30` + fixes `44bedbdd`, `d6b55009` (2026-10-16) ✅ DEPLOYED
 
 > **✅ DEPLOYED 2026-10-16 (executed by Claude on Ian's explicit instruction: "let us commit, deploy and push now what we

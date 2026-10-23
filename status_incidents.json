@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 1,
+ "open": 0,
  "resolved": 4,
  "incidents": [
   {
@@ -42,15 +42,6 @@
    "started_at": "2026-07-20 04:56:35.570917+00",
    "ended_at": "2026-07-20 04:56:35.570917+00",
    "status": "resolved"
-  },
-  {
-   "id": "gate-substrate-freshness",
-   "source": "gate",
-   "title": "substrate-freshness",
-   "severity": "major",
-   "started_at": "2026-10-23T11:15:44.150375+00:00",
-   "ended_at": null,
-   "status": "open"
   }
  ]
 }
