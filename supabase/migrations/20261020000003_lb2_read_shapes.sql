@@ -356,11 +356,15 @@ create trigger trg_keep_ledger_totals_truncate
   after truncate on public.service_credit_ledger
   for each statement execute function public.keep_service_credit_ledger_totals();
 
--- seed from the ledger as it stands; the lock keeps a concurrent writer from landing between the seed and the trigger
+-- seed from the ledger as it stands; the lock keeps a concurrent writer from landing between the seed and the trigger.
+-- In its own transaction: `supabase db push` runs a file's statements without one, and LOCK TABLE outside a
+-- transaction block is refused (25P01) - the 2026-10-23 production push stopped here, before this file was recorded.
+begin;
 lock table public.service_credit_ledger in share row exclusive mode;
 delete from public.service_credit_ledger_totals;
 insert into public.service_credit_ledger_totals (entry_type, total, entries)
 select l.entry_type, sum(l.amount), count(*) from public.service_credit_ledger l group by l.entry_type;
+commit;
 
 create or replace function public.get_credit_ledger_totals()
 returns table (entry_type text, total numeric, entries bigint, unreadable bigint)

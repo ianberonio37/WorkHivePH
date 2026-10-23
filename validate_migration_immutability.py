@@ -65,6 +65,9 @@ TIMESTAMP_RE = re.compile(r"^\d{14}_[a-z0-9_]+\.sql$")
 # yes, the entry is permanently safe; if not, it's prod/clone drift).
 ALLOWED_MULTI_COMMIT = {
     # ── 2026-10-23: edited before it ever reached production (`supabase migration list` shows no remote row) ──
+    "20261020000003_lb2_read_shapes.sql":
+        "2026-10-23 prod push: the seed's LOCK TABLE wrapped in begin/commit - `supabase db push` gives a file no "
+        "transaction and refused it (25P01) before recording the file, so production applies this content.",
     "20261021000002_l3_usage_events.sql":
         "BRH-Y (66ecd128, same day as 9b1fe959): `revoke ... from public` -> `from public, anon`, because Supabase grants "
         "anon EXECUTE explicitly. Unapplied in production when edited, so production receives the final content.",

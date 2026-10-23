@@ -42,6 +42,11 @@ ALLOWED_MULTI_COMMIT = {
     # 2026-09-04 — guarded the grafana_reader GRANT for prod (commit 1548378e); see
     # validate_migration_immutability.py ALLOWED_MULTI_COMMIT for the record.
     "20260831000001_anon_cannot_read_post_author_uid.sql",
+    # 2026-10-23 — the seed's LOCK TABLE wrapped in begin/commit after `supabase db push` refused it (25P01)
+    # before recording the file; see validate_migration_immutability.py ALLOWED_MULTI_COMMIT for the record.
+    "20261020000003_lb2_read_shapes.sql",
+    # 2026-10-23 — revoke widened to anon before production ever applied it (same record there).
+    "20261021000002_l3_usage_events.sql",
 }
 
 
