@@ -4220,7 +4220,7 @@ if (typeof window !== 'undefined') window.whMoreNote = whMoreNote;
 // tier for everyone). The keys are de-duplicated (null and undefined dropped - `in (null)` matches nothing) and asked
 // `size` at a time (default 100), at most `parallel` (default 4) in flight; rows come back in chunk order, a count is
 // summed, and the first error is returned beside whatever the other pieces read.
-//   const { data, error } = await whInChunks(ids, (part) => db.from('asset_nodes').select('id, hive_id').in('id', part).limit(500));
+//   const { data, error } = await whInChunks(ids, (part) => db.from('project_links').select('id, project_id').in('id', part).limit(500));
 // The builder runs once per piece, so its order and limit apply to each piece: a limit over the whole lookup is the
 // caller's to apply to `data`. A list that fits in one piece is one request, exactly as before.
 async function whInChunks(keys, build, opts) {

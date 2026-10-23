@@ -154,7 +154,7 @@
        (tech-health, audit-stream) / 440px (memento-health, companion-eval), pushing the second row out of
        the first screen - CLS 0.42-0.52. Hold the settled boxes open from first paint on desktop widths. */
     @media (min-width:1024px) { #tech-health, #audit-stream { min-height:2065px; } #memento-health, #companion-eval { min-height:440px; } }   /* C5 (2026-09-05): the semantic red #f87171 read Lc 47/60 at 23px; the lighter text-red keeps the meaning and clears 60 */
-    .ring-pct .n, .stat .n, .tech-chip .n, .big, .kpi-num { font-variant-numeric: tabular-nums; }  /* C4: 8/16 numeric els were proportional */
+    .ring-pct .n, .stat .n, .tech-chip .n, .big { font-variant-numeric: tabular-nums; }  /* C4: 8/16 numeric els were proportional */
     .stat .n.good { color:var(--green); }
     .stat .n.warn { color:var(--yellow); }
     .stat .n.bad  { color:var(--red); }
@@ -246,7 +246,6 @@
     }
     .stat .trend.up   { color:var(--green); }
     .stat .trend.down { color:var(--red); }
-    .stat .trend.flat { color:var(--muted); }
 
     /* ── The console's four tabs (OPC, 2026-10-22): sticky like the jump nav they replaced, worn as the selection pill
        (DESIGN.md: selected = amber 15 % face, amber text, 40 % border; unselected = white 4 % face, muted text) ── */
@@ -399,15 +398,6 @@
     .fail-label { flex:1; font-size: .78rem; color:var(--text); }
     .fail-group { font-size: 0.75rem; color:var(--muted); margin-top:.1rem; }
 
-    /* ── Source chip (analytics-engineer skill: every metric needs source + freshness + window) ── */
-    .src-chip {
-      font-size: 0.75rem; color:var(--muted); margin-top:.5rem; line-height:1.4;
-    }
-    .src-chip code {
-      background:rgba(255,255,255,.06); padding:1px 5px; border-radius:8px;
-      font-size: 1rem;
-    }
-
     /* ── Growth Pulse ── */
     .pulse-row {
       display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
@@ -435,32 +425,6 @@
       display:flex; justify-content:space-between; font-size: 0.75rem; color:var(--muted);
       margin-top:.2rem; padding:0 .15rem;
     }
-
-    /* ── Maturity Distribution ── */
-    .stair-bar-wrap {
-      display:flex; flex-direction:column; gap:.4rem; margin-bottom:.9rem;
-    }
-    .stair-row {
-      display:grid; grid-template-columns:130px 1fr 60px;
-      gap:.55rem; align-items:center;
-    }
-    .stair-name {
-      font-size: 0.75rem; font-weight:700; color:var(--text);
-    }
-    .stair-name .num { font-size: 0.75rem; color:var(--muted); margin-right:.4rem; }
-    .stair-bar {
-      height:14px; background:rgba(255,255,255,.04);
-      border-radius:999px; overflow:hidden;
-    }
-    .stair-fill {
-      height:100%; transition:width .5s;
-    }
-    .stair-fill.s0 { background:linear-gradient(90deg,var(--wh-blue),var(--wh-blue)); }
-    .stair-fill.s1 { background:linear-gradient(90deg,var(--wh-blue),var(--wh-green)); }
-    .stair-fill.s2 { background:linear-gradient(90deg,var(--wh-violet),var(--wh-violet)); }
-    .stair-fill.s3 { background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light)); }
-    .stair-fill.s4 { background:linear-gradient(90deg,var(--wh-orange),var(--wh-amber)); }
-    .stair-count { font-size: 0.75rem; font-weight:700; color:var(--text); text-align:right; }
 
     /* ── Pareto ── */
     .pareto-bar-wrap {
@@ -527,7 +491,6 @@
     .mod-empty { color:var(--muted); font-size:0.85rem; padding:0.5rem 0; }
     /* a label beside a figure, a list's heading or its updated-time: muted like an empty state, but it says what IS
        there (ENH-C E2, 2026-10-22 - the usage card's labels wore .mod-empty) */
-    .mod-label { color:var(--muted); font-size:0.75rem; font-weight:600; }
     .toast-msg { background:#1f2937; color:#fff; padding:0.75rem 1rem; border-radius:12px; font-size:0.85rem;
                  border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.4); }
     .toast-msg.success { border-color:rgba(52,211,153,0.5); }

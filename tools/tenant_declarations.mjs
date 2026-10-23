@@ -26,6 +26,11 @@ export const BLIND_BY_DESIGN = {
   embedding_outbox: 'service-role queue, no client policy', community_post_xp_awards: 'service-role ledger',
   community_reaction_xp_awards: 'service-role ledger', community_reply_xp_awards: 'service-role ledger',
   ai_cost_log: 'admin/grafana only', auth_session_events: 'admin/grafana only',
+  // SL AU4 (20261014000004): each read follows the page that shows it - the hive's active supervisor or a platform
+  // admin. A plain worker read a teammate's AI questions and device fingerprints through the API before it.
+  gateway_audit_log: 'supervisor/admin only (plant-connections is supervisors-only)',
+  agentic_rag_traces: 'supervisor/admin only (no auth_uid, so no own-rows clause)',
+  worker_known_devices: 'no policy and no grant: only note_device() (SECURITY DEFINER) reads or writes it (20261013000001)',
   // Read from the policies rather than assumed: ai_rate_limits carries exactly two, an
   // `ai_rate_limits_locked [ALL roles=public] USING false` that refuses every client outright and an
   // `ai_rate_limits_grafana_read` for the dashboard reader. A counter that decides whether somebody

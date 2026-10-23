@@ -50,11 +50,11 @@
     ],
     "engineering-design.js": [
       {
-        "line": 29026,
+        "line": 29032,
         "message_head": "Delete this calculation?"
       },
       {
-        "line": 29179,
+        "line": 29185,
         "message_head": "Remove ${label} from the BOM?"
       }
     ],
@@ -308,11 +308,11 @@
     ],
     "utils.js": [
       {
-        "line": 6701,
+        "line": 6706,
         "message_head": "Delete X?"
       },
       {
-        "line": 6704,
+        "line": 6709,
         "message_head": "Enter name"
       }
     ]

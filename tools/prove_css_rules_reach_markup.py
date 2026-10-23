@@ -114,8 +114,9 @@ def _pages():
     return out
 
 
-def scan_page(path: Path):
-    """[(selector, token, kind)] for every rule token that appears only inside this page's <style>."""
+def scan_page(path: Path, own_js: str = ""):
+    """[(selector, token, kind)] for every rule token that appears only inside this page's <style>.
+    `own_js` is the text of the scripts only this page loads - they draw its markup too."""
     try:
         src = io.open(path, encoding="utf-8", errors="replace").read()
     except OSError:
@@ -127,7 +128,7 @@ def scan_page(path: Path):
     css = _strip_css_comments("\n".join(styles))
 
     # everything in the file that is NOT inside a <style> block: markup, JS template strings, attributes
-    rest = STYLE_BLOCK.sub(" ", src)
+    rest = STYLE_BLOCK.sub(" ", src) + "\n" + own_js
 
     dead = []
     seen = set()
@@ -179,10 +180,34 @@ def scan_page(path: Path):
     return dead
 
 
+_SCRIPT_SRC = re.compile(r'<script[^>]*\bsrc="([\w.-]+\.js)"', re.I)
+
+
+def _owned_scripts(pages):
+    """page -> the text of the scripts ONLY that page loads. A script one page loads is that page's own code split
+    into a file: OPC (1d6ecd88) moved the console's queues into operator-actions.js, and the 24 classes it draws
+    (.kpi-num, .stair-row, .src-chip ...) read as rules that reach nothing (2026-10-23)."""
+    loaders = {}
+    for p in pages:
+        try:
+            src = io.open(p, encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        for js in set(_SCRIPT_SRC.findall(src)):
+            loaders.setdefault(js, []).append(p)
+    owned = {}
+    for js, by in loaders.items():
+        if len(by) == 1 and (by[0].parent / js).exists():
+            owned.setdefault(by[0], []).append(io.open(by[0].parent / js, encoding="utf-8", errors="replace").read())
+    return owned
+
+
 def collect():
     per_page = {}
-    for p in _pages():
-        d = scan_page(p)
+    pages = _pages()
+    owned = _owned_scripts(pages)
+    for p in pages:
+        d = scan_page(p, "\n".join(owned.get(p, [])))
         if d:
             per_page[p.relative_to(ROOT).as_posix()] = d
     return per_page

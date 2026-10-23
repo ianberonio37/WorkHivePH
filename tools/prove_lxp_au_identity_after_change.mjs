@@ -110,6 +110,9 @@ const OWNABLE = {
   resume_documents: `auth_uid = '${MY_UID}'`,
   skill_profiles: `auth_uid = '${MY_UID}'`,
   skill_exam_attempts: `auth_uid = '${MY_UID}'`,
+  // SL AU4 (20261014000004): ai_cost_log's read keeps a person's OWN rows (auth_uid = auth.uid()) beside the
+  // supervisor/admin clause - a dismissed member still seeing what THEY asked is their record, not the hive's
+  ai_cost_log: `auth_uid = '${MY_UID}'`,
 };
 // graded by their own contract in the identity spine above; never graded twice by the sweep
 const CORE_RELATIONS = new Set(['hive_members', 'v_worker_truth', 'logbook', 'pm_assets']);

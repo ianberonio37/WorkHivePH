@@ -1,6 +1,6 @@
 {
   "_doc": "Layer A adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-10-13T10:40:32.973494+00:00",
+  "generated": "2026-10-23T07:36:45.840152+00:00",
   "functions": 62,
   "rows": [
     {
@@ -159,8 +159,8 @@
       "satisfies": "hive/tenant scoping preamble",
       "mode": "measured",
       "need_rule": "tenant-data",
-      "adopters_n": 45,
-      "need_n": 47,
+      "adopters_n": 46,
+      "need_n": 48,
       "pct": 96,
       "adopters": [
         "agent-memory-store",
@@ -179,6 +179,7 @@
         "equipment-label-ocr",
         "failure-signature-scan",
         "fmea-populator",
+        "gcash-receipt-ocr",
         "hierarchical-summarizer",
         "intelligence-report",
         "marketplace-listing-assist",
@@ -263,9 +264,9 @@
       "satisfies": "RL layer quota preamble",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 41,
+      "adopters_n": 42,
       "need_n": 45,
-      "pct": 91,
+      "pct": 93,
       "adopters": [
         "ai-gateway",
         "ai-orchestrator",
@@ -281,6 +282,7 @@
         "engineering-calc-agent",
         "equipment-label-ocr",
         "failure-signature-scan",
+        "gcash-receipt-ocr",
         "hierarchical-summarizer",
         "intelligence-report",
         "marketplace-listing-assist",
@@ -311,7 +313,6 @@
       ],
       "gap": [
         "gcash-receipt-inbound",
-        "gcash-receipt-ocr",
         "notify-push",
         "resend-webhook-receiver"
       ]
@@ -520,9 +521,9 @@
   "floors": {
     "A1": 62,
     "A2": 59,
-    "A3": 45,
+    "A3": 46,
     "A4": 28,
-    "A5": 41,
+    "A5": 42,
     "A6": 3,
     "A8": 62,
     "A9": 62

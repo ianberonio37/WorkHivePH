@@ -7,9 +7,9 @@ as an HTML comment on the capture page.
 
 ## Summary
 
-- Capture fields discovered:  **274**
-- Framework names skipped:    **2** (submit, search, csrf, ...)
-- Alive (≥1 consumer):        **272** ✅
+- Capture fields discovered:  **268**
+- Framework names skipped:    **1** (submit, search, csrf, ...)
+- Alive (≥1 consumer):        **267** ✅
 - Phantom (0 consumers):      **0** ❌
 - Allowlisted (justified):    **0**
 
@@ -18,14 +18,13 @@ as an HTML comment on the capture page.
 _None — every capture has at least one downstream consumer. Schema discipline is currently good; the gate locks this in against future drift._
 
 
-## Low-usage candidates — `consumer_count == 1` (23)
+## Low-usage candidates — `consumer_count == 1` (20)
 
 Fields read in exactly one place. Likely fine (single-purpose),
 but worth a scan for vestigial half-wired fields.
 
 | Capture name | Captured on |
 |---|---|
-| `a-scan-input` | logbook.html |
 | `cl-text` | resume.html |
 | `custom-item-freq` | pm-scheduler.html |
 | `filter-route` | agentic-rag-observability.html |
@@ -38,16 +37,14 @@ but worth a scan for vestigial half-wired fields.
 | `rfq-contact` | marketplace.html |
 | `save-search-email` | marketplace.html |
 | `svc-pay-credits-amt-` | marketplace.html |
+| `svc-pay-img-` | marketplace.html |
 | `svc-pay-why-` | marketplace.html |
 | `svc-prate-comment-` | marketplace-seller.html |
 | `svc-rate-comment-` | marketplace.html |
 | `svc-reg-name` | marketplace-seller.html |
-| `veh-doc-file` | integrations.html |
+| `svc-topup-img-` | marketplace-seller.html |
 | `veh-ins` | integrations.html |
 | `veh-reg` | integrations.html |
-| `vm-kind` | founder-console.html |
-| `vm-maxuses` | founder-console.html |
-| `vm-segment` | founder-console.html |
 
 ## What to do with a phantom
 

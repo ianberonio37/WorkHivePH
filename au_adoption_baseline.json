@@ -1,7 +1,7 @@
 {
   "_doc": "Layer AU adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-10-13T10:13:15.254655+00:00",
-  "functions": 42,
+  "generated": "2026-10-23T07:36:46.497325+00:00",
+  "functions": 39,
   "rows": [
     {
       "id": "AU1",
@@ -10,8 +10,8 @@
       "satisfies": "no silent identity loss on new devices (C4 class)",
       "mode": "measured",
       "adopters_n": 28,
-      "need_n": 29,
-      "pct": 97,
+      "need_n": 28,
+      "pct": 100,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
@@ -42,9 +42,7 @@
         "skillmatrix.html",
         "voice-journal.html"
       ],
-      "gap": [
-        "architecture.html"
-      ]
+      "gap": []
     },
     {
       "id": "AU2",
@@ -109,7 +107,7 @@
       "name": "role floor: wh_hive_role hint + SERVER re-check",
       "satisfies": "UI-only approval gates are bypassable (feedback_ui_only_approval_gate_is_bypassable)",
       "mode": "census-only",
-      "adopters_n": 18,
+      "adopters_n": 16,
       "note": "per-gate server-recheck heuristic queued (needs the role-gate map)"
     }
   ],

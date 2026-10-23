@@ -1,9 +1,9 @@
 {
   "summary": {
-    "view_column_pairs": 341,
+    "view_column_pairs": 339,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 348
+    "files_scanned": 351
   },
   "pairs": [
     {
@@ -1439,11 +1439,6 @@
           "file": "integrations.html",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "logbook.html",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -1468,11 +1463,6 @@
       "consumers": [
         {
           "file": "asset-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "logbook.html",
           "shape": "direct",
           "smells": []
         },
@@ -1737,11 +1727,6 @@
       "column": "blocker_summary",
       "consumers": [
         {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "maturity-gate.js",
           "shape": "direct",
           "smells": []
@@ -1754,11 +1739,6 @@
       "view": "v_hive_readiness_truth",
       "column": "composite_score",
       "consumers": [
-        {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        },
         {
           "file": "maturity-gate.js",
           "shape": "direct",
@@ -1785,11 +1765,6 @@
       "view": "v_hive_readiness_truth",
       "column": "current_stair",
       "consumers": [
-        {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        },
         {
           "file": "maturity-gate.js",
           "shape": "direct",
@@ -3704,11 +3679,6 @@
       "column": "replied_at",
       "consumers": [
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
@@ -3733,7 +3703,7 @@
         },
         {
           "file": "marketplace.html",
-          "shape": "mapped_enum",
+          "shape": "direct",
           "smells": []
         }
       ],
@@ -3758,11 +3728,6 @@
       "column": "status",
       "consumers": [
         {
-          "file": "marketplace-seller-profile.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
@@ -3786,17 +3751,17 @@
           "smells": []
         },
         {
-          "file": "founder-console.html",
-          "shape": "mapped_enum",
-          "smells": []
-        },
-        {
           "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
         },
         {
           "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -3927,17 +3892,17 @@
           "smells": []
         },
         {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
         },
         {
           "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -3960,17 +3925,17 @@
           "smells": []
         },
         {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
         },
         {
           "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -4024,12 +3989,12 @@
           "smells": []
         },
         {
-          "file": "founder-console.html",
+          "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
         },
         {
-          "file": "marketplace-admin.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -4065,11 +4030,6 @@
           "smells": []
         },
         {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
@@ -4093,17 +4053,17 @@
           "smells": []
         },
         {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
         },
         {
           "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -4139,12 +4099,12 @@
       "column": "active_listings_count",
       "consumers": [
         {
-          "file": "founder-console.html",
+          "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
         },
         {
-          "file": "marketplace-admin.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -4162,12 +4122,12 @@
       "column": "cert_verified",
       "consumers": [
         {
-          "file": "founder-console.html",
+          "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
         },
         {
-          "file": "marketplace-admin.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -4198,12 +4158,12 @@
       "column": "certifications",
       "consumers": [
         {
-          "file": "founder-console.html",
+          "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
         },
         {
-          "file": "marketplace-admin.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -4234,12 +4194,12 @@
       "column": "kyb_verified",
       "consumers": [
         {
-          "file": "founder-console.html",
+          "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
         },
         {
-          "file": "marketplace-admin.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -4319,12 +4279,12 @@
           "smells": []
         },
         {
-          "file": "founder-console.html",
+          "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
         },
         {
-          "file": "marketplace-admin.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -4365,12 +4325,12 @@
           "smells": []
         },
         {
-          "file": "founder-console.html",
+          "file": "marketplace-admin.html",
           "shape": "direct",
           "smells": []
         },
         {
-          "file": "marketplace-admin.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -6727,46 +6687,10 @@
     },
     {
       "view": "v_service_credit_ledger_truth",
-      "column": "account_id",
-      "consumers": [
-        {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_service_credit_ledger_truth",
-      "column": "account_type",
-      "consumers": [
-        {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_service_credit_ledger_truth",
       "column": "amount",
       "consumers": [
         {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-seller.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "platform-actions.html",
           "shape": "direct",
           "smells": []
         }
@@ -6779,17 +6703,7 @@
       "column": "entry_type",
       "consumers": [
         {
-          "file": "founder-console.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "marketplace-seller.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "platform-actions.html",
           "shape": "direct",
           "smells": []
         }
@@ -6815,7 +6729,7 @@
       "column": "account_id",
       "consumers": [
         {
-          "file": "founder-console.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -6833,7 +6747,7 @@
       "column": "account_type",
       "consumers": [
         {
-          "file": "founder-console.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -6851,12 +6765,12 @@
       "column": "amount",
       "consumers": [
         {
-          "file": "founder-console.html",
+          "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
         },
         {
-          "file": "marketplace-seller.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -6874,12 +6788,12 @@
       "column": "gcash_ref",
       "consumers": [
         {
-          "file": "founder-console.html",
+          "file": "marketplace-seller.html",
           "shape": "direct",
           "smells": []
         },
         {
-          "file": "marketplace-seller.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -6897,7 +6811,7 @@
       "column": "provider_display_name",
       "consumers": [
         {
-          "file": "founder-console.html",
+          "file": "operator-actions.js",
           "shape": "direct",
           "smells": []
         },
@@ -7645,6 +7559,11 @@
         },
         {
           "file": "supabase/functions/supervisor-reset-password/index.ts",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "utils.js",
           "shape": "direct",
           "smells": []
         }

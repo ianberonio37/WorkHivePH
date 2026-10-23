@@ -7,10 +7,10 @@ each as contracted / uncontracted / raw / unknown.
 ## Summary
 
 - Pages scanned:           **33**
-- Display anchors found:   **119**
+- Display anchors found:   **124**
 - Contracted ✅:           **22** (anchor maps to a registered formula)
 - **Uncontracted ⚠️:**     **0** (domain-meaningful metric, no formula registered)
-- Raw (counts/dates):      **95** (no contract needed)
+- Raw (counts/dates):      **100** (no contract needed)
 - Unknown:                 **2** (couldn't classify from id alone)
 - Formula registry:        **24** entries
 
@@ -45,7 +45,7 @@ each as contracted / uncontracted / raw / unknown.
 | `alert-hub.html` | 7 | 1 | 0 | 5 | 1 |
 | `audit-log.html` | 0 | 0 | 0 | 0 | 0 |
 | `voice-journal.html` | 3 | 0 | 0 | 3 | 0 |
-| `founder-console.html` | 6 | 2 | 0 | 4 | 0 |
+| `founder-console.html` | 11 | 2 | 0 | 9 | 0 |
 | `index.html` | 1 | 0 | 0 | 1 | 0 |
 | `design-system.html` | 0 | 0 | 0 | 0 | 0 |
 | `llm-observability.html` | 2 | 1 | 0 | 0 | 1 |

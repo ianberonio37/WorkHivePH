@@ -6,10 +6,10 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **341**
+- View/column pairs scanned: **339**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
-- Files scanned: **348**
+- Files scanned: **351**
 
 ## Smell legend
 
@@ -115,9 +115,9 @@ re-deriving what the canonical view should expose:
 | `v_external_sync_truth` | `external_id` | ✅ OK | 4 | direct |
 | `v_external_sync_truth` | `last_synced_at` | ✅ OK | 3 | direct |
 | `v_external_sync_truth` | `status` | ✅ OK | 3 | direct |
-| `v_external_sync_truth` | `sync_payload` | ✅ OK | 2 | direct |
+| `v_external_sync_truth` | `sync_payload` | ✅ OK | 1 | direct |
 | `v_external_sync_truth` | `sync_status` | ✅ OK | 1 | direct |
-| `v_external_sync_truth` | `system_type` | ✅ OK | 4 | direct |
+| `v_external_sync_truth` | `system_type` | ✅ OK | 3 | direct |
 | `v_external_sync_truth` | `workhive_table` | ✅ OK | 1 | direct |
 | `v_fmea_truth` | `ai_confidence` | ✅ OK | 1 | direct |
 | `v_fmea_truth` | `approved_at` | ✅ OK | 1 | direct |
@@ -132,10 +132,10 @@ re-deriving what the canonical view should expose:
 | `v_fmea_truth` | `rpn` | ✅ OK | 3 | direct |
 | `v_fmea_truth` | `severity` | ✅ OK | 2 | direct |
 | `v_fmea_truth` | `source` | ✅ OK | 2 | direct |
-| `v_hive_readiness_truth` | `blocker_summary` | ✅ OK | 2 | direct |
-| `v_hive_readiness_truth` | `composite_score` | ✅ OK | 2 | direct |
+| `v_hive_readiness_truth` | `blocker_summary` | ✅ OK | 1 | direct |
+| `v_hive_readiness_truth` | `composite_score` | ✅ OK | 1 | direct |
 | `v_hive_readiness_truth` | `computed_at` | ✅ OK | 1 | direct |
-| `v_hive_readiness_truth` | `current_stair` | ✅ OK | 2 | direct |
+| `v_hive_readiness_truth` | `current_stair` | ✅ OK | 1 | direct |
 | `v_hive_readiness_truth` | `evidence` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `created_by` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `hive_members` | ✅ OK | 1 | direct |
@@ -201,11 +201,11 @@ re-deriving what the canonical view should expose:
 | `v_marketplace_inquiries_truth` | `listing_id` | ✅ OK | 2 | direct |
 | `v_marketplace_inquiries_truth` | `listing_title` | ✅ OK | 1 | direct |
 | `v_marketplace_inquiries_truth` | `message` | ✅ OK | 2 | direct |
-| `v_marketplace_inquiries_truth` | `replied_at` | ✅ OK | 3 | direct |
-| `v_marketplace_inquiries_truth` | `reply_text` | ✅ OK | 2 | direct, mapped_enum |
+| `v_marketplace_inquiries_truth` | `replied_at` | ✅ OK | 2 | direct |
+| `v_marketplace_inquiries_truth` | `reply_text` | ✅ OK | 2 | direct |
 | `v_marketplace_inquiries_truth` | `seller_name` | ✅ OK | 1 | direct |
-| `v_marketplace_inquiries_truth` | `status` | ✅ OK | 3 | direct |
-| `v_marketplace_listings_truth` | `category` | ✅ OK | 5 | direct, mapped_enum |
+| `v_marketplace_inquiries_truth` | `status` | ✅ OK | 2 | direct |
+| `v_marketplace_listings_truth` | `category` | ✅ OK | 5 | direct |
 | `v_marketplace_listings_truth` | `condition` | ✅ OK | 3 | direct, mapped_enum |
 | `v_marketplace_listings_truth` | `description` | ✅ OK | 2 | direct |
 | `v_marketplace_listings_truth` | `image_url` | ✅ OK | 2 | direct |
@@ -218,7 +218,7 @@ re-deriving what the canonical view should expose:
 | `v_marketplace_listings_truth` | `seller_kyb_verified` | ✅ OK | 1 | direct |
 | `v_marketplace_listings_truth` | `seller_name` | ✅ OK | 4 | direct |
 | `v_marketplace_listings_truth` | `seller_verified` | ✅ OK | 1 | direct |
-| `v_marketplace_listings_truth` | `status` | ✅ OK | 4 | direct |
+| `v_marketplace_listings_truth` | `status` | ✅ OK | 3 | direct |
 | `v_marketplace_listings_truth` | `title` | ✅ OK | 6 | direct |
 | `v_marketplace_listings_truth` | `view_count` | ✅ OK | 1 | direct |
 | `v_marketplace_sellers_truth` | `active_listings_count` | ✅ OK | 3 | direct |
@@ -331,10 +331,8 @@ re-deriving what the canonical view should expose:
 | `v_sensor_truth` | `recorded_at` | ✅ OK | 2 | direct |
 | `v_sensor_truth` | `value` | ✅ OK | 1 | direct |
 | `v_service_catalog_truth` | `category` | ✅ OK | 2 | direct |
-| `v_service_credit_ledger_truth` | `account_id` | ✅ OK | 1 | direct |
-| `v_service_credit_ledger_truth` | `account_type` | ✅ OK | 1 | direct |
-| `v_service_credit_ledger_truth` | `amount` | ✅ OK | 3 | direct |
-| `v_service_credit_ledger_truth` | `entry_type` | ✅ OK | 3 | direct |
+| `v_service_credit_ledger_truth` | `amount` | ✅ OK | 1 | direct |
+| `v_service_credit_ledger_truth` | `entry_type` | ✅ OK | 1 | direct |
 | `v_service_credit_ledger_truth` | `note` | ✅ OK | 1 | direct |
 | `v_service_credit_topups_truth` | `account_id` | ✅ OK | 2 | direct |
 | `v_service_credit_topups_truth` | `account_type` | ✅ OK | 2 | direct |
@@ -379,5 +377,5 @@ re-deriving what the canonical view should expose:
 | `v_worker_skill_truth` | `worker_name` | ✅ OK | 3 | direct |
 | `v_worker_truth` | `hive_status` | ✅ OK | 8 | direct |
 | `v_worker_truth` | `preferred_persona` | ✅ OK | 2 | direct |
-| `v_worker_truth` | `role` | ✅ OK | 7 | direct |
+| `v_worker_truth` | `role` | ✅ OK | 8 | direct |
 | `v_worker_truth` | `worker_name` | ✅ OK | 13 | direct |

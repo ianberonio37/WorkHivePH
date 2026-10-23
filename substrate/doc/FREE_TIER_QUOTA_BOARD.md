@@ -2,7 +2,7 @@
 name: doc-FREE_TIER_QUOTA_BOARD
 type: doc
 source: file:FREE_TIER_QUOTA_BOARD.md
-source_sha: 34c8fea2f261c33e
+source_sha: 43308edaceb9b312
 last_verified: 2026-07-13
 supersedes: null
 ---
