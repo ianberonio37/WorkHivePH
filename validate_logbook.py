@@ -545,6 +545,12 @@ def check_insert_carries_edit_fields(content, page):
         re.findall(r"\bpayload\.([A-Za-z_]\w*)\s*=(?!=)", pre_queue))
     edit_keys = set(_js_top_level_keys(updates_lit)) | set(
         re.findall(r"\bupdates\.([A-Za-z_]\w*)\s*=(?!=)", _js_strip_comments(edit)))
+    # The photo's two names are DERIVED at write time (BRH 9 AB): the payload carries the picture as `photo` and
+    # whPhotoSettle(db, uid, payload) uploads it and writes photo_path / photo_thumb_path onto that payload - in
+    # addEntry when online, in the queue drain when offline. Read as missing, they failed this check (2026-10-23).
+    if "photo" in insert_keys and re.search(r"whPhotoSettle\(\s*db\s*,\s*\w+\s*,\s*payload\s*\)", add) \
+            and re.search(r"whPhotoSettle\(\s*db\s*,\s*\w+\s*,\s*_photoOf\s*\)", content):
+        insert_keys |= {"photo_path", "photo_thumb_path"}
     # Denominator guard: a parser that read nothing must not pass by having nothing to compare.
     if len(edit_keys) < 10 or len(insert_keys) < 10:
         return [{"check": chk, "page": page,

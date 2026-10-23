@@ -68,6 +68,7 @@ LIVE_PAGES = [
     "marketplace.html",
     "marketplace-admin.html",
     "platform-actions.html",
+    "operator-actions.js",      # OPC (1d6ecd88): the console's queues, cut from platform-actions.html by build_operator_actions
     "marketplace-seller.html",
     "marketplace-seller-profile.html",
     "public-feed.html",

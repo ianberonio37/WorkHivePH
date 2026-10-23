@@ -327,6 +327,10 @@ def check_schema_toggle_rpc():
 def check_founder_console_publish_toggle():
     """Founder Console drawer must expose the 'Make public' checkbox so admin can promote items."""
     src = read_file(str(FOUNDER_PAGE)) or ""
+    # OPC (1d6ecd88): the console's queues - this drawer included - live in operator-actions.js, which only the
+    # console loads; the page and its own script are one surface
+    if 'src="operator-actions.js"' in src:
+        src += read_file(str(ROOT / "operator-actions.js")) or ""
     if "fb-d-public" not in src or "is_public" not in src:
         return [{
             "check":  "founder_console_publish_toggle",

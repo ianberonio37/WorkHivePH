@@ -309,10 +309,14 @@ def check_delete_asset_scoped(content, page):
     if not m:
         return [{"check": "delete_asset_scoped", "page": page,
                  "reason": "deleteAsset() function not found"}]
-    body = content[m.start():m.start() + 400]
+    body = content[m.start():m.start() + 1500]
     has_hive_scope   = bool(re.search(r"\.eq\s*\(['\"]hive_id['\"]", body))
     has_worker_scope = bool(re.search(r"\.eq\s*\(['\"]worker_name['\"]", body))
-    if not has_hive_scope and not has_worker_scope:
+    # D3 (2026-10-16): the delete became whTrash(db, 'pm_assets', id) -> rpc wh_trash, SECURITY INVOKER, so the
+    # caller's own RLS (pm_assets_write + pm_assets_update_guard) decides which rows it reaches - the scope moved
+    # to the server, where a bare id cannot get past it. Read as unscoped on 2026-10-23.
+    has_server_scope = bool(re.search(r"whTrash\s*\(\s*db\s*,\s*['\"]pm_assets['\"]", body))
+    if not has_hive_scope and not has_worker_scope and not has_server_scope:
         return [{"check": "delete_asset_scoped", "page": page,
                  "reason": "deleteAsset() does not scope by hive_id or worker_name — bare eq('id',...) allows deleting any asset by UUID"}]
     return []

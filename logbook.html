@@ -2548,7 +2548,7 @@ async function _drainOfflineQueue() {
     } else {
       // Offline new entry — insert
       try {
-        const r = await db.from('logbook').insert(rest); /* attribution-allow: `rest` = queued offline payload built by addEntry() with auth_uid (line ~1809) */
+        const r = await db.from('logbook').insert(rest); /* attribution-allow: `rest` = queued offline payload built by addEntry() with auth_uid and worker_name */
         error = _lbQueueError(r);
       } catch (x) { error = { code: '', message: String(x && x.message || x), status: 0 }; }   // no answer: retry later
       if (error && error.code === '23505' && await _lbQueuedInsertLanded(rest.id)) error = null;   // saved earlier, reply lost

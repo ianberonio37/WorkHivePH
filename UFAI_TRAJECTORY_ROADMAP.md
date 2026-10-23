@@ -68,7 +68,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 
 **REGISTRY: 18378 trajectories · 16722 in scope · 1656 descoped (out of the denominator, each with its reason in the row's basis)** — `trajectory_registry.json` (updated 2026-10-23). **Completion is the CLOSED/OPEN line above — the MCP-deepwalk measure — and nothing else.** A row's own pct (specced 5 · walked 25 · fixed 60 · locked 100) is in-flight bookkeeping cited by its basis, not a completion figure; 15274 locking · 1656 descoped · 1441 locked · 7 specced.
 
-**↳ CRITIC DEEPWALK (UI/UX extension): 56.7% · 4925 pending · 3938 critiqued · 8010 improving · 112343 receipted findings** — `UFAI_CRITIC_DEEPWALK_ROADMAP.md` / `critic_registry.json`; walk → critique → fix → gate, every trajectory, until 100%.
+**↳ CRITIC DEEPWALK (UI/UX extension): 57.2% · 4774 pending · 3938 critiqued · 8010 improving · 112343 receipted findings** — `UFAI_CRITIC_DEEPWALK_ROADMAP.md` / `critic_registry.json`; walk → critique → fix → gate, every trajectory, until 100%.
 
 **↳ HOW EVERY OPEN ROW IS WALKED: through the MCPs, in real time — the chrome-devtools MCP for a surface (a TRUE 390 and 1280 through CDP), postgres for the effect, invoke + PostgREST for a contract (§LW.2).** A headless batch is the EXCEPTION, taken only when a sweep is uniform and nothing in it needs deciding mid-flight; it is never the default, because triage that arrives hours later arrives after the rows were already banked wrong.
 

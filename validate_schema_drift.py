@@ -61,7 +61,7 @@ EXPECTED_SCHEMA = {
         "id", "post_id", "hive_id", "author_name", "content", "created_at",
     },
     "community_reactions": {
-        "post_id", "hive_id", "worker_name", "emoji",
+        "post_id", "hive_id", "worker_name", "emoji", "auth_uid",   # auth_uid: present in the live table (2026-10-23)
     },
     "community_xp": {
         "worker_name", "hive_id", "xp_total",

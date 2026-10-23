@@ -5,17 +5,18 @@
     "asset-hub.html",
     "community.html",
     "dayplanner.html",
-    "founder-console.html",
     "hive.html",
     "inventory.html",
     "logbook.html",
     "marketplace.html",
+    "operator-actions.js",
     "platform-actions.html",
     "pm-scheduler.html",
     "project-manager.html",
     "utils.js"
   ],
   "_notes": {
-    "platform-actions.html": "Registered 2026-08-03 when the feedback-triage UI was lifted here off the retired founder-console. Opens exactly ONE channel (platform_feedback INSERTs) - the same channel founder-console already had, so this is a MOVE, not a new load. Admin-gated: 2 rows in marketplace_platform_admins can open it, so peak contribution is ~2 concurrent channels against the CAPACITY_PLAN comfortable ceiling of 500. Teardown on both beforeunload and pagehide, so it does not add leak risk (leak-risk surfaces stay 0)."
+    "platform-actions.html": "Registered 2026-08-03 when the feedback-triage UI was lifted here off the retired founder-console. Opens exactly ONE channel (platform_feedback INSERTs) - the same channel founder-console already had, so this is a MOVE, not a new load. Admin-gated: 2 rows in marketplace_platform_admins can open it, so peak contribution is ~2 concurrent channels against the CAPACITY_PLAN comfortable ceiling of 500. Teardown on both beforeunload and pagehide, so it does not add leak risk (leak-risk surfaces stay 0).",
+    "operator-actions.js": "Registered 2026-10-23: OPC (1d6ecd88) un-retired founder-console as the one operator console, and its queues are cut from platform-actions.html into this script. The SAME one channel (platform_feedback_inserts) - a MOVE, not a new load. Admin-gated (2 rows in marketplace_platform_admins), so peak ~2 concurrent against the CAPACITY_PLAN comfortable ceiling of 500; torn down on beforeunload and pagehide."
   }
 }

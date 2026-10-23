@@ -844,7 +844,7 @@ def check_asset_hub_reliability_report_sections():
         ("RCM strategies",   "RCM strategies section heading"),
         ("Weibull analysis", "Weibull analysis section heading"),
         ("P-F intervals",    "P-F intervals section heading"),
-        ("Recent corrective","Recent history section heading"),
+        ("Recent logbook history", "Recent history section heading"),   # renamed from "Recent corrective" in LB1 (a2bc1685)
     ]
     for needle, why in section_markers:
         if needle not in body:

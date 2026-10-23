@@ -98,7 +98,8 @@ def check_mobile_table_scroll(html: str) -> tuple[bool, str]:
 def check_hive_id_fallback(html: str) -> tuple[bool, str]:
     # Resilience: a hive member must not silently drop to worker scope when wh_active_hive_id is
     # unset — HIVE_ID resolution must fall back to the sole wh_hives membership.
-    m = re.search(r"const HIVE_ID[\s\S]{0,320}", html)
+    # `let` since BRH-H/G (2026-10-15): whStartupHive re-seats HIVE_ID after start-up, so it can no longer be const
+    m = re.search(r"(?:const|let)\s+HIVE_ID[\s\S]{0,320}", html)
     ok = bool(m) and "wh_hives" in (m.group(0) if m else "")
     return ok, ("HIVE_ID falls back to the sole wh_hives membership" if ok
                 else "HIVE_ID has no wh_hives fallback — a member can silently see worker-scoped KPIs")

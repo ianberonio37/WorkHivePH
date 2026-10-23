@@ -63,8 +63,11 @@ def main() -> int:
           + (f' -- UNSAFE: {", ".join(dt_bad)}' if dt_bad else ''))
 
     # ── I1 CLS: the three async blocks must stay reserved ────────────────────
-    check("I1", "#wh-source-chip { min-height: 62px" in html,
-          "#wh-source-chip reserved (empty <p> filled by JS -> 0->62px)")
+    # ENH-R (43fe1542) moved provenance to one Sources area at the foot: the chip now starts hidden and collapsed
+    # there, so it opens no space above the content - the other form of "cannot shift the page"
+    check("I1", "#wh-source-chip { min-height: 62px" in html
+          or re.search(r'<p id="wh-source-chip" hidden data-wh-sources-collapsed', html) is not None,
+          "#wh-source-chip reserved, or hidden and collapsed into the foot Sources area (cannot shift the page)")
     check("I1", re.search(r"\.verdict\s*\{[^}]*min-height:\s*72px", html) is not None,
           ".verdict min-height:72px (loading copy was TALLER than final)")
     check("I1", re.search(r"\.action-card\s*\{[^}]*min-height:\s*168px", html) is not None,

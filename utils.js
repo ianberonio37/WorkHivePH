@@ -4081,7 +4081,12 @@ function whListError(el, message, onRetry) {
   var e = escHtml;
   // SL L4 (2026-10-21): ~20 pages show a failed read through this card, many with their OWN sentence ("Couldn’t load
   // your skill matrix. Your levels are unknown right now, not zero.") - logged here, where it is shown, once per load.
-  if (typeof whTold === 'function') whTold('list', message || "Couldn’t load this. Check your connection and try again.");
+  // The default blames the connection only when there is no connection (outage-copy-honesty, 2026-10-23): online,
+  // "check your connection" sends a reader to fix the one thing that is working.
+  var _msg = message || ((typeof navigator !== 'undefined' && navigator.onLine === false)
+    ? "Couldn’t load this. You’re offline - it loads again when you reconnect."
+    : "Couldn’t load this. WorkHive did not answer - try again in a moment.");
+  if (typeof whTold === 'function') whTold('list', _msg);
   // ★THREE ENGLISH STRINGS IN THE CARD ~20 PAGES SHOW WHEN A READ FAILS (2026-09-18, W46017). The
   // Filipino walk of marketplace-seller recorded them in W45961 and named them as shared chrome; the
   // Filipino walk of public-feed hit the same three today, which is the second page and therefore the
@@ -4098,7 +4103,7 @@ function whListError(el, message, onRetry) {
   el.innerHTML =
     '<div class="wh-list-error" role="alert">'
     + '<div class="wh-list-error-icon" aria-hidden="true">⚠️</div>'
-    + '<div>' + e(message || "Couldn’t load this. Check your connection and try again.") + '</div>'
+    + '<div>' + e(_msg) + '</div>'
     + (onRetry ? '<button type="button" class="wh-list-retry">' + e(_tE('Retry', 'Subukan ulit')) + '</button>' : '')
     // T71 (2026-08-25): "is it me or them?" - every failure state now points at the one page
     // built to answer that. ONE central edit reaches every whListError adopter (~20 pages);

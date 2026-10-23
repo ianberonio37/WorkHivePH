@@ -95,6 +95,10 @@
       "html_kb": 150,
       "inline_script_kb": 120,
       "_reason": "JSON-Resume builder: upload->AI-extract->editable-checklist editor + TRUE-OOXML .docx export (JSZip) + cover-letter draft + map-reduce client logic. Grew over the 06-03..06-06 sweeps. Trim plan: extract the .docx/JSZip writer + the taxonomy matcher into separately-loaded modules (PLATFORM_ROADMAP F.5)."
+    },
+    "shift-brain.html": {
+      "inline_script_kb": 91,
+      "_reason": "2026-10-23: crossed the global inline budget (90.0KB > 80) through the SL program's fourteen commits since c458e051 (+200 lines, 40 of them comment): the hive's own clock on every time it shows (SL C1/CA3), each list saying which list it is while it waits or fails (F1/F4), the stored hive settled at start-up (BRH-H/G), provenance at the foot (ENH-R) and every figure stating its period and source (C2/D1), offline writes that sync in order (AV2), use recorded as events (L3), the rate limits (RL1-RL3). Budget set 1KB above measured so the next KB is argued for too. NOT ABSOLVED, FLAGGED AS DEBT: the same inline-script extraction already named for pm-scheduler, asset-hub and project-manager."
     }
   }
 }

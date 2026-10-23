@@ -8568,7 +8568,13 @@ function _edSolarPlanner() {
     const sc = document.createElement('script');
     sc.src = 'solar-planner.js';
     sc.onload = () => { _edPlannerLoading = false; mount(); };
-    sc.onerror = () => { _edPlannerLoading = false; sc.remove(); host.textContent = 'The planner could not load - check the connection, then close and open this section again.'; };
+    sc.onerror = () => {
+      _edPlannerLoading = false; sc.remove();
+      // only an offline reader is told it is their connection (outage-copy-honesty)
+      host.textContent = navigator.onLine === false
+        ? 'The planner could not load while you are offline - reconnect, then close and open this section again.'
+        : 'The planner could not load from WorkHive - close and open this section again.';
+    };
     document.head.appendChild(sc);
   };
   // a shared plan in the link opens the planner at once; otherwise it loads the first time the person opens it

@@ -435,6 +435,10 @@ def check_infinite_animation_kills(pages):
         ".skel",           # skeleton loading shorthand (achievements.html)
         ".oh-shimmer",     # operational home dashboard stat shimmer (index.html)
         ".live",           # connection status dot — functional live indicator
+        # BRH-K (a190d535) moved the live signal off a pulsing dot onto the words themselves: opacity only, running
+        # only while the state lasts, and stopped under prefers-reduced-motion
+        ".typing-label",   # assistant "Thinking..." while a reply is in flight
+        ".wh-live-label",  # logbook "Listening..." while the microphone is open
     }
 
     issues = []

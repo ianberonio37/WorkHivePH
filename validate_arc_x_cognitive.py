@@ -332,6 +332,10 @@ def _presence_guard(base, top_key, list_key, check_name, issues, prefix):
     for site in entries:
         rx = site.get("assert_present")
         f = site.get("file")
+        # a page deleted from the platform is not a page that regressed (component-adoption's rule, 1b382d9e):
+        # validator-catalog.html went in d7ecce37 and its filter read as "reverted to placeholder-only" (2026-10-23)
+        if f and not os.path.exists(f):
+            continue
         if rx and f and not re.search(rx, _src(f)):
             missing.append(f'{site.get("id", "?")} ({f})')
     if missing:

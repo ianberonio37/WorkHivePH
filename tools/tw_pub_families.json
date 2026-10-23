@@ -52,7 +52,7 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 972,
+   "harvested_tokens": 1051,
    "class_tokens": 103,
    "bytes": 8717,
    "classes_in_sheet": 66,
@@ -144,8 +144,8 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 2395,
-   "class_tokens": 104,
+   "harvested_tokens": 2480,
+   "class_tokens": 106,
    "bytes": 8941,
    "classes_in_sheet": 72,
    "non_utility_classes": [
@@ -185,7 +185,9 @@
     "wh-fb-submit",
     "wh-fb-textarea",
     "wh-skip-link",
-    "wh-source-chip"
+    "wh-source-chip",
+    "wh-sources",
+    "wh-sources-item"
    ]
   },
   "ramp": {
@@ -387,14 +389,16 @@
     "tools/wire-sizing-calculator/index.html"
    ],
    "local_scripts": [
+    "kpi-calc.js",
+    "solar-planner.js",
     "wh-feedback-fab.js",
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 1011,
-   "class_tokens": 111,
-   "bytes": 8137,
-   "classes_in_sheet": 54,
+   "harvested_tokens": 1972,
+   "class_tokens": 116,
+   "bytes": 8300,
+   "classes_in_sheet": 56,
    "non_utility_classes": [
     "active",
     "answer-first",
@@ -409,7 +413,6 @@
     "cta-btn",
     "cta-eyebrow",
     "cta-secondary",
-    "faq",
     "faq-answer",
     "faq-item",
     "filled",
@@ -452,8 +455,14 @@
     "wh-fb-stars",
     "wh-fb-submit",
     "wh-fb-textarea",
+    "wh-kc",
+    "wh-kc-printing",
     "wh-skip-link",
     "wh-source-chip",
+    "wh-sources",
+    "wh-sources-item",
+    "wh-sp",
+    "wh-sp-printing",
     "wh-tap"
    ]
   },
@@ -498,8 +507,8 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 1114,
-   "class_tokens": 126,
+   "harvested_tokens": 1194,
+   "class_tokens": 128,
    "bytes": 9660,
    "classes_in_sheet": 89,
    "non_utility_classes": [
@@ -542,9 +551,11 @@
     "wh-fb-submit",
     "wh-fb-textarea",
     "wh-skip-link",
-    "wh-source-chip"
+    "wh-source-chip",
+    "wh-sources",
+    "wh-sources-item"
    ]
   }
  },
- "generated": "2026-10-13T06:07:28.659Z"
+ "generated": "2026-10-23T07:16:29.708Z"
 }

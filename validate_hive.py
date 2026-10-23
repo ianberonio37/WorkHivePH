@@ -101,6 +101,24 @@ def extract_function_body(content, func_name, window=600):
     return content[m.start():m.start() + window]
 
 
+def extract_whole_function(content, func_name, cap=20000):
+    """The function up to its matching close brace. A fixed window was widened twice (2400 -> 3400) as rejectItem
+    grew, and went short again when its loadAuditLog() moved to char 3486 (2026-10-23): the call was there and the
+    check said it was not. Braces inside strings are rare enough here that the count lands on the real end."""
+    m = re.search(rf"async function {re.escape(func_name)}\s*\([^)]*\)\s*\{{", content)
+    if not m:
+        return None
+    depth = 0
+    for j in range(m.end() - 1, min(len(content), m.end() + cap)):
+        if content[j] == "{":
+            depth += 1
+        elif content[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return content[m.start():j + 1]
+    return content[m.start():m.start() + cap]
+
+
 # ── Layer 1: Realtime integrity ───────────────────────────────────────────────
 
 def check_realtime_coverage(content):
@@ -241,7 +259,7 @@ def check_supervisor_gate(content, func_name, check_id):
 def check_audit_log_on_power_actions(content):
     issues = []
     for func in ("kickMember", "approveItem", "rejectItem"):
-        body = extract_function_body(content, func, window=3400)  # widened 2026-08-25 (T20 whPrompt reason-capture lengthened rejectItem past 2400)
+        body = extract_whole_function(content, func)   # was a 3400-char window: rejectItem outgrew it twice
         if body is None:
             continue
         if "writeAuditLog" not in body:
@@ -259,7 +277,7 @@ def check_audit_log_refreshed_after_write(content):
     """
     issues = []
     for func in ("kickMember", "approveItem", "rejectItem"):
-        body = extract_function_body(content, func, window=3400)  # widened 2026-08-25 (T20 whPrompt reason-capture lengthened rejectItem past 2400)
+        body = extract_whole_function(content, func)   # was a 3400-char window: rejectItem outgrew it twice
         if body is None:
             continue
         if "writeAuditLog" not in body:
