@@ -17,7 +17,7 @@ SELECT CASE WHEN NOT EXISTS (
          SELECT 1 FROM pg_policy p WHERE p.polrelid = 'public.marketplace_inquiries'::regclass
             AND (coalesce(pg_get_expr(p.polqual, p.polrelid), '') || coalesce(pg_get_expr(p.polwithcheck, p.polrelid), '')) ILIKE '%seller_name%')
         AND (SELECT count(*) FROM pg_policy p WHERE p.polrelid = 'public.marketplace_inquiries'::regclass
-              AND (coalesce(pg_get_expr(p.polqual, p.polrelid), '') || coalesce(pg_get_expr(p.polwithcheck, p.polrelid), '')) ILIKE '%buyer_auth_uid = auth.uid()%') = 3
+              AND (coalesce(pg_get_expr(p.polqual, p.polrelid), '') || coalesce(pg_get_expr(p.polwithcheck, p.polrelid), '')) ~* 'buyer_auth_uid = (\( SELECT )?auth\.uid\(\)') = 3
        THEN 'PASS' ELSE 'FAIL' END || ' every inquiry policy keys its parties on accounts, none on a name';
 SELECT set_config('probe.inq', (SELECT i.id::text FROM public.marketplace_inquiries i JOIN public.marketplace_listings l ON l.id = i.listing_id
   WHERE i.buyer_name = 'Romeo Beltran' AND l.auth_uid = '91e0d1eb-cd96-43ee-af5f-0ff2714b3923' ORDER BY i.created_at LIMIT 1), true);

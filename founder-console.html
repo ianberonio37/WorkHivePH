@@ -1132,7 +1132,7 @@
 
       <div role="tabpanel" id="opc-panel-developer" aria-labelledby="opc-tab-developer" tabindex="0" class="opc-panel" hidden>
 
-      <!-- ═══ DEVELOPER - what the builder watches: the memory cache, the companion eval (OPC, 2026-10-22) ═══ -->
+      <!-- ═══ DEVELOPER - what the builder watches: the memory cache, the companion's evaluation (OPC, 2026-10-22) ═══ -->
       <div class="section" id="sec-developer" data-opc="founder-console.html::what-the-builder-watches">
         <div class="section-hdr">
           <h2>What the builder watches</h2>
@@ -1485,7 +1485,7 @@
       } else {
         const rows = p.type === 'timeseries' ? v.slice(-7).reverse() : v.slice(0, 10);
         const cols = opcCols(v);
-        body = '<div class="opc-table-wrap"><table class="opc-table"><thead><tr>'
+        body = `<div class="opc-table-wrap"><table class="opc-table" aria-label="${e(p.title || 'Figures')}"><thead><tr>`
           + cols.map((k) => `<th scope="col">${e(opcHead(k))}</th>`).join('') + '</tr></thead><tbody>'
           + rows.map((r) => '<tr>' + cols.map((k) => `<td${typeof r[k] === 'number' ? ' class="num"' : ''}`
               // a person's own words in a cell (a RAG question) are theirs, not the console's copy

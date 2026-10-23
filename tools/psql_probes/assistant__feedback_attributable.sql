@@ -7,7 +7,7 @@
 -- expect: restored \| t
 SELECT 'policy_binds_uid | ' || EXISTS (
   SELECT 1 FROM pg_policy WHERE polrelid = 'ai_reply_feedback'::regclass
-   AND COALESCE(pg_get_expr(polwithcheck, polrelid), '') ILIKE '%auth_uid = auth.uid()%');
+   AND COALESCE(pg_get_expr(polwithcheck, polrelid), '') ~* 'auth_uid = (\( SELECT )?auth\.uid\(\)');
 CREATE TEMP TABLE _fa AS
 SELECT hm.auth_uid AS me,
        (SELECT auth_uid FROM hive_members h2 WHERE h2.auth_uid IS NOT NULL

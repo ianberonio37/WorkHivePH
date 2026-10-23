@@ -13,7 +13,9 @@
 -- is non-empty for postgres, so the anon zero is a refusal and not an empty database.
 -- expect: control_tables_are_populated \| t
 -- expect: unexpected_anon_readable_tables \| 0
--- expect: allowlist_still_public \| 2
+-- expect: allowlist_still_public \| 3
+-- expect: anon_listing_rows_all_published \| t
+-- expect: anon_listing_withheld_columns_closed \| t
 -- expect: listings_public_view_serves_anon \| t
 -- expect: listings_base_table_closed_to_anon \| t
 -- expect: sellers_public_view_masks_contact_for_anon \| t
@@ -28,9 +30,12 @@
 CREATE TEMP TABLE _leak(tbl text, n bigint);
 GRANT INSERT, SELECT ON _leak TO anon;
 
--- the two TABLES the product deliberately shows a logged-out visitor (listings moved behind a view, H2)
+-- the TABLES the product deliberately shows a logged-out visitor. Listings moved behind a definer view on 2026-09-07
+-- (H2) and came back on 2026-10-21 (BRH-R, 20261021000006): the public view now runs as its reader, so anon holds
+-- COLUMN grants on the listing columns the view shows - never seller_contact, auth_uid or the moderation trail - and
+-- the row policy mkt_listings_read shows anon only published listings. The two legs after the loop hold it to that.
 CREATE TEMP TABLE _allow(tbl text);
-INSERT INTO _allow VALUES ('community_posts'), ('marketplace_sellers');
+INSERT INTO _allow VALUES ('community_posts'), ('marketplace_sellers'), ('marketplace_listings');
 
 SELECT 'hive_scoped_tables_checked | ' || count(*)
 FROM pg_class cl JOIN pg_namespace ns ON ns.oid=cl.relnamespace
@@ -86,6 +91,14 @@ SELECT 'allowlist_still_public | ' || count(*) FROM _leak WHERE tbl IN (SELECT t
 BEGIN;
 SET LOCAL ROLE anon;
 SELECT 'listings_public_view_serves_anon | ' || ((SELECT count(*) FROM public.v_marketplace_listings_public) > 0);
+-- BRH-R's shape: a stranger reading the base table sees published listings only, and none of its withheld columns
+SELECT 'anon_listing_rows_all_published | ' || NOT EXISTS (SELECT 1 FROM public.marketplace_listings WHERE status <> 'published');
+SELECT 'anon_listing_withheld_columns_closed | ' || NOT (
+     has_column_privilege('anon', 'public.marketplace_listings', 'seller_contact', 'SELECT')
+  OR has_column_privilege('anon', 'public.marketplace_listings', 'auth_uid', 'SELECT')
+  OR has_column_privilege('anon', 'public.marketplace_listings', 'moderation_reason', 'SELECT')
+  OR has_column_privilege('anon', 'public.marketplace_listings', 'moderated_by', 'SELECT')
+  OR has_column_privilege('anon', 'public.marketplace_listings', 'sold_to_inquiry_id', 'SELECT'));
 SELECT 'listings_base_table_closed_to_anon | ' || (NOT has_table_privilege('anon', 'public.marketplace_listings', 'SELECT'));
 -- the seller card / profile a stranger reads (20260907000006): rows served, the contact masked to NULL
 SELECT 'sellers_public_view_masks_contact_for_anon | ' || ((SELECT count(*) FROM public.v_marketplace_sellers_public) > 0

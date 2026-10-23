@@ -5,7 +5,9 @@
 -- never-edited (no chip), auth_uid is an identity key never printed raw. Every display field
 -- (author_name, content, category, created_at) is NOT NULL at the schema level, so a null corpse
 -- is structurally impossible on this surface. Verified against information_schema each run.
--- expect: nullable_columns \| auth_uid,deleted_at,edited_at
+-- D3 (20261016000001) added deleted_by beside deleted_at: who deleted a row, an identity key never printed, null
+-- while the row is live - the same kind as auth_uid, so the claim above holds with four.
+-- expect: nullable_columns \| auth_uid,deleted_at,deleted_by,edited_at
 -- forbid: edited_at,[a-z]
 -- expect: display_fields_not_null \| t
 SELECT 'nullable_columns | ' || string_agg(column_name, ',' ORDER BY column_name)

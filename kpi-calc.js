@@ -220,7 +220,7 @@
     }
     var id = 'kc' + (++uid);
     var STORE = 'wh_kpi_' + k + '_v1';
-    var state = JSON.parse(JSON.stringify(DEF[k]));
+    var state = JSON.parse(JSON.stringify(DEF[k]));   // json-parse-allow: a deep copy of the built-in defaults - always parses
     var fromLink = /(?:^|[#&])kpi=([^&]+)/.exec(location.hash || '');
     var loaded = fromLink ? decode(fromLink[1]) : null, savedFrom = loaded && loaded.k === k ? 'link' : null;
     if (!savedFrom) { loaded = null; try { loaded = decode(localStorage.getItem(STORE) || ''); if (loaded && loaded.k === k) savedFrom = 'device'; else loaded = null; } catch (_) { loaded = null; } }   // empty-catch-allow: storage blocked; the worked example opens

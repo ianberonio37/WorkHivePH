@@ -50,6 +50,7 @@ declare
   v_topup numeric := 5000;
   v_price numeric := 2000;
   v_circ0 numeric; v_circ1 numeric; v_bavail numeric; v_need numeric;
+  v_pay numeric; v_b0 numeric; v_price_b numeric;
   v_state text;
 begin
   -- CHOSEN ON THE CRITERIA, not pinned to a name, and the choice is printed. Seller A must have a hive
@@ -131,15 +132,22 @@ begin
       where account_type='consumer' and account_id=v_buyer);
 
   -- ---- the buyer pays for a job with those credits; B RECEIVES them ----------------------------------
+  -- what the buyer will pay, and what B holds BEFORE it - both read as postgres, before anyone steps down. The
+  -- payment is sized here because service_request_price answers for any id, so BRH-S (20261021000005) took it
+  -- from `authenticated` (the page asks my_service_request_price); called as the buyer it is a permission-denied
+  -- function call, and from this superuser-stepped-down session that segfaults the local server instead of
+  -- refusing (2026-10-23: the walk read "the loop does not close" with nothing after it).
+  v_pay := least(
+    (select coalesce(sum(amount),0) from public.service_credit_ledger
+      where account_type='consumer' and account_id=v_buyer),
+    round(public.service_request_price(v_req) * 0.10, 2));
+  select available into v_b0 from public.seller_credit_balance(v_provname);
   if '__INJECT__' <> 'spend' then
     perform set_config('request.jwt.claims',
       json_build_object('sub', v_buyer, 'role','authenticated')::text, true);
     begin
       execute 'set local role authenticated';
-      perform public.apply_credits_to_request(v_req, least(
-        (select coalesce(sum(amount),0) from public.service_credit_ledger
-          where account_type='consumer' and account_id=v_buyer),
-        round(public.service_request_price(v_req) * 0.10, 2)));
+      perform public.apply_credits_to_request(v_req, v_pay);
       v_state := 'PAID IN CREDITS';
     exception when others then v_state := left(sqlerrm, 70);
     end;
@@ -153,12 +161,22 @@ begin
   end if;
 
   -- ---- B publishes, funded ONLY by what B was paid ---------------------------------------------------
+  -- ★FUNDED ONLY BY WHAT B WAS PAID, BY CONSTRUCTION (2026-10-23). B is a real fixture, and its wallet grows as other
+  -- walks pay it: it already held PHP690 before this payment, enough for the PHP200 a PHP2,000 listing reserves, so
+  -- with the buyer's payment removed (--inject spend) B still published and the teeth read NO TEETH. B's listing is
+  -- now priced so its reservation is exactly what B held before PLUS the payment: B can publish only if the payment
+  -- arrived, whatever B's balance has drifted to.
+  v_price_b := trunc((v_b0 + v_pay) * 100.0 / public.service_knob_pct(v_hive, 'reward_pct'), 2);
   select available into v_bavail from public.seller_credit_balance(v_provname);
-  v_need := public.listing_reservation_amount(v_hive, v_price);
-  raise notice 'B holds PHP% and a PHP% listing needs PHP% reserved', v_bavail, v_price, v_need;
+  v_need := public.listing_reservation_amount(v_hive, v_price_b);
+  if v_need <= v_b0 then
+    raise exception 'THE WALK CANNOT PROVE THE LOOP: a PHP% listing reserves PHP%, which B already held (PHP%) before the payment of PHP%',
+      v_price_b, v_need, v_b0, v_pay;
+  end if;
+  raise notice 'B holds PHP% and a PHP% listing needs PHP% reserved', v_bavail, v_price_b, v_need;
 
   insert into public.marketplace_listings (hive_id, seller_name, title, price, status, category, section)
-  values (v_hive, v_provname, 'LOOPPROBE listing B', v_price, 'draft', 'tools', v_sec)
+  values (v_hive, v_provname, 'LOOPPROBE listing B', v_price_b, 'draft', 'tools', v_sec)
   returning id into v_listing_b;
   begin
     perform set_config('request.jwt.claims',

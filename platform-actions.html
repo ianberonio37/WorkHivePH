@@ -789,6 +789,7 @@
     // error, which emptyText() already words as "not visible with this session" rather than "nothing decided".
     async function fetchDecisions() {
       try {
+        // canonical-allow: platform_audit_log is the platform's decision trail, read whole by the page that shows it - not a KPI
         const { data, error } = await db.from('platform_audit_log')
           .select('id, actor, action, target_type, target_id, target_name, meta, created_at')
           .order('created_at', { ascending: false })

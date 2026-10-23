@@ -1207,6 +1207,7 @@
     let voiceComplete = true;
     try {
       for (let from = 0; ; from += PAGE) {
+        // canonical-allow: audit-log.html IS the canonical surface for ai_audit_log - this is its own export, row by row
         let q = db.from('ai_audit_log')
           .select('id, worker_name, event, payload, source, created_at')
           .eq('hive_id', HIVE_ID)
@@ -1356,6 +1357,7 @@ window.addEventListener('load', function () {
     p.className = 'wh-opc-pointer';
     p.setAttribute('role', 'note');
     p.style.cssText = 'margin:24px 0 8px;font-size:0.85rem;color:var(--wh-text-muted,rgba(255,255,255,.80));';
+    // gated-offer-ok: this note is built only after whPlatformAdminAnswer(getDb()) answers 'yes' - the server's own answer
     p.innerHTML = 'You are a platform admin, and this page shows one hive. The figures for every hive are in the '
       + '<a href="founder-console.html#operations" style="color:inherit;text-decoration:underline;display:inline-flex;align-items:center;min-height:44px">operator console</a>.';
     host.appendChild(p);

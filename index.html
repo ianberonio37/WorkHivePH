@@ -5529,6 +5529,7 @@
           // gateway refuses (414), and every asset then read as never serviced. An asset's completions all come back in
           // its own piece, newest first, so the first one seen per asset is still its newest.
           const _since = new Date(Date.now() - 30 * 86400000).toISOString();
+          // canonical-allow: solo-mode fallback - the truth view is hive-scoped only; per-asset completion rows are needed
           const { data: comps } = await whInChunks(assetIds, (part) => db.from('pm_completions')
             .select('asset_id, completed_at')
             .in('asset_id', part)

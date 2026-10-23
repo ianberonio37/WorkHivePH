@@ -21,6 +21,7 @@ SELECT m.auth_uid AS me, m.hive_id AS mine,
 FROM hive_members m
 WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
+  AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM asset_nodes x WHERE x.hive_id = m.hive_id)
 ORDER BY (m.role = 'supervisor') DESC
 LIMIT 1;
@@ -41,6 +42,7 @@ SELECT m.auth_uid AS me, m.hive_id AS mine,
 FROM hive_members m
 WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
+  AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM pm_assets x WHERE x.hive_id = m.hive_id)
 ORDER BY (m.role = 'supervisor') DESC
 LIMIT 1;
@@ -61,6 +63,7 @@ SELECT m.auth_uid AS me, m.hive_id AS mine,
 FROM hive_members m
 WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
+  AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM voice_journal_entries x WHERE x.hive_id = m.hive_id)
 ORDER BY (m.role = 'supervisor') DESC
 LIMIT 1;

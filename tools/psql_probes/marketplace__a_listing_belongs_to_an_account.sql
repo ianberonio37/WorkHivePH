@@ -19,7 +19,7 @@ SELECT CASE WHEN NOT EXISTS (
          SELECT 1 FROM pg_policy p WHERE p.polrelid = 'public.marketplace_listings'::regclass AND p.polcmd IN ('r', 'w', 'd')
             AND coalesce(pg_get_expr(p.polqual, p.polrelid), '') ILIKE '%auth_worker_names%')
         AND (SELECT count(*) FROM pg_policy p WHERE p.polrelid = 'public.marketplace_listings'::regclass
-              AND (coalesce(pg_get_expr(p.polqual, p.polrelid), '') || coalesce(pg_get_expr(p.polwithcheck, p.polrelid), '')) ILIKE '%auth_uid = auth.uid()%') >= 4
+              AND (coalesce(pg_get_expr(p.polqual, p.polrelid), '') || coalesce(pg_get_expr(p.polwithcheck, p.polrelid), '')) ~* 'auth_uid = (\( SELECT )?auth\.uid\(\)') >= 4
        THEN 'PASS' ELSE 'FAIL' END || ' every listing policy keys ownership on the account, none on a name';
 SELECT set_config('probe.listing', (SELECT id::text FROM public.marketplace_listings
   WHERE auth_uid = '91e0d1eb-cd96-43ee-af5f-0ff2714b3923' ORDER BY created_at, id LIMIT 1), true);

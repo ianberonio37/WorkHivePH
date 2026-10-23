@@ -72,6 +72,8 @@ LIVE_PAGES = [
     "marketplace-seller.html",
     "marketplace-seller-profile.html",
     "public-feed.html",
+    # in scope 2026-10-23: the operator console's action panels (OPC) render rows with innerHTML and interpolation
+    "operator-actions.js",
     "platform-actions.html",
     "project-manager.html",
     "integrations.html",
@@ -100,7 +102,9 @@ LIVE_PAGES = [
 ]
 
 # Pages that define escHtml themselves (don't load utils.js)
-SELF_DEFINES_ESC = {"engineering-design.html", "llm-observability.html"}
+# operator-actions.js (2026-10-23): `const e = escHtml when present, else an inline escaper` at its top - every row it
+# renders goes through e(...)
+SELF_DEFINES_ESC = {"engineering-design.html", "llm-observability.html", "operator-actions.js"}
 
 # Known-safe interpolation patterns: numbers, enums, internal counters
 SAFE_PATTERNS = [

@@ -3053,6 +3053,7 @@ function _isMinePost(p) {
       db.from('community_replies')
         .select('*').eq('post_id', postId).eq('hive_id', HIVE_ID)
         .order('created_at', { ascending: false }).order('id', { ascending: false }).limit(200 + 1),   // more-said: by loadReplies
+      // canonical-allow: the same forum thread detail as the read above - the post's accepted answer
       db.from('community_replies').select('*').eq('post_id', postId).eq('hive_id', HIVE_ID).eq('is_accepted', true).limit(1),
     ]);
     const _repliesMore = (_rd || []).length > 200;
@@ -3385,7 +3386,8 @@ function _isMinePost(p) {
         if (!id || ![...allPosts, ...pinnedPosts].some(p => p.id === id)) return;
         // scoped to this hive like every other community_posts read here (validate_community L2): the card being checked
         // is in this hive's own feed (allPosts / pinnedPosts), so the scope can only agree with it
-        const { data, error } = await db.from('community_posts').select('id').eq('id', id).eq('hive_id', HIVE_ID).is('deleted_at', null).maybeSingle();
+        // through the canonical view (security_invoker: the post's own policy still decides what this reader sees)
+        const { data, error } = await db.from('v_community_posts_truth').select('id').eq('id', id).eq('hive_id', HIVE_ID).is('deleted_at', null).maybeSingle();
         if (error || data) return;
         myPostIds.delete(id);
         allPosts    = allPosts.filter(p => p.id !== id);

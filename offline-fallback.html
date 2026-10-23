@@ -85,6 +85,7 @@
         busy = true;
         const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
         const t = setTimeout(() => { if (ctl) ctl.abort(); }, 5000);
+        // fetch-error-allow: a refused or timed-out probe is answered by .then's second argument (false)
         fetch(location.href, { method: 'HEAD', cache: 'no-store', signal: ctl ? ctl.signal : undefined })
           .then((r) => r.status < 500, () => false)
           .then((ok) => {

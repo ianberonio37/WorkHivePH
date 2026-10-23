@@ -673,7 +673,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whPhotoDrop whPhotoHydrate whPhotoSettle whProgressStrip whReadError whRecentlyDeleted whRequireOnline whRowCols whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
+<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whPhotoDrop whPhotoHydrate whPhotoSettle whProgressStrip whReadError whRecentlyDeleted whRequireOnline whRowCols whSearchList whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1491,7 +1491,7 @@ function _invRenderList() {
     return `
     <div class="part-card stock-${st} p-5 mb-3" data-part-id="${escHtml(String(item.id))}">
       <div class="flex items-start gap-4">
-        ${invPhotoImg(item, 'alt="Inventory item photo" class="photo-thumb flex-shrink-0 mt-0.5"')}
+        ${invPhotoImg(item, 'Inventory item photo', 'class="photo-thumb flex-shrink-0 mt-0.5"')}
         <div class="flex-1 min-w-0">
           <div class="flex items-start justify-between gap-2 mb-1">
             <div class="flex items-center gap-2 flex-wrap min-w-0">
@@ -1668,13 +1668,13 @@ function renderAssetLinker() {
 let currentPhotoData = null;
 let _invPhotoStored = null, _invPhotoChanged = false;
 const INV_PHOTO_BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-// A part's photo as an <img>: its thumbnail by object name, filled by whPhotoHydrate; or from its own data while it is
+// A part's photo as an img element (alt always written, from its own argument): its thumbnail by object name, filled by whPhotoHydrate; or from its own data while it is
 // still on this device (a part saved offline). '' when it has none.
-function invPhotoImg(item, attrs) {
+function invPhotoImg(item, alt, attrs) {
   const name = item.photo_thumb_path || item.photo_path;
   const own = !name && item.photo && (item.photo.startsWith('data:image/') || item.photo.startsWith('https://')) ? item.photo : '';
-  if (name) return `<img data-wh-photo="${escHtml(name)}" src="${INV_PHOTO_BLANK}" ${attrs} />`;
-  return own ? `<img src="${escHtml(own)}" ${attrs} />` : '';
+  if (name) return `<img alt="${escHtml(alt)}" data-wh-photo="${escHtml(name)}" src="${INV_PHOTO_BLANK}" ${attrs} />`;
+  return own ? `<img alt="${escHtml(alt)}" src="${escHtml(own)}" ${attrs} />` : '';
 }
 
 document.getElementById('f-photo-input').addEventListener('change', function() {
@@ -2549,7 +2549,7 @@ function openDetailModal(id) {
         </div>
         <p class="text-base text-white/85 font-medium mb-4">${escHtml(item.part_name)}</p>
       </div>
-      ${invPhotoImg(item, 'alt="Inventory item photo" class="photo-thumb flex-shrink-0"')}
+      ${invPhotoImg(item, 'Inventory item photo', 'class="photo-thumb flex-shrink-0"')}
     </div>
     ${item.status === 'pending' && HIVE_ID ? `
     <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(247,162,27,0.07);border:1px solid rgba(247,162,27,0.22);">

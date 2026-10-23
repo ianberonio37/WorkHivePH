@@ -6,10 +6,10 @@
 -- expect: select_hive_scoped \| t
 SELECT 'update_owner_scoped | ' || EXISTS (
   SELECT 1 FROM pg_policy WHERE polrelid='logbook'::regclass AND polcmd='w'
-   AND pg_get_expr(polqual, polrelid) ILIKE '%auth_uid = auth.uid()%');
+   AND pg_get_expr(polqual, polrelid) ~* 'auth_uid = (\( SELECT )?auth\.uid\(\)');
 SELECT 'delete_owner_scoped | ' || EXISTS (
   SELECT 1 FROM pg_policy WHERE polrelid='logbook'::regclass AND polcmd='d'
-   AND pg_get_expr(polqual, polrelid) ILIKE '%auth_uid = auth.uid()%');
+   AND pg_get_expr(polqual, polrelid) ~* 'auth_uid = (\( SELECT )?auth\.uid\(\)');
 SELECT 'select_hive_scoped | ' || EXISTS (
   SELECT 1 FROM pg_policy WHERE polrelid='logbook'::regclass AND polcmd='r'
    AND pg_get_expr(polqual, polrelid) ILIKE '%hive_%');

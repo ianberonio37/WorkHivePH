@@ -3883,6 +3883,7 @@ function whServerAnswers(timeoutMs) {
   if (!url || typeof fetch !== 'function') return Promise.resolve(typeof navigator === 'undefined' || navigator.onLine !== false);
   var ctl = (typeof AbortController === 'function') ? new AbortController() : null;
   var t = setTimeout(function () { try { if (ctl) ctl.abort(); } catch (_) { /* empty-catch-allow: an abort that cannot run leaves the fetch to fail on its own */ } }, timeoutMs || 5000);
+  // fetch-error-allow: a refused or timed-out probe is answered by .then's second argument (false)
   _whProbeBusy = fetch(url + '/rest/v1/' + WH_PROBE_RELATION + '?select=id&limit=1', {
     method: 'HEAD', cache: 'no-store', headers: { apikey: window.WH_SUPABASE_ANON_KEY || '' }, signal: ctl ? ctl.signal : undefined
   }).then(function (r) { return !!r && r.status < 500; }, function () { return false; })

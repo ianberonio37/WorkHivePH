@@ -10602,6 +10602,7 @@ async function edOpenSharedFromHash() {
 
 function edCompareKeep() {
   if (!_calcType || !_lastInputs) { showToast('Run the calculation first, then keep it as scenario A.'); return; }
+  // json-parse-allow: a deep copy of the form's own plain values - stringify's output always parses
   _edScenarioA = { t: _calcType, at: new Date(), highlights: edReportHighlights(), inputs: JSON.parse(JSON.stringify(_lastInputs)) };
   edCompareRender();
   showToast('Kept as scenario A. Change the inputs and run again to see A beside the new result.', 6000);

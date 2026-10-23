@@ -1927,6 +1927,7 @@
       const _dzKeys = [...new Set(all.map(a => a.dedupeKey).filter(Boolean))];
       const _dzReads = [];
       for (let j = 0; j < _dzKeys.length; j += 100) {
+        // canonical-allow: alert_dismissals is UI-interaction state (each alert's handled/snoozed disposition), not a KPI
         _dzReads.push(db.from('alert_dismissals')
           .select('alert_key, action, snooze_until')
           .eq('hive_id', HIVE_ID)

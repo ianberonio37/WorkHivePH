@@ -42,10 +42,12 @@ SELECT 'every_plan_names_its_time | ' || (
 -- Ratcheted rather than asserted true: the count is printed, and the bound only ever moves down.
 SELECT 'plans_missing_input_health | ' || (
   SELECT count(*) FROM shift_plans
-   WHERE payload IS NOT NULL AND NOT (payload ? 'degraded' AND payload ? 'fetch_errors'));
+   WHERE payload IS NOT NULL AND NOT (payload ? 'degraded' AND payload ? 'fetch_errors')
+     AND generated_by NOT LIKE 'L2P%');   -- a walk's own seeded probe row (.tmp/slw/l2_seed.py) is not a plan anyone made
 SELECT 'input_health_within_ratchet | ' || (
   (SELECT count(*) FROM shift_plans
-    WHERE payload IS NOT NULL AND NOT (payload ? 'degraded' AND payload ? 'fetch_errors')) <= 5);
+    WHERE payload IS NOT NULL AND NOT (payload ? 'degraded' AND payload ? 'fetch_errors')
+      AND generated_by NOT LIKE 'L2P%') <= 5);
 
 -- the gap, asserted so it cannot drift silently in either direction
 SELECT 'plan_records_no_model | ' || NOT EXISTS (

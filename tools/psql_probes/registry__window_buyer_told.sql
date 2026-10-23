@@ -30,7 +30,13 @@ SELECT set_config('request.jwt.claims',
 SELECT 'rows_checked | ' || count(*) FROM v_service_request_truth;
 SELECT 'deadline_present | ' || (objection_deadline IS NOT NULL)
   FROM v_service_request_truth WHERE id = (SELECT job_id FROM _wt);
-SELECT 'deadline_disagreements | ' || count(*) FROM v_service_request_truth t
+-- what the BUYER sees is kept, then compared with the sweep's own date AS POSTGRES: service_objection_deadline
+-- answers for any id, so BRH-S closed it to `authenticated`, and called as the buyer it is a permission-denied
+-- function call - from this superuser-stepped-down session that segfaults the local server instead of refusing
+-- (2026-10-23: the whole suite then read the database's recovery as thirteen failed recipes)
+CREATE TEMP TABLE _wt_seen ON COMMIT DROP AS SELECT id, objection_deadline FROM v_service_request_truth;
+SET LOCAL ROLE postgres;
+SELECT 'deadline_disagreements | ' || count(*) FROM _wt_seen t
  WHERE t.objection_deadline IS DISTINCT FROM service_objection_deadline(t.id);
 ROLLBACK;
 DROP TABLE _wt;
