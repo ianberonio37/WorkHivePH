@@ -319,7 +319,7 @@ window.WH_CONSOLE_PANELS = [
    },
    {
     "key": "companion_eval_pass_score",
-    "title": "Companion Eval — pass score",
+    "title": "Companion Eval: pass score",
     "type": "stat",
     "unit": "",
     "opc": "grafana:workhive-founder-ops::companion-eval-pass-score",

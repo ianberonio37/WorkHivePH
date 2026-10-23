@@ -1,8 +1,8 @@
 {
   "summary": {
     "pages_scanned": 28,
-    "total_issues": 1,
-    "baseline": 1
+    "total_issues": 0,
+    "baseline": 0
   },
   "per_page": [
     {
@@ -33,6 +33,7 @@
         3,
         3,
         2,
+        2,
         2
       ],
       "issues": []
@@ -50,6 +51,7 @@
         2,
         2,
         2,
+        2,
         3,
         3
       ],
@@ -62,6 +64,7 @@
         1,
         2,
         3,
+        2,
         3,
         3,
         3,
@@ -74,6 +77,7 @@
       "page": "inventory.html",
       "levels": [
         1,
+        2,
         2,
         2,
         2,
@@ -96,7 +100,8 @@
         3,
         3,
         3,
-        3
+        3,
+        2
       ],
       "issues": []
     },
@@ -133,6 +138,7 @@
         2,
         2,
         2,
+        2,
         2
       ],
       "issues": []
@@ -140,8 +146,9 @@
     {
       "page": "analytics-report.html",
       "levels": [
-        2,
         1,
+        2,
+        2,
         2,
         2,
         3,
@@ -173,7 +180,8 @@
         2,
         3,
         3,
-        3
+        3,
+        2
       ],
       "issues": []
     },
@@ -181,6 +189,7 @@
       "page": "community.html",
       "levels": [
         1,
+        2,
         2,
         2,
         2,
@@ -194,6 +203,7 @@
       "page": "public-feed.html",
       "levels": [
         1,
+        2,
         2
       ],
       "issues": []
@@ -202,6 +212,7 @@
       "page": "marketplace.html",
       "levels": [
         1,
+        2,
         2,
         2,
         3,
@@ -221,6 +232,7 @@
       "levels": [
         2,
         1,
+        2,
         2,
         2,
         2,
@@ -247,6 +259,7 @@
         2,
         2,
         2,
+        2,
         2
       ],
       "issues": []
@@ -257,6 +270,7 @@
         2,
         1,
         2,
+        2,
         2
       ],
       "issues": []
@@ -265,20 +279,16 @@
       "page": "assistant.html",
       "levels": [
         1,
-        1,
+        2,
         2
       ],
-      "issues": [
-        {
-          "kind": "multiple_h1",
-          "count": 2
-        }
-      ]
+      "issues": []
     },
     {
       "page": "report-sender.html",
       "levels": [
         1,
+        2,
         2,
         2,
         2,
@@ -294,6 +304,7 @@
       "levels": [
         2,
         1,
+        2,
         2,
         2,
         2,
@@ -333,6 +344,8 @@
         2,
         2,
         2,
+        2,
+        2,
         2
       ],
       "issues": []
@@ -341,6 +354,7 @@
       "page": "ph-intelligence.html",
       "levels": [
         1,
+        2,
         2,
         2,
         2,
@@ -360,6 +374,7 @@
         2,
         2,
         2,
+        2,
         3,
         3
       ],
@@ -372,6 +387,7 @@
         1,
         2,
         2,
+        2,
         3,
         3,
         3
@@ -382,6 +398,7 @@
       "page": "plant-connections.html",
       "levels": [
         1,
+        2,
         2,
         2,
         3,
@@ -402,6 +419,7 @@
       "page": "achievements.html",
       "levels": [
         1,
+        2,
         2,
         2,
         2
@@ -428,6 +446,7 @@
         2,
         2,
         2,
+        2,
         2
       ],
       "issues": []
@@ -435,8 +454,9 @@
     {
       "page": "shift-brain.html",
       "levels": [
-        2,
         1,
+        2,
+        2,
         2,
         2,
         2,
@@ -450,6 +470,7 @@
         1,
         2,
         2,
+        2,
         3
       ],
       "issues": []
@@ -458,6 +479,7 @@
       "page": "audit-log.html",
       "levels": [
         1,
+        2,
         2,
         2,
         2

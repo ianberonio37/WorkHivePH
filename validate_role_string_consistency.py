@@ -93,6 +93,9 @@ def main() -> int:
         if not path.exists(): continue
         body = HTML_COMMENT_RE.sub("", path.read_text(encoding="utf-8", errors="replace"))
         for m in ROLE_CMP_RE.finditer(body):
+            # `typeof whReconcileHiveRole === 'function'` asks whether a HELPER loaded, not which
+            # role someone holds: 11 such guards read as a role named 'function' (2026-10-23).
+            if re.search(r"\btypeof\s*\(?\s*$", body[max(0, m.start() - 20):m.start()]): continue
             val = m.group("val")
             win = body[max(0, m.start() - 200):m.end() + 200]
             if ALLOW_RE.search(win): continue

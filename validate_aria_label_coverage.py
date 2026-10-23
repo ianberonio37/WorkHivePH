@@ -133,6 +133,11 @@ def main() -> int:
             # <input id="X"> with a matching <label for="X">?
             im = ATTR_ID.search(attrs)
             if im and im.group(1) in label_targets: continue
+            # Wrapped in its <label> (the implicit label - an accessible name per HTML-AAM): the nearest <label
+            # opened before the input has not closed yet. plant-connections' retention-days input is labelled this
+            # way and read as nameless (2026-10-23).
+            _open, _close = body.rfind("<label", 0, m.start()), body.rfind("</label>", 0, m.start())
+            if _open > _close and _open >= 0 and m.start() - _open < 600: continue
             # Placeholder alone is NOT an accessible name per WCAG, but the
             # team uses it as a soft fallback — accept for now (baseline).
             if ATTR_PLACEHOLDER.search(attrs): continue

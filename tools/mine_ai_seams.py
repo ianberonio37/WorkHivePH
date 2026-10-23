@@ -111,7 +111,9 @@ SKIP_PARTS = {
 #
 # Scoped to the prove_/validate_ naming this repo uses rigorously rather than to all of tools/,
 # because tools/ also holds production-ish scripts whose calls ARE real seams.
-_INSTRUMENT_PREFIXES = ("prove_", "validate_")
+# test_ (2026-10-23): tools/test_prover_signin_key.mjs is the test OF a prover - its "seam" was an assertion string,
+# check('the load-time model function is stubbed', ...'route:**/functions/v1/shift-planner-orchestrator**'), read as a call
+_INSTRUMENT_PREFIXES = ("prove_", "validate_", "test_")
 # the prover LIBRARIES the prove_ scripts import (2026-09-07): tools/ai_ask.mjs carries the 429 mock routes for the
 # AI front doors and was mined as two new SaaS->AI seams; a harness module is an instrument, not a caller
 _INSTRUMENT_FILES = {"prover_harness.mjs", "ai_ask.mjs"}

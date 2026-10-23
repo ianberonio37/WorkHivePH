@@ -57,7 +57,8 @@ def _shift_line_anchored() -> str | None:
     # T46 walk (2026-09-02): the GREETING must ride the same plant clock — "Magandang hapon ...
     # Umaga Shift" rendered on one line at 09:53 Manila because _greeting still used viewer-local
     # hours. The platform speaks plant time everywhere, greeting included.
-    g = re.search(r"function _greeting\([\s\S]{0,900}?\n  \}", src)
+    # (window 900 -> 2400 on 2026-10-23: the function grew its BRH-M comment; the anchor had not moved)
+    g = re.search(r"function _greeting\([\s\S]{0,2400}?\n  \}", src)
     if not g:
         return "index.html _greeting() not found - the greeting anchor moved; re-point this check"
     if "Asia/Manila" not in g.group(0):

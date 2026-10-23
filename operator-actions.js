@@ -246,6 +246,7 @@
     // error, which emptyText() already words as "not visible with this session" rather than "nothing decided".
     async function fetchDecisions() {
       try {
+        // canonical-allow: platform_audit_log is the platform's decision trail, read whole by the page that shows it - not a KPI
         const { data, error } = await db.from('platform_audit_log')
           .select('id, actor, action, target_type, target_id, target_name, meta, created_at')
           .order('created_at', { ascending: false })
@@ -387,7 +388,10 @@
         return;
       }
       if (typeof whStatValue === 'function') whStatValue(el, n); else el.textContent = n;
-      el.className = 'count' + (n > 0 && level ? ' ' + level : '');
+      /* ONLY AN EMPTY QUEUE DROPS THE LEVEL (2026-10-23). `n > 0` held for a number and was false for every
+         formatted figure: '50+' > 0 and '0.75x' > 0 are both false in JS, so a capped queue never turned amber
+         and liability cover below 1.00x never turned red - the one signal the retired RAG dot existed to give. */
+      el.className = 'count' + (level && !(typeof n === 'number' && n <= 0) ? ' ' + level : '');
     }
 
     // dashboard-allow: platform-actions is a governance ACTION-QUEUE console (approve/verify/resolve),
@@ -626,11 +630,16 @@
         return n;
       };
       const add = (...xs) => xs.some(x => x === null) ? null : xs.reduce((a, b) => a + b, 0);
-      const topups   = add(sum('topup'), sum('starter_grant'));
-      const _comm    = sum('commission');
-      const earned   = _comm === null ? null : -_comm;   // historical only; the rate is 0 now
-      const vouchers = sum('voucher_grant');             // retired mechanic, kept for historical rows
-      const liability = add(topups, sum('cashback'), vouchers, earned === null ? null : -earned);
+      /* CASH IN IS THE TOP-UPS; CREDITS OWED IS THE WHOLE LEDGER (2026-10-23). This read
+         `topups = topup + starter_grant` and a liability of five hand-picked entry types. A starter grant is
+         free credit issued against the supply cap - no peso enters - so it sat in the CASH half of the ratio,
+         and adjustment / holding_fee / reward_* / voucher_reimburse never reached the owed half at all.
+         Measured on the local ledger: 1500 topup + 3500 starter_grant + 200 adjustment - 360 commission. The
+         tile read 1.08x; cash in over credits owed is 1500 / 4840 = 0.31x. An account's balance is the sum
+         of every ledger row on it (person_credit_balance), so what the platform owes is every row, any type. */
+      const topups   = sum('topup');
+      const liability = (m.totals || []).length
+        ? add(...(m.totals || []).map(r => sum(r.entry_type))) : 0;
       /* COVER COUNTED THE COMMISSION TWICE (found 2026-08-04, BC-ufai-F money_matches_ledger walk:
          the tile read 1.63 while cash-in / credits-owed is 1.32).
          The numerator was `topups + earned`. But commission is taken IN CREDITS, not in new cash —

@@ -13,6 +13,7 @@
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
 <script data-wh-skew-heal="whAbbr whListError whListSkeleton whOhBadge whProgressStrip whSourcesSync">
+/* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -30,6 +31,7 @@
   try { window.stop(); } catch (e) { void e; }
   fetch('utils.js', { cache: 'reload' }).catch(function () { return null; }).then(function () { location.reload(); });
 })(document.currentScript);
+/* jscpd:ignore-end */
 </script>
   <link rel="stylesheet" href="tokens.css">
   <link rel="stylesheet" href="components.css">
@@ -155,7 +157,7 @@
     if (!axesEl) return;
     axesEl.innerHTML = '<p style="margin:0 0 1rem;font-size:.85rem;color:var(--wh-text-muted,rgba(255,255,255,.80))">'
       + 'The operator console now measures how central the design system is. Its Developer tab shows the tokens, the shared patterns and the storage keys. '
-      + '<a href="founder-console.html#developer" style="color:inherit;text-decoration:underline;display:inline-flex;align-items:center;min-height:44px">Open the Developer tab</a>'
+      + '<a href="founder-console.html#developer" style="color:inherit;text-decoration:underline;display:inline-flex;align-items:center;min-height:44px">Open the Developer tab</a>'  // link-allow: #developer is the console's JS hash route to its Developer tab
       + ' (that page is for platform admins).</p>';
   })();
 

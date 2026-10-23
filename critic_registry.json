@@ -2275232,34 +2275232,6 @@
       "findings": []
     },
     {
-      "id": "ENH18",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/ahu-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH19",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/ahu-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH20",
       "wave": "ENH-P",
       "status": "pending",
@@ -2275279,34 +2275251,6 @@
       "status": "pending",
       "pages": [
         "tools/ahu-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH22",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/beam-design-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH23",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/beam-design-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2275344,34 +2275288,6 @@
       "findings": []
     },
     {
-      "id": "ENH26",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/bearing-life-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH27",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/bearing-life-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH28",
       "wave": "ENH-P",
       "status": "pending",
@@ -2275391,34 +2275307,6 @@
       "status": "pending",
       "pages": [
         "tools/bearing-life-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH30",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/boiler-steam-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH31",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/boiler-steam-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2275456,34 +2275344,6 @@
       "findings": []
     },
     {
-      "id": "ENH34",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/boiler-system-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH35",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/boiler-system-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH36",
       "wave": "ENH-P",
       "status": "pending",
@@ -2275503,34 +2275363,6 @@
       "status": "pending",
       "pages": [
         "tools/boiler-system-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH38",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/bolt-torque-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH39",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/bolt-torque-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2275568,34 +2275400,6 @@
       "findings": []
     },
     {
-      "id": "ENH42",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/cable-tray-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH43",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/cable-tray-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH44",
       "wave": "ENH-P",
       "status": "pending",
@@ -2275615,20 +2275419,6 @@
       "status": "pending",
       "pages": [
         "tools/cable-tray-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH46",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/chiller-sizing-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2275666,34 +2275456,6 @@
       "findings": []
     },
     {
-      "id": "ENH49",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/clean-agent-suppression-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH50",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/clean-agent-suppression-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH51",
       "wave": "ENH-P",
       "status": "pending",
@@ -2275713,20 +2275475,6 @@
       "status": "pending",
       "pages": [
         "tools/clean-agent-suppression-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH53",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/compressed-air-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2275764,34 +2275512,6 @@
       "findings": []
     },
     {
-      "id": "ENH56",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/cooling-tower-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH57",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/cooling-tower-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH58",
       "wave": "ENH-P",
       "status": "pending",
@@ -2275811,34 +2275531,6 @@
       "status": "pending",
       "pages": [
         "tools/cooling-tower-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH60",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/domestic-water-demand-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH61",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/domestic-water-demand-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2275876,20 +2275568,6 @@
       "findings": []
     },
     {
-      "id": "ENH64",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/drainage-pipe-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH65",
       "wave": "ENH-P",
       "status": "pending",
@@ -2275909,34 +2275587,6 @@
       "status": "pending",
       "pages": [
         "tools/drainage-pipe-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH67",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/duct-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH68",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/duct-sizing-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2275974,34 +2275624,6 @@
       "findings": []
     },
     {
-      "id": "ENH71",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/earthing-grounding-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH72",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/earthing-grounding-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH73",
       "wave": "ENH-P",
       "status": "pending",
@@ -2276021,34 +2275643,6 @@
       "status": "pending",
       "pages": [
         "tools/earthing-grounding-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH75",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/elevator-traffic-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH76",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/elevator-traffic-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2276086,34 +2275680,6 @@
       "findings": []
     },
     {
-      "id": "ENH79",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/expansion-tank-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH80",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/expansion-tank-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH81",
       "wave": "ENH-P",
       "status": "pending",
@@ -2276133,34 +2275699,6 @@
       "status": "pending",
       "pages": [
         "tools/expansion-tank-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH83",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/fcu-selection-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH84",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/fcu-selection-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2276198,34 +2275736,6 @@
       "findings": []
     },
     {
-      "id": "ENH87",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/fire-alarm-battery-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH88",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/fire-alarm-battery-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH89",
       "wave": "ENH-P",
       "status": "pending",
@@ -2276245,20 +2275755,6 @@
       "status": "pending",
       "pages": [
         "tools/fire-alarm-battery-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH91",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/fire-pump-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2276296,34 +2275792,6 @@
       "findings": []
     },
     {
-      "id": "ENH94",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/fire-sprinkler-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH95",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/fire-sprinkler-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH96",
       "wave": "ENH-P",
       "status": "pending",
@@ -2276343,20 +2275811,6 @@
       "status": "pending",
       "pages": [
         "tools/fire-sprinkler-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH98",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/generator-sizing-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2276394,34 +2275848,6 @@
       "findings": []
     },
     {
-      "id": "ENH101",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/grease-trap-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH102",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/grease-trap-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH103",
       "wave": "ENH-P",
       "status": "pending",
@@ -2276441,34 +2275867,6 @@
       "status": "pending",
       "pages": [
         "tools/grease-trap-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH105",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/harmonic-distortion-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH106",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/harmonic-distortion-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2276506,34 +2275904,6 @@
       "findings": []
     },
     {
-      "id": "ENH109",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/heat-exchanger-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH110",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/heat-exchanger-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH111",
       "wave": "ENH-P",
       "status": "pending",
@@ -2276553,34 +2275923,6 @@
       "status": "pending",
       "pages": [
         "tools/heat-exchanger-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH113",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/hoist-capacity-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH114",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/hoist-capacity-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2276618,34 +2275960,6 @@
       "findings": []
     },
     {
-      "id": "ENH117",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/hot-water-demand-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH118",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/hot-water-demand-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH119",
       "wave": "ENH-P",
       "status": "pending",
@@ -2276665,20 +2275979,6 @@
       "status": "pending",
       "pages": [
         "tools/hot-water-demand-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH121",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/hvac-cooling-load-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2276716,34 +2276016,6 @@
       "findings": []
     },
     {
-      "id": "ENH124",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/hydraulic-cylinder-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH125",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/hydraulic-cylinder-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH126",
       "wave": "ENH-P",
       "status": "pending",
@@ -2276763,34 +2276035,6 @@
       "status": "pending",
       "pages": [
         "tools/hydraulic-cylinder-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH128",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/lighting-design-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH129",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/lighting-design-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2276828,34 +2276072,6 @@
       "findings": []
     },
     {
-      "id": "ENH132",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/lightning-protection-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH133",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/lightning-protection-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH134",
       "wave": "ENH-P",
       "status": "pending",
@@ -2276884,34 +2276100,6 @@
       "findings": []
     },
     {
-      "id": "ENH136",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/load-estimation-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH137",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/load-estimation-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH138",
       "wave": "ENH-P",
       "status": "pending",
@@ -2276931,34 +2276119,6 @@
       "status": "pending",
       "pages": [
         "tools/load-estimation-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH140",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/load-schedule-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH141",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/load-schedule-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2277052,34 +2276212,6 @@
       "findings": []
     },
     {
-      "id": "ENH148",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/noise-acoustics-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH149",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/noise-acoustics-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH150",
       "wave": "ENH-P",
       "status": "pending",
@@ -2277150,20 +2276282,6 @@
       "findings": []
     },
     {
-      "id": "ENH155",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/pipe-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH156",
       "wave": "ENH-P",
       "status": "pending",
@@ -2277183,34 +2276301,6 @@
       "status": "pending",
       "pages": [
         "tools/pipe-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH158",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/power-factor-correction-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH159",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/power-factor-correction-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2277248,34 +2276338,6 @@
       "findings": []
     },
     {
-      "id": "ENH162",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/pressure-vessel-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH163",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/pressure-vessel-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH164",
       "wave": "ENH-P",
       "status": "pending",
@@ -2277295,20 +2276357,6 @@
       "status": "pending",
       "pages": [
         "tools/pressure-vessel-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH166",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/pump-tdh-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2277346,34 +2276394,6 @@
       "findings": []
     },
     {
-      "id": "ENH169",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/refrigerant-pipe-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH170",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/refrigerant-pipe-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH171",
       "wave": "ENH-P",
       "status": "pending",
@@ -2277393,34 +2276413,6 @@
       "status": "pending",
       "pages": [
         "tools/refrigerant-pipe-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH173",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/roof-drain-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH174",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/roof-drain-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2277458,34 +2276450,6 @@
       "findings": []
     },
     {
-      "id": "ENH177",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/septic-tank-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH178",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/septic-tank-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH179",
       "wave": "ENH-P",
       "status": "pending",
@@ -2277505,34 +2276469,6 @@
       "status": "pending",
       "pages": [
         "tools/septic-tank-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH181",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/sewer-drainage-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH182",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/sewer-drainage-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2277570,34 +2276506,6 @@
       "findings": []
     },
     {
-      "id": "ENH185",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/shaft-design-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH186",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/shaft-design-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH187",
       "wave": "ENH-P",
       "status": "pending",
@@ -2277617,34 +2276525,6 @@
       "status": "pending",
       "pages": [
         "tools/shaft-design-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH189",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/short-circuit-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH190",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/short-circuit-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2277696,34 +2276576,6 @@
       "findings": []
     },
     {
-      "id": "ENH194",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/stairwell-pressurization-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH195",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/stairwell-pressurization-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH196",
       "wave": "ENH-P",
       "status": "pending",
@@ -2277743,34 +2276595,6 @@
       "status": "pending",
       "pages": [
         "tools/stairwell-pressurization-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH198",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/storm-drain-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH199",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/storm-drain-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2277808,34 +2276632,6 @@
       "findings": []
     },
     {
-      "id": "ENH202",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/transformer-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH203",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/transformer-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH204",
       "wave": "ENH-P",
       "status": "pending",
@@ -2277855,20 +2276651,6 @@
       "status": "pending",
       "pages": [
         "tools/transformer-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH206",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/ups-sizing-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2277906,34 +2276688,6 @@
       "findings": []
     },
     {
-      "id": "ENH209",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/v-belt-drive-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH210",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/v-belt-drive-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH211",
       "wave": "ENH-P",
       "status": "pending",
@@ -2277953,34 +2276707,6 @@
       "status": "pending",
       "pages": [
         "tools/v-belt-drive-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH213",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/ventilation-ach-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH214",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/ventilation-ach-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2278018,34 +2276744,6 @@
       "findings": []
     },
     {
-      "id": "ENH217",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/vibration-isolation-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH218",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/vibration-isolation-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH219",
       "wave": "ENH-P",
       "status": "pending",
@@ -2278065,34 +2276763,6 @@
       "status": "pending",
       "pages": [
         "tools/vibration-isolation-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH221",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/voltage-drop-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH222",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/voltage-drop-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2278130,34 +2276800,6 @@
       "findings": []
     },
     {
-      "id": "ENH225",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/wastewater-stp-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH226",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/wastewater-stp-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH227",
       "wave": "ENH-P",
       "status": "pending",
@@ -2278177,34 +2276819,6 @@
       "status": "pending",
       "pages": [
         "tools/wastewater-stp-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH229",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/water-softener-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH230",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/water-softener-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2278242,20 +2276856,6 @@
       "findings": []
     },
     {
-      "id": "ENH233",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/water-supply-pipe-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH234",
       "wave": "ENH-P",
       "status": "pending",
@@ -2278275,34 +2276875,6 @@
       "status": "pending",
       "pages": [
         "tools/water-supply-pipe-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH236",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/water-treatment-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH237",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/water-treatment-calculator/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2278340,34 +2276912,6 @@
       "findings": []
     },
     {
-      "id": "ENH240",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/wire-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH241",
-      "wave": "ENH-P",
-      "status": "pending",
-      "pages": [
-        "tools/wire-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
       "id": "ENH242",
       "wave": "ENH-P",
       "status": "pending",
@@ -2278387,636 +2276931,6 @@
       "status": "pending",
       "pages": [
         "tools/wire-sizing-calculator/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH244",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/ai-companion-hezekiah-zaniah-personas/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH245",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/ai-quality-and-roi-stage-2-plants/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH246",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/ai-work-assistant-maintenance-technicians/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH247",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/asset-brain-360-one-machine-history-philippine-plant/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH248",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/autonomous-shift-planning-philippine-plants/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH249",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/bms-facilities-maintenance-peza-buildings/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH250",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/building-asset-register-zero-budget/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH251",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/cmms-vs-excel-spreadsheet-maintenance/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH252",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/connecting-workhive-to-sap-maximo-cmms/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH253",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/dilo-wilo-day-planner-supervisors/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH254",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/dole-iso-audit-trail-from-logbook/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH255",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/fmea-worked-example-philippine-bottling-line/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH256",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/food-beverage-plant-maintenance-philippines/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH257",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/four-phases-maintenance-analytics-philippine-plants/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH258",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/free-pm-checklist-templates/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH259",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/gamifying-maintenance-for-engagement/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH260",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/industrial-community-of-practice-philippines/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH261",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/industrial-marketplace-philippine-specialists/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH262",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/joining-and-growing-your-hive/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH263",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/loto-procedures-dole-oshs-template/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH264",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/maintenance-project-planning-template/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH265",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/maintenance-shift-handover-template/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH266",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/ofw-engineer-portable-portfolio/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH267",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/ph-industrial-benchmarks-intelligence/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH268",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/philippine-plants-now-pay-the-highest-power-rates/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH269",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/plant-alert-inbox-amc-daily-brief/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH270",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/power-plant-reliability-metrics-philippines/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH271",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/predictive-alert-thresholds-plants/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH272",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/predictive-maintenance-on-a-budget-philippines/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH273",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/print-ready-maintenance-analytics-report/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH274",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/psme-iiee-piche-which-association-to-join/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH275",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/ra-11285-energy-efficiency-plant-checklist/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH276",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/reduce-unplanned-downtime-guide/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH277",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/reliability-centered-maintenance-philippine-plants/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH278",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/resume-builder-for-filipino-industrial-workers/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH279",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/sensor-cmms-gateway-operations/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH280",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/skill-matrix-for-maintenance-technicians/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH281",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/spare-parts-inventory-philippine-plants/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH282",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/start-digital-logbook-philippine-factory/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH283",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/start-digital-maintenance-guide/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH284",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/tesda-nc-mapping-to-skill-matrix/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH285",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/thermography-for-pm-philippine-plants/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH286",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/vibration-analysis-on-a-phone-budget/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH287",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/voice-to-text-maintenance-philippine-plant-floor/index.html"
-      ],
-      "cell": "wide-1920|anon|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "ENH288",
-      "wave": "ENH-L",
-      "status": "pending",
-      "pages": [
-        "learn/workhive-ai-companion-complete-capabilities/index.html"
       ],
       "cell": "wide-1920|anon|browser-ui|operate",
       "walk_viewport_px": 1920,
@@ -2279866,20 +2277780,6 @@
     },
     {
       "id": "OPC12",
-      "wave": "OPC-O",
-      "status": "pending",
-      "pages": [
-        "founder-console.html"
-      ],
-      "cell": "wide-1920|oversight|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "OPC13",
       "wave": "OPC-O",
       "status": "pending",
       "pages": [
@@ -2280986,20 +2278886,6 @@
     },
     {
       "id": "OPC92",
-      "wave": "OPC-D",
-      "status": "pending",
-      "pages": [
-        "founder-console.html"
-      ],
-      "cell": "wide-1920|oversight|browser-ui|operate",
-      "walk_viewport_px": 1920,
-      "target_source": "critic_seed_missing",
-      "needs_review": false,
-      "dims_graded": [],
-      "findings": []
-    },
-    {
-      "id": "OPC93",
       "wave": "OPC-D",
       "status": "pending",
       "pages": [

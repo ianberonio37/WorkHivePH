@@ -145,6 +145,7 @@ RESET_TABLES = [
     # Logs + cache + audit
     "automation_log",
     "hive_audit_log",
+    "platform_audit_log",  # 20261021000001 (SL L2): the platform's decision trail, written on every decision path
     "login_attempts",  # Arc I I7/A — server-side brute-force lockout counter (reset between test runs)
     "hive_analytics_cache",
     "agent_memory",
@@ -258,6 +259,9 @@ RESET_TABLES_NON_ID = {
     # issued_credits stays as it was, so the two can disagree after a reset. Today both are 0. If credits
     # are ever issued locally, this needs an explicit zeroing step, which reset.py has no shape for yet.
     "credit_treasury":       ("id", 1),
+    # 20261020000003 (LB2): the ledger's running totals, one row per entry type (PK entry_type), kept by a trigger on
+    # service_credit_ledger - cleared with it, or a reset ledger would sit beside the totals of the one before
+    "service_credit_ledger_totals": ("entry_type", "__none__"),
     "ai_cache":             ("key", "__none__"),
     "ai_user_rate_limits":  ("user_id", "00000000-0000-0000-0000-000000000000"),
     "wh_traces":            ("trace_id", "__none__"),

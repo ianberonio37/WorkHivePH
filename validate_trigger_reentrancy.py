@@ -62,6 +62,12 @@ MIGRATIONS_DIR = os.path.join("supabase", "migrations")
 # Per (fn_name, table) exemptions for L1 with one-line justification.
 TRIGGER_REENTRANCY_OK: dict[tuple[str, str], str] = {
     # ("fn_name", "table"): "reason"
+    ("replace_deleted_pairing", "project_links"):
+        "BEFORE INSERT; its only self-write is a DELETE of the soft-deleted twin, and a DELETE cannot fire an "
+        "INSERT trigger - no path back into itself (D3, 20261016000001)",
+    ("replace_deleted_pairing", "project_roles"):
+        "BEFORE INSERT; its only self-write is a DELETE of the soft-deleted twin, and a DELETE cannot fire an "
+        "INSERT trigger - no path back into itself (D3, 20261016000001)",
 }
 
 CREATE_FN_RE = re.compile(

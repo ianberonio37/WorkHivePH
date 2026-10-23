@@ -129,17 +129,19 @@ test.describe('marketplace simulation — admin tier', () => {
     await page.goto('/workhive/founder-console.html');
     await page.waitForTimeout(8000);
     const t = await page.evaluate(() => ({
-      text: (document.getElementById('credit-economy-content')?.innerText || '')
+      // OPC (1d6ecd88): the console's Credit economy health panel; the cover figure replaced the RAG dot
+      text: (document.getElementById('cp-content')?.innerText || '')
         .replace(/\s+/g, ' ').trim(),
-      rag: document.getElementById('rag-credit-economy')?.className || '',
+      cover: (document.getElementById('cp-cover')?.textContent || '').trim(),
     }));
-    for (const label of ['EARNED REVENUE', 'CREDIT LIABILITY', 'LIABILITY COVER', 'CASHBACK']) {
-      expect(t.text.toUpperCase(), `the money tile is missing "${label}" — the four numbers the `
-        + 'sustainability study says to watch').toContain(label);
+    // Earned revenue and cashback were retired (no commission; mig 20260803000030), so a tile showing them
+    // could only print PHP0 - the founder spec asserts they are GONE. The figures that remain:
+    for (const label of ['CREDIT LIABILITY', 'LIABILITY COVER', 'TOTAL WORKHIVE CREDITS', 'CREDITS ISSUED']) {
+      expect(t.text.toUpperCase(), `the money tile is missing "${label}"`).toContain(label);
     }
     // Cover is the one that matters: it says whether every credit could be honoured tomorrow.
     expect(t.text, 'liability cover renders no actual multiple').toMatch(/[\d.]+x/i);
-    expect(t.rag, 'the RAG dot never resolved').toMatch(/green|amber|red/);
+    expect(t.cover, 'the cover figure never resolved').toMatch(/^\d+\.\d{2}x$/);
   });
 
   test('MS-ADMIN-money-tile-is-not-guessing: figures match the ledger', async ({ page }) => {
@@ -149,16 +151,16 @@ test.describe('marketplace simulation — admin tier', () => {
     const cmp = await page.evaluate(async () => {
       const db = (window as any).getDb();
       const { data } = await db.from('service_credit_ledger').select('entry_type,amount');
-      const sum = (t: string) => (data || []).filter((r: any) => r.entry_type === t)
-        .reduce((a: number, r: any) => a + Number(r.amount || 0), 0);
-      const earned = -sum('commission');
-      const shown = (document.getElementById('credit-economy-content')?.innerText || '');
+      // the first peso on the tile is Credit liability now (earned revenue retired): every ledger row, any type,
+      // because a balance is the sum of an account's rows
+      const liability = (data || []).reduce((a: number, r: any) => a + Number(r.amount || 0), 0);
+      const shown = (document.getElementById('cp-content')?.innerText || '');
       const first = Number((shown.match(/₱\s*([\d,]+\.\d{2})/) || [])[1]?.replace(/,/g, '') || -1);
-      return { earned: Math.round(earned * 100) / 100, first };
+      return { liability: Math.round(liability * 100) / 100, first };
     });
     // The tile is computed from the ledger, never from a cached profile column — this platform has
     // been bitten by trust numbers standing on nothing.
-    expect(cmp.first, `the tile shows ${cmp.first} as earned revenue but the ledger sums to ${cmp.earned}`)
-      .toBeCloseTo(cmp.earned, 2);
+    expect(cmp.first, `the tile shows ${cmp.first} as credit liability but the ledger sums to ${cmp.liability}`)
+      .toBeCloseTo(cmp.liability, 2);
   });
 });

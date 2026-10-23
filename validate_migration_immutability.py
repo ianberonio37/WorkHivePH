@@ -64,6 +64,10 @@ TIMESTAMP_RE = re.compile(r"^\d{14}_[a-z0-9_]+\.sql$")
 # (verify the second commit landed BEFORE the migration was deployed; if
 # yes, the entry is permanently safe; if not, it's prod/clone drift).
 ALLOWED_MULTI_COMMIT = {
+    # ── 2026-10-23: edited before it ever reached production (`supabase migration list` shows no remote row) ──
+    "20261021000002_l3_usage_events.sql":
+        "BRH-Y (66ecd128, same day as 9b1fe959): `revoke ... from public` -> `from public, anon`, because Supabase grants "
+        "anon EXECUTE explicitly. Unapplied in production when edited, so production receives the final content.",
     # ── 2026-09-04 prod deploy of the security batch (commit 1548378e, deploy recorded in 6fab5624) ──
     "20260831000001_anon_cannot_read_post_author_uid.sql":
         "2026-09-04 prod deploy: wrapped the GRANT to grafana_reader in a DO block guarded by pg_roles (the role exists only locally); idempotent no-op where the role is present, deployed content is the guarded form.",

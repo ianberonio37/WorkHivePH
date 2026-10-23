@@ -22,6 +22,7 @@
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
 <script data-wh-skew-heal="whAbbr whAiTrustRow whHiveContextLost whHiveContextNotice whListSkeleton whMoreNote whReadError whRequireOnline whSourcesSync whStartupHive whUse">
+/* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -39,6 +40,7 @@
   try { window.stop(); } catch (e) { void e; }
   fetch('utils.js', { cache: 'reload' }).catch(function () { return null; }).then(function () { location.reload(); });
 })(document.currentScript);
+/* jscpd:ignore-end */
 </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />

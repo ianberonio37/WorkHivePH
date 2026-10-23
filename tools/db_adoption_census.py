@@ -90,9 +90,12 @@ def run_census():
     d1_adopt = {t for t in tenant if T[t]["rls"]}
     d2_adopt = {t for t in d1_adopt if T[t]["verdict_scoped"]}
     authuid_tables = {t for t, v in T.items() if v["auth_uid_col"]}
-    # a bind_* trigger is the STRONGER pin (server-side, immune to policy drift) — counts as adoption
+    # a bind_* trigger is the STRONGER pin (server-side, immune to policy drift) — counts as adoption.
+    # LB2 (20261020000003) rewrote 227 policies to the initplan form `auth_uid = ( SELECT auth.uid() AS uid)`;
+    # the bare-form regex then read 17 owner-pinned tables as having dropped the pin (2026-10-23).
     d3_adopt = {t for t in authuid_tables
-                if re.search(r"auth_uid\s*=\s*auth\.uid\(\)|auth\.uid\(\)\s*=\s*auth_uid", T[t]["policies"]) or T[t]["bind"]}
+                if re.search(r"auth_uid\s*=\s*(?:\(\s*SELECT\s+)?auth\.uid\(\)|auth\.uid\(\)(?:\s+AS\s+uid\s*\))?\s*=\s*auth_uid",
+                             T[t]["policies"], re.I) or T[t]["bind"]}
     d4_adopt = {v for v, x in V.items() if x["invoker_on"]}
 
     rows = [

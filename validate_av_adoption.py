@@ -122,13 +122,26 @@ def main() -> int:
             f"av_component_registry AV1.exempt with a reason (this case used to pass silently)")
 
     # ── AV2: session hygiene, keyed to each page's own identity signals ─────────────────────
+    # A script only ONE family page loads is that page's own code split into a file, so its identity reads are the
+    # page's: OPC (1d6ecd88) moved founder-console's queue reads into operator-actions.js, and the console - which
+    # still loads session-timeout.js - left the need-set and read as a lost adopter (2026-10-23).
+    loaders: dict[str, list[str]] = {}
+    for p in all_pages:
+        if (ROOT / p).exists():
+            for js in re.findall(r'<script[^>]*\bsrc="([\w.-]+\.js)"', (ROOT / p).read_text(encoding="utf-8", errors="ignore")):
+                loaders.setdefault(js, []).append(p)
+    owned = {by[0]: [] for by in loaders.values() if len(by) == 1}
+    for js, by in loaders.items():
+        if len(by) == 1 and (ROOT / js).exists():
+            owned[by[0]].append((ROOT / js).read_text(encoding="utf-8", errors="ignore"))
     hyg_need, hyg_have, hyg_missing = [], [], []
     for p in all_pages:
         f = ROOT / p
         if not f.exists() or p in hyg_exempt:
             continue
         raw = f.read_text(encoding="utf-8", errors="ignore")
-        if not any(re.search(sig, raw) for sig in IDENTITY_SIGNALS):
+        code = "\n".join([raw] + owned.get(p, []))
+        if not any(re.search(sig, code) for sig in IDENTITY_SIGNALS):
             continue  # no identity and no tenant read: not in the need-set
         hyg_need.append(p)
         (hyg_have if HYGIENE_TAG.search(raw) else hyg_missing).append(p)
@@ -146,6 +159,21 @@ def main() -> int:
         except Exception:
             floors = {}
     f_av1, f_av2 = floors.get("AV1", 0), floors.get("AV2", 0)
+    # A page deleted from the platform is not a page that stopped adopting (component-adoption's rule, 1b382d9e):
+    # when the whole shortfall is adopters gone from disk, the floor follows them down by exactly that many.
+    try:
+        base_rows = {r["id"]: r for r in json.loads(BASELINE.read_text(encoding="utf-8")).get("rows", [])}
+    except Exception:
+        base_rows = {}
+    rebased = []
+    for cid, have_n, floor in (("AV1", len(adopters), f_av1), ("AV2", len(hyg_have), f_av2)):
+        gone = [p for p in base_rows.get(cid, {}).get("adopters", []) if not (ROOT / p).exists()]
+        if have_n < floor and gone and have_n >= floor - len(gone):
+            rebased.append(f"{cid} {floor} -> {have_n} (adopter page(s) deleted: {', '.join(gone)})")
+            if cid == "AV1": f_av1 = have_n
+            else: f_av2 = have_n
+    for r in rebased:
+        print(f"  REBASED {r}")
     if len(adopters) < f_av1:
         failures.append(f"AV1 adoption fell {f_av1} -> {len(adopters)}")
     if len(hyg_have) < f_av2:

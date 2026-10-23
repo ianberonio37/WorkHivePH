@@ -166,8 +166,10 @@ test.describe('marketplace simulation — the founder decides whether money land
     await page.waitForTimeout(8000);
 
     const shown = await page.evaluate(() => ({
-      text: (document.getElementById('credit-economy-content')?.innerText || '').replace(/\s+/g, ' '),
-      rag: document.getElementById('rag-credit-economy')?.className || '',
+      // OPC (1d6ecd88): the console's Credit economy health panel; the cover figure replaced the RAG dot
+      text: (document.getElementById('cp-content')?.innerText || '').replace(/\s+/g, ' '),
+      cover: (document.getElementById('cp-cover')?.textContent || '').trim(),
+      coverClass: document.getElementById('cp-cover')?.className || '',
     }));
 
     // Liability is what the platform owes: every credit minted and not yet spent. Cover says whether the
@@ -183,17 +185,21 @@ test.describe('marketplace simulation — the founder decides whether money land
     expect(shown.text.toUpperCase(), 'the "Cashback minted" tile is still rendered after cashback was '
       + 'retired').not.toContain('CASHBACK');
 
-    expect(shown.rag, 'the liability RAG never resolved, so nothing signals when cover falls below 1.0')
-      .toMatch(/green|amber|red/);
+    expect(shown.cover, 'the liability cover never resolved to a multiple').toMatch(/^\d+\.\d{2}x$/);
+    // below 1.00x the figure must SAY so: setCount once dropped the level for any formatted figure ('0.75x' > 0
+    // is false), so a cover under 1.0 printed in the calm colour (2026-10-23)
+    if (parseFloat(shown.cover) < 1) {
+      expect(shown.coverClass, 'cover is below 1.00x and nothing signals it').toMatch(/warn|fail/);
+    }
 
     /* The tile must stand on the LEDGER. The first peso on it is now Credit liability (the earned tile
        that used to be first is gone), so that is what gets checked against a ledger sum computed here
-       from the same definition the page uses: topups + cashback + vouchers − earned. */
+       from the same definition the page uses: every ledger row, any type (2026-10-23). A balance is the sum
+       of an account's rows, so credits owed is the sum of the ledger; the old five-type formula
+       (topups + cashback + vouchers − earned) left out starter grants, adjustments and holding fees. */
     const admin = adminClient();
     const { data } = await admin.from('service_credit_ledger').select('entry_type,amount');
-    const sum = (t: string) => (data || []).filter((r: any) => r.entry_type === t)
-      .reduce((a: number, r: any) => a + Number(r.amount || 0), 0);
-    const liability = sum('topup') + sum('cashback') + sum('voucher_grant') - (-sum('commission'));
+    const liability = (data || []).reduce((a: number, r: any) => a + Number(r.amount || 0), 0);
     const firstPeso = Number((shown.text.match(/₱\s*([\d,]+\.\d{2})/) || [])[1]?.replace(/,/g, '') ?? -1);
     expect(firstPeso, `the tile reports ${firstPeso} liability but the ledger sums to ${liability} — a `
       + 'money dashboard standing on something other than the ledger').toBeCloseTo(liability, 2);

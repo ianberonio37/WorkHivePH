@@ -96,7 +96,7 @@
       "targets": [ { "refId": "A", "format": "table", "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" }, "rawSql": "select count(*) as value from platform_feedback where $__timeFilter(created_at)" } ]
     },
     {
-      "id": 12, "type": "stat", "title": "Companion Eval — pass score",
+      "id": 12, "type": "stat", "title": "Companion Eval: pass score",
       "gridPos": { "h": 4, "w": 6, "x": 6, "y": 29 },
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "supabase_local" },
       "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "steps": [ { "color": "red", "value": null }, { "color": "orange", "value": 60 }, { "color": "green", "value": 70 } ] } }, "overrides": [] },

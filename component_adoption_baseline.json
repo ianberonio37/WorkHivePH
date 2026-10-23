@@ -1,6 +1,6 @@
 {
   "_doc": "Component adoption baseline (Layer F). Floors are FORWARD-ONLY: validate_component_adoption.py fails any drop and auto-tightens any rise. Regenerate view: python tools/component_adoption_census.py",
-  "generated": "2026-10-20T16:06:12.692988+00:00",
+  "generated": "2026-10-23T06:20:54.159404+00:00",
   "family_pages": 39,
   "rows": [
     {
@@ -67,9 +67,9 @@
       "satisfies": "R3",
       "mode": "measured",
       "need_rule": "family",
-      "adopters_n": 22,
+      "adopters_n": 21,
       "need_n": 39,
-      "pct": 56,
+      "pct": 54,
       "adopters": [
         "achievements.html",
         "ai-quality.html",
@@ -79,7 +79,6 @@
         "asset-hub.html",
         "dayplanner.html",
         "design-system.html",
-        "founder-console.html",
         "hive.html",
         "index.html",
         "integrations.html",
@@ -100,6 +99,7 @@
         "audit-log.html",
         "community.html",
         "engineering-design.html",
+        "founder-console.html",
         "llm-observability.html",
         "logbook.html",
         "marketplace-admin.html",
@@ -136,8 +136,8 @@
       "mode": "measured",
       "need_rule": "wide-table",
       "adopters_n": 11,
-      "need_n": 14,
-      "pct": 79,
+      "need_n": 16,
+      "pct": 69,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
@@ -154,6 +154,8 @@
       "gap": [
         "analytics-report.html",
         "assistant.html",
+        "engineering-design.html",
+        "founder-console.html",
         "llm-observability.html"
       ],
       "status": "built"
@@ -267,15 +269,16 @@
       "satisfies": "J2",
       "mode": "measured",
       "need_rule": "destructive",
-      "adopters_n": 19,
-      "need_n": 21,
-      "pct": 90,
+      "adopters_n": 20,
+      "need_n": 22,
+      "pct": 91,
       "adopters": [
         "alert-hub.html",
         "asset-hub.html",
         "community.html",
         "dayplanner.html",
         "design-system.html",
+        "engineering-design.html",
         "founder-console.html",
         "hive.html",
         "index.html",
@@ -303,7 +306,7 @@
       "name": "chips / pills / tabs vocabulary",
       "satisfies": "R3",
       "mode": "census-only",
-      "adopters_n": 28,
+      "adopters_n": 27,
       "adopters": [
         "agentic-rag-observability.html",
         "alert-hub.html",
@@ -315,7 +318,6 @@
         "dayplanner.html",
         "design-system.html",
         "engineering-design.html",
-        "founder-console.html",
         "index.html",
         "inventory.html",
         "llm-observability.html",
@@ -343,8 +345,8 @@
       "mode": "measured",
       "need_rule": "async-data",
       "adopters_n": 31,
-      "need_n": 35,
-      "pct": 89,
+      "need_n": 36,
+      "pct": 86,
       "adopters": [
         "achievements.html",
         "agentic-rag-observability.html",
@@ -380,6 +382,7 @@
       ],
       "gap": [
         "analytics-report.html",
+        "engineering-design.html",
         "founder-console.html",
         "llm-observability.html",
         "platform-actions.html"
@@ -408,9 +411,9 @@
       "satisfies": "N1",
       "mode": "measured",
       "need_rule": "renders-date",
-      "adopters_n": 23,
-      "need_n": 26,
-      "pct": 88,
+      "adopters_n": 24,
+      "need_n": 27,
+      "pct": 89,
       "adopters": [
         "alert-hub.html",
         "analytics-report.html",
@@ -421,6 +424,7 @@
         "community.html",
         "dayplanner.html",
         "design-system.html",
+        "founder-console.html",
         "hive.html",
         "integrations.html",
         "inventory.html",
@@ -437,7 +441,7 @@
         "voice-journal.html"
       ],
       "gap": [
-        "founder-console.html",
+        "engineering-design.html",
         "llm-observability.html",
         "platform-actions.html"
       ],
@@ -451,8 +455,8 @@
       "mode": "measured",
       "need_rule": "renders-number",
       "adopters_n": 6,
-      "need_n": 16,
-      "pct": 38,
+      "need_n": 25,
+      "pct": 24,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
@@ -463,15 +467,24 @@
       ],
       "gap": [
         "achievements.html",
+        "alert-hub.html",
+        "analytics.html",
         "asset-hub.html",
         "assistant.html",
         "audit-log.html",
+        "dayplanner.html",
+        "engineering-design.html",
         "founder-console.html",
         "hive.html",
+        "index.html",
+        "inventory.html",
         "llm-observability.html",
+        "logbook.html",
+        "marketplace-seller-profile.html",
         "marketplace-seller.html",
         "platform-actions.html",
-        "pm-scheduler.html"
+        "pm-scheduler.html",
+        "resume.html"
       ],
       "status": "built"
     },
@@ -483,8 +496,8 @@
       "mode": "measured",
       "need_rule": "peso",
       "adopters_n": 11,
-      "need_n": 12,
-      "pct": 92,
+      "need_n": 13,
+      "pct": 85,
       "adopters": [
         "ai-quality.html",
         "asset-hub.html",
@@ -499,6 +512,7 @@
         "project-report.html"
       ],
       "gap": [
+        "engineering-design.html",
         "platform-actions.html"
       ],
       "status": "built"
@@ -567,8 +581,8 @@
       "satisfies": "E3",
       "mode": "measured",
       "need_rule": "async-data",
-      "adopters_n": 32,
-      "need_n": 34,
+      "adopters_n": 33,
+      "need_n": 35,
       "pct": 94,
       "adopters": [
         "achievements.html",
@@ -582,6 +596,7 @@
         "community.html",
         "dayplanner.html",
         "design-system.html",
+        "engineering-design.html",
         "founder-console.html",
         "hive.html",
         "index.html",
@@ -780,19 +795,19 @@
   ],
   "drift": [],
   "floors": {
-    "FC1": 22,
+    "FC1": 21,
     "FC3": 11,
     "FI1": 37,
-    "FI2": 19,
+    "FI2": 20,
     "FF1": 31,
-    "FD1a": 23,
+    "FD1a": 24,
     "FD1b": 6,
     "FD1c": 11,
     "FD1e": 15,
-    "FD3": 32,
+    "FD3": 33,
     "FCh1": 31,
     "FCh2": 29,
     "FCh3": 33
   },
-  "tightened": false
+  "tightened": true
 }

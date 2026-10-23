@@ -3178,6 +3178,7 @@
 
   <script src="utils.js"></script>
 <script data-wh-skew-heal="whClearIdentity whFmtAgo whFreshnessFooter whHiveId whIsDismissed whListError whListSkeleton whLogError whMoreNote whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whUse whWorker whWriteError">
+/* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -3195,6 +3196,7 @@
   try { window.stop(); } catch (e) { void e; }
   fetch('utils.js', { cache: 'reload' }).catch(function () { return null; }).then(function () { location.reload(); });
 })(document.currentScript);
+/* jscpd:ignore-end */
 </script>
   <script src="wh-persona.js"></script>
   <script src="nav-hub.js"></script>

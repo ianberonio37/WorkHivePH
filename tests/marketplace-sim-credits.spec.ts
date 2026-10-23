@@ -117,15 +117,17 @@ test.describe('marketplace simulation — the credit wallet', () => {
     await page.goto('/workhive/founder-console.html');
     await page.waitForTimeout(9000);
     const t = await page.evaluate(() =>
-      (document.getElementById('credit-economy-content') as HTMLElement)?.innerText.replace(/\s+/g, ' ') || '');
+      (document.getElementById('cp-content') as HTMLElement)?.innerText.replace(/\s+/g, ' ') || '');   // OPC: the console's Credit economy health panel
     /* Compared upper-case because .l is CSS-uppercased and innerText returns what is RENDERED, not what
        the source wrote. Asserting the source casing failed while the display was perfectly correct. */
     const seen = t.toUpperCase();
-    for (const label of ['Total WorkHive Credits', 'In circulation', 'Available to issue', 'Conversion rate']) {
+    // the console's labels since OPC: "Credits issued" (was In circulation), "Credits available to issue",
+    // and the rate stated as its own figure, "1 credit = ₱1 · Fixed, and never moves"
+    for (const label of ['Total WorkHive Credits', 'Credits issued', 'Available to issue', 'Fixed, and never moves']) {
       expect(seen, `the founder console never shows "${label}"`).toContain(label.toUpperCase());
     }
     expect(t, 'the supply shown is not the 10,000,000 cap').toMatch(/10,000,000/);
-    expect(t, 'nothing states the rate is fixed, so nothing says it never moves').toMatch(/1 credit = PHP1/);
+    expect(t, 'nothing states the rate is fixed, so nothing says it never moves').toMatch(/1 credit = ₱1/);
   });
 
   test('the card promises exactly what the database will pay', async ({ page }) => {

@@ -1968,6 +1968,7 @@
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
 <script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whMoreNote whRealtimeBackfill whRequireOnline whRowCols whSourcesSync whUse">
+/* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -1985,6 +1986,7 @@
   try { window.stop(); } catch (e) { void e; }
   fetch('utils.js', { cache: 'reload' }).catch(function () { return null; }).then(function () { location.reload(); });
 })(document.currentScript);
+/* jscpd:ignore-end */
 </script>
 <script src="wh-capture-validate.js"></script>
 <script src="nav-hub.js"></script>
@@ -4992,7 +4994,7 @@ async function loadMembers() {
         .neq('status', 'kicked')
         .order('joined_at')
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500),  // L2: hive members are bounded-by-nature (<= dozens); insurance cap, never truncates the member list · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
+        .limit(500),  // L2: hive members are bounded-by-nature (<= dozens); insurance cap, never truncates the member list · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more; limit-as-count-allow: stat-members counts this list
       db.from('v_logbook_truth')
         .select('worker_name')
         .eq('hive_id', HIVE_ID)

@@ -13,6 +13,7 @@
     "wh_community_last_seen:",
     "wh_draft_scope_told",
     "wh_embed_retry",
+    "wh_fallback_reload",
     "wh_hive_code",
     "wh_hive_maturity_stair",
     "wh_hive_name",

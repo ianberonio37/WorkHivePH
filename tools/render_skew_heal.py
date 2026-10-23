@@ -70,7 +70,11 @@ def heal_pages() -> list[str]:
 UTILS_TAG = re.compile(r'<script src="utils\.js"></script>')
 BLOCK_RX = re.compile(r'<script data-wh-skew-heal="([^"]*)">(.*?)</script>', re.S)
 
+# The jscpd markers: this block is identical on every page BY DESIGN (one source, this file), and the clone-debt
+# ratchet read it as 205 lines of new copy-paste across 6 page pairs (2026-10-23). The markers keep generated code
+# out of a measure that is about hand-written copies; a hand edit to a block still fails --check below.
 BODY = [
+    "/* jscpd:ignore-start */",
     "/* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.",
     "   The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks",
     "   some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it",
@@ -88,6 +92,7 @@ BODY = [
     "  try { window.stop(); } catch (e) { void e; }",
     "  fetch('utils.js', { cache: 'reload' }).catch(function () { return null; }).then(function () { location.reload(); });",
     "})(document.currentScript);",
+    "/* jscpd:ignore-end */",
 ]
 
 

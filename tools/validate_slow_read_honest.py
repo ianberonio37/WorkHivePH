@@ -149,14 +149,16 @@ def shared_problems(utils: str) -> list[str]:
         if not re.search(r"_fn\.nodeValue = _fn\.nodeValue\.replace\(/\^\\s\*Checking\\b\\s\*·\\s\*/, ''\);", st):
             bad.append("utils.js: a failed chip still says 'Read failed · Checking'")
     eh = _fn(u, "whEnsureHiveContext")
-    if not re.search(r"if \(mem\.error\) \{ window\._whHiveSeatUnread = true; return null; \}", eh):
+    # [^{}]* between the flag and the return: the helpers now also keep the error beside the flag
+    # (window._whHiveSeatUnreadError / _whRoleUnreadError, 2026-10-23) - the flag and the null answer are what count
+    if not re.search(r"if \(mem\.error\) \{ window\._whHiveSeatUnread = true;[^{}]*return null; \}", eh):
         bad.append("utils.js: whEnsureHiveContext answers an unreadable lookup and 'no hive' the same - a gate walls on a "
                    "reason it never checked")
     sh = _fn(u, "whStartupHive")
     if "out.unread = !out.id && window._whHiveSeatUnread === true;" not in sh:
         bad.append("utils.js: whStartupHive does not pass on 'the hive lookup never answered'")
     rr = _fn(u, "whReconcileHiveRole")
-    if not re.search(r"if \(!res \|\| res\.error\) \{ window\._whRoleUnread = true; return null; \}", rr):
+    if not re.search(r"if \(!res \|\| res\.error\) \{ window\._whRoleUnread = true;[^{}]*return null; \}", rr):
         bad.append("utils.js: whReconcileHiveRole cannot say it could not ask - a wall on the device's role reads as the "
                    "server's fresh answer")
     if "sib.hasAttribute('data-wh-gate-pending')" not in u:
@@ -232,10 +234,11 @@ def self_test() -> int:
         "whListError(_hosts[hq], _skelMsg", "void(_hosts[hq], _skelMsg"))))
     expect("'Checking' dropped from the settle pass fails", bool(shared_problems(u.replace(
         "|Fetching|Building|Checking)\\b", "|Fetching|Building)\\b"))))
-    expect("the hive lookup's third answer removed fails", bool(shared_problems(u.replace(
-        "if (mem.error) { window._whHiveSeatUnread = true; return null; }", "if (mem.error) return null;"))))
-    expect("the role check's third answer removed fails", bool(shared_problems(u.replace(
-        "if (!res || res.error) { window._whRoleUnread = true; return null; }", "if (!res || res.error) return null;"))))
+    # regex mutants: a literal .replace() went silently no-op when the helpers grew an error beside the flag
+    hive_mut = re.sub(r"if \(mem\.error\) \{ window\._whHiveSeatUnread = true;[^{}]*return null; \}", "if (mem.error) return null;", u)
+    role_mut = re.sub(r"if \(!res \|\| res\.error\) \{ window\._whRoleUnread = true;[^{}]*return null; \}", "if (!res || res.error) return null;", u)
+    expect("the hive lookup's third answer removed fails", hive_mut != u and bool(shared_problems(hive_mut)))
+    expect("the role check's third answer removed fails", role_mut != u and bool(shared_problems(role_mut)))
     mut = dict(pages)
     mut["resume.html"] = mut["resume.html"].replace("const _sec0 = document.getElementById('sections');", "const _sec0 = null;")
     expect("resume's early skeleton removed fails", any("resume.html" in b for b in page_problems(mut)))

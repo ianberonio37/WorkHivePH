@@ -10622,7 +10622,7 @@ function edCompareRender() {
   if (!A || A.t !== _calcType || !_lastInputs) { box.hidden = true; box.innerHTML = ''; return; }
   const e = escHtml;
   let at = '';
-  try { at = A.at.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' }); } catch (_) { at = ''; }   // empty-catch-allow: no time zone data; the note just omits the time
+  try { at = A.at.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' }); } catch (_) { at = ''; }   // device-clock-allow: when THIS person kept scenario A, minutes ago, on their own clock - no plant day // empty-catch-allow: no time zone data; the note just omits the time
   const actions = '<div class="ed-compare-actions">'
     + '<button type="button" class="btn-ghost text-sm py-2 px-4" onclick="edCompareKeep()">Keep this result as A</button>'
     + '<button type="button" class="btn-ghost text-sm py-2 px-4" onclick="edCompareClear()">Clear scenario A</button></div>';
@@ -32600,6 +32600,9 @@ async function init() {
   // A second link to the calculator already open differs only in its #fragment, so the browser jumps within the page
   // and nothing above runs again: the ENH-P walk saw a colleague follow a second Boiler System link and keep the first
   // report under the new address. Opening the link drops its own fragment with replaceState, which fires no hashchange.
+  // listener-cleanup-allow: this file's 11 binds never stack - this one runs once, in init(); the rest sit on nodes
+  // built for one render (calc cards, the solar planner's <details>, the drawing editor's svg and its inline input)
+  // and go when those nodes are replaced (checked 2026-10-23)
   window.addEventListener('hashchange', () => {
     if (/(?:^|[#&])share=/.test(window.location.hash || '')) edOpenSharedFromHash();
   });

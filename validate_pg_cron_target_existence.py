@@ -29,8 +29,11 @@ CRON_SCHEDULE_RE = re.compile(
     r"""cron\.schedule\(\s*['"](?P<name>[^'"]+)['"]\s*,\s*['"](?P<sched>[^'"]+)['"]\s*,\s*\$\$\s*(?P<body>.*?)\s*\$\$""",
     re.DOTALL | re.IGNORECASE,
 )
+# A name followed by a dot is ANOTHER schema's table (cron.job_run_details, net._http_response),
+# not a public one: cron-history-retention's `delete from cron.job_run_details` read as a table
+# named "cron" (2026-10-23).
 TABLE_REF_RE = re.compile(
-    r"""\b(?:FROM|INTO|UPDATE|JOIN)\s+(?:public\.)?(?P<t>[a-z_][\w]*)""",
+    r"""\b(?:FROM|INTO|UPDATE|JOIN)\s+(?:public\.)?(?P<t>[a-z_][\w]*)\b(?!\s*\.)""",
     re.IGNORECASE,
 )
 FN_REF_RE = re.compile(

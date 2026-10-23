@@ -42,7 +42,8 @@ select
   coalesce(-sum(amount) filter (where entry_type = 'commission'), 0)::text,
   coalesce(sum(amount) filter (where entry_type = 'cashback'), 0)::text,
   coalesce(sum(amount) filter (where entry_type = 'voucher_grant'), 0)::text,
-  coalesce(sum(amount), 0)::text
+  coalesce(sum(amount), 0)::text,
+  coalesce(sum(amount) filter (where entry_type = 'starter_grant'), 0)::text
 from public.service_credit_ledger;
 """
 
@@ -114,15 +115,19 @@ def main(argv):
     if rows is None:
         print(f"  {YEL}SKIP{RST} database unavailable ({err})")
         return 0
-    topups, earned, cashback, vouchers, net = (float(x) for x in rows[0])
+    topups, earned, cashback, vouchers, net, starter = (float(x) for x in rows[0])
     nrows, _ = psql(NEGATIVE_CONSUMERS)
     neg = int(nrows[0][0]) if nrows else 0
 
-    liability = topups + cashback + vouchers - earned
+    # what is owed is the WHOLE ledger (2026-10-23): a balance is the sum of an account's rows, any type. The
+    # four-type sum left out starter grants (3,500 on the local ledger), adjustments and holding fees, and so
+    # did the console's cover figure it mirrored.
+    liability = net
     print(f"  {DIM}cash-backed  topups        {topups:>12,.2f}{RST}")
     print(f"  {DIM}earned       commission    {earned:>12,.2f}{RST}")
     print(f"  {DIM}funded       cashback      {cashback:>12,.2f}{RST}")
     print(f"  {DIM}UNBACKED     vouchers      {vouchers:>12,.2f}{RST}")
+    print(f"  {DIM}UNBACKED     starter grant {starter:>12,.2f}  (by design: once per verified seller, against the cap){RST}")
     print(f"  {BOLD}outstanding liability      {liability:>12,.2f}{RST}  {DIM}(credits owed as services){RST}")
 
     problems = judge(topups, earned, cashback, vouchers, neg)
@@ -135,6 +140,11 @@ def main(argv):
     if topups == 0 and earned == 0:
         print(f"\n  {GREEN}PASS{RST} — no money has moved yet; the invariants hold vacuously and will bite "
               f"the moment it does")
+        return 0
+    if starter > 0:
+        # "backed by cash or revenue" is true of the vouchers only: starter grants are free credit by design
+        print(f"\n  {GREEN}PASS{RST} — no voucher outruns revenue and no consumer is negative. Not every credit "
+              f"is backed: {starter:,.2f} are starter grants, issued free against the supply cap")
         return 0
     if earned <= 0:
         print(f"\n  {GREEN}PASS{RST} — every credit outstanding is backed by CASH. The platform takes no "

@@ -506,6 +506,7 @@
         <div id="assistant-conn-dot" class="w-2 h-2 rounded-full flex-shrink-0" aria-hidden="true"
              style="background:var(--wh-green);" title="Online"></div>
         <span id="assistant-conn-label" class="sr-only" role="status">Online</span>
+        <!-- heading-allow: the chat screen's h1; the setup screen's is display:none whenever this one shows -->
         <h1 style="margin:0;font-size:0.85rem;font-weight:700;white-space:nowrap;" data-i="chattitle">Work Assistant</h1>
         <!-- ★A STATUS LIGHT NOTHING WROTE (design lens critique, 2026-09-15): --wh-green appears exactly once
              in this file, here, so this pulsed green in the universal position of a connection indicator
@@ -673,6 +674,7 @@
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
 <script data-wh-skew-heal="whHiveId whIsRateLimited whListError whListSkeleton whReadError whSourcesSync whStartupHive whTold whUse">
+/* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
    some of them, and every call behind a typeof guard would then silently do nothing. So: stop this page before it
@@ -690,6 +692,7 @@
   try { window.stop(); } catch (e) { void e; }
   fetch('utils.js', { cache: 'reload' }).catch(function () { return null; }).then(function () { location.reload(); });
 })(document.currentScript);
+/* jscpd:ignore-end */
 </script>
   <script src="wh-persona.js"></script>
   <script src="wh-capture-validate.js"></script>

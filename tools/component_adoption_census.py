@@ -161,6 +161,19 @@ def run_census() -> tuple[list[dict], list[dict], int]:
             continue
         src_by_page[p] = strip_comments(f.read_text(encoding="utf-8", errors="ignore"))
 
+    # A script only ONE family page loads is that page's own code split into a file: OPC (1d6ecd88) moved the
+    # console's queues into operator-actions.js, and the census read founder-console as having dropped whConfirm,
+    # whFmtPeso and the tiles it still draws. Shared scripts (utils.js, nav-hub.js) stay out - they DEFINE the
+    # primitives, and crediting them would make every page an adopter.
+    loaders: dict[str, list[str]] = {}
+    for p, src in src_by_page.items():
+        for js in re.findall(r'<script[^>]*\bsrc="([\w.-]+\.js)"', src):
+            loaders.setdefault(js, []).append(p)
+    for js, by in loaders.items():
+        if len(by) == 1 and (ROOT / js).exists():
+            src_by_page[by[0]] += "\n" + strip_comments(
+                "<script>" + (ROOT / js).read_text(encoding="utf-8", errors="ignore") + "</script>")
+
     rows = []
     drift_notes = []
     for comp in reg["components"]:

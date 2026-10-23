@@ -81,8 +81,10 @@ INPUT_TAG_RE = re.compile(
 
 
 def _attr(attrs: str, name: str) -> str | None:
-    m = re.search(rf'\b{name}\s*=\s*["\']([^"\']*)["\']', attrs, re.IGNORECASE)
-    return m.group(1) if m else None
+    # the value ends at the quote it OPENED with: onclick="typeof f === 'function' && f(...)" was cut at its first
+    # single quote, so a handler's later words (onRestored, confirm) were never read (2026-10-23)
+    m = re.search(rf'\b{name}\s*=\s*(?:"([^"]*)"|\'([^\']*)\')', attrs, re.IGNORECASE)
+    return (m.group(1) if m.group(1) is not None else m.group(2)) if m else None
 
 
 def _load_input_label_baseline() -> dict[str, int]:
@@ -144,7 +146,8 @@ def check_input_labels(pages: list[str]) -> tuple[list[dict], dict[str, int]]:
             # Skip generated/templated ids (e.g. `reading-${escHtml(d.key)}`).
             # Runtime expansion creates a real id; the matching <label for>
             # is also templated and the static-source check can't see it.
-            if input_id and ("${" in input_id or "{{" in input_id):
+            # (a JS-concatenated id - `id="svc-pay-amt-' + id + '"` - is templated the same way)
+            if input_id and ("${" in input_id or "{{" in input_id or re.search(r"""['"]\s*\+""", input_id)):
                 continue
             # Skip inputs without ANY id (any tag, not just <input>) —
             # they're usually role-specific renderers or dynamic widgets
@@ -206,8 +209,11 @@ def check_input_labels(pages: list[str]) -> tuple[list[dict], dict[str, int]]:
 # destructive verb must have a `confirm(`, an `openModal(` / `showConfirm(` /
 # similar call, or `data-confirm` attribute, within the same click-handler scope.
 
+# Attribute values are skipped whole: an onclick holding an arrow function (`onRestored: () => initAssets()`) has a
+# `>` inside its quotes, and `[^>]*` ended the tag there, so the rest of the handler read as the button's label
+# (logbook / dayplanner "Recently deleted" openers flagged as destructive, 2026-10-23).
 DESTRUCTIVE_RE = re.compile(
-    r"""<(?:button|a)([^>]*)>([^<]{0,80})</(?:button|a)>""",
+    r"""<(?:button|a)((?:[^>"']|"[^"]*"|'[^']*')*)>([^<]{0,80})</(?:button|a)>""",
     re.IGNORECASE,
 )
 DESTRUCTIVE_KEYWORDS = ("delete", "reject", "wipe", "discard", "remove all", "clear all")

@@ -319,7 +319,7 @@
       var r = calc(), figs = figures(k, r);
       if (!figs.length) { say('Enter numbers the calculator can work out first, then keep them as scenario A.'); return; }
       var at = '';
-      try { at = new Date().toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' }); } catch (_) { at = 'just now'; }   // empty-catch-allow: no locale data
+      try { at = new Date().toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' }); } catch (_) { at = 'just now'; }   // device-clock-allow: when THIS person kept scenario A, on their own clock - no plant day // empty-catch-allow: no locale data
       keptA = { figs: figs, at: at };
       draw();
       say('Kept as scenario A. Change any number to see A beside it.');

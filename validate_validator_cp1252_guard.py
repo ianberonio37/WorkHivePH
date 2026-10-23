@@ -65,7 +65,9 @@ ROOT = Path(__file__).resolve().parent
 # Match either canonical guard form:
 #   sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", ...)
 #   sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding="utf-8", ...)
-GUARD_RE = re.compile(r"sys\.stdout\s*=\s*io\.TextIOWrapper")
+# or the in-place form a module that is also IMPORTED must use (a new wrapper would replace its importer's stdout):
+#   sys.stdout.reconfigure(encoding="utf-8", ...)   - validate_tool_aligned_cta.py, imported by enhancement_inventory
+GUARD_RE = re.compile(r"sys\.stdout\s*=\s*io\.TextIOWrapper|sys\.stdout\.reconfigure\(\s*encoding\s*=")
 
 # Validators that genuinely must skip the guard. Empty today -- all 188
 # scripts comply. Add an entry here ONLY if the validator writes binary

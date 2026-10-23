@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 39,
-    "total_links": 321,
+    "total_links": 329,
     "total_broken": 0,
     "baseline": 0
   },
@@ -13,12 +13,12 @@
     },
     {
       "page": "agentic-rag-observability.html",
-      "link_count": 3,
+      "link_count": 5,
       "broken": []
     },
     {
       "page": "ai-quality.html",
-      "link_count": 11,
+      "link_count": 12,
       "broken": []
     },
     {
@@ -38,7 +38,7 @@
     },
     {
       "page": "asset-hub.html",
-      "link_count": 16,
+      "link_count": 17,
       "broken": []
     },
     {
@@ -48,22 +48,22 @@
     },
     {
       "page": "audit-log.html",
-      "link_count": 3,
+      "link_count": 4,
       "broken": []
     },
     {
       "page": "community.html",
-      "link_count": 9,
+      "link_count": 10,
       "broken": []
     },
     {
       "page": "dayplanner.html",
-      "link_count": 2,
+      "link_count": 3,
       "broken": []
     },
     {
       "page": "design-system.html",
-      "link_count": 1,
+      "link_count": 2,
       "broken": []
     },
     {
@@ -73,22 +73,22 @@
     },
     {
       "page": "founder-console.html",
-      "link_count": 13,
+      "link_count": 4,
       "broken": []
     },
     {
       "page": "hive.html",
-      "link_count": 29,
+      "link_count": 31,
       "broken": []
     },
     {
       "page": "index.html",
-      "link_count": 78,
+      "link_count": 80,
       "broken": []
     },
     {
       "page": "integrations.html",
-      "link_count": 10,
+      "link_count": 11,
       "broken": []
     },
     {
@@ -98,7 +98,7 @@
     },
     {
       "page": "llm-observability.html",
-      "link_count": 2,
+      "link_count": 4,
       "broken": []
     },
     {
@@ -138,12 +138,12 @@
     },
     {
       "page": "plant-connections.html",
-      "link_count": 6,
+      "link_count": 7,
       "broken": []
     },
     {
       "page": "platform-actions.html",
-      "link_count": 4,
+      "link_count": 5,
       "broken": []
     },
     {

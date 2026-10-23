@@ -153,16 +153,18 @@ test.describe('marketplace simulation — the eight defect classes', () => {
     await page.waitForTimeout(8000);
 
     const t = await page.evaluate(() => {
-      const box = document.getElementById('credit-economy-content');
+      // OPC (1d6ecd88): the tile is the console's Credit economy health panel - #cp-content, with the cover
+      // figure #cp-cover in its header where the RAG dot used to be
+      const box = document.getElementById('cp-content');
       return { len: box?.innerHTML.length ?? 0,
                text: (box?.innerText || '').replace(/\s+/g, ' ').trim(),
-               rag: document.getElementById('rag-credit-economy')?.className || '' };
+               cover: (document.getElementById('cp-cover')?.textContent || '').trim() };
     });
 
     expect(t.len, 'the credit-economy tile is EMPTY after a cold load — it is wired to a handler '
       + 'instead of to boot (built, called, and still never runs when it matters)').toBeGreaterThan(100);
     expect(t.text, 'the tile should name liability cover, the number the study calls the one that matters')
       .toMatch(/LIABILITY COVER/i);
-    expect(t.rag, 'the RAG dot should resolve to a real state, not stay unset').toMatch(/green|amber|red/);
+    expect(t.cover, 'the cover figure should resolve to a real multiple, not stay unset').toMatch(/^\d+\.\d{2}x$/);
   });
 });
