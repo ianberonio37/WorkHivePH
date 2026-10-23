@@ -949887,8 +949887,8 @@
     },
     {
       "id": "SL3129",
-      "status": "fixing",
-      "pct": 40,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - worker · inventory",
       "pages": [
@@ -949946,12 +949946,20 @@
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from inventory itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
       },
-      "basis": "[2026-10-21] pct -> 40. WALKED LIVE 2026-10-21 via playwright-mcp on a returning visit (390 with the CPU 4x slower and 1280), a thousand rows from the cast's own: inventory: the longest task after the rows arrived 396 ms, the search 176 ms. Fixes landed this wave (SL.19); on this host (7.8 GB, ~0.6 GB free, 22.5 GB committed, paging at up to 42,000 pages/s) the longest tasks around a press held no script, layout or paint - one inventory task was 218 ms of wall time and 37 ms of CPU (148 ms at the 4x slowdown). Remaining: the walk books each long task by its main-thread CPU time scaled by the throttle (trace tdur x 4), the wall time beside it, and this row is re-walked through the MCP browser and banked (UFAI_TRAJECTORY_ROADMAP SL.19)."
+      "basis": "[2026-10-21] pct -> 40. WALKED LIVE 2026-10-21 via playwright-mcp on a returning visit (390 with the CPU 4x slower and 1280), a thousand rows from the cast's own: inventory: the longest task after the rows arrived 396 ms, the search 176 ms. Fixes landed this wave (SL.19); on this host (7.8 GB, ~0.6 GB free, 22.5 GB committed, paging at up to 42,000 pages/s) the longest tasks around a press held no script, layout or paint - one inventory task was 218 ms of wall time and 37 ms of CPU (148 ms at the 4x slowdown). Remaining: the walk books each long task by its main-thread CPU time scaled by the throttle (trace tdur x 4), the wall time beside it, and this row is re-walked through the MCP browser and banked (UFAI_TRAJECTORY_ROADMAP SL.19). || [2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, on a RETURNING visit (opened once first with the cast's real rows); every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own Load more until it held 1,000, the main thread settled, its search typed and cleared; every task booked by its main-thread CPU time x the throttle (phone-390 at 4x): every interaction under 200 ms and no task over 200 ms after the rows arrived): LB3: inventory.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-23T02:58:57.621Z (.tmp/slw/results/lb3w_minv1.json) as David Velasco (davidvelasco, worker of Lucena Pharmaceutical Mfg.), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; a RETURNING visit - the page opened once first with the cast's real rows (fonts, scripts and glyph caches held, as for anyone who has used the platform; the thousand rows arrive only on the measured visit); every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 500 rows (div#parts-list) after 41 presses of its own Load more; 4 list read(s) answered from the 1,000-row pool (asset_nodes, parts_staged_reservations, v_inventory_items_truth, v_inventory_transactions_truth; up to 1000 rows served); DOM 15505 elements; slowest interaction 195 ms CPU (click, 264 ms wall); longest task after the rows arrived 122 ms CPU (203 ms wall) || desktop-1280: longest list 500 rows (div#parts-list) after 41 presses of its own Load more; 4 list read(s) answered from the 1,000-row pool (asset_n Receipt .tmp/mcp_walks/SL3129.json.",
+      "artifacts": {
+        "gates": [
+          "in-list-chunked",
+          "long-list-render",
+          "scripts-parse",
+          "skew-heal"
+        ]
+      }
     },
     {
       "id": "SL3130",
-      "status": "fixing",
-      "pct": 40,
+      "status": "locking",
+      "pct": 60,
       "wave": "SL-LB",
       "title": "LB3 · The platform must keep this page responsive with a thousand rows in its longest list - worker · logbook",
       "pages": [
@@ -950009,7 +950017,15 @@
         "ask": "The platform must keep this page responsive with a thousand rows in its longest list",
         "closes": "the LB3 ask is answered from logbook itself at phone-390 AND desktop-1280 as worker, on a receipt naming the layer, the sub-layer, the persona, and a gate holds what the walk found"
       },
-      "basis": "[2026-10-21] pct -> 40. WALKED LIVE 2026-10-21 via playwright-mcp on a returning visit (390 with the CPU 4x slower and 1280), a thousand rows from the cast's own: logbook: the longest task after the rows arrived 251 ms, the search 240 ms. Fixes landed this wave (SL.19); on this host (7.8 GB, ~0.6 GB free, 22.5 GB committed, paging at up to 42,000 pages/s) the longest tasks around a press held no script, layout or paint - one inventory task was 218 ms of wall time and 37 ms of CPU (148 ms at the 4x slowdown). Remaining: the walk books each long task by its main-thread CPU time scaled by the throttle (trace tdur x 4), the wall time beside it, and this row is re-walked through the MCP browser and banked (UFAI_TRAJECTORY_ROADMAP SL.19)."
+      "basis": "[2026-10-21] pct -> 40. WALKED LIVE 2026-10-21 via playwright-mcp on a returning visit (390 with the CPU 4x slower and 1280), a thousand rows from the cast's own: logbook: the longest task after the rows arrived 251 ms, the search 240 ms. Fixes landed this wave (SL.19); on this host (7.8 GB, ~0.6 GB free, 22.5 GB committed, paging at up to 42,000 pages/s) the longest tasks around a press held no script, layout or paint - one inventory task was 218 ms of wall time and 37 ms of CPU (148 ms at the 4x slowdown). Remaining: the walk books each long task by its main-thread CPU time scaled by the throttle (trace tdur x 4), the wall time beside it, and this row is re-walked through the MCP browser and banked (UFAI_TRAJECTORY_ROADMAP SL.19). || [2026-10-23] pct -> 60. WALKED LIVE 2026-10-23 via playwright-mcp (390x844 and 1280x800 set through Playwright; every edge call carried x-wh-walk-no-model through a context route, so no model was called, signed in as worker through the product's own sign-in form; the page read as served in its own browser context (service workers blocked), signed in as the row's cast, on a RETURNING visit (opened once first with the cast's real rows); every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own Load more until it held 1,000, the main thread settled, its search typed and cleared; every task booked by its main-thread CPU time x the throttle (phone-390 at 4x): every interaction under 200 ms and no task over 200 ms after the rows arrived): LB3: logbook.html stays responsive with a thousand rows in its longest list - at phone-390 (4x CPU) and desktop-1280. Witness: MCP walk 2026-10-23T02:37:29.301Z (.tmp/slw/results/lb3w_mlb1.json) as Bryan Garcia (bryangarcia, worker of Baguio Textile Mills), service workers blocked, phone-390 with the CPU slowed 4x and desktop-1280; a RETURNING visit - the page opened once first with the cast's real rows (fonts, scripts and glyph caches held, as for anyone who has used the platform; the thousand rows arrive only on the measured visit); every list read answered from a pool of 1,000 rows built from the cast's own rows (a function's arrays to its own cap), the longest list grown through the page's own controls, the main thread settled, then measured: phone-390 (CPU 4x slower): longest list 1000 rows (div#entries-list) after 49 presses of its own Load more; 3 list read(s) answered from the 1,000-row pool (asset_nodes, logbook, v_inventory_items_truth; up to 1000 rows served); DOM 18128 elements; slowest interaction 195 ms CPU (click, 2648 ms wall); longest task after the rows arrived 194 ms CPU (300 ms wall) || desktop-1280: longest list 1000 rows (div#entries-list) after 49 presses of its own Load more; 3 list read(s) answered from the 1,000-row pool (asset_nodes, logbook, v_inventory_items_truth; up to 1000 r Receipt .tmp/mcp_walks/SL3130.json.",
+      "artifacts": {
+        "gates": [
+          "in-list-chunked",
+          "long-list-render",
+          "scripts-parse",
+          "skew-heal"
+        ]
+      }
     },
     {
       "id": "SL3131",
@@ -1039388,5 +1039404,5 @@
       }
     }
   ],
-  "next": "LB3 2 (SL3129 inventory, SL3130 logbook): re-walk a thousand-row list through the MCP browser, booking each long task by its main-thread CPU time scaled by the throttle (trace tdur x 4) beside its wall time, and bank (SL.19). BRH 19 are external."
+  "next": "LB3 closed 76/76 (SL3129 inventory, SL3130 logbook banked 2026-10-23). The 19 open rows are production-side (BRH: live witnesses wait on Ian's push; production embeddings and backups oversight). Local: the SL.19 scroll-up layout shift - .tmp/slw/gen_scrollup_probe.py, test the 160 px contain-intrinsic-size estimate against a card's real height."
 }
