@@ -1,7 +1,7 @@
 {
   "_doc": "Trajectory registry — the 500-arc program's status SSOT. pct rules: specced=5, walked=25, fixed=60, locked=100; in-flight trajectories carry an explicit basis. The roadmap header scoreboard is GENERATED from this file (tools/update_trajectory_scoreboard.py) and validate_trajectory_registry.py fails on any drift between the two — the anti-drift discipline Ian asked for (2026-08-24).",
   "updated": "2026-10-23",
-  "count": 18378,
+  "count": 18427,
   "trajectories": [
     {
       "id": "T1",
@@ -741204,6 +741204,3117 @@
       "basis": "[2026-10-21] DESCOPED - refuted on Vercel itself: the row was seeded from the repository's deployment record (60 deployments by a 'skillful-growth' project, 2026-04-25..26), and that record is history - a project deleted in Vercel keeps its records on GitHub. Vercel's dashboard, read signed in as the owner on 2026-10-21, lists ONE project in the team (work-hive-ph); skillful-growth stores nothing, so there is nothing to remove and the reproduction cannot be made to fail. The Production row (BRH517) carries the real storage. tools/bug_hunt_inventory.py now skips a second project the dashboard read does not list, so the class cannot re-seed it."
     },
     {
+      "id": "BRH519",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AF",
+      "title": "a post-deploy check that cannot reach the signed-in product on production - index · production smoke identity - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: production has no account the smoke can sign in with (WH_SMOKE_EMAIL is not in .env), so the 2026-10-24 deploy's signed-in tier and its critical paths were not run. MECHANISM: a post-deploy check that cannot reach the signed-in product on production. REPRO: run the post-deploy smoke's signed-in tier after a deploy: production has no account it can sign in with, and the instrument seeds a local hive, worker and role into storage instead of asking the server. FIX: a production smoke identity - an account and its own bench hive holding no tenant's data, credentials only in .env - and a smoke that reads the account's hive and role from the server after sign-in and refuses to act outside the bench hive. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AF:oversight",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AF",
+        "page": "index.html",
+        "line": 0,
+        "key": "production smoke identity",
+        "detail": "production has no account the smoke can sign in with (WH_SMOKE_EMAIL is not in .env), so the 2026-10-24 deploy's signed-in tier and its critical paths were not run",
+        "layer": "CI",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a post-deploy check that cannot reach the signed-in product on production",
+        "repro": "run the post-deploy smoke's signed-in tier after a deploy: production has no account it can sign in with, and the instrument seeds a local hive, worker and role into storage instead of asking the server",
+        "fix": "a production smoke identity - an account and its own bench hive holding no tenant's data, credentials only in .env - and a smoke that reads the account's hive and role from the server after sign-in and refuses to act outside the bench hive",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH520",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AF",
+      "title": "a post-deploy check that cannot reach the signed-in product on production - index:71 · post_deploy_smoke.mjs - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: the post-deploy smoke's signed-in tier seeds a local hive into storage (tools/post_deploy_smoke.mjs:71: wh_active_hive_id, wh_active_hive_name, WORKER_NAME, wh_hive_role) instead of asking the server who the account is - against production it would claim a hive the account is not in. MECHANISM: a post-deploy check that cannot reach the signed-in product on production. REPRO: run the post-deploy smoke's signed-in tier after a deploy: production has no account it can sign in with, and the instrument seeds a local hive, worker and role into storage instead of asking the server. FIX: a production smoke identity - an account and its own bench hive holding no tenant's data, credentials only in .env - and a smoke that reads the account's hive and role from the server after sign-in and refuses to act outside the bench hive. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AF:oversight",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AF",
+        "page": "index.html",
+        "line": 71,
+        "key": "post_deploy_smoke.mjs",
+        "detail": "the post-deploy smoke's signed-in tier seeds a local hive into storage (tools/post_deploy_smoke.mjs:71: wh_active_hive_id, wh_active_hive_name, WORKER_NAME, wh_hive_role) instead of asking the server who the account is - against production it would claim a hive the account is not in",
+        "layer": "CI",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a post-deploy check that cannot reach the signed-in product on production",
+        "repro": "run the post-deploy smoke's signed-in tier after a deploy: production has no account it can sign in with, and the instrument seeds a local hive, worker and role into storage instead of asking the server",
+        "fix": "a production smoke identity - an account and its own bench hive holding no tenant's data, credentials only in .env - and a smoke that reads the account's hive and role from the server after sign-in and refuses to act outside the bench hive",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH521",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - achievements · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "achievements.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches achievements and meets a defect of a class a real person met on 2026-10-13/14: achievements.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "skillmatrix.html",
+          "achievements.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "achievements.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "achievements.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH522",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - alert hub · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "alert-hub.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches alert hub and meets a defect of a class a real person met on 2026-10-13/14: alert-hub.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "alert-hub.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "alert-hub.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "alert-hub.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH523",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - analytics report · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "analytics-report.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches analytics report and meets a defect of a class a real person met on 2026-10-13/14: analytics-report.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "analytics-report.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "analytics-report.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "analytics-report.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH524",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - analytics · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches analytics and meets a defect of a class a real person met on 2026-10-13/14: analytics.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "analytics.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "analytics.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH525",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - asset hub · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "asset-hub.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches asset hub and meets a defect of a class a real person met on 2026-10-13/14: asset-hub.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "asset-hub.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "asset-hub.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "asset-hub.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH526",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - assistant · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "assistant.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches assistant and meets a defect of a class a real person met on 2026-10-13/14: assistant.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "assistant.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "assistant.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "assistant.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH527",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - audit log · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "audit-log.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches audit log and meets a defect of a class a real person met on 2026-10-13/14: audit-log.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "audit-log.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "audit-log.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "audit-log.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH528",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - community · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "community.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches community and meets a defect of a class a real person met on 2026-10-13/14: community.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "community.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "community.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "community.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH529",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - dayplanner · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "dayplanner.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches dayplanner and meets a defect of a class a real person met on 2026-10-13/14: dayplanner.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "dayplanner.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "dayplanner.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "dayplanner.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH530",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - engineering design · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches engineering design and meets a defect of a class a real person met on 2026-10-13/14: engineering-design.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "engineering-design.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "engineering-design.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH531",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - hive · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches hive and meets a defect of a class a real person met on 2026-10-13/14: hive.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "hive.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "hive.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH532",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - index · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "supervisor reaches index and meets a defect of a class a real person met on 2026-10-13/14: index.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "index.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "index.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH533",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - integrations · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "integrations.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches integrations and meets a defect of a class a real person met on 2026-10-13/14: integrations.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "integrations.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "integrations.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "integrations.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH534",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - inventory · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "inventory.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches inventory and meets a defect of a class a real person met on 2026-10-13/14: inventory.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "inventory.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "inventory.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "inventory.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH535",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - logbook · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches logbook and meets a defect of a class a real person met on 2026-10-13/14: logbook.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "logbook.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "logbook.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH536",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - marketplace seller · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace-seller.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches marketplace seller and meets a defect of a class a real person met on 2026-10-13/14: marketplace-seller.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "marketplace-seller.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "marketplace-seller.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "marketplace-seller.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH537",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - marketplace · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches marketplace and meets a defect of a class a real person met on 2026-10-13/14: marketplace.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "marketplace.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "marketplace.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "marketplace.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH538",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - ph intelligence · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "ph-intelligence.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches ph intelligence and meets a defect of a class a real person met on 2026-10-13/14: ph-intelligence.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "ph-intelligence.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "ph-intelligence.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "ph-intelligence.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH539",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - pm scheduler · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "pm-scheduler.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches pm scheduler and meets a defect of a class a real person met on 2026-10-13/14: pm-scheduler.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "pm-scheduler.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "pm-scheduler.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "pm-scheduler.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH540",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - project manager · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches project manager and meets a defect of a class a real person met on 2026-10-13/14: project-manager.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "project-manager.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "project-manager.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "project-manager.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH541",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - project report · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html",
+        "project-report.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches project report and meets a defect of a class a real person met on 2026-10-13/14: project-report.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "project-manager.html",
+          "project-report.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "project-report.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "project-report.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH542",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - report sender · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "report-sender.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches report sender and meets a defect of a class a real person met on 2026-10-13/14: report-sender.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "report-sender.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "report-sender.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "report-sender.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH543",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - resume · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "resume.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches resume and meets a defect of a class a real person met on 2026-10-13/14: resume.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "skillmatrix.html",
+          "resume.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "resume.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "resume.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH544",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - shift brain · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "shift-brain.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches shift brain and meets a defect of a class a real person met on 2026-10-13/14: shift-brain.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "shift-brain.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "shift-brain.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "shift-brain.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH545",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - skillmatrix · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches skillmatrix and meets a defect of a class a real person met on 2026-10-13/14: skillmatrix.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "skillmatrix.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "skillmatrix.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "skillmatrix.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH546",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AG",
+      "title": "a page never seen signed in on production after a deploy - voice journal · signed in on production - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "voice-journal.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches voice journal and meets a defect of a class a real person met on 2026-10-13/14: voice-journal.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen. MECHANISM: a page never seen signed in on production after a deploy. REPRO: after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen. FIX: the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AG:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "voice-journal.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AG",
+        "page": "voice-journal.html",
+        "line": 0,
+        "key": "signed in on production",
+        "detail": "voice-journal.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier ran 0 of 26 pages) - a page whose script throws for a member ships unseen",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a page never seen signed in on production after a deploy",
+        "repro": "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+        "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH547",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AH",
+      "title": "a critical path never walked on production after a deploy - asset hub · flow 4 - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "asset-hub.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches asset hub and meets a defect of a class a real person met on 2026-10-13/14: Tier-0 flow 4 - marketplace: accept a parts-staging rec **twice fast** (proves the `parts_staged_reservations` UNIQUE idempotency) - was not walked on production after the 2026-10-24 deploy (the runbook's Tier 0 is manual and needs a production account). MECHANISM: a critical path never walked on production after a deploy. REPRO: after a deploy, sign in, save a logbook entry, ask the AI, double-tap a parts reservation and read the logs on production: the runbook's Tier 0 is manual and was not run for the 2026-10-24 deploy. FIX: the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AH:supervisor",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "asset-hub.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AH",
+        "page": "asset-hub.html",
+        "line": 0,
+        "key": "flow 4",
+        "detail": "Tier-0 flow 4 - marketplace: accept a parts-staging rec **twice fast** (proves the `parts_staged_reservations` UNIQUE idempotency) - was not walked on production after the 2026-10-24 deploy (the runbook's Tier 0 is manual and needs a production account)",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a critical path never walked on production after a deploy",
+        "repro": "after a deploy, sign in, save a logbook entry, ask the AI, double-tap a parts reservation and read the logs on production: the runbook's Tier 0 is manual and was not run for the 2026-10-24 deploy",
+        "fix": "the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH548",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AH",
+      "title": "a critical path never walked on production after a deploy - assistant · flow 3 - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "assistant.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches assistant and meets a defect of a class a real person met on 2026-10-13/14: Tier-0 flow 3 - fire one AI action (`ai-gateway` + budget guard) - was not walked on production after the 2026-10-24 deploy (the runbook's Tier 0 is manual and needs a production account). MECHANISM: a critical path never walked on production after a deploy. REPRO: after a deploy, sign in, save a logbook entry, ask the AI, double-tap a parts reservation and read the logs on production: the runbook's Tier 0 is manual and was not run for the 2026-10-24 deploy. FIX: the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AH:supervisor",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "assistant.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AH",
+        "page": "assistant.html",
+        "line": 0,
+        "key": "flow 3",
+        "detail": "Tier-0 flow 3 - fire one AI action (`ai-gateway` + budget guard) - was not walked on production after the 2026-10-24 deploy (the runbook's Tier 0 is manual and needs a production account)",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a critical path never walked on production after a deploy",
+        "repro": "after a deploy, sign in, save a logbook entry, ask the AI, double-tap a parts reservation and read the logs on production: the runbook's Tier 0 is manual and was not run for the 2026-10-24 deploy",
+        "fix": "the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH549",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AH",
+      "title": "a critical path never walked on production after a deploy - index · flow 1 - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "supervisor reaches index and meets a defect of a class a real person met on 2026-10-13/14: Tier-0 flow 1 - sign in - was not walked on production after the 2026-10-24 deploy (the runbook's Tier 0 is manual and needs a production account). MECHANISM: a critical path never walked on production after a deploy. REPRO: after a deploy, sign in, save a logbook entry, ask the AI, double-tap a parts reservation and read the logs on production: the runbook's Tier 0 is manual and was not run for the 2026-10-24 deploy. FIX: the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AH:supervisor",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AH",
+        "page": "index.html",
+        "line": 0,
+        "key": "flow 1",
+        "detail": "Tier-0 flow 1 - sign in - was not walked on production after the 2026-10-24 deploy (the runbook's Tier 0 is manual and needs a production account)",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a critical path never walked on production after a deploy",
+        "repro": "after a deploy, sign in, save a logbook entry, ask the AI, double-tap a parts reservation and read the logs on production: the runbook's Tier 0 is manual and was not run for the 2026-10-24 deploy",
+        "fix": "the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH550",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AH",
+      "title": "a critical path never walked on production after a deploy - index · flow 5 - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: Tier-0 flow 5 - watch Supabase logs for `54000`/`23505`/`500` spikes - was not walked on production after the 2026-10-24 deploy (the runbook's Tier 0 is manual and needs a production account). MECHANISM: a critical path never walked on production after a deploy. REPRO: after a deploy, sign in, save a logbook entry, ask the AI, double-tap a parts reservation and read the logs on production: the runbook's Tier 0 is manual and was not run for the 2026-10-24 deploy. FIX: the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AH:oversight",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AH",
+        "page": "index.html",
+        "line": 0,
+        "key": "flow 5",
+        "detail": "Tier-0 flow 5 - watch Supabase logs for `54000`/`23505`/`500` spikes - was not walked on production after the 2026-10-24 deploy (the runbook's Tier 0 is manual and needs a production account)",
+        "layer": "CI",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a critical path never walked on production after a deploy",
+        "repro": "after a deploy, sign in, save a logbook entry, ask the AI, double-tap a parts reservation and read the logs on production: the runbook's Tier 0 is manual and was not run for the 2026-10-24 deploy",
+        "fix": "the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH551",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AH",
+      "title": "a critical path never walked on production after a deploy - logbook · flow 2 - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches logbook and meets a defect of a class a real person met on 2026-10-13/14: Tier-0 flow 2 - create a logbook entry (quota trigger allows honest use) - was not walked on production after the 2026-10-24 deploy (the runbook's Tier 0 is manual and needs a production account). MECHANISM: a critical path never walked on production after a deploy. REPRO: after a deploy, sign in, save a logbook entry, ask the AI, double-tap a parts reservation and read the logs on production: the runbook's Tier 0 is manual and was not run for the 2026-10-24 deploy. FIX: the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AH:supervisor",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AH",
+        "page": "logbook.html",
+        "line": 0,
+        "key": "flow 2",
+        "detail": "Tier-0 flow 2 - create a logbook entry (quota trigger allows honest use) - was not walked on production after the 2026-10-24 deploy (the runbook's Tier 0 is manual and needs a production account)",
+        "layer": "CI",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a critical path never walked on production after a deploy",
+        "repro": "after a deploy, sign in, save a logbook entry, ask the AI, double-tap a parts reservation and read the logs on production: the runbook's Tier 0 is manual and was not run for the 2026-10-24 deploy",
+        "fix": "the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH552",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AI",
+      "title": "a breakdown cause the analytics cannot group: free text beside the form's list - alert hub:80 · reader index.ts:80 - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "alert-hub.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches alert hub and meets a defect of a class a real person met on 2026-10-13/14: repeat_failure keys on the lower-cased text (supabase/functions/failure-signature-scan/index.ts:80) - a cause recorded in other words never meets its twin from the form. MECHANISM: a breakdown cause the analytics cannot group: free text beside the form's list. REPRO: record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes. FIX: every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AI:supervisor",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "alert-hub.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AI",
+        "page": "alert-hub.html",
+        "line": 80,
+        "key": "reader index.ts:80",
+        "detail": "repeat_failure keys on the lower-cased text (supabase/functions/failure-signature-scan/index.ts:80) - a cause recorded in other words never meets its twin from the form",
+        "layer": "D",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a breakdown cause the analytics cannot group: free text beside the form's list",
+        "repro": "record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes",
+        "fix": "every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH553",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AI",
+      "title": "a breakdown cause the analytics cannot group: free text beside the form's list - alert hub:134 · reader index.ts:134 - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "alert-hub.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches alert hub and meets a defect of a class a real person met on 2026-10-13/14: multi_symptom counts distinct cause texts (supabase/functions/failure-signature-scan/index.ts:134) - a cause recorded in other words never meets its twin from the form. MECHANISM: a breakdown cause the analytics cannot group: free text beside the form's list. REPRO: record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes. FIX: every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AI:supervisor",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "alert-hub.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AI",
+        "page": "alert-hub.html",
+        "line": 134,
+        "key": "reader index.ts:134",
+        "detail": "multi_symptom counts distinct cause texts (supabase/functions/failure-signature-scan/index.ts:134) - a cause recorded in other words never meets its twin from the form",
+        "layer": "D",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a breakdown cause the analytics cannot group: free text beside the form's list",
+        "repro": "record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes",
+        "fix": "every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH554",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AI",
+      "title": "a breakdown cause the analytics cannot group: free text beside the form's list - analytics · stored free text - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches analytics and meets a defect of a class a real person met on 2026-10-13/14: 11 breakdown causes stored locally sit outside the form's 12 causes (0 of 28 in production) - each one its own bar in the Pareto. MECHANISM: a breakdown cause the analytics cannot group: free text beside the form's list. REPRO: record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes. FIX: every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AI:supervisor",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AI",
+        "page": "analytics.html",
+        "line": 0,
+        "key": "stored free text",
+        "detail": "11 breakdown causes stored locally sit outside the form's 12 causes (0 of 28 in production) - each one its own bar in the Pareto",
+        "layer": "D",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a breakdown cause the analytics cannot group: free text beside the form's list",
+        "repro": "record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes",
+        "fix": "every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH555",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AI",
+      "title": "a breakdown cause the analytics cannot group: free text beside the form's list - analytics:74 · reader diagnostic.py:74 - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches analytics and meets a defect of a class a real person met on 2026-10-13/14: the Pareto groups by the exact cause text (python-api/analytics/diagnostic.py:74) - a cause recorded in other words never meets its twin from the form. MECHANISM: a breakdown cause the analytics cannot group: free text beside the form's list. REPRO: record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes. FIX: every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AI:supervisor",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AI",
+        "page": "analytics.html",
+        "line": 74,
+        "key": "reader diagnostic.py:74",
+        "detail": "the Pareto groups by the exact cause text (python-api/analytics/diagnostic.py:74) - a cause recorded in other words never meets its twin from the form",
+        "layer": "D",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a breakdown cause the analytics cannot group: free text beside the form's list",
+        "repro": "record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes",
+        "fix": "every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH556",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AI",
+      "title": "a breakdown cause the analytics cannot group: free text beside the form's list - analytics:401 · reader descriptive.py:401 - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches analytics and meets a defect of a class a real person met on 2026-10-13/14: repeat failures group by the exact cause text (python-api/analytics/descriptive.py:401) - a cause recorded in other words never meets its twin from the form. MECHANISM: a breakdown cause the analytics cannot group: free text beside the form's list. REPRO: record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes. FIX: every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AI:supervisor",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AI",
+        "page": "analytics.html",
+        "line": 401,
+        "key": "reader descriptive.py:401",
+        "detail": "repeat failures group by the exact cause text (python-api/analytics/descriptive.py:401) - a cause recorded in other words never meets its twin from the form",
+        "layer": "D",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a breakdown cause the analytics cannot group: free text beside the form's list",
+        "repro": "record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes",
+        "fix": "every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH557",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AI",
+      "title": "a breakdown cause the analytics cannot group: free text beside the form's list - integrations:128 · writer index.ts - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "integrations.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches integrations and meets a defect of a class a real person met on 2026-10-13/14: a CMMS sync copies the external system's cause text (supabase/functions/cmms-sync/index.ts:128) - a breakdown's cause stored as said, beside the logbook form's 12 causes. MECHANISM: a breakdown cause the analytics cannot group: free text beside the form's list. REPRO: record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes. FIX: every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AI:supervisor",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "integrations.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AI",
+        "page": "integrations.html",
+        "line": 128,
+        "key": "writer index.ts",
+        "detail": "a CMMS sync copies the external system's cause text (supabase/functions/cmms-sync/index.ts:128) - a breakdown's cause stored as said, beside the logbook form's 12 causes",
+        "layer": "D",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a breakdown cause the analytics cannot group: free text beside the form's list",
+        "repro": "record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes",
+        "fix": "every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH558",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AI",
+      "title": "a breakdown cause the analytics cannot group: free text beside the form's list - integrations:1966 · writer integrations.html - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "integrations.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches integrations and meets a defect of a class a real person met on 2026-10-13/14: a CSV import maps its own cause column straight in (integrations.html:1966) - a breakdown's cause stored as said, beside the logbook form's 12 causes. MECHANISM: a breakdown cause the analytics cannot group: free text beside the form's list. REPRO: record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes. FIX: every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AI:supervisor",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "integrations.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AI",
+        "page": "integrations.html",
+        "line": 1966,
+        "key": "writer integrations.html",
+        "detail": "a CSV import maps its own cause column straight in (integrations.html:1966) - a breakdown's cause stored as said, beside the logbook form's 12 causes",
+        "layer": "D",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a breakdown cause the analytics cannot group: free text beside the form's list",
+        "repro": "record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes",
+        "fix": "every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH559",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AI",
+      "title": "a breakdown cause the analytics cannot group: free text beside the form's list - logbook:58 · writer index.ts - supervisor",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "analytics.html"
+      ],
+      "layers": [
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "supervisor",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "supervisor reaches logbook and meets a defect of a class a real person met on 2026-10-13/14: the voice entry asks the model for the cause as said (supabase/functions/voice-logbook-entry/index.ts:58) - a breakdown's cause stored as said, beside the logbook form's 12 causes. MECHANISM: a breakdown cause the analytics cannot group: free text beside the form's list. REPRO: record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes. FIX: every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AI:supervisor",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "analytics.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AI",
+        "page": "logbook.html",
+        "line": 58,
+        "key": "writer index.ts",
+        "detail": "the voice entry asks the model for the cause as said (supabase/functions/voice-logbook-entry/index.ts:58) - a breakdown's cause stored as said, beside the logbook form's 12 causes",
+        "layer": "D",
+        "persona": "supervisor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a breakdown cause the analytics cannot group: free text beside the form's list",
+        "repro": "record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the Pareto splits one cause into two bars and the multi-symptom scan counts two causes",
+        "fix": "every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, locally and in production; a gate holds every writer and every grouping to the list",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH560",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AJ",
+      "title": "an adoption census that credits a lookalike class - index · .card - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: the adoption census credits 21 page(s) as .card adopters (FC4) because a class such as heat-card contains '-card': achievements.html, alert-hub.html, analytics-report.html, asset-hub.html, assistant.html, audit-log.html ... - the floor counts pages that never used the component. MECHANISM: an adoption census that credits a lookalike class. REPRO: give a page only heat-tile, pulse-card or stat-pill: the census credits it as a .tile, .card or .pill adopter, because its matcher treats '-' as a word edge - the floor counts pages that never used the component. FIX: the census matches class tokens exactly, each lowered floor named with the pages that were never adopters, and each such page either converges on the canonical component or is recorded as a justified bespoke container. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AJ:oversight",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AJ",
+        "page": "index.html",
+        "line": 0,
+        "key": ".card",
+        "detail": "the adoption census credits 21 page(s) as .card adopters (FC4) because a class such as heat-card contains '-card': achievements.html, alert-hub.html, analytics-report.html, asset-hub.html, assistant.html, audit-log.html ... - the floor counts pages that never used the component",
+        "layer": "CI",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "an adoption census that credits a lookalike class",
+        "repro": "give a page only heat-tile, pulse-card or stat-pill: the census credits it as a .tile, .card or .pill adopter, because its matcher treats '-' as a word edge - the floor counts pages that never used the component",
+        "fix": "the census matches class tokens exactly, each lowered floor named with the pages that were never adopters, and each such page either converges on the canonical component or is recorded as a justified bespoke container",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH561",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AJ",
+      "title": "an adoption census that credits a lookalike class - index · .filter-chip - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: the adoption census credits 2 page(s) as .filter-chip adopters (FI3) because a class such as heat-filter-chip contains '-filter-chip': design-system.html, marketplace.html - the floor counts pages that never used the component. MECHANISM: an adoption census that credits a lookalike class. REPRO: give a page only heat-tile, pulse-card or stat-pill: the census credits it as a .tile, .card or .pill adopter, because its matcher treats '-' as a word edge - the floor counts pages that never used the component. FIX: the census matches class tokens exactly, each lowered floor named with the pages that were never adopters, and each such page either converges on the canonical component or is recorded as a justified bespoke container. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AJ:oversight",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AJ",
+        "page": "index.html",
+        "line": 0,
+        "key": ".filter-chip",
+        "detail": "the adoption census credits 2 page(s) as .filter-chip adopters (FI3) because a class such as heat-filter-chip contains '-filter-chip': design-system.html, marketplace.html - the floor counts pages that never used the component",
+        "layer": "CI",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "an adoption census that credits a lookalike class",
+        "repro": "give a page only heat-tile, pulse-card or stat-pill: the census credits it as a .tile, .card or .pill adopter, because its matcher treats '-' as a word edge - the floor counts pages that never used the component",
+        "fix": "the census matches class tokens exactly, each lowered floor named with the pages that were never adopters, and each such page either converges on the canonical component or is recorded as a justified bespoke container",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH562",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AJ",
+      "title": "an adoption census that credits a lookalike class - index · .pill - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: the adoption census credits 19 page(s) as .pill adopters (FI3) because a class such as heat-pill contains '-pill': agentic-rag-observability.html, alert-hub.html, analytics-report.html, asset-hub.html, audit-log.html, engineering-design.html ... - the floor counts pages that never used the component. MECHANISM: an adoption census that credits a lookalike class. REPRO: give a page only heat-tile, pulse-card or stat-pill: the census credits it as a .tile, .card or .pill adopter, because its matcher treats '-' as a word edge - the floor counts pages that never used the component. FIX: the census matches class tokens exactly, each lowered floor named with the pages that were never adopters, and each such page either converges on the canonical component or is recorded as a justified bespoke container. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AJ:oversight",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AJ",
+        "page": "index.html",
+        "line": 0,
+        "key": ".pill",
+        "detail": "the adoption census credits 19 page(s) as .pill adopters (FI3) because a class such as heat-pill contains '-pill': agentic-rag-observability.html, alert-hub.html, analytics-report.html, asset-hub.html, audit-log.html, engineering-design.html ... - the floor counts pages that never used the component",
+        "layer": "CI",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "an adoption census that credits a lookalike class",
+        "repro": "give a page only heat-tile, pulse-card or stat-pill: the census credits it as a .tile, .card or .pill adopter, because its matcher treats '-' as a word edge - the floor counts pages that never used the component",
+        "fix": "the census matches class tokens exactly, each lowered floor named with the pages that were never adopters, and each such page either converges on the canonical component or is recorded as a justified bespoke container",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH563",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AJ",
+      "title": "an adoption census that credits a lookalike class - index · .tile - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "CI"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: the adoption census credits 5 page(s) as .tile adopters (FC1) because a class such as heat-tile contains '-tile': analytics-report.html, analytics.html, hive.html, index.html, project-manager.html - the floor counts pages that never used the component. MECHANISM: an adoption census that credits a lookalike class. REPRO: give a page only heat-tile, pulse-card or stat-pill: the census credits it as a .tile, .card or .pill adopter, because its matcher treats '-' as a word edge - the floor counts pages that never used the component. FIX: the census matches class tokens exactly, each lowered floor named with the pages that were never adopters, and each such page either converges on the canonical component or is recorded as a justified bespoke container. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AJ:oversight",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AJ",
+        "page": "index.html",
+        "line": 0,
+        "key": ".tile",
+        "detail": "the adoption census credits 5 page(s) as .tile adopters (FC1) because a class such as heat-tile contains '-tile': analytics-report.html, analytics.html, hive.html, index.html, project-manager.html - the floor counts pages that never used the component",
+        "layer": "CI",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "an adoption census that credits a lookalike class",
+        "repro": "give a page only heat-tile, pulse-card or stat-pill: the census credits it as a .tile, .card or .pill adopter, because its matcher treats '-' as a word edge - the floor counts pages that never used the component",
+        "fix": "the census matches class tokens exactly, each lowered floor named with the pages that were never adopters, and each such page either converges on the canonical component or is recorded as a justified bespoke container",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH564",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AK",
+      "title": "free credit the solvency check does not hold to its policy - founder console · cover reason - oversight",
+      "pages": [
+        "founder-console.html"
+      ],
+      "layers": [
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches founder console and meets a defect of a class a real person met on 2026-10-13/14: the operator console's liability cover reads 0.00x in red on production (0 credits of top-ups, 500 of free starter credit) and says nothing about why - what is owed is not split by its backing. MECHANISM: free credit the solvency check does not hold to its policy. REPRO: issue a starter grant twice to one seller, above the knob, or to an unverified seller: the solvency gate's one rule (vouchers <= revenue) never reads starter_grant, and the console's cover shows 0.00x with no reason. FIX: the solvency gate holds every starter grant to its policy - once per verified seller, the knob's amount, inside the supply cap - and the console splits what is owed by its backing (top-ups, free starter credit), so a low cover reads with its reason. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AK:oversight",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "founder-console.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AK",
+        "page": "founder-console.html",
+        "line": 0,
+        "key": "cover reason",
+        "detail": "the operator console's liability cover reads 0.00x in red on production (0 credits of top-ups, 500 of free starter credit) and says nothing about why - what is owed is not split by its backing",
+        "layer": "D",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "free credit the solvency check does not hold to its policy",
+        "repro": "issue a starter grant twice to one seller, above the knob, or to an unverified seller: the solvency gate's one rule (vouchers <= revenue) never reads starter_grant, and the console's cover shows 0.00x with no reason",
+        "fix": "the solvency gate holds every starter grant to its policy - once per verified seller, the knob's amount, inside the supply cap - and the console splits what is owed by its backing (top-ups, free starter credit), so a low cover reads with its reason",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH565",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AK",
+      "title": "free credit the solvency check does not hold to its policy - index · solvency gate - oversight",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "hive.html",
+        "audit-log.html"
+      ],
+      "layers": [
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "oversight",
+      "device": "any",
+      "entry": "direct",
+      "framing": "person",
+      "story": "oversight reaches index and meets a defect of a class a real person met on 2026-10-13/14: validate_credit_solvency's one rule is vouchers <= revenue; starter grants (production: 1 grant, 500 credits) are free credit it never holds to their policy - once per verified seller, the knob's amount, inside the supply cap. MECHANISM: free credit the solvency check does not hold to its policy. REPRO: issue a starter grant twice to one seller, above the knob, or to an unverified seller: the solvency gate's one rule (vouchers <= revenue) never reads starter_grant, and the console's cover shows 0.00x with no reason. FIX: the solvency gate holds every starter grant to its policy - once per verified seller, the knob's amount, inside the supply cap - and the console splits what is owed by its backing (top-ups, free starter credit), so a low cover reads with its reason. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AK:oversight",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "analytics.html",
+          "hive.html",
+          "audit-log.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AK",
+        "page": "index.html",
+        "line": 0,
+        "key": "solvency gate",
+        "detail": "validate_credit_solvency's one rule is vouchers <= revenue; starter grants (production: 1 grant, 500 credits) are free credit it never holds to their policy - once per verified seller, the knob's amount, inside the supply cap",
+        "layer": "D",
+        "persona": "oversight",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "free credit the solvency check does not hold to its policy",
+        "repro": "issue a starter grant twice to one seller, above the knob, or to an unverified seller: the solvency gate's one rule (vouchers <= revenue) never reads starter_grant, and the console's cover shows 0.00x with no reason",
+        "fix": "the solvency gate holds every starter grant to its policy - once per verified seller, the knob's amount, inside the supply cap - and the console splits what is owed by its backing (top-ups, free starter credit), so a low cover reads with its reason",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH566",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AL",
+      "title": "a release that shipped ahead of its data move - inventory · inventory_items - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "inventory.html",
+        "logbook.html"
+      ],
+      "layers": [
+        "A"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches inventory and meets a defect of a class a real person met on 2026-10-13/14: production's inventory_items holds 5 photos inline and 0 in Storage, while the pages read only the stored path since the 2026-10-24 deploy - 5 photos show nothing until the owner's copy pass runs. MECHANISM: a release that shipped ahead of its data move. REPRO: on production after the 2026-10-24 deploy, open a logbook entry or part that has a photo: the pages read only the stored path and the copy pass has not run, so the photo shows nothing. FIX: the owner's copy pass run on production (photos to Storage, compared byte for byte, the inline text kept), every moved photo seen on its page, then --clear; and a deploy gate that names any data move a release's pages depend on and refuses the push until production shows it done. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AL:worker",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "inventory.html",
+          "logbook.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AL",
+        "page": "inventory.html",
+        "line": 0,
+        "key": "inventory_items",
+        "detail": "production's inventory_items holds 5 photos inline and 0 in Storage, while the pages read only the stored path since the 2026-10-24 deploy - 5 photos show nothing until the owner's copy pass runs",
+        "layer": "A",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a release that shipped ahead of its data move",
+        "repro": "on production after the 2026-10-24 deploy, open a logbook entry or part that has a photo: the pages read only the stored path and the copy pass has not run, so the photo shows nothing",
+        "fix": "the owner's copy pass run on production (photos to Storage, compared byte for byte, the inline text kept), every moved photo seen on its page, then --clear; and a deploy gate that names any data move a release's pages depend on and refuses the push until production shows it done",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
+      "id": "BRH567",
+      "status": "specced",
+      "pct": 5,
+      "wave": "BRH-AL",
+      "title": "a release that shipped ahead of its data move - logbook · logbook - worker",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html",
+        "pm-scheduler.html"
+      ],
+      "layers": [
+        "A"
+      ],
+      "ufai": [
+        "A"
+      ],
+      "persona": "worker",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "worker reaches logbook and meets a defect of a class a real person met on 2026-10-13/14: production's logbook holds 22 photos inline and 0 in Storage, while the pages read only the stored path since the 2026-10-24 deploy - 22 photos show nothing until the owner's copy pass runs. MECHANISM: a release that shipped ahead of its data move. REPRO: on production after the 2026-10-24 deploy, open a logbook entry or part that has a photo: the pages read only the stored path and the copy pass has not run, so the photo shows nothing. FIX: the owner's copy pass run on production (photos to Storage, compared byte for byte, the inline text kept), every moved photo seen on its page, then --clear; and a deploy gate that names any data move a release's pages depend on and refuses the push until production shows it done. The row closes only when the reproduction is made to FAIL on demand, the fix lands, and a gate holds it, measured at phone-390 and desktop-1280",
+      "journey": {
+        "archetype": "BRH-AL:worker",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "logbook.html",
+          "pm-scheduler.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "brh": {
+        "kind": "bug-hunt",
+        "cls": "AL",
+        "page": "logbook.html",
+        "line": 0,
+        "key": "logbook",
+        "detail": "production's logbook holds 22 photos inline and 0 in Storage, while the pages read only the stored path since the 2026-10-24 deploy - 22 photos show nothing until the owner's copy pass runs",
+        "layer": "A",
+        "persona": "worker",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "mechanism": "a release that shipped ahead of its data move",
+        "repro": "on production after the 2026-10-24 deploy, open a logbook entry or part that has a photo: the pages read only the stored path and the copy pass has not run, so the photo shows nothing",
+        "fix": "the owner's copy pass run on production (photos to Storage, compared byte for byte, the inline text kept), every moved photo seen on its page, then --clear; and a deploy gate that names any data move a release's pages depend on and refuses the push until production shows it done",
+        "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      }
+    },
+    {
       "id": "SL1",
       "status": "locking",
       "pct": 60,
@@ -1039438,5 +1042549,5 @@
       }
     }
   ],
-  "next": "LB3 closed 76/76 and the SL.19 scroll-up shift fixed (2026-10-23). The 19 open rows are production-side (BRH: live witnesses wait on Ian's push; production embeddings and backups oversight). Ian's gates: push, prod migrations, skills_table approval."
+  "next": "§BRH.10 seeded 49 rows from the 2026-10-24 release's open items (BRH519..567). Local now: AI 8 (one cause list for voice, CSV and CMMS; analytics and the failure-signature scan group by it), AJ 4 (the census matches class tokens exactly), AK 2 (the solvency gate holds starter grants; the console says why cover is low), AF's instrument (the smoke asks the server for its hive). Ian's: the production copy pass (22+5 photos hidden now), the production smoke account; then AG 26 + AH 5 walk production."
 }

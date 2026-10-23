@@ -1251,6 +1251,57 @@ BRH_CLASS = {
            "read the free plan: Supabase Free keeps no daily backups and pauses a project after 7 days of low activity",
            "a free substitute that runs on its own: a scheduled dump of the database to storage the owner keeps "
            "(backups), and a scheduled request that keeps the project active (pausing) - each proven by its own run"),
+    # AF..AL - what the 2026-10-24 release left open (Ian, 2026-10-24: "be proactive ... make a necessary and
+    # appropriate number of trajectories"), measured by tools/release_followup_evidence.py
+    "AF": ("CI", "oversight",
+           "a post-deploy check that cannot reach the signed-in product on production",
+           "run the post-deploy smoke's signed-in tier after a deploy: production has no account it can sign in with, "
+           "and the instrument seeds a local hive, worker and role into storage instead of asking the server",
+           "a production smoke identity - an account and its own bench hive holding no tenant's data, credentials only "
+           "in .env - and a smoke that reads the account's hive and role from the server after sign-in and refuses to "
+           "act outside the bench hive"),
+    "AG": ("CI", "supervisor",
+           "a page never seen signed in on production after a deploy",
+           "after a deploy, open the page on production signed in as a member: the public tier walks the sitemap and "
+           "the signed-in tier has never run, so a page whose script throws for a member ships unseen",
+           "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its "
+           "own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result"),
+    "AH": ("CI", "supervisor",
+           "a critical path never walked on production after a deploy",
+           "after a deploy, sign in, save a logbook entry, ask the AI, double-tap a parts reservation and read the logs "
+           "on production: the runbook's Tier 0 is manual and was not run for the 2026-10-24 deploy",
+           "the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in "
+           "the deploy's runbook entry"),
+    "AI": ("D", "supervisor",
+           "a breakdown cause the analytics cannot group: free text beside the form's list",
+           "record one breakdown by voice and one by the form with the same cause on the same machine: the voice entry "
+           "keeps the cause as said, analytics groups root_cause by its exact text, so the repeat is never counted, the "
+           "Pareto splits one cause into two bars and the multi-symptom scan counts two causes",
+           "every writer stores a cause from the form's list and keeps what was said beside it; repeat failures, the "
+           "Pareto and the failure-signature scan group by the listed cause; stored free-text causes are given theirs, "
+           "locally and in production; a gate holds every writer and every grouping to the list"),
+    "AJ": ("CI", "oversight",
+           "an adoption census that credits a lookalike class",
+           "give a page only heat-tile, pulse-card or stat-pill: the census credits it as a .tile, .card or .pill "
+           "adopter, because its matcher treats '-' as a word edge - the floor counts pages that never used the "
+           "component",
+           "the census matches class tokens exactly, each lowered floor named with the pages that were never adopters, "
+           "and each such page either converges on the canonical component or is recorded as a justified bespoke "
+           "container"),
+    "AK": ("D", "oversight",
+           "free credit the solvency check does not hold to its policy",
+           "issue a starter grant twice to one seller, above the knob, or to an unverified seller: the solvency gate's "
+           "one rule (vouchers <= revenue) never reads starter_grant, and the console's cover shows 0.00x with no reason",
+           "the solvency gate holds every starter grant to its policy - once per verified seller, the knob's amount, "
+           "inside the supply cap - and the console splits what is owed by its backing (top-ups, free starter credit), "
+           "so a low cover reads with its reason"),
+    "AL": ("A", "worker",
+           "a release that shipped ahead of its data move",
+           "on production after the 2026-10-24 deploy, open a logbook entry or part that has a photo: the pages read "
+           "only the stored path and the copy pass has not run, so the photo shows nothing",
+           "the owner's copy pass run on production (photos to Storage, compared byte for byte, the inline text kept), "
+           "every moved photo seen on its page, then --clear; and a deploy gate that names any data move a release's "
+           "pages depend on and refuses the push until production shows it done"),
 }
 
 

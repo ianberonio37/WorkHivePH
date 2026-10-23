@@ -93,6 +93,8 @@ JOURNEYS = ROOT / "live_page_journeys_results.json"
 DESIGN_BASELINE = ROOT / "design_detector_baseline.json"
 ADVISOR = ROOT / "supabase_advisor_evidence.json"   # P..Y, read from production's advisor (tools/supabase_advisor_evidence.py)
 FREE_PLAN = ROOT / "free_plan_evidence.json"        # Z..AE, the two free plans (tools/free_plan_evidence.py)
+RELEASE_FOLLOWUP = ROOT / "release_followup_evidence.json"   # AF..AL, what the 2026-10-24 release left open
+#                                                            (tools/release_followup_evidence.py)
 
 GUARD = re.compile(r"typeof\s+(wh[A-Za-z0-9_]+)\s*(?:===|==)\s*'function'")
 DEFINED = re.compile(r"^(?:async\s+)?function\s+(wh[A-Za-z0-9_]+)\s*\(|^\s*window\.(wh[A-Za-z0-9_]+)\s*=", re.M)
@@ -265,6 +267,11 @@ def collect(sources: dict | None = None) -> list[dict]:
             d = m.group(1)
             if d == own:
                 continue
+            # A control GATED from birth is not a site: its reproduction cannot be made to fail. The marker is the
+            # one validate_gated_offers verifies (offered only after the server answers). OPC (2026-10-22) added
+            # three such console links - ai-quality, audit-log, marketplace - which read as new sites (2026-10-24).
+            if "gated-offer-ok" in src[max(0, m.start() - 700):m.start()]:
+                continue
             if own in gated and (gated[own] == "admin" or gated[own] == gated[d]):
                 continue
             out.append((_line_of(code, m.start()), d))
@@ -417,6 +424,9 @@ def collect(sources: dict | None = None) -> list[dict]:
     # Z..AE - what keeps the platform on the two free plans (2026-10-21), from free_plan_evidence.json
     if sources is None and FREE_PLAN.exists():
         sites += free_plan_sites(json.loads(FREE_PLAN.read_text(encoding="utf-8")))
+    # AF..AL - what the 2026-10-24 release left open, from release_followup_evidence.json
+    if sources is None and RELEASE_FOLLOWUP.exists():
+        sites += release_followup_sites(json.loads(RELEASE_FOLLOWUP.read_text(encoding="utf-8")))
     sites.sort(key=lambda s: (s["cls"], s["page"], s["line"], s["key"]))
     return sites
 
@@ -488,6 +498,79 @@ def free_plan_sites(ev: dict) -> list[dict]:
                 page=page, persona="worker")
     for gp in ev.get("plan_gaps", []):
         add("AE", gp["key"], f"{gp['what']} - a gap the platform must cover itself, on free services, without a paid plan")
+    return out
+
+
+def release_followup_sites(ev: dict) -> list[dict]:
+    """One site per item the 2026-10-24 release left open (release_followup_evidence.json). Ian, 2026-10-24: "make a
+    necessary and appropriate number of trajectories" - so each is counted from what was measured, never typed."""
+    out = []
+
+    def add(cls: str, key: str, detail: str, page: str = "index.html", persona: str = "oversight", line: int = 0) -> None:
+        out.append({"cls": cls, "page": page, "line": line, "key": key, "persona": persona, "detail": detail})
+
+    sm = ev.get("smoke") or {}
+    if sm.get("hive_line"):
+        add("AF", "post_deploy_smoke.mjs",
+            f"the post-deploy smoke's signed-in tier seeds a local hive into storage (tools/post_deploy_smoke.mjs:"
+            f"{sm['hive_line']}: {', '.join(sm.get('seeded_keys') or [])}) instead of asking the server who the account "
+            f"is - against production it would claim a hive the account is not in", line=sm["hive_line"])
+    if not sm.get("has_identity"):
+        add("AF", "production smoke identity",
+            "production has no account the smoke can sign in with (WH_SMOKE_EMAIL is not in .env), so the 2026-10-24 "
+            "deploy's signed-in tier and its critical paths were not run")
+    ran = (sm.get("last_report") or {}).get("tier2_pages", 0)
+    total = len(sm.get("app_pages") or [])
+    for name in sm.get("app_pages") or []:
+        add("AG", "signed in on production",
+            f"{name}.html was not opened signed in on production after the 2026-10-24 deploy (the smoke's signed-in tier "
+            f"ran {ran} of {total} pages) - a page whose script throws for a member ships unseen",
+            page=f"{name}.html", persona="supervisor")
+    flow_page = {1: "index.html", 2: "logbook.html", 3: "assistant.html", 4: "asset-hub.html", 5: "index.html"}
+    for f in ev.get("tier0") or []:
+        add("AH", f"flow {f['n']}",
+            f"Tier-0 flow {f['n']} - {f['flow']} - was not walked on production after the 2026-10-24 deploy (the runbook's "
+            f"Tier 0 is manual and needs a production account)",
+            page=flow_page.get(f["n"], "index.html"), persona="oversight" if f["n"] == 5 else "supervisor")
+    rc = ev.get("root_causes") or {}
+    n = len(rc.get("vocabulary") or [])
+    for w in rc.get("writers") or []:
+        add("AI", f"writer {Path(w['file']).name}",
+            f"{w['how']} ({w['file']}:{w['line']}) - a breakdown's cause stored as said, beside the logbook form's {n} "
+            f"causes", page=w["page"], persona="supervisor", line=w["line"])
+    for r in rc.get("readers") or []:
+        add("AI", f"reader {Path(r['file']).name}:{r['line']}",
+            f"{r['how']} ({r['file']}:{r['line']}) - a cause recorded in other words never meets its twin from the form",
+            page=r["page"], persona="supervisor", line=r["line"])
+    if rc.get("local_free_text"):
+        p = rc.get("prod") or {}
+        add("AI", "stored free text",
+            f"{rc['local_free_text']} breakdown causes stored locally sit outside the form's {n} causes "
+            f"({p.get('free_text', '?')} of {p.get('causes', '?')} in production) - each one its own bar in the Pareto",
+            page="analytics.html", persona="supervisor")
+    for x in ev.get("lookalikes") or []:
+        pages = x.get("pages") or []
+        add("AJ", f".{x['class']}",
+            f"the adoption census credits {len(pages)} page(s) as .{x['class']} adopters ({x['component']}) because a "
+            f"class such as heat-{x['class']} contains '-{x['class']}': {', '.join(pages[:6])}"
+            f"{' ...' if len(pages) > 6 else ''} - the floor counts pages that never used the component")
+    cr = ev.get("credits") or {}
+    p = cr.get("prod") or {}
+    if not cr.get("gate_holds_grant_policy"):
+        add("AK", "solvency gate",
+            f"validate_credit_solvency's one rule is vouchers <= revenue; starter grants (production: {p.get('starter_grants')} "
+            f"grant, {(p.get('ledger_totals') or {}).get('starter_grant')} credits) are free credit it never holds to "
+            f"their policy - once per verified seller, the knob's amount, inside the supply cap")
+    if not cr.get("console_names_backing"):
+        add("AK", "cover reason",
+            f"the operator console's liability cover reads 0.00x in red on production ({p.get('topups')} credits of "
+            f"top-ups, {(p.get('ledger_totals') or {}).get('starter_grant')} of free starter credit) and says nothing "
+            f"about why - what is owed is not split by its backing", page="founder-console.html")
+    for ph in ev.get("photos") or []:
+        add("AL", ph["table"],
+            f"production's {ph['table']} holds {ph['inline']} photos inline and {ph['stored']} in Storage, while the pages "
+            f"read only the stored path since the 2026-10-24 deploy - {ph['inline']} photos show nothing until the "
+            f"owner's copy pass runs", page=ph["page"], persona="worker")
     return out
 
 
@@ -630,10 +713,17 @@ def main() -> int:
                      ("AB", "a photo stored inside a row               (layer RL, per column / page)"),
                      ("AC", "the AI's corpus missing in production      (layer AV, per table)"),
                      ("AD", "a function production refuses its caller   (layer A, per page)"),
-                     ("AE", "a free-plan gap covered by nothing         (layer A, per gap)")):
+                     ("AE", "a free-plan gap covered by nothing         (layer A, per gap)"),
+                     ("AF", "a post-deploy check that cannot sign in    (layer CI, per instrument)"),
+                     ("AG", "a page never seen signed in on production  (layer CI, per page)"),
+                     ("AH", "a critical path never walked on production (layer CI, per flow)"),
+                     ("AI", "a breakdown cause analytics cannot group   (layer D, per writer / reader)"),
+                     ("AJ", "an adoption census crediting a lookalike   (layer CI, per class)"),
+                     ("AK", "free credit the solvency check never holds (layer D, per check)"),
+                     ("AL", "a release shipped ahead of its data move   (layer A, per table)")):
         print(f"    {c} · {label}: {by_cls.get(c, 0)}")
     print()
-    for c in list("DEFGHJKLMNPQRSTUVWXY") + ["Z", "AA", "AB", "AC", "AD", "AE"]:
+    for c in list("DEFGHJKLMNPQRSTUVWXY") + ["Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL"]:
         rows = [s for s in sites if s["cls"] == c]
         if not rows:
             continue

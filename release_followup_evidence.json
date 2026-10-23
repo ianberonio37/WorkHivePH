@@ -1,0 +1,239 @@
+{
+ "_doc": "release follow-up evidence (BRH-AF..AL), tools/release_followup_evidence.py",
+ "prod_read": {
+  "read_at": "2026-10-24",
+  "via": "claude.ai Supabase connector, SELECT only, project hzyvnjtisfgbksicrouu"
+ },
+ "smoke": {
+  "app_pages": [
+   "index",
+   "hive",
+   "asset-hub",
+   "pm-scheduler",
+   "logbook",
+   "inventory",
+   "analytics",
+   "analytics-report",
+   "alert-hub",
+   "assistant",
+   "achievements",
+   "community",
+   "dayplanner",
+   "shift-brain",
+   "skillmatrix",
+   "voice-journal",
+   "project-manager",
+   "project-report",
+   "report-sender",
+   "resume",
+   "audit-log",
+   "engineering-design",
+   "marketplace",
+   "marketplace-seller",
+   "integrations",
+   "ph-intelligence"
+  ],
+  "hive_line": 71,
+  "seeded_keys": [
+   "wh_active_hive_id",
+   "wh_active_hive_name",
+   "WORKER_NAME",
+   "wh_hive_role"
+  ],
+  "has_identity": false,
+  "last_report": {
+   "base": "https://workhiveph.com",
+   "at": "2026-10-23T12:08:07.721Z",
+   "tier2_pages": 0
+  }
+ },
+ "tier0": [
+  {
+   "n": 1,
+   "flow": "sign in"
+  },
+  {
+   "n": 2,
+   "flow": "create a logbook entry (quota trigger allows honest use)"
+  },
+  {
+   "n": 3,
+   "flow": "fire one AI action (`ai-gateway` + budget guard)"
+  },
+  {
+   "n": 4,
+   "flow": "marketplace: accept a parts-staging rec **twice fast** (proves the `parts_staged_reservations` UNIQUE idempotency)"
+  },
+  {
+   "n": 5,
+   "flow": "watch Supabase logs for `54000`/`23505`/`500` spikes"
+  }
+ ],
+ "root_causes": {
+  "vocabulary": [
+   "Misalignment",
+   "Contamination / Dirt",
+   "Wear",
+   "Overload",
+   "Corrosion",
+   "Lubrication Failure",
+   "Electrical Fault",
+   "Mechanical Damage",
+   "Vibration / Fatigue",
+   "Human Error",
+   "Design Issue",
+   "Unknown"
+  ],
+  "writers": [
+   {
+    "page": "logbook.html",
+    "file": "supabase/functions/voice-logbook-entry/index.ts",
+    "line": 58,
+    "how": "the voice entry asks the model for the cause as said"
+   },
+   {
+    "page": "integrations.html",
+    "file": "integrations.html",
+    "line": 1966,
+    "how": "a CSV import maps its own cause column straight in"
+   },
+   {
+    "page": "integrations.html",
+    "file": "supabase/functions/cmms-sync/index.ts",
+    "line": 128,
+    "how": "a CMMS sync copies the external system's cause text"
+   }
+  ],
+  "readers": [
+   {
+    "page": "analytics.html",
+    "file": "python-api/analytics/descriptive.py",
+    "line": 401,
+    "how": "repeat failures group by the exact cause text"
+   },
+   {
+    "page": "analytics.html",
+    "file": "python-api/analytics/diagnostic.py",
+    "line": 74,
+    "how": "the Pareto groups by the exact cause text"
+   },
+   {
+    "page": "alert-hub.html",
+    "file": "supabase/functions/failure-signature-scan/index.ts",
+    "line": 80,
+    "how": "repeat_failure keys on the lower-cased text"
+   },
+   {
+    "page": "alert-hub.html",
+    "file": "supabase/functions/failure-signature-scan/index.ts",
+    "line": 134,
+    "how": "multi_symptom counts distinct cause texts"
+   }
+  ],
+  "local_free_text": 11,
+  "prod": {
+   "causes": 28,
+   "free_text": 0
+  }
+ },
+ "lookalikes": [
+  {
+   "component": "FC1",
+   "class": "tile",
+   "pages": [
+    "analytics-report.html",
+    "analytics.html",
+    "hive.html",
+    "index.html",
+    "project-manager.html"
+   ]
+  },
+  {
+   "component": "FC4",
+   "class": "card",
+   "pages": [
+    "achievements.html",
+    "alert-hub.html",
+    "analytics-report.html",
+    "asset-hub.html",
+    "assistant.html",
+    "audit-log.html",
+    "community.html",
+    "dayplanner.html",
+    "design-system.html",
+    "founder-console.html",
+    "hive.html",
+    "index.html",
+    "marketplace-admin.html",
+    "marketplace-seller-profile.html",
+    "marketplace-seller.html",
+    "marketplace.html",
+    "pm-scheduler.html",
+    "project-manager.html",
+    "project-report.html",
+    "public-feed.html",
+    "shift-brain.html"
+   ]
+  },
+  {
+   "component": "FI3",
+   "class": "filter-chip",
+   "pages": [
+    "design-system.html",
+    "marketplace.html"
+   ]
+  },
+  {
+   "component": "FI3",
+   "class": "pill",
+   "pages": [
+    "agentic-rag-observability.html",
+    "alert-hub.html",
+    "analytics-report.html",
+    "asset-hub.html",
+    "audit-log.html",
+    "engineering-design.html",
+    "index.html",
+    "inventory.html",
+    "logbook.html",
+    "marketplace-seller-profile.html",
+    "marketplace.html",
+    "pm-scheduler.html",
+    "project-manager.html",
+    "project-report.html",
+    "public-feed.html",
+    "report-sender.html",
+    "resume.html",
+    "shift-brain.html",
+    "voice-journal.html"
+   ]
+  }
+ ],
+ "credits": {
+  "gate_holds_grant_policy": false,
+  "console_names_backing": false,
+  "prod": {
+   "ledger_totals": {
+    "starter_grant": 500
+   },
+   "topups": 0,
+   "starter_grants": 1,
+   "starter_accounts": 1,
+   "starter_kyb_verified": 1
+  }
+ },
+ "photos": [
+  {
+   "table": "logbook",
+   "page": "logbook.html",
+   "inline": 22,
+   "stored": 0
+  },
+  {
+   "table": "inventory_items",
+   "page": "inventory.html",
+   "inline": 5,
+   "stored": 0
+  }
+ ]
+}
