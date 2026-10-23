@@ -290,7 +290,8 @@ def is_aria_level_heading(f: dict) -> bool:
 
 
 # ── the root's axis guard ──────────────────────────────────────────────────────────────────────────
-# tokens.css R2: `html, body { overflow-x: clip; }` - deliberately CLIP, not hidden: it stops off-screen decorations
+# tokens.css R2: `html { overflow-x: clip; }` (html AND body until 2026-10-23, when body's own clip box turned out to stop
+# Chrome's scroll anchoring - SL.19) - deliberately CLIP, not hidden: it stops off-screen decorations
 # (the feedback panel parked at translateX(100%)) from widening the page, without making either element a scroll
 # container, so position:sticky keeps working. The detector reports it as "html clips a positioned child" whenever a
 # page has a position:fixed nav - but a fixed box's containing block is the VIEWPORT, so an ancestor's overflow never

@@ -259,8 +259,18 @@ button.btn-secondary:disabled, button.btn-ghost:disabled { cursor: not-allowed; 
    panel hides via transform:translateX(100%) (off-screen right); on pages that don't set
    their own overflow-x (inventory, audit-log) that extended document scrollWidth and failed
    R2. `clip` (not hidden) clips the axis WITHOUT creating a scroll container, so it never
-   breaks position:sticky. One rule here protects all 28 tokens.css pages. */
-html, body { overflow-x: clip; }
+   breaks position:sticky. One rule here protects all 28 tokens.css pages.
+   ★THE ROOT ALONE (SL.19, 2026-10-23). On html AND body together, Chrome's scroll anchoring
+   stopped holding the screen: scrolling back up a thousand-row logbook, every row drawn for
+   the first time above the screen pushed what was on it down - 87 layout shifts, 7.8 in
+   total, largest 0.231. A synthetic page reproduced it with this one declaration and nothing
+   else (153 shifts); with body clipping its own box, the browser finds no anchor inside it.
+   On the root alone the clip is the VIEWPORT's (a root's overflow is the viewport's): a
+   person still cannot scroll the page sideways (wheel and touch), sticky still holds, and
+   anchoring works (0 shifts) - but an element wider than the screen now shows in
+   scrollWidth instead of being cut off without a trace, which is how the viewport-overflow
+   gates are meant to see it. */
+html { overflow-x: clip; }
 
 /* ── Native-app feel baseline (rubric class T · React-Native benchmark, 2026-07-18) ─────────
    Behavioural, not visual → no FOUC. Applied ONCE here so the WHOLE family inherits it (no

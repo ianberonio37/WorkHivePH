@@ -74,7 +74,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 
 **↳ HOW FAST WE MOVE: walk and bank continuously; after a batch run ONLY the gates that cover the files it changed (plus `trajectory-registry` and `live-walk-manifest`), never the whole board — the full board is Ian's gate.** Batch close, in this order: regenerate the header → `build_md_twins` → `build_substrate` → bump `sw.js` once if a precached shell file changed → the relevant gates.
 
-**NEXT: LB3 closed 76/76 (SL3129 inventory, SL3130 logbook banked 2026-10-23). The 19 open rows are production-side (BRH: live witnesses wait on Ian's push; production embeddings and backups oversight). Local: the SL.19 scroll-up layout shift - .tmp/slw/gen_scrollup_probe.py, test the 160 px contain-intrinsic-size estimate against a card's real height.**
+**NEXT: LB3 closed 76/76 and the SL.19 scroll-up shift fixed (2026-10-23). The 19 open rows are production-side (BRH: live witnesses wait on Ian's push; production embeddings and backups oversight). Ian's gates: push, prod migrations, skills_table approval.**
 
 | Wave | Completion per trajectory |
 |---|---|
@@ -16251,6 +16251,18 @@ Both rows were walked through the MCP browser at 390 with the CPU 4x slower and 
   - the walk's full-page scan;
   - the drawn-row marking.
 
-**The scroll-up layout shift (§SL.19 NEXT)** is not an LB3 row and stays as it was. Scrolling back up from the foot of
-a thousand rows the browser never drew shifted the content 17 times (1.20 in total, largest 0.231). The probe is built:
-`.tmp/slw/gen_scrollup_probe.py <page> <user> <hive> <tag> [estimate_px]`.
+**The scroll-up layout shift (§SL.19 NEXT) - fixed (2026-10-23).** Scrolling back up from the foot of the logbook's
+thousand entries, each row drawn for the first time above the screen pushed the screen down: 87 shifts, 7.8 in total,
+largest 0.231 (`.tmp/slw/gen_scrollup_probe.py`). The causes were found by elimination:
+- **Ruled out:**
+  - the shared 160 px estimate: a 275 px estimate made it worse, 164 shifts;
+  - the drawn-rows-only anchoring of R18: every row an anchor gave the same 87;
+  - the wheel's smooth scrolling: instant steps gave 88.
+- **Ruled in:** with content-visibility off there were none, and on a synthetic page Chrome's anchoring held through
+  every variant but one - `html, body { overflow-x: clip }`, shared from `tokens.css` by 35 pages. With body clipping
+  its own box, the browser found no anchor inside it.
+- **The fix:** the clip sits on html alone, where it is the viewport's clip. A person still cannot scroll sideways,
+  sticky holds, and the same logbook scroll-up shifts nothing: 0.
+- **Checks:** `viewport-overflow` read 0 unclipped overflows over 27 pages at 3 widths, and `control-within-viewport`
+  read 0 controls off-screen at 320. An element wider than the screen now shows in scrollWidth instead of being cut off
+  without a trace. Gate `long-list-render` R24.

@@ -240,7 +240,7 @@
        tap floor, measured 42x80 across all 42 cells at 390 CSS px (viewport set before load, sampled
        twice). minmax(44px, 1fr) puts the floor on the TRACK, so the cells cannot be squeezed below it.
        The grid then exceeds its ~318px container by roughly 14px, which is why it needs its OWN
-       overflow-x: auto: <body> carries overflow-x: clip, and clip cannot be scrolled at all, so without
+       overflow-x: auto: the page carries overflow-x: clip (tokens.css, on html since 2026-10-23), which a person cannot scroll, so without
        a scroll container here the surplus column would be silently CUT - the exact mechanism that
        removed 52px of logbook while every scrollWidth check still read 0. The day-name header row lives
        inside this same grid, so headers and cells scroll together and cannot desync. */
@@ -251,7 +251,7 @@
          the 44px target - and these are 'add a task at this hour' controls, where a mis-tap does
          not just miss, it books work at the wrong time. Heights were already fine (51-56px); the
          constraint was purely width. Same fix as .milo-grid above, for the same reason, with the
-         same overflow-x: auto that the note above explains is mandatory here (body carries
+         same overflow-x: auto that the note above explains is mandatory here (the page carries
          overflow-x: clip, which cannot scroll, so surplus columns would be silently cut rather
          than reachable). Header row and cells share this grid, so they scroll together. */
       /* 45px, not 44: each day column carries border-left:1px, and the hour slots inside are
@@ -287,7 +287,7 @@
        .wilo-grid each got a minmax() floor with a long note explaining why it was mandatory - this
        grid was simply missed. Measured at 390: usable 342 -> 73.5px per card -> minus 24px card
        padding -> 49.5px -> seven tracks with 2px gaps -> 5.36px, holding a 12px digit, and
-       unreachable by scrolling because html/body carry `overflow-x: clip` (clip cannot scroll).
+       unreachable by scrolling because the page carries `overflow-x: clip` (clip cannot scroll).
        Two across takes the cell to ~20px: not a tap target, and not pretending to be one - see the
        pointer-events rule, and the month card above which is the real control. */
     @media (max-width: 640px) {

@@ -59,7 +59,7 @@
       #wh-logbook-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.5rem; min-height: 760px; }
     }
     /* A grid item's AUTOMATIC MINIMUM SIZE is its min-content width, so both column children sat at
-       416px inside a 344px track at 390px wide — and because <body> carries `overflow-x: clip`
+       416px inside a 344px track at 390px wide — and because <body> carried `overflow-x: clip`
        (which, unlike `hidden`, cannot be scrolled at all) the surplus 52px of every card, the
        view-toggle bar and the whole entries list was CUT with no way to reach it. That is also why
        an overflow check based on scrollWidth read 0 and called the page clean: the clip removes the

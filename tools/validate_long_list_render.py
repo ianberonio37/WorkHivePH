@@ -98,6 +98,11 @@ STATIC  R1 utils.js whRenderRows appends a grown list, patches a few changed row
            compaction froze the page for 292-555 ms at a time at 390 (CPU 4x). Grown the same way to 300 parts no task
            passed 115 ms, to 500 none passed 136. Inventory draws at most INV_DRAWN_MAX (500); at the cap the button goes
            and the label says to search or filter for the rest.
+        R24 the page's horizontal clip sits on the ROOT alone: `html, body { overflow-x: clip }` (tokens.css, 35 pages)
+           made body its own clip box, and Chrome's scroll anchoring found no anchor inside it - scrolling back up a
+           thousand-row logbook, every row drawn for the first time above the screen pushed the screen down (87 shifts,
+           7.8 in total, largest 0.231). On html alone the clip is the viewport's: no sideways scroll for a person,
+           sticky holds, and the same scroll-up shifts nothing.
 SELF-TEST (--self-test): each check broken in a copy of a real file (or on a synthetic page appended to one), each
         caught; the clean run is green.
 
@@ -774,6 +779,24 @@ def check_drawn_cap(inventory: str) -> list[str]:
     return issues
 
 
+# R24: a shared rule that gives body its own horizontal clip (body listed in an overflow-x: clip/hidden selector)
+BODY_CLIP = re.compile(r"(?:^|[},;\s])(?:html\s*,\s*)?body(?:\s*,\s*html)?\s*\{[^}]*overflow(?:-x)?\s*:\s*(?:clip|hidden)", re.I)
+
+
+def check_root_clip(tokens: str) -> list[str]:
+    """R24: the shared stylesheet clips the page's x-axis on the root alone, never on body."""
+    issues = []
+    css = re.sub(r"/\*.*?\*/", " ", tokens, flags=re.S)
+    if BODY_CLIP.search(css):
+        issues.append("R24 tokens.css gives body its own overflow-x clip - with html clipping too, body becomes a clip box and "
+                      "Chrome's scroll anchoring finds no anchor inside it: scrolling back up a long list, every row drawn for "
+                      "the first time pushes the screen down. Clip the root alone: html { overflow-x: clip; }")
+    if not re.search(r"(?:^|[},\s])html\s*\{[^}]*overflow-x\s*:\s*clip", css):
+        issues.append("R24 tokens.css no longer clips the page's x-axis on the root (html { overflow-x: clip; }) - an off-screen "
+                      "decoration would let a person scroll the page sideways")
+    return issues
+
+
 def check(files: dict[str, str] | None = None, utils_override: str | None = None) -> list[str]:
     def text(rel: str) -> str:
         return files[rel] if files and rel in files else (ROOT / rel).read_text(encoding="utf-8", errors="replace")
@@ -783,6 +806,7 @@ def check(files: dict[str, str] | None = None, utils_override: str | None = None
     issues += check_row_cost(text("utils.js"), text("dayplanner.html"), text("logbook.html"))
     issues += check_picker(text("logbook.html"))
     issues += check_drawn_cap(text("inventory.html"))
+    issues += check_root_clip(text("tokens.css"))
     for page in DATA_PAGES:
         issues += check_page(page, text(page))
     for page in STATIC_PAGES:
@@ -947,6 +971,10 @@ def self_test() -> list[str]:
             "const INV_DRAWN_MAX = 500;", "const INV_DRAWN_MAX = 5000;", 1)}, None, "R23"),
         ("inventory's cap reached without a word", {"inventory.html": (ROOT / "inventory.html").read_text(encoding="utf-8").replace(
             " Search, or filter by category or stock, to find the rest.`", "`", 1)}, None, "R23"),
+        ("body given its own horizontal clip again", {"tokens.css": (ROOT / "tokens.css").read_text(encoding="utf-8").replace(
+            "html { overflow-x: clip; }", "html, body { overflow-x: clip; }", 1)}, None, "R24"),
+        ("the root's horizontal clip removed", {"tokens.css": (ROOT / "tokens.css").read_text(encoding="utf-8").replace(
+            "html { overflow-x: clip; }", "html { }", 1)}, None, "R24"),
     ]
     MUTANTS_RUN[0] = len(mutants)
     for name, files, utils_src, want in mutants:

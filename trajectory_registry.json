@@ -1039404,5 +1039404,5 @@
       }
     }
   ],
-  "next": "LB3 closed 76/76 (SL3129 inventory, SL3130 logbook banked 2026-10-23). The 19 open rows are production-side (BRH: live witnesses wait on Ian's push; production embeddings and backups oversight). Local: the SL.19 scroll-up layout shift - .tmp/slw/gen_scrollup_probe.py, test the 160 px contain-intrinsic-size estimate against a card's real height."
+  "next": "LB3 closed 76/76 and the SL.19 scroll-up shift fixed (2026-10-23). The 19 open rows are production-side (BRH: live witnesses wait on Ian's push; production embeddings and backups oversight). Ian's gates: push, prod migrations, skills_table approval."
 }
