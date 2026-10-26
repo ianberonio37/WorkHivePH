@@ -180,8 +180,8 @@
     if (!t) return;
     e.preventDefault();
     t.scrollIntoView({ block: 'start' });
-    try { history.replaceState(history.state, '', h); } catch (_) { /* the jump still happened */ }
+    try { history.replaceState(history.state, '', h); } catch (_) { /* empty-catch-allow: the jump still happened; only the address bar keeps its old hash */ }
     if (!t.hasAttribute('tabindex') && !/^(A|BUTTON|INPUT|SELECT|TEXTAREA|SUMMARY)$/.test(t.tagName)) t.setAttribute('tabindex', '-1');
-    try { t.focus({ preventScroll: true }); } catch (_) { /* focus is best-effort */ }
+    try { t.focus({ preventScroll: true }); } catch (_) { /* empty-catch-allow: focus is best-effort - the target is already scrolled into view */ }
   });
 })();

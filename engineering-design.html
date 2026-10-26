@@ -115,6 +115,8 @@
       justify-content: center;
     }
     .btn-ghost:hover { border-color: rgba(255,255,255,0.35); color: white; }
+    /* the PDF button while the service wakes (engineering-design.js printReport): visibly busy, not merely dead */
+    .btn-ghost.is-loading { cursor: progress; opacity: 0.6; }
 
     /* Page tabs */
     .page-tab {
@@ -970,7 +972,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <!-- Nav -->
 <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whReadError whRequireOnline whSourcesSync whWriteError">
+<script data-wh-skew-heal="whReadError whRequireOnline whSourcesSync whWatchLibrary whWriteError">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1004,8 +1006,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // deferred, it still held the calculator, queued behind them. Mermaid initialises from its own onload (inline at parse
   // time it threw a ReferenceError whenever the CDN did not deliver it); the diagram and PDF paths already guard a missing library
   if (window.whWatchLibrary) {
-    whWatchLibrary('https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js', 'mermaid', 'The system diagram library');
-    whWatchLibrary('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js', 'html2pdf', 'The PDF exporter');
+    if (typeof whWatchLibrary === 'function') whWatchLibrary('https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js', 'mermaid', 'The system diagram library');
+    if (typeof whWatchLibrary === 'function') whWatchLibrary('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js', 'html2pdf', 'The PDF exporter');
   }
 </script>
 

@@ -633,8 +633,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
 </div>
 
 <script src="utils.js"></script>
-<script>whWatchLibrary('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js', 'Chart', 'The skills chart library');</script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whUse whWatchLibrary">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -655,6 +654,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
 })(document.currentScript);
 /* jscpd:ignore-end */
 </script>
+<script>if (typeof whWatchLibrary === 'function') whWatchLibrary('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js', 'Chart', 'The skills chart library');</script>
 <script src="skill-content.js"></script>
 <!-- Y1b (2026-07-23): offline-queue.js loads SYNC here, not deferred at page-end — skillmatrix
      inits via an immediate Promise.resolve(init()) call, so a deferred queue script loses the race

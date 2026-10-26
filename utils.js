@@ -9098,7 +9098,7 @@ var WH_PHOTO_DATA = /^data:image\/(jpeg|png|webp);base64,/;
 // Every column but the inline photo, so a list read carries a photo's two names and never the picture. The gate
 // photos-in-storage holds each list to the live schema: a column added to the table has to be added here.
 var WH_ROW_COLS = {
-  logbook: 'id,worker_name,date,machine,category,problem,action,knowledge,status,created_at,maintenance_type,root_cause,' +
+  logbook: 'id,worker_name,date,machine,category,problem,action,knowledge,status,created_at,maintenance_type,root_cause,root_cause_note,' +
     'downtime_hours,hive_id,parts_used,closed_at,tasklist_acknowledged,tasklist_note,pm_completion_id,failure_consequence,' +
     'readings_json,production_output,auth_uid,wo_state,wo_assigned_to,updated_at,asset_node_id,sync_meta,loto_applied,' +
     'permit_reference,ai_assisted_fields,deleted_at,deleted_by,photo_path,photo_thumb_path',

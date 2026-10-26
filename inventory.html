@@ -365,7 +365,7 @@
         <div class="sc-hero" id="inv-pending-hero">0</div>
         <div data-i="p_loading_b04b" class="sc-sub" id="inv-pending-sub">Loading...</div>
         <span class="sc-tag" id="inv-pending-tag">-</span>
-        <button type="button" id="inv-pending-show" class="hidden" onclick="invShowPending()" style="display:block;margin-top:0.5rem;min-height:44px;padding:0 0.75rem;font-size:0.8125rem;font-weight:700;border-radius:0.5rem;border:1px solid var(--wh-orange);background:transparent;color:var(--wh-orange-text, var(--wh-orange));cursor:pointer;">Show in list</button>
+        <button type="button" id="inv-pending-show" class="hidden" onclick="invShowPending()" style="margin-top:0.5rem;min-height:44px;padding:0 0.75rem;font-size:0.8125rem;font-weight:700;border-radius:0.5rem;border:1px solid var(--wh-orange);background:transparent;color:var(--wh-orange-text, var(--wh-orange));cursor:pointer;">Show in list</button>
       </div>
     </div>
     <div class="action-card">
@@ -769,6 +769,8 @@ let WORKER_NAME = whWorker() || /* storage-key-allow: legacy worker-name fallbac
 let HIVE_ID   = whHiveId();
 let HIVE_ROLE = localStorage.getItem('wh_hive_role') || '';
 let HIVE_NAME = localStorage.getItem('wh_hive_name') || '';
+// who may approve a part: solo (no hive) or the hive's supervisor - REVIEW is a supervisor's verb, a worker is told it waits
+function _invMayApprove() { return !HIVE_ID || HIVE_ROLE === 'supervisor'; }   // role-check-allow: HIVE_ROLE is the membership role whStartupHive seats from the account below, and this only picks which sentence and link the card shows
 // ★THE STORED HIVE IS SETTLED IN THIS PAGE'S START-UP (BRH-H/G, 2026-10-15). A wiped hive left the stock list solo
 // until the after-load recovery reloaded the page; a renamed hive kept its old name on the chip. whStartupHive seats it
 // from the account and checks the stored name (repainting the chip); the init below awaits it before its first read.
@@ -1127,7 +1129,7 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
   );
   // A worker's pending parts are their OWN (the hive read gives a worker approved stock plus their own rows), and a worker
   // cannot approve: REVIEW is a supervisor's verb. The worker is told the part is waiting, and both get a way to the list.
-  const _invApprover = !HIVE_ID || HIVE_ROLE === 'supervisor';
+  const _invApprover = _invMayApprove();
   setCard('pending',
     String(pendingCount),
     pendingCount === 0 ? 'Nothing awaiting supervisor sign-off'
@@ -1249,7 +1251,7 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
       text = _t(`${lowCount} part${lowCount === 1 ? '' : 's'} at or below the reorder threshold. Order them before the next shift planning so they arrive before they hit zero.${leadNote}`,
                 `${lowCount} part ang nasa o mas mababa sa reorder threshold. I-order ang mga ito bago ang susunod na shift planning para dumating bago maubos.${leadNote}`);
       setCta(_t(`Order ${lowCount} low part${lowCount === 1 ? '' : 's'} →`, `Mag-order ng ${lowCount} mababang part →`), { scroll: '#parts-list' });
-    } else if (pendingCount > 0 && !(!HIVE_ID || HIVE_ROLE === 'supervisor')) {
+    } else if (pendingCount > 0 && !_invMayApprove()) {
       text = _t(`${pendingCount === 1 ? 'Your part is' : pendingCount + ' of your parts are'} waiting for a supervisor to approve. Until then Use and Restock stay locked on ${pendingCount === 1 ? 'it' : 'them'}; nothing else needs doing.`,
                 `${pendingCount} sa mga part mo ang naghihintay ng approval ng supervisor. Hanggang doon, naka-lock ang Use at Restock.`);
       setCta(_t(`Show my pending part${pendingCount === 1 ? '' : 's'} →`, `Ipakita ang pending kong part →`), { scroll: '#parts-list', status: 'pending' });

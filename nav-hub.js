@@ -1802,7 +1802,7 @@
 
   function placePanel() {
     const hub   = document.getElementById('wh-hub');
-    const fab   = document.getElementById('wh-hub-fab');
+    const fab   = document.getElementById('wh-hub-fab');   // gid-allow: rendered by this file's own hub template (buildWidget)
     const panel = document.getElementById('wh-hub-panel');
     if (!hub || !fab || !panel) return;
     const r = fab.getBoundingClientRect();

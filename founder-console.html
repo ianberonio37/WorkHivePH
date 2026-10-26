@@ -692,6 +692,7 @@
         <li>Four tabs. Operations holds what waits for you. Platform shows how WorkHive is doing. Feeds says whether it is up. Developer shows what the builder watches.</li>
         <li data-i="p_anythingthatchangestheplatfo_105d">Anything that changes the platform is confirm-gated. Read the sentence in the confirm before pressing it, because most of these actions reach other people's hives.</li>
         <li data-i="p_afigurewithnosourcechipbesid_30bd">A figure with no source chip beside it has not been re-measured this session.</li>
+        <li>A day on this console is a Manila day (UTC+8): "today" starts at midnight in Manila, not on your device's clock.</li>
       </ul>
     </details>
 
@@ -2315,7 +2316,7 @@
       const shaky = rows.filter((r) => Number(r.failed) > 0 && Number(r.served) > 0);
       dot.classList.add(dead.length ? 'fail' : shaky.length ? 'warn' : 'good');
       const why = (r) => [['rate_limited', 'rate-limited'], ['server_error', 'server error'], ['timed_out', 'timed out'],
-        ['refused_auth', 'key refused'], ['unusable', 'answer unusable'], ['threw', 'did not answer']]
+        ['refused_auth', 'key refused'], ['unusable', 'answer unusable'], ['threw', 'unreachable or errored']]
         .filter(([k]) => Number(r[k]) > 0).map(([k, label]) => Number(r[k]) + ' ' + label).join(', ');
       const failing = rows.filter((r) => Number(r.failed) > 0);
       const healthy = rows.filter((r) => Number(r.failed) === 0);

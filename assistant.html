@@ -3094,13 +3094,16 @@ happens to know maintenance, not a manual.`;
       // the name CACHE, so a signed-in worker whose device remembered no name (Bryan, walked at 390 and 1280) stood on
       // "YOUR NAME" with an empty box. The restore above announces the account's name (wh-identity-changed); a person still
       // on setup with the box empty is routed exactly as one whose name was remembered.
-      window.addEventListener('wh-identity-changed', (ev) => {
+      // one job: once the person has been routed into the chat the listener has nothing left to do, so it removes itself
+      const _whRouteOnIdentity = (ev) => {
         const now = ev && ev.detail && ev.detail.now;
         const el = document.getElementById('worker-name');
         if (!now || !el || el.value.trim() || currentScreen !== 'setup-screen') return;
         el.value = now;
+        window.removeEventListener('wh-identity-changed', _whRouteOnIdentity);
         _whEnterChat();
-      });
+      };
+      window.addEventListener('wh-identity-changed', _whRouteOnIdentity);
 
       // W3-DF: now that `db` exists, ask whether this reader actually HAS a session and upgrade the
       // scope chip if so. Until this resolves the chip carries the cautious sentence, which is the

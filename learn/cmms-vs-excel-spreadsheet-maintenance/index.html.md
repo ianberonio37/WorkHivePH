@@ -66,7 +66,7 @@ Switch when any of these is true: more than one person edits the file, PM compli
 
 ### Is a CMMS expensive?
 
-It does not have to be. Per-seat products start at $20 to $25 per user per month billed yearly (MaintainX $20, UpKeep $24 and Coast $25 on their own pricing pages, 27 October 2026), but WorkHive is free at the worker tier, so cost is not a reason to stay on a spreadsheet.
+It does not have to be. Per-seat products start at $20 to $25 per user per month billed yearly (MaintainX $20, UpKeep $24 and Coast $25, verified on each vendor's own pricing page on 27 October 2026), but WorkHive is free at the worker tier, so cost is not a reason to stay on a spreadsheet.
 
 ### Can I import my existing spreadsheet?
 
@@ -83,7 +83,7 @@ The digital Logbook is the surface that replaces the spreadsheet, with the asset
 ## Sources
 
 - [US Department of Energy / PNNL](https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency), **Operations & Maintenance Best Practices Guide, Release 3.0** (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).
-- [SMRP](https://smrp.org/), **Best Practices Metric 5.4.14 (PM and PdM Compliance)**: target ≥90% schedule compliance. (Metric 2.1.1, cited here until October 2026, is OEE.)
+- [SMRP](https://smrp.org/), **Best Practices Metric 5.4.14 (PM and PdM Compliance)**: target ≥90% schedule compliance. Until October 2026 this page cited Metric 2.1.1, which is OEE, overall equipment effectiveness.
 - Related: [Start digital maintenance](https://workhiveph.com/learn/start-digital-maintenance-guide/) · [Best free CMMS options](https://workhiveph.com/learn/best-free-cmms-software-philippines/).
 
 [← Back to all guides](https://workhiveph.com/learn/)

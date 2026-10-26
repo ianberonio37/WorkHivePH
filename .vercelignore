@@ -84,6 +84,11 @@
 !/brand_assets/og-social.png
 !/brand_assets/workhive-logo-tight.png
 !/brand_assets/workhive-logo-transparent.png
+# the installed app's icons (manifest.json + nav-hub.js's apple-touch-icon, 2026-10-27)
+!/brand_assets/apple-touch-icon-180.png
+!/brand_assets/icon-192.png
+!/brand_assets/icon-512.png
+!/brand_assets/icon-512-maskable.png
 
 # --- tools/ is the dev toolbox AND the 60 public calculators (tools/<slug>/index.html + its .md mirror) ------------------
 !/tools/

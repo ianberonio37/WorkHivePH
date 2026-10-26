@@ -4919,7 +4919,7 @@
     }
     // no native prompt here (iOS, or Chromium before its test passes): show the way, never do nothing
     if (window.WHHub && typeof window.WHHub.openInstallGuide === 'function') { window.WHHub.openInstallGuide(); return; }
-    var el = document.getElementById('wh-hub-fab');
+    var el = document.getElementById('wh-hub-fab');   // gid-allow: the hub's button, drawn by nav-hub.js on every app page
     if (el) el.click();
   };
 
@@ -5594,9 +5594,10 @@
               .limit(500 + 1);   // more-said: by _showOpsHome (a 501st row asks the unseen assets one by one - complete, nothing left to say)
             if (r.error || (r.data || []).length <= 500) return r;
             const seen = new Set(r.data.map(c => c.asset_id));
+            // canonical-allow: the same solo-mode fallback - each unseen asset's newest completion (no hive scope to ask the truth view with)
             const rest = await Promise.all(part.filter(id => !seen.has(id)).map(id => db.from('pm_completions')
               .select('asset_id, completed_at').eq('asset_id', id).eq('status', 'done').gte('completed_at', _since)
-              .order('completed_at', { ascending: false }).limit(1)));
+              .order('completed_at', { ascending: false }).order('id').limit(1)));
             return { data: r.data.concat(...rest.map(x => x.data || [])), error: rest.find(x => x.error)?.error || null };
           });
           const lastByAsset = {};
