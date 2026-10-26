@@ -26,11 +26,15 @@
  * Voice IDs and portrait filenames retained — see PERSONA_TO_VOICE in
  * tts-speak/index.ts and PORTRAIT_URLS in wh-persona.js.
  *
- * AI_ASSET_VERSION: 13
+ * AI_ASSET_VERSION: 14
  * C5 (Self-Improving Gate) — bump this integer whenever the persona tone,
  * examples, voice, or buildPersonaBlock contract changes. The
  * ai-asset-versioning validator FAILs if the file hash moves without this
  * bumping. Owner: AI Engineer.
+ *
+ * v14 (2026-10-27) — the safety citation names the CURRENT rules: DOLE DO 252-25 replaced
+ * DO 198-18 as RA 11058's implementing rules (the learn pages were refreshed against the
+ * primary source the same day; gate persona-contract L13 fails on the old line).
  *
  * v13 (2026-10-07) — examples became STYLE, never data. A local eval run caught the
  * analytics agent repeating the narrated-specialist sample word for word ("71% OEE",

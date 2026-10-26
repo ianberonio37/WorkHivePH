@@ -1365,6 +1365,7 @@ serveObserved("agentic-rag-loop", tracedReply("agentic-rag-loop", async (req, tr
       // model's from-date is over 18 months old - and a model that does not know today put "the last 8 months" in 2024,
       // so the question went to the cold archive and answered "I don't have enough recent records" (twice, walked). The
       // window is now computed; the 18-month rule is re-applied to IT, and a recent window leaves the archive.
+      // time-window-allow: 540 d is the cold-archive boundary (18 months), the same constant routerStage uses above
       if (router.parsed.route === "cold_archive" && (Date.now() - Date.parse(rel.from)) <= 540 * 24 * 3600 * 1000) {
         router.parsed.route = spanDaysFromTimeScope(rel) > TEMPORAL_DELEGATE_DAYS ? "temporal" : "semantic";
         router.parsed.reasoning = `re-routed from cold_archive: the computed window ${rel.from}..${rel.to} is within 18 months`;

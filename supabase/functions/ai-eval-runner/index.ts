@@ -569,7 +569,8 @@ serveObserved("ai-eval-runner", tracedReply("ai-eval-runner", async (req, trace)
   const alreadyGraded = new Set<string>();
   if (runIdIn) {
     const { data: done } = await db.from("ai_quality_log").select("agent_id, question_id")
-      .eq("run_id", runId).eq("outcome", "graded");
+      .eq("run_id", runId).eq("outcome", "graded")
+      .limit(Math.max(queue.length, 1));   // one row per (run, agent, question) - never more than the queue holds
     for (const d of done || []) alreadyGraded.add(`${d.agent_id}::${d.question_id}`);
   }
   const selected = queue.slice(offset, limit ? offset + limit : undefined)

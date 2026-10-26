@@ -235,6 +235,7 @@ async function scanHive(
   // became a lottery of whichever rows the last scan touched - 20 of 39 in the hive it was measured on. A signature that is
   // still current keeps the date it was first detected (and an acknowledgement it was given); one that was resolved or
   // had expired is a re-emergence, dated now.
+  // canonical-allow: the scanner's own write-path read; it needs resolved and expired rows too, which a read model for people omits
   const { data: standing } = await db
     .from("failure_signature_alerts")
     .select("machine, rule_id, status, detected_at, expires_at")

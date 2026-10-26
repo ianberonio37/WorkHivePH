@@ -338,7 +338,7 @@ export function conversationSteering(transcript: string, now: Date = new Date())
     kinds.push("help");
     parts.push("HELP - a three-line tour: ask about the hive ('what is our MTBF this month', 'any overdue PMs'), ask how-to " +
       "('how do I fix a pump that trips'), and on the Logbook / Inventory / Asset Hub / PM Scheduler pages say a command " +
-      "('log a 15-minute stop on C-01') to fill a card you confirm.");
+      "('log a 15-minute stop on <machine tag>') to fill a card you confirm.");
   }
   const lm = s.match(LANG_OPT_RE);
   if (lm) {

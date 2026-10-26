@@ -4,7 +4,7 @@
 // Order: fastest / most generous limits first, deeper fallbacks last.
 // Only permanently free tiers — no credits that expire.
 //
-// AI_ASSET_VERSION: 12
+// AI_ASSET_VERSION: 13
 // v12 (2026-10-09): no model or order change. Exports aiAnswered(): the chain's "{}" (every provider failed, or a
 // local walk asked for no model) is not an answer, so free-text callers stop printing "{}" as a reply or a summary.
 // v11 (2026-10-08, LM-O follow-up): no model or order change. Every SERVED call is reported to the request's model-call
@@ -33,6 +33,9 @@
 // general order tries every conversational model first, and the code_or_sql_generation profile still puts codestral
 // first. Nothing is removed - when everything else is down a code model's answer is still better than none.
 // AI_ASSET_VERSION history continues below.
+// v13 (2026-10-26, OWN dependency lens): a provider that times out is dead for the rest of the call (a slow Google was
+// asked once per model - 75 s, the answer arriving after the request had failed); the walk has a 50 s budget and
+// degrades to the honest sentence; an unusable 200 is not re-asked. Each served call reports its record (LM-O).
 // v7 (2026-10-07, the LLM layer's live Grounding walk, §LM.2): three repairs, each measured by tools/ping_ai_chain.py or
 // a live walk. (1) openrouter qwen3.8-27b:free is gone (404) -> dots-3-note-preview:free, the only live :free model that
 // reports an image input and answers through the API. (2) nemotron-3.5-lightning:free answered with its own reasoning
