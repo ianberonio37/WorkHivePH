@@ -27,6 +27,8 @@ from __future__ import annotations
 import os
 import re
 import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from client_prompt_retired import retired_check  # BRH-AO 2026-10-27: the client prompt no server read
 
 if sys.platform == "win32":
     import io
@@ -55,6 +57,11 @@ def check_shift_context(c: str) -> list[dict]:
 
 def check_repeated_issue_surface(c: str) -> list[dict]:
     """T26 — _fetchRepeatedIssueFlag exists and is invoked + queries v_logbook_truth."""
+    # BRH-AO (2026-10-27): the repeated-issue flag fed the client prompt no server read
+    ret = retired_check(c, "repeated_issue")
+    if ret is not None:
+        print("  " + ret[1])
+        return [] if ret[0] else [{"check": "repeated_issue_surface", "reason": ret[1]}]
     issues: list[dict] = []
     if "_fetchRepeatedIssueFlag" not in c:
         issues.append({"check": "repeated_issue_surface",

@@ -2051,7 +2051,9 @@ function engDesignJourneys() {
         const r = await runL10(page, h, null);
         // exact ISO-281 oracle, else a rendered numeric L10 figure (the calc ENGINE itself is
         // value-verified by Arc F 58/58 — Arc K proves the page runs it + renders a real result)
-        const exactOracle = /132\.?651/.test(r.txt) && /1,?525/.test(r.txt);
+        // (25.5 / 5.0)^3 = 132.651 Mrev and 1,525 h at 1450 rpm. The engine reports L10 to 2 decimals (132.65), so a
+        // 3-decimal oracle read false in Chromium AND WebKit while the page was right (2026-10-27, OWN131).
+        const exactOracle = /132\.65\d?/.test(r.txt) && /1,?525/.test(r.txt);
         const numericL10 = /\b\d[\d,]*(\.\d+)?\s*(h\b|hrs|hours|rev|mrev|×\s*10)/i.test(r.txt) || (/L10/i.test(r.txt) && /\b\d{2,}/.test(r.txt));
         const oracle = exactOracle || numericL10;
         return { R: reach, J: r.out, T: oracle, C: null, X: null, evidence: { out: r.out, exactOracle, numericL10, sample: r.txt.replace(/\s+/g, ' ').slice(0, 120) }, findings: [] };
@@ -2847,6 +2849,37 @@ function k7Journeys() {
         const fields = opened && await h.exists('#contact-name') && await h.exists('#contact-email');
         const closed = opened && await h.click('#cancel-contact-btn');
         return { R: card, J: !!(opened && fields && closed), T: null, C: null, X: null, evidence: { card, opened, fields, closed }, findings: [] };
+      },
+    },
+    {
+      // RS1 opens the sheet and cancels, so it never proves the page's action completes. RS2 does the action:
+      // a recipient is saved and the row is read back from report_contacts (2026-10-27, OWN141 WebKit lens).
+      // Sending itself leaves the machine (email), so the recipient write is the page's local primary action.
+      id: 'RS2', phase: 'K7', page: 'report-sender.html', role: 'supervisor', state: 'authed',
+      title: 'A supervisor adds a report recipient and it is saved for the hive',
+      lenses: ['R', 'J', 'T'], ufai: ['U', 'F', 'A'], writes: true,
+      drive: async (page, h) => {
+        const tag = `rs2-${Date.now()}@qa.workhive.test`;
+        try {
+          await h.goto('report-sender.html');
+          const card = await h.waitFor('#main-card', 9000);
+          const opened = await h.click('#add-contact-btn') && await h.waitFor('#contact-sheet', 4000);
+          let saved = false, listed = false, db = '0';
+          if (opened) {
+            await page.fill('#contact-name', 'QA RS2 Recipient');
+            await page.fill('#contact-email', tag);
+            await h.click('#save-contact-btn');
+            await page.waitForTimeout(1800);
+            listed = await h.evalIn((t) => (document.body.innerText || '').includes('QA RS2 Recipient') || (document.body.innerHTML || '').includes(t), tag);
+            // by the unique address, then name the hive it landed in (the signed-in supervisor's own hive, not a fallback)
+            const n = h.adminQuery(`select count(*) || ':' || coalesce(max(hive_id::text), '-') from report_contacts where email='${tag}';`);
+            db = (typeof n === 'string') ? n.trim() : String(n);
+            saved = db.startsWith('1:') && !db.endsWith(':-');
+          }
+          return { R: card, J: !!(opened && listed), T: saved, C: null, X: null, evidence: { card, opened, listed, db, email: tag }, findings: [] };
+        } finally {
+          h.adminQuery(`delete from report_contacts where email='${tag}';`);
+        }
       },
     },
     {

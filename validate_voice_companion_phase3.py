@@ -62,7 +62,15 @@ def check_phase_3_polish():
         print(f"  {YELLOW}WARN{RESET} _appendSessionTurn not called consistently")
 
     # Check if session turns are used as fallback
-    if "const sessionTurns = _sessionTurns.map" in content:
+    # BRH-AO (2026-10-27): that merge fed the client prompt, which no server read - an anonymous worker's session turns never
+    # reached a model. Retired with the prompt; the old check runs again only if the client prompt comes back.
+    sys.path.insert(0, "tools")
+    from client_prompt_retired import retired_check
+    _ret = retired_check(content, "anon_session_memory")
+    if _ret is not None:
+        print(f"  {GREEN if _ret[0] else RED}{'PASS' if _ret[0] else 'FAIL'}{RESET} {_ret[1]}")
+        results["pass" if _ret[0] else "fail"] += 1
+    elif "const sessionTurns = _sessionTurns.map" in content:
         print(f"  {GREEN}PASS{RESET} Session turns used in memory merge (anon fallback)")
         results["pass"] += 1
     else:

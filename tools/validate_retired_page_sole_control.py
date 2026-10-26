@@ -100,6 +100,13 @@ ALLOWLIST = {
         "surface's events over the range, the busiest first - from console_read_founder_ops "
         "(migration 20261022000003, key top_surfaces_feature_heatmap), which founder-console.html calls through "
         "operator-console-panels.js. Verified by reading the function, not inferred from the name.",
+    # ── the dispute lifecycle's CONTROLS, retired with its tables above (2026-08-03): nothing to release or refund ──
+    ("marketplace-admin.html", "control:release"):
+        "the ghost dispute lifecycle's 'release to seller' - the platform never holds the money (see write:marketplace_orders).",
+    ("marketplace-admin.html", "control:refund"):
+        "the ghost dispute lifecycle's 'refund buyer' - for money that is never held (see write:marketplace_disputes).",
+    ("marketplace-admin.html", "control:escalate"):
+        "the ghost dispute lifecycle's escalate - no dispute can be filed (see read:marketplace_disputes).",
     ("founder-console.html", "read:v_hive_readiness_truth"):
         "NOT stranded: readiness relocated to an RPC. hive.html:2572 calls "
         "`get_hive_readiness_current`, and plant-connections / pm-scheduler / project-manager / "
@@ -152,6 +159,24 @@ def capabilities(text):
 SCRIPT_SRC_RE = re.compile(r"""<script\b[^>]*\bsrc\s*=\s*["']([^"'/:?#]+\.js)["']""", re.I)
 
 
+# ★THIRD LENS - A STRANDED **CONTROL** (2026-10-26). marketplace-admin's Unpublish (a LIVE listing back to review) and its
+# Remove-badge controls (unverify / cert-unverify) had no live home for three months, and this gate stayed green: the
+# console still UPDATEs marketplace_listings and marketplace_sellers - for drafts and for granting a badge - so the table
+# lens counted the capability as relocated. A table and a verb are not a capability; the named action is. Every named
+# action on a retired page needs a live control whose name carries all its words (unpublish -> unpublish-listing,
+# cert-unverify -> unverify-cert), or an ALLOWLIST entry saying why it is gone.
+CONTROL_RE = re.compile(r"""data-(?:action|mkt-act|act|svc-act|fb-act)\s*=\s*["']([a-z][a-z0-9-]*)["']""")
+
+
+def controls(text):
+    return set(CONTROL_RE.findall(text))
+
+
+def _control_covered(ctrl, live_ctrls):
+    want = set(ctrl.split("-"))
+    return any(want <= set(c.split("-")) for c in live_ctrls)
+
+
 def scan(files_text, scripts=None):
     """files_text: {name: text}; scripts: {local .js name: text} -> (findings, stats). Pure, so the self-test needs
     no disk. A live page reaches what the scripts it loads reach."""
@@ -159,17 +184,24 @@ def scan(files_text, scripts=None):
     retired = {n: t for n, t in files_text.items() if RETIRED_RE.search(t)}
     live = {n: t for n, t in files_text.items() if n not in retired}
 
-    live_caps = set()
+    live_caps, live_ctrls = set(), set()
     for t in live.values():
         live_caps |= capabilities(t)
+        live_ctrls |= controls(t)
         for s in SCRIPT_SRC_RE.findall(t):
             if s in scripts:
                 live_caps |= capabilities(scripts[s])
+                live_ctrls |= controls(scripts[s])
 
     findings, known = [], []
     for name, text in retired.items():
         for cap in sorted(capabilities(text)):
             if cap in live_caps or (name, cap) in ALLOWLIST:
+                continue
+            (known if (name, cap) in BASELINE else findings).append((name, cap))
+        for ctrl in sorted(controls(text)):
+            cap = f"control:{ctrl}"
+            if _control_covered(ctrl, live_ctrls) or (name, cap) in ALLOWLIST:
                 continue
             (known if (name, cap) in BASELINE else findings).append((name, cap))
     return findings, {"retired": len(retired), "live": len(live), "live_caps": len(live_caps),
@@ -244,8 +276,20 @@ def selftest():
     if not any(c == "write:service_credit_topups" for _, c in f):
         print(f"  {RED}FAIL{RST} — a script no live page loads was counted as reachable"); ok = False
 
+    # ── the CONTROL lens: the same table written live is not the same capability ──
+    # stranded: the retired page's Unpublish, while the live console updates the same table only to approve drafts
+    ctl_old = overlay + '<button data-action="unpublish">Unpublish</button> db.from(\'l\').update({status:\'draft\'})'
+    f, _ = scan({"old.html": ctl_old, "new.html": '<button data-mkt-act="approve-listing"></button> db.from(\'l\').update({})'})
+    if not any(c == "control:unpublish" for _, c in f):
+        print(f"  {RED}FAIL{RST} — a control stranded behind a live write to the same table was not caught"); ok = False
+    # relocated under a longer name (unpublish -> unpublish-listing; cert-unverify -> unverify-cert) -> covered
+    f, _ = scan({"old.html": overlay + '<b data-action="unpublish"></b><b data-action="cert-unverify"></b>',
+                 "new.html": '<b data-mkt-act="unpublish-listing"></b><b data-mkt-act="unverify-cert"></b>'})
+    if f:
+        print(f"  {RED}FAIL{RST} — a relocated control was reported as stranded: {f}"); ok = False
+
     if ok:
-        print(f"  {GREEN}PASS{RST} — catches stranded writes, RPCs and READS; accepts relocated "
+        print(f"  {GREEN}PASS{RST} — catches stranded writes, RPCs, READS and CONTROLS; accepts relocated "
               f"ones, a script a live page loads included; does not mistake an insert().select() for a reader")
     return 0 if ok else 1
 

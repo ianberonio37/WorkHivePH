@@ -69,8 +69,16 @@ def check_phase_1_5_semantic():
         with open("voice-handler.js", "r", encoding="utf-8") as f:
             content = f.read()
 
+            # BRH-AO (2026-10-27): the client RAG agent fed the client prompt no server read (and _invokeRAGAgent had no caller
+            # at all); journal recall + knowledge are retrieved by ai-gateway. The client checks run again only if that returns.
+            sys.path.insert(0, "tools")
+            from client_prompt_retired import retired_check
+            _ret = retired_check(content, "rag")
+            if _ret is not None:
+                print(f"  {GREEN if _ret[0] else RED}{'PASS' if _ret[0] else 'FAIL'}{RESET} L4 {_ret[1]}")
+                results["pass" if _ret[0] else "fail"] += 1
             # Check for RAG function call (either edge function or direct DB query)
-            if ("_fetchRAGContext" in content or "_invokeRAGAgent" in content or "semantic_search_kb" in content):
+            elif ("_fetchRAGContext" in content or "_invokeRAGAgent" in content or "semantic_search_kb" in content):
                 print(f"  {GREEN}PASS{RESET} RAG agent function integrated")
                 results["pass"] += 1
             else:
@@ -78,7 +86,9 @@ def check_phase_1_5_semantic():
                 results["fail"] += 1
 
             # Check if transcript is passed to RAG function
-            if ("_fetchRAGContext(db, ctx.hive_id, transcript)" in content or
+            if _ret is not None:
+                pass   # the same capability - reported above
+            elif ("_fetchRAGContext(db, ctx.hive_id, transcript)" in content or
                 "_invokeRAGAgent(db, ctx.worker_name, firstIntent, transcript)" in content or
                 "semantic_search_kb" in content and "transcript" in content):
                 print(f"  {GREEN}PASS{RESET} RAG agent receives transcript for semantic search")

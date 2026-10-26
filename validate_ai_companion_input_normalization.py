@@ -26,6 +26,8 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import gone  # BRH-AP 2026-10-27
 from validator_utils import read_file, format_result
 
 VOICE_HANDLER_JS = "voice-handler.js"
@@ -39,7 +41,7 @@ def check_precision(c: str) -> list[dict]:
     issues: list[dict] = []
     if "_formatKpi" not in c:
         issues.append({"check": "precision", "reason": "_formatKpi missing — KPI formatter absent."})
-    if "PRECISION RULE" not in c:
+    if "PRECISION RULE" not in c and not gone("PRECISION RULE"):
         issues.append({"check": "precision", "reason": "PRECISION RULE anchor missing — LLM has no instruction on unit/precision."})
     return issues
 
@@ -47,9 +49,9 @@ def check_precision(c: str) -> list[dict]:
 def check_asset_tag(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_normalizeAssetTag", "_DIGIT_WORDS", "_LETTER_WORDS"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "asset_tag", "reason": f"{sym} missing — asset-tag normalization incomplete."})
-    if "ASSET TAG NORMALIZED" not in c:
+    if "ASSET TAG NORMALIZED" not in c and not gone("ASSET TAG NORMALIZED"):
         issues.append({"check": "asset_tag", "reason": "ASSET TAG NORMALIZED anchor missing — normalized tag built but never reaches LLM."})
     return issues
 
@@ -58,7 +60,7 @@ def check_time_range(c: str) -> list[dict]:
     issues: list[dict] = []
     if "_normalizeTimeRange" not in c:
         issues.append({"check": "time_range", "reason": "_normalizeTimeRange missing — phrase-to-ISO span absent."})
-    if "TIME RANGE NORMALIZED" not in c:
+    if "TIME RANGE NORMALIZED" not in c and not gone("TIME RANGE NORMALIZED"):
         issues.append({"check": "time_range", "reason": "TIME RANGE NORMALIZED anchor missing — normalized span never surfaced."})
     # Must cover common spans.
     for phrase in ("this\\s+week", "yesterday|kahapon", "this\\s+month"):
@@ -71,9 +73,9 @@ def check_ack_style(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_ACK_STYLE_KEY", "_getAckStyle", "_setAckStyle",
                 "_detectAckStyleToggle", "_ACK_TERSE_RE", "_ACK_WARM_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "ack_style", "reason": f"{sym} missing — ack-style toggle incomplete."})
-    if "ACK STYLE" not in c:
+    if "ACK STYLE" not in c and not gone("ACK STYLE"):
         issues.append({"check": "ack_style", "reason": "ACK STYLE anchor missing — pref persists but LLM doesn't read it."})
     if "wh_voice_ack_style" not in c:
         issues.append({"check": "ack_style", "reason": "localStorage key wh_voice_ack_style missing."})
@@ -83,9 +85,9 @@ def check_ack_style(c: str) -> list[dict]:
 def check_forbidden(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_detectForbiddenTopic", "_COMPETITORS_RE", "_POLITICS_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "forbidden", "reason": f"{sym} missing — forbidden-topic redirect incomplete."})
-    if "FORBIDDEN" not in c:
+    if "FORBIDDEN" not in c and not gone("FORBIDDEN"):
         issues.append({"check": "forbidden", "reason": "FORBIDDEN anchor missing — detector wired but LLM has no redirect instruction."})
     return issues
 
@@ -103,7 +105,7 @@ def check_mic_env(c: str) -> list[dict]:
 def check_pin(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_PIN_KEY_PREFIX", "_pinTurn", "_getPinnedTurns", "_isPinRequest", "_PIN_RE", "_PIN_MAX"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "pin", "reason": f"{sym} missing — conversation-pin incomplete."})
     if "PIN " not in c:
         issues.append({"check": "pin", "reason": "PIN anchor missing — pin recorded but no LLM acknowledgement."})
@@ -139,7 +141,7 @@ def check_kpi_translation(c: str) -> list[dict]:
 def check_onboarding(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_isFirstTimeWorker", "_firstTimeWelcomeLine"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "onboarding", "reason": f"{sym} missing — new-worker onboarding incomplete."})
     # Welcome must mention three sample commands (overdue / log / OEE) — keeps the cue concrete.
     if "overdue" not in c.lower():

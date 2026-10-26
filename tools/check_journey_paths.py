@@ -28,6 +28,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "trajectory_registry.json"
+import registry_io as _rio  # the registry UNION: main file + the cube shard (tools/registry_io.py, 2026-10-26)
 HUB = ROOT / "nav-hub.js"
 RETIRED: dict = {}          # filled once at start-up by retired_pages(); a retired page is never a route
 
@@ -274,7 +275,7 @@ def declared_paths() -> dict:
     through hive.html to analytics.html - left the same finding standing on a row the program no longer counts. Every
     other consumer (the header, the ledger, the critic bank) treats descoped as out of the program; this gate now does.
     """
-    reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    reg = _rio.load_doc()
     paths = {}
     for t in reg["trajectories"]:
         if t.get("status") == "descoped":
@@ -313,7 +314,7 @@ def declared_signin_roles() -> dict:
     Absent `journey.signed_in_as` this returns nothing and `role_blocked_hops` grades exactly as before,
     so the rule cannot change a verdict until the registry actually declares the role.
     """
-    reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    reg = _rio.load_doc()
     out = {}
     for t in reg["trajectories"]:
         if t.get("status") == "descoped":
@@ -328,7 +329,7 @@ def declared_signin_roles() -> dict:
 
 def declared_casts() -> dict:
     """Which hub mode each archetype is actually walked as — the same rule the journey prover applies."""
-    reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    reg = _rio.load_doc()
     casts = {}
     for t in reg["trajectories"]:
         if t.get("status") == "descoped":

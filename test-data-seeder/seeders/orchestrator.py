@@ -39,6 +39,25 @@ from .embed_corpus import run_post_seed_embed
 SEEDER_RNG_SEED = 20260503
 
 
+def rebind_platform_admins(client, log) -> None:
+    """Point each platform admin row at its person's CURRENT account (2026-10-26). marketplace_platform_admins has no
+    `id`, so reset.py cannot clear it and its rows outlive every reseed - while the accounts they name are recreated
+    with new ids, and is_platform_admin() matches auth_uid. After a reseed nobody was an admin: the founder console
+    refused both seeded admins. Rows are bound by name to worker_profiles; a name with no profile is left as it is."""
+    try:
+        admins = client.table("marketplace_platform_admins").select("worker_name, auth_uid").execute().data or []
+        bound = 0
+        for a in admins:
+            prof = client.table("worker_profiles").select("auth_uid").eq("display_name", a["worker_name"]).limit(1).execute().data
+            uid = prof[0]["auth_uid"] if prof else None
+            if uid and uid != a.get("auth_uid"):
+                client.table("marketplace_platform_admins").update({"auth_uid": uid}).eq("worker_name", a["worker_name"]).execute()
+                bound += 1
+        log(f"  platform admins: {len(admins)} on record, {bound} re-bound to their current account")
+    except Exception as e:  # never fail a seed over an admin binding; say so
+        log(f"  WARN: could not re-bind platform admins: {e}")
+
+
 def seed_everything(client, log) -> dict:
     """Runs all seeders in correct order, sharing context between them."""
     random.seed(SEEDER_RNG_SEED)
@@ -112,6 +131,7 @@ def seed_everything(client, log) -> dict:
     step12j = seed_industry_standards(client, log)   # hive-agnostic catalog, no ctx needed
     step13 = run_post_seed_edges(client, log, ctx)   # depends on logbook + assets
     step13b = run_post_seed_embed(client, log, ctx)  # §10.5 co-land: populate RAG index (skips if bge :8901 down)
+    rebind_platform_admins(client, log)
 
     log("=" * 50)
     log("DONE")

@@ -937,6 +937,7 @@ CHECK_NAMES = [
     "out_of_scope_grounding",
     "faithfulness_rail",
     "capability_bounds",
+    "current_osh_rules",
 ]
 
 CHECK_LABELS = {
@@ -951,8 +952,33 @@ CHECK_LABELS = {
     "conversation_recall":    "L9  Within-conversation recall guardrail wired into both prose modes + grounding carve-out",
     "out_of_scope_grounding": "L10 Out-of-scope-domains guard (projects/inventory/skills/... → no invented specifics, point to the right page)",
     "faithfulness_rail":      "L11 Faithfulness output-rail (stripUngroundedKpi drops a leaked current OEE/MTBF/ratio % before it ships)",
+    "current_osh_rules":      "L13 The companion cites RA 11058's current rules (DOLE DO 252-25), never the superseded DO 198-18 as the IRR",
     "capability_bounds":      "L12 Capability-bounds clause (can't order/email/call/book/pay/control/read-PDF → disclaim + offer draft/point, never fake it)",
 }
+
+
+def _osh_rules_issue(server: str) -> list[dict]:
+    """L13 over a persona.ts text (the self-check feeds it the old line)."""
+    issues = []
+    if "252-25" not in server:
+        issues.append({"check": "current_osh_rules",
+                       "reason": "persona.ts never names DOLE DO 252-25, RA 11058's revised rules - the companion is told no current IRR"})
+    if "DO 198-18 (its IRR)" in server:
+        issues.append({"check": "current_osh_rules",
+                       "reason": "persona.ts tells the companion DO 198-18 is RA 11058's IRR - DO 252-25 replaced it"})
+    return issues
+
+
+def check_current_osh_rules() -> list[dict]:
+    """★THE COMPANION CITED SUPERSEDED RULES (2026-10-27). persona.ts told every conversational surface to cite 'RA 11058
+    and DOLE DO 198-18 (its IRR)'; DO 252-25 replaced DO 198-18 (the learn pages were refreshed against the primary source
+    the same day). The rule reaches every reply, so a stale citation is advice a worker acts on."""
+    server = read_file(SHARED_PERSONA_TS) or ""
+    old = "For occupational safety use RA 11058 (the OSH Law) and DOLE DO 198-18 (its IRR);"
+    bites = bool(_osh_rules_issue(old))   # the self-check: the line this replaced must fail
+    if not bites:
+        return [{"check": "current_osh_rules", "reason": "L13 self-check: the superseded line no longer fails - the rule has no teeth"}]
+    return _osh_rules_issue(server)
 
 
 def main() -> int:
@@ -974,6 +1000,7 @@ def main() -> int:
     issues += check_out_of_scope_grounding()
     issues += check_faithfulness_rail()
     issues += check_capability_bounds()
+    issues += check_current_osh_rules()
 
     n_pass, n_skip, n_fail = format_result(CHECK_NAMES, CHECK_LABELS, issues)
 

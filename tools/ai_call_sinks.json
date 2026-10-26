@@ -196,7 +196,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "3494072ad020b365"
+      "source_sha256": "d083fcd1a656080f"
     },
     "ai-eval-runner": {
       "calls_model": true,
@@ -225,6 +225,11 @@
           "provenance_keys": []
         },
         {
+          "table": "ai_quality_log",
+          "op": "upsert",
+          "provenance_keys": []
+        },
+        {
           "table": "hive_members",
           "op": "insert",
           "provenance_keys": []
@@ -246,7 +251,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "3b6861b5ea0265be"
+      "source_sha256": "04b569dc47d0833f"
     },
     "ai-gateway": {
       "calls_model": true,
@@ -273,7 +278,7 @@
       ],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "720f2fdcf03f3f06"
+      "source_sha256": "f1b91dc437fba98b"
     },
     "ai-orchestrator": {
       "calls_model": true,
@@ -297,7 +302,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "41dfe3c76c71f00b"
+      "source_sha256": "d98d641a755a1c3b"
     },
     "amc-orchestrator": {
       "calls_model": true,
@@ -360,7 +365,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "414fbd5c18504e55"
+      "source_sha256": "9403cb4c14178edf"
     },
     "asset-brain-query": {
       "calls_model": true,
@@ -384,7 +389,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "cc9cc10b536863d7"
+      "source_sha256": "f288025f0b6eaaf1"
     },
     "embed-entry": {
       "calls_model": true,
@@ -444,7 +449,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "993bd7f772a19665"
+      "source_sha256": "dfd1a6bbd38aa18a"
     },
     "engineering-calc-agent": {
       "calls_model": true,
@@ -468,7 +473,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "22b87319d8015c71"
+      "source_sha256": "e7d00fd6048768e6"
     },
     "failure-signature-scan": {
       "calls_model": true,
@@ -505,7 +510,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "9561c09a49152d8f"
+      "source_sha256": "9e47f07b69e337bc"
     },
     "fmea-populator": {
       "calls_model": true,
@@ -569,7 +574,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "9b5f83ba0f56a510"
+      "source_sha256": "2b0f13b13fe1ca48"
     },
     "intelligence-report": {
       "calls_model": true,
@@ -675,7 +680,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "cda8702b89d97865"
+      "source_sha256": "6ec72112f5862ef8"
     },
     "project-orchestrator": {
       "calls_model": true,
@@ -822,7 +827,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "0aa50ab1a9577828"
+      "source_sha256": "c38b5e3b33672fbf"
     },
     "semantic-search": {
       "calls_model": true,
@@ -917,7 +922,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "e2700932f141e66e"
+      "source_sha256": "5025fc4d0d23c66f"
     },
     "tts-speak": {
       "calls_model": true,
@@ -1000,7 +1005,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "cdc2d10f9e0facc9"
+      "source_sha256": "0652d7879298603b"
     },
     "voice-action-router": {
       "calls_model": true,
@@ -1075,7 +1080,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "f4eab5fa5c590a34"
+      "source_sha256": "82023c3a29c1c432"
     },
     "voice-logbook-entry": {
       "calls_model": true,
@@ -1100,7 +1105,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "5477bc46a6a9f6b7"
+      "source_sha256": "b59cbb4ce2e3e473"
     },
     "voice-model-call": {
       "calls_model": true,
@@ -1154,12 +1159,12 @@
     "voice-semantic-rag": {
       "calls_model": true,
       "model_call_kinds": {},
-      "model_call_sites": 1,
+      "model_call_sites": 0,
       "per_call_record": true,
       "record_table": "ai_cost_log",
       "record_written_by": "serveObserved -> settleModelCalls (_shared/observability.ts), one row per served call",
       "reported_by": [
-        "this function's own reportModelCall() / reportModelCallFailed() after its embedding provider fetch"
+        "_shared/embedding-chain.ts generateEmbeddingTagged / rerank (kind embedding / rerank)"
       ],
       "record_trace_id": "tracedReply: the id minted once per request, returned on every JSON reply (x-wh-trace)",
       "caller_attribution": [
@@ -1173,7 +1178,7 @@
       ],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "79b48a8fefd611a7"
+      "source_sha256": "dd99a1e1e84785a6"
     },
     "voice-transcribe": {
       "calls_model": true,
@@ -1228,12 +1233,12 @@
   },
   "sources": {
     "audio": "90269617fcdcb96e",
-    "chain": "8b6277c3f892a92e",
-    "collector": "5a52e22834c12a00",
+    "chain": "d5d46e12f0326c87",
+    "collector": "53a95f629b86d8b4",
     "cost_log": "974b18019517c9b1",
-    "embedding": "9dc4a75b54d4e7c2",
-    "tenant": "989b4c4f63ba8408",
+    "embedding": "a1603b1a8a35238a",
+    "tenant": "01f5c60c3c6751cd",
     "trace": "92e691909061665a",
-    "writer": "1a3ba6e8c7bc5620"
+    "writer": "532192003adf18a9"
   }
 }

@@ -167,9 +167,9 @@ def _truthy(v) -> bool:
 
 
 def _fill_slots(tpl: str, src: dict) -> str:
-    """Mirror of ai-gateway _fillSlots: {slot} interpolation with optional {slot:N} rounding."""
+    """Mirror of ai-gateway _fillSlots: {slot} interpolation with optional {slot:N} rounding and {slot|N} clipping."""
     def repl(m):
-        k, dec = m.group(1), m.group(2)
+        k, dec, clip = m.group(1), m.group(2), m.group(3)
         v = src.get(k)
         if v is None:
             return ""
@@ -178,8 +178,9 @@ def _fill_slots(tpl: str, src: dict) -> str:
                 return f"{float(v):.{int(dec)}f}"
             except Exception:
                 pass
-        return str(v)
-    s = re.sub(r"\{(\w+)(?::(\d+))?\}", repl, tpl or "")
+        t = re.sub(r"\s+", " ", str(v)).strip()
+        return t[: int(clip) - 1] + "\u2026" if clip is not None and len(t) > int(clip) else t
+    s = re.sub(r"\{(\w+)(?::(\d+))?(?:\|(\d+))?\}", repl, tpl or "")
     return re.sub(r"\s+", " ", s).strip()
 
 

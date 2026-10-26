@@ -41,6 +41,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 REGISTRY = ROOT / "trajectory_registry.json"
 CRITIC = ROOT / "critic_registry.json"
+import registry_io as _rio  # the registry UNION: main file + the cube shard (tools/registry_io.py, 2026-10-26)
 OUT = ROOT / "live_walk_manifest.json"
 
 # ★THE RETRACTION WAS ENFORCED IN ONE BANKER AND NEVER IN THE LEDGER, AND 916 ROWS READ CLOSED BECAUSE OF IT
@@ -148,6 +149,18 @@ MCP_FOR_KIND = [
     # DISCLOSED: this rule was added in the same session as the walks it lets close (tools/brh_db_walk.py). It routes
     # by the class's QUESTION only, it grants no marker, and 169 of the 177 walked rows already routed here by their
     # own words; removing it re-opens exactly the eight named above.
+    # ★A STATIC PAGE'S FRESHNESS HAS NO DATABASE HALF (2026-10-27, KA-R). The keep-abreast lens R asks whether a public
+    # page's five freshness surfaces agree - JSON-LD dateModified, the visible dates, the sitemap lastmod, the markdown
+    # twin, the IndexNow push - and every one of them is a FILE the site serves. It fell through to the generic
+    # "playwright-mcp + postgres-mcp", which would demand a database read no surface has (or a basis that names one
+    # anyway). The instrument that answers it is the browser re-fetching what the site serves: the page at both
+    # viewports, its sitemap entry and its twin. DISCLOSED: added in the session that walks the first ten KA-R rows;
+    # it routes by the lens's sentence only and grants no marker - the basis must still name the walk.
+    ("playwright-mcp", r"^R this page's five freshness surfaces agree"),   # the haystack is "<lens> <title>"
+    # KA-B asks whether an INSTRUMENT tells the truth about itself (reads a live measure or says it cannot, regenerates on
+    # the board, reaches the header and the nightly CI). The proof is running the instrument and reading its source and
+    # report - a library run - never a database read (it fell through to postgres-mcp, which measures nothing here).
+    ("library run (the instrument itself, its source and its report)", r"^B this instrument tells the truth about itself"),
     ("playwright-mcp + postgres-mcp",
      r"a public table anyone holding the public key can read|an object production holds that no migration creates|"
      r"a view that runs as its owner, past the reader's row policies|a SECURITY DEFINER function anyone may execute|"
@@ -268,7 +281,7 @@ MCP_FOR_KIND = [
     # ★THE SLO-INSIDE-SLOWER LESSON, AGAIN, ON THE OTHER SIDE OF THE MAP (2026-09-07): "INP" matched inside
     # "input" and sent sixty calculator rows about naming a standard to the performance profiler. Every short
     # acronym here is anchored now, for the same reason the grafana rule anchors \bSLO\b.
-    ("chrome-devtools-mcp",           r"\bCWV\b|\bLCP\b|\bCLS\b|\bINP\b|\bTTFB\b|performance|bundle|cache|payload size|waterfall|cold start"),
+    ("chrome-devtools-mcp",           r"\bCWV\b|\bLCP\b|\bCLS\b|\bINP\b|\bTTFB\b|performance|bundle|(?<!deploy )cache|payload size|waterfall|cold start"),   # "stale deploy cache" = is a RUNNING fn the tree's code (/health build stamp from the person's session) - nothing a trace measures (2026-10-26)
     ("raw-http fetch (no JS - what a crawler receives)",                  "Learn arrival|Tools arrival|arrival|SEO|crawler|citation|sitemap|canonical URL"),
     # ★"BOUNCE" MATCHED INSIDE "DEBOUNCE" AND "BOUNCE-EASING" (2026-10-15) - the SLO-inside-slower lesson a third
     # time. Thirty-nine RL3 rows ("the platform must DEBOUNCE this page's typing") and a motion row (the companion's
@@ -276,7 +289,11 @@ MCP_FOR_KIND = [
     # lens". An email bounce is the word on its own; a hyphenated or embedded "bounce" is never mail.
     ("mail-catcher (the product's OUTBOX, not the owner's inbox)",               r"email|inbox|deliver|\bbounced?\b(?!-)|notification reaches"),
     ("axe-mcp (MISSING - connect)",   "keyboard path|semantics & landmarks|announcement reaches|screen reader|WCAG|aria"),
-    ("raw-http fetch (the deployed origin's response headers)", "_headers is prod-only|CDN|cache header|redirect|robots"),
+    # "CDN" means OUR origin's CDN headers - never the word inside a third-party HOST name (2026-10-26): the dependency
+    # lens's "slow - cdn.jsdelivr.net" rows (a library CDN failing under a page, proven by a refused-route PAGE walk, as the
+    # lens itself states) were routed here and read "needs re-walk" after a valid walk. \bCDN\b(?!\.) still takes every
+    # title that names the CDN; measured: exactly OWN66-69 change route, no other row in the registry.
+    ("raw-http fetch (the deployed origin's response headers)", r"_headers is prod-only|\bCDN\b(?!\.)|cache header|redirect|robots"),
 ]
 # a PERSONA ARC is a journey whoever wrote its title: "Worker logs a repair one-handed", "Supervisor's morning
 # triage", "Anon lands on a calculator". These are the 500-odd one-of-a-kind rows the keyword list above missed,
@@ -439,6 +456,8 @@ def _w4_receipts() -> dict:
             mtime = os.path.getmtime(path)
         except Exception:
             continue
+        if not isinstance(doc, dict):
+            continue   # an advance batch (a JSON list) left beside the receipts is not a receipt (2026-10-26)
         for res in (doc.get("results") or []):
             rid = res.get("id")
             if rid and (rid not in best or mtime >= best[rid][1]):
@@ -665,7 +684,7 @@ def row_closed(r: dict) -> bool:
 
 
 def build() -> dict:
-    reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    reg = _rio.load_doc()
     rows = [r for r in reg["trajectories"] if r.get("status") != "descoped"]
     gated = {"locked", "locking"}
     out_rows = []
@@ -874,7 +893,7 @@ def build() -> dict:
 
     crit = {}
     try:
-        crows = json.loads(CRITIC.read_text(encoding="utf-8"))["rows"]
+        crows = _rio.load_critic()["rows"]
         cl = [r for r in crows if not re.search(r"documented receipt|retrieve-first", r.get("clean_note") or "", re.I)]
         crit = {"total": len(crows), "live": len(cl), "receipts_only": len(crows) - len(cl)}
     except Exception as e:                                   # the bank is the critic doc's business

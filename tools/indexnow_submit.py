@@ -22,10 +22,20 @@ USAGE:
     python tools/indexnow_submit.py --submit        # verify, then POST the full URL list
     python tools/indexnow_submit.py --submit --url https://workhiveph.com/learn/new-article/
                                                     # push a single new/changed URL
+    python tools/indexnow_submit.py --submit --changed
+                                                    # push every sitemap URL whose <lastmod> is newer than the
+                                                    # last receipt (the post-deploy step; all of them if none)
 
 Run --submit only AFTER the key file has been deployed to production. --submit
 verifies the file is reachable first and refuses to send if it is not (a submit
 with an unreachable key returns 403 and can get the domain rate-limited).
+
+★A PUSH THAT LEAVES NO RECEIPT DID NOT HAPPEN, AND --verify MUST NOT SWALLOW --submit (2026-10-27, KA-B).
+Two holes kept the freshness trip's `push` reading "never" through a release: `--verify` exited before the
+submit branch, so the runbook's documented `--verify --submit` (and refresh_public_page.py's own call) only ever
+checked the key file and POSTed nothing; and no code wrote indexnow_receipts.json, the file the trip reads. Now
+`--verify` alone checks and exits, `--verify --submit` verifies then submits, and an accepted POST (200/202)
+writes the receipt: when, how many, which URLs, the response.
 """
 from __future__ import annotations
 
@@ -80,6 +90,48 @@ def parse_sitemap_urls() -> list[str]:
     urls = [u.strip() for u in re.findall(r"<loc>\s*(.*?)\s*</loc>", raw, re.DOTALL)]
     # keep only same-host https URLs -- IndexNow rejects a payload mixing hosts
     return [u for u in urls if u.startswith(BASE)]
+
+
+RECEIPTS = os.path.join(WEB_ROOT, "indexnow_receipts.json")
+
+
+def read_receipt() -> dict:
+    try:
+        with open(RECEIPTS, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return {}
+
+
+def changed_since_receipt(src: str, last_submit_at: str | None) -> list[str]:
+    """Sitemap URLs whose <lastmod> is after the last accepted push's DATE (all of them when nothing was pushed).
+    A lastmod ON the push day counts as changed: lastmod carries no time, so a page stamped later that day must not
+    be skipped (re-telling the index about one page is cheap; never telling it is the failure)."""
+    since = (last_submit_at or "")[:10]
+    out = []
+    for block in re.findall(r"<url>([\s\S]*?)</url>", src):
+        loc = (re.search(r"<loc>\s*(.*?)\s*</loc>", block) or [None, ""])[1]
+        lm = (re.search(r"<lastmod>\s*(.*?)\s*</lastmod>", block) or [None, ""])[1][:10]
+        if loc.startswith(BASE) and (not since or not lm or lm >= since):
+            out.append(loc)
+    return out
+
+
+def write_receipt(urls: list[str], code: int, mode: str) -> None:
+    from datetime import datetime, timezone
+    rec = {
+        "last_submit_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "count": len(urls),
+        "mode": mode,
+        "response": code,
+        "urls": urls,
+    }
+    tmp = RECEIPTS + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+        json.dump(rec, fh, indent=1)
+        fh.write("\n")
+    os.replace(tmp, RECEIPTS)
+    print(f"  receipt written: {os.path.basename(RECEIPTS)} ({len(urls)} URL(s), HTTP {code})")
 
 
 def verify_key_live(key: str, key_location: str) -> bool:
@@ -142,6 +194,8 @@ def main() -> None:
     ap.add_argument("--submit", action="store_true", help="actually POST (default is dry-run)")
     ap.add_argument("--verify", action="store_true", help="only check the key file is live on prod")
     ap.add_argument("--url", action="append", default=[], help="submit specific URL(s) instead of the whole sitemap")
+    ap.add_argument("--changed", action="store_true",
+                    help="only sitemap URLs whose <lastmod> is newer than the last receipt (all if no receipt)")
     args = ap.parse_args()
 
     key, key_path, key_location = find_key_file()
@@ -149,10 +203,22 @@ def main() -> None:
     print(f"key file     : {os.path.relpath(key_path, WEB_ROOT)}  (deploy this to the site root)")
     print(f"keyLocation  : {key_location}")
 
-    urls = args.url if args.url else parse_sitemap_urls()
-    print(f"URLs to push : {len(urls)} (source: {'--url args' if args.url else 'sitemap.xml'})\n")
+    if args.url:
+        urls, mode = args.url, "url"
+    elif args.changed:
+        last = read_receipt().get("last_submit_at")
+        with open(SITEMAP, "r", encoding="utf-8") as fh:
+            urls = changed_since_receipt(fh.read(), last)
+        mode = "changed"
+        print(f"last receipt : {last or 'none - every sitemap URL counts as changed'}")
+    else:
+        urls, mode = parse_sitemap_urls(), "sitemap"
+    print(f"URLs to push : {len(urls)} (source: {'--url args' if mode == 'url' else 'sitemap.xml' + (' lastmod since the last receipt' if mode == 'changed' else '')})\n")
+    if args.submit and not urls:
+        print("Nothing changed since the last receipt - no request sent.")
+        return
 
-    if args.verify:
+    if args.verify and not args.submit:
         print("Verifying key file on the live domain...")
         sys.exit(0 if verify_key_live(key, key_location) else 1)
 
@@ -171,6 +237,8 @@ def main() -> None:
         )
     print(f"\nSubmitting {len(urls)} URL(s) to {ENDPOINT} ...")
     code = post_indexnow(urls, key, key_location)
+    if code in (200, 202):
+        write_receipt(urls, code, mode)
     sys.exit(0 if code in (200, 202) else 2)
 
 

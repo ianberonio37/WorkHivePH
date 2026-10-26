@@ -41,8 +41,35 @@ def run():
     return r.returncode, (r.stdout or "") + (r.stderr or "")
 
 
+INLINE_SERVICE_CHECK = __import__("re").compile(
+    r"_?bearer\s*===\s*_?serviceKey|===\s*Deno\.env\.get\(\s*[\"']SUPABASE_SERVICE_ROLE_KEY")
+
+
+def inline_service_checks(fn_root):
+    """Functions that decide 'service role' by comparing the bearer to their own runtime key instead of calling
+    isServiceRoleBearer (2026-10-26): production's scheduler sends WH_INTERNAL_CALL_SECRET, because the runtime key
+    cannot be read there, so an inline compare refuses every scheduled call. ai-orchestrator, analytics-orchestrator
+    and asset-brain-query did this; their callers forwarded the runtime key, so nothing broke - yet."""
+    hits = []
+    for dirpath, _dirs, files in os.walk(fn_root):
+        if "_shared" in dirpath:
+            continue
+        for f in files:
+            if f.endswith(".ts"):
+                p = os.path.join(dirpath, f)
+                with open(p, encoding="utf-8", errors="replace") as fh:
+                    if INLINE_SERVICE_CHECK.search(fh.read()):
+                        hits.append(os.path.relpath(p, fn_root).replace(os.sep, "/"))
+    return hits
+
+
 def main(argv):
     print(f"{BOLD}tenant-context helper contract{RST} — the tenancy boundary 30 edge functions trust")
+    inline = inline_service_checks(os.path.join(ROOT, "supabase", "functions"))
+    if inline:
+        print(f"  {RED}FAIL{RST} {len(inline)} function(s) compare the bearer to their own service key instead of "
+              f"isServiceRoleBearer (the scheduler's internal secret is refused): {', '.join(inline)}")
+        return 1
     if not os.path.exists(RUNNER):
         print(f"  {RED}FAIL{RST} the runner is missing ({os.path.basename(RUNNER)}).")
         return 1
@@ -67,7 +94,7 @@ def main(argv):
         # Teeth-of-the-teeth: the runner must have EXERCISED both a kill and the equivalent exclusion, else a
         # green run proves nothing. Require the named markers in the output.
         need = ["exact-match weakened to a prefix match", "null-authUid 401 guard removed",
-                "6/6 viable killed", "EXCLUDED (equivalent)"]
+                "7/7 viable killed", "EXCLUDED (equivalent)"]
         missing = [n for n in need if n not in out]
         if missing:
             print(f"  {RED}FAIL{RST} selftest: the runner did not exercise {missing} — a green from a suite that "

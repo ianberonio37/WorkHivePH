@@ -26,6 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CRITIC = ROOT / "critic_registry.json"
 CRITIC_STAGED = ROOT / ".tmp" / "critic_registry.seed.json"
 TRAJ = ROOT / "trajectory_registry.json"
+import registry_io as _rio  # the registry UNION: main file + the cube shard (tools/registry_io.py, 2026-10-26)
 SPEC = ROOT / "ufai-rubric-spec.json"
 
 STATUSES = {"pending", "walked", "critiqued", "improving", "locked"}
@@ -98,8 +99,8 @@ def check(critic: dict, traj: dict, spec: dict) -> list[str]:
 def main() -> int:
     path = CRITIC if CRITIC.exists() else CRITIC_STAGED
     try:
-        critic = json.loads(io.open(path, encoding="utf-8").read())
-        traj = json.loads(io.open(TRAJ, encoding="utf-8").read())
+        critic = _rio.load_critic() if path == CRITIC else json.loads(io.open(path, encoding="utf-8").read())
+        traj = _rio.load_doc()
         spec = json.loads(io.open(SPEC, encoding="utf-8").read())
     except Exception as e:
         print(f"FAIL critic-registry - inputs unreadable: {e}")

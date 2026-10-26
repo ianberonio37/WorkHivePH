@@ -63,9 +63,10 @@ _REJECTION_REASONS = [
 
 
 def _external_ids_sample(tag: str | None):
-    """CMMS ids for ~20% of assets — the rest stay un-synced, which is the honest cold-start."""
+    """CMMS ids for ~20% of assets — the rest stay un-synced, which is the honest cold-start. Un-synced is the
+    column's own default {}: external_ids became NOT NULL, and an explicit null stopped the whole reseed (2026-10-26)."""
     if random.random() >= 0.20:
-        return None
+        return {}
     t = (tag or "X").replace("-", "").upper()
     return {"SAP_PM": f"EQ-{t}", "Fiix": f"FX{random.randint(1, 999999):06d}"}
 
@@ -195,7 +196,9 @@ def seed_asset_brain(client, log, ctx: dict) -> dict:
             # row carried the seed-run instant while approved_at was backdated - so 549 of 550
             # approved rows across five tables said a supervisor signed off weeks before the worker
             # submitted. Same class of fiction as an approver on a pending row, one axis over.
-            **({"created_at": _submitted_before(approved_at)} if approved_at else {}),
+            # Every row carries the key (2026-10-26): a bulk insert sends the union of all rows' keys, so a row
+            # that left it out sent an explicit null, not the default, and created_at is NOT NULL.
+            "created_at":      _submitted_before(approved_at) or datetime.now(timezone.utc).isoformat(),
             "rejection_reason": reject_reason,
         })
 

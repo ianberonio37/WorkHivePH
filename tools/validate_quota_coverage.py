@@ -43,11 +43,20 @@ REQUIRED = [
     "projects", "project_items", "project_links", "project_progress_logs",
     "project_change_orders", "engineering_calcs", "resume_documents",
     "schedule_items", "skill_exam_attempts", "resume_versions",
-    "pm_assets", "pm_scope_items", "fault_knowledge", "skill_badges",
+    "pm_assets", "pm_scope_items", "skill_badges",
     # Per-page audit gaps (2026-07-05): feature-page writes the table audit missed.
     "alert_dismissals", "community_reactions", "early_access_emails",
     "marketplace_watchlist", "report_contacts",
 ]
+
+# DERIVED (2026-10-27): a table NO client can insert into, written only by the service from inputs that are capped
+# upstream. Its own per-day cap stops no person and throttles the platform's own index - fault_knowledge's refused 322
+# derived rows in a day, each after its embedding call, and the relay retried each one. Bounded while BOTH hold: the
+# client-insert lock (a policy WITH CHECK (false)) is the LAST word on the table's inserts, and every upstream table it is
+# derived from is itself in REQUIRED. Unlock client inserts and the table must carry its own cap again.
+DERIVED = {
+    "fault_knowledge": ("fault_knowledge_insert_locked", ["logbook", "pdf_jobs"]),
+}
 
 
 def _all_migrations_text() -> str:
@@ -125,6 +134,16 @@ def evaluate(text: str) -> list[tuple[str, bool, str]]:
                          f"PHANTOM timestamp column '{ts_col}' not in {tbl} (would break INSERT)"))
             continue
         rows.append((tbl, True, f"per-day cap {cap}/hive on real column '{ts_col}'"))
+    for tbl, (policy, upstream) in DERIVED.items():
+        locks = list(re.finditer(r"CREATE\s+POLICY\s+" + re.escape(policy) + r"\s+ON\s+public\." + re.escape(tbl)
+                                 + r"\s+FOR\s+INSERT\s+WITH\s+CHECK\s*\(\s*false\s*\)", text, re.I | re.S))
+        drops = list(re.finditer(r"DROP\s+POLICY\s+(?:IF\s+EXISTS\s+)?" + re.escape(policy) + r"\b", text, re.I))
+        locked = bool(locks) and (not drops or max(d.start() for d in drops) < max(lk.start() for lk in locks))
+        missing_up = [u for u in upstream if u not in REQUIRED]
+        ok = locked and not missing_up
+        rows.append((tbl, ok, ("derived: client inserts locked (" + policy + "), bounded by capped " + ", ".join(upstream))
+                     if ok else ("derived table no longer client-locked - it needs its own per-day cap" if not locked
+                                 else "an upstream source is uncapped: " + ", ".join(missing_up))))
     return rows
 
 
@@ -153,8 +172,11 @@ def main() -> int:
         guard_fires = rr.get("asset_nodes") is False  # 'created_at' not in the synthetic asset_nodes(made_at) table
         # TEETH 2: empty migrations => every table uncovered.
         empty_all_fail = all(not ok for _, ok, _ in evaluate(""))
-        good = guard_fires and empty_all_fail
-        print(f"  TEETH [{GREEN+'PASS'+RST if good else RED+'FAIL'+RST}] phantom-ts-guard:{guard_fires}  empty=all-fail:{empty_all_fail}")
+        # TEETH 3: a derived table whose client-insert lock is dropped LATER must need its own cap again.
+        unlocked = dict((t, ok) for t, ok, _ in evaluate(text + "\nDROP POLICY IF EXISTS fault_knowledge_insert_locked ON public.fault_knowledge;\n"))
+        unlock_fires = unlocked.get("fault_knowledge") is False
+        good = guard_fires and empty_all_fail and unlock_fires
+        print(f"  TEETH [{GREEN+'PASS'+RST if good else RED+'FAIL'+RST}] phantom-ts-guard:{guard_fires}  empty=all-fail:{empty_all_fail}  derived-unlocked:{unlock_fires}")
         if not good:
             return 1
 

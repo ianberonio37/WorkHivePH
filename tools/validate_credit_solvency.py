@@ -55,6 +55,51 @@ select count(*)::text from (
 """
 
 
+# ★FREE CREDIT NO GATE HELD TO ITS POLICY (BRH.10 AK, 2026-10-26). Starter grants are the one unbacked credit left, and
+# this gate printed them as "by design" without asking a single grant record whether it followed the design. The
+# policy, as claim_starter_grant writes it: once per person (credit_starter_grants' primary key), only to a holder of a
+# seller profile, at the starter_grant knob's amount, minted through the treasury like any other credit. Every grant
+# that reached the ledger by another door - a backfill, a script, a second claim - is what these counts refute.
+STARTER_POLICY = """
+with g as (select auth_uid, amount from public.credit_starter_grants),
+     l as (select account_id, amount from public.service_credit_ledger where entry_type = 'starter_grant')
+select
+  (select count(*) from l where not exists (select 1 from g where g.auth_uid = l.account_id and g.amount = l.amount))::text,
+  (select count(*) from g where not exists (select 1 from l where l.account_id = g.auth_uid and l.amount = g.amount))::text,
+  (select count(*) from (select account_id from l group by account_id having count(*) > 1) x)::text,
+  (select count(*) from g where not exists (select 1 from public.marketplace_sellers s where s.auth_uid = g.auth_uid))::text,
+  (select count(*) from g where g.amount > coalesce(public.service_knob(null, 'starter_grant'), 0))::text,
+  (select count(*) from g)::text;
+"""
+
+
+def judge_grants(unrecorded, unledgered, repeated, no_seller, over_amount):
+    """-> list of problems with the starter grants. Pure, so the self-test needs no ledger in any state."""
+    p = []
+    if unrecorded:
+        p.append(f"{unrecorded} starter-grant ledger entr(ies) have no matching grant record - credit minted outside claim_starter_grant")
+    if unledgered:
+        p.append(f"{unledgered} grant record(s) have no matching ledger entry - the grant and the balance disagree")
+    if repeated:
+        p.append(f"{repeated} account(s) received the starter grant more than once - the policy is once per person")
+    if no_seller:
+        p.append(f"{no_seller} grant(s) went to someone with no seller profile - the policy gates the grant on one")
+    if over_amount:
+        p.append(f"{over_amount} grant(s) exceed the starter_grant amount the policy sets")
+    return p
+
+
+def console_findings(src: str) -> list[str]:
+    """BRH.10 AK: the operator console's cover says what backs what is owed, and why a low cover is low. Static, so it
+    holds without a database; `src` is the console's queue script (platform-actions.html, cut into operator-actions.js)."""
+    out = []
+    if "sum('starter_grant')" not in src or "What is owed, by what backs it" not in src:
+        out.append("the console does not split what is owed by its backing (top-ups / starter credit / the rest)")
+    if "cp-cover-why" not in src or "starter credit" not in src:
+        out.append("the console's cover gives no reason when starter credit holds it under 1.00")
+    return out
+
+
 def psql(sql):
     try:
         r = subprocess.run(["docker", "exec", CONTAINER, "psql", "-U", "postgres", "-d", "postgres",
@@ -99,8 +144,19 @@ def selftest():
         print(f"  {RED}FAIL{RST} — negative consumer balances were not caught"); ok = False
     if judge(10000, 500, 200, 100, 0):
         print(f"  {RED}FAIL{RST} — a healthy ledger was flagged"); ok = False
+    for args, what in (((1, 0, 0, 0, 0), "a grant minted outside the claim"), ((0, 1, 0, 0, 0), "a grant with no ledger entry"),
+                       ((0, 0, 1, 0, 0), "a second grant to one person"), ((0, 0, 0, 1, 0), "a grant to someone with no seller profile"),
+                       ((0, 0, 0, 0, 1), "a grant above the policy amount")):
+        if not judge_grants(*args):
+            print(f"  {RED}FAIL{RST} — {what} was not caught"); ok = False
+    if judge_grants(0, 0, 0, 0, 0):
+        print(f"  {RED}FAIL{RST} — grants that follow the policy were flagged"); ok = False
+    good = "sum('starter_grant') What is owed, by what backs it id=\"cp-cover-why\" starter credit"
+    if console_findings(good) or len(console_findings("Liability cover: cash in vs credits owed")) != 2:
+        print(f"  {RED}FAIL{RST} — the console-reason check does not tell a cover with its reason from one without"); ok = False
     if ok:
-        print(f"  {GREEN}PASS{RST} — catches over-granting and negative consumer balances, accepts a healthy ledger")
+        print(f"  {GREEN}PASS{RST} — catches over-granting, negative consumer balances and every starter-grant policy breach, "
+              f"accepts a healthy ledger")
     return 0 if ok else 1
 
 
@@ -109,6 +165,19 @@ def main(argv):
         return selftest()
     print(f"{BOLD}Credit solvency{RST} — are the credits we have given away backed by anything?")
     if selftest() != 0:
+        return 1
+
+    # the console half needs no database: the queue source and its generated cut must both carry the reason
+    from pathlib import Path
+    root = Path(__file__).resolve().parent.parent
+    static = []
+    for name in ("platform-actions.html", "operator-actions.js"):
+        f = root / name
+        static += [f"{name}: {x}" for x in console_findings(f.read_text(encoding="utf-8", errors="ignore") if f.exists() else "")]
+    if static:
+        print(f"\n  {RED}FAIL{RST} — the console's cover does not say what backs it:")
+        for x in static:
+            print(f"    · {x}")
         return 1
 
     rows, err = psql(LEDGER)
@@ -131,6 +200,13 @@ def main(argv):
     print(f"  {BOLD}outstanding liability      {liability:>12,.2f}{RST}  {DIM}(credits owed as services){RST}")
 
     problems = judge(topups, earned, cashback, vouchers, neg)
+    grows, gerr = psql(STARTER_POLICY)
+    if grows is None:
+        problems.append(f"the starter grants could not be read against their policy ({gerr}) - unread is not compliant")
+    else:
+        g = [int(x) for x in grows[0]]
+        problems += judge_grants(*g[:5])
+        print(f"  {DIM}starter grants: {g[5]} on record, each checked against the policy (once, to a seller, at the knob's amount, in the ledger){RST}")
     if problems:
         print(f"\n  {RED}FAIL{RST} — the credit economy is not solvent:")
         for p in problems:

@@ -227,6 +227,30 @@ def _is_browser_gated(row):
     return False
 
 
+# ★THE TARGET GREW A SHARD AND THE BIND MUST SEE IT (2026-10-26, the ★x16 rule again): the cube (Wave CX, 19k rows) lives in
+# trajectory_registry_cx.json / critic_registry_cx.json because GitHub refuses a file over 100 MB. tools/registry_io.py is
+# the union loader; a guard that read only the main file would count 0 buildable cube rows and hand me the next exit.
+# FAIL CLOSED: if the loader cannot be imported, fall back to the main file (the smaller, still-true count).
+def _load_registry_union():
+    try:
+        sys.path.insert(0, os.path.join(ROOT, "tools"))
+        import registry_io as _rio
+        return _rio.load_doc()
+    except Exception:
+        with open(os.path.join(ROOT, "trajectory_registry.json"), encoding="utf-8") as f:
+            return json.load(f)
+
+
+def _load_critic_union():
+    try:
+        sys.path.insert(0, os.path.join(ROOT, "tools"))
+        import registry_io as _rio
+        return _rio.load_critic()
+    except Exception:
+        with open(os.path.join(ROOT, "critic_registry.json"), encoding="utf-8") as f:
+            return json.load(f)
+
+
 def _trajectory_progress():
     """Ian's actual TARGET: every trajectory LOCKED at 100%. Returns (locked, total).
 
@@ -238,8 +262,7 @@ def _trajectory_progress():
     a sub-metric I can drive to zero by settling one slice becomes my next exit; the target cannot,
     because it only reaches 500 when the work is actually done."""
     try:
-        with open(os.path.join(ROOT, "trajectory_registry.json"), encoding="utf-8") as f:
-            reg = json.load(f)
+        reg = _load_registry_union()
         ts = reg.get("trajectories", [])
         locked = sum(1 for t in ts if t.get("status") == "locked")
         buildable = sum(1 for t in ts if t.get("status") in ("specced", "walked", "fixing"))
@@ -255,8 +278,7 @@ def _trajectory_progress():
         # closing them) is buildable work — walk it, fix it, gate it, or honestly bank why not.
         critic_open = 0
         try:
-            with open(os.path.join(ROOT, "critic_registry.json"), encoding="utf-8") as f:
-                creg = json.load(f)
+            creg = _load_critic_union()
             for r in creg.get("rows", []):
                 st = r.get("status")
                 if st in ("pending", "walked"):
@@ -442,9 +464,8 @@ def main():
                 # 2026-09-02 is part of the target ("we still have so many to complete the walk").
                 _classic = 0
                 try:
-                    with open(os.path.join(ROOT, "trajectory_registry.json"), encoding="utf-8") as _f:
-                        _classic = sum(1 for t in json.load(_f).get("trajectories", [])
-                                       if t.get("status") in ("specced", "walked", "fixing"))
+                    _classic = sum(1 for t in _load_registry_union().get("trajectories", [])
+                                   if t.get("status") in ("specced", "walked", "fixing"))
                 except Exception:
                     pass
                 _critic = prog[2] - _classic

@@ -16,6 +16,8 @@ SUCCESS: All 5 layers pass (indicates Phase 5 wiring complete)
 
 import re
 import sys
+sys.path.insert(0, "tools")
+from client_prompt_retired import retired_check  # BRH-AO 2026-10-27: the client prompt no server read
 
 if sys.platform == "win32":
     import io
@@ -75,7 +77,11 @@ def check_phase_5_alerts():
     # L2: KPI deviation scoring
     print("\n[L2] Anomaly detection in voice-handler.js")
 
-    if "_fetchProactiveAlerts(" in content:
+    _ret = retired_check(content, "alerts")
+    if _ret is not None:
+        print(f"  {GREEN if _ret[0] else RED}{'PASS' if _ret[0] else 'FAIL'}{RESET} {_ret[1]}")
+        results["pass" if _ret[0] else "fail"] += 1
+    elif "_fetchProactiveAlerts(" in content:
         print(f"  {GREEN}PASS{RESET} Proactive alerts fetch function exists")
         results["pass"] += 1
     else:
@@ -94,7 +100,9 @@ def check_phase_5_alerts():
     # L4: Proactive scan (fetch alerts before user query)
     print("\n[L4] Proactive scan integration")
 
-    if "proactiveAlerts" in content:
+    if _ret is not None:
+        pass   # L4 is the same capability - reported at L2
+    elif "proactiveAlerts" in content:
         print(f"  {GREEN}PASS{RESET} Proactive alerts fetched in conversation flow")
         results["pass"] += 1
     else:

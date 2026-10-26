@@ -31,6 +31,8 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import gone  # BRH-AP 2026-10-27
 from validator_utils import read_file, format_result
 
 
@@ -49,7 +51,7 @@ def check_pdf_export(c: str) -> list[dict]:
     if "_PDF_EXPORT_RE" not in c:
         issues.append({"check": "pdf_export",
                        "reason": "_PDF_EXPORT_RE missing — detector has no regex to match against."})
-    if "PDF EXPORT REQUEST" not in c:
+    if "PDF EXPORT REQUEST" not in c and not gone("PDF EXPORT REQUEST"):
         issues.append({"check": "pdf_export",
                        "reason": "PDF EXPORT REQUEST anchor missing — detector wired but LLM has no instruction."})
     return issues
@@ -59,7 +61,7 @@ def check_pronunciation(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_PRONUNCIATION_KEY", "_getPronunciationMap",
                 "_setPronunciationOverride", "_applyPronunciation"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "pronunciation",
                            "reason": f"{sym} missing — custom pronunciation library doesn't persist or apply."})
     if "PRONUNCIATION RESPECT" not in c:
@@ -74,7 +76,7 @@ def check_pronunciation(c: str) -> list[dict]:
 def check_voice_execute_lock(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_isVoiceExecuteAuth", "_setVoiceExecuteAuth"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "voice_execute_lock",
                            "reason": f"{sym} missing — voice-execute safety gate is dead code."})
     if "VOICE EXECUTE LOCK" not in c:
@@ -407,7 +409,7 @@ def check_digest(c: str) -> list[dict]:
     if "_DIGEST_RE" not in c:
         issues.append({"check": "digest",
                        "reason": "_DIGEST_RE missing — detector has no regex."})
-    if "DIGEST MODE" not in c:
+    if "DIGEST MODE" not in c and not gone("DIGEST MODE"):
         issues.append({"check": "digest",
                        "reason": "DIGEST MODE anchor missing — LLM has no 5-line briefing instruction."})
     return issues
@@ -417,10 +419,10 @@ def check_push(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_canPushNotify", "_pushNotifyState",
                 "_requestPushPerm", "_isPushOptInReply", "_PUSH_OPT_IN_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "push",
                            "reason": f"{sym} missing — push notification path is incomplete."})
-    if "PUSH READINESS" not in c:
+    if "PUSH READINESS" not in c and not gone("PUSH READINESS"):
         issues.append({"check": "push",
                        "reason": "PUSH READINESS anchor missing — companion would promise alerts the browser may have denied."})
     return issues
@@ -430,7 +432,7 @@ def check_session_lock(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_SESSION_LOCK_TTL_MS", "_sessionLockKey",
                 "_acquireSessionLock", "_isSessionLocked", "_releaseSessionLock"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "session_lock",
                            "reason": f"{sym} missing — multi-worker concurrency lock is incomplete."})
     if "wh_voice_session_lock_" not in c:
@@ -449,7 +451,7 @@ def check_accent(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_detectAccentHint", "_getAccentPref",
                 "_setAccentPref", "_TGL_HINT_WORDS"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "accent",
                            "reason": f"{sym} missing — accent / voice signature adaptation is incomplete."})
     if "ACCENT MATCH" not in c:
@@ -465,7 +467,7 @@ def check_streaming(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_setStreamingState", "_isStreaming",
                 "_bindStreamingBubble", "_appendStreamingChunk", "_finalizeStream"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "streaming",
                            "reason": f"{sym} missing — streaming SSE incremental update is incomplete."})
     if "data-streaming" not in c:

@@ -40,6 +40,8 @@ from __future__ import annotations
 import os
 import re
 import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from client_prompt_retired import retired_check  # BRH-AO 2026-10-27: the client prompt no server read
 
 if sys.platform == "win32":
     import io
@@ -72,6 +74,11 @@ def check_intent_classifier(src):
 
 
 def check_canonical_fetch(src):
+    # BRH-AO (2026-10-27): the canonical-data fetch fed the client prompt no server read; KPIs reach the model from the
+    # gateway's ops snapshot (hive_kpis). The client-side check below runs again only if the client prompt comes back.
+    ret = retired_check(src, "kpi")
+    if ret is not None:
+        return [] if ret[0] else [{"check": "canonical_fetch", "reason": ret[1]}]
     issues = []
     if "_fetchCanonicalData" not in src:
         issues.append({
@@ -96,6 +103,14 @@ def check_canonical_fetch(src):
 
 
 def check_converse_wiring(src):
+    ret = retired_check(src, "kpi")   # BRH-AO 2026-10-27 - see check_canonical_fetch
+    if ret is not None:
+        return [] if ret[0] else [{"check": "converse_wiring", "reason": ret[1]}]
+    return _converse_wiring_client(src)
+
+
+def _converse_wiring_client(src):
+    """the wiring rule for a client-built prompt - what the teeth cases below exercise"""
     issues = []
     # The fetch must be awaited BEFORE _buildVoiceSystemPrompt, otherwise
     # the DATA block can't reach the model on this turn.
@@ -266,11 +281,12 @@ def selftest():
     stripped = src
     for n in ("_classifyDataIntent", "_fetchCanonicalData", "_buildVoiceSystemPrompt"):
         stripped = _strip_calls(stripped, n)
-    only_defs = check_converse_wiring(stripped)
+    only_defs = _converse_wiring_client(stripped)
     reasons = " ".join(i["reason"] for i in only_defs)
 
     cases = [
-        ("the real file wires the path", not check_converse_wiring(src)),
+        ("the real file builds no client prompt, and KPIs reach the model server-side (BRH-AO)",
+         (retired_check(src, "kpi") or (False,))[0] is True),
         ("definitions alone FAIL", bool(only_defs)),
         ("and every uncalled function is named",
          all(n in reasons for n in ("_classifyDataIntent", "_fetchCanonicalData", "_buildVoiceSystemPrompt"))),

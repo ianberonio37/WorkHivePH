@@ -697,8 +697,59 @@ def cmd_crawl(url: str, topic: str | None, ttl_days: int, force: bool,
     return 0
 
 
+# ── a changed source is a DECISION, recorded (Wave KA, 2026-10-26) ────────────
+# Ian: "my SEO AEO GEO ... it's like static, I want it always keeping up to date, or that will trigger or trip". The
+# evidence spine already detected a changed source (source_sha) and re-distilled it silently. Now the change leaves a
+# diff note beside the spine and RE-OPENS the KA-E row that anchors on this chunk (status back to specced, the note in
+# its basis) - so "the engines changed" becomes a row Ian meets in the trajectories roadmap, never a quiet rewrite.
+def _record_source_change(stem: str, topic: str, urls: list[str], old_body: str, new_body: str,
+                          age: int | None, ttl: int) -> Path | None:
+    import datetime as _dt
+    import difflib
+    changes_dir = EXTERNAL_DIR / "_changes"
+    changes_dir.mkdir(parents=True, exist_ok=True)
+    today = _dt.date.today().isoformat()
+    note = changes_dir / f"{stem}.{today}.md"
+    diff = list(difflib.unified_diff(old_body.splitlines(), new_body.splitlines(),
+                                     fromfile=f"{stem} (before)", tofile=f"{stem} (after)", lineterm="", n=1))
+    text = (f"---\nname: change_{stem}_{today}\ntype: source-change\nchunk: {stem}\ntopic: {topic}\n"
+            f"source: {' + '.join(urls)}\ndetected: {today}\nage_days: {age}\nttl_days: {ttl}\n---\n\n"
+            f"# {stem} changed on re-fetch ({today})\n\n"
+            f"The distilled facts moved. DECIDE: which lever (gate threshold, roadmap claim, robots.txt line, copy) rests on "
+            f"this source, and whether it moves with it - the KA-E row for this chunk is re-opened to hold that decision.\n\n"
+            f"```diff\n" + "\n".join(diff[:400]) + ("\n... (diff truncated)" if len(diff) > 400 else "") + "\n```\n")
+    note.write_text(text, encoding="utf-8", newline="\n")
+    try:
+        sys.path.insert(0, str(REPO / "tools"))
+        import registry_io as _rio
+        doc = _rio.load_doc()
+        reopened, stamped = [], []
+        for t in doc["trajectories"]:
+            ka = t.get("ka") or {}
+            if ka.get("kind") == "keep-abreast" and ka.get("lens") == "E" and ka.get("unit") == stem:
+                line = (f"[{today}] SOURCE CHANGED on re-fetch - decide whether the lever moves; diff: "
+                        f"{note.relative_to(REPO).as_posix()}\n")
+                if t.get("status") in ("locked", "locking", "fixing", "walked"):
+                    t["status"], t["pct"] = "specced", 5
+                    reopened.append(t["id"])
+                else:
+                    stamped.append(t["id"])          # already open: the change joins its basis, the status stands
+                t["basis"] = line + (t.get("basis") or "")
+        if reopened or stamped:
+            _rio.save_doc(doc)
+            if reopened:
+                print(f"   re-opened KA row(s) {', '.join(reopened)} - a changed source is a decision")
+            if stamped:
+                print(f"   KA row(s) {', '.join(stamped)} already open - the change is on their basis")
+    except Exception as e:  # the note stands even when the registry is not reachable from here
+        print(f"   (KA row not re-opened: {e})")
+    return note
+
+
 # ── refresh stale chunks (re-crawl the exact stored URL set) ──────────────────
-def cmd_refresh_stale(default_ttl: int, verbose: bool) -> int:
+def cmd_refresh_stale(default_ttl: int, verbose: bool, only: str | None = None) -> int:
+    """`only` is a regex over the chunk file stem: the refresh that spends the free-tier chain is taken one slice at a time
+    (the 45 SEO sources the program cites first), never the whole bag in one run."""
     if not EXTERNAL_DIR.exists() or not any(EXTERNAL_DIR.glob("*.md")):
         print("🌀 nothing to refresh — substrate/external/ is empty.")
         return 0
@@ -711,6 +762,8 @@ def cmd_refresh_stale(default_ttl: int, verbose: bool) -> int:
         ttl = int(fm.get("ttl_days", default_ttl) or default_ttl)
         age = chunk_age_days(path.stem.replace("external-", "", 1))
         if age is None or age <= ttl:
+            continue
+        if only and not re.search(only, path.stem, re.I):
             continue
         checked += 1
         slug = path.stem.replace("external-", "", 1)
@@ -751,8 +804,12 @@ def cmd_refresh_stale(default_ttl: int, verbose: bool) -> int:
         if not body.strip() or not ok:
             print(f"   ✗ distill failed quality guard ({why or 'empty'}) — left as-is")
             continue
+        old_body = path.read_text(encoding="utf-8").split("---\n", 2)[-1].lstrip("\n")
         write_chunk(slug, topic, [u for (u, _, _, _) in pages], source_sha, body, ttl)
         print(f"   re-distilled via {prov} — content changed, chunk updated")
+        note = _record_source_change(path.stem, topic, [u for (u, _, _, _) in pages], old_body, body, age, ttl)
+        if note:
+            print(f"   change note: {note.relative_to(REPO).as_posix()}")
         changed += 1
     if checked == 0:
         print("🌀 all external chunks are fresh — nothing to refresh.")
@@ -942,6 +999,8 @@ def main(argv=None) -> int:
                     help="list every distilled external chunk with size / freshness / quality flag")
     ap.add_argument("--refresh-stale", action="store_true",
                     help="re-crawl every substrate/external chunk past its ttl_days (re-distill only if changed)")
+    ap.add_argument("--only", metavar="REGEX",
+                    help="--refresh-stale: only the chunks whose file stem matches (one slice at a time, e.g. 'seo|geo|crawler')")
     ap.add_argument("--watch", metavar="FILE",
                     help="batch-crawl a watchlist file (lines: '<url>|<topic>'; '#' comments); index once")
     ap.add_argument("--top-k", type=int, default=50)
@@ -957,7 +1016,7 @@ def main(argv=None) -> int:
         reindex()
         return 0
     if args.refresh_stale:
-        return cmd_refresh_stale(args.ttl_days, args.verbose)
+        return cmd_refresh_stale(args.ttl_days, args.verbose, args.only)
     if args.watch:
         return cmd_watch(Path(args.watch), args.ttl_days, args.force, args.verbose)
     if args.ensure:

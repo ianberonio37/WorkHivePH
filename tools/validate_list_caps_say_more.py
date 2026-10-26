@@ -653,6 +653,8 @@ RPC_CAPS = {
     ("founder_maturity", "x", 5): ("founder-console.html", "bottom", "sample: Bottom 5 needing intervention"),
     ("founder_dev_reads", "calls", 3): ("founder-console.html", "providers", "sample: Top 3 providers"),
     # two arrays capped from the same relation at the same N: one declaration per array (V3 counts them)
+    # OWN dependency lens (2026-10-26): what failed on people's screens, grouped by context and page - 50 groups means "50 or more"
+    ("founder_client_errors", "client_errors", 50): ("founder-console.html", "", "renderScreenFailures"),
     ("founder_dev_reads", "traces", 10): [("founder-console.html", "rag_heavy", "sample: Top 10 most token-heavy queries"),
                                           ("founder-console.html", "rag_recent", "sample: The 10 most recent traces")],
 }

@@ -24,6 +24,8 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import gone  # BRH-AP 2026-10-27
 from validator_utils import read_file, format_result
 
 VOICE_HANDLER_JS = "voice-handler.js"
@@ -44,7 +46,7 @@ def check_active_list(c: str) -> list[dict]:
 def check_handoff(c: str) -> list[dict]:
     issues = []
     for sym in ("_HANDOFF_RE", "_detectHandoffRequest", "_sendHandoff", "_fetchPendingHandoffs"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "handoff", "reason": f"{sym} missing."})
     if "companion_handoff" not in c:
         issues.append({"check": "handoff", "reason": "companion_handoff table missing."})
@@ -54,7 +56,7 @@ def check_handoff(c: str) -> list[dict]:
 def check_shared_note(c: str) -> list[dict]:
     issues = []
     for sym in ("_SHARED_NOTE_RE", "_isSharedNoteRequest", "_postSharedNote"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "shared_note", "reason": f"{sym} missing."})
     if "shared_voice_notes" not in c:
         issues.append({"check": "shared_note", "reason": "shared_voice_notes table missing."})
@@ -70,7 +72,7 @@ def check_concurrency(c: str) -> list[dict]:
 def check_watchlist(c: str) -> list[dict]:
     issues = []
     for sym in ("_subscribeWatchlist", "_unsubscribeWatchlist", "_detectWatchRequest", "_WATCH_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "watchlist", "reason": f"{sym} missing."})
     if "asset_watchlist" not in c:
         issues.append({"check": "watchlist", "reason": "asset_watchlist table missing."})
@@ -109,7 +111,7 @@ def check_buddy(c: str) -> list[dict]:
     issues = []
     for sym in ("_BUDDY_KEY_PREFIX", "_buddyKey", "_setBuddy", "_getBuddy",
                 "_clearBuddy", "_detectBuddySet", "_BUDDY_SET_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "buddy", "reason": f"{sym} missing."})
     if "wh_voice_buddy_" not in c:
         issues.append({"check": "buddy", "reason": "wh_voice_buddy_ localStorage key prefix missing."})
@@ -134,9 +136,9 @@ def check_phase_a_wires(c: str) -> list[dict]:
         ("BUDDY SET",          "_detectBuddySet(transcript)",        "T153 BUDDY SET anchor"),
     ]
     for anchor, callsite, label in pairs:
-        if anchor not in c:
+        if anchor not in c and not gone(anchor):
             issues.append({"check": "wires", "reason": f"{label} anchor '{anchor}' missing."})
-        if callsite not in c:
+        if callsite not in c and not gone(callsite):
             issues.append({"check": "wires", "reason": f"{label} call '{callsite}' missing."})
     return issues
 

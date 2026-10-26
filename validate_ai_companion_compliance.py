@@ -24,6 +24,8 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import gone  # BRH-AP 2026-10-27
 from validator_utils import read_file, format_result
 
 VOICE_HANDLER_JS = "voice-handler.js"
@@ -47,7 +49,7 @@ def check_consent(c: str) -> list[dict]:
     issues = []
     for sym in ("_CONSENT_KEY", "_hasConsent", "_captureConsent", "_revokeConsent",
                 "_detectConsentChange", "_CONSENT_GRANT_RE", "_CONSENT_REVOKE_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "consent", "reason": f"{sym} missing."})
     if "wh_voice_consent" not in c:
         issues.append({"check": "consent", "reason": "localStorage key wh_voice_consent missing."})
@@ -57,7 +59,7 @@ def check_consent(c: str) -> list[dict]:
 def check_retention(c: str) -> list[dict]:
     issues = []
     for sym in ("_retentionCutoffIso", "_enforceRetention"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "retention", "reason": f"{sym} missing."})
     return issues
 
@@ -65,7 +67,7 @@ def check_retention(c: str) -> list[dict]:
 def check_erasure(c: str) -> list[dict]:
     issues = []
     for sym in ("_isErasureRequest", "_ERASURE_RE", "_executeErasure"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "erasure", "reason": f"{sym} missing."})
     # (*)THIS ASSERTED A VALUE NO WRITER COULD EVER HAVE STORED. It required the literal
     # "right_to_erasure", and the code did write it - into `event_type`, a column ai_audit_log does not
@@ -128,7 +130,7 @@ def check_ai_disclosure(c: str) -> list[dict]:
     issues = []
     for sym in ("_AI_DISCLOSURE_FLAG_KEY", "_setAiDisclosurePolicy",
                 "_needsAiDisclosure", "_markAiDisclosureShown", "_aiDisclosureLine"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "ai_disclosure", "reason": f"{sym} missing."})
     if "wh_voice_ai_disclosure_policy" not in c:
         issues.append({"check": "ai_disclosure", "reason": "localStorage key wh_voice_ai_disclosure_policy missing."})
@@ -144,7 +146,7 @@ def check_locale_date(c: str) -> list[dict]:
 def check_cost_cap(c: str) -> list[dict]:
     issues = []
     for sym in ("_getMonthlyCost", "_exceededCostCap"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "cost_cap", "reason": f"{sym} missing."})
     if "ai_cost_log" not in c:
         issues.append({"check": "cost_cap", "reason": "ai_cost_log table reference missing."})
@@ -154,7 +156,7 @@ def check_cost_cap(c: str) -> list[dict]:
 def check_voice_drift(c: str) -> list[dict]:
     issues = []
     for sym in ("_DRIFT_KEY_PREFIX", "_signatureKey", "_recordVoiceSignature", "_voiceSignatureDrift"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "voice_drift", "reason": f"{sym} missing."})
     if "wh_voice_signature_" not in c:
         issues.append({"check": "voice_drift", "reason": "localStorage key prefix wh_voice_signature_ missing."})
@@ -173,9 +175,9 @@ def check_phase_a_wires(c: str) -> list[dict]:
         ("SUSPICIOUS ACTIVITY", "_detectSuspiciousActivity(ctx.worker_name)", "T120 SUSPICIOUS ACTIVITY anchor"),
     ]
     for anchor, callsite, label in pairs:
-        if anchor not in c:
+        if anchor not in c and not gone(anchor):
             issues.append({"check": "wires", "reason": f"{label} anchor '{anchor}' missing."})
-        if callsite not in c:
+        if callsite not in c and not gone(callsite):
             issues.append({"check": "wires", "reason": f"{label} call '{callsite}' missing."})
     return issues
 

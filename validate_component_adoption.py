@@ -40,10 +40,33 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "tools"))
-from component_adoption_census import run_census  # noqa: E402
+from component_adoption_census import run_census, class_used  # noqa: E402
 
 BASELINE = ROOT / "component_adoption_baseline.json"
 REPORT = ROOT / "component_adoption_gate_report.json"
+
+# ★A FLOOR THAT COUNTED LOOKALIKES (BRH.10 AJ, 2026-10-26). The census matched `\bcls\b`, and \b treats "-" as a word
+# edge, so oh-tile and rag-tile credited the .tile family (FC1) to index.html and analytics-report.html, which never
+# used it. With the class matched as a whole token FC1 reads 19, and its floor of 21 was two pages that were never
+# adopters - a measurement corrected, not adoption lost. Each correction is one entry: it applies only while the floor
+# still holds the inflated value and the census shows exactly that shortfall, and the run says so.
+REMEASURED = {
+    "FC1": {"from": 21, "to": 19, "date": "2026-10-26",
+            "pages": ["analytics-report.html", "index.html"],
+            "why": "credited for oh-tile / rag-tile by a matcher that treated '-' as a word edge"},
+}
+
+
+def matcher_findings() -> list[str]:
+    """A5: the census credits a class only as a whole token of the class attribute."""
+    cases = [('<div class="heat-card">', "card", False), ('<span class="stat-pill x">', "pill", False),
+             ('<div class="oh-tile-num">', "tile", False), ('<div class="a card b">', "card", True),
+             ('<button class="filter-chip active">', "filter-chip", True),
+             # marketplace's live chips: a template glued to the name is still the class
+             ('<button class="filter-chip${_cat === c ? \' active\' : \'\'}">', "filter-chip", True),
+             ("<span class='wh-num big'>", "wh-num", True)]
+    return [f"A5: class_used({src!r}, {cls!r}) is {not want}, want {want} - the census credits lookalike classes"
+            for src, cls, want in cases if class_used(src, cls) is not want]
 
 
 def write_baseline(rows, drift, n_pages, tightened: bool):
@@ -75,6 +98,13 @@ def main() -> int:
     base = json.loads(BASELINE.read_text(encoding="utf-8"))
     floors: dict = base.get("floors", {})
     base_rows = {r["id"]: r for r in base.get("rows", []) if r.get("mode") == "measured"}
+    remeasured: list[str] = []
+    for cid, fix in REMEASURED.items():
+        if floors.get(cid) == fix["from"] and cid in measured and measured[cid]["adopters_n"] == fix["to"] \
+                and not set(fix["pages"]) & set(measured[cid]["adopters"]):
+            floors[cid] = fix["to"]
+            remeasured.append(f"{cid} {fix['from']} -> {fix['to']} ({fix['date']}: {', '.join(fix['pages'])} {fix['why']})")
+    failures.extend(matcher_findings())
 
     # A3 registry integrity — both directions
     for cid in floors:
@@ -117,12 +147,14 @@ def main() -> int:
         write_baseline(rows, drift, n_pages, tightened=bool(tightened))
 
     REPORT.write_text(json.dumps({
-        "ok": ok, "checked": len(measured), "failures": failures, "tightened": tightened, "rebased_for_deleted_pages": rebased,
+        "ok": ok, "checked": len(measured), "failures": failures, "tightened": tightened, "rebased_for_deleted_pages": rebased, "remeasured": remeasured,
         "generated": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     }, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     print(f"component-adoption: {len(measured)} measured rows"
           + (f", tightened {len(tightened)}" if tightened else ""))
+    for m in remeasured:
+        print(f"  REMEASURED {m}")
     for b in rebased:
         print(f"  REBASED {b}")
     for f in failures:

@@ -112,6 +112,9 @@ $grafana_p1$;
 -- the run history read-only. grafana_reader only needs SELECT on that view (NOT cron
 -- schema access). This surfaced 27+ SILENT failed cron runs in the last 7 days.
 GRANT SELECT ON public.v_cron_health TO grafana_reader;
+-- 2026-10-26: what each scheduled call's function ANSWERED (cron calls an HTTP job "succeeded" whatever it answers);
+-- public.v_scheduled_call_health, migration 20261026000010, same owner-view pattern.
+GRANT SELECT ON public.v_scheduled_call_health TO grafana_reader;
 
 -- G4 DB-HEALTH (other observability, 2026-07-18): infra-level golden signals — connection
 -- saturation, DB size growth, cache-hit ratio, and the slowest queries (pg_stat_statements).

@@ -23,6 +23,9 @@ from __future__ import annotations
 import os
 import re
 import sys
+from pathlib import Path
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import moved  # BRH-AP 2026-10-27
 
 if sys.platform == "win32":
     import io
@@ -173,7 +176,11 @@ def check_crisis_extension(c: str) -> list[dict]:
     if "self_harm" not in c:
         issues.append({"check": "crisis_extension",
                        "reason": "self_harm kind missing — extension regressed below T4 baseline."})
-    if "CRISIS" not in c or ("Safety Officer" not in c and "safety officer" not in c.lower()):
+    # BRH-AP (2026-10-27): the CRISIS rule is stated server-side now; its Safety Officer / HR routing is checked there
+    _srv = Path(os.path.dirname(os.path.abspath(__file__)), "supabase", "functions", "_shared", "turn-steering.ts")
+    _srv_text = _srv.read_text(encoding="utf-8") if _srv.exists() else ""
+    _crisis_on_server = bool(moved("CRISIS")) and "Safety Officer or HR" in _srv_text
+    if not _crisis_on_server and ("CRISIS" not in c or ("Safety Officer" not in c and "safety officer" not in c.lower())):
         issues.append({"check": "crisis_extension",
                        "reason": "CRISIS anchor missing OR doesn't route workplace_violence to Safety Officer / HR."})
     return issues

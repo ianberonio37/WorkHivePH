@@ -15,6 +15,8 @@ SUCCESS: All 4 layers pass (indicates Phase 1 wiring is complete)
 
 import re
 import sys
+sys.path.insert(0, "tools")
+from client_prompt_retired import retired_check  # BRH-AO 2026-10-27
 
 if sys.platform == "win32":
     import io
@@ -37,6 +39,13 @@ def check_phase_1_orchestration():
 
     # L1: Three agent functions exist
     print("\n[L1] Agent function definitions")
+    # BRH-AO (2026-10-27): L1-L3 certified the always-scan CLIENT prompt (scraper + RAG folded into a system prompt sent as
+    # context.platform_prompt), which no server read. One report for the retired model; the old checks run again only if
+    # the client prompt comes back.
+    _ret = retired_check(content, "scraper")
+    if _ret is not None:
+        print(f"  {GREEN if _ret[0] else RED}{'PASS' if _ret[0] else 'FAIL'}{RESET} L1-L3 {_ret[1]}")
+        results["pass" if _ret[0] else "fail"] += 1
     agents = [
         ("_classifySemanticRoute", "Semantic router classifier"),
         ("_invokePlatformScraper", "Platform scraper (KPI data)"),
@@ -44,6 +53,8 @@ def check_phase_1_orchestration():
     ]
 
     for func_name, description in agents:
+        if _ret is not None:
+            break
         if f"async function {func_name}(" in content:
             print(f"  {GREEN}PASS{RESET} {func_name} defined ({description})")
             results["pass"] += 1
@@ -62,7 +73,9 @@ def check_phase_1_orchestration():
         content,
         re.DOTALL
     )
-    if scraper_in_promise:
+    if _ret is not None:
+        pass
+    elif scraper_in_promise:
         print(f"  {GREEN}PASS{RESET} Platform scraper always called in Promise.all")
         results["pass"] += 1
     else:
@@ -76,7 +89,9 @@ def check_phase_1_orchestration():
         content,
         re.DOTALL
     )
-    if rag_in_promise:
+    if _ret is not None:
+        pass
+    elif rag_in_promise:
         print(f"  {GREEN}PASS{RESET} RAG agent always called in Promise.all")
         results["pass"] += 1
     else:
@@ -102,7 +117,9 @@ def check_phase_1_orchestration():
         re.DOTALL
     )
 
-    if prompt_call_match:
+    if _ret is not None:
+        pass
+    elif prompt_call_match:
         print(f"  {GREEN}PASS{RESET} platformData and ragContext passed to _buildVoiceSystemPrompt")
         results["pass"] += 1
     else:

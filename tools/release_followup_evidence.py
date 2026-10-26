@@ -95,6 +95,22 @@ def root_causes(prod: dict) -> dict:
         ln = _line(_read(f), pat)
         if ln:
             readers.append({"page": page, "file": f, "line": ln, "how": how})
+    # THE BOUNDARY (2026-10-26, 20261026000002): every write to logbook passes trg_logbook_listed_cause, which keeps
+    # what was said in root_cause_note and stores a listed cause - so a writer's raw text is no longer a site, and a
+    # reader grouping root_cause groups the list. A reader stays a site only while it still counts "Unknown" (no cause
+    # found) as one cause: the repeat readers must leave it out.
+    boundary = any("CREATE TRIGGER trg_logbook_listed_cause" in p.read_text(encoding="utf-8", errors="ignore")
+                   for p in (ROOT / "supabase" / "migrations").glob("*.sql"))
+    if boundary:
+        writers = []
+        leaves_unknown_out = {
+            "python-api/analytics/descriptive.py": 'str.lower() != "unknown"',
+            "supabase/functions/failure-signature-scan/index.ts": 'k === "unknown" ? "" : k',
+            "python-api/analytics/diagnostic.py": None,   # the Pareto shows Unknown as its own honest bar
+        }
+        readers = [r for r in readers
+                   if leaves_unknown_out.get(r["file"], "") is not None
+                   and leaves_unknown_out.get(r["file"], "") not in _read(r["file"])]
     local = None
     try:
         q = ("select count(*) from logbook where root_cause is not null and btrim(root_cause) <> '' and root_cause <> all(array["
@@ -109,7 +125,12 @@ def root_causes(prod: dict) -> dict:
 
 
 def lookalikes() -> list[dict]:
-    from component_adoption_census import REGISTRY, FAMILY, strip_comments
+    """Pages the census AS IT RUNS credits with a class their markup does not carry (2026-10-26: measured through the
+    census's own class_used, against an independent token reading - a loose matcher compared with a second regex kept
+    reporting marketplace's genuine class="filter-chip${...}" chips after the census had been fixed)."""
+    from component_adoption_census import REGISTRY, FAMILY, strip_comments, class_used
+    token = lambda s, cls: any(cls in re.split(r"[^\w-]+", m.group(1) or m.group(2))
+                               for m in re.finditer(r'class="([^"]*)"|class=\'([^\']*)\'', s))
     reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
     fam = json.loads(FAMILY.read_text(encoding="utf-8"))
     pages = [p for p in (fam["pages"] if isinstance(fam["pages"], list) else list(fam["pages"])) if (ROOT / p).exists()]
@@ -120,9 +141,7 @@ def lookalikes() -> list[dict]:
             if d.get("kind") != "css-class":
                 continue
             cls = d["class"]
-            loose = re.compile(r'class="[^"]*\b' + re.escape(cls) + r'\b[^"]*"')
-            exact = re.compile(r'class="(?:[^"]*\s)?' + re.escape(cls) + r'(?=[\s"])[^"]*"')
-            false = sorted(p for p, s in srcs.items() if loose.search(s) and not exact.search(s))
+            false = sorted(p for p, s in srcs.items() if class_used(s, cls) and not token(s, cls))
             if false:
                 out.append({"component": comp["id"], "class": cls, "pages": false})
     return out
@@ -135,7 +154,9 @@ def credits(prod: dict) -> dict:
     return {
         # the gate must ASK the grant records (a query naming them), not mention the policy in a printed line
         "gate_holds_grant_policy": bool(re.search(r"from\s+public\.credit_starter_grants|kyb_verified\s*=", gate)),
-        "console_names_backing": "starter" in cover.lower(),
+        # the console splits what is owed by its backing and says why a low cover is low (2026-10-26) - a fixed window
+        # after "Liability cover" missed the reason line written above it
+        "console_names_backing": ("starter" in cover.lower()) or ("cp-cover-why" in ops and "sum('starter_grant')" in ops),
         "prod": prod.get("credits") or {},
     }
 

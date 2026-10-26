@@ -72,8 +72,8 @@ function req(bearer) {
   return new Request('http://x', { headers: bearer ? { authorization: 'Bearer ' + bearer } : {} });
 }
 
-async function load(src, keyEnv) {
-  globalThis.Deno = { env: { get: (k) => (k === 'SUPABASE_SERVICE_ROLE_KEY' ? keyEnv : '') } };
+async function load(src, keyEnv, internalEnv = '') {
+  globalThis.Deno = { env: { get: (k) => (k === 'SUPABASE_SERVICE_ROLE_KEY' ? keyEnv : k === 'WH_INTERNAL_CALL_SECRET' ? internalEnv : '') } };
   const f = path.join(TMP, `tc_${counter++}.ts`);
   fs.writeFileSync(f, neutralizeImport(src));
   return await import(pathToFileURL(f).href);
@@ -95,6 +95,17 @@ async function assertContract(src) {
   m = await load(src, '');
   A('service-role: with no env key, empty bearer is REJECTED', m.isServiceRoleBearer('') === false);
   A('service-role: with no env key, ANY bearer is REJECTED', m.isServiceRoleBearer('anything') === false);
+
+  // ── isServiceRoleBearer, the internal-call secret (2026-10-26: what the scheduled jobs send) ──
+  const INTERNAL = 'whi_' + 'x'.repeat(36);
+  m = await load(src, REAL_KEY, INTERNAL);
+  A('internal: the exact internal-call secret is accepted', m.isServiceRoleBearer(INTERNAL) === true);
+  A('internal: a prefix of the internal secret is REJECTED', m.isServiceRoleBearer(INTERNAL.slice(0, 12)) === false);
+  A('internal: a superstring of the internal secret is REJECTED', m.isServiceRoleBearer(INTERNAL + 'x') === false);
+  m = await load(src, '', 'shortsecret');
+  A('internal: a secret under 32 characters is never accepted, even matched exactly', m.isServiceRoleBearer('shortsecret') === false);
+  m = await load(src, '', INTERNAL);
+  A('internal: with only the internal secret set, an empty bearer is REJECTED', m.isServiceRoleBearer('') === false);
 
   // ── resolveIdentity ──
   m = await load(src, REAL_KEY);
@@ -136,13 +147,18 @@ async function assertContract(src) {
 const MUTANTS = [
   { name: 'service-role: exact-match weakened to a prefix match',
     apply: s => s.replace('bearer === key', 'key.startsWith(bearer)') },
-  { name: 'service-role: the empty-bearer guard dropped (unset env would accept "")',
-    apply: s => s.replace('Boolean(bearer) && Boolean(key) && bearer === key', 'Boolean(key) === false || bearer === key') },
-  { name: 'service-role: the redundant env-key guard dropped',
-    equivalent: 'Boolean(key) cannot change the result: bearer === key with a truthy bearer implies key is ' +
-      'truthy, and when the shared value is "" the Boolean(bearer) conjunct already short-circuits false. ' +
-      'Kept in source as explicit defence-in-depth, but behaviourally redundant, so it is not scoreable.',
-    apply: s => s.replace('Boolean(bearer) && Boolean(key) && bearer === key', 'Boolean(bearer) && bearer === key') },
+  { name: 'service-role: the empty-bearer guard dropped',
+    equivalent: 'Both comparisons after it already refuse "": the service key is compared only when it is non-empty ' +
+      '(key && ...), and the internal secret only when it is 32+ characters, so "" never equals either.',
+    apply: s => s.replace('if (!bearer) return false;', '') },
+  { name: 'service-role: the env-key guard dropped',
+    equivalent: 'With the empty-bearer guard in place, bearer === key with key "" needs bearer "", which never ' +
+      'reaches the comparison. Kept as defence-in-depth, behaviourally redundant, so not scoreable.',
+    apply: s => s.replace('if (key && bearer === key)', 'if (bearer === key)') },
+  { name: 'internal secret: exact match weakened to a prefix match',
+    apply: s => s.replace('bearer === internal', 'internal.startsWith(bearer)') },
+  { name: 'internal secret: the 32-character floor dropped (a short or empty secret would count)',
+    apply: s => s.replace('internal.length >= 32 && ', '') },
   { name: 'tenancy: the null-authUid 401 guard removed',
     apply: s => s.replace('if (!authUid) {', 'if (false) {') },
   { name: 'tenancy: the non-member 403 refusal removed',

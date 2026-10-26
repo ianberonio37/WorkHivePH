@@ -26,6 +26,7 @@ import sys
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CRIT = os.path.join(HERE, 'critic_registry.json')
 TRAJ = os.path.join(HERE, 'trajectory_registry.json')
+import registry_io as _rio  # the registry UNION: main file + the cube shard (tools/registry_io.py, 2026-10-26)
 
 # persona (from the cell) -> the hive_members.role to look for. solo-owner / anon / oversight are
 # special (no ordinary hive membership); handled below.
@@ -56,7 +57,7 @@ def psql(sql):
 
 
 def rows(path):
-    d = json.load(io.open(path, encoding='utf-8'))
+    d = _rio.load_critic() if path == CRIT else (_rio.load_doc() if path == TRAJ else json.load(io.open(path, encoding='utf-8')))
     return d if isinstance(d, list) else d.get('rows', d.get('trajectories', []))
 
 

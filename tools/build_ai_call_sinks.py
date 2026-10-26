@@ -299,7 +299,9 @@ def check_mechanism(read: Reader) -> dict:
 
     emb = strip_comments(read(SHARED["embedding"]) or "")
     f = []
-    gt = fn_body(emb, "generateEmbeddingTagged")
+    # the provider walk lives in _walk() since 2026-10-27 (generateEmbeddingTagged shares one walk per request, OWN55);
+    # the public entry point and the walk are read together, so neither can drop the reports unseen
+    gt = fn_body(emb, "generateEmbeddingTagged") + "\n" + fn_body(emb, "_walk")
     if not re.search(r"""reportModelCall\(\{[^}]*kind:\s*["']embedding["']""", gt):
         f.append("generateEmbeddingTagged() does not report the embedding a provider answered (kind embedding)")
     thr = gt.rfind("All embedding providers failed")

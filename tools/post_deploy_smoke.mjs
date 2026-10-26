@@ -16,7 +16,7 @@
  *     render (not a stuck skeleton), and log zero pageerrors. No auth — this is what an anon
  *     visitor and Googlebot see, and it is where a broken build shows first.
  *
- *   TIER 2 — APP (authed): sign in once with a prod test account, seed hive + role, and load EVERY
+ *   TIER 2 — APP (authed): sign in once with a prod test account, read its hive + role FROM THE SERVER, and load EVERY
  *     interactive app page. Each must render its own UI (not thin, not signed-out) and log zero
  *     errors. This is the coverage the five-flow smoke never had.
  *
@@ -27,7 +27,7 @@
  * Usage:
  *   # prod (post-deploy):
  *   WH_SMOKE_BASE=https://workhiveph.com \
- *   WH_SMOKE_EMAIL=<prod test account> WH_SMOKE_PASS=<pw> \
+ *   WH_SMOKE_EMAIL=<prod test account> WH_SMOKE_PASS=<pw> WH_SMOKE_HIVE=<its bench hive id> \
  *   EXPECT_SW=<new sw.js version, e.g. v282> \
  *   node tools/post_deploy_smoke.mjs
  *
@@ -36,14 +36,23 @@
  *   WH_SMOKE_EMAIL=leandromarquez@auth.workhiveph.com WH_SMOKE_PASS=test1234 \
  *   node tools/post_deploy_smoke.mjs
  *
- *   # scope to one tier while triaging: --tier=public | --tier=app
+ *   # scope to one tier while triaging: --tier=public | --tier=app | --tier=flows
  *   # sample learn articles instead of all (faster): --learn-sample=8
+ *
+ *   TIER 3 — FLOWS (BRH-AH, 2026-10-26): the runbook's Tier-0 critical paths, walked on production in the bench hive
+ *     and undone - 1 sign in, 2 a logbook entry through the form at phone-390 and desktop-1280 (then trashed), 3 one AI
+ *     action through ai-gateway, 4 a parts-staging recommendation accepted twice at once (one reservation; all of it
+ *     removed after), 5 the production logs over the run for 54000 / 23505 / 5xx. It runs only with WH_SMOKE_HIVE set:
+ *     its writes never land in a real tenant. Flow 5 reads the Management API with SUPABASE_ACCESS_TOKEN, or the
+ *     token `supabase login` keeps in the Windows credential store (tools/supabase_cli_token.ps1); it goes nowhere else.
+ *     Writes post_deploy_flows_report.json, held by tools/validate_prod_tier0_flows.py.
  *
  * Exit 0 = every page in scope loaded clean; exit 1 = at least one FAIL (report names which).
  * Writes post_deploy_smoke_report.json for the runbook record + rollback evidence.
  */
 import { chromium } from 'playwright';
 import { writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
 const BASE = (process.env.WH_SMOKE_BASE || 'https://workhiveph.com').replace(/\/$/, '');
 const EMAIL = process.env.WH_SMOKE_EMAIL || '';
@@ -68,8 +77,12 @@ const APP_PAGES = [
   'ph-intelligence',
 ];
 
-const HIVE = { id: '084c113b-99c0-45c6-a8e8-b4b8349da46d', name: 'Baguio Textile Mills' };
-const WORKER = 'Leandro Marquez';
+/* ★WHO THE ACCOUNT IS COMES FROM THE SERVER (BRH-AF, 2026-10-24). This seeded a LOCAL hive's id, a worker name and the
+ * supervisor role into storage before loading pages - against production that claims a hive the account is not in,
+ * the "stored hive is a cache of a server fact" class inside the instrument. The account's own active membership is
+ * read after sign-in; with WH_SMOKE_HIVE set (the bench hive production smoke uses) the run refuses any other hive, so
+ * a smoke account can never walk a real tenant's pages. */
+const BENCH_HIVE = process.env.WH_SMOKE_HIVE || '';
 
 const log = (s) => process.stdout.write(s + '\n');
 
@@ -133,6 +146,181 @@ async function loadOne(ctx, url, settle, { authed }) {
 }
 
 const browser = await chromium.launch();
+/* ★THE SMOKE IS NOT A VISITOR (BRH-AF, 2026-10-26). Every page logs a page_view to analytics_events, and the founder
+ * console counts active hives, MAU and anonymous sessions from that table - so each post-deploy run added ~120 anonymous
+ * sessions and, signed in, a bench hive and account to production's growth figures. The smoke's contexts answer those
+ * inserts themselves and never send them. Page errors still reach client_errors: those would be real defects. */
+async function quietContext(browser) {
+  const c = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  await c.route(/\/rest\/v1\/analytics_events/, (route) =>
+    route.request().method() === 'POST' ? route.fulfill({ status: 201, body: '' }) : route.continue());
+  return c;
+}
+
+/* sign in once and cache WHO the account is as the server answers it (shared by the app tier and the flows tier) */
+async function signIn(ctx) {
+  const boot = await ctx.newPage();
+  await boot.goto(`${BASE}/shift-brain.html`, { waitUntil: 'domcontentloaded', timeout: 40000 });
+  await boot.waitForFunction(() => !!(window.supabase && window.supabase.createClient), { timeout: 25000 });
+  const signedIn = await boot.evaluate(async ({ email, password, bench }) => {
+    const db = (typeof getDb === 'function') ? getDb() : window.db;
+    const { data: auth, error } = await db.auth.signInWithPassword({ email, password });
+    if (error) return { ok: false, err: error.message };
+    // the account's own active memberships, as the server answers them - never a hive the smoke assumes
+    const { data: rows, error: mErr } = await db.from('hive_members')
+      .select('hive_id, role, worker_name').eq('auth_uid', auth.user.id).eq('status', 'active');
+    if (mErr) return { ok: false, err: `membership read refused: ${mErr.message}` };
+    const mine = (rows || []).filter((r) => !bench || r.hive_id === bench);
+    if (mine.length !== 1) {
+      return { ok: false, err: bench ? `the account is not an active member of the bench hive ${bench}`
+        : `the account holds ${(rows || []).length} active memberships - set WH_SMOKE_HIVE to the one to walk` };
+    }
+    const m = mine[0];
+    const { data: h } = await db.from('hives').select('name').eq('id', m.hive_id).maybeSingle();
+    ['wh_active_hive_id', 'wh_active_hive_name', 'wh_hive_role', 'WORKER_NAME'].forEach((k) => localStorage.removeItem(k));
+    localStorage.setItem('wh_active_hive_id', m.hive_id);       // a cache of the answer just read, not an assumption
+    if (h && h.name) localStorage.setItem('wh_active_hive_name', h.name);
+    localStorage.setItem('wh_hive_role', m.role);
+    localStorage.setItem('WORKER_NAME', m.worker_name || '');
+    return { ok: true, hive: m.hive_id, hiveName: (h && h.name) || '', role: m.role, worker: m.worker_name || '' };
+  }, { email: EMAIL, password: PASS, bench: BENCH_HIVE }).catch((e) => ({ ok: false, err: String(e) }));
+  await boot.close();
+  return signedIn;
+}
+
+/* flow 2 - a logbook entry through the page's own form, then moved to the trash the way the page does it */
+async function flowLogbook(ctx, viewport) {
+  const page = await ctx.newPage();
+  await page.setViewportSize(viewport.size);
+  const errs = [];
+  page.on('pageerror', (e) => errs.push('PAGEERROR ' + String(e.message).slice(0, 160)));
+  try {
+    await page.goto(`${BASE}/logbook.html`, { waitUntil: 'load', timeout: 40000 });
+    await page.waitForFunction(() => typeof openModal === 'function' && !!document.getElementById('log-form'), null, { timeout: 30000 });
+    await page.waitForTimeout(2500);
+    const r = await page.evaluate(async (vp) => {
+      const tag = `TIER0-BENCH-${vp}-${Date.now()}`;
+      document.getElementById('f-machine').value = tag;
+      document.getElementById('f-maint-type').value = 'Inspection';
+      document.getElementById('f-problem').value = 'Tier-0 smoke: a logbook entry is accepted';
+      document.getElementById('f-action').value = 'Recorded and removed by the post-deploy check';
+      const cat = document.getElementById('f-category');
+      cat.value = Array.from(cat.options).find((o) => o.value).value;
+      const open = document.querySelector('input[name="f-status"][value="Open"]');
+      if (open) open.checked = true;
+      document.getElementById('log-form').requestSubmit();
+      const db = getDb();
+      let row = null;
+      for (let i = 0; i < 30 && !row; i++) {
+        await new Promise((res) => setTimeout(res, 500));
+        const { data } = await db.from('logbook').select('id, machine').eq('machine', tag).maybeSingle();
+        row = data;
+      }
+      if (!row) return { ok: false, tag, err: 'no row after submit' };
+      // undone the way the page undoes it: an update setting deleted_at is refused by logbook_hides_deleted
+      const t = await whTrash(db, 'logbook', row.id, {});
+      const { data: left } = await db.from('logbook').select('id').eq('id', row.id);
+      return { ok: true, tag, saved: row.id, trashed: !!(t && t.ok), left: (left || []).length };
+    }, viewport.name);
+    return { flow: 2, viewport: viewport.name, ...r, ok: r.ok && r.trashed && r.left === 0 && !errs.length, errors: errs };
+  } catch (e) {
+    return { flow: 2, viewport: viewport.name, ok: false, errors: [...errs, 'NAV ' + String(e).slice(0, 160)] };
+  } finally { await page.close(); }
+}
+
+/* flows 3 + 4 - one AI action through the gateway (budget guard on), and a staging recommendation accepted twice at once */
+async function flowServer(ctx, hive) {
+  const page = await ctx.newPage();
+  try {
+    await page.goto(`${BASE}/index.html`, { waitUntil: 'domcontentloaded', timeout: 40000 });
+    await page.waitForFunction(() => typeof getDb === 'function', null, { timeout: 25000 });
+    const ai = await page.evaluate(async (hive) => {
+      const db = getDb(); const t0 = Date.now();
+      const { data, error } = await db.functions.invoke('ai-gateway', {
+        body: { agent: 'assistant', message: 'In one sentence: what does MTBF measure?', hive_id: hive } });
+      const d = (data && data.data) || data || {};
+      const answer = d.answer || d.reply || d.text || '';
+      // a reply is not an answer: the orchestrator's no-sources deflection for a basic maintenance question means
+      // retrieval reached nothing (2026-10-26: production's corpus was empty and its embedder refused)
+      const deflected = /none of my sources returned|couldn't pull that from your hive/i.test(answer);
+      return { flow: 3, ok: !error && !!answer && !deflected, deflected, ms: Date.now() - t0,
+        err: error ? (error.message || String(error)) : (deflected ? 'the assistant deflected a basic question: retrieval reached nothing' : null),
+        answer: String(answer).slice(0, 160), model_chain: (data && data.model_chain) || null };
+    }, hive);
+    const parts = await page.evaluate(async (hive) => {
+      const db = getDb(); const stamp = Date.now();
+      const itemId = 'inv-tier0' + stamp.toString(16);
+      const { error: iErr } = await db.from('inventory_items').insert({ id: itemId, hive_id: hive, part_name: 'Tier-0 bench part',
+        part_number: 'T0-' + stamp, qty_on_hand: 5, min_qty: 0, unit: 'pcs', category: 'Bearing',
+        worker_name: localStorage.getItem('WORKER_NAME'), status: 'approved' });
+      if (iErr) return { flow: 4, ok: false, step: 'part', err: iErr.message };
+      const recId = crypto.randomUUID();
+      const { error: rErr } = await db.from('parts_staging_recommendations').insert({ id: recId, hive_id: hive,
+        asset_name: 'TIER0-BENCH-PUMP', failure_mode: 'Tier-0 check', risk_score: 0.5,
+        parts: [{ item_id: itemId, qty_avg: 1, in_stock: 5, part_name: 'Tier-0 bench part', confidence: 0.9 }],
+        rationale: 'post-deploy Tier-0 check', confidence: 0.9, status: 'pending',
+        expires_at: new Date(Date.now() + 3600e3).toISOString() });
+      if (rErr) { await db.from('inventory_items').delete().eq('id', itemId); return { flow: 4, ok: false, step: 'recommendation', err: rErr.message }; }
+      const both = await Promise.all([1, 2].map(() => db.rpc('accept_parts_staging', { p_recommendation_id: recId, p_item_ids: [itemId] })));
+      const { data: resv } = await db.from('parts_staged_reservations').select('id').eq('recommendation_id', recId);
+      const answers = both.map((x) => x.data || (x.error && x.error.message) || null);
+      // undone: the reservation, the recommendation and the part
+      const undo = [
+        await db.from('parts_staged_reservations').delete().eq('recommendation_id', recId),
+        await db.from('parts_staging_recommendations').delete().eq('id', recId),
+        await db.from('inventory_items').delete().eq('id', itemId),
+      ].map((u) => (u.error ? u.error.message : 'ok'));
+      const { data: leftR } = await db.from('parts_staged_reservations').select('id').eq('recommendation_id', recId);
+      const { data: leftI } = await db.from('inventory_items').select('id').eq('id', itemId);
+      const accepted = answers.filter((a) => a && a.ok).length;
+      const left = (leftR || []).length + (leftI || []).length;
+      return { flow: 4, ok: (resv || []).length === 1 && accepted === 1 && left === 0, reservations: (resv || []).length,
+        accepted, answers, undo, left };
+    }, hive);
+    return [ai, parts];
+  } finally { await page.close(); }
+}
+
+/* flow 5 - the production logs over the run (and the 15 minutes before it, the deploy's own wake) */
+function managementToken() {
+  if (process.env.SUPABASE_ACCESS_TOKEN) return process.env.SUPABASE_ACCESS_TOKEN;
+  if (process.platform !== 'win32') return '';
+  try {
+    return execFileSync('powershell', ['-NoProfile', '-File', 'tools/supabase_cli_token.ps1'], { encoding: 'utf8' }).trim();
+  } catch (_) { return ''; }
+}
+async function flowLogs(fromIso, toIso) {
+  const ref = (BASE === 'https://workhiveph.com') ? 'hzyvnjtisfgbksicrouu' : '';
+  if (!ref) return { flow: 5, ok: false, skipped: 'logs are read only for production' };
+  const token = managementToken();
+  if (!token) return { flow: 5, ok: false, skipped: 'no SUPABASE_ACCESS_TOKEN and no `supabase login` token' };
+  const ask = async (sql) => {
+    const u = `https://api.supabase.com/v1/projects/${ref}/analytics/endpoints/logs?sql=${encodeURIComponent(sql)}`
+      + `&iso_timestamp_start=${fromIso}&iso_timestamp_end=${toIso}`;
+    const r = await fetch(u, { headers: { Authorization: `Bearer ${token}` } });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(`logs ${r.status}: ${JSON.stringify(j).slice(0, 160)}`);
+    return j.result || [];
+  };
+  try {
+    const [counts] = await ask(`select
+      countIf(source = 'postgres_logs' and (event_message like '%54000%' or event_message like '%statement timeout%' or event_message like '%stack depth%')) as pg_54000,
+      countIf(source = 'postgres_logs' and (event_message like '%23505%' or event_message like '%duplicate key%')) as pg_23505,
+      countIf(source = 'edge_logs' and toInt32OrZero(toString(log_attributes['response.status_code'])) >= 500) as edge_5xx,
+      countIf(source = 'function_edge_logs' and toInt32OrZero(toString(log_attributes['response.status_code'])) >= 500) as fn_5xx
+      from logs`);
+    const fives = await ask(`select timestamp, toString(log_attributes['response.status_code']) as status,
+      substring(toString(log_attributes['request.url']), 1, 100) as url from logs
+      where source in ('function_edge_logs', 'edge_logs') and toInt32OrZero(toString(log_attributes['response.status_code'])) >= 500
+      order by timestamp desc limit 10`);
+    const c = counts || {};
+    const sum = ['pg_54000', 'pg_23505', 'edge_5xx', 'fn_5xx'].reduce((n, k) => n + Number(c[k] || 0), 0);
+    return { flow: 5, ok: sum === 0, window: [fromIso, toIso], counts: c, five_xx: fives };
+  } catch (e) {
+    return { flow: 5, ok: false, err: String(e).slice(0, 200) };
+  }
+}
+
 const results = { base: BASE, at: new Date().toISOString(), tier1: [], tier2: [] };
 let bad = 0;
 try {
@@ -142,21 +330,21 @@ try {
     // Chrome dies mid-sweep on a small host (observed ~page 29 on an 8GB box — a healthy page then
     // read "browser has been closed"). A fresh context releases it so the full roster completes.
     const RECYCLE_EVERY = 20;
-    let ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    let ctx = await quietContext(browser);
     const urls = await publicUrls(ctx);
     log(`\nTIER 1 — PUBLIC (anon) · ${urls.length} URL(s) from ${BASE}/sitemap.xml`);
     let i = 0;
     for (const u of urls) {
       if (i > 0 && i % RECYCLE_EVERY === 0) {
         try { await ctx.close(); } catch (_) {}
-        ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+        ctx = await quietContext(browser);
       }
       i++;
       let r = await loadOne(ctx, u, SETTLE_PUBLIC, { authed: false });
       // a browser/context death is NOT a page defect — recycle and retry once before believing it
       if (!r.ok && /browser has been closed|Target page|context or browser/i.test((r.errors || []).join(' '))) {
         try { await ctx.close(); } catch (_) {}
-        ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+        ctx = await quietContext(browser);
         r = await loadOne(ctx, u, SETTLE_PUBLIC, { authed: false });
       }
       results.tier1.push(r);
@@ -173,27 +361,15 @@ try {
     if (!EMAIL || !PASS) {
       log('\nTIER 2 — APP (authed): SKIPPED — set WH_SMOKE_EMAIL + WH_SMOKE_PASS (prod test account).');
     } else {
-      const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-      const boot = await ctx.newPage();
-      await boot.goto(`${BASE}/shift-brain.html`, { waitUntil: 'domcontentloaded', timeout: 40000 });
-      await boot.waitForFunction(() => !!(window.supabase && window.supabase.createClient), { timeout: 25000 });
-      const signedIn = await boot.evaluate(async ({ email, password, hive, worker }) => {
-        const db = (typeof getDb === 'function') ? getDb() : window.db;
-        const { error } = await db.auth.signInWithPassword({ email, password });
-        if (error) return { ok: false, err: error.message };
-        localStorage.setItem('wh_active_hive_id', hive.id);
-        localStorage.setItem('wh_active_hive_name', hive.name);
-        localStorage.setItem('WORKER_NAME', worker);
-        localStorage.setItem('wh_hive_role', 'supervisor');
-        return { ok: true };
-      }, { email: EMAIL, password: PASS, hive: HIVE, worker: WORKER }).catch((e) => ({ ok: false, err: String(e) }));
-      await boot.close();
+      const ctx = await quietContext(browser);
+      const signedIn = await signIn(ctx);
       if (!signedIn.ok) {
         log(`\nTIER 2 — APP (authed): SIGN-IN FAILED (${signedIn.err}) — the account/creds are wrong, `
           + `NOT a page defect. Fix creds and re-run.`);
         bad++;
       } else {
-        log(`\nTIER 2 — APP (authed) · ${APP_PAGES.length} page(s) · signed in as ${WORKER}`);
+        log(`\nTIER 2 — APP (authed) · ${APP_PAGES.length} page(s) · signed in as ${signedIn.worker} (${signedIn.role}) in `
+          + `${signedIn.hiveName || signedIn.hive}, as the server answered`);
         for (const name of APP_PAGES) {
           const r = await loadOne(ctx, `${name}.html`, SETTLE_APP, { authed: true });
           results.tier2.push(r);
@@ -206,6 +382,38 @@ try {
         }
       }
       await ctx.close();
+    }
+  }
+  // ── TIER 3: Tier-0 flows (authed, bench hive only, undone) ───────────────
+  if (TIER === 'all' || TIER === 'flows') {
+    if (!EMAIL || !PASS || !BENCH_HIVE) {
+      log('\nTIER 3 — FLOWS: SKIPPED — needs WH_SMOKE_EMAIL + WH_SMOKE_PASS + WH_SMOKE_HIVE (its writes land only in the bench).');
+    } else {
+      const t0 = new Date(Date.now() - 15 * 60e3).toISOString();
+      const ctx = await quietContext(browser);
+      const signedIn = await signIn(ctx);
+      const flows = [{ flow: 1, ok: !!signedIn.ok, role: signedIn.role || null, worker: signedIn.worker || null,
+        hive: signedIn.hive || null, err: signedIn.err || null }];
+      if (signedIn.ok) {
+        for (const vp of [{ name: 'phone-390', size: { width: 390, height: 844 } }, { name: 'desktop-1280', size: { width: 1280, height: 900 } }]) {
+          flows.push(await flowLogbook(ctx, vp));
+        }
+        flows.push(...await flowServer(ctx, signedIn.hive));
+      }
+      await ctx.close();
+      // logs reach the analytics store about a minute late: wait before reading the run's window
+      await new Promise((r) => setTimeout(r, 75000));
+      flows.push(await flowLogs(t0, new Date().toISOString()));
+      const rep = { base: BASE, at: new Date().toISOString(), hive: signedIn.hive || null, flows,
+        summary: { flows: flows.length, failed: flows.filter((f) => !f.ok).length } };
+      writeFileSync('post_deploy_flows_report.json', JSON.stringify(rep, null, 2));
+      log(`\nTIER 3 — FLOWS · in the bench hive, undone after`);
+      for (const f of flows) {
+        bad += f.ok ? 0 : 1;
+        log(`  ${f.ok ? 'ok  ' : 'FAIL'} flow ${f.flow}${f.viewport ? ' ' + f.viewport : ''}`
+          + (f.err ? ` · ${String(f.err).slice(0, 120)}` : '') + (f.skipped ? ` · ${f.skipped}` : '')
+          + (f.counts ? ` · ${JSON.stringify(f.counts)}` : ''));
+      }
     }
   }
 } finally {
@@ -224,9 +432,14 @@ if (EXPECT_SW) {
   }
 }
 
-const total = results.tier1.length + results.tier2.length;
-results.summary = { total, failed: bad, passed: total - bad };
-writeFileSync('post_deploy_smoke_report.json', JSON.stringify(results, null, 2));
-log(`\n${bad ? 'FAIL' : 'PASS'} — ${total - bad}/${total} page(s) load clean across the roster `
-  + `(report: post_deploy_smoke_report.json)`);
+// the page report is written only by a run that walked pages: a flows-only run must not blank the last page report
+if (TIER !== 'flows') {
+  const total = results.tier1.length + results.tier2.length;
+  const pageBad = [...results.tier1, ...results.tier2].filter((r) => !r.ok).length;
+  results.summary = { total, failed: pageBad, passed: total - pageBad };
+  writeFileSync('post_deploy_smoke_report.json', JSON.stringify(results, null, 2));
+  log(`\n${pageBad ? 'FAIL' : 'PASS'} — ${total - pageBad}/${total} page(s) load clean across the roster `
+    + `(report: post_deploy_smoke_report.json)`);
+}
+if (TIER === 'all' || TIER === 'flows') log(`(flows report: post_deploy_flows_report.json)`);
 process.exit(bad ? 1 : 0);

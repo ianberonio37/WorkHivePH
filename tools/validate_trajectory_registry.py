@@ -29,6 +29,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 REGISTRY = ROOT / "trajectory_registry.json"
+import registry_io as _rio  # the registry UNION: main file + the cube shard (tools/registry_io.py, 2026-10-26)
+# ★A REPLAY IS FED THE FILE ITS WAVE WAS SEEDED INTO (2026-10-26). layer_ux_rows(replay=True) derives the LXP plan from
+# every row it is handed ("the input is every row that was there"); handed the UNION after the cube seeded, it
+# re-derived LXP51 from LXP-D into LXP-F and the gate went red on a wave that had not moved. The pre-cube waves
+# replay over the MAIN file; the union is for the CX replay and the completeness checks below.
+_MAIN_ROWS = json.loads(REGISTRY.read_text(encoding="utf-8"))["trajectories"]
 MATRIX = ROOT / "substrate" / "reference" / "scenario_matrix.json"
 CHECKS_FILE = ROOT / "run_platform_checks.py"
 
@@ -112,7 +118,7 @@ except Exception as _e:
 # its own rows when measuring the gaps, so it answers identically before and after the write.
 try:
     from seed_expansion_wave4 import layer_ux_rows as _lxp_rows
-    _lxp = _lxp_rows(json.loads(REGISTRY.read_text(encoding="utf-8"))["trajectories"], replay=True)
+    _lxp = _lxp_rows(_MAIN_ROWS, replay=True)
     # its OWN id space (LXP1..), not a continuation of LX1..LX335: six of the thirteen layers already
     # own an LX-<layer> wave, and appending persona rows into those names would split a wave across the
     # registry, which the wave-by-wave expected list can never match.
@@ -132,7 +138,7 @@ except Exception as _e:
 # its rows are invisible to every consumer that reads from here.
 try:
     from seed_expansion_wave4 import bug_repro_rows as _brp_rows
-    _brp = _brp_rows(json.loads(REGISTRY.read_text(encoding="utf-8"))["trajectories"], replay=True)
+    _brp = _brp_rows(_MAIN_ROWS, replay=True)
     for _i, _r in enumerate(_brp, start=1):
         NAMED_WAVES.setdefault(_r["wave"], []).append(f"BRP{_i}")
     BRP_PROGRAM_TOTAL = len(_brp)
@@ -145,7 +151,7 @@ except Exception as _e:
 # change that seeds them - the bind audit the ★×16 rule demands.
 try:
     from seed_expansion_wave4 import layer_floor_rows as _lxc_rows_fn, llm_layer_rows as _lm_rows_fn
-    _reg_rows = json.loads(REGISTRY.read_text(encoding="utf-8"))["trajectories"]
+    _reg_rows = _MAIN_ROWS
     _lxc = _lxc_rows_fn(_reg_rows, replay=True)
     for _i, _r in enumerate(_lxc, start=1):
         NAMED_WAVES.setdefault(_r["wave"], []).append(f"LXC{_i}")
@@ -162,7 +168,7 @@ except Exception as _e:
 # audit, so not one of its rows is invisible to this gate, the ledger or the guard.
 try:
     from seed_expansion_wave4 import bug_hunt_rows as _brh_rows
-    _brh = _brh_rows(json.loads(REGISTRY.read_text(encoding="utf-8"))["trajectories"], replay=True)
+    _brh = _brh_rows(_MAIN_ROWS, replay=True)
     for _i, _r in enumerate(_brh, start=1):
         NAMED_WAVES.setdefault(_r["wave"], []).append(f"BRH{_i}")
     BRH_PROGRAM_TOTAL = len(_brh)
@@ -177,7 +183,7 @@ except Exception as _e:
 try:
     from seed_expansion_wave4 import (enhancement_rows as _enh_rows_fn, operator_console_rows as _opc_rows_fn,
                                       sublayer_rows as _sl_rows_fn)
-    _reg_rows_1014 = json.loads(REGISTRY.read_text(encoding="utf-8"))["trajectories"]
+    _reg_rows_1014 = _MAIN_ROWS
     for _set, _fn, _pfx in (("_sl", _sl_rows_fn, "SL"), ("_enh", _enh_rows_fn, "ENH"), ("_opc", _opc_rows_fn, "OPC")):
         globals()[_set] = _fn(_reg_rows_1014, replay=True)
         for _i, _r in enumerate(globals()[_set], start=1):
@@ -301,6 +307,46 @@ for _set_name in ("_lxc", "_lm", "_brh", "_sl", "_enh", "_opc"):
 if "_enh" in dir():
     NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + [w for w in _ENH_SEEDED_AFTER_OPC
                                            if any(_r["wave"] == w for _r in _enh)]
+
+# ★KEEP ABREAST, KA1.. (2026-10-26) - Ian: "add necessary appropriate numbers of my SEO AEO GEO ... it's like static, I want
+# it always keeping up to date, or that will trigger or trip". Its own id space, replayed from the registry's ka metadata
+# (the BRP/BRH rule), seeded AFTER ENH-R so its block comes last, registered in the SAME change that seeds it: the ★x16
+# bind audit, so not one of its rows is invisible to this gate, the ledger or the guard.
+try:
+    from seed_expansion_wave4 import keep_abreast_rows as _ka_rows_fn
+    _ka = _ka_rows_fn(_MAIN_ROWS, replay=True)
+    for _i, _r in enumerate(_ka, start=1):
+        NAMED_WAVES.setdefault(_r["wave"], []).append(f"KA{_i}")
+    _seen_ka = []
+    for _r in _ka:
+        if _r["wave"] not in _seen_ka:
+            _seen_ka.append(_r["wave"])
+    NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + _seen_ka
+except Exception as _e:
+    _LX_IMPORT_ERROR = _LX_IMPORT_ERROR or _e
+
+# ★MY OWN ADDITIONS (OWN1..), THE OUTCOME WAVES (SE1.., OUT1.., JS1..) AND THE CUBE (CX1..), 2026-10-26 - each in its own id
+# space, replayed from the registry's own / se / out / js / cx metadata; registered in the SAME change that seeds them (the
+# ★x16 bind audit). The union's order is the main file's rows (..KA, OWN, SE, OUT, JS) and THEN the CX shard, so the cube is
+# named last whatever day it was seeded; the main-file waves replay over _MAIN_ROWS, the cube over the union.
+try:
+    from seed_expansion_wave4 import (cube_rows as _cx_rows_fn, journey_condition_rows as _js_rows_fn, outcome_rows as _out_rows_fn,
+                                      own_rows as _own_rows_fn, self_efficacy_rows as _se_rows_fn)
+    _reg_rows_1026 = _rio.load_doc()["trajectories"]
+    for _set, _fn, _pfx, _src in (("_own", _own_rows_fn, "OWN", _MAIN_ROWS), ("_se", _se_rows_fn, "SE", _MAIN_ROWS),
+                                  ("_out", _out_rows_fn, "OUT", _MAIN_ROWS), ("_js", _js_rows_fn, "JS", _MAIN_ROWS),
+                                  ("_cx", _cx_rows_fn, "CX", _reg_rows_1026)):
+        globals()[_set] = _fn(_src, replay=True)
+        for _i, _r in enumerate(globals()[_set], start=1):
+            NAMED_WAVES.setdefault(_r["wave"], []).append(f"{_pfx}{_i}")
+        _seen_new = []
+        for _r in globals()[_set]:
+            if _r["wave"] not in _seen_new:
+                _seen_new.append(_r["wave"])
+        NAMED_WAVE_ORDER = NAMED_WAVE_ORDER + _seen_new
+    del _reg_rows_1026
+except Exception as _e:
+    _LX_IMPORT_ERROR = _LX_IMPORT_ERROR or _e
 
 
 def wave_of(n: int) -> str:
@@ -547,7 +593,7 @@ def check(reg: dict, header_ok: bool, matrix: dict, gate_ids: set[str]) -> list[
 
 
 def main() -> int:
-    reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    reg = _rio.load_doc()
     matrix = json.loads(MATRIX.read_text(encoding="utf-8"))
     r = subprocess.run([sys.executable, str(ROOT / "tools" / "update_trajectory_scoreboard.py"),
                         "--check"], capture_output=True, text=True)
@@ -600,7 +646,7 @@ def main() -> int:
 
 def self_test() -> int:
     import copy
-    reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    reg = _rio.load_doc()
     matrix = json.loads(MATRIX.read_text(encoding="utf-8"))
     gate_ids = {"cv-funnel"}
     fails = []

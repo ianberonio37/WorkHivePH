@@ -65,6 +65,10 @@ through the claude.ai Supabase connector (read-only) into the committed supabase
   X  access that rests on the automatic     per (role, kind of object): what the role holds that no migration granted
      grant ending 2026-10-30                - lost on any replay of the schema from that day (db reset, a branch)
   Y  a revoke that does not hold            a migration closed a function to anon, and anon can still run it
+  AM an install icon a person cannot find   per hub host with no install control visible at rest, per icon the
+     (2026-10-26, Ian's own hands)          manifest / apple-touch-icon declares wrongly, and the launch itself
+  AN the hub's panel opens off the screen   per hub host x 2: opened where the FAB rests, opened after the FAB is
+     (2026-10-26, Ian's own hands)          dragged to the top - while nav-hub.js anchors the panel by `bottom`
 The Vercel email (Deployment Storage, 75% of 10 GB, 2026-10-13) is the one class N already holds.
 
 Only PRODUCTION pages seed rows (LX_NON_PRODUCTION, per Ian 2026-09-30). Deterministic: source regexes and committed
@@ -94,6 +98,20 @@ DESIGN_BASELINE = ROOT / "design_detector_baseline.json"
 ADVISOR = ROOT / "supabase_advisor_evidence.json"   # P..Y, read from production's advisor (tools/supabase_advisor_evidence.py)
 FREE_PLAN = ROOT / "free_plan_evidence.json"        # Z..AE, the two free plans (tools/free_plan_evidence.py)
 RELEASE_FOLLOWUP = ROOT / "release_followup_evidence.json"   # AF..AL, what the 2026-10-24 release left open
+MANIFEST = ROOT / "manifest.json"                   # AM, the icon the home screen gets and the control that puts it there
+NAV_HUB = ROOT / "nav-hub.js"                       # AN, the panel's geometry
+
+# AM - an install control is a button or link whose id/class says install; one hidden at rest (the landing's
+# `hidden md:flex`, or display:none until beforeinstallprompt fires) is not one a person on a phone can find
+INSTALL_CONTROL = re.compile(r"""<(?:button|a)\b[^>]*\b(?:id|class)=["'][^"']*install[^"']*["'][^>]*>""", re.I)
+HIDDEN_AT_REST = re.compile(r"""class=["'][^"']*\bhidden\b|\shidden(?=[\s>/])|style=["'][^"']*display:\s*none""", re.I)
+# AN - the panel's geometry as nav-hub.js writes it: a panel anchored by `bottom` grows UPWARD from the FAB; a drag
+# clamp on innerHeight keeps the FAB on screen but not the panel; the top safe-area inset and a resize re-clamp are
+# what would keep the opened panel on screen on iOS
+HUB_PANEL_UP = re.compile(r"#wh-hub-panel\s*\{[^}]*\bbottom:\s*\d+px")
+HUB_CLAMP = re.compile(r"innerHeight\s*-\s*\d+")
+HUB_SAFE_TOP = re.compile(r"safe-area-inset-top")
+HUB_RESIZE = re.compile(r"""addEventListener\(\s*['"]resize['"]""")
 #                                                            (tools/release_followup_evidence.py)
 
 GUARD = re.compile(r"typeof\s+(wh[A-Za-z0-9_]+)\s*(?:===|==)\s*'function'")
@@ -427,6 +445,12 @@ def collect(sources: dict | None = None) -> list[dict]:
     # AF..AL - what the 2026-10-24 release left open, from release_followup_evidence.json
     if sources is None and RELEASE_FOLLOWUP.exists():
         sites += release_followup_sites(json.loads(RELEASE_FOLLOWUP.read_text(encoding="utf-8")))
+    # AM, AN - what Ian met in his own hands on 2026-10-26: no install icon to tap, a hub panel swallowed at the top
+    if sources is None:
+        sites += install_affordance_sites()
+        sites += hub_panel_sites()
+        sites += client_prompt_sites()
+        sites += client_steering_sites()
     sites.sort(key=lambda s: (s["cls"], s["page"], s["line"], s["key"]))
     return sites
 
@@ -571,6 +595,224 @@ def release_followup_sites(ev: dict) -> list[dict]:
             f"production's {ph['table']} holds {ph['inline']} photos inline and {ph['stored']} in Storage, while the pages "
             f"read only the stored path since the 2026-10-24 deploy - {ph['inline']} photos show nothing until the "
             f"owner's copy pass runs", page=ph["page"], persona="worker")
+    return out
+
+
+def _hub_hosts() -> list[str]:
+    """The pages that load the hub - one reader (seed_expansion_wave4.nav_hub_hosts: root pages loading nav-hub.js, the
+    retired and the diagram surfaces out), or the plain root scan when the seeder cannot be imported."""
+    try:
+        from seed_expansion_wave4 import nav_hub_hosts
+        return list(nav_hub_hosts())
+    except Exception:
+        return sorted(os.path.basename(p) for p in glob.glob(str(ROOT / "*.html"))
+                      if "nav-hub.js" in Path(p).read_text(encoding="utf-8", errors="replace"))
+
+
+def _png(path: Path) -> tuple:
+    """(width x height as text, transparent corner?) of a PNG, or ('missing', False) - PIL is the measure, never the name."""
+    try:
+        from PIL import Image
+        with Image.open(path) as im:
+            w, h = im.size
+            corner = im.convert("RGBA").getpixel((0, 0))[3] == 0
+            return f"{w}x{h}", corner
+    except Exception:
+        return "missing", False
+
+
+def install_affordance_sites() -> list[dict]:
+    """AM - an install icon a person cannot find. Ian, 2026-10-26: "users should have something icon where they can just
+    click or tap to easily install it and visible right away on their homescreen for desktop and phone." One site per
+    hub host with no install control visible at rest (a control that waits for beforeinstallprompt never shows on iOS,
+    which does not fire it; the landing's is `hidden md:flex`, never on a phone), one per icon the manifest declares at a
+    size the file is not or as maskable without a solid ground, one for the apple-touch-icon iOS reads, one for the
+    launch itself. Measured from the pages, manifest.json and the PNGs - never typed."""
+    out: list[dict] = []
+    cast = ["worker", "supervisor", "oversight"]
+    hub_src = NAV_HUB.read_text(encoding="utf-8", errors="replace") if NAV_HUB.exists() else ""
+    # a control the shared chrome carries is met on every page that loads it (the K/L/M precedent): the fix for AM
+    # lives in the hub's assist row, so once it is there the per-host sites are gone and the replay keeps the rows
+    chrome_control = any(not HIDDEN_AT_REST.search(m.group(0)) for m in INSTALL_CONTROL.finditer(hub_src))
+    for page in ([] if chrome_control else _hub_hosts()):
+        p = ROOT / page
+        if not p.exists():
+            continue
+        src = p.read_text(encoding="utf-8", errors="replace")
+        controls = list(INSTALL_CONTROL.finditer(src))
+        if any(not HIDDEN_AT_REST.search(m.group(0)) for m in controls):
+            continue                                    # a control a person can see without an event firing first
+        line = _line_of(src, controls[0].start()) if controls else 0
+        why = (f"its only install control ({page}:{line}) is hidden at rest and waits for beforeinstallprompt, which iOS "
+               f"never fires and the landing hides below md anyway" if controls else "no install control in its markup")
+        out.append({"cls": "AM", "page": page, "line": 0, "key": "install control", "personas": cast,
+                    "detail": f"{why} - a person who wants WorkHive on their home screen has nothing to tap on this page"})
+    if MANIFEST.exists():
+        try:
+            man = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        except Exception:
+            man = {}
+        for ic in man.get("icons") or []:
+            src, declared, purpose = str(ic.get("src", "")).lstrip("/"), str(ic.get("sizes", "")), str(ic.get("purpose", ""))
+            actual, transparent = _png(ROOT / src)
+            if actual != declared:
+                out.append({"cls": "AM", "page": "index.html", "line": 0, "key": f"manifest icon {declared}", "persona": "worker",
+                            "detail": f"manifest.json declares {src} as {declared}; the file is {actual} - the home screen gets "
+                                      f"a resample of whatever that is, not an icon drawn for {declared}"})
+            if "maskable" in purpose and transparent:
+                out.append({"cls": "AM", "page": "index.html", "line": 0, "key": f"maskable {declared}", "persona": "worker",
+                            "detail": f"manifest.json declares {src} maskable, but its corners are transparent: Android masks a "
+                                      f"maskable icon to its 80% safe zone and fills the rest with the icon's own edge, so the "
+                                      f"logo is cropped on a see-through ground"})
+        start = str(man.get("start_url", "/"))
+        out.append({"cls": "AM", "page": "index.html", "line": 0, "key": f"start_url {start}", "persona": "returner",
+                    "detail": f"the installed app starts at {start} (display {man.get('display')}, name "
+                              f"'{str(man.get('name', ''))[:40]}'): a signed-in person launching from the home screen must land "
+                              f"on their home under that name and theme, not on the marketing landing"})
+    # the apple-touch-icon iOS reads: declared in the page, or injected by the hub's head boilerplate (nav-hub.js
+    # addLink('apple-touch-icon', ...)), which is the one place every host gets it from
+    idx = ROOT / "index.html"
+    s = idx.read_text(encoding="utf-8", errors="replace") if idx.exists() else ""
+    m = re.search(r"""<link[^>]*rel=["']apple-touch-icon(?:-precomposed)?["'][^>]*>""", s, re.I)
+    href = re.search(r"""href=["']([^"']+)""", m.group(0)).group(1) if m and re.search(r"""href=["']([^"']+)""", m.group(0)) else None
+    where, line = "index.html", (_line_of(s, m.start()) if m else 0)
+    if not href:
+        mh = re.search(r"""addLink\(\s*['"]apple-touch-icon['"]\s*,\s*['"]([^'"]+)['"]""", hub_src)
+        if mh:
+            href, where, line = mh.group(1), "nav-hub.js", _line_of(hub_src, mh.start())
+    if not href:
+        out.append({"cls": "AM", "page": "index.html", "line": 0, "key": "apple-touch-icon", "persona": "worker",
+                    "detail": "no page and not the hub declares an apple-touch-icon: Add to Home Screen on iOS uses a "
+                              "screenshot of the page as the icon"})
+    else:
+        # a RELATIVE href resolves against the SERVED url - under /learn/<slug>/ it points inside the article
+        # (feedback_a_relative_ref_resolves_against_the_served_url); only a root-absolute path is one file everywhere
+        actual, _t = _png(ROOT / href.lstrip("/"))
+        w, _x, h = actual.partition("x")
+        problems = []
+        if not href.startswith("/"):
+            problems.append(f"the href is relative ({href}): on every /learn/ and /tools/ page it resolves under that page's "
+                            f"own path, and iOS gets a 404 where the icon should be")
+        if actual == "missing":
+            problems.append(f"the file {href} is not in the project")
+        elif w != h:
+            problems.append(f"the file is {actual}, not square - iOS wants 180x180 and letterboxes anything else")
+        if problems:
+            out.append({"cls": "AM", "page": "index.html", "line": 0, "key": "apple-touch-icon", "persona": "worker",
+                        "detail": f"the apple-touch-icon {where}:{line} - " + "; ".join(problems)})
+    return out
+
+
+def hub_panel_mechanism(src: str) -> dict:
+    """What nav-hub.js does with the opened panel's geometry, measured from its source: the line where the panel is
+    anchored by `bottom` (so it grows upward), the line of the drag clamp on innerHeight, whether the top safe-area
+    inset is ever read, whether the stored position is re-clamped on resize."""
+    up, cl = HUB_PANEL_UP.search(src), HUB_CLAMP.search(src)
+    return {"grows_up": _line_of(src, up.start()) if up else 0, "clamp": _line_of(src, cl.start()) if cl else 0,
+            "safe_top": bool(HUB_SAFE_TOP.search(src)), "resize": bool(HUB_RESIZE.search(src))}
+
+
+def hub_panel_sites() -> list[dict]:
+    """AN - the hub's panel opens where a person cannot see it. Ian, 2026-10-26: "when you open or tap it it becomes
+    invisible when opened ... when you put it at the top, all of it is being swallowed at the top, it is not the same in
+    iOS that it will also adjust to keep it not being swallowed." Two sites per hub host: the panel opened where the FAB
+    rests, and the panel opened after the FAB is dragged to the top. Seeded only while nav-hub.js still anchors the
+    panel by `bottom` and never reads the top inset - the fix empties the inventory and the replay keeps the rows."""
+    if not NAV_HUB.exists():
+        return []
+    src = NAV_HUB.read_text(encoding="utf-8", errors="replace")
+    m = hub_panel_mechanism(src)
+    if not m["grows_up"] or m["safe_top"]:
+        return []
+    out: list[dict] = []
+    cast = ["worker", "supervisor", "oversight"]
+    resize = ("" if m["resize"] else " and never on resize - iOS changes innerHeight as Safari's toolbar collapses, so a "
+                                    "position legal under one toolbar sits under the other's")
+    for page in _hub_hosts():
+        out.append({"cls": "AN", "page": page, "line": 0, "key": "panel opened where the FAB rests", "personas": cast,
+                    "detail": f"#wh-hub-panel is anchored by bottom (nav-hub.js:{m['grows_up']}) so it grows upward from the FAB, "
+                              f"and nothing reads env(safe-area-inset-top): opened where the person left the FAB, the panel's "
+                              f"header can sit under the status bar or above the viewport, and the FAB itself is hidden the "
+                              f"moment the panel opens"})
+        out.append({"cls": "AN", "page": page, "line": 0, "key": "panel opened after the FAB is dragged to the top", "personas": cast,
+                    "detail": f"the drag clamps the FAB's bottom to innerHeight - 80 (nav-hub.js:{m['clamp']}) and the panel still "
+                              f"grows upward, so a FAB left near the top opens a panel whose body is above the viewport with a "
+                              f"sliver showing; the stored position is clamped once at load{resize}"})
+    return out
+
+
+VOICE_HANDLER = ROOT / "voice-handler.js"   # AO, the companion's client-side prompt assembly
+
+
+def client_prompt_sites() -> list[dict]:
+    """AO - a client assembly no reader reads (2026-10-27, the OWN AI lens). voice-handler.js assembles a system prompt
+    from the platform per turn and sends it only as context.platform_prompt, which no edge function reads (the gateway
+    retrieves its own grounding server-side), and hands the same block to _cacheOfflineSnapshot, which JSON.parses a
+    text block and so throws and inserts nothing - into a table nothing reads. Measured from the source: one site per
+    per-turn read whose only consumer is that prompt, while the prompt is still sent and still unread."""
+    if not VOICE_HANDLER.exists():
+        return []
+    src = VOICE_HANDLER.read_text(encoding="utf-8", errors="replace")
+    fns = Path(ROOT / "supabase" / "functions")
+    # a READ in code, not a mention: comments name platform_prompt to say nothing reads it (ai-gateway, hive-knowledge)
+    _code = lambda t: re.sub(r"(?m)//.*$", "", re.sub(r"/\*[\s\S]*?\*/", "", t))
+    readers = [f for f in fns.rglob("*.ts") if re.search(r"\bplatform_prompt\b", _code(f.read_text(encoding="utf-8", errors="replace")))]
+    if "platform_prompt: system" not in src or readers:
+        return []
+    out = []
+    for fn_name in ("_fetchFullPlatformSnapshot", "_invokePlatformScraper", "_fetchRecentMemory", "_fetchCrossHiveContext",
+                    "_fetchFilipinoGlossary", "_fetchCanonicalData"):
+        m = re.search(r"(?<!function )\b" + fn_name + r"\(db\b", src)   # the call site, not the definition
+        if not m:
+            continue
+        line = src[:m.start()].count("\n") + 1
+        out.append({"cls": "AO", "page": "voice-handler.js", "line": line, "key": fn_name, "persona": "worker",
+                    "detail": f"{fn_name} runs on every companion turn (voice-handler.js:{line}) and its only consumer is the "
+                              f"system prompt sent as context.platform_prompt, which no edge function reads - a lookup per turn, "
+                              f"before the gateway call, that reaches no reply"})
+    m = re.search(r"snapshot_data:\s*JSON\.parse\(snapshot", src)
+    if m:
+        line = src[:m.start()].count("\n") + 1
+        out.append({"cls": "AO", "page": "voice-handler.js", "line": line, "key": "_cacheOfflineSnapshot",
+                    "persona": "worker",
+                    "detail": f"_cacheOfflineSnapshot JSON.parses the canonical TEXT block (voice-handler.js:{line}), so it throws "
+                              f"and inserts nothing on every turn (a console warning each time), into offline_snapshot_cache, "
+                              f"which nothing reads"})
+    return out
+
+
+# the anchors whose instruction is a SAFETY rule: a worker asking how to work on live equipment is owed these
+_AP_SAFETY = {"CRISIS", "INCIDENT GATE", "LOTO GATE", "HOT WORK GATE", "CONFINED SPACE GATE", "PPE MATRIX", "NEAR",
+              "JSA OFFER", "TOXICITY GUARD", "FORBIDDEN"}
+
+
+def client_steering_sites() -> list[dict]:
+    """AP - steering the companion says it applies that reaches no model (2026-10-27, found removing BRH-AO). Each turn
+    voice-handler.js runs ~60 detectors (language and dialect, brevity, timers, safety gates for LOTO / hot work /
+    confined space, crisis, consent, ...) and appends an instruction for the model to `perTurnAnchors`. That string fed
+    only the client-built prompt no server read; with that prompt gone it is read by nothing at all. One site per
+    anchor, keyed by its label, while perTurnAnchors is never read."""
+    if not VOICE_HANDLER.exists():
+        return []
+    src = VOICE_HANDLER.read_text(encoding="utf-8", errors="replace")
+    reads = [m for m in re.finditer(r"\bperTurnAnchors\b(?!\s*\+=)", src)
+             if not re.match(r"\s*=\s*''", src[m.end():m.end() + 8])]   # a read, not the declaration
+    if reads:
+        return []
+    lines = src.split("\n")
+    out = []
+    for i, ln in enumerate(lines):
+        if "perTurnAnchors +=" not in ln:
+            continue
+        chunk = " ".join(lines[i:i + 3])
+        m = re.search(r"""['"`]\\n\s*([A-Z][A-Z0-9 /&'()#.+-]{3,60}?)\s*(?:\u2014|-|:|\(|\.|,)""", chunk)
+        label = m.group(1).strip() if m else f"anchor at line {i + 1}"
+        safety = label in _AP_SAFETY
+        out.append({"cls": "AP", "page": "voice-handler.js", "line": i + 1, "key": label, "persona": "worker",
+                    "detail": (f"the companion's '{label}' instruction is appended to perTurnAnchors (voice-handler.js:{i + 1}), "
+                               "which nothing reads - the model never receives it, so the behaviour the detector exists for "
+                               "never shapes a reply" + ("; it is a SAFETY rule, so a worker asking about that work gets "
+                                                         "only the persona's general safety line" if safety else ""))})
     return out
 
 
@@ -720,10 +962,15 @@ def main() -> int:
                      ("AI", "a breakdown cause analytics cannot group   (layer D, per writer / reader)"),
                      ("AJ", "an adoption census crediting a lookalike   (layer CI, per class)"),
                      ("AK", "free credit the solvency check never holds (layer D, per check)"),
-                     ("AL", "a release shipped ahead of its data move   (layer A, per table)")):
+                     ("AL", "a release shipped ahead of its data move   (layer A, per table)"),
+                     ("AM", "an install icon a person cannot find        (layer F, per host / icon)"),
+                     ("AN", "the hub's panel opens off the screen        (layer F, per host x 2)"),
+                     ("AO", "a client assembly no reader reads           (layer AV, per read)"),
+                     ("AP", "steering the companion never receives      (layer AV, per anchor)")):
         print(f"    {c} · {label}: {by_cls.get(c, 0)}")
     print()
-    for c in list("DEFGHJKLMNPQRSTUVWXY") + ["Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL"]:
+    for c in list("DEFGHJKLMNPQRSTUVWXY") + ["Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL",
+                                             "AM", "AN", "AO", "AP"]:
         rows = [s for s in sites if s["cls"] == c]
         if not rows:
             continue

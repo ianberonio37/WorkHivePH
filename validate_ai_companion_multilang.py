@@ -3,6 +3,8 @@ AI Companion Multi-Language NLU Validator (turns #205-#214)
 """
 from __future__ import annotations
 import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import moved  # BRH-AP 2026-10-27
 if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -49,7 +51,7 @@ def main() -> int:
     issues = []
     for k, syms in SYMBOLS.items():
         for s in syms:
-            if s not in c:
+            if s not in c and not moved(s):
                 issues.append({"check": k, "reason": f"{s} missing."})
     n_pass, n_skip, n_fail = format_result(list(SYMBOLS.keys()), LABELS, issues)
     print()

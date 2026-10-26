@@ -51,6 +51,25 @@ def proxied_hosts(sw_text: str) -> list[str]:
     return hosts
 
 
+# ★THE CATCH-ALL WAS A PROXY TOO (2026-10-26, the first signed-in production smoke). The rule above looked only at
+# branches that answer with a straight fetch(); the cache-first branch at the bottom also fetches whatever reaches it,
+# and cross-origin library scripts (Chart.js, html2pdf, Mermaid from cdn.jsdelivr.net / cdnjs.cloudflare.com) did -
+# 503 on every returning visit. So: sw.js must leave a cross-origin request to the browser unless its host is in
+# WORKER_REACHABLE, and every host in that list is a host the worker proxies, held to the same connect-src.
+_REACHABLE = re.compile(r"const\s+WORKER_REACHABLE\s*=\s*\[([^\]]*)\]")
+_GUARD = re.compile(r"origin\s*!==\s*self\.location\.origin\s*&&\s*!WORKER_REACHABLE\.some\(")
+
+
+def reachable_hosts(sw_text: str) -> list[str]:
+    text = _LINE.sub("", _BLOCK.sub(" ", sw_text))
+    m = _REACHABLE.search(text)
+    return re.findall(r"['\"]([^'\"]+)['\"]", m.group(1)) if m else []
+
+
+def catchall_guarded(sw_text: str) -> bool:
+    return _GUARD.search(_LINE.sub("", _BLOCK.sub(" ", sw_text))) is not None
+
+
 def worker_connect_sources(ref: str | None = None) -> list[str]:
     """The connect-src (falling back to default-src) production sends with /sw.js."""
     rules = svh.load_rules(ROOT, ref)
@@ -68,7 +87,12 @@ def misses(hosts: list[str], sources: list[str]) -> list[str]:
 
 def check() -> int:
     sw = io.open(ROOT / "sw.js", encoding="utf-8").read()
-    hosts = proxied_hosts(sw)
+    hosts = proxied_hosts(sw) + [h for h in reachable_hosts(sw) if h not in proxied_hosts(sw)]
+    if not catchall_guarded(sw):
+        print("FAIL sw-proxy-within-csp: sw.js lets a cross-origin request reach its cache-first fetch() without the "
+              "WORKER_REACHABLE guard - a library from a CDN the worker's own connect-src does not name answers 503 "
+              "(2026-10-26: Chart.js, html2pdf, Mermaid). Leave cross-origin requests to the browser unless reachable.")
+        return 1
     sources = worker_connect_sources()
     if not sources:
         print("FAIL sw-proxy-within-csp: vercel.json sends no connect-src or default-src with /sw.js - cannot judge")
@@ -112,6 +136,13 @@ def self_test() -> int:
     t("teeth: sw.js as shipped in 44bedbdd is caught on both font hosts",
       old.returncode == 0 and misses(proxied_hosts(old.stdout.decode("utf-8", "replace")),
                                      worker_connect_sources("44bedbdd")) == ["fonts.goog", "fonts.gstatic"])
+    # teeth: sw.js as it shipped in release 27733934 let CDN library scripts reach the catch-all fetch
+    rel = subprocess.run(["git", "show", "27733934:sw.js"], cwd=ROOT, capture_output=True)
+    t("teeth: sw.js as shipped in 27733934 has no cross-origin guard before its catch-all fetch",
+      rel.returncode == 0 and not catchall_guarded(rel.stdout.decode("utf-8", "replace")))
+    t("a guarded catch-all is read as guarded, and its reachable hosts are read",
+      catchall_guarded("if (new URL(url).origin !== self.location.origin && !WORKER_REACHABLE.some((h) => url.includes(h))) return;")
+      and reachable_hosts("const WORKER_REACHABLE = ['a.example', \"b.example\"];") == ["a.example", "b.example"])
     print("self-test " + ("PASS" if ok else "FAIL"))
     return 0 if ok else 1
 

@@ -59,6 +59,7 @@ from seed_expansion_wave3 import (  # noqa: E402  - reused, never re-typed
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "trajectory_registry.json"
+import registry_io as _rio  # the registry UNION: main file + the cube shard (tools/registry_io.py, 2026-10-26)
 PREFIX = "W4"
 WAVE = "W4"
 WAVE_NAME = "Wave 4: every page x every action x every layer, lived start to end"
@@ -1302,6 +1303,55 @@ BRH_CLASS = {
            "the owner's copy pass run on production (photos to Storage, compared byte for byte, the inline text kept), "
            "every moved photo seen on its page, then --clear; and a deploy gate that names any data move a release's "
            "pages depend on and refuses the push until production shows it done"),
+    # ...and two Ian met in his own hands on 2026-10-26 (§BRH.11): "users should have something icon where they can
+    # just click or tap to easily install it" / "when you put it at the top, all of it is being swallowed at the top"
+    "AM": ("F", "worker",
+           "an install icon a person cannot find",
+           "open the page on a phone and on a desktop, signed in, with the app not installed: nothing at rest offers to "
+           "put WorkHive on the home screen - the landing's one button is hidden below md and waits for "
+           "beforeinstallprompt, which iOS never fires; the manifest's icons are one 640x640 transparent PNG declared "
+           "192 and 512 and maskable, the apple-touch-icon is not square",
+           "an install control visible at rest on every hub host (the hub's assist row, and the landing hero at phone "
+           "width) that acts per platform - Chromium: the deferred prompt; iOS WebKit: the Share -> Add to Home Screen "
+           "steps with the icon shown; desktop: install - and hides itself under display-mode: standalone; true 192, "
+           "512, maskable and 180 renditions cut from the 1024 source; a standalone start that lands a signed-in person "
+           "at their home; measured at phone-390 chromium, desktop-1280 chromium and phone-390 webkit"),
+    "AN": ("F", "returner",
+           "the hub's panel opens where a person cannot see it",
+           "open the hub where the FAB rests, then drag the FAB to the top of the screen and open it again, at 390 in "
+           "WebKit and Chromium: the panel grows upward from a bottom anchor and never flips, nothing reads the top "
+           "safe-area inset, the stored position is clamped once at load and never on resize - so the opened panel's "
+           "body sits above the viewport with a sliver showing, and iOS's collapsing toolbar moves the goalposts",
+           "one change in nav-hub.js: the panel flips below the FAB when the FAB is in the top half (or re-anchors), "
+           "the top clamp reads env(safe-area-inset-top), the stored position is re-clamped on resize; held by a gate "
+           "(hub-panel-on-screen: a planted top-anchored FAB must open a panel wholly inside the viewport whose header "
+           "hit-tests to itself), walked on every host at 390 WebKit and Chromium and 1280"),
+    # ...and one the OWN AI failure-mode lens left measured on 2026-10-26/27 (§OWN): the companion's browser assembles a
+    # prompt that only an unread field and a cache that always throws ever receive
+    "AO": ("AV", "worker",
+           "a client assembly no reader reads",
+           "ask the companion one question with the network panel open: before the ai-gateway call the browser runs the "
+           "full platform snapshot, the scraper function, recent memory, cross-hive context, the glossary and the "
+           "canonical-data read, builds a system prompt from them and sends it as context.platform_prompt - which no "
+           "edge function reads - then hands the same block to _cacheOfflineSnapshot, which JSON.parses text, throws "
+           "and inserts nothing into a table nothing reads",
+           "remove the per-turn reads whose only consumer is the unread prompt (or move what the reply genuinely needs "
+           "server-side, as the documents/standards/facts were), drop the offline cache that cannot write, update the "
+           "six gates that assert the wiring (offline-resilience-phase6, voice-canonical-anchor, voice-companion-phase1, "
+           "memory-integrity, dialog-followup-handlers, agent-memory-persist) to assert what reaches the model instead; "
+           "measured: time and requests before the gateway call, before and after, at 390 and 1280"),
+    # ...and what removing AO exposed (2026-10-27): the ~60 per-turn steering anchors the companion builds go nowhere
+    "AP": ("AV", "worker",
+           "steering the companion never receives",
+           "say the trigger to the voice companion (e.g. 'Tagalog na', 'mas maikli', 'magtatrabaho ako sa live panel') with "
+           "the network panel open: the detector fires and appends its instruction to perTurnAnchors, and no request carries "
+           "it - ai-gateway builds the voice-journal prompt from the transcript alone, so the reply ignores the instruction "
+           "(the language stays, the length stays, the safety gate is never stated)",
+           "decide per anchor, with a default: a behaviour the MODEL must apply moves server-side - the gateway detects it "
+           "from the transcript and adds the instruction to the system prompt it builds (safety gates first: LOTO, hot work, "
+           "confined space, PPE, crisis); a behaviour the PAGE applies (a timer, a share link, an erasure) keeps its client "
+           "action and drops the dead instruction; a claim with neither is removed with its detector. Proven by a walk that "
+           "says the trigger and reads the reply, and a gate that fails when the anchor is again built and sent nowhere"),
 }
 
 
@@ -1874,6 +1924,392 @@ def operator_console_rows(existing: list[dict], replay: bool = False) -> list[di
     return rows
 
 
+# ★KEEP ABREAST (KA1.., 2026-10-26) - Ian: "add necessary appropriate numbers of my SEO AEO GEO ... my issue is, it's like
+# static, I want it always keeping up to date, or that will trigger or trip that we need ... to keep abreast also." The
+# population is tools/freshness_trip.py's census (the public URLs, the evidence spine, the English prompt set, the
+# scoreboard's components) - one place decides the size; the registry is the inbox the trip re-opens into.
+KA_PREFIX = "KA"
+KA_LENS = {
+    # lens: (wave, layers, ufai, persona, entry, stage, trips it re-opens on, the ask)
+    "R": ("KA-R", ["F", "H"], ["F", "A"], "anon", "search-arrival", "acquire", ["refresh", "sitemap-promise"],
+          "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated line, the sitemap "
+          "lastmod, the markdown twin, the IndexNow push); it is inside its kind's window or holds an open refresh; "
+          "when it is refreshed the diff is content, never a date alone"),
+    "E": ("KA-E", ["CI"], ["I", "A"], "oversight", "direct", "comply", ["evidence"],
+          "this external source is within its TTL; when it is re-fetched a changed sha produces a diff note and a "
+          "recorded decision on the lever it anchors - the engines change, and the platform notices"),
+    "S": ("KA-S", ["H"], ["A", "F"], "anon", "search-arrival", "acquire", ["push"],
+          "this URL was pushed to the index (an IndexNow receipt) after its last change; its indexed state is read "
+          "when the Search Console credential exists, never assumed"),
+    "V": ("KA-V", ["LM"], ["F", "U"], "anon", "search-arrival", "acquire", ["voice"],
+          "the page this prompt expects to be cited is citation-eligible now (answer-first, twin current, facts inside "
+          "their window); the monthly run records cited / mentioned / recommended per engine; a drop trips a review"),
+    "B": ("KA-B", ["CI"], ["I", "F"], "oversight", "direct", "comply", ["board", "roster", "push", "voice"],
+          "this instrument tells the truth about itself: it reads a live measure or says it cannot, regenerates on the "
+          "board, and its trip reaches the roadmap header, the board and the nightly CI"),
+}
+KA_BOARD_UNITS = [
+    ("seo_scoreboard.py: deployed to production", "the [IAN] component reads prod by HEAD-probing sitemap.xml, robots.txt and the IndexNow key file, not a typed 0/1"),
+    ("seo_scoreboard.py: GSC + Bing reporting", "the component reads credential presence and a successful pull; Ian creates the free Search Console / Bing Webmaster access (one shared Ian-gated step)"),
+    ("seo_scoreboard.py: entity resolvable (sameAs)", "the component reads whether the Organization's sameAs URLs exist and resolve (index.html declares sameAs: [] today)"),
+    ("seo_scoreboard.py: live SOV baseline", "the component reads geo_sov_baseline.json's age, not a typed 0/1"),
+    ("seo_scoreboard.py: off-site channels active", "the component names the three channels and reads what evidence of each exists on disk"),
+    ("seo_scoreboard.py: AIO entity resolvable", "the component shares the GEO sameAs read instead of a second typed 0/1"),
+    ("seo_scoreboard.py: third-party listicle inclusion", "the component reads a recorded inclusion URL or says none"),
+    ("seo_scoreboard.py on the board", "the scoreboard regenerates on every full board run (gate seo-scoreboard), never by hand"),
+    ("the trip on the roadmap header", "update_trajectory_scoreboard.py prints KEEP ABREAST from seo_trip_report.json, never hand-typed"),
+    ("the trip on the board", "gate seo-trip (WARN) writes seo_trip_report.json on every full run"),
+    ("the trip in the nightly CI", "the keep-abreast job reddens only when a trip is past its grace"),
+    ("robots.txt against the crawler roster", "every AI user-agent the harvested roster names has a decided line in robots.txt"),
+    ("the sitemap's promise", "gate sitemap-promise holds <lastmod> to each page's own dateModified and <changefreq> to the kind's window"),
+]
+
+
+def keep_abreast_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per unit of the KEEP ABREAST census (tools/freshness_trip.py): the public URLs twice (KA-R the refresh,
+    KA-S the push), every SEO evidence chunk (KA-E), every English SOV prompt (KA-V), and the board's own instruments
+    (KA-B). replay=True returns what was SEEDED, in id order, from the registry's ka metadata (the BRP/BRH rule)."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("ka") or {}).get("kind") == "keep-abreast"),
+                        key=lambda x: int(str(x["id"])[len(KA_PREFIX):] or 0))
+        keep_abreast_rows.arithmetic = {}
+        return [{"wave": t["wave"], "ka": t["ka"]} for t in seeded]
+    import freshness_trip as ft
+    c = ft.census()
+    have = {((x.get("ka") or {}).get("lens"), (x.get("ka") or {}).get("unit")) for x in existing if (x.get("ka") or {}).get("kind") == "keep-abreast"}
+    units: list[tuple[str, str, list[str], str, str]] = []     # (lens, unit, aliases, page, detail)
+    for u in c["url_list"]:
+        units.append(("R", u["path"], [u["slug"]], u["path"], f"{u['kind']} · window {u['window_days']}d · lastmod {u['lastmod'] or '-'} · "
+                      f"dateModified {u['date_modified'] or 'none declared'}"))
+    for ch in c["spine_chunks"]:
+        units.append(("E", ch["slug"], [], "index.html", f"ttl {ch['ttl_days']}d · age {ch['age_days']}d · "
+                      + (f"anchors {', '.join(ch['cited_by'][:3])}" if ch["cited_by"] else "SEO-topic chunk no gate or doc cites yet")))
+    for u in c["url_list"]:
+        units.append(("S", u["path"], [u["slug"]], u["path"], f"last IndexNow push {c['last_push']}"))
+    for p in ft.prompts():
+        units.append(("V", p.get("id") or p.get("query", "")[:60], [], "index.html",
+                      f"prompt '{p.get('query', '')[:90]}' expects {p.get('expected_cite', '?')}"))
+    for name, detail in KA_BOARD_UNITS:
+        units.append(("B", name, [], "founder-console.html", detail))
+    rows: list[dict] = []
+    order = {"R": 0, "E": 1, "S": 2, "V": 3, "B": 4}
+    for lens, unit, aliases, page, detail in sorted(units, key=lambda t: (order[t[0]], t[1])):
+        if (lens, unit) in have:
+            continue
+        wave, layers, ufai, persona, entry, stage, trips, ask = KA_LENS[lens]
+        pages = [page] if page == "index.html" or lens in ("E", "B", "V") else ["index.html", page] if persona == "anon" else [page]
+        who = "a person" if persona == "anon" and lens in ("R", "S") else persona
+        short = unit if len(unit) <= 60 else unit[:57] + "..."
+        rows.append({
+            "wave": wave,
+            "title": f"{ask.split(';')[0][:90]} - {short} · {who}",
+            "pages": pages,
+            "layers": list(layers),
+            "ufai": list(ufai),
+            "persona": persona,
+            "device": "any",
+            "entry": entry,
+            "framing": "person",
+            "story": (f"{who} reaches {_short(pages[-1])} and the KEEP ABREAST lens {lens} is asked of {unit}: {ask}. MEASURED: {detail}. "
+                      f"The row closes on the instrument its lens names (the five-surface paired write, the re-fetch with a diff note, "
+                      f"the IndexNow receipt, the monthly SOV sheet, the live read on the scoreboard) at {' and '.join(LX_VIEWPORTS)} "
+                      f"where a page is involved; tools/freshness_trip.py --seed re-opens it when its unit trips again"),
+            "journey": {"archetype": f"{wave}:{persona}", "stage": stage, "vertical": HIVES[len(unit) % len(HIVES)], "pair": "",
+                        "language": "en", "moment": "present", "condition": "normal", "tier": "A", "pages": pages},
+            "axis": {"device": "phone-390", "language": "en"},
+            "ka": {"kind": "keep-abreast", "lens": lens, "unit": unit, "aliases": aliases, "trips": list(trips), "ask": ask,
+                   "detail": detail, "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT,
+                   "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"},
+        })
+    keep_abreast_rows.arithmetic = {k: sum(1 for r in rows if r["ka"]["lens"] == k) for k in KA_LENS}
+    return rows
+
+
+# ★THE CUBE (CX1.., 2026-10-26) - Ian: "add more appropriate number of open trajectories ... for the U x F x A x I x UI x UX
+# x each architectural full stack saas layers x each production pages x each public pages x personas x journey scenarios";
+# decided the same day: EVERY GATE-ADMITTED PERSONA. The population is tools/cube_census.py (one place decides the size):
+# U/F/I x applicable layer x admitted persona, A x applicable layer, and the (page, rubric class) cells never graded.
+CX_PREFIX = "CX"
+CX_WAVE = {"production": "CX-PROD", "founder": "CX-FND", "public": "CX-PUB"}
+CX_PILLAR = {
+    "U": ("the person can tell", ["U"]),
+    "F": ("it is true and wired", ["F"]),
+    "I": ("this persona may, and may not", ["I"]),
+    "A": ("at phone-390 and desktop-1280, offline and on 429", ["A"]),
+}
+
+
+def cube_rows(existing: list[dict], replay: bool = False, only_class: str | None = None) -> list[dict]:
+    """One row per EMPTY applicable cell of the cube, plus one per (page, rubric class) never graded (CX-UX). replay=True
+    returns what was SEEDED, in id order, from the registry's cx metadata (the BRP/BRH rule)."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("cx") or {}).get("kind") in ("cube", "cube-ux")),
+                        key=lambda x: int(str(x["id"])[len(CX_PREFIX):] or 0))
+        cube_rows.arithmetic = {}
+        return [{"wave": t["wave"], "cx": t["cx"]} for t in seeded]
+    import cube_census as cc
+    from sublayer_inventory import casts as _casts
+    c = cc.census()
+    cast_of_page = _casts(existing, c["classes"])
+    have = {((x.get("cx") or {}).get("kind"), (x.get("cx") or {}).get("page"), (x.get("cx") or {}).get("pillar"),
+             (x.get("cx") or {}).get("layer"), (x.get("cx") or {}).get("persona"), (x.get("cx") or {}).get("rubric_class"))
+            for x in existing if (x.get("cx") or {}).get("kind") in ("cube", "cube-ux")}
+    rows: list[dict] = []
+    order = {"production": 0, "founder": 1, "public": 2}
+    for cell in sorted(c["cells"], key=lambda z: (order[z["cls"]], z["page"], z["layer"], z["pillar"], z["persona"] or "")):
+        if only_class and only_class != cell["cls"]:
+            continue
+        key = ("cube", cell["page"], cell["pillar"], cell["layer"], cell["persona"], None)
+        if key in have:
+            continue
+        page, layer, pillar = cell["page"], cell["layer"], cell["pillar"]
+        persona = cell["persona"] or cast_of_page.get(page) or ("anon" if cell["cls"] == "public" else "worker")
+        ask, _dims = LAYER_LENS[layer]
+        frame, ufai = CX_PILLAR[pillar]
+        who = "a person" if persona == "any" else persona
+        if cell["cls"] == "public" or persona == "anon":
+            pages, entry = (["index.html", page] if page != "index.html" else [page]), "search-arrival"
+        elif persona == "oversight" and page != "index.html" and not _hub_roles().get(page):
+            pages, entry = [page], "direct"
+        else:
+            pages, entry = _path(_start(page), page, [], cast=_cast_of(persona)), ("direct" if page == "index.html" else "hub-nav")
+        rows.append({
+            "wave": CX_WAVE[cell["cls"]],
+            "title": f"{frame}: {ask[:80]} - {who} · {_short(page)}",
+            "pages": list(pages),
+            "layers": [layer],
+            "ufai": list(ufai),
+            "persona": persona,
+            "device": "any",
+            "entry": entry,
+            "framing": "person",
+            "story": (f"{who} reaches {_short(page)} ({' -> '.join(_short(p) for p in pages)}) and the {layer} layer's ask - {ask} - is read "
+                      f"through the {pillar} lens: {frame}. One walk of this page as this persona answers every layer x pillar row of "
+                      f"the cell (the LX batch rule); the contract sub-layers close by the registered library prover; measured at "
+                      f"{' and '.join(LX_VIEWPORTS)}, WebKit where the sub-layer is engine-sensitive"),
+            "journey": {"archetype": f"{CX_WAVE[cell['cls']]}:{persona}", "stage": "operate" if cell["cls"] != "public" else "acquire",
+                        "vertical": HIVES[(len(page) + len(layer)) % len(HIVES)], "pair": "", "language": "en", "moment": "present",
+                        "condition": "normal", "tier": "A", "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "cx": {"kind": "cube", "cls": cell["cls"], "page": page, "pillar": pillar, "layer": layer, "persona": cell["persona"],
+                   "cast": persona, "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT,
+                   "closes": f"the {layer} ask is answered through the {pillar} lens from {_short(page)} itself, as {who}, with a receipt"},
+        })
+    if not only_class or only_class == "ux":
+        for cell in sorted(c["ux"], key=lambda z: (order[z["cls"]], z["page"], z["rubric_class"])):
+            key = ("cube-ux", cell["page"], None, None, None, cell["rubric_class"])
+            if key in have:
+                continue
+            page = cell["page"]
+            persona = cast_of_page.get(page) or ("anon" if cell["cls"] == "public" else "worker")
+            who = "a person" if persona == "any" else persona
+            pages = ["index.html", page] if (cell["cls"] == "public" and page != "index.html") else [page]
+            rows.append({
+                "wave": "CX-UX",
+                "title": f"the rubric class {cell['rubric_class']} question asked of this page - {who} · {_short(page)}",
+                "pages": pages, "layers": ["F"], "ufai": ["U"], "persona": persona, "device": "any",
+                "entry": "search-arrival" if cell["cls"] == "public" else "hub-nav", "framing": "person",
+                "story": (f"{who} reaches {_short(page)} and the critic asks every dimension of rubric class {cell['rubric_class']} "
+                          f"(ufai-rubric-spec.json) of it - no row on this page has ever been graded on that class; the walk is "
+                          f"critiqued when it lands, at {' and '.join(LX_VIEWPORTS)}"),
+                "journey": {"archetype": f"CX-UX:{persona}", "stage": "operate" if cell["cls"] != "public" else "acquire",
+                            "vertical": HIVES[len(page) % len(HIVES)], "pair": "", "language": "en", "moment": "present",
+                            "condition": "normal", "tier": "A", "pages": pages},
+                "axis": {"device": "phone-390", "language": "en"},
+                "cx": {"kind": "cube-ux", "cls": cell["cls"], "page": page, "rubric_class": cell["rubric_class"], "cast": persona,
+                       "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT,
+                       "closes": f"rubric class {cell['rubric_class']} graded on {_short(page)} by the critic deepwalk, with findings fixed"},
+            })
+    cube_rows.arithmetic = {"by_wave": Counter(r["wave"] for r in rows), "walk_cells": c["walk_cells"], "table": c["table"]}
+    return rows
+
+
+# ★WHAT I ADD FROM MY OWN READING (OWN1.., 2026-10-26) - Ian: "from your understanding of all my number trajectories, you have
+# to add more necessary and appropriate number of trajectories from your own." The population is tools/own_lenses_census.py.
+OWN_PREFIX = "OWN"
+
+
+def own_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per empty cell of the nine OWN lenses (tools/own_lenses_census.py). replay=True returns what was SEEDED."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("own") or {}).get("kind") == "own"),
+                        key=lambda x: int(str(x["id"])[len(OWN_PREFIX):] or 0))
+        own_rows.arithmetic = {}
+        return [{"wave": t["wave"], "own": t["own"]} for t in seeded]
+    import own_lenses_census as oc
+    from sublayer_inventory import casts as _casts, page_classes as _pc
+    c = oc.census()
+    classes = _pc()
+    cast_of_page = _casts(existing, classes)
+    have = {((x.get("own") or {}).get("lens"), (x.get("own") or {}).get("unit"), (x.get("own") or {}).get("ask"))
+            for x in existing if (x.get("own") or {}).get("kind") == "own"}
+    rows: list[dict] = []
+    for cell in c["cells"]:
+        if (cell["lens"], cell["unit"], cell["ask"]) in have:
+            continue
+        page = cell["page"]
+        persona = cell.get("persona") or cast_of_page.get(page) or "worker"
+        who = "a person" if persona == "any" else persona
+        is_public = page.startswith("learn/") or page.startswith("tools/") or page in ("about/index.html", "feedback/index.html")
+        if is_public or persona == "anon":
+            pages, entry = (["index.html", page] if page != "index.html" else [page]), "search-arrival"
+        elif persona == "oversight" and page != "index.html":
+            pages, entry = [page], "direct"
+        else:
+            pages, entry = _path(_start(page), page, [], cast=_cast_of(persona)), ("direct" if page == "index.html" else "hub-nav")
+        unit = cell["unit"] if len(cell["unit"]) <= 50 else cell["unit"][:47] + "..."
+        rows.append({
+            "wave": "OWN",
+            "title": f"{cell['lens']}: {cell['ask'][:70]} - {unit} · {who}",
+            "pages": list(pages), "layers": [cell["layer"]], "ufai": list(cell["ufai"]), "persona": persona, "device": "any",
+            "entry": entry, "framing": "person",
+            "story": (f"{who} meets the {cell['lens']} lens on {cell['unit']}: {cell['ask']}. MEASURED: {cell['detail']}. The row closes on "
+                      f"the instrument the lens names - psql for jobs, the refused-route fixture for dependencies, --engine webkit, "
+                      f"two browser contexts, emulateMedia/zoom, chrome-devtools CPU throttling - at {' and '.join(LX_VIEWPORTS)} where a "
+                      f"page is involved"),
+            "journey": {"archetype": f"OWN:{persona}", "stage": "operate" if not is_public else "acquire",
+                        "vertical": HIVES[len(cell["unit"]) % len(HIVES)], "pair": "", "language": "en", "moment": "present",
+                        "condition": "normal", "tier": "A", "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "own": {"kind": "own", "lens": cell["lens"], "unit": cell["unit"], "ask": cell["ask"], "page": page, "detail": cell["detail"],
+                    "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT,
+                    "closes": f"the {cell['lens']} ask is proven on {cell['unit']} with a receipt"},
+        })
+    own_rows.arithmetic = {"by_lens": Counter(r["own"]["lens"] for r in rows), "population": c["population"]}
+    return rows
+
+
+# ★THE OUTCOME WAVES (SE1.., OUT1.., JS1..; 2026-10-26) - Ian's model: the five lenses improve the person's self-efficacy and
+# the platform's system characteristics, which raise intention to use and satisfaction, which lead to usage. The population
+# is tools/trajectory_outcome_gaps.py (one place decides the size); the dependent variables join the registry as rows.
+SE_PREFIX, OUT_PREFIX, JS_PREFIX = "SE", "OUT", "JS"
+SE_LAYERS = {"mastery": ["F", "L"], "vicarious": ["F", "CA"], "verbal persuasion": ["CA", "L"], "emotional state": ["F", "D"]}
+
+
+def _outcome_route(page: str, persona: str) -> tuple[list[str], str]:
+    is_public = page.startswith("learn/") or page.startswith("tools/") or page in ("about/index.html", "feedback/index.html")
+    if is_public or persona == "anon":
+        return (["index.html", page] if page != "index.html" else [page]), "search-arrival"
+    if persona == "oversight" and page != "index.html":
+        return [page], "direct"
+    return _path(_start(page), page, [], cast=_cast_of(persona)), ("direct" if page == "index.html" else "hub-nav")
+
+
+def self_efficacy_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """Wave SE: one row per (page, source of self-efficacy) the census finds empty. replay=True returns what was SEEDED."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("se") or {}).get("kind") == "self-efficacy"),
+                        key=lambda x: int(str(x["id"])[len(SE_PREFIX):] or 0))
+        self_efficacy_rows.arithmetic = {}
+        return [{"wave": t["wave"], "se": t["se"]} for t in seeded]
+    import trajectory_outcome_gaps as og
+    pg = og.pages()
+    rows: list[dict] = []
+    for c in og.se_cells(existing, pg):
+        page, src, persona = c["page"], c["source"], c["persona"]
+        pages, entry = _outcome_route(page, persona)
+        who = "a first-timer" if persona == "anon" else f"a first-time {persona}"
+        rows.append({
+            "wave": "SE",
+            "title": f"self-efficacy · {src}: {c['ask'].split('(')[0].strip()[:78]} - {_short(page)} · {who}",
+            "pages": list(pages), "layers": list(SE_LAYERS[src]), "ufai": ["U", "F"], "persona": persona, "device": "any", "entry": entry,
+            "framing": "person",
+            "story": (f"{who} reaches {_short(page)} ({' -> '.join(_short(p) for p in pages)}) and the {src} source of self-efficacy is asked of "
+                      f"it: {c['ask']}. Primary action: {c['primary']}. Fixture: {c['fixture']}. Measured at {' and '.join(LX_VIEWPORTS)}; the row "
+                      f"closes when the first-timer completes the task unaided (mastery) or the page shows / says / forgives as asked"),
+            "journey": {"archetype": f"SE:{src}", "stage": "acquire" if persona == "anon" else "operate", "vertical": HIVES[len(page) % len(HIVES)],
+                        "pair": "", "language": "en", "moment": "present", "condition": "normal", "tier": "A", "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "se": {"kind": "self-efficacy", "page": page, "source": src, "ask": c["ask"], "primary": c["primary"], "fixture": c["fixture"],
+                   "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT,
+                   "closes": f"the {src} source is proven on {_short(page)} as {who} at both viewports, with a receipt"},
+        })
+    self_efficacy_rows.arithmetic = {"by_source": Counter(r["se"]["source"] for r in rows), "population": og.pages().get("production") and
+                                     {"production": len(pg["production"]), "calculators": len(pg["calc"]), "learn": len(pg["learn"])}}
+    return rows
+
+
+def outcome_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """Wave OUT: one row per (page, outcome) plus the console's figure surfaces and the never-typed gates."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("out") or {}).get("kind") == "outcomes"),
+                        key=lambda x: int(str(x["id"])[len(OUT_PREFIX):] or 0))
+        outcome_rows.arithmetic = {}
+        return [{"wave": t["wave"], "out": t["out"]} for t in seeded]
+    import trajectory_outcome_gaps as og
+    pg = og.pages()
+    rows: list[dict] = []
+    for c in og.out_cells(existing, pg):
+        page, oc, persona = c["page"], c["outcome"], c["persona"]
+        pages, entry = _outcome_route(page, persona)
+        rows.append({
+            "wave": "OUT",
+            "title": f"outcome · {oc}: {c['ask'].split('(')[0].strip()[:78]} - {_short(page)} · {persona}",
+            "pages": list(pages), "layers": ["L", "D"], "ufai": ["F", "I"], "persona": persona, "device": "any", "entry": entry,
+            "framing": "person",
+            "story": (f"{persona} reaches {_short(page)} and the outcome '{oc}' becomes a figure the roadmap can hold: {c['ask']}. The figure "
+                      f"carries its period and its basis beside it (a qualifier near its figure); tools/prove_outcome_figures.py recomputes it "
+                      f"through psql and the row closes when the console's number equals the ledger's"),
+            "journey": {"archetype": f"OUT:{oc}", "stage": "grow", "vertical": HIVES[len(page) % len(HIVES)], "pair": "", "language": "en",
+                        "moment": "present", "condition": "normal", "tier": "A", "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "out": {"kind": "outcomes", "page": page, "outcome": oc, "ask": c["ask"], "viewports": list(LX_VIEWPORTS),
+                    "instrument": "psql + playwright-mcp (the console figure against the ledger)",
+                    "closes": f"the '{oc}' figure for {_short(page)} is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"},
+        })
+    outcome_rows.arithmetic = {"by_outcome": Counter(r["out"]["outcome"] for r in rows)}
+    return rows
+
+
+def journey_condition_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """Wave JS: every stage degraded (archetype x condition not yet walked), the daily archetypes aged, the two-sided
+    marketplace archetypes recast from the seller's side."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("js") or {}).get("kind") in ("condition", "moment", "seller-recast", "seller-floor")),
+                        key=lambda x: int(str(x["id"])[len(JS_PREFIX):] or 0))
+        journey_condition_rows.arithmetic = {}
+        return [{"wave": t["wave"], "js": t["js"]} for t in seeded]
+    import trajectory_outcome_gaps as og
+    import seed_expansion_wave3 as w3
+    cond_text = dict(w3.CONDITIONS)
+    mom_text = dict(w3.MOMENTS)
+    rows: list[dict] = []
+    for c in og.js_cells(existing, og.pages()):
+        a, axis, val = c["archetype"], c["axis"], c["value"]
+        persona = c["persona"] or "worker"
+        pages = list(c["pages"])
+        if axis == "recast":
+            vertical = c.get("vertical", HIVES[0])
+            kind, cond, mom = "seller-recast", "normal", "present"
+            title = f"journey {a} from the seller's side: {c['title'][:70]} - {vertical}"
+            story = (f"{c['title']} - walked with the SELLER as the walker ({vertical}), the side the buyer's rows never cast: the listing, the "
+                     f"hail, the acceptance, the dispute as the provider meets them, at {' and '.join(LX_VIEWPORTS)}")
+        elif axis == "condition":
+            vertical = HIVES[len(a) % len(HIVES)]
+            kind, cond, mom = "condition", val, "present"
+            title = f"journey {a} degraded - {cond_text.get(val, val)}: {c['title'][:60]}"
+            story = (f"{c['title']} - lived start to end {cond_text.get(val, val)} (the W4 --condition fixture: 3G route delay with aborts, a refused "
+                     f"dependency, a release mid-walk), as {persona}, at {' and '.join(LX_VIEWPORTS)}; the postgres MCP the witness")
+        else:
+            vertical = HIVES[len(a) % len(HIVES)]
+            kind, cond, mom = "moment", "normal", val
+            title = f"journey {a} aged - {mom_text.get(val, val)}: {c['title'][:60]}"
+            story = (f"{c['title']} - lived {mom_text.get(val, val)} (the --moment fixture: a hive with that much history behind every screen), "
+                     f"as {persona}, at {' and '.join(LX_VIEWPORTS)}")
+        rows.append({
+            "wave": "JS", "title": title, "pages": pages, "layers": list(c["layers"]), "ufai": list(c["ufai"]), "persona": persona,
+            "device": "any", "entry": c.get("entry") or "hub-nav", "framing": "person", "story": story,
+            "journey": {"archetype": a, "stage": c["stage"], "vertical": vertical, "pair": c.get("pair") or "", "language": "en",
+                        "moment": mom, "condition": cond, "tier": "A", "pages": pages},
+            "axis": {"device": "phone-390", "language": "en"},
+            "js": {"kind": kind, "archetype": a, "axis": axis, "value": val, "vertical": vertical, "viewports": list(LX_VIEWPORTS),
+                   "instrument": "playwright-mcp + postgres-mcp (prove_full_journeys.mjs --condition / --moment)",
+                   "closes": f"{a} walked start to end under this {axis} at both viewports, every hop a route the cast may walk, with a receipt"},
+        })
+    journey_condition_rows.arithmetic = {"by_axis": Counter(f"{r['js']['axis']}:{r['js']['value']}" for r in rows)}
+    return rows
+
+
 def _place_by_wave(existing: list, created: list) -> list:
     """Each new row goes directly after the last row of its own wave, or after the last row of its id space for a
     wave's first row, so every wave stays one contiguous block in the order validate_trajectory_registry replays.
@@ -1926,8 +2362,24 @@ def main() -> int:
     ap.add_argument("--add-operator-console", action="store_true",
                     help="OPC (2026-10-14): one row per panel the one operator console holds "
                          "(tools/operator_console_inventory.py)")
+    ap.add_argument("--add-keep-abreast", action="store_true",
+                    help="KA (2026-10-26): one row per unit of the KEEP ABREAST census (tools/freshness_trip.py) - the "
+                         "public URLs (refresh, push), the SEO evidence spine, the English SOV prompts, the board's instruments")
+    ap.add_argument("--add-cube", action="store_true",
+                    help="CX (2026-10-26): one row per EMPTY cell of the cube (tools/cube_census.py) - U/F/I x layer x admitted "
+                         "persona, A x layer, and the (page, rubric class) cells never graded")
+    ap.add_argument("--class", dest="only_class", choices=["production", "founder", "public", "ux"],
+                    help="--add-cube: seed one page class (or the UX face) at a time")
+    ap.add_argument("--add-own", action="store_true",
+                    help="OWN (2026-10-26): one row per empty cell of the nine lenses in tools/own_lenses_census.py")
+    ap.add_argument("--add-self-efficacy", action="store_true",
+                    help="SE (2026-10-26): one row per (page, source of self-efficacy) - tools/trajectory_outcome_gaps.py")
+    ap.add_argument("--add-outcomes", action="store_true",
+                    help="OUT (2026-10-26): one row per (page, outcome: use / return / repeat use) + the console figures and gates")
+    ap.add_argument("--add-journey-conditions", action="store_true",
+                    help="JS (2026-10-26): every stage degraded, the daily archetypes aged, the seller's side of the trade archetypes")
     args = ap.parse_args()
-    doc = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    doc = _rio.load_doc()
     existing = doc["trajectories"]
     scoped = [t for t in existing if t.get("status") != "descoped"]
 
@@ -1969,7 +2421,7 @@ def main() -> int:
             return 0
         doc["trajectories"] = existing + created
         doc["count"] = len(doc["trajectories"])
-        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + chr(10))
+        _rio.save_doc(doc)
         from critic_seed_missing import seed_missing  # noqa: E402  - the same flow BRP and LXP follow
         seed_missing()
         print(chr(10) + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
@@ -2023,10 +2475,102 @@ def main() -> int:
             return 0
         doc["trajectories"] = _place_by_wave(existing, created)
         doc["count"] = len(doc["trajectories"])
-        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+        _rio.save_doc(doc)
         from critic_seed_missing import seed_missing  # noqa: E402  - the same flow BRP, LXP, LXC, LM and BRH follow
         seed_missing()
         print("\n" + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
+        return 0
+    if args.add_self_efficacy or args.add_outcomes or args.add_journey_conditions:
+        # ★THE OUTCOME WAVES (2026-10-26): each into its own id space, THE NUMBER from tools/trajectory_outcome_gaps.py first
+        if args.add_self_efficacy:
+            rows, label, prefix = self_efficacy_rows(existing), "SE self-efficacy", SE_PREFIX
+            a = self_efficacy_rows.arithmetic
+            detail = "    by source   " + " · ".join(f"{k} {v}" for k, v in a["by_source"].items())
+        elif args.add_outcomes:
+            rows, label, prefix = outcome_rows(existing), "OUT outcomes", OUT_PREFIX
+            a = outcome_rows.arithmetic
+            detail = "    by outcome  " + " · ".join(f"{k} {v}" for k, v in a["by_outcome"].items())
+        else:
+            rows, label, prefix = journey_condition_rows(existing), "JS journey scenarios", JS_PREFIX
+            a = journey_condition_rows.arithmetic
+            detail = "    by axis     " + " · ".join(f"{k} {v}" for k, v in sorted(a["by_axis"].items()))
+        if not rows:
+            print(f"  {label}: every measured cell is already seeded - nothing to add")
+            return 0
+        created = _append_own_space(existing, rows, prefix)
+        print(f"  THE NUMBER, measured by tools/trajectory_outcome_gaps.py (never typed) - {label}:")
+        print(detail)
+        print(f"    = {len(created)} new rows ({created[0]['id']}..{created[-1]['id']}), each walked at {' and '.join(LX_VIEWPORTS)}")
+        print(f"  program: {len(scoped)} in scope today -> {len(scoped) + len(created)} after seeding")
+        if args.dry_run:
+            print(f"  {created[0]['id']:<7} {created[0]['title'][:140]}")
+            print(f"  {created[-1]['id']:<7} {created[-1]['title'][:140]}")
+            print("  (nothing written)")
+            return 0
+        doc["trajectories"] = _place_by_wave(existing, created)
+        doc["count"] = len(doc["trajectories"])
+        _rio.save_doc(doc)
+        from critic_seed_missing import seed_missing  # noqa: E402
+        seed_missing()
+        print("\n" + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
+        return 0
+    if args.add_cube or args.add_own:
+        if args.add_cube:
+            rows, label, prefix = cube_rows(existing, only_class=args.only_class), "CX cube", CX_PREFIX
+            a = cube_rows.arithmetic
+        else:
+            rows, label, prefix = own_rows(existing), "OWN own-reading", OWN_PREFIX
+            a = own_rows.arithmetic
+        if not rows:
+            print(f"  {label}: every measured cell is already seeded - nothing to add")
+            return 0
+        created = _append_own_space(existing, rows, prefix)
+        print(f"  THE NUMBER, measured by the census (never typed) - {label}:")
+        if args.add_cube:
+            for cls, t in a["table"].items():
+                print(f"    {cls:<11} pages {t['pages']:>4} · walk cells {t['walk_cells']:>4} · U/F/I x layer x persona empty "
+                      f"{t['persona_empty']:>6} of {t['persona_cells']:>6} · A x layer empty {t['layer_empty']:>4} of {t['layer_cells']:>5} · UX {t['ux_empty']:>4}")
+            print("    by wave  " + " · ".join(f"{k} {v}" for k, v in a["by_wave"].items()) + f"  ({a['walk_cells']} walk cells in all)")
+        else:
+            print("    population  " + " · ".join(f"{k} {v}" for k, v in a["population"].items()))
+            print("    by lens     " + " · ".join(f"{k} {v}" for k, v in a["by_lens"].items()))
+        print(f"    = {len(created)} new rows ({created[0]['id']}..{created[-1]['id']}), each walked at {' and '.join(LX_VIEWPORTS)}")
+        print(f"  program: {len(scoped)} in scope today -> {len(scoped) + len(created)} after seeding")
+        if args.dry_run:
+            print(f"  {created[0]['id']:<7} {created[0]['title'][:140]}")
+            print(f"  {created[-1]['id']:<7} {created[-1]['title'][:140]}")
+            print("  (nothing written)")
+            return 0
+        doc["trajectories"] = _place_by_wave(existing, created)
+        doc["count"] = len(doc["trajectories"])
+        _rio.save_doc(doc)
+        from critic_seed_missing import seed_missing  # noqa: E402
+        seed_missing()
+        print("\n" + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
+        return 0
+    if args.add_keep_abreast:
+        rows = keep_abreast_rows(existing)
+        if not rows:
+            print("  keep-abreast: every unit of the census is already seeded - nothing to add")
+            return 0
+        a = keep_abreast_rows.arithmetic
+        created = _append_own_space(existing, rows, KA_PREFIX)
+        print("  THE NUMBER, measured by tools/freshness_trip.py's census (never typed) - KEEP ABREAST:")
+        for lens, (wave, layers, _u, persona, _e, _s, trips, ask) in KA_LENS.items():
+            print(f"    {wave} · {ask[:70]:<70} ({'/'.join(layers)}, {persona}; re-opens on {', '.join(trips)}): {a.get(lens, 0)}")
+        print(f"    = {len(created)} new KA rows ({created[0]['id']}..{created[-1]['id']})")
+        print(f"  program: {len(scoped)} in scope today -> {len(scoped) + len(created)} after seeding")
+        if args.dry_run:
+            print(f"  {created[0]['id']:<7} {created[0]['title'][:140]}")
+            print(f"  {created[-1]['id']:<7} {created[-1]['title'][:140]}")
+            print("  (nothing written)")
+            return 0
+        doc["trajectories"] = _place_by_wave(existing, created)
+        doc["count"] = len(doc["trajectories"])
+        _rio.save_doc(doc)
+        from critic_seed_missing import seed_missing  # noqa: E402  - the same flow BRP, LXP, LXC, LM, BRH, SL, ENH and OPC follow
+        seed_missing()
+        print("\n" + f"  wrote {len(created)} keep-abreast row(s) into {REGISTRY.name} (registry now {doc['count']})")
         return 0
     if args.add_bug_hunt:
         rows = bug_hunt_rows(existing)
@@ -2052,7 +2596,7 @@ def main() -> int:
                     and str(t["id"])[len(BRH_PREFIX):].isdigit()), default=len(existing) - 1)
         doc["trajectories"] = existing[:last + 1] + created + existing[last + 1:]
         doc["count"] = len(doc["trajectories"])
-        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+        _rio.save_doc(doc)
         from critic_seed_missing import seed_missing  # noqa: E402  - the same flow BRP, LXP, LXC and LM follow
         seed_missing()
         print("\n" + f"  wrote {len(created)} bug-hunt row(s) into {REGISTRY.name} after {existing[last]['id']} "
@@ -2090,7 +2634,7 @@ def main() -> int:
             return 0
         doc["trajectories"] = existing + created
         doc["count"] = len(doc["trajectories"])
-        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + chr(10))
+        _rio.save_doc(doc)
         from critic_seed_missing import seed_missing  # noqa: E402
         seed_missing()
         print(chr(10) + f"  wrote {len(created)} bug-repro row(s) into {REGISTRY.name} (registry now {doc['count']})")
@@ -2127,7 +2671,7 @@ def main() -> int:
             return 0
         doc["trajectories"] = existing + created
         doc["count"] = len(doc["trajectories"])
-        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+        _rio.save_doc(doc)
         from critic_seed_missing import seed_missing  # noqa: E402
         seed_missing()
         print(f"\n  wrote {len(created)} layer-ux row(s) into {REGISTRY.name} (registry now {doc['count']})")
@@ -2161,7 +2705,7 @@ def main() -> int:
             return 0
         doc["trajectories"] = existing + created
         doc["count"] = len(doc["trajectories"])
-        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+        _rio.save_doc(doc)
         from critic_seed_missing import seed_missing  # noqa: E402
         seed_missing()
         print(f"\n  wrote {len(created)} design row(s) into {REGISTRY.name} (registry now {doc['count']})")
@@ -2190,7 +2734,7 @@ def main() -> int:
             return 0
         doc["trajectories"] = existing + created
         doc["count"] = len(doc["trajectories"])
-        _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+        _rio.save_doc(doc)
         from critic_seed_missing import seed_missing  # noqa: E402
         seed_missing()
         print(f"\n  wrote {len(created)} confusion row(s) into {REGISTRY.name} (registry now {doc['count']})")
@@ -2261,7 +2805,7 @@ def main() -> int:
     fresh = [c for c in created if (c["title"], tuple(c["pages"])) not in seen]
     doc["trajectories"] = existing + fresh
     doc["count"] = len(doc["trajectories"])
-    _atomic_write(REGISTRY, json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
+    _rio.save_doc(doc)
     from critic_seed_missing import seed_missing  # noqa: E402
     seed_missing()
     print(f"\n  wrote {len(fresh)} new row(s) into {REGISTRY.name} (registry now {doc['count']})")

@@ -110,6 +110,8 @@ const ACCOUNTS = {
 };
 // "engineer" persona maps to the supervisor account (no separate E auth role exists).
 ACCOUNTS.engineer = ACCOUNTS.supervisor;
+// the seeded solo owner (a one-person hive), for rows whose persona is solo-owner (OWN Back walk, 2026-10-27)
+ACCOUNTS.solo = { email: 'junvanowner@auth.workhiveph.com', pw: 'test1234', worker: 'Jun Salvador' };
 
 const args = process.argv.slice(2);
 const HEADED = args.includes('--headed');
@@ -142,8 +144,22 @@ const JOURNEY_ONLY = (() => { const i = args.indexOf('--journey'); return i >= 0
 // WebKit run can never write over the Chromium board or ratchet its baseline.
 const ENGINE = (() => { const i = args.indexOf('--engine'); return i >= 0 ? args[i + 1] : 'chromium'; })();
 if (!['chromium', 'webkit'].includes(ENGINE)) { console.error(`[K] --engine must be chromium or webkit, not ${ENGINE}`); process.exit(2); }
+// ★--phone (OWN WebKit primary-action lens, 2026-10-26): the journeys drove at 1280 and only MEASURED floors at 390, so
+// "the primary action completes in WebKit at 390" had no instrument - the phone layout (bottom sheets, collapsed menus,
+// the sticky bar over the save button) is where an action breaks and a desktop drive never reaches. --phone drives every
+// journey in a 390x844 touch context; the artifacts take the suffix, so a phone run never writes the desktop board.
+const PHONE = args.includes('--phone');
+// ★--cpu N (OWN low-end phone lens, 2026-10-27): "the primary action's INP stays within budget at 390 with the CPU
+// throttled 4x". The same journeys, driven with Emulation.setCPUThrottlingRate over a CDP session (Chromium only), and
+// every interaction the drive makes is read by an Event Timing observer installed before any page script: the slowest
+// one (its duration, target and page) is the journey's INP, across every document the journey visits. Read right after
+// the drive, before the critic clicks anything. Artifacts take the suffix, so a throttled run never writes the board.
+const CPU = (() => { const i = args.indexOf('--cpu'); return i >= 0 ? Number(args[i + 1]) : 1; })();
+if (CPU > 1 && ENGINE !== 'chromium') { console.error('[K] --cpu needs --engine chromium (CPU throttling is a CDP call)'); process.exit(2); }
+const INP_BUDGET_MS = 200;   // web.dev "good" INP
 const NARROW = [PHASE_ONLY ? `phase-${PHASE_ONLY}` : '', PAGE_ONLY ? `page-${PAGE_ONLY}` : '',
-                JOURNEY_ONLY ? `journey-${JOURNEY_ONLY}` : '', ENGINE === 'webkit' ? 'webkit' : '']
+                JOURNEY_ONLY ? `journey-${JOURNEY_ONLY}` : '', ENGINE === 'webkit' ? 'webkit' : '', PHONE ? 'phone' : '',
+                CPU > 1 ? `cpu${CPU}` : '']
   .filter(Boolean).join('.').replace(/[^\w.-]+/g, '_');
 const RESULTS = NARROW ? `live_page_journeys_results.${NARROW}.json` : 'live_page_journeys_results.json';
 const BASELINE = NARROW ? `live_page_journeys_baseline.${NARROW}.json` : 'live_page_journeys_baseline.json';
@@ -399,14 +415,30 @@ const JOURNEY_MS = Number(process.env.WH_JOURNEY_STEP_MS || 150000);
 const ceiling = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`${what} did not finish in ${ms / 1000}s - Target crashed or stopped answering`)), ms))]);
 async function runJourney(context, j, criticCache) {
   const page = await context.newPage();
+  // the throttle proves itself: the same fixed loop timed before and after the CDP call (ratio ~CPU, or it did not apply)
+  let calib = null;
+  if (CPU > 1) {
+    const spin = () => page.evaluate(() => { const t = performance.now(); let x = 0; for (let i = 0; i < 3e6; i++) x += Math.sqrt(i); return performance.now() - t + (x < 0 ? 1 : 0); }).catch(() => null);
+    try {
+      await spin(); await spin();   // JIT-warm first: a cold first run is slower than a throttled warm one
+      const before = Math.min(await spin(), await spin());
+      const cdp = await context.newCDPSession(page); await cdp.send('Emulation.setCPUThrottlingRate', { rate: CPU });
+      const after = Math.min(await spin(), await spin());
+      calib = before && after ? { before_ms: Math.round(before), after_ms: Math.round(after), ratio: Math.round((after / before) * 10) / 10 } : null;
+    } catch (e) { console.log(`[K] cpu throttle not applied: ${String(e).slice(0, 80)}`); }
+  }
   const h = makeHelpers(page, RESOLVED_HIVES[j.role] || HIVE, RESOLVED_UIDS[j.role] || null);
-  let verdict = { R: null, J: null, T: null, C: null, X: null }, evidence = {}, jfindings = [], err = null;
+  let verdict = { R: null, J: null, T: null, C: null, X: null }, evidence = {}, jfindings = [], err = null, inp = null;
   try {
     const out = await ceiling(j.drive(page, h), JOURNEY_MS, `journey ${j.id}`);
     verdict = { R: out.R ?? null, J: out.J ?? null, T: out.T ?? null, C: out.C ?? null, X: out.X ?? null };
     evidence = out.evidence || {};
     jfindings = out.findings || [];
   } catch (e) { err = String(e).slice(0, 200); }
+  if (CPU > 1) {
+    inp = await page.evaluate(() => { try { return JSON.parse(sessionStorage.getItem('__whInp') || 'null'); } catch (_) { return null; } }).catch(() => null);
+    inp = inp ? { ...inp, max: Math.round(inp.max), budget: INP_BUDGET_MS, within: inp.max <= INP_BUDGET_MS, calib } : { n: 0, why: 'no interaction was timed', calib };
+  }
 
   // attach T-lens attribution if the journey claims T but didn't measure it live.
   // Guard on !err — an errored drive must NOT be credited a "live" via attribution (that
@@ -427,7 +459,7 @@ async function runJourney(context, j, criticCache) {
 
   await Promise.race([page.close().catch(() => {}), new Promise((r) => setTimeout(r, 10000))]);
   const sc = scoreJourney(verdict);
-  return { verdict, evidence, score: sc, findings: jfindings, criticFindings: critic.findings, bat: critic.bat, err };
+  return { verdict, evidence, score: sc, findings: jfindings, criticFindings: critic.findings, bat: critic.bat, err, inp };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -525,7 +557,9 @@ const __runArcK = async () => {
     // Asia/Manila: the harness must see dates the way a real PH user's browser does (the
     // app derives "today" from the browser's local date — a UTC headless browser would be
     // a day behind in the evening, breaking date-scoped journeys like the day planner).
-    const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, timezoneId: 'Asia/Manila' });
+    const ctx = await browser.newContext(PHONE
+      ? { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, timezoneId: 'Asia/Manila' }
+      : { viewport: { width: 1280, height: 900 }, timezoneId: 'Asia/Manila' });
     // T1: listener tracker BEFORE any page script runs — every addEventListener('click', …)
     // marks its element (el.__ufaiClick) so the battery's clickAudit can resolve listener-wired
     // controls. Keep in sync with ufai_battery.js LISTENER_TRACKER_SRC (same 6 lines; the
@@ -536,6 +570,28 @@ const __runArcK = async () => {
         try { if (type === 'click' && this && this.nodeType === 1) this.__ufaiClick = (this.__ufaiClick || 0) + 1; } catch (_) {}
         return orig.call(this, type, fn, opts);
       };
+    })();`);
+    // --cpu: the slowest interaction across every document of the journey (sessionStorage is per tab, and each journey
+    // opens its own page, so the record starts empty for each journey and survives its navigations)
+    if (CPU > 1) await ctx.addInitScript(`(() => {
+      try {
+        new PerformanceObserver((l) => {
+          for (const e of l.getEntries()) {
+            if (!e.interactionId) continue;
+            let s = null; try { s = JSON.parse(sessionStorage.getItem('__whInp') || 'null'); } catch (_) {}
+            s = s || { max: 0, n: 0 };
+            s.n += 1;
+            if (e.duration > s.max) {
+              const t = e.target;
+              s.max = e.duration; s.type = e.name; s.url = location.pathname.split('/').pop();
+              s.target = t && t.tagName ? t.tagName.toLowerCase() + (t.id ? '#' + t.id : '') + (t.className && typeof t.className === 'string' ? '.' + t.className.trim().split(/\\s+/)[0] : '') : 'document';
+              s.phases = { input: Math.round(e.processingStart - e.startTime), processing: Math.round(e.processingEnd - e.processingStart),
+                           presentation: Math.round(e.startTime + e.duration - e.processingEnd) };
+            }
+            try { sessionStorage.setItem('__whInp', JSON.stringify(s)); } catch (_) {}
+          }
+        }).observe({ type: 'event', buffered: true, durationThreshold: 16 });
+      } catch (_) {}
     })();`);
     // Sign-in RETRY (2026-09-04): the local Supabase auth intermittently returns WH_DB_TIMEOUT under
     // sustained board load (the full board walks many view-family cells back-to-back on an 8GB host).
@@ -594,7 +650,7 @@ const __runArcK = async () => {
       id: j.id, phase: j.phase, page: j.page, role: j.role, state: j.state, title: j.title,
       lenses: j.lenses, ufai: j.ufai, external: !!j.external,
       verdict: res.verdict, live: res.score.live, applicable_lenses: res.score.applicable, passed_lenses: res.score.passed,
-      evidence: res.evidence, err: res.err,
+      evidence: res.evidence, err: res.err, ...(CPU > 1 ? { cpu: CPU, inp: res.inp } : {}),
     };
     out.journeys.push(rec);
     for (const f of res.findings) out.findings.push({ page: j.page, role: j.role, ...f, layer: f.layer || 'heuristic', id: j.id });
@@ -606,7 +662,7 @@ const __runArcK = async () => {
     else { nApplicable++; perPage[pk].applicable++; if (res.score.live) { nLive++; perPage[pk].live++; } }
 
     const lensStr = LENS_IDS.map(l => res.verdict[l] === true ? `${l}✓` : res.verdict[l] === false ? `${l}✗` : `${l}-`).join(' ');
-    console.log(`  ${(j.id + ' ' + j.role).padEnd(22)} ${j.page.padEnd(22)} ${lensStr}  ${j.external ? '◈ext' : res.score.live ? 'LIVE' : 'gap'}${res.err ? '  ERR ' + res.err : ''}`);
+    console.log(`  ${(j.id + ' ' + j.role).padEnd(22)} ${j.page.padEnd(22)} ${lensStr}  ${j.external ? '◈ext' : res.score.live ? 'LIVE' : 'gap'}${res.err ? '  ERR ' + res.err : ''}${CPU > 1 ? `  INP@${CPU}x ${res.inp && res.inp.n ? res.inp.max + 'ms ' + (res.inp.within ? 'within' : 'OVER') + ' ' + res.inp.budget + ' (' + res.inp.type + ' ' + res.inp.target + ' on ' + res.inp.url + ', ' + res.inp.n + ' timed)' : 'unmeasured'}` : ''}`);
   }
 
   // dedupe critic findings (page+role+rule+lead-selector) then merge into findings stream

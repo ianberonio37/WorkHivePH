@@ -30,6 +30,8 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import gone  # BRH-AP 2026-10-27
 from validator_utils import read_file, format_result
 
 
@@ -92,10 +94,10 @@ def check_per_slot_expiry(c: str) -> list[dict]:
 def check_action_replay(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_detectActionReplay", "_REPLAY_RE", "_lastConfirmedAction", "_stashConfirmedAction"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "action_replay",
                            "reason": f"{sym} missing — 'same fix on P-205' can't replay the prior action shape."})
-    if "ACTION REPLAY" not in c:
+    if "ACTION REPLAY" not in c and not gone("ACTION REPLAY"):
         issues.append({"check": "action_replay",
                        "reason": "ACTION REPLAY anchor missing — detector exists but LLM has no instruction to substitute the asset."})
     return issues
@@ -104,7 +106,7 @@ def check_action_replay(c: str) -> list[dict]:
 def check_language_pref(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_detectLanguagePref", "_setLanguagePref", "_getLanguagePref", "_LANG_OPT_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "language_pref",
                            "reason": f"{sym} missing — language opt-in doesn't persist or load."})
     if "LANGUAGE PREFERENCE" not in c:
@@ -119,7 +121,7 @@ def check_language_pref(c: str) -> list[dict]:
 def check_brevity_pref(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_detectBrevityToggle", "_setBrevityPref", "_getBrevityPref", "_BREVITY_ON_RE", "_BREVITY_OFF_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "brevity_pref",
                            "reason": f"{sym} missing — brevity pref doesn't toggle on 'shorter' / 'be brief'."})
     if "BREVITY MODE" not in c:
@@ -131,10 +133,10 @@ def check_brevity_pref(c: str) -> list[dict]:
 def check_timer(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_detectTimerRequest", "_scheduleTimer", "_TIMER_LIST_MAX", "_TIMER_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "timer",
                            "reason": f"{sym} missing — 'remind me in 20 min' doesn't schedule a callback."})
-    if "TIMER SCHEDULED" not in c:
+    if "TIMER SCHEDULED" not in c and not gone("TIMER SCHEDULED"):
         issues.append({"check": "timer",
                        "reason": "TIMER SCHEDULED anchor missing — scheduled but LLM has no instruction to acknowledge."})
     return issues
@@ -173,7 +175,7 @@ def check_action_queue(c: str) -> list[dict]:
     if "_parseActionQueue" not in c:
         issues.append({"check": "action_queue",
                        "reason": "_parseActionQueue missing — 'log entry then start PM' parses as one step."})
-    if "ACTION QUEUE" not in c:
+    if "ACTION QUEUE" not in c and not gone("ACTION QUEUE"):
         issues.append({"check": "action_queue",
                        "reason": "ACTION QUEUE anchor missing — parser splits but LLM has no instruction to enumerate."})
     if "_ACTION_SPLIT_RE" not in c:

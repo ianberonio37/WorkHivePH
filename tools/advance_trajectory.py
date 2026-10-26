@@ -39,6 +39,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 REGISTRY = ROOT / "trajectory_registry.json"
+import registry_io as _rio  # the registry UNION: main file + the cube shard (tools/registry_io.py, 2026-10-26)
 # DERIVED, NEVER TYPED. This was the literal "2026-09-05" for eleven days, and it stamps both the
 # `[date]` prefix of every basis entry and reg["updated"] - which the generated roadmap header
 # prints. So the registry announced it was last updated on a day it had been rewritten several
@@ -150,7 +151,7 @@ def _self_test() -> int:
     import hashlib
     import tempfile
 
-    reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    reg = _rio.load_doc()
     rows = {t["id"]: t for t in reg["trajectories"]}
     a_row = next(iter(rows))
     advanced = next((t["id"] for t in reg["trajectories"] if t.get("status") in ("locking", "locked")), None)
@@ -218,7 +219,7 @@ def main() -> int:
                   f"({_gaps[:3]}). Backticks and $(...) run as commands in bash. Pass a basis through "
                   "subprocess with an ARGUMENT LIST, never a shell string. Recording it as given.")
 
-    reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    reg = _rio.load_doc()
     rows = {t["id"]: t for t in reg["trajectories"]}
 
     if a.show:
@@ -259,9 +260,7 @@ def main() -> int:
             _apply(st, pct, basis, gate, ids, rows)
             applied += len(ids)
         reg["updated"] = TODAY
-        tmp = REGISTRY.with_suffix(".json.tmp")
-        tmp.write_text(json.dumps(reg, ensure_ascii=False, indent=_indent()) + "\n", encoding="utf-8")
-        os.replace(tmp, REGISTRY)
+        _rio.save_doc(reg, indent=_indent())   # atomic and shard-aware: a CX id lands in the cube shard
         print(f"advanced {applied} row(s) in one pass from {a.batch}")
         subprocess.run([sys.executable, str(ROOT / "tools" / "update_trajectory_scoreboard.py")],
                        capture_output=True, text=True)
@@ -319,9 +318,7 @@ def main() -> int:
                     gates.append(g)
 
     reg["updated"] = TODAY
-    tmp = REGISTRY.with_suffix(".json.tmp")     # atomic: open(w) truncates before the write
-    tmp.write_text(json.dumps(reg, ensure_ascii=False, indent=_indent()) + "\n", encoding="utf-8")
-    os.replace(tmp, REGISTRY)
+    _rio.save_doc(reg, indent=_indent())   # atomic (open(w) truncates before the write) and shard-aware
     print(f"advanced {len(ids)} row(s) -> {st} (pct {pct})"
           + (f" · gates {a.gate}" if a.gate else ""))
 

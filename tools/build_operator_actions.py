@@ -83,9 +83,13 @@ POST = '''    // ── Started by the console once its own admin gate has passe
       }
     }
     wireMktModeration();
+    wirePublishedSearch();
+    wireVerifiedSearch();
     wireSvcTopups();
     wireFeedback();
     await refreshQueues();
+    searchPublished();
+    searchVerifiedSellers();
     // ★NOT WHILE NOBODY IS LOOKING (SL LB4, 2026-10-22): whPoll skips a hidden tab and never runs two refreshes at once;
     // the console's own Refresh all re-reads the queues through api.refresh as well
     const _refreshPoll = whPoll(refreshQueues, 60000, { immediate: false });

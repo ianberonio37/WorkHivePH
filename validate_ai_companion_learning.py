@@ -24,6 +24,8 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import gone  # BRH-AP 2026-10-27
 from validator_utils import read_file, format_result
 
 VOICE_HANDLER_JS = "voice-handler.js"
@@ -42,7 +44,7 @@ def check_pm_sync(c: str) -> list[dict]:
 def check_skill_adapt(c: str) -> list[dict]:
     issues = []
     for sym in ("_skillDepthForLevel", "_vocabularyForDepth"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "skill_adapt", "reason": f"{sym} missing."})
     for d in ("'apprentice'", "'standard'", "'senior'"):
         if d not in c:
@@ -59,7 +61,7 @@ def check_cross_asset(c: str) -> list[dict]:
 def check_intent_history(c: str) -> list[dict]:
     issues = []
     for sym in ("_INTENT_HISTORY_KEY", "_recordIntent", "_topRecurringIntents"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "intent_history", "reason": f"{sym} missing."})
     if "wh_voice_intent_hist_" not in c:
         issues.append({"check": "intent_history", "reason": "localStorage key prefix wh_voice_intent_hist_ missing."})
@@ -69,7 +71,7 @@ def check_intent_history(c: str) -> list[dict]:
 def check_sentiment(c: str) -> list[dict]:
     issues = []
     for sym in ("_SENTIMENT_KEY", "_classifySessionSentiment", "_recordDailySentiment", "_isPersistentNegative"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "sentiment", "reason": f"{sym} missing."})
     if "wh_voice_sentiment_" not in c:
         issues.append({"check": "sentiment", "reason": "localStorage key prefix wh_voice_sentiment_ missing."})
@@ -82,7 +84,7 @@ def check_sentiment(c: str) -> list[dict]:
 def check_warmup(c: str) -> list[dict]:
     issues = []
     for sym in ("_WARMUP_TTL_MS", "_warmupCache", "_warmAssetRecord"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "warmup", "reason": f"{sym} missing."})
     if "v_asset_truth" not in c:
         issues.append({"check": "warmup", "reason": "_warmAssetRecord doesn't reference v_asset_truth."})
@@ -119,7 +121,7 @@ def check_knowledge_gap(c: str) -> list[dict]:
 def check_mentor(c: str) -> list[dict]:
     issues = []
     for sym in ("_isMentorHandoff", "_MENTOR_HANDOFF_RE", "_relayMentorQuestion"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "mentor", "reason": f"{sym} missing."})
     if "mentor_relay_queue" not in c:
         issues.append({"check": "mentor", "reason": "mentor_relay_queue table reference missing."})
@@ -128,9 +130,9 @@ def check_mentor(c: str) -> list[dict]:
 
 def check_phase_a_wires(c: str) -> list[dict]:
     issues = []
-    if "MENTOR HANDOFF" not in c:
+    if "MENTOR HANDOFF" not in c and not gone("MENTOR HANDOFF"):
         issues.append({"check": "wires", "reason": "T114 MENTOR HANDOFF anchor string missing."})
-    if "_isMentorHandoff(transcript)" not in c:
+    if "_isMentorHandoff(transcript)" not in c and not gone("_isMentorHandoff(transcript)"):
         issues.append({"check": "wires", "reason": "T114 _isMentorHandoff(transcript) callsite missing."})
     return issues
 

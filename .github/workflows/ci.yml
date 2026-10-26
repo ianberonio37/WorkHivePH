@@ -107,6 +107,28 @@ jobs:
               body: `### Sentinel coverage delta\n\n${body}`,
             });
 
+  # ★KEEP ABREAST (Wave KA, Ian 2026-10-26: "my SEO AEO GEO ... it's like static, I want it always keeping up to date,
+  # or that will trigger or trip"). A job of its own so its red is its own signal: tools/freshness_trip.py reads the
+  # refresh queue, the evidence spine's TTL, the sitemap's promise, the crawler roster, the scoreboard's age and the
+  # IndexNow / share-of-voice receipts, and exits 1 only when a trip is past its grace - neglect, not natural ageing.
+  keep-abreast:
+    name: Keep abreast — SEO/AEO/GEO trips past grace
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11', cache: 'pip' }
+      - name: The trips (seo_trip_report.json)
+        run: python tools/freshness_trip.py --ci
+      - name: Upload the trip report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-trip-report
+          path: seo_trip_report.json
+
   nightly-full:
     name: Nightly — Layer 0 full + Layer 2 all tiers
     runs-on: ubuntu-latest

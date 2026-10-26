@@ -40,37 +40,15 @@ const PAGE = '/workhive/voice-journal.html';
 
 /** All wired Phase A anchors — anchor string + detector callsite source token. */
 const WIRED_ANCHORS: Array<{ anchor: string; callsite: string; tNum: string }> = [
-  // Safety block
-  { anchor: 'INCIDENT GATE',       callsite: '_isIncidentReport(transcript)',           tNum: 'T182' },
-  { anchor: 'LOTO GATE',           callsite: '_detectLotoIntent(transcript)',           tNum: 'T175' },
-  { anchor: 'HOT WORK GATE',       callsite: '_detectHotWorkIntent(transcript)',        tNum: 'T176' },
-  { anchor: 'CONFINED SPACE GATE', callsite: '_detectConfinedSpaceIntent(transcript)',  tNum: 'T177' },
-  { anchor: 'PPE MATRIX',          callsite: '_isPpeQuery(transcript)',                 tNum: 'T178' },
-  { anchor: 'NEAR-MISS CAPTURE',   callsite: '_isNearMissReport(transcript)',           tNum: 'T179' },
-  { anchor: 'JSA OFFER',           callsite: '_shouldOfferJsa(transcript)',             tNum: 'T180' },
-  // PHASE A COMPREHENSIVE block
-  { anchor: 'SESSION TAG',         callsite: '_detectSessionTagRequest(transcript)',    tNum: 'T100' },
-  { anchor: 'STT MANGLED',         callsite: '_looksGrammarMangled(transcript)',        tNum: 'T102' },
-  { anchor: 'SHIFT END HORIZON',   callsite: '_isNearShiftEnd(_shiftEnd, 30)',          tNum: 'T104' },
-  { anchor: 'QUIET HOURS',         callsite: '_isQuietHours(new Date())',               tNum: 'T96'  },
-  { anchor: 'MENTOR HANDOFF',      callsite: '_isMentorHandoff(transcript)',            tNum: 'T114' },
-  { anchor: 'PII SCRUBBED',        callsite: '_scrubPii(transcript)',                   tNum: 'T115' },
-  { anchor: 'CONSENT CHANGE',      callsite: '_detectConsentChange(transcript)',        tNum: 'T116' },
-  { anchor: 'ERASURE REQUEST',     callsite: '_isErasureRequest(transcript)',           tNum: 'T118' },
-  { anchor: 'SUSPICIOUS ACTIVITY', callsite: '_detectSuspiciousActivity(ctx.worker_name)', tNum: 'T120' },
-  { anchor: 'VOICE-ONLY TOGGLE',   callsite: '_detectVoiceOnlyToggle(transcript)',      tNum: 'T133' },
-  { anchor: 'MEMORY PRESSURE',     callsite: '_checkMemoryPressure()',                  tNum: 'T140' },
-  { anchor: 'HANDOFF',             callsite: '_detectHandoffRequest(transcript)',       tNum: 'T146' },
-  { anchor: 'SHARED NOTE',         callsite: '_isSharedNoteRequest(transcript)',        tNum: 'T147' },
-  { anchor: 'WATCHLIST',           callsite: '_detectWatchRequest(transcript)',         tNum: 'T149' },
-  { anchor: 'RESOLUTION CAPTURE',  callsite: '_detectResolution(transcript)',           tNum: 'T151' },
-  { anchor: 'ENERGY QUERY',        callsite: '_isEnergyQuery(transcript)',              tNum: 'T204' },
-  { anchor: 'TAGALOG IMPERATIVE',  callsite: '_isTagalogImperative(transcript)',        tNum: 'T207' },
-  { anchor: 'POLITENESS REGISTER', callsite: '_classifyPolitenessRegister(transcript)', tNum: 'T209' },
+  // Safety block (T175-T180, T182): REMOVED from the browser on 2026-10-27 (BRH-AP). These anchors fed perTurnAnchors, which
+  // no request carried, so no model ever received them - as this file's own header says, they "never round-trip to a remote
+  // LLM". They are stated now by voice-journal-agent from the transcript (_shared/turn-steering.ts), held by
+  // tools/validate_turn_steering.mjs (the module) and tools/prove_turn_steering.py (the live companion). The detector
+  // behaviour tests below still exercise the browser's exported copies, which validate_ai_companion_safety.py keeps
+  // identical to the server's.
+  // PHASE A COMPREHENSIVE block (STT MANGLED, ENERGY QUERY, TAGALOG IMPERATIVE, POLITENESS REGISTER and DIALECT NOTE moved
+  // server-side with the rest of the answering rules - BRH-AP part 2, 2026-10-27)
   // Phase A2 — orphan-detector closeout (2026-05-21)
-  { anchor: 'BUDDY SET',           callsite: '_detectBuddySet(transcript)',             tNum: 'T153' },
-  { anchor: 'DIALECT NOTE',        callsite: '_isCebuanoLeaning(transcript)',           tNum: 'T205' },
-  { anchor: 'DIALECT NOTE',        callsite: '_isIlonggoLeaning(transcript)',           tNum: 'T206' },
 ];
 
 test.describe('voice-journal Phase A companion-gates wiring', () => {
@@ -83,6 +61,10 @@ test.describe('voice-journal Phase A companion-gates wiring', () => {
       return r.ok ? await r.text() : '';
     });
     expect(source.length, 'voice-handler.js should fetch successfully').toBeGreaterThan(100000);
+    // BRH-AP (2026-10-27): perTurnAnchors fed only a prompt no request carried; every anchor was moved server-side
+    // (_shared/turn-steering.ts) or removed. The browser must not build one again.
+    const code = source.split('\n').filter((l) => !l.trim().startsWith('//')).join('\n');
+    expect(code.includes('perTurnAnchors'), 'voice-handler.js builds no per-turn anchor string').toBe(false);
     const missing: string[] = [];
     for (const { anchor, callsite, tNum } of WIRED_ANCHORS) {
       if (!source.includes(anchor))   missing.push(`${tNum} anchor "${anchor}"`);
@@ -399,12 +381,13 @@ interface PerAnchorCase {
   callsite: string;
   detector: string;
   probes:   AnchorProbe[];
+  server?:  boolean;   // BRH-AP (2026-10-27): the rule is stated by the SERVER now (_shared/turn-steering.ts) - no browser anchor
 }
 
 const PER_ANCHOR_CASES: PerAnchorCase[] = [
   // ── Safety block ───────────────────────────────────────────────────────
   {
-    tNum: 'T175', anchor: 'LOTO GATE',
+    server: true, tNum: 'T175', anchor: 'LOTO GATE',
     detector: '_detectLotoIntent', callsite: '_detectLotoIntent(transcript)',
     probes: [
       { label: 'lockout-tagout',     input: ['doing lockout-tagout on P-203'], matcher: o => o === true,  why: 'fires on "lockout-tagout"' },
@@ -413,7 +396,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
     ],
   },
   {
-    tNum: 'T176', anchor: 'HOT WORK GATE',
+    server: true, tNum: 'T176', anchor: 'HOT WORK GATE',
     detector: '_detectHotWorkIntent', callsite: '_detectHotWorkIntent(transcript)',
     probes: [
       { label: 'welding',     input: ['welding the bracket now'],          matcher: o => o === true,  why: 'fires on "welding"' },
@@ -423,7 +406,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
     ],
   },
   {
-    tNum: 'T177', anchor: 'CONFINED SPACE GATE',
+    server: true, tNum: 'T177', anchor: 'CONFINED SPACE GATE',
     detector: '_detectConfinedSpaceIntent', callsite: '_detectConfinedSpaceIntent(transcript)',
     probes: [
       { label: 'tank entry',  input: ['tank entry for the boiler cleanout'], matcher: o => o === true,  why: 'fires on "tank entry"' },
@@ -432,7 +415,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
     ],
   },
   {
-    tNum: 'T178', anchor: 'PPE MATRIX',
+    server: true, tNum: 'T178', anchor: 'PPE MATRIX',
     detector: '_isPpeQuery', callsite: '_isPpeQuery(transcript)',
     probes: [
       { label: 'what PPE EN',  input: ['what ppe do I need for this'],    matcher: o => o === true,  why: 'fires on "what ppe"' },
@@ -441,7 +424,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
     ],
   },
   {
-    tNum: 'T179', anchor: 'NEAR-MISS CAPTURE',
+    server: true, tNum: 'T179', anchor: 'NEAR-MISS CAPTURE',
     detector: '_isNearMissReport', callsite: '_isNearMissReport(transcript)',
     probes: [
       { label: 'close call EN', input: ['close call earlier, almost slipped'], matcher: o => o === true,  why: 'fires on "close call / almost slipped"' },
@@ -450,7 +433,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
     ],
   },
   {
-    tNum: 'T180', anchor: 'JSA OFFER',
+    server: true, tNum: 'T180', anchor: 'JSA OFFER',
     detector: '_shouldOfferJsa', callsite: '_shouldOfferJsa(transcript)',
     probes: [
       { label: 'first time EN', input: ['this is my first time doing this overhaul'], matcher: o => o === true,  why: 'fires on "first time doing"' },
@@ -459,7 +442,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
     ],
   },
   {
-    tNum: 'T182', anchor: 'INCIDENT GATE',
+    server: true, tNum: 'T182', anchor: 'INCIDENT GATE',
     detector: '_isIncidentReport', callsite: '_isIncidentReport(transcript)',
     probes: [
       { label: 'first aid EN',   input: ['someone got hurt, need first aid asap'], matcher: o => o === true,  why: 'fires on "got hurt + first aid"' },
@@ -485,7 +468,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
     ],
   },
   {
-    tNum: 'T102', anchor: 'STT MANGLED',
+    server: true, tNum: 'T102', anchor: 'STT MANGLED',
     detector: '_looksGrammarMangled', callsite: '_looksGrammarMangled(transcript)',
     probes: [
       { label: 'garbled',  input: ['asdfghjklqw zxcvbnmpoi qwertyuopa'], matcher: o => o === true,  why: 'fires on 3 long no-verb tokens' },
@@ -614,7 +597,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
   },
   // ── Sustainability ────────────────────────────────────────────────────
   {
-    tNum: 'T204', anchor: 'ENERGY QUERY',
+    server: true, tNum: 'T204', anchor: 'ENERGY QUERY',
     detector: '_isEnergyQuery', callsite: '_isEnergyQuery(transcript)',
     probes: [
       { label: 'kWh',           input: ['what is the kWh consumption of MX-12 last week'], matcher: o => o === true,  why: 'fires on kWh' },
@@ -624,7 +607,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
   },
   // ── Multi-language NLU ────────────────────────────────────────────────
   {
-    tNum: 'T205', anchor: 'DIALECT NOTE',
+    server: true, tNum: 'T205', anchor: 'DIALECT NOTE',
     detector: '_isCebuanoLeaning', callsite: '_isCebuanoLeaning(transcript)',
     probes: [
       { label: '≥2 Cebuano markers', input: ['unsa man na asa ang spare bearing kinsa nag-bitay'], matcher: o => o === true,  why: 'fires with ≥2 markers' },
@@ -632,7 +615,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
     ],
   },
   {
-    tNum: 'T206', anchor: 'DIALECT NOTE',
+    server: true, tNum: 'T206', anchor: 'DIALECT NOTE',
     detector: '_isIlonggoLeaning', callsite: '_isIlonggoLeaning(transcript)',
     probes: [
       { label: '≥2 Ilonggo markers', input: ['manami gid bala ang reading damo gid na maintenance'], matcher: o => o === true,  why: 'fires with ≥2 markers' },
@@ -640,7 +623,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
     ],
   },
   {
-    tNum: 'T207', anchor: 'TAGALOG IMPERATIVE',
+    server: true, tNum: 'T207', anchor: 'TAGALOG IMPERATIVE',
     detector: '_isTagalogImperative', callsite: '_isTagalogImperative(transcript)',
     probes: [
       { label: 'i-X mo',     input: ['i-check mo ang vibration ng P-203'], matcher: o => o === true,  why: 'fires on "i-X mo"' },
@@ -649,7 +632,7 @@ const PER_ANCHOR_CASES: PerAnchorCase[] = [
     ],
   },
   {
-    tNum: 'T209', anchor: 'POLITENESS REGISTER',
+    server: true, tNum: 'T209', anchor: 'POLITENESS REGISTER',
     detector: '_classifyPolitenessRegister', callsite: '_classifyPolitenessRegister(transcript)',
     probes: [
       { label: 'formal po', input: ['opo sir, gagawin ko na po'],            matcher: o => o === 'formal', why: 'returns formal for po/opo' },
@@ -705,6 +688,10 @@ test.describe('voice-journal per-anchor blast-radius (Phase A2.5)', () => {
     expect(source.length, 'voice-handler.js fetched').toBeGreaterThan(100000);
     const missing: string[] = [];
     for (const c of PER_ANCHOR_CASES) {
+      // BRH-AP: every case is now stated server-side (tools/validate_turn_steering.mjs) or removed with perTurnAnchors;
+      // the detectors keep their behaviour tests above, and the source test asserts the anchor string is gone
+      const _code = source.split('\n').filter((l) => !l.trim().startsWith('//')).join('\n');
+      if (c.server || !_code.includes('perTurnAnchors')) continue;
       if (!source.includes(c.anchor))   missing.push(`${c.tNum} anchor "${c.anchor}"`);
       if (!source.includes(c.callsite)) missing.push(`${c.tNum} callsite \`${c.callsite}\``);
     }
@@ -720,9 +707,11 @@ test.describe('companion_page_coverage: Zaniah & Hezekiah wiring across all plat
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(500);
 
-    // Companion widget should be rendered and visible
-    const trigger = await whPage.locator('#wh-ai-trigger').first();
-    expect(trigger).toBeVisible({ timeout: 5000 });
+    // The floating #wh-ai-trigger was retired by the FAB consolidation: the companion opens from the hub's Companion row
+    // (2026-10-27 repair - these four had failed since). Reach it the way a person does.
+    await whPage.locator('#wh-hub-fab').first().click({ timeout: 5000 }); // pw-selector-allow: nav-hub-injected FAB
+    await expect(whPage.locator('#wh-hub-open-companion')).toBeVisible({ timeout: 5000 });
+    expect(await whPage.evaluate(() => typeof (window as any).WHAssistant?.open === 'function')).toBe(true);
   });
 
   test('companion present — analytics.html loads companion-launcher.js', async ({ whPage }) => {
@@ -730,8 +719,11 @@ test.describe('companion_page_coverage: Zaniah & Hezekiah wiring across all plat
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(500);
 
-    const trigger = await whPage.locator('#wh-ai-trigger').first();
-    expect(trigger).toBeVisible({ timeout: 5000 });
+    // The floating #wh-ai-trigger was retired by the FAB consolidation: the companion opens from the hub's Companion row
+    // (2026-10-27 repair - these four had failed since). Reach it the way a person does.
+    await whPage.locator('#wh-hub-fab').first().click({ timeout: 5000 }); // pw-selector-allow: nav-hub-injected FAB
+    await expect(whPage.locator('#wh-hub-open-companion')).toBeVisible({ timeout: 5000 });
+    expect(await whPage.evaluate(() => typeof (window as any).WHAssistant?.open === 'function')).toBe(true);
   });
 
   test('companion present — logbook.html loads companion-launcher.js', async ({ whPage }) => {
@@ -739,8 +731,11 @@ test.describe('companion_page_coverage: Zaniah & Hezekiah wiring across all plat
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(500);
 
-    const trigger = await whPage.locator('#wh-ai-trigger').first();
-    expect(trigger).toBeVisible({ timeout: 5000 });
+    // The floating #wh-ai-trigger was retired by the FAB consolidation: the companion opens from the hub's Companion row
+    // (2026-10-27 repair - these four had failed since). Reach it the way a person does.
+    await whPage.locator('#wh-hub-fab').first().click({ timeout: 5000 }); // pw-selector-allow: nav-hub-injected FAB
+    await expect(whPage.locator('#wh-hub-open-companion')).toBeVisible({ timeout: 5000 });
+    expect(await whPage.evaluate(() => typeof (window as any).WHAssistant?.open === 'function')).toBe(true);
   });
 
   test('companion present — skillmatrix.html loads companion-launcher.js', async ({ whPage }) => {
@@ -748,8 +743,11 @@ test.describe('companion_page_coverage: Zaniah & Hezekiah wiring across all plat
     await waitForPageReady(whPage);
     await whPage.waitForTimeout(500);
 
-    const trigger = await whPage.locator('#wh-ai-trigger').first();
-    expect(trigger).toBeVisible({ timeout: 5000 });
+    // The floating #wh-ai-trigger was retired by the FAB consolidation: the companion opens from the hub's Companion row
+    // (2026-10-27 repair - these four had failed since). Reach it the way a person does.
+    await whPage.locator('#wh-hub-fab').first().click({ timeout: 5000 }); // pw-selector-allow: nav-hub-injected FAB
+    await expect(whPage.locator('#wh-hub-open-companion')).toBeVisible({ timeout: 5000 });
+    expect(await whPage.evaluate(() => typeof (window as any).WHAssistant?.open === 'function')).toBe(true);
   });
 
   test('companion absent — assistant.html intentional exclusion guard (no #wh-ai-trigger)', async ({ whPage }) => {
@@ -769,10 +767,12 @@ test.describe('companion_page_coverage: Zaniah & Hezekiah wiring across all plat
     await whPage.waitForTimeout(500);
 
     const persona = await whPage.evaluate(() => {
-      return localStorage.getItem('wh_persona') || 'unknown';
+      localStorage.removeItem('wh_persona');
+      const w = window as any;
+      return typeof w.getPersona === 'function' ? w.getPersona() : 'no resolver';
     });
 
-    // Zaniah should be the default persona for new workers
+    // With no choice stored, a worker meets Zaniah (the fixture's account preference is not a default)
     expect(persona).toBe('zaniah');
   });
 
@@ -830,9 +830,8 @@ test.describe('companion_page_coverage: Zaniah & Hezekiah wiring across all plat
     await whPage.waitForSelector('body.wh-hub-open', { timeout: 3000 });
     await whPage.waitForTimeout(300);
 
-    // Now open the companion widget (click the trigger — visible + clickable)
-    const trigger = await whPage.locator('#wh-ai-trigger').first();
-    await trigger.click({ timeout: 5000 });
+    // Now open the companion from the hub's Companion row (the floating trigger was retired by the FAB consolidation)
+    await whPage.locator('#wh-hub-open-companion').first().click({ timeout: 5000 });
     await whPage.waitForTimeout(1000);
 
     // Verify the companion actually opened: its chat panel gets the `open` class

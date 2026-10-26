@@ -96,7 +96,12 @@ RESET_TABLES = [
     # achievement_definitions is a CATALOG table (migration-seeded), do NOT wipe.
     "achievement_xp_log",
     "worker_achievements",
-    # Asset Brain graph (child -> parent)
+    # Asset Brain graph (child -> parent). pm_knowledge goes BEFORE asset_nodes (2026-10-26): deleting a node sets its
+    # pm_knowledge rows' link to NULL, and two rows of one asset left unlinked collide on
+    # pm_knowledge_one_per_unlinked_asset - the node delete fails, the cascade from hives then fires
+    # audit_asset_node_delete into hive_audit_log for a hive being deleted (FK 23503), the hives survive, and the
+    # reseed dies on hives_invite_code_key with every member, profile and entry already gone
+    "pm_knowledge",
     "asset_embeddings",
     "asset_edges",
     "asset_nodes",
@@ -127,7 +132,6 @@ RESET_TABLES = [
     # Knowledge tables
     "bom_knowledge",
     "calc_knowledge",
-    "pm_knowledge",
     "fault_knowledge",
     # Alerts
     "failure_signature_alerts",
@@ -273,6 +277,21 @@ RESET_TABLES_NON_ID = {
 }
 
 
+def _psql_clear(t: str) -> int | None:
+    """Clear a whole table through psql in the local db container, which has no statement timeout. The REST delete
+    runs under PostgREST's limit, and a big table (analytics_events reached 276k rows) or a hive whose cascade reaches
+    one times out (57014) - a reset that leaves its roots behind makes the reseed collide on them. Local only."""
+    import subprocess
+    try:
+        r = subprocess.run(["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres", "-At", "-v", "ON_ERROR_STOP=1",
+                            "-c", f"set statement_timeout = 0; delete from public.{t};"],
+                           capture_output=True, text=True, timeout=900)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    last = (r.stdout or "").strip().splitlines()[-1:] or [""]
+    return int(last[0].split()[-1]) if r.returncode == 0 and last[0].startswith("DELETE") else None
+
+
 def reset_all(client, log) -> dict:
     log("Wiping seeded tables (children first)...")
     summary: dict = {}
@@ -283,6 +302,11 @@ def reset_all(client, log) -> dict:
             summary[t] = n
             log(f"  cleared {t} ({n} rows)")
         except Exception as e:
+            n = _psql_clear(t) if "57014" in str(e) else None
+            if n is not None:
+                summary[t] = n
+                log(f"  cleared {t} via psql after a statement timeout ({n} rows)")
+                continue
             log(f"  WARN: skipped {t}: {type(e).__name__}: {e}")
             summary[t] = f"error: {e}"
 

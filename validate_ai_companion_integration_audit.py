@@ -22,6 +22,8 @@ from __future__ import annotations
 import re
 
 import os, sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import gone, moved  # BRH-AP 2026-10-27
 if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -93,7 +95,7 @@ def check_preflight(c: str) -> list[dict]:
 def check_idle(c: str) -> list[dict]:
     issues = []
     for sym in ("_IDLE_TIMEOUT_MS", "_scheduleIdleCleanup", "_cancelIdleCleanup"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "idle", "reason": f"{sym} missing."})
     return issues
 
@@ -101,7 +103,7 @@ def check_idle(c: str) -> list[dict]:
 def check_error_analytics(c: str) -> list[dict]:
     issues = []
     for sym in ("_errorKey", "_bumpErrorCount", "_getErrorCounts"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "error_analytics", "reason": f"{sym} missing."})
     if "wh_voice_errors_" not in c:
         issues.append({"check": "error_analytics", "reason": "localStorage key prefix wh_voice_errors_ missing."})
@@ -111,7 +113,7 @@ def check_error_analytics(c: str) -> list[dict]:
 def check_session_tag(c: str) -> list[dict]:
     issues = []
     for sym in ("_sessionTagKey", "_setSessionTag", "_getSessionTag", "_detectSessionTagRequest", "_TAG_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "session_tag", "reason": f"{sym} missing."})
     if "wh_voice_session_tag_" not in c:
         issues.append({"check": "session_tag", "reason": "localStorage key prefix wh_voice_session_tag_ missing."})
@@ -121,7 +123,7 @@ def check_session_tag(c: str) -> list[dict]:
 def check_deep_link(c: str) -> list[dict]:
     issues = []
     for sym in ("_buildDeepLink", "_parseDeepLinkToken"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "deep_link", "reason": f"{sym} missing."})
     if "wh-link" not in c:
         issues.append({"check": "deep_link", "reason": "wh-link token format not referenced."})
@@ -162,9 +164,9 @@ def check_phase_a_wires(c: str) -> list[dict]:
         ("QUIET HOURS",       "_isQuietHours(new Date())",            "T96 QUIET HOURS anchor"),
     ]
     for anchor, callsite, label in pairs:
-        if anchor not in c:
+        if anchor not in c and not gone(anchor):
             issues.append({"check": "wires", "reason": f"{label} string '{anchor}' missing."})
-        if callsite not in c:
+        if callsite not in c and not gone(callsite):
             issues.append({"check": "wires", "reason": f"{label} call '{callsite}' missing."})
     return issues
 

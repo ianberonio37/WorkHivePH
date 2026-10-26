@@ -17,6 +17,8 @@ not duplicate _classifyDataIntent regex classifier.
 
 import re
 import sys
+sys.path.insert(0, "tools")
+from client_prompt_retired import retired_check  # BRH-AO 2026-10-27: the client prompt no server read
 
 if sys.platform == "win32":
     import io
@@ -166,7 +168,11 @@ def check_phase_0_unification():
         results["fail"] += 1
 
     # Check if routerContext is passed when calling _buildVoiceSystemPrompt
-    if re.search(
+    _ret = retired_check(content, "router_context")
+    if _ret is not None:
+        print(f"  {GREEN if _ret[0] else RED}{'PASS' if _ret[0] else 'FAIL'}{RESET} {_ret[1]}")
+        results["pass" if _ret[0] else "fail"] += 1
+    elif re.search(
         r"const\s+system\s+=\s+_buildVoiceSystemPrompt\([^)]*routerContext[^)]*\)",
         content,
         re.DOTALL

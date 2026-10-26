@@ -476,6 +476,179 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "install-affordance",
+        "script":  "tools/validate_install_affordance.py",
+        "args":    [],
+        "label":   "§BRH.11 AM (2026-10-26, Ian's own hands): 'users should have something icon where they can just click or tap to easily install it and visible right away on their homescreen for desktop and phone.' MEASURED: the only install control lived on the landing page inside the desktop header and showed only after beforeinstallprompt - which iOS Safari never fires and Chromium fires only once its installability test passes - so a person on a phone never saw it anywhere; manifest.json declared one 640x640 transparent PNG as 192, 512 and maskable; the hub injected an apple-touch-icon with a RELATIVE href (workhive-logo-tight.png) to a file that lives in brand_assets/ and not at the root - a 404 on the root pages and, resolving against the served url, under every /learn/ and /tools/ page - and that file was 768x543. THE FIX: an Install control in the hub's assist row on every host, visible at rest, acting per platform (the native prompt where there is one, the Share -> Add to Home Screen / address-bar guide with the icon everywhere else, hidden once installed; window.WHHub.openInstallGuide for the landing's buttons, which now show at rest too); true 192 / 512 / maskable-on-navy / 180 renditions cut from the 1024 source; the apple-touch-icon root-absolute and square. THE GATE IS THE MEASURE: bug_hunt_inventory.install_affordance_sites() seeded the rows and must now return nothing but the start_url lens, with the shared chrome carrying a control visible at rest; the browser half is the prover's install case.",
+        "group":   "Platform",
+        "report":  None,
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "hub-panel-on-screen",
+        "script":  "tools/validate_hub_panel_on_screen.py",
+        "args":    [],
+        "label":   "§BRH.11 AN (2026-10-26, Ian's own hands): the hub's opened panel stays inside the viewport wherever the FAB rests. 'when you open or tap it it becomes invisible when opened ... when you put it at the top, all of it is being swallowed at the top, it is not the same in iOS that it will also adjust.' MEASURED in nav-hub.js: #wh-hub-panel was anchored by bottom and grew UPWARD from the FAB wherever the FAB rested; the drag clamped the FAB to innerHeight - 80 and said nothing about the panel; nothing read env(safe-area-inset-top); the stored position was clamped once at load and never again while iOS changes innerHeight every time Safari's toolbar collapses - so a FAB dragged to the top opened a panel whose body sat above the viewport with a sliver showing. THE FIX: placePanel() measures the room above and below the FAB (insets read through --wh-sat/--wh-sab) and anchors the panel on the side that has it (#wh-hub.wh-panel-below), capped to that room so it scrolls rather than clips; clampBottom() honours the top inset; the position is re-clamped on every resize. TWO HALVES: the static facts in nav-hub.js (a revert of any one reddens it without a browser) and hub_panel_on_screen_report.json from tools/prove_hub_panel_on_screen.mjs - every case (engine x viewport x host x rest/top) inside the viewport with the header hit-testable, taken against THIS nav-hub.js (nav_hub_sha) so a changed hub demands a re-run, with WebKit required because WebKit is the engine that bit Ian.",
+        "group":   "Platform",
+        "report":  "hub_panel_on_screen_report.json",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "breakdown-cause-listed",
+        "script":  "tools/validate_breakdown_cause_listed.py",
+        "args":    [],
+        "label":   "§BRH.10 AI (2026-10-26): every breakdown cause is one the analytics can group. The logbook form offers 12 causes; the voice entry, the CSV import and the CMMS sync stored the cause as said, and every reader grouped by the exact text - a reworded cause hid a real repeat failure, one cause said three ways raised a false multi-symptom alert, and 'Unknown' twice read as an ineffective repair. THE FIX: root_cause always holds one of the 12 and the words it was given are kept beside it in root_cause_note (trg_logbook_listed_cause, 20261026000002); the voice entry asks for a listed cause plus the words; the page keeps the words through every fill and save path; repeat-failure and multi-symptom leave an unrecorded cause out. STATIC facts (a revert of any one reddens it; the form, the database function and the voice prompt must name the same 12) + LIVE (the trigger installed, no stored cause off the list).",
+        "group":   "Data",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "smoke-identity",
+        "script":  "tools/validate_smoke_identity.py",
+        "args":    [],
+        "label":   "BRH-AF (2026-10-26): the post-deploy smoke signs in as its own bench, as the server answers. The 2026-10-24 deploy's signed-in tier never ran (production had no account), and the smoke seeded a LOCAL hive id, worker and role into storage instead of asking who the account is. Static facts in tools/post_deploy_smoke.mjs: no hard-coded hive, the hive read from hive_members for the signed-in account, WH_SMOKE_HIVE bounds the run to the bench, every context answers analytics_events POSTs itself (a deploy check never counts in the founder's figures), and tools/create_smoke_bench.mjs provisions the bench writing only to .env. Teeth: the smoke as shipped in 27733934 fails all five.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "prod-signed-in-pages",
+        "script":  "tools/validate_prod_signed_in_pages.py",
+        "args":    [],
+        "label":   "BRH-AG (2026-10-26): every app page is seen signed in on production after a deploy. Reads post_deploy_smoke_report.json, which must be taken against https://workhiveph.com (never a rehearsal) and cover every page of the smoke's APP_PAGES roster loaded clean as the bench supervisor. First run 23/26: skillmatrix, resume and engineering-design lost Chart.js / html2pdf / Mermaid to the service worker (sw.js v576 fixes it, shipping with the next frontend push), so this stays red until the post-deploy smoke after that push reads 26/26.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "prod-tier0-flows",
+        "script":  "tools/validate_prod_tier0_flows.py",
+        "args":    [],
+        "label":   "BRH-AH (2026-10-26): the runbook's Tier-0 critical paths are walked on production after a deploy. Holds post_deploy_flows_report.json from `post_deploy_smoke.mjs --tier=flows` (production, bench hive only, writes undone): sign in; a logbook entry through the form at phone-390 and desktop-1280, trashed; an AI action that answers (a no-sources deflection fails); a staging recommendation accepted twice at once = one reservation, nothing left; the production logs over the run with no 54000/23505/5xx. Static half: the smoke keeps the bench guard, both undos, the deflection check and the log read (teeth: the smoke at 1045f447).",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "scheduled-work",
+        "script":  "tools/validate_scheduled_work.py",
+        "args":    [],
+        "label":   "OWN scheduled-work lens (2026-10-26): a scheduled job fires, a double fire leaves one effect, and its failure reaches a person. Live, each probe rolled back: every lens job is active and ran inside its period (or its own command runs clean); a double fire deletes a planted old row once, charges a planted reservation's holding fee once (it charged twice: 20261026000009), keeps one size snapshot a day, changes nothing the second time in the outbox and availability reconcilers, and ai_quality_log refuses a second row per run/agent/question; a failure planted for each job (a failed run; a 401 for an HTTP job) is named failing by founder_scheduled_work(), the console's read; every HTTP job records its call (note_scheduled_call) and a non-admin is refused. Static: the console draws the panel; ai-eval-runner skips a fixture its run already graded (teeth: 1045f447).",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "ingest-embeds-strict",
+        "script":  "tools/validate_ingest_embeds_strict.py",
+        "args":    [],
+        "label":   "OWN AI failure-mode lens, model-chain fallback (2026-10-26): a vector WRITTEN to a row comes from the corpus's own embedder or the row gets none (STRICT = INGEST). Walked live with the local embedder stopped: pdf-ingest walked Voyage, Gemini and Jina (three other spaces) and wrote nothing only because every key was dead or spent. pdf-ingest, semantic-fact-extractor, visual-defect-capture, episodic memory and the journal persist embed strictly now, and the gateway files the turn's query vector into the journal row only when it is the pinned embedder's. Teeth: 1045f447 fails 11.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "companion-grounding",
+        "script":  "tools/validate_companion_grounding.py",
+        "args":    [],
+        "label":   "OWN AI failure-mode lens (2026-10-26): the companion's reply is grounded and says what it was given. Walked live (voice-handler, transcription stubbed): documents, knowledge-graph facts and standards never reached a reply - the browser built them into a platform_prompt no server reads; ai-gateway retrieves them now with the person's client (_shared/hive-knowledge.ts, read-not-obeyed), voice-journal-agent may quote the HIVE KNOWLEDGE section, and the reply names what the gateway gave it (grounded_on); long-horizon questions reach the period summaries (relative windows in code, month grain, summaries rolled up on demand); the snapshot reads hive_kpis() (v_kpi_truth is service-only since BRH-V); platform-scraper gets the person's session (was 401 every turn); conversation_analytics rows carry the hive (was 42501 every turn). Teeth: 1045f447 fails 8.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "untrusted-text-guard",
+        "script":  "tools/validate_untrusted_text_guard.py",
+        "args":    [],
+        "label":   "OWN AI failure-mode lens, prompt injection (2026-10-26): six functions that put other people's words into a prompt (retrieved chunks, memories, calc fields, period stats, logbook entries, period summaries) strip directive lines through _shared/untrusted.ts at their entry point; its patterns catch 8/8 attacks and keep 9/9 maintenance procedure lines (the resume-tuned copy stripped 'Do not override the interlock rules'); temporal-rag-orchestrator no longer dies on a block-scoped rl. Walked live with a planted teammate entry. Teeth: 3 mutants, 3 findings.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "in-app-search-honest",
+        "script":  "tools/validate_in_app_search_honest.py",
+        "args":    [],
+        "label":   "OWN in-app search lens (2026-10-26): 13 pages walked as the person (empty, miss, special characters, many). Held: pm-scheduler's search miss names the query; the operator console finds a PUBLISHED listing and unpublishes it (quoted or=() text, LIKE escaped, guarded on status + version) and removes a seller badge (guarded, recorded by 20261026000016) - both stranded on retired marketplace-admin; index.html's solo PM-overdue read completes a full piece instead of dropping assets. Teeth: 1045f447 fails all four.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "identity-restore-reaches-routing",
+        "script":  "tools/validate_identity_restore_reaches_routing.py",
+        "args":    [],
+        "label":   "OWN walk (2026-10-26): a page that decides from the cached name hears the account's answer. assistant.html restored identity fire-and-forget and routed on wh_last_worker, so a signed-in worker with no remembered name stood on setup with an empty name box and 'Could not read your records' for a read never made. Static: every page that discards restoreIdentityFromSession's result listens for wh-identity-changed; assistant's counts read by account and setup routes on the event. Teeth: 1045f447's assistant.html fails 3/3.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "dependency-honesty",
+        "script":  "tools/validate_dependency_honesty.py",
+        "args":    [],
+        "label":   "OWN dependency lens (2026-10-26): every dependency can fail and the person is told honestly; the founder sees it. Static (teeth: the tree at 1045f447 fails 10/10): the calc PDF locks and says it is waking, refuses a 200 that is not a PDF, refuses a diagram with no svg, says the device-made fallback and records it; the map says a failed or slow style and records it; the breach check never reads an unchecked password as clean and tells the person; utils whDependency/whWatchLibrary/font listener; Chart.js, html2pdf and Mermaid load async (a slow CDN held whole pages and the calculator); the skills chart redraws when a late library lands; the console groups client_errors. Live: founder_client_errors is admin-only; a visitor's dependency row is admitted (20261026000013), a long non-dependency context still refused.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "function-stamps",
+        "script":  "tools/stamp_functions.py",
+        "args":    ["--check"],
+        "label":   "OWN AI failure-mode lens, stale deploy cache (2026-10-26): every edge function carries a stamp of its own code (sha256 of its directory + _shared, line endings normalised) in supabase/functions/_shared/build_stamps.ts, reported as `build` on /health. FAILS when the committed stamps are not the tree's: a function edited without `python tools/stamp_functions.py --write` would ship a stamp that lies about it.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "function-builds",
+        "script":  "tools/verify_function_builds.py",
+        "args":    ["--only", "agentic-rag-loop,ai-gateway,analytics-orchestrator,asset-brain-query,embed-entry,engineering-bom-sow,engineering-calc-agent,hierarchical-summarizer,pdf-ingest,semantic-fact-extractor,semantic-search,temporal-rag-orchestrator,visual-defect-capture,voice-action-router,voice-model-call,voice-report-intent"],
+        "label":   "OWN AI failure-mode lens, stale deploy cache (2026-10-26): the 16 model-calling functions RUNNING on the local stack are the tree's code - each /health `build` equals the tree's stamp. The local runtime's compiled-module cache served yesterday's code through restarts (feedback_the_deno_cache_served_yesterdays_function); no source gate could see it. Teeth proven: an edit the runtime had not loaded was named (runs 30a7eb0ff515, the tree is 98c4fd4f8741). One function at a time: six at once took this 8 GB host's Docker engine down.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "prod-function-builds",
+        "script":  "tools/verify_function_builds.py",
+        "args":    ["--target", "prod"],
+        "label":   "OWN AI failure-mode lens, stale deploy cache (2026-10-26): every edge function RUNNING in production is the tree's code (its /health `build` equals the tree's stamp). Names a function not redeployed after its own edit or a _shared change, or a deploy that failed half-way. The post-deploy check after Leg B.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "prod-corpus",
+        "script":  "tools/validate_prod_corpus.py",
+        "args":    [],
+        "label":   "BRH-AC (2026-10-26): production's AI corpus is the one the AI is built on, in one space, and kept fed. Asks production (Management API): persona_knowledge / industry_standards / chunks hold at least the local corpus, all embedded, persona in one space (gemini-embedding-001@384); no fault/pm/skill knowledge in a space production cannot query; every journal transcript embedded; the embedding-outbox-relay cron scheduled and no job over an hour unattempted. Static: an unservable pin resolves to the environment's primary; the relay sweeps orphans before it claims (teeth: the tree at 1045f447). SKIPs when production cannot be asked.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        "id":      "analytics-skip-trash",
+        "script":  "tools/validate_analytics_skip_trash.py",
+        "args":    [],
+        "label":   "2026-10-26 (found on the BRH.10 AI walk of analytics.html): an entry in the trash never counts in the analytics. The logbook's reads go through v_logbook_truth, which leaves a trashed entry out; the five analytics RPCs (repeat failures, failure frequency, MTBF, MTTR, downtime Pareto) read logbook directly with no such filter, so a breakdown moved to the trash kept counting (20261026000004). Reads the INSTALLED definitions of every public get_* function that reads logbook and fails any that filters deleted_at fewer times than it reads the table.",
+        "group":   "Data",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        "id":      "data-moves",
+        "script":  "tools/validate_data_moves.py",
+        "args":    [],
+        "label":   "§BRH.10 AL (2026-10-26): a release never ships ahead of the data move its pages read. The 2026-10-24 release shipped pages that read only a photo's stored path while production's copy pass had not run - 22 logbook and 5 part photos showed nothing until it ran on 2026-10-26. Each data move names the code fact that makes a release depend on it and the production rows still owing it; production is asked through PostgREST with the linked CLI's service key. The pre-push release gate runs it with --require-prod (a production that cannot be asked blocks the push); a run with no way to ask production (CI) says so and passes.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
         "id":      "fab-anchor-stable",
         "script":  "tools/validate_fab_anchor_stable.py",
         "args":    [],
@@ -2827,6 +3000,35 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        "id":      "advice-names-a-real-filter",
+        "script":  "tools/validate_advice_names_a_real_filter.py",
+        "label":   "2026-10-27: advice that says 'Filter to \"X\"' must name a filter the page offers. inventory.html told a supervisor to 'Filter to \"Pending approval\"' and the status filter had no such option; a worker's own pending part sat on page 4 of the list under a card that said REVIEW with nothing to tap. Fixed: the option, a 'Show them in the list' control on the pending card, worker wording (WAITING, 'your part'), and the next step applying the filter. Fails HEAD 1045f447 on inventory.html.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "seo-scoreboard-reads-live",
+        "script":  "tools/seo_scoreboard.py",
+        "args":    ["--self-test"],
+        "label":   "KA-B (2026-10-27): every Ian-gated scoreboard component READS its measure and states why it reads 0 - deployed (HEAD-probes production's sitemap, robots.txt and IndexNow key: 3/3 today, where a typed 0 said not deployed), GSC + Bing (credential + pulled report), sameAs (the Organization's URLs resolved; GEO and AIO share the read), SOV baseline age, the three off-site channels, recorded listicle inclusions. Fails HEAD 1045f447 on 5 typed constants.",
+        "group":   "AI Validation",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "rescan-keeps-detection-date",
+        "script":  "tools/validate_rescan_keeps_detection_date.py",
+        "label":   "2026-10-27: a re-scan is not a new detection. failure-signature-scan upserted every signature with detected_at = now, so the alert hub's '20 newest' (ordered by detected_at) was a lottery of whichever rows the last scan touched (20 of 39). The scan now keeps a standing signature's first detection date and its acknowledgement; a resolved or expired one re-emerges dated now. Walked: two scans rewrote 33/34 rows, detection dates byte-identical. Fails HEAD 1045f447 on both checks.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "vibration-standard-attribution",
+        "script":  "tools/validate_vibration_standard_attribution.py",
+        "label":   "KA-R (2026-10-27): the Class I-IV vibration severity zones are ISO 10816-1's (legacy annex, ex ISO 2372), never ISO 10816-3's. The Vibration Analysis calculator, its report and drawing legend, the BOM/SOW prompts, the public calculator page and three learn articles cited ISO 10816-3 for the class table - right numbers, wrong source: ISO 10816-3 grouped machines above 15 kW into Group 1/2 by foundation with its own limits, and since 2022 it is ISO 20816-3. Every surviving 'ISO 10816-3' must sit beside its successor, 'formerly', or the Group scheme. Fails HEAD 1045f447 on 62 mentions across 5 files.",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "a-pasted-identifier-still-matches",
         "script":  "tools/validate_a_pasted_identifier_still_matches.py",
         "label":   "T123 (2026-08-28): whitespace must never decide whether the system works. People paste - a part number from a Viber message, a username from an email - and every pasted value can carry a leading or trailing space the person cannot see. Where the value is used for IDENTITY or MATCHING, that invisible character decides the outcome: a space on si-username/su-username and sign-in fails with correct credentials; a space in the inventory SEARCH and a part that exists returns nothing, which reads as 'we do not stock it' to someone standing at the shelf; a space in part_number/part_name on WRITE is baked into the record, so the row never matches its own search again; a space on a recipient email and the report bounces. All six are trimmed today and this holds them there. ★THE PROPERTY IS DELIBERATELY NOT 'TRIM EVERYTHING': dayplanner's note and logbook's knowledge field are textareas where a person may indent lines, so leading whitespace is CONTENT, and a gate demanding .trim() on every text field would enforce an opinion about prose and eventually be switched off. ★THE SCAN NEEDED CAREFUL READING, WHICH IS WHY THE SUBJECT LIST IS EXPLICIT: a search for untrimmed values reaching a payload flagged inventory's q and cat, both of which are the remembered-filter SNAPSHOT - restored into the input and re-trimmed at the point of use - so judging by the assignment rather than the use would have filed two defects against correct code. ★AND THE SELFTEST MUTATES COPIES, NEVER DISK: its first version rewrote the real product files and restored them in a finally block, which is one crash or one concurrent board read away from a corrupted source or a voided board. Selftest 7/7, each field mutated independently.",
@@ -5091,6 +5293,9 @@ VALIDATORS = [
      "group":"Platform","skip_if_fast":True},
     {"id":"live-page-journeys-webkit","script":"tools/live_page_journeys.mjs","args":["--engine","webkit"],
      "label":"SL CI2 (2026-10-15): the registered app-page jobs-to-be-done walked in WebKit (Safari's engine) - the same registry and oracles as live-page-journeys, artifacts suffixed .webkit so the Chromium board and its ratchet are never written",
+     "group":"Platform","skip_if_fast":True},
+    {"id":"two-devices","script":"tools/prove_two_devices.mjs","args":[],
+     "label":"OWN two devices (2026-10-27): one account open on a phone (390) and a desktop (1280) at once - the phone performs a page's write through the registered journey's own UI path (or a scenario both devices hold first), the desktop already has the page open with a draft started, and the write must reach it within 15 s live, on return to the tab, on opening the view it lives in, or by a refresh; the draft must survive. A marker must be the write's own (checked absent before the write). 15 pages, OWN144..158. Found and fixed on the way: report-sender re-reads on return (a reload had thrown away a half-typed recipient), the assistant's logbook block printed no problem text.",
      "group":"Platform","skip_if_fast":True},
     {"id":"page-fit","script":"tools/prove_page_fit.py","args":[],
      "label":"SL F2 (2026-10-15): every page fits at 320 and 390 wide and at 1280 - read from the phone-fit lens's own record (phone_fit_report.json, axes phone-fit@320/@390/@1280: overflow, outside, clipped/spilled text, element overflow, occlusion, menus). A row closes at 0 on all three; each axis's per-page floor is held by prove_phone_fit.mjs. Fails when an axis has no run on file or its teeth do not bite",
@@ -8079,6 +8284,47 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
+        # ★KEEP ABREAST (Wave KA, Ian 2026-10-26: "my SEO AEO GEO ... it's like static, I want it always keeping up to
+        # date, or that will trigger or trip that we need ... to keep abreast"). The census above ranks a refresh queue
+        # that nothing consumed for 78 days; the evidence spine had 59 of 62 chunks past TTL; the IndexNow key was live
+        # and no deploy ever pushed; the scoreboard was hand-run on 09-06. This gate reads all of it into one trip
+        # report (seo_trip_report.json), the roadmap header prints the line, the nightly CI job reddens on NEGLECT
+        # (a trip past its grace), and --seed re-opens the KA row whose unit tripped - the registry is the inbox.
+        # WARN here for the same reason the census is advisory: a failing board gate would reward a fake date bump.
+        "id":      "seo-trip",
+        "script":  "tools/freshness_trip.py",
+        "args":    ["--check"],
+        "label":   "KEEP ABREAST (Wave KA): the trips that keep SEO/AEO/GEO alive - the refresh queue, the evidence spine's TTL, the sitemap's promise against the pages' own dates, the AI-crawler roster against robots.txt, the scoreboard's age, the IndexNow and share-of-voice receipts - written to seo_trip_report.json and printed on the roadmap header; WARN by design (never a fake-bump incentive); the nightly CI job reddens only when a trip is past its grace",
+        "group":   "AI Validation",
+        "report":  "seo_trip_report.json",
+        "skip_if_fast": True,
+        "severity": "warn",
+    },
+    {
+        # the sitemap says what the pages say: <lastmod> derived from each page's own dateModified (refresh_public_page.py
+        # --sync-sitemap / --stamp), <changefreq> from the kind's window - never typed as `today` at scaffold time again
+        "id":      "sitemap-promise",
+        "script":  "tools/validate_sitemap_promise.py",
+        "args":    [],
+        "label":   "Wave KA: the sitemap says what the pages say. MEASURED 2026-10-26: 115 of 120 URLs promised <changefreq>monthly</changefreq> while 109 <lastmod> values read May or August - typed as `today` by scaffold_article.py and never derived again - and 42 articles declared 2026-08-24 in their own JSON-LD. <lastmod> must equal the page's dateModified wherever the page declares one, and <changefreq> must match the kind's window (pillar/comparison/article -> monthly, calculator -> yearly). tools/refresh_public_page.py --sync-sitemap derives it; --stamp moves dateModified, the visible Last-updated line, <lastmod>, the markdown twin and the IndexNow push together and REFUSES a date-only change.",
+        "group":   "AI Validation",
+        "report":  None,
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        # the five-pillar compass regenerates on the board instead of by hand (it read 'deployed 0/1' four releases after
+        # launch because nobody re-ran it); its [IAN] components are honest about what no local work can move
+        "id":      "seo-scoreboard",
+        "script":  "tools/seo_scoreboard.py",
+        "args":    [],
+        "label":   "Wave KA: the five-pillar SEO/AEO/GEO/AIO/SXO scoreboard regenerated from the live gate reports on every full run (seo_scoreboard.json carried a 2026-09-06 hand-run reading with 'deployed to production 0/1' four releases after launch); the [IAN] components name what no local work can move",
+        "group":   "AI Validation",
+        "report":  "seo_scoreboard.json",
+        "skip_if_fast": True,
+        "severity": "warn",
+    },
+    {
         # Landing + Home-Dashboard Deep Arc gate (LANDING_DASHBOARD_DEEP_ARC.md) —
         # locks the confirmed front-door defects the arc fixed so they cannot
         # regress: (G6/F4) og:title + twitter:title must equal <title> (the arc
@@ -8996,7 +9242,8 @@ VALIDATORS = [
         "script":  "tools/validate_retired_page_sole_control.py",
         "args":    [],
         "label":   "Retired-page sole control (retiring a PAGE must not silently delete a capability: "
-                   "every write/RPC on an overlay-retired page must also be reachable from a live one; "
+                   "every write/RPC on an overlay-retired page must also be reachable from a live one, and every NAMED "
+                   "CONTROL too - 2026-10-26: Unpublish and Remove-badge hid behind live writes to the same tables; "
                    "forward-only, 2 known strandings printed loudly rather than allowlisted)",
         "group":   "Platform",
         "report":  None,
@@ -9345,6 +9592,23 @@ VALIDATORS = [
     {"id": "co_back_nav",        "script": "tools/prove_back_nav.mjs",        "args": ["--gate"],
      "label": "CO back-nav (browser Back lands where wayfinding says, with and without a referrer)",
      "group": "Platform", "report": "back_nav_report.json", "skip_if_fast": True},
+    # OWN browser Back (2026-10-27): one press leaves the page from rest; a sheet, a modal and the nav-hub panel each
+    # close first and the next press leaves (no trap); leaving through a hub tile replaces the hub's entry (no dead
+    # press). Found the assistant's load route pushing a chat entry (two presses to leave) and the hub - role="dialog",
+    # on every page - holding no entry at all, so Back threw the person off the page with it open.
+    {"id": "own_back_one_press", "script": "tools/prove_back_one_press.mjs", "args": [],
+     "label": "OWN back-one-press (13 pages at 390: Back leaves from rest in one press; sheets, modals and the hub panel close first, never trap; a hub tile replaces the hub's entry)",
+     "group": "Platform", "report": "back_one_press_report.json", "skip_if_fast": True},
+    # OWN low-end phone (2026-10-27): a real tap on each page's primary control, 3 fresh loads, CPU 4x over CDP with the
+    # throttle calibrated (>= 2.5x or the run fails), Event Timing; --teeth plants a slow handler and must FAIL (400 ms)
+    # OWN browser Back on public pages (2026-10-27): after TOC / FAQ jumps one Back leaves the article - each #jump had
+    # added a history entry (wh-i18n-lite.js now replaces the fragment); the jump must still land (target in view + focus)
+    {"id": "own_anchor_back", "script": "tools/prove_anchor_back.mjs", "args": [],
+     "label": "OWN anchor-back (public pages at 390 and 1280: after in-page jumps one Back leaves, and each jump still lands with focus)",
+     "group": "Platform", "report": "anchor_back_report.json", "skip_if_fast": True},
+    {"id": "own_lowend_inp", "script": "tools/prove_lowend_inp.mjs", "args": [],
+     "label": "OWN low-end INP (8 pages at 390, CPU 4x calibrated: a real tap on the primary control stays within 200 ms INP)",
+     "group": "Performance", "report": "lowend_inp_report.json", "skip_if_fast": True},
     {"id": "cg_offline_views", "script": "tools/prove_offline_refusal.mjs", "args": ["--case", "contact"],
      "label": "CG offline-views representative case (the full sweep is the per-case loop; each run "
               "updates its cell in offline_refusal_report.json - refused BEFORE firing and SAID so, "
@@ -12325,6 +12589,87 @@ VALIDATORS = [
         "label":   "Deploy headers, local substitute (vercel.json applied by tools/serve_vercel_headers.py: CSP, Permissions-Policy mic+camera, HTML no-cache, asset caching, sw.js no-store, on every deploy-gated row's page)",
         "group":   "DevOps",
         "skip_if_fast": False,
+    },
+    {
+        # BRH-AP (2026-10-27): the companion's safety steering (LOTO, hot work, confined space, PPE, injury, near-miss, JSA,
+        # crisis, hostile language, forbidden topics) was appended to a browser string no request carried. It is detected
+        # now by voice-journal-agent from the transcript (_shared/turn-steering.ts); the life-safety six are enforced in
+        # code after the model. This exercises the module itself - samples, controls, enforcement, no false promises.
+        "id":      "turn-steering",
+        "script":  os.path.join("tools", "validate_turn_steering.mjs"),
+        "args":    [],
+        "label":   "Turn steering: each safety rule fires on its words and not on everyday questions; a reply missing a life-safety rule is led by the server's own line; no rule promises a feature that does not exist",
+        "group":   "AI Engineering",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        # ...and the live half: ask the local companion a question per rule; the gateway must report the rules stated, and
+        # the reply must carry their substance (model-dependent - warn)
+        "id":      "turn-steering-live",
+        "script":  os.path.join("tools", "prove_turn_steering.py"),
+        "args":    [],
+        "label":   "Turn steering, live: the companion states and carries the LOTO, confined-space, injury and hot-work rules for a worker's own words",
+        "group":   "AI Engineering",
+        "skip_if_fast": True,
+        "severity": "warn",
+    },
+    {
+        # BRH-AO (2026-10-27): the voice companion built a 32 KB prompt in the browser from 31 reads every turn and sent it as
+        # context.platform_prompt, which no server reads. Removed; this keeps it from coming back (--gate: FAIL if the prompt
+        # is sent or more than 5 requests precede the question; teeth: the old voice-handler.js reads 24 and SENT)
+        "id":      "companion-turn-cost",
+        "script":  os.path.join("tools", "prove_companion_turn_cost.mjs"),
+        "args":    ["--label", "gate", "--gate", "--runs", "2"],
+        "label":   "Companion turn cost: the voice companion sends no client-built prompt and asks its question after at most 5 requests (was 31 + a 32 KB upload)",
+        "group":   "Performance",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        # OWN55 (2026-10-27): supabase-js v2 builders have no .execute() (the Python client's idiom) - two journal-recall
+        # fallbacks ended in it, threw inside a try, and returned "nothing found" on every turn
+        "id":      "no-execute-on-builders",
+        "script":  os.path.join("tools", "validate_no_execute_on_builders.py"),
+        "args":    [],
+        "label":   "No .execute() on a supabase-js builder in shipped code (edge functions + root js/html): the chain throws, and the catch said 'nothing found'",
+        "group":   "Frontend",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        # OWN55 (2026-10-27): index.html's two recall paths walked against an embedding provider slow / down
+        "id":      "embed-dependency",
+        "script":  os.path.join("tools", "prove_embed_dependency.py"),
+        "args":    [],
+        "label":   "Embedding dependency: the companion's recall paths under a slow / down embedder - one walk per turn, budgeted, strict (Jina never asked), honest outcomes, the founder's panel counts them",
+        "group":   "AI Engineering",
+        "skip_if_fast": True,
+        "severity": "fail",
+    },
+    {
+        # OWN74-77 (2026-10-27): the half edge-imports-pinned names "not covered" - the CONTENT esm.sh serves for a pinned
+        # version. Static here (the lock agrees with the source); the pre-deploy `--online` re-fetch is in the runbook's
+        # Leg B, and tools/prove_esm_sh_deploy.py walked the bundle step against esm.sh down / 429 / slow / changed.
+        "id":      "edge-remote-deps-lock",
+        "script":  os.path.join("tools", "edge_remote_deps_lock.py"),
+        "args":    [],
+        "label":   "Edge remote-deps lock: every esm.sh module a deploy bundles is content-locked (edge_remote_deps.lock.json) and the lock names nothing the source dropped",
+        "group":   "DevOps",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
+        # the deploy's bundle step walked with the CLI's own image (Docker; reaches esm.sh, so warn-only): healthy builds and
+        # the built eszip answers with esm.sh refused; down / 429 / slow-past-timeout fail clean with nothing to upload; a
+        # changed package at the same version ships silently - the lock above is the only line against it
+        "id":      "esm-sh-deploy",
+        "script":  os.path.join("tools", "prove_esm_sh_deploy.py"),
+        "args":    [],
+        "label":   "esm.sh at deploy: the bundle step walked against esm.sh healthy / down / 429 / slow / changed, and the built bundle served with esm.sh refused",
+        "group":   "DevOps",
+        "skip_if_fast": True,
+        "severity": "warn",
     },
     {
         # ★A FLOATING IMPORT IS A BUILD THAT DEPENDS ON THE MINUTE (2026-10-07 incident): after a deno cache clear

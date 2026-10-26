@@ -40,7 +40,10 @@ SEEDER_PY = SEEDER / "venv" / "Scripts" / "python.exe"
 # venv activation needed. The venv has supabase, playwright, etc.
 # Using subprocess (not os.execv) because Windows execv doesn't quote args
 # correctly when the script path contains spaces.
-if SEEDER_PY.exists() and Path(sys.executable).resolve() != SEEDER_PY.resolve():
+# Only when RUN, never when imported (2026-10-26): `import release_gate` to call preflight() re-ran the whole gate with
+# no flags, and its Phase 1 reset wiped the local stack's members, profiles and 31,260 logbook rows.
+if (__name__ == "__main__" and SEEDER_PY.exists()
+        and Path(sys.executable).resolve() != SEEDER_PY.resolve()):
     rc = subprocess.run([str(SEEDER_PY), str(Path(__file__).resolve())] + sys.argv[1:]).returncode
     sys.exit(rc)
 
@@ -159,6 +162,33 @@ def preflight() -> bool:
         ok("Local Supabase reachable on 127.0.0.1:54321")
     else:
         fail("Local Supabase not running. Run: supabase start")
+        all_good = False
+
+    # BRH.10 AL (2026-10-26): production has run every data move the pushed pages read - the 2026-10-24 release
+    # shipped pages that read only a photo's stored path while production's copy pass had not run
+    try:
+        r = subprocess.run([sys.executable, str(ROOT / "tools" / "validate_data_moves.py"), "--require-prod"],
+                           capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180)
+        if r.returncode == 0:
+            ok("Production has run every data move this release reads")
+        else:
+            fail("A data move this release reads is not done on production:")
+            for line in (r.stdout or "").splitlines():
+                if line.startswith("  - "):
+                    print("    " + line[4:])
+            all_good = False
+    except subprocess.TimeoutExpired:
+        fail("Production could not be asked about its data moves (timeout) - the push waits until it can")
+        all_good = False
+
+    # OWN stale-deploy-cache (2026-10-26): every function's committed build stamp is its code, so after Leg B
+    # tools/verify_function_builds.py --target prod can tell a function still serving old code from one that is current
+    r = subprocess.run([sys.executable, str(ROOT / "tools" / "stamp_functions.py"), "--check"],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120)
+    if r.returncode == 0:
+        ok("Every edge function's build stamp is its code")
+    else:
+        fail("A function's build stamp is not its code - run: python tools/stamp_functions.py --write")
         all_good = False
 
     # Flask seeder (only needed for UI phase)

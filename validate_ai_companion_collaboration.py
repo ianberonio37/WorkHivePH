@@ -27,6 +27,10 @@ from __future__ import annotations
 import os
 import re
 import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from client_prompt_retired import retired_check  # BRH-AO 2026-10-27: the client prompt no server read
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import gone, moved  # BRH-AP 2026-10-27
 
 if sys.platform == "win32":
     import io
@@ -45,13 +49,13 @@ def _read() -> str:
 def check_action_confirmation(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_isActionRequest", "_ACTION_VERB_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "action_confirmation",
                            "reason": f"{sym} missing — write-verb utterances ('log this', 'create a PM') run through the LLM with no confirmation prompt, risking silent side effects."})
-    if "ACTION CONFIRMATION" not in c:
+    if "ACTION CONFIRMATION" not in c and not gone("ACTION CONFIRMATION"):
         issues.append({"check": "action_confirmation",
                        "reason": "ACTION CONFIRMATION anchor missing — detector exists but LLM has no instruction to confirm before voice-action-router executes."})
-    if "_isActionRequest(transcript)" not in c:
+    if "_isActionRequest(transcript)" not in c and not gone("_isActionRequest(transcript)"):
         issues.append({"check": "action_confirmation",
                        "reason": "Call site does not invoke _isActionRequest(transcript) — detector exists but never runs."})
     return issues
@@ -75,6 +79,11 @@ def check_encouragement(c: str) -> list[dict]:
 
 
 def check_skill_gap(c: str) -> list[dict]:
+    # BRH-AO (2026-10-27): the skill-gap flag fed the client prompt no server read; the server registry carries the view
+    ret = retired_check(c, "skill_gap")
+    if ret is not None:
+        print("  " + ret[1])
+        return [] if ret[0] else [{"check": "skill_gap", "reason": ret[1]}]
     issues: list[dict] = []
     if "_fetchSkillGapFlag" not in c:
         issues.append({"check": "skill_gap",
@@ -105,7 +114,7 @@ def check_batch_action(c: str) -> list[dict]:
     if "_isBatchAction" not in c:
         return [{"check": "batch_action",
                  "reason": "_isBatchAction missing — multi-item utterances ('log X, Y, and Z') get parsed as one item."}]
-    if "BATCH ACTION" not in c:
+    if "BATCH ACTION" not in c and not gone("BATCH ACTION"):
         return [{"check": "batch_action",
                  "reason": "BATCH ACTION anchor missing — detector fires but LLM has no instruction to restate as a batch."}]
     return []
@@ -114,10 +123,10 @@ def check_batch_action(c: str) -> list[dict]:
 def check_explainability(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_isExplainRequest", "_EXPLAIN_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "explainability",
                            "reason": f"{sym} missing — 'why did you say that?' / 'how do you know?' don't trigger source-trace."})
-    if "EXPLAIN PATH" not in c:
+    if "EXPLAIN PATH" not in c and not gone("EXPLAIN PATH") and not moved("EXPLAIN PATH"):
         issues.append({"check": "explainability",
                        "reason": "EXPLAIN PATH anchor missing — model has no instruction to name the source view + row count + timestamp."})
     return issues
@@ -127,7 +136,7 @@ def check_mention(c: str) -> list[dict]:
     if "_detectMention" not in c:
         return [{"check": "mention",
                  "reason": "_detectMention missing — 'kasama si Romeo' / 'with Romeo' co-worker tags don't reach voice-action-router."}]
-    if "CO-WORKER MENTION" not in c:
+    if "CO-WORKER MENTION" not in c and not gone("CO-WORKER MENTION"):
         return [{"check": "mention",
                  "reason": "CO-WORKER MENTION anchor missing — detector captures the name but LLM has no instruction to surface it for logbook tagging."}]
     return []
@@ -136,10 +145,10 @@ def check_mention(c: str) -> list[dict]:
 def check_fatigue(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_detectFatigueSignal", "_FATIGUE_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "fatigue",
                            "reason": f"{sym} missing — 'pagod' / 'frustrated' / 'ayoko na' don't trigger empathetic tone shift."})
-    if "FATIGUE SIGNAL" not in c:
+    if "FATIGUE SIGNAL" not in c and not gone("FATIGUE SIGNAL") and not moved("FATIGUE SIGNAL"):
         issues.append({"check": "fatigue",
                        "reason": "FATIGUE SIGNAL anchor missing — detector fires but LLM has no instruction to soften."})
     # PH fatigue words must be covered.
@@ -156,10 +165,10 @@ def check_fatigue(c: str) -> list[dict]:
 def check_export(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_isExportRequest", "_EXPORT_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "export",
                            "reason": f"{sym} missing — 'send the transcript' / 'i-save mo ito' don't trigger the export-to-report-sender path."})
-    if "EXPORT REQUEST" not in c:
+    if "EXPORT REQUEST" not in c and not gone("EXPORT REQUEST"):
         issues.append({"check": "export",
                        "reason": "EXPORT REQUEST anchor missing — model may fabricate sending it instead of pointing to Report Sender."})
     return issues

@@ -77,7 +77,12 @@ def strip_comments(src: str) -> str:
 
 
 def class_used(src: str, cls: str) -> bool:
-    return re.search(r'class="[^"]*\b' + re.escape(cls) + r'\b[^"]*"', src) is not None
+    # a class is a whitespace-separated TOKEN of the attribute (BRH.10 AJ, 2026-10-26). `\bcard\b` treated "-" as a word
+    # edge, so heat-card, pulse-card and stat-pill credited .card / .pill to pages that never used the component.
+    # A token is a run of class characters, so a template glued to the name (class="filter-chip${on ? ' active' : ''}",
+    # marketplace's 12 live chips) or a concatenation (class="filter-chip' + ...) still yields the class itself
+    return any(cls in re.split(r"[^\w-]+", m.group(1) or m.group(2))
+               for m in re.finditer(r'class="([^"]*)"|class=\'([^\']*)\'', src))
 
 
 def js_called(src: str, name: str) -> bool:

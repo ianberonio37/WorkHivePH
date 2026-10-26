@@ -375,7 +375,8 @@ groups:
             model:
               refId: A
               format: table
-              rawSql: "select now() as time, count(*)::float as v from v_cron_health where status = 'failed' and start_time > now() - interval '24 hours'"
+              # 2026-10-26: plus every scheduled call its function REFUSED - cron says "succeeded" for an HTTP job whatever it answers
+              rawSql: "select now() as time, ((select count(*) from v_cron_health where status = 'failed' and start_time > now() - interval '24 hours') + (select count(*) from v_scheduled_call_health where error is not null and called_at > now() - interval '24 hours'))::float as v"
           - refId: B
             datasourceUid: __expr__
             model:

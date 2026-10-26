@@ -32,6 +32,8 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import gone  # BRH-AP 2026-10-27
 from validator_utils import read_file, format_result
 
 
@@ -45,7 +47,7 @@ def _read() -> str:
 def check_offline(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_isOffline", "_setOffline", "_offlineFlag"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "offline",
                            "reason": f"{sym} missing — gateway failures don't flip an offline indicator, so the UI keeps pretending to call the LLM."})
     if "_setOffline(true)" not in c:
@@ -60,7 +62,7 @@ def check_offline(c: str) -> list[dict]:
 def check_reply_cache(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_lookupReplyCache", "_writeReplyCache", "_REPLY_CACHE_TTL_MS"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "reply_cache",
                            "reason": f"{sym} missing — repeat-tap of the same question runs the LLM redundantly."})
     if "_lookupReplyCache(transcript" not in c:
@@ -97,7 +99,7 @@ def check_terminology(c: str) -> list[dict]:
     if "v_asset_truth" not in c:
         issues.append({"check": "terminology",
                        "reason": "Terminology resolver doesn't query v_asset_truth — must use the canonical asset view."})
-    if "TERMINOLOGY RESOLVED" not in c:
+    if "TERMINOLOGY RESOLVED" not in c and not gone("TERMINOLOGY RESOLVED"):
         issues.append({"check": "terminology",
                        "reason": "TERMINOLOGY RESOLVED anchor missing — resolver finds the asset but LLM has no instruction to use the resolved tag."})
     return issues
@@ -106,13 +108,13 @@ def check_terminology(c: str) -> list[dict]:
 def check_branching(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_pushBranch", "_detectBranchRecall", "_branchStack", "_BRANCH_STACK_MAX"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "branching",
                            "reason": f"{sym} missing — 'back to the X thing' doesn't restore that prior thread."})
     if "_pushBranch(newIntentKind" not in c:
         issues.append({"check": "branching",
                        "reason": "Success path doesn't push the resolved intent onto _branchStack — stack stays empty."})
-    if "BRANCH RECALL" not in c:
+    if "BRANCH RECALL" not in c and not gone("BRANCH RECALL"):
         issues.append({"check": "branching",
                        "reason": "BRANCH RECALL anchor missing — detector exists but LLM has no instruction to resume the thread."})
     return issues
@@ -121,10 +123,10 @@ def check_branching(c: str) -> list[dict]:
 def check_photo_intent(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_isPhotoIntent", "_PHOTO_INTENT_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "photo_intent",
                            "reason": f"{sym} missing — 'let me show you' / 'tingnan mo to' doesn't suggest Visual Defect Capture."})
-    if "PHOTO INTENT" not in c:
+    if "PHOTO INTENT" not in c and not gone("PHOTO INTENT"):
         issues.append({"check": "photo_intent",
                        "reason": "PHOTO INTENT anchor missing — detector fires but LLM has no instruction to point to the capture page."})
     return issues
@@ -161,10 +163,10 @@ def check_benchmark(c: str) -> list[dict]:
 def check_summary(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_isSummaryRequest", "_SUMMARY_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "summary",
                            "reason": f"{sym} missing — 'summarise this conversation' / 'i-summarize mo' doesn't trigger summary mode."})
-    if "SUMMARY MODE" not in c:
+    if "SUMMARY MODE" not in c and not gone("SUMMARY MODE"):
         issues.append({"check": "summary",
                        "reason": "SUMMARY MODE anchor missing — detector fires but LLM produces prose instead of a 4-bullet recap."})
     return issues
@@ -173,10 +175,10 @@ def check_summary(c: str) -> list[dict]:
 def check_identity_drift(c: str) -> list[dict]:
     issues: list[dict] = []
     for sym in ("_trackIdentity", "_identityFirstSeen", "_resetIdentityTracking"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "identity_drift",
                            "reason": f"{sym} missing — worker handing phone to a colleague mid-session goes undetected."})
-    if "IDENTITY DRIFT" not in c:
+    if "IDENTITY DRIFT" not in c and not gone("IDENTITY DRIFT"):
         issues.append({"check": "identity_drift",
                        "reason": "IDENTITY DRIFT anchor missing — detector fires but LLM has no instruction to ask for verification."})
     return issues

@@ -35,6 +35,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parent.parent
+import registry_io as _rio  # the registry UNION: main file + the cube shard (tools/registry_io.py, 2026-10-26)
 os.chdir(ROOT)
 sys.path.insert(0, str(ROOT / "tools"))
 try:
@@ -125,7 +126,7 @@ def arrival(page: str, vertical: str, cast: dict) -> str:
 
 def open_rows() -> list[dict]:
     import live_walk_manifest as lm
-    reg = {t["id"]: t for t in json.loads((ROOT / "trajectory_registry.json").read_text(encoding="utf-8"))["trajectories"]}
+    reg = {t["id"]: t for t in _rio.load_doc()["trajectories"]}
     out = []
     for r in lm.build()["rows"]:
         if not str(r["wave"]).startswith(("LXP-", "LXC-")) or lm.row_closed(r):

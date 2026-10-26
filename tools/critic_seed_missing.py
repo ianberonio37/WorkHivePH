@@ -29,6 +29,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CRITIC = ROOT / "critic_registry.json"
 TRAJ = ROOT / "trajectory_registry.json"
+import registry_io as _rio  # the registry UNION: main file + the cube shard (tools/registry_io.py, 2026-10-26)
 
 DEVICE_DEFAULT = "wide-1920"
 PERSONA_DEFAULT = "worker"
@@ -108,8 +109,8 @@ def prune_descoped(critic: dict, traj: dict) -> tuple[list[str], list[str]]:
 
 
 def seed_missing(dry_run: bool = False) -> int:
-    critic = json.loads(io.open(CRITIC, encoding="utf-8").read())
-    traj = json.loads(io.open(TRAJ, encoding="utf-8").read())
+    critic = _rio.load_critic()
+    traj = _rio.load_doc()
     removed, held = prune_descoped(critic, traj)
     if removed or held:
         print(f"critic_seed_missing: {'would remove' if dry_run else 'removing'} {len(removed)} row(s) whose "
@@ -122,7 +123,7 @@ def seed_missing(dry_run: bool = False) -> int:
     if not missing:
         print("critic_seed_missing: every in-scope trajectory already has a critic row - nothing to add")
         if removed and not dry_run:
-            _atomic_write(CRITIC, json.dumps(critic, indent=2, ensure_ascii=False) + "\n")
+            _rio.save_critic(critic)
             print(f"  wrote {CRITIC.name}: {len(critic['rows'])} rows")
         return 0
     print(f"critic_seed_missing: {'would add' if dry_run else 'adding'} {len(missing)} pending critic row(s) - "
@@ -130,7 +131,7 @@ def seed_missing(dry_run: bool = False) -> int:
     if dry_run:
         return 0
     critic["rows"] = list(critic["rows"]) + missing
-    _atomic_write(CRITIC, json.dumps(critic, indent=2, ensure_ascii=False) + "\n")
+    _rio.save_critic(critic)
     print(f"  wrote {CRITIC.name}: {len(critic['rows'])} rows")
     return 0
 

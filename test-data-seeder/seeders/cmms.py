@@ -529,6 +529,9 @@ class CMMSDataset:
                 "location":       self._asset_location(asset),
                 "priority":       priority,
                 "reported_by":    "system",
+                # a breakdown's cause in its own column, the way exports carry it (2026-10-27): the connector form can now
+                # map it, and without a cause column in the mock there was nothing to prove that mapping against
+                "failure_cause":  (description.split(" -- ", 1)[1].strip() if is_breakdown and " -- " in description else None),
             }
 
     # -----------------------------------------------------------------------

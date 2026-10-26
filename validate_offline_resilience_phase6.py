@@ -72,30 +72,40 @@ def check_phase_6_offline():
         print(f"{RED}FAIL{RESET} voice-handler.js not found")
         return False
 
-    if "async function _cacheOfflineSnapshot(" in content:
-        print(f"  {GREEN}PASS{RESET} _cacheOfflineSnapshot function defined")
-        results["pass"] += 1
+    # ★L2/L4 CERTIFIED A WRITE THAT NEVER HAPPENED (BRH-AO, 2026-10-27). _cacheOfflineSnapshot called getUser, then
+    # JSON.parse'd the prompt TEXT and threw - offline_snapshot_cache held 0 rows - and its "snapshot" was the client prompt
+    # no server read. The insert is gone with the prompt; while the client builds no prompt these two layers report so.
+    sys.path.insert(0, "tools")
+    from client_prompt_retired import retired_check
+    ret = retired_check(content, "offline_snapshot")
+    if ret is not None:
+        print(f"  {GREEN if ret[0] else RED}{'PASS' if ret[0] else 'FAIL'}{RESET} L2/L4 {ret[1]}")
+        results["pass" if ret[0] else "fail"] += 1
     else:
-        print(f"  {RED}FAIL{RESET} _cacheOfflineSnapshot function not found")
-        results["fail"] += 1
+        if "async function _cacheOfflineSnapshot(" in content:
+            print(f"  {GREEN}PASS{RESET} _cacheOfflineSnapshot function defined")
+            results["pass"] += 1
+        else:
+            print(f"  {RED}FAIL{RESET} _cacheOfflineSnapshot function not found")
+            results["fail"] += 1
 
-    if "offline_snapshot_cache" in content and ".insert({" in content:
-        print(f"  {GREEN}PASS{RESET} Function inserts into offline_snapshot_cache")
-        results["pass"] += 1
-    else:
-        print(f"  {RED}FAIL{RESET} Function does not properly use offline_snapshot_cache")
-        results["fail"] += 1
+        if "offline_snapshot_cache" in content and ".insert({" in content:
+            print(f"  {GREEN}PASS{RESET} Function inserts into offline_snapshot_cache")
+            results["pass"] += 1
+        else:
+            print(f"  {RED}FAIL{RESET} Function does not properly use offline_snapshot_cache")
+            results["fail"] += 1
 
-    # L4: _cacheOfflineSnapshot integrated in _converseInline
-    print("\n[L4] Integration in _converseInline")
-    # Count calls to _cacheOfflineSnapshot
-    cache_call_count = content.count("_cacheOfflineSnapshot(db, ctx.hive_id")
-    if cache_call_count >= 1:
-        print(f"  {GREEN}PASS{RESET} _cacheOfflineSnapshot called {cache_call_count} time(s)")
-        results["pass"] += 1
-    else:
-        print(f"  {RED}FAIL{RESET} _cacheOfflineSnapshot not integrated in orchestration")
-        results["fail"] += 1
+        # L4: _cacheOfflineSnapshot integrated in _converseInline
+        print("\n[L4] Integration in _converseInline")
+        # Count calls to _cacheOfflineSnapshot
+        cache_call_count = content.count("_cacheOfflineSnapshot(db, ctx.hive_id")
+        if cache_call_count >= 1:
+            print(f"  {GREEN}PASS{RESET} _cacheOfflineSnapshot called {cache_call_count} time(s)")
+            results["pass"] += 1
+        else:
+            print(f"  {RED}FAIL{RESET} _cacheOfflineSnapshot not integrated in orchestration")
+            results["fail"] += 1
 
     # Summary
     print("\n" + "=" * 70)

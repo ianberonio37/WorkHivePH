@@ -24,6 +24,8 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "tools"))
+from steering_moved import gone  # BRH-AP 2026-10-27
 from validator_utils import read_file, format_result
 
 VOICE_HANDLER_JS = "voice-handler.js"
@@ -58,7 +60,7 @@ def check_file(c: str) -> list[dict]:
 def check_reduced_motion(c: str) -> list[dict]:
     issues = []
     for sym in ("_REDUCED_MOTION_KEY", "_isReducedMotionRequested", "_setReducedMotion"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "reduced_motion", "reason": f"{sym} missing."})
     if "prefers-reduced-motion" not in c:
         issues.append({"check": "reduced_motion", "reason": "prefers-reduced-motion media query not honoured."})
@@ -70,7 +72,7 @@ def check_reduced_motion(c: str) -> list[dict]:
 def check_aria_live(c: str) -> list[dict]:
     issues = []
     for sym in ("_ensureAriaLiveRegion", "_announceForScreenReader"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "aria_live", "reason": f"{sym} missing."})
     if "aria-live" not in c:
         issues.append({"check": "aria_live", "reason": "aria-live attribute not set."})
@@ -97,7 +99,7 @@ def check_color_blind(c: str) -> list[dict]:
     issues = []
     for sym in ("_CB_PALETTE_KEY", "_PALETTE_DEFAULT", "_PALETTE_CB_SAFE",
                 "_isColorBlindMode", "_setColorBlindMode", "_currentPalette"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "color_blind", "reason": f"{sym} missing."})
     if "wh_voice_cb_palette" not in c:
         issues.append({"check": "color_blind", "reason": "localStorage key wh_voice_cb_palette missing."})
@@ -110,7 +112,7 @@ def check_color_blind(c: str) -> list[dict]:
 def check_large_text(c: str) -> list[dict]:
     issues = []
     for sym in ("_LARGE_TEXT_KEY", "_isLargeTextMode", "_setLargeTextMode"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "large_text", "reason": f"{sym} missing."})
     if "wh_voice_large_text" not in c:
         issues.append({"check": "large_text", "reason": "localStorage key wh_voice_large_text missing."})
@@ -137,7 +139,7 @@ def check_voice_only(c: str) -> list[dict]:
     issues = []
     for sym in ("_VOICE_ONLY_KEY", "_isVoiceOnlyMode", "_setVoiceOnlyMode",
                 "_detectVoiceOnlyToggle", "_VOICE_ONLY_TOGGLE_RE"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "voice_only", "reason": f"{sym} missing."})
     if "wh_voice_only_mode" not in c:
         issues.append({"check": "voice_only", "reason": "localStorage key wh_voice_only_mode missing."})
@@ -147,7 +149,7 @@ def check_voice_only(c: str) -> list[dict]:
 def check_captions(c: str) -> list[dict]:
     issues = []
     for sym in ("_CAPTIONS_KEY", "_isCaptionsOn", "_setCaptionsOn", "_renderCaption"):
-        if sym not in c:
+        if sym not in c and not gone(sym):
             issues.append({"check": "captions", "reason": f"{sym} missing."})
     if "wh_voice_captions" not in c:
         issues.append({"check": "captions", "reason": "localStorage key wh_voice_captions missing."})
@@ -158,9 +160,9 @@ def check_captions(c: str) -> list[dict]:
 
 def check_phase_a_wires(c: str) -> list[dict]:
     issues = []
-    if "VOICE-ONLY TOGGLE" not in c:
+    if "VOICE-ONLY TOGGLE" not in c and not gone("VOICE-ONLY TOGGLE"):
         issues.append({"check": "wires", "reason": "T133 VOICE-ONLY TOGGLE anchor missing."})
-    if "_detectVoiceOnlyToggle(transcript)" not in c:
+    if "_detectVoiceOnlyToggle(transcript)" not in c and not gone("_detectVoiceOnlyToggle(transcript)"):
         issues.append({"check": "wires", "reason": "T133 _detectVoiceOnlyToggle(transcript) callsite missing."})
     return issues
 

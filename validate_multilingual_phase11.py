@@ -20,6 +20,8 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 import glob
+sys.path.insert(0, "tools")
+from client_prompt_retired import retired_check  # BRH-AO 2026-10-27: the client prompt no server read
 
 RED = "\033[91m"
 GREEN = "\033[92m"
@@ -71,14 +73,20 @@ def check_phase_11_multilingual():
         print(f"{RED}FAIL{RESET} voice-handler.js not found")
         return False
 
-    if "async function _lookupMultilingualTerm(" in content:
+    _ret = retired_check(content, "glossary")
+    if _ret is not None:
+        print(f"  {GREEN if _ret[0] else RED}{'PASS' if _ret[0] else 'FAIL'}{RESET} {_ret[1]}")
+        results["pass" if _ret[0] else "fail"] += 1
+    elif "async function _lookupMultilingualTerm(" in content:
         print(f"  {GREEN}PASS{RESET} _lookupMultilingualTerm function defined")
         results["pass"] += 1
     else:
         print(f"  {RED}FAIL{RESET} _lookupMultilingualTerm function not found")
         results["fail"] += 1
 
-    if "multilingual_terms" in content and ("tagalog_term" in content or "visayan_term" in content):
+    if _ret is not None:
+        pass   # the same capability - reported above
+    elif "multilingual_terms" in content and ("tagalog_term" in content or "visayan_term" in content):
         print(f"  {GREEN}PASS{RESET} _lookupMultilingualTerm queries multilingual_terms")
         results["pass"] += 1
     else:

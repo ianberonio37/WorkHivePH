@@ -258,14 +258,9 @@ def seed_services(client, log, ctx: dict) -> dict:
     ]).execute()
     log("services: gcash receipts 2 (1 unmatched, 1 amount mismatch - both left for the founder)")
 
-    # ---- 6. Vouchers ----
-    client.table("service_vouchers").insert([
-        {"code": "WELCOME100", "kind": "fixed", "value": 100, "segment": "consumer",
-         "max_uses": 500, "per_user_limit": 1, "active": True},
-        {"code": "HAIL10", "kind": "percent", "value": 10, "segment": None,
-         "max_uses": 200, "per_user_limit": 2, "active": True},
-    ]).execute()
-    log("services: vouchers 2 (WELCOME100 fixed / HAIL10 percent)")
+    # ---- 6. Vouchers: none. Retired by Ian on 2026-08-03 (20260803000036); guard_vouchers_retired refuses every
+    # insert, and seeding two stopped the whole reseed (2026-10-26). The page's retired-voucher path needs no row.
+    log("services: vouchers 0 (retired 2026-08-03)")
 
     ledger_rows = client.table("service_credit_ledger").select("id", count="exact").execute().count or 0
     return {
