@@ -1,7 +1,7 @@
 {
  "_doc": "release follow-up evidence (BRH-AF..AL), tools/release_followup_evidence.py",
  "prod_read": {
-  "read_at": "2026-10-24",
+  "read_at": "2026-10-26",
   "via": "claude.ai Supabase connector, SELECT only, project hzyvnjtisfgbksicrouu"
  },
  "smoke": {
@@ -33,18 +33,18 @@
    "integrations",
    "ph-intelligence"
   ],
-  "hive_line": 71,
+  "hive_line": 0,
   "seeded_keys": [
    "wh_active_hive_id",
    "wh_active_hive_name",
-   "WORKER_NAME",
-   "wh_hive_role"
+   "wh_hive_role",
+   "WORKER_NAME"
   ],
   "has_identity": false,
   "last_report": {
-   "base": "https://workhiveph.com",
-   "at": "2026-10-23T12:08:07.721Z",
-   "tier2_pages": 0
+   "base": "http://127.0.0.1:5000",
+   "at": "2026-10-25T21:29:04.493Z",
+   "tier2_pages": 26
   }
  },
  "tier0": [
@@ -84,134 +84,18 @@
    "Design Issue",
    "Unknown"
   ],
-  "writers": [
-   {
-    "page": "logbook.html",
-    "file": "supabase/functions/voice-logbook-entry/index.ts",
-    "line": 58,
-    "how": "the voice entry asks the model for the cause as said"
-   },
-   {
-    "page": "integrations.html",
-    "file": "integrations.html",
-    "line": 1966,
-    "how": "a CSV import maps its own cause column straight in"
-   },
-   {
-    "page": "integrations.html",
-    "file": "supabase/functions/cmms-sync/index.ts",
-    "line": 128,
-    "how": "a CMMS sync copies the external system's cause text"
-   }
-  ],
-  "readers": [
-   {
-    "page": "analytics.html",
-    "file": "python-api/analytics/descriptive.py",
-    "line": 401,
-    "how": "repeat failures group by the exact cause text"
-   },
-   {
-    "page": "analytics.html",
-    "file": "python-api/analytics/diagnostic.py",
-    "line": 74,
-    "how": "the Pareto groups by the exact cause text"
-   },
-   {
-    "page": "alert-hub.html",
-    "file": "supabase/functions/failure-signature-scan/index.ts",
-    "line": 80,
-    "how": "repeat_failure keys on the lower-cased text"
-   },
-   {
-    "page": "alert-hub.html",
-    "file": "supabase/functions/failure-signature-scan/index.ts",
-    "line": 134,
-    "how": "multi_symptom counts distinct cause texts"
-   }
-  ],
-  "local_free_text": 11,
+  "writers": [],
+  "readers": [],
+  "local_free_text": 0,
   "prod": {
-   "causes": 28,
+   "causes": 29,
    "free_text": 0
   }
  },
- "lookalikes": [
-  {
-   "component": "FC1",
-   "class": "tile",
-   "pages": [
-    "analytics-report.html",
-    "analytics.html",
-    "hive.html",
-    "index.html",
-    "project-manager.html"
-   ]
-  },
-  {
-   "component": "FC4",
-   "class": "card",
-   "pages": [
-    "achievements.html",
-    "alert-hub.html",
-    "analytics-report.html",
-    "asset-hub.html",
-    "assistant.html",
-    "audit-log.html",
-    "community.html",
-    "dayplanner.html",
-    "design-system.html",
-    "founder-console.html",
-    "hive.html",
-    "index.html",
-    "marketplace-admin.html",
-    "marketplace-seller-profile.html",
-    "marketplace-seller.html",
-    "marketplace.html",
-    "pm-scheduler.html",
-    "project-manager.html",
-    "project-report.html",
-    "public-feed.html",
-    "shift-brain.html"
-   ]
-  },
-  {
-   "component": "FI3",
-   "class": "filter-chip",
-   "pages": [
-    "design-system.html",
-    "marketplace.html"
-   ]
-  },
-  {
-   "component": "FI3",
-   "class": "pill",
-   "pages": [
-    "agentic-rag-observability.html",
-    "alert-hub.html",
-    "analytics-report.html",
-    "asset-hub.html",
-    "audit-log.html",
-    "engineering-design.html",
-    "index.html",
-    "inventory.html",
-    "logbook.html",
-    "marketplace-seller-profile.html",
-    "marketplace.html",
-    "pm-scheduler.html",
-    "project-manager.html",
-    "project-report.html",
-    "public-feed.html",
-    "report-sender.html",
-    "resume.html",
-    "shift-brain.html",
-    "voice-journal.html"
-   ]
-  }
- ],
+ "lookalikes": [],
  "credits": {
-  "gate_holds_grant_policy": false,
-  "console_names_backing": false,
+  "gate_holds_grant_policy": true,
+  "console_names_backing": true,
   "prod": {
    "ledger_totals": {
     "starter_grant": 500
@@ -222,18 +106,5 @@
    "starter_kyb_verified": 1
   }
  },
- "photos": [
-  {
-   "table": "logbook",
-   "page": "logbook.html",
-   "inline": 22,
-   "stored": 0
-  },
-  {
-   "table": "inventory_items",
-   "page": "inventory.html",
-   "inline": 5,
-   "stored": 0
-  }
- ]
+ "photos": []
 }

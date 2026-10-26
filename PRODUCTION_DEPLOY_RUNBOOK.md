@@ -43,16 +43,161 @@
 > - Warn/fail colours now apply to formatted figures ('50+' queues, a cover under 1.00x); they were silently dropped.
 > - A failed list no longer tells an online reader to check their connection.
 >
-> **Open for Ian:**
-> - Voice-captured breakdowns record the root cause as said; the logbook form uses a 12-item list, and analytics group
->   root_cause by exact string, so a voice breakdown never matches a form one in repeat-failure detection or the Pareto.
->   Pre-existing, already live; a product choice (constrain the voice path, or normalise in analytics).
-> - The adoption census's class matcher treats "-" as a word boundary, crediting pulse-card as .card and stat-pill as
->   .pill on ~20 pages each; correcting it lowers several floors, which the gate reserves for Ian.
-> - Starter grants are free credit and sit outside the solvency gate's voucher rule (unbacked <= earned) by design;
->   whether they should count against it is a policy question.
-> - Owner step from BRH-AB: `tools/move_inline_photos_to_storage.py --target prod`, then `--clear` (needs
->   WH_PHOTO_MOVE_URL and WH_PHOTO_MOVE_SERVICE_KEY).
+> **Production changed outside a release on 2026-10-26 (all verified on production):**
+> - **Migrations `20261026000001`-`000005` pushed** (`db push`, exactly these five pending): a Hiring post can go live;
+>   breakdown causes are filed onto the list with the words kept; repeat failures leave Unknown out; the analytics
+>   RPCs leave trashed entries out; scheduled jobs read their endpoint through `private.wh_setting` (Vault).
+> - **Scheduled jobs had never reached a function in production.** All 16 HTTP cron jobs failed ("unrecognized
+>   configuration parameter app.supabase_functions_url", 0 successes in 7 days) and the service outbox relay refused
+>   to send. Now: Vault holds `app.supabase_functions_url` + `app.service_role_key`; the functions accept a dedicated
+>   `WH_INTERNAL_CALL_SECRET` (function secret, same value in Vault) because the runtime's own service key cannot be
+>   read. Redeployed: ai-eval-runner, amc-orchestrator, batch-risk-scoring, benchmark-compute, failure-signature-scan,
+>   hierarchical-summarizer, scheduled-agents, trigger-ml-retrain, notify-push, voice-logbook-entry. Proven: the
+>   scan's own scheduled command answered 200 (9 hives, 0 errors).
+> - **Web Push had no keys in production** (`notify-push`: vapid_unconfigured). `WH_VAPID_*` set from the pair whose
+>   public half `marketplace-seller.html` ships. Four "Submission approved" pushes were dead-lettered minutes before
+>   (2026-10-23 x3, 2026-10-26 x1); re-queueing them was declined, so they stay dead.
+> - **The smoke's production identity exists:** `whsmokebench` with its own hive "WorkHive Smoke Bench (internal)"
+>   (credentials only in `.env`; `tools/create_smoke_bench.mjs --verify`). The smoke's contexts send no
+>   analytics_events. First signed-in run: 23/26 pages clean; skillmatrix, resume and engineering-design lose
+>   Chart.js / html2pdf / Mermaid to the service worker (503 from a fetch its own CSP refuses) - **fixed in sw.js
+>   v576, ships with the next frontend push**.
+> - **Later on 2026-10-26 (OWN AI failure-mode lens) - edge functions and two migrations, frontend untouched:**
+>   every function carries a build stamp now (`tools/stamp_functions.py`), and `tools/verify_function_builds.py
+>   --target prod` read **62/62 running the tree's code** after the last deploy. Deployed: all 62 (closure stamps),
+>   then again as they changed - ai-orchestrator (a synth reply it could not parse became "trouble formatting"; two
+>   attempts failed bundling on an esm.sh 521, the verifier named it stale until the third landed), agentic-rag-loop /
+>   engineering-bom-sow / engineering-calc-agent / hierarchical-summarizer / semantic-fact-extractor /
+>   temporal-rag-orchestrator (prompt-injection guard `_shared/untrusted.ts`; temporal answered 500 on EVERY run,
+>   `rl is not defined`; relative windows, month grain, missing periods rolled up on demand), ai-gateway +
+>   voice-journal-agent (the hive's documents, team facts and standards retrieved server-side - the browser had built
+>   them into a `platform_prompt` no server reads; replies return `grounded_on`), pdf-ingest / semantic-fact-extractor /
+>   visual-defect-capture / agent-memory-store / embed-entry / semantic-search (STRICT = INGEST for every vector
+>   writer). Migrations pushed: `20261026000016` (a removed seller badge and an unpublish are audited) and
+>   `20261027000001` (fault_knowledge's per-day cap dropped - client-locked and derived, it refused the platform's own
+>   rows and the relay retried each). **Still pending a frontend push:** voice-handler.js (the "Given with this answer"
+>   line, hive_kpis snapshot, scraper session, analytics hive), assistant.html, operator console panels (published
+>   listings + Unpublish, verified sellers + Remove badge), index.html solo PM-overdue, hive.html export toast - sw v577.
+>   **For Ian:** the Voyage key answers 401 in production (8 times in 7 days) - rotate or remove it; the chain now
+>   parks a refused key for 6 hours instead of asking it on every call (deployed 2026-10-27, below).
+> - **2026-10-27 (KA-R freshness + the vibration standard) - nine functions redeployed, frontend + content pending:**
+>   `verify_function_builds.py --target prod` read 53/62, then **62/62** after deploying agent-memory-store,
+>   agentic-rag-loop (the logbook lane searches the question's own terms), ai-gateway, embed-entry, pdf-ingest,
+>   semantic-fact-extractor, semantic-search, visual-defect-capture (the embedding chain parks a provider whose key
+>   answers 401/403 - proven locally: the first call met Voyage's 401, the second skipped Voyage) and
+>   engineering-bom-sow (the vibration SOW cites ISO 10816-1 for the Class I-IV zones and ISO 20816-3 for industrial
+>   machines; commissioning accepts Zone A/B by machine group - 2.8 mm/s rms for 15-300 kW rigid, not 4.5).
+>   **Pending the frontend push, with the content:** 16 learn pages refreshed against primary sources (vendor pricing
+>   re-checked; DOLE DO 252-25 replaced DO 198-18; DOE DC2023-12-0037 industrial RA 11285 bands; ISO 20816-3; SMRP
+>   5.4.14) and stamped with `refresh_public_page.py`; every learn table breaks between words (44 pages);
+>   engineering-design.js + tools/vibration-isolation-calculator (the class zones labelled ISO 10816-1); inventory.html (a
+>   worker's own pending part is one tap away; the 'Pending approval' filter the advice named now exists) - all in sw v577;
+>   integrations.html (a connector can name its breakdown-cause column - walked: 25/25 synced causes, 0 before);
+>   report-sender.html (a recipient added on another device appears when the tab regains focus; a reload had thrown
+>   away a half-typed recipient). ai-gateway redeployed (prod 62/62): the companion's logbook block now prints each
+>   entry's problem (clipped to 120 characters) - it had selected the field and never printed it.
+>   Also deployed: failure-signature-scan (a re-scan keeps a standing signature's first detection date - the alert hub's
+>   '20 newest' had been a lottery of whichever rows the last scan touched) and temporal-rag-orchestrator.
+>   **Also pending the frontend push (sw v577):** nav-hub.js + utils.js - browser Back with the hub panel open closes it
+>   first on every page (the panel joined the shared Back stack; a tile replaces its entry); assistant.html - Back from a
+>   just-opened assistant leaves in one press. 13 pages walked at 390 (`tools/prove_back_one_press.mjs`, 13/13).
+>   **New standing step before any Leg B:** `python tools/edge_remote_deps_lock.py --online` - see §3.
+> - **2026-10-27 (OWN55, an embedding provider slow) - migration pushed, all functions redeployed:** walked locally with
+>   `tools/prove_embed_dependency.py` (23/23). Before: with the primary down and Jina slow, one companion question took 34 s
+>   (12.5 s healthy) - the gateway embedded the same turn twice, 15 s a provider each - and the ledger read '=101' / '=threw'
+>   for an unreachable provider and a timeout; voice-semantic-rag asked Jina for 768-dim vectors to search a vector(384)
+>   journal and its recency fallback ended in `.execute()`, so the voice companion's journal recall had never returned a row.
+>   Now: one embedding walk per turn, the gateway's knowledge / procedures / journal-recall blocks embed STRICT (the corpus's
+>   own embedder only) within 4 s, voice-semantic-rag uses the shared chain (strict, 3 s), honest outcome labels. Production:
+>   `20261027000002` pushed (founder_model_providers counts 'unreachable' as did-not-answer; grants unchanged), and every
+>   function redeployed because `_shared/` changed (observability, model-calls, embedding-chain, journal-recall,
+>   skill-library) - verify with `verify_function_builds.py --target prod`. The journal rows production holds (10) were
+>   re-embedded with Gemini on 2026-10-26 (`.tmp/load_prod_corpus.log`), so a strict Gemini query searches its own space.
+>   **Pending the frontend push:** voice-handler.js (its direct journal fallback also ended in `.execute()` and read by
+>   worker_name; it reads the person's own entries now).
+> - **2026-10-27 (BRH-AO + the companion's safety citation) - ten functions redeployed, prod 62/62:** `_shared/persona.ts`
+>   told every conversational surface to cite "RA 11058 and DOLE DO 198-18 (its IRR)"; DO 252-25 replaced DO 198-18 (the
+>   learn pages were refreshed against the primary source the same day). It now names DO 252-25 as the current rules
+>   (gate: persona-contract L13, which fails on the old line). Redeployed: amc-orchestrator, analytics-orchestrator,
+>   asset-brain-query, engineering-calc-agent, project-orchestrator, shift-planner-orchestrator, tts-speak,
+>   visual-defect-capture, voice-action-router, voice-journal-agent. **Pending the frontend push (sw v577):**
+>   voice-handler.js no longer builds the companion's prompt in the browser - 31 reads and a 32 KB `platform_prompt` per
+>   turn that no server reads (BRH-AO); the question leaves after 3 requests (gate companion-turn-cost).
+> - **2026-10-27 (BRH-AP safety steering) - ai-gateway + voice-journal-agent redeployed, prod 62/62:** the companion's ten
+>   safety rules (crisis 1553, injury -> Safety Officer/911, LOTO with the isolation checklist, hot work, confined-space gas
+>   reading, PPE matrix, near-miss -> Logbook, JSA, hostile language, forbidden topics) were appended in the browser to a
+>   string no request carried. `_shared/turn-steering.ts` now states them in the voice-journal prompt from the transcript,
+>   and the life-safety six are enforced in code after the model. Read in production once with the smoke identity: a LOTO
+>   question returned `steering: ["loto"]` and a reply carrying the rule. Two old rules had told the model to promise
+>   features that do not exist (an Alert Hub SOS button; a near-miss filing) - the server rules promise neither.
+>   Then (same day, voice-journal-agent redeployed twice, prod 62/62): the answering rules too - recap, correction, a tired
+>   worker (held to two sentences in code), register, dialect, language, garbled transcript, explain, freshness, shift brief,
+>   energy, scope (a reply that states none of it is replaced by the fixed capability answer), help, question shape, quiet
+>   hours, and a standing units-and-precision rule. **Pending the frontend push:** voice-handler.js no longer has
+>   perTurnAnchors at all (61 anchors: moved server-side or removed - including a share link nothing opens and
+>   handoff / shared-note / watchlist / mentor "writes" whose functions have no caller).
+>   **After that push, the IndexNow step is `indexnow_submit.py --verify --submit --changed`** - the old `--verify
+>   --submit` only verified and never wrote a receipt (fixed in the tool and in the step below).
+>
+> **Resolved after the release (2026-10-26):**
+> - **The photo copy pass ran on production.** `tools/move_inline_photos_to_storage.py --target prod` (service key taken
+>   in-process from the linked CLI, never stored): 22 logbook + 5 part photos copied and read back byte for byte, 27/27,
+>   0 failed; production shows 0 photos without a stored path. `--clear` waits until a moved photo is seen on its page in
+>   production. A new pre-push check, `tools/validate_data_moves.py --require-prod` (in `release_gate.py` pre-flight),
+>   refuses a push while production owes a data move the pushed pages read.
+> - **Breakdown causes are grouped by the list** (BRH.10 AI): `root_cause` always holds one of the form's 12 causes and the
+>   words it was given are kept in `root_cause_note` (`20261026000002`); `get_repeat_failures` leaves Unknown out
+>   (`20261026000003`). Ships with the next release: the two migrations, `voice-logbook-entry`, `failure-signature-scan`,
+>   `logbook.html`, and the python-api `descriptive.py`.
+> - A Hiring post could never go live under the PHP500 floor (`20261026000001` exempts section 'jobs'); found by the
+>   local reseed, 0 job listings in production.
+>
+> - **The adoption census counts a class only as a whole token** (BRH.10 AJ): `.card` 38 -> 17 pages, the pills 27 -> 12,
+>   and FC1's floor 21 -> 19 (index, analytics-report: oh-tile / rag-tile), recorded as a re-measure in
+>   `validate_component_adoption.py`; marketplace's live filter chips still count.
+> - **Starter grants are held to their policy** (BRH.10 AK): `validate_credit_solvency.py` checks every grant (once, to a
+>   seller, at the knob's amount, in the ledger; production's one grant passes), and the console's cover splits what is
+>   owed by its backing and says why it is under 1.00 (ships in `operator-actions.js`, cut from `platform-actions.html`).
+>
+> - **Production's AI had nothing to read and could not write** (BRH.10 AC). The Voyage key (production's embedding
+>   primary, and the one in `.env`) is rejected by Voyage, so every `embed-entry` call (each logbook save) answered 500, and
+>   no relay ran there: 86 embedding jobs sat queued since 2026-08-10 with 0 attempts. Now: `EMBEDDING_PRIMARY=gemini`, the
+>   dead `VOYAGE_API_KEY` unset (the reranker falls back to cosine order), an unservable pin (the gateway's `bge-local`)
+>   resolves to the environment's primary (`embedding-chain.ts`; redeployed `embed-entry` + `ai-gateway`), and
+>   `20261026000006`-`000007` run the outbox relay inside the database (pg_cron each minute -> `embed-entry` through
+>   `private.wh_setting`; orphans swept before the claim). Backlog: 81 embedded, 3 orphans closed. The corpus was loaded by
+>   `tools/load_prod_corpus.py` in production's space (Gemini 384, the edge's own request); held by gate `prod-corpus`. A
+>   new Voyage key (Ian's account) would only be needed to restore the reranker.
+>   **Loaded:** persona_knowledge 434/434, industry_standards 41/41, all 10 journal entries re-embedded, the backlog's
+>   fault/pm/skill rows re-queued and embedded. **Owed:** industry_standards_chunks 0/781 and 33 stranded knowledge rows
+>   (nomic/untagged, sources gone; `--only stranded` re-embeds them in place) - **the load spent Gemini's free daily
+>   allowance (1,000 embed requests a day, counted per text; production shares the key)**, so from ~07:50 UTC on
+>   2026-10-26 for about 23 hours production's query embeddings fall through to Jina (another space: retrieval near
+>   empty) and ingest is refused. Nothing is lost: `20261026000011` makes the relay wait a provider outage out (backoff to
+>   1 h, 48 attempts) instead of dead-lettering at 5. Finish the chunks in budgeted runs: `--only
+>   industry_standards_chunks --max 300` per day. **Capacity:** free Gemini is ~1,000 embeds a day for the whole
+>   platform; growth needs a paid tier or Cloudflare Workers AI bge-small (the local corpus's own space) - Ian's call.
+> - **Scheduled work is watched** (OWN lens): `20261026000008` records every scheduled call and settles its answer;
+>   `founder_scheduled_work()` feeds a new console panel (ships with the frontend); `20261026000009` stops three double
+>   effects (the monthly holding fee charged twice on a second fire; two size snapshots a day; the nightly AI eval
+>   doubling its rows - `ai-eval-runner` redeployed to skip graded fixtures); `20261026000010` lets Grafana's
+>   cron-failure alert count refused calls too (`v_scheduled_call_health`).
+> - **A dependency can fail and the person is told** (OWN dependency lens). Pushed: `20261026000012` (`founder_client_errors`:
+>   client_errors had been read by nothing), `000013` (a visitor's `dependency:*` report is admitted), `000014` (the relay
+>   probes a dead provider once a tick instead of 20), `000015` (`founder_model_providers`: which model provider is failing,
+>   from `ai_cost_log.providers_tried`). Redeployed all 29 functions that import `_shared/ai-chain.ts`: a provider that times
+>   out is dead for the rest of the call (a slow Google was asked once per model - 75 s, the answer arriving after the
+>   request had failed), the walk has a 50 s budget and degrades to the honest sentence, an unusable 200 is not re-asked;
+>   boot-checked 5 in production. **Ships with the frontend push:** the console's three new panels (Scheduled work, What
+>   failed on people's screens, Model providers), the calc PDF/diagram honesty, the map's failure sentence, the breach-check
+>   sentence, async CDN libraries (a slow CDN had held skillmatrix, resume and the engineering calculator unrendered), the
+>   font listener, `whDependency`/`whWatchLibrary`. **Found, Ian's call:** production's Render `/pdf` answers 503
+>   "weasyprint not available on this deployment" - every PDF people download is the device-made fallback (now said);
+>   restoring vector PDFs needs WeasyPrint's system libraries in the Render image.
+> - **The Tier-0 flows run on production by script** (BRH.10 AH): `post_deploy_smoke.mjs --tier=flows` walks sign-in, a
+>   logbook entry at both viewports (trashed), one AI action (a deflection fails it), a double accept (one reservation,
+>   all removed) and the logs over the run (flow 5 reads the Management API with the `supabase login` token). Held by
+>   gate `prod-tier0-flows`. Post-deploy: run it after `--tier=app`.
 
 ---
 
@@ -495,6 +640,27 @@ where a wrong guard silently empties every answer.
 
 `…069` joins the ten already listed. It is **REVOKE-only** — no schema change, no data change — so it
 is safe to apply and trivially reversible by re-granting.
+
+### IndexNow push — a standing post-deploy step (Wave KA, 2026-10-26)
+
+A deploy that ships public pages the index was never told about is a deploy the engines find weeks later, if at all.
+Measured on 2026-10-26: the IndexNow key file was live at the root and `tools/indexnow_submit.py` existed, but no
+runbook step called it and no receipt existed anywhere — the 2026-10-24 release shipped 120 pages the index was never
+told about. After Leg C, once the public tier of the smoke is green:
+
+```bash
+python tools/indexnow_submit.py --verify            # the key file resolves on prod (an unverified submit 403s and can rate-limit the domain)
+python tools/indexnow_submit.py --verify --submit --changed   # every sitemap URL whose <lastmod> is newer than the last receipt
+                                                              # (all 120 on the first push); one POST; writes indexnow_receipts.json
+```
+
+The receipt (`indexnow_receipts.json`: `last_submit_at`, the count, the URLs, the response) is what `tools/freshness_trip.py`
+reads — without it the `push` trip stays open on the roadmap header and the nightly `keep-abreast` job.
+
+**Corrected 2026-10-27:** the command above used to read `--verify --submit`, and `--verify` exited before the submit
+branch, so it only ever checked the key file. Nothing wrote the receipt either. Both are fixed in `indexnow_submit.py`.
+`refresh_public_page.py --stamp` no longer pushes on its own: it ran before the refreshed page existed on production. The
+moved `<lastmod>` is the queue this `--changed` step drains.
 
 ### Extra post-deploy smoke (prod), on top of §5
 
@@ -950,6 +1116,15 @@ with a NOTICE; the rest are `CREATE OR REPLACE` / `IF NOT EXISTS` / `DROP TRIGGE
 apply selectively.
 
 ## 3. Leg B — Edge (still on Z:)
+
+**Before any function deploy (standing, 2026-10-27):** `python tools/edge_remote_deps_lock.py --online`. The CLI bundles
+each function in Docker (edge-runtime v1.73.3) and fetches esm.sh at that moment; production then runs the eszip and
+never fetches it again. Walked with `tools/prove_esm_sh_deploy.py` (esm_sh_deploy_walk.json): esm.sh **down** or **429**
+fails the bundle in ~2 s with the cause named and nothing uploaded - production keeps serving its last bundle; **slow**
+builds, only later (26 s at a 6 s hold), and past `--timeout` fails the same clean way; a **changed** package at the same
+version is bundled and shipped *silently*. That last one is why this step exists: `CHANGED` means esm.sh now serves
+different bytes for a version we pinned - read the diff, then `--write` the lock; `DOWN` means wait it out, nothing is
+broken in production.
 
 ```powershell
 # NEW. A webhook: no session, authenticates by SVIX HMAC over the raw body, so --no-verify-jwt is

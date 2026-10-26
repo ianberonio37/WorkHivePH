@@ -1,0 +1,114 @@
+{
+ "before": {
+  "label": "before",
+  "ran": "2026-10-26T17:10:31.367Z",
+  "runs": 3,
+  "assembly_ms_median": 1635,
+  "pre_requests_median": 31,
+  "post_requests_median": 7,
+  "example": {
+   "ok": true,
+   "assembly_ms": 3454,
+   "pre_n": 31,
+   "pre": {
+    "POST rpc fetch_dialog_state": 1,
+    "GET table v_logbook_truth": 4,
+    "POST rpc fetch_active_alerts": 1,
+    "GET table v_worker_skill_truth": 2,
+    "POST fn platform-scraper": 1,
+    "POST rpc hive_kpis": 1,
+    "GET table v_risk_truth": 2,
+    "GET table v_pm_compliance_truth": 1,
+    "GET table v_inventory_items_truth": 1,
+    "GET table v_asset_truth": 2,
+    "GET table v_adoption_truth": 2,
+    "GET table v_knowledge_truth": 1,
+    "GET table schedule_items": 1,
+    "GET table v_anomaly_truth": 1,
+    "GET table v_project_truth": 1,
+    "GET table agent_memory": 1,
+    "GET table cross_hive_alerts": 1,
+    "GET table multilingual_terms": 1,
+    "GET table voice_journal_entries": 1,
+    "HEAD table v_pm_scope_items_truth": 2,
+    "HEAD table v_inventory_items_truth": 2,
+    "GET table hives": 1
+   },
+   "post_n": 7,
+   "post": {
+    "GET auth user": 2,
+    "POST rpc store_memory_turn": 1,
+    "POST rpc update_dialog_state": 1,
+    "POST table conversation_analytics": 1,
+    "POST table avatar_state": 1,
+    "POST table tts_quality_log": 1
+   },
+   "prompt": {
+    "sent": true,
+    "chars": 32332
+   }
+  }
+ },
+ "after": {
+  "label": "after",
+  "ran": "2026-10-26T17:23:17.438Z",
+  "runs": 3,
+  "assembly_ms_median": 130,
+  "pre_requests_median": 3,
+  "post_requests_median": 6,
+  "example": {
+   "ok": true,
+   "assembly_ms": 183,
+   "pre_n": 3,
+   "pre": {
+    "POST rpc fetch_dialog_state": 1,
+    "GET table v_logbook_truth": 1,
+    "GET table hives": 1
+   },
+   "post_n": 6,
+   "post": {
+    "GET auth user": 1,
+    "POST rpc store_memory_turn": 1,
+    "POST rpc update_dialog_state": 1,
+    "POST table conversation_analytics": 1,
+    "POST table avatar_state": 1,
+    "POST table tts_quality_log": 1
+   },
+   "prompt": {
+    "sent": false,
+    "chars": 0
+   }
+  }
+ },
+ "gate": {
+  "label": "gate",
+  "ran": "2026-10-26T17:31:43.260Z",
+  "runs": 2,
+  "assembly_ms_median": 304,
+  "pre_requests_median": 3,
+  "post_requests_median": 6,
+  "example": {
+   "ok": true,
+   "assembly_ms": 304,
+   "pre_n": 3,
+   "pre": {
+    "POST rpc fetch_dialog_state": 1,
+    "GET table v_logbook_truth": 1,
+    "GET table hives": 1
+   },
+   "post_n": 6,
+   "post": {
+    "GET auth user": 1,
+    "POST rpc store_memory_turn": 1,
+    "POST rpc update_dialog_state": 1,
+    "POST table conversation_analytics": 1,
+    "POST table avatar_state": 1,
+    "POST table tts_quality_log": 1
+   },
+   "prompt": {
+    "sent": false,
+    "chars": 0
+   }
+  }
+ }
+}

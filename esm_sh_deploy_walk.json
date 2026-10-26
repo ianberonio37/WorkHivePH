@@ -1,0 +1,74 @@
+{
+ "ran": "2026-10-26T16:11:10Z",
+ "image": "public.ecr.aws/supabase/edge-runtime:v1.73.3",
+ "function": "login",
+ "cases": {
+  "healthy": {
+   "exit": 0,
+   "secs": 2.9,
+   "eszip_bytes": 481255,
+   "said": ""
+  },
+  "runs": {
+   "started": true,
+   "http": 200,
+   "body": {
+    "ok": true,
+    "surface": "login",
+    "build": "1eeea9ba7af6",
+    "status": "ok",
+    "deps": [
+     {
+      "name": "supabase",
+      "ok": true
+     }
+    ],
+    "latency_ms": 1,
+    "checked_at": "2026-10-26T16:11:14.675Z"
+   }
+  },
+  "down": {
+   "exit": 1,
+   "secs": 2.1,
+   "eszip_bytes": 0,
+   "said": "Caused by: |     Import 'https://esm.sh/@supabase/supabase-js@2.110.0' failed: error sending request for url (https://esm.sh/@supabase/supabase-js@2.110.0): client error (Connect): tcp connect error: Connection refused (os error 111): Connection refused (os error 111) |         at file:///work/login/index.ts:20:30"
+  },
+  "429": {
+   "exit": 1,
+   "secs": 3.7,
+   "eszip_bytes": 0,
+   "said": "Caused by: |     Import 'https://esm.sh/@supabase/supabase-js@2.110.0' failed: 429 Too Many Requests |         at file:///work/login/index.ts:20:30",
+   "fake_served": 1
+  },
+  "slow": {
+   "exit": 0,
+   "secs": 26.0,
+   "eszip_bytes": 481152,
+   "said": "",
+   "fake_served": 11
+  },
+  "slow_past_timeout": {
+   "exit": 1,
+   "secs": 6.0,
+   "eszip_bytes": 0,
+   "said": "Error: Failed to complete the bundle within the given time."
+  },
+  "changed": {
+   "exit": 0,
+   "secs": 3.6,
+   "eszip_bytes": 481200,
+   "said": "",
+   "fake_served": 11,
+   "new_content_shipped": true
+  }
+ },
+ "checks": {
+  "healthy esm.sh: the bundle is built": true,
+  "the built bundle answers with esm.sh and deno.land refused (a person never meets esm.sh)": true,
+  "esm.sh down: the bundle fails on the refused connection and nothing is written to upload": true,
+  "esm.sh 429: the bundle fails on the 429 itself and nothing is written to upload": true,
+  "esm.sh slow: with the CLI's patience the bundle is built, only later": true,
+  "esm.sh slow past the bundle timeout: it fails, nothing written": true,
+  "esm.sh changed at the same version: the bundler ships it silently (the lock is the only line)": true
+ }
+}

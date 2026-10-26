@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-09-06T09:53:20+00:00",
+  "generated_at": "2026-10-26T14:55:44+00:00",
   "pillars": {
     "SEO": {
-      "achieved": 720,
-      "total": 723,
-      "pct": 99.6,
+      "achieved": 723,
+      "total": 725,
+      "pct": 99.7,
       "local_pct": 100.0,
-      "ian_blocked": 3
+      "ian_blocked": 2
     },
     "AEO": {
       "achieved": 216,
@@ -30,23 +30,23 @@
       "ian_blocked": 7
     },
     "SXO": {
-      "achieved": 412,
+      "achieved": 411,
       "total": 412,
-      "pct": 100.0,
-      "local_pct": 100.0,
+      "pct": 99.8,
+      "local_pct": 99.8,
       "ian_blocked": 0
     }
   },
-  "overall_pct": 82.6,
+  "overall_pct": 82.5,
   "local_pct": 100.0,
   "weakest": "GEO",
   "point_pct": 98.9,
   "overall": [
-    1365,
-    1380
+    1367,
+    1382
   ],
   "local": [
-    1365,
+    1364,
     1365
   ],
   "components": {
@@ -95,16 +95,16 @@
       ],
       [
         "deployed to production",
-        0,
-        1,
-        "[IAN] git push",
+        3,
+        3,
+        "[IAN] git push - HEAD-probed",
         true
       ],
       [
         "GSC + Bing reporting",
         0,
         2,
-        "[IAN] console login",
+        "[IAN] console access - credential + pull read",
         true
       ]
     ],
@@ -157,21 +157,21 @@
         "entity resolvable (sameAs)",
         0,
         1,
-        "[IAN] profile URLs",
+        "[IAN] profile URLs - sameAs resolved",
         true
       ],
       [
         "live SOV baseline run",
         0,
         1,
-        "[IAN] manual, 5 engines",
+        "[IAN] manual, 5 engines - baseline age read",
         true
       ],
       [
         "off-site channels active",
         0,
         3,
-        "[IAN] Reddit / YouTube / G2",
+        "[IAN] Reddit / YouTube / G2 - evidence read",
         true
       ]
     ],
@@ -194,14 +194,14 @@
         "entity resolvable",
         0,
         6,
-        "[IAN] sameAs",
+        "[IAN] sameAs - the GEO read, shared",
         true
       ],
       [
         "third-party listicle inclusion",
         0,
         1,
-        "[IAN] outreach",
+        "[IAN] outreach - recorded inclusions read",
         true
       ]
     ],
@@ -229,7 +229,7 @@
       ],
       [
         "CWV measured across the surface",
-        120,
+        119,
         120,
         "cwv",
         false
@@ -242,5 +242,13 @@
         false
       ]
     ]
+  },
+  "reasons": {
+    "entity resolvable (sameAs)": "index.html's Organization declares sameAs: [] - no profile URL to resolve",
+    "deployed to production": "HEAD sitemap.xml 200, robots.txt 200, ea75de4e1f4161c869d7a30bcbad9660.txt 200",
+    "GSC + Bing reporting": "Search Console: credential absent, report none; Bing Webmaster: credential absent, report none",
+    "live SOV baseline run": "geo_sov_baseline.json does not exist - never run",
+    "off-site channels active": "missing: Reddit, YouTube, G2",
+    "third-party listicle inclusion": "none recorded (listicle_inclusions.json)"
   }
 }

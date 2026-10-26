@@ -701,5 +701,9 @@
   "20261022000004_opc_developer_reads.sql": "da2f34651e6b3fcf4bb189da21fb85e2b132bdac746c94a8e7e30705a8bb4a1c",
   "20261022000005_listings_public_is_mine_asked_once.sql": "c7d8c71d4e66f23a28328b7a400924c5c7387d13190da53556d5fc1fbce3b6a6",
   "20261022000006_anchor_ledger_totals_and_platform_trail.sql": "164637de2272fa25560a1b24e662d78a276f391bda2cd72059a1177e58e96370",
-  "20261023000001_register_thermography_standards.sql": "87ded385abf90b7e243d3b159d9fea10841eba1e9666b4a34aa4d72e709b0769"
+  "20261023000001_register_thermography_standards.sql": "87ded385abf90b7e243d3b159d9fea10841eba1e9666b4a34aa4d72e709b0769",
+  "20261026000001_a_hiring_post_is_not_a_sale.sql": "67fe8bff2c05e7775697080f8ec44ddbb2b5b2218ea0d67615442e45f89e6e31",
+  "20261026000002_a_breakdown_cause_from_the_list.sql": "861d5e48eb2c57bb415e7860113819df2e6a2e20acc0962864ff11fa7d623c63",
+  "20261026000003_repeat_failures_leave_unknown_out.sql": "ae6f16b79ae54c90a340c3be52151b7f2112080d62958dc0e3bee10d58aef56c",
+  "20261026000004_analytics_leave_trashed_entries_out.sql": "0249d17d20241fbafcfc56994b2aa6ceeec96c1c69e937b7b2bc0446a6e76159"
 }

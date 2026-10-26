@@ -1,0 +1,63 @@
+{
+  "ran": "2026-10-26T13:44:15.895Z",
+  "findings": [
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "axe:color-contrast",
+      "severity": 2,
+      "evidence": "5 node(s): span[data-source-chip=\"\"] | .result-highlight > div:nth-child(1) > div:nth-chil",
+      "owner": "qa-tester"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "floor",
+      "rule": "axe:scrollable-region-focusable",
+      "severity": 2,
+      "evidence": "2 node(s): table:nth-child(4) | table:nth-child(10)",
+      "owner": "qa-tester"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Toggle/segmented buttons must expose aria-pressed (true|false) in parity with the .active class",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 1,
+      "evidence": "button.toggle-btn.active — 2 toggle(s) missing pressed/selected state",
+      "owner": "designer"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Toggle/segmented buttons must expose aria-pressed (true|false) in parity with the .active class",
+      "basis": "designer / WCAG-4.1.2",
+      "severity": 1,
+      "evidence": "button.toggle-btn — 3 toggle(s) missing pressed/selected state",
+      "owner": "designer"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "style#wh-toast-fit — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    },
+    {
+      "page": "engineering-design.html",
+      "role": "worker",
+      "layer": "heuristic",
+      "rule": "Auto-updating regions (toasts, connection/presence chips) must be ARIA live regions (role=status/alert + aria-live)",
+      "basis": "designer / WCAG-4.1.3",
+      "severity": 1,
+      "evidence": "button#wh-conn-chip — auto-update region without role=status/alert or aria-live",
+      "owner": "designer"
+    }
+  ]
+}
