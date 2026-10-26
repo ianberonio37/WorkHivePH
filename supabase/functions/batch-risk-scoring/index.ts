@@ -11,6 +11,7 @@ import { checkAIRateLimit, rateLimitedResponse, checkRouteRateLimit, routeRateLi
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { validateContract } from "../_shared/validate-contract.ts";
+import { isServiceRoleBearer } from "../_shared/tenant-context.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -57,7 +58,8 @@ serveObserved("batch-risk-scoring", async (req) => {
     // (risk scores were previously only ever written by the cron) while keeping
     // the daily batch as the zero-touch baseline.
     const bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-    const isService = !!(bearer && SERVICE_KEY && bearer === SERVICE_KEY);
+    // the shared check: the runtime's service key, or the internal-call secret the scheduled jobs send (2026-10-26)
+    const isService = isServiceRoleBearer(bearer);
     let reqHiveId: string | null = null;
     try { reqHiveId = ((await req.json()) as { hive_id?: string })?.hive_id ?? null; } catch (_) { reqHiveId = null; }
 

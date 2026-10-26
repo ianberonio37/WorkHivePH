@@ -72,6 +72,16 @@ export function withObservability(
     const modelCalls = newModelCallScope(route);
     // ★A WALK SPENDS NO MODEL CALL (model-calls.ts ModelCallScope.no_model): local runtime only, asked per request
     if (_OBS_LOCAL && req.headers.get("x-wh-walk-no-model") === "1") modelCalls.no_model = true;
+    // ★AND A WALK CAN MAKE AN EMBEDDING PROVIDER MISBEHAVE (model-calls.ts ModelCallScope.embed_fault): local runtime only
+    const _ef = _OBS_LOCAL ? req.headers.get("x-wh-embed-fault") : null;
+    if (_ef) {
+      try {
+        const f = JSON.parse(_ef);
+        if (f && typeof f.fake === "string" && /^http:\/\/[\w.-]+:\d+$/.test(f.fake) && f.providers && typeof f.providers === "object") {
+          modelCalls.embed_fault = { fake: f.fake, providers: f.providers };
+        }
+      } catch (_) { /* empty-catch-allow: a malformed walk header is ignored - the request runs unfaulted */ }
+    }
     let res: Response;
     try {
       // Chaos hook to PROVE the error net end-to-end (roadmap T2/T4 fault-

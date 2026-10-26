@@ -68,6 +68,12 @@ interface ScanAlert {
 // Detection rules (pure logic, no AI)
 // ---------------------------------------------------------------------------
 
+// The logbook's listed cause, lower-cased, or "" when none was recorded ("Unknown" is the list's word for none).
+function listedCause(rc: string | null): string {
+  const k = (rc || "").trim().toLowerCase();
+  return k === "unknown" ? "" : k;
+}
+
 function detectRepeatFailure(
   machine: string,
   category: string,
@@ -76,14 +82,20 @@ function detectRepeatFailure(
   // Rule: same root_cause category 3+ times in 90 days
   const breakdowns = rows.filter(r => r.maintenance_type === "Breakdown / Corrective");
   const countByRoot: Record<string, number> = {};
+  const spelled: Record<string, string> = {};   // the list's own spelling, for the evidence a supervisor reads
   for (const r of breakdowns) {
-    const key = (r.root_cause || "unknown").toLowerCase();
+    // BRH.10 AI (2026-10-26): grouped by the listed cause (the logbook files any other words beside it), and a cause
+    // never recorded is not one cause repeating - three breakdowns with none given read "3x repeat failure: unknown"
+    const key = listedCause(r.root_cause);
+    if (!key) continue;
     countByRoot[key] = (countByRoot[key] || 0) + 1;
+    spelled[key] = spelled[key] || (r.root_cause || "").trim();
   }
   const repeats = Object.entries(countByRoot).filter(([, n]) => n >= 3);
   if (!repeats.length) return null;
 
-  const [topRoot, topCount] = repeats.sort((a, b) => b[1] - a[1])[0];
+  const [topKey, topCount] = repeats.sort((a, b) => b[1] - a[1])[0];
+  const topRoot = spelled[topKey] || topKey;
   return {
     machine, category,
     rule_id:     "repeat_failure",
@@ -131,10 +143,14 @@ function detectMultiSymptom(
 ): ScanAlert | null {
   // Rule: 2+ distinct root_cause categories on same machine within 30 days
   const recent = rows.filter(r => r.maintenance_type === "Breakdown / Corrective");
-  const roots  = new Set(recent.map(r => (r.root_cause || "").toLowerCase()).filter(Boolean));
+  const roots  = new Map<string, string>();   // listed cause -> the list's own spelling
+  for (const r of recent) {
+    const k = listedCause(r.root_cause);
+    if (k && !roots.has(k)) roots.set(k, (r.root_cause || "").trim());
+  }
   if (roots.size < 2) return null;
 
-  const rootList = Array.from(roots).slice(0, 5);
+  const rootList = Array.from(roots.values()).slice(0, 5);
   return {
     machine, category,
     rule_id:     "multi_symptom",
@@ -214,6 +230,21 @@ async function scanHive(
 
   if (error || !logbook?.length) return { created: 0, updated: 0, errors: error ? 1 : 0 };
 
+  // ★A RE-SCAN IS NOT A NEW DETECTION (2026-10-27). The upsert below wrote detected_at = now on every run, so a signature
+  // that had been standing for weeks read as found minutes ago, and the alert hub's "20 newest" (ordered by detected_at)
+  // became a lottery of whichever rows the last scan touched - 20 of 39 in the hive it was measured on. A signature that is
+  // still current keeps the date it was first detected (and an acknowledgement it was given); one that was resolved or
+  // had expired is a re-emergence, dated now.
+  const { data: standing } = await db
+    .from("failure_signature_alerts")
+    .select("machine, rule_id, status, detected_at, expires_at")
+    .eq("hive_id", hiveId);
+  const keep = new Map<string, { detected_at: string; status: string }>();
+  for (const s of standing || []) {
+    const current = s.status !== "resolved" && (!s.expires_at || Date.parse(s.expires_at) > now.getTime());
+    if (current && s.detected_at) keep.set(`${s.machine}::${s.rule_id}`, { detected_at: s.detected_at, status: s.status });
+  }
+
   // Group by machine
   const byMachine: Record<string, { rows90: LogbookRow[]; rows30: LogbookRow[]; category: string }> = {};
   for (const row of logbook) {
@@ -259,8 +290,8 @@ async function scanHive(
         evidence:        alert.evidence,
         days_to_failure: alert.days_to_failure,
         severity:        alert.severity,
-        status:          "active",
-        detected_at:     now.toISOString(),
+        status:          keep.get(`${alert.machine}::${alert.rule_id}`)?.status === "acknowledged" ? "acknowledged" : "active",
+        detected_at:     keep.get(`${alert.machine}::${alert.rule_id}`)?.detected_at ?? now.toISOString(),
         expires_at:      expiresAt,
       };
 

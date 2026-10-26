@@ -23,7 +23,7 @@
 //   the gateway is the only writer; agent code never sees the table.
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
-import { generateEmbedding } from "./embedding-chain.ts";
+import { generateEmbeddingTagged, pinnedEmbedderName } from "./embedding-chain.ts";
 import { ageLabel } from "./memory_age.ts";
 
 export const JOURNAL_RECALL_K = 5;            // top-K to retrieve per turn
@@ -42,6 +42,9 @@ export interface JournalRecallRow {
 export interface JournalRecallResult {
   rows:           JournalRecallRow[];
   query_embedding: number[];   // returned so the caller can reuse on persist (one embed call per turn)
+  // true only when the query vector came from the corpus's own embedder - a fallback's vector may answer this turn's
+  // recall but must never be written into a row (STRICT = INGEST, embedding-chain.ts). 2026-10-26.
+  query_embedding_pinned: boolean;
   block:          string;      // pre-formatted text ready to append to memory
 }
 
@@ -59,13 +62,18 @@ export async function loadJournalRecall(
   db: SupabaseClient,
   authUid: string,
   transcript: string,
+  opts: { embed?: { strict?: boolean; budgetMs?: number } } = {},
 ): Promise<JournalRecallResult> {
-  const empty: JournalRecallResult = { rows: [], query_embedding: [], block: "" };
+  const empty: JournalRecallResult = { rows: [], query_embedding: [], query_embedding_pinned: false, block: "" };
   if (!authUid || !transcript.trim()) return empty;
 
   let queryEmbedding: number[];
+  let pinned = false;
   try {
-    queryEmbedding = await generateEmbedding(transcript);
+    // the terms of a caller for whom recall is an enhancement (the gateway, OWN55 2026-10-27) - see embedding-chain.ts
+    const t = await generateEmbeddingTagged(transcript, undefined, opts.embed);
+    queryEmbedding = t.vector;
+    pinned = t.provider === pinnedEmbedderName();
   } catch (err) {
     console.warn("[journal-recall] embed failed:", err instanceof Error ? err.message : err);
     return empty;
@@ -79,14 +87,14 @@ export async function loadJournalRecall(
 
   if (error) {
     console.warn("[journal-recall] rpc failed:", error.message);
-    return { rows: [], query_embedding: queryEmbedding, block: "" };
+    return { rows: [], query_embedding: queryEmbedding, query_embedding_pinned: pinned, block: "" };
   }
 
   const rows: JournalRecallRow[] = (data || []).filter(
     (r: JournalRecallRow) => typeof r.similarity === "number" && r.similarity >= JOURNAL_SIM_FLOOR,
   );
 
-  return { rows, query_embedding: queryEmbedding, block: formatJournalRecall(rows) };
+  return { rows, query_embedding: queryEmbedding, query_embedding_pinned: pinned, block: formatJournalRecall(rows) };
 }
 
 /**
@@ -141,7 +149,8 @@ export async function persistJournalEntry(
   let embedding = args.embedding;
   if ((!embedding || embedding.length !== 384) && !args.skipEmbed) {
     try {
-      embedding = await generateEmbedding(args.transcript);
+      // a ROW: strict - only the corpus's own embedder; on failure the row is kept with no vector (recoverable)
+      embedding = (await generateEmbeddingTagged(args.transcript, undefined, { strict: true })).vector;
     } catch (err) {
       console.warn("[journal-recall] persist embed failed:", err instanceof Error ? err.message : err);
       embedding = undefined;

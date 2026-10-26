@@ -73,6 +73,7 @@ import {
 } from "../_shared/memory.ts";
 import { callAI, aiAnswered } from "../_shared/ai-chain.ts";
 import { generateEmbedding } from "../_shared/embedding-chain.ts";
+import { loadHiveKnowledge, type HiveKnowledge } from "../_shared/hive-knowledge.ts";
 import { searchOwnFaultKnowledge } from "../_shared/own-knowledge.ts";
 import {
   loadJournalRecall,
@@ -309,12 +310,16 @@ const REGISTRY_BY_SOURCE: Record<string, any> = Object.fromEntries(
 );
 function _truthy(v: unknown): boolean { return v === true || v === 1 || v === "true"; }
 // {slot} interpolation, with optional rounding {slot:N} -> Number(v).toFixed(N).
+// {field:2} formats a number to 2 decimals; {field|120} clips text to 120 characters (2026-10-27: the logbook block
+// selected `problem` and never printed it, so "what was my last entry?" was answered "the snapshot does not include a
+// problem text" - free text needs a bound before it can be printed four times into a prompt).
 function _fillSlots(tpl: string, src: Record<string, unknown>): string {
-  return tpl.replace(/\{(\w+)(?::(\d+))?\}/g, (_m, k, dec) => {
+  return tpl.replace(/\{(\w+)(?::(\d+))?(?:\|(\d+))?\}/g, (_m, k, dec, clip) => {
     const v = src[k];
     if (v === null || v === undefined) return "";
     if (dec !== undefined && Number.isFinite(Number(v))) return Number(v).toFixed(Number(dec));
-    return String(v);
+    const s = String(v).replace(/\s+/g, " ").trim();
+    return clip !== undefined && s.length > Number(clip) ? s.slice(0, Number(clip) - 1) + "…" : s;
   }).replace(/\s+/g, " ").trim();
 }
 // CUSTOM handlers for non-flat shapes (registered as engine:{kind:"custom",handler}).
@@ -472,13 +477,23 @@ function isKnowledgeQuestion(msg: string): boolean {
 const KNOWLEDGE_MATCH_COUNT = 4;
 const KNOWLEDGE_SIM_FLOOR = 0.25;      // floor out vector noise
 const KNOWLEDGE_ITEM_CHARS = 220;
+// ★THE KNOWLEDGE BLOCK IS AN ENHANCEMENT, SO ITS EMBEDDING HAS A BUDGET AND ONE SPACE (OWN55 walk, 2026-10-27): with the
+// primary down and Jina slow, one companion question waited 34 s - the knowledge and procedure blocks each walked the chain
+// at 15 s a provider. They and journal recall (which embeds the same turn first) now share one walk per turn
+// (embedding-chain.ts memo) and give it 4 s; past that the turn is answered without those blocks, as it already is when
+// nothing is relevant. Measured after the memo alone: one walk, still 15 s - recall asked first, unbudgeted.
+// And STRICT: each block searches a corpus embedded by the pinned embedder, so a fallback's vector (another space) would
+// search it with noise that can clear the similarity floor as easily as miss it - and the block tells the model to ground
+// its answer in what comes back. This file used to say such a vector "simply won't match"; strict makes that true
+// instead of hoped: only the corpus's own embedder is asked.
+const ENHANCEMENT_EMBED = { strict: true, budgetMs: 4000 };
 async function embedKnowledgeQuery(message: string): Promise<number[] | null> {
   try {
     // Pin the SAME model the knowledge corpus is embedded with — locally the self-hosted bge
     // server (BGE_EMBED_URL). Query + corpus MUST share one vector space or cosine is noise
-    // (embedding-chain doctrine: re-embed a corpus AND flip its pin together). Failover still
-    // applies on outage, but a non-bge answer is logged loudly and simply won't match → "".
-    const embedding = await generateEmbedding(message, "bge-local");
+    // (embedding-chain doctrine: re-embed a corpus AND flip its pin together). STRICT (ENHANCEMENT_EMBED): no failover to
+    // another space - an outage of the corpus's embedder answers this turn without the block.
+    const embedding = await generateEmbedding(message, "bge-local", ENHANCEMENT_EMBED);
     return Array.isArray(embedding) && embedding.length ? embedding : null;
   } catch (_) {
     return null;   // embedding chain unavailable → degrade silently (no RAG context this turn)
@@ -1287,7 +1302,7 @@ serveObserved("ai-gateway", async (req) => {
   const memorySections: Record<string, boolean> = {
     working: false, semantic: false, episodic: false,
     verified_state: false, procedural: false, followups: false,
-    domain_knowledge: false, ops_snapshot: false, own_knowledge: false,
+    domain_knowledge: false, ops_snapshot: false, own_knowledge: false, hive_knowledge: false,
   };
   if (authUid) {
     const handle: MemoryHandle = {
@@ -1320,10 +1335,12 @@ serveObserved("ai-gateway", async (req) => {
   // Semantic-recall enrichment for agents that opt in (voice-journal).
   // Skipped for anon for the same reason as agent_memory above.
   let recallEmbedding: number[] = [];
+  let recallEmbeddingPinned = false;   // the recall vector may be written into the journal row only when this is true
   if (authUid && SEMANTIC_RECALL_AGENTS.has(agent)) {
     try {
-      const recall = await loadJournalRecall(adminClient, authUid, message);
+      const recall = await loadJournalRecall(adminClient, authUid, message, { embed: ENHANCEMENT_EMBED });
       recallEmbedding = recall.query_embedding;
+      recallEmbeddingPinned = recall.query_embedding_pinned === true;
       if (recall.block) {
         memory_block = memory_block
           ? `${memory_block}\n\n${recall.block}`
@@ -1332,6 +1349,27 @@ serveObserved("ai-gateway", async (req) => {
       }
     } catch (err) {
       console.warn("[ai-gateway] recall failed (non-fatal):", err instanceof Error ? err.message : err);
+    }
+  }
+
+  // ★THE COMPANION'S DOCUMENTS, FACTS AND STANDARDS NEVER REACHED A REPLY (OWN AI failure-mode walk, 2026-10-26).
+  // voice-handler.js built them into context.platform_prompt, which no server code reads - so since the companion moved
+  // behind this gateway, the hive's documents, its team's extracted facts and the standards were fetched on every turn and
+  // thrown away. They are retrieved here: the journal recall's embedding, the PERSON's client (each RPC checks
+  // membership), other people's text read-not-obeyed, and `groundedOn` names exactly what went in - the reply may say
+  // what it was given, and nothing else.
+  let groundedOn: HiveKnowledge["sources"] | null = null;
+  if (authUid && SEMANTIC_RECALL_AGENTS.has(agent) && recallEmbedding.length && !_debugEchoTurn) {
+    try {
+      const k = await loadHiveKnowledge(authedClient, verifiedHiveId || null, recallEmbedding);
+      if (k.block) {
+        memory_block = memory_block ? `${memory_block}\n\n${k.block}` : k.block;
+        memorySections.hive_knowledge = true;
+        groundedOn = k.sources;
+      }
+      if (k.stripped) console.warn(`[ai-gateway] ${k.stripped} instruction line(s) stripped from hive knowledge`);
+    } catch (err) {
+      console.warn("[ai-gateway] hive knowledge failed (non-fatal):", err instanceof Error ? err.message : err);
     }
   }
 
@@ -1386,7 +1424,7 @@ serveObserved("ai-gateway", async (req) => {
   if (authUid && hive_id && PROCEDURAL_SKILL_AGENTS.has(agent)) {
     try {
       const procs = await matchProcedures(adminClient, hive_id, worker_name, message, {
-        limit: PROCEDURE_RECALL_LIMIT,
+        limit: PROCEDURE_RECALL_LIMIT, embed: ENHANCEMENT_EMBED,
       });
       const procBlock = formatProcedures(procs);
       if (procBlock) {
@@ -1680,7 +1718,9 @@ serveObserved("ai-gateway", async (req) => {
         faultInject: {
           fail: Array.isArray(f.fail) ? (f.fail as string[]) : undefined,
           failAll: f.failAll === true,
-          mode: f.mode as "429" | "413" | "down" | undefined,
+          mode: f.mode as "429" | "413" | "down" | "slow" | "changed" | undefined,
+          // a local fake provider for the real request (tools/fake_ai_provider.py); callAI honours it only on a local runtime
+          fake: typeof f.fake === "string" ? f.fake : undefined,
         },
       });
       const degraded = !probe || probe.trim() === "" || probe.trim() === "{}";
@@ -1972,7 +2012,8 @@ serveObserved("ai-gateway", async (req) => {
       // (persist-first above) — complete it with the reply + the recall embedding.
       // Fallback insert only if that early write failed (keeps the old guarantee).
       if (journalRowId) {
-        await updateJournalReply(adminClient, journalRowId, hydratedAnswer, recallEmbedding,
+        // a fallback provider's vector answered this turn's recall; it is never filed into the row (STRICT = INGEST)
+        await updateJournalReply(adminClient, journalRowId, hydratedAnswer, recallEmbeddingPinned ? recallEmbedding : undefined,
           { target_fn: route.fn, latency_ms: Date.now() - t0 });
       } else {
         await persistJournalEntry(adminClient, {
@@ -1982,7 +2023,7 @@ serveObserved("ai-gateway", async (req) => {
           transcript:  message,
           reply:       hydratedAnswer,
           lang,
-          embedding:   recallEmbedding,
+          embedding:   recallEmbeddingPinned ? recallEmbedding : undefined,
           meta:        { target_fn: route.fn, latency_ms: Date.now() - t0 },
         });
       }
@@ -2032,6 +2073,12 @@ serveObserved("ai-gateway", async (req) => {
     // (voice-journal-agent returns { answer, lang, persona }) so a client/harness can assert WHICH
     // persona answered (hezekiah|zaniah) without prose-grepping "Naks"/"Hala". Additive; ignored by callers that don't read it.
     ...(typeof parsedEnvelope?.persona === "string" ? { persona: parsedEnvelope.persona } : {}),
+    // BRH-AP (2026-10-27): which safety rules the specialist stated for this turn (voice-journal-agent turnSteering)
+    ...(Array.isArray(parsedEnvelope?.steering) ? { steering: (parsedEnvelope.steering as unknown[]).filter((x) => typeof x === "string").slice(0, 12) } : {}),
+    ...(Array.isArray(parsedEnvelope?.steering_enforced)
+      ? { steering_enforced: (parsedEnvelope.steering_enforced as unknown[]).filter((x) => typeof x === "string").slice(0, 12) } : {}),
+    // what the hive-knowledge block actually carried into this turn's prompt (see loadHiveKnowledge above). Additive.
+    ...(groundedOn ? { grounded_on: groundedOn } : {}),
     // The specialist's short spoken line, kept as what it is when the answer is the fuller text (the project narrative
     // returns both; see the answer chain above). Hydrated like the answer. Additive.
     ...(specialistNarration && !routeResult

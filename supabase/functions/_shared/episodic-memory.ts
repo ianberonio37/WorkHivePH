@@ -25,7 +25,7 @@
 // is the only network call here and it never blocks recall.
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
-import { generateEmbedding } from "./embedding-chain.ts";
+import { generateEmbeddingTagged } from "./embedding-chain.ts";
 
 export const MEMORY_TYPES = ["factual", "procedural", "episodic", "semantic"] as const;
 export type MemoryType = typeof MEMORY_TYPES[number];
@@ -238,7 +238,8 @@ export async function persistEpisodic(
   // later store of the same lesson can fill it). Never throws.
   await Promise.all(rows.map(async (r) => {
     if (r.memory_type === "procedural" && r.content) {
-      try { r.embedding = await generateEmbedding(r.content); }
+      // a ROW: strict - the corpus's own embedder or no vector (STRICT = INGEST; 2026-10-26)
+      try { r.embedding = (await generateEmbeddingTagged(r.content, undefined, { strict: true })).vector; }
       catch (_err) { /* leave null; enrichment / a later store can fill it */ }
     }
   }));

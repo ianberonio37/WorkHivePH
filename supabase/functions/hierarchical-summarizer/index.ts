@@ -50,6 +50,7 @@ import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trac
 import { noteModelCaller, withModelCaller } from "../_shared/model-calls.ts";  // LM-O: who each model call is for
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
+import { sanitizeDeep } from "../_shared/untrusted.ts";
 import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -254,10 +255,14 @@ async function buildDigest(
       latency_ms:     Date.now() - t0,
     };
   }
+  // ★READ, NEVER OBEYED (OWN AI failure-mode lens, prompt injection, 2026-10-26): the period's stats carry the logbook's own words (problems, actions, top failure text) - a line that reads as an
+  // instruction to the model is stripped before it reaches the prompt.
+  const _clean = sanitizeDeep(summary);
+  if (_clean.stripped) console.warn(`[hierarchical-summarizer] ${_clean.stripped} instruction line(s) stripped from the period's records`);
   const payload = {
     period_label: periodLabel,
     asset_tag:    assetTag || "(hive-wide)",
-    stats:        summary,
+    stats:        _clean.value,
   };
   const raw = await callAI(JSON.stringify(payload), {
     systemPrompt: DIGEST_SYSTEM,
@@ -406,6 +411,10 @@ serveObserved("hierarchical-summarizer", tracedReply("hierarchical-summarizer", 
     }
     const levels: Level[] = ["week"];
     if (new Date().getUTCDate() <= 7) levels.push("month");
+    // quarters and years too, at their boundaries (2026-10-26): temporal-rag-orchestrator reads the quarter level for
+    // anything past ~10 months and the year level past three years, and nothing had ever written either.
+    if (new Date().getUTCDate() <= 7 && new Date().getUTCMonth() % 3 === 0) levels.push("quarter");
+    if (new Date().getUTCDate() <= 7 && new Date().getUTCMonth() === 0) levels.push("year");
     const out: Array<{ hive_id: string; level: Level; written: boolean; reason?: string }> = [];
     for (const level of levels) {
       const period = previousPeriod(level);

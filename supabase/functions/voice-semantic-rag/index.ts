@@ -13,7 +13,7 @@ import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
 import { resolveIdentity } from "../_shared/tenant-context.ts";
 import { checkUserRateLimit, userRateLimitedResponse } from "../_shared/rate-limit.ts";
 // LM-O (2026-10-08): this function calls an embedding provider itself, so it reports the call itself
-import { reportModelCall, reportModelCallFailed } from "../_shared/model-calls.ts";
+import { generateEmbeddingTagged } from "../_shared/embedding-chain.ts";
 
 // contract-allow: RAG retrieval fn, not a brain output producer
 
@@ -115,9 +115,7 @@ serveObserved("voice-semantic-rag", tracedReply("voice-semantic-rag", async (req
     let method = "recency";
 
     try {
-      // Step 1: Try to get embedding for the query_text
-      // For now, this is a stub. When ai-gateway embeds transcripts,
-      // we can call a local embedding endpoint or use Jina API here.
+      // Step 1: the query's embedding in the corpus's own space (see _getEmbedding)
       const queryEmbedding = await _getEmbedding(query_text);
 
       if (queryEmbedding && queryEmbedding.length > 0) {
@@ -152,14 +150,16 @@ serveObserved("voice-semantic-rag", tracedReply("voice-semantic-rag", async (req
         const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
           .toISOString();
 
+        // ★THIS FALLBACK HAD NEVER RUN (OWN55 walk, 2026-10-27): it ended in `.execute()`, which supabase-js v2's builders
+        // do not have (the Python client's idiom). The TypeError was caught below and logged, so every turn the semantic
+        // half missed - which, with its 768-dim query, was every turn - returned no journal at all. A builder is awaited.
         const { data: recencyResults, error: recencyError } = await db
           .from("voice_journal_entries")
           .select("transcript, reply, created_at")
           .eq("auth_uid", auth_uid)
           .gt("created_at", thirtyDaysAgo)
           .order("created_at", { ascending: false })
-          .limit(limit)
-          .execute();
+          .limit(limit);
 
         if (!recencyError && recencyResults && recencyResults.length > 0) {
           results = recencyResults.map((row: any) => ({
@@ -192,51 +192,20 @@ serveObserved("voice-semantic-rag", tracedReply("voice-semantic-rag", async (req
   }
 }));
 
-// Helper: Get embedding for query text (Phase 1.5)
-// When Jina API is configured, this calls out to generate embeddings.
-// For now, returns null (fallback to recency).
+// Helper: the query's embedding, in the space voice_journal_entries lives in.
+// ★IT ASKED A MODEL WHOSE VECTORS COULD NOT SEARCH THIS CORPUS (OWN55 walk, 2026-10-27). This called Jina directly for
+// jina-embeddings-v2-base-en - 768 dimensions - while voice_journal_entries.embedding is vector(384), written by the shared
+// chain's pinned embedder (journal-recall.ts persists with strict). A 768-dim query cannot be compared with a 384-dim
+// column, so semantic recall never returned a row and every turn fell to recency after paying a Jina call; and a slow
+// Jina held this function 15 s behind a page fetch that gives up at 5 s (voice-handler.js), so the person waited 5 s for
+// no recall at all. Production carries JINA_API_KEY, so this was its path there. Now: the shared chain, STRICT (only the
+// corpus's own embedder - a fallback's vector is another space) within 3 s, recorded by the chain like every embedding.
+const QUERY_EMBED = { strict: true, budgetMs: 3000 };
 async function _getEmbedding(text: string): Promise<number[] | null> {
-  const jina_key = Deno.env.get("JINA_API_KEY");
-  if (!jina_key) {
-    // No embedding API configured, use recency fallback
+  try {
+    return (await generateEmbeddingTagged(text, undefined, QUERY_EMBED)).vector;
+  } catch (err) {
+    log.warn(null, "Embedding unavailable, recency recall this turn:", { detail: String(err).slice(0, 160) });
     return null;
   }
-
-  const _t0 = performance.now();   // LM-O: the record's latency
-  const _model = "jina-embeddings-v2-base-en";
-  try {
-    const resp = await fetch("https://api.jina.ai/v1/embeddings", {
-      method: "POST",
-      signal: AbortSignal.timeout(15000),
-      headers: {
-        Authorization: `Bearer ${jina_key}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "jina-embeddings-v2-base-en",
-        input: [text],
-      }),
-    });
-
-    if (resp.status !== 200) {
-      log.warn(null, "Jina API failed:", { detail: resp.status });
-      reportModelCallFailed({ kind: "embedding", providerName: "jina", modelName: _model,
-        tried: [`jina/${_model}=${resp.status}`], started_at: _t0 });
-      return null;
-    }
-
-    const data = await resp.json();
-    reportModelCall({ kind: "embedding", providerName: "jina", modelName: _model, usage: data?.usage ?? null,
-      input: text, started_at: _t0, tried: [`jina/${_model}=200`] });
-    const embeddings = data.data || [];
-    if (embeddings.length > 0) {
-      return embeddings[0].embedding || null;
-    }
-  } catch (err) {
-    log.warn(null, "Embedding fetch failed:", { detail: err });
-    reportModelCallFailed({ kind: "embedding", providerName: "jina", modelName: _model,
-      tried: [`jina/${_model}=${/timeout|abort/i.test(String(err)) ? "timeout" : "threw"}`], started_at: _t0 });
-  }
-
-  return null;
 }

@@ -14,6 +14,9 @@
 // the rest of your handler.
 
 import { getCorsHeaders } from "./cors.ts";
+// which code this function is (tools/stamp_functions.py): reported as `build` so a running function serving old code - a
+// stale runtime cache, or not redeployed after a _shared change - is caught by tools/verify_function_builds.py (2026-10-26)
+import { BUILD_STAMPS } from "./build_stamps.ts";
 
 export interface HealthDep {
   name:    string;
@@ -50,7 +53,7 @@ export async function handleHealth(
     console.error(`health check failed for ${surface}:`, String(e));
     return new Response(JSON.stringify({
       // the exception text is the operator's, and it goes to the log; the payload carries a code (2026-09-06)
-      ok: false, surface, error: "check_failed", checked_at: new Date().toISOString(),
+      ok: false, surface, error: "check_failed", build: BUILD_STAMPS[surface] ?? null, checked_at: new Date().toISOString(),
     }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
   const allOk = result.deps.every((d) => d.ok);
@@ -59,6 +62,7 @@ export async function handleHealth(
   return new Response(JSON.stringify({
     ok:         allOk,
     surface,
+    build:      BUILD_STAMPS[surface] ?? null,
     status,
     deps:       result.deps,
     latency_ms: Math.round(performance.now() - t0),

@@ -97,11 +97,27 @@ export interface ModelCallScope {
    *  row's story - without spending a call. A function that calls a provider DIRECTLY (not through the shared chain)
    *  is not covered by it. Child scopes (withModelCaller, raceModelCall) inherit it through their prototype. */
   no_model?: boolean;
+  /** LOCAL walk only (observability reads `x-wh-embed-fault`, OWN55 2026-10-27): embedding provider name -> how its REAL
+   *  request misbehaves. embedding-chain.ts sends that provider's request to `fake` (tools/fake_ai_provider.py serves
+   *  /<mode>/embeddings; "down" is a closed port), so the chain's own timeout, status and shape checks meet the failure -
+   *  the embedding twin of ai-chain.ts's faultInject.fake. Child scopes inherit it like no_model. */
+  embed_fault?: { fake: string; providers: Record<string, "down" | "slow" | "429" | "changed"> };
+  /** one query-embedding walk per (space, text) per request - embedding-chain.ts generateEmbeddingTagged (OWN55, 2026-10-27) */
+  embed_memo?: Map<string, Promise<{ vector: number[]; provider: string }>>;
 }
 
 /** true when this request asked, on the local runtime, for no model call (see ModelCallScope.no_model) */
 export function modelCallsRefused(): boolean {
   return !!currentModelCallScope()?.no_model;
+}
+
+/** the URL a LOCAL walk sends this embedding provider's request to instead of `url`, or `url` (see embed_fault) */
+export function embedFaultUrl(provider: string, url: string): string {
+  const f = currentModelCallScope()?.embed_fault;
+  const mode = f?.providers?.[provider];
+  if (!f || !mode) return url;
+  const base = f.fake.replace(/\/+$/, "");
+  return mode === "down" ? base.replace(/:\d+$/, ":9") + "/embeddings" : `${base}/${mode}/embeddings`;
 }
 
 const _scopes = new AsyncLocalStorage<ModelCallScope>();

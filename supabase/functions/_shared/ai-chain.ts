@@ -431,10 +431,19 @@ export function stripReasoningBlocks(text: string): string {
 // so it is dead in production even if a faultInject option somehow reaches callAI.
 const _AI_CHAIN_LOCAL = /\/\/(kong|localhost|127\.0\.0\.1)(:|\/|$)/.test(Deno.env.get("SUPABASE_URL") || "");
 
+// The whole text walk's budget (OWN dependency lens, 2026-10-26): under the ~60 s a request can wait at the gateway, with room
+// for the reply to travel. Each attempt gets min(25 s, what is left).
+const WALK_BUDGET_MS = 50000;
+
 export interface FaultInject {
   fail?: string[];      // provider names to force-fail (e.g. ["groq"])
   failAll?: boolean;    // force EVERY provider to fail (all-down degrade -> "{}")
-  mode?: "429" | "413" | "down";
+  mode?: "429" | "413" | "down" | "slow" | "changed";
+  // OWN dependency lens (2026-10-26): with `fake` (a LOCAL fake provider's base URL, tools/fake_ai_provider.py) the named
+  // providers are NOT skipped by simulation - the chain's REAL fetch, timeout and parse code runs against the fake, which
+  // answers per mode (slow: past the 25 s ceiling; 429: rate-limited; changed: a 200 with no choices; down: a closed port).
+  // The simulated skip proves the wiring; this proves the code that meets a misbehaving provider. Local-only like the rest.
+  fake?: string;
 }
 
 /**
@@ -515,8 +524,13 @@ export async function callAI(
       // W4 fault-injection (LOCAL-ONLY): simulate this provider failing (429/413/down)
       // without a network call, so the next provider is tried (M1), all-down degrades
       // to "{}" (M2), and 413 is skipped (M4). Honored only locally; dead in prod.
-      if (faultInject && _AI_CHAIN_LOCAL &&
-          (faultInject.failAll === true || (faultInject.fail || []).includes(entry.provider))) {
+      const _faulted = !!(faultInject && _AI_CHAIN_LOCAL &&
+          (faultInject.failAll === true || (faultInject.fail || []).includes(entry.provider)));
+      // a fake provider stands in: the real request goes to it (closed port for "down"), and the real code meets the answer
+      const _fakeBase = (_faulted && faultInject!.fake)
+        ? (faultInject!.mode === "down" ? faultInject!.fake.replace(/:\d+(\/.*)?$/, ":9") : `${faultInject!.fake.replace(/\/+$/, "")}/${faultInject!.mode || "429"}`)
+        : "";
+      if (_faulted && !_fakeBase) {
         console.warn(`[ai-chain] FAULT-INJECT ${entry.provider}/${entry.model} (${faultInject.mode || "429"}) — simulated skip`);
         tried.push(`${entry.provider}/${entry.model}=fault-inject`);
         recordSlotFailure(entry.provider);
@@ -540,12 +554,22 @@ export async function callAI(
         }
       }
 
+      // ★THE WALK HAS A BUDGET, NOT ONLY EACH STEP (OWN dependency lens, 2026-10-26). Measured with a slow provider: the
+      // chain waited 25 s on each of Google's three models in turn and found an answer at 77 s - after the request had
+      // already failed for the person ("Failed to send a request to the Edge Function"). Each attempt now gets what is
+      // left of a 50 s walk, and a spent walk stops and degrades honestly rather than answering no one.
+      const _left = WALK_BUDGET_MS - (performance.now() - _callT0);
+      if (_left < 3000) {
+        // not the next provider's failure: the WALK ran out of time (the console shows it as 'chain')
+        if (!tried.includes("chain/walk=budget")) tried.push("chain/walk=budget");
+        return null;
+      }
       try {
-        const res = await fetch(`${entry.baseUrl}/chat/completions`, {
+        const res = await fetch(`${_fakeBase || entry.baseUrl}/chat/completions`, {
           method: "POST",
           // 25 s per attempt (was 60 s): a free-tier text answer arrives in seconds, and one stalled provider used to
           // hold a person's question for a full minute before the chain moved on (LM-R, LM109, 2026-10-07)
-          signal: AbortSignal.timeout(25000),
+          signal: AbortSignal.timeout(Math.min(25000, _left)),
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${apiKey}`,
@@ -634,15 +658,22 @@ export async function callAI(
           // fall through to the next provider rather than return empty.
           console.warn(`[ai-chain] ${entry.provider}/${entry.model} returned only reasoning, no answer — trying next`);
           tried.push(`${entry.provider}/${entry.model}=reasoning-only`);
+          deadThisCall.add(modelSlot);   // the retry pass would get the same unusable answer
         } else {
           console.warn(`[ai-chain] ${entry.provider}/${entry.model} returned empty content — trying next`);
           tried.push(`${entry.provider}/${entry.model}=empty`);
+          // an answer this model could not shape (a changed API, an empty reply) is not asked again by the retry pass of the
+          // same call: measured 2026-10-26, every model asked twice for the same unusable 200
+          deadThisCall.add(modelSlot);
         }
       } catch (err) {
         console.warn(`[ai-chain] ${entry.provider}/${entry.model} threw: ${String(err).slice(0, 80)}`);
         tried.push(`${entry.provider}/${entry.model}=${/timeout|abort/i.test(String(err)) ? "timeout" : "threw"}`);
         recordSlotFailure(entry.provider);   // network/abort = provider-wide
         recordSlotFailure(modelSlot);
+        // ...and provider-wide for THIS call too: the cross-call park needs strikes, so a slow provider's next model was
+        // asked anyway and timed out again (three Google models, 75 s, measured 2026-10-26)
+        deadThisCall.add(entry.provider);
       }
     }
     return null;

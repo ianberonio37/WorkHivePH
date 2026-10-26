@@ -105,6 +105,7 @@ narration is a 1-2 sentence prose summary of the answer in your persona's voice 
 import { checkAIRateLimit, checkRouteRateLimit, routeRateLimitedResponse, limiterUnavailableResponse } from "../_shared/rate-limit.ts";
 // The hive bucket is skipped ONLY for a call ai-gateway provably forwarded (it counted that bucket already).
 import { isTrustedGatewayForward } from "../_shared/gateway-trust.ts";
+import { isServiceRoleBearer } from "../_shared/tenant-context.ts";
 
 // ---------------------------------------------------------------------------
 // Retrieval lanes
@@ -646,8 +647,9 @@ serveObserved("asset-brain-query", tracedReply("asset-brain-query", async (req, 
     // db.functions.invoke; the gateway's service-role fallback is the bypass.
     const _bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
     const _serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-    if (_bearer && _serviceKey && _bearer === _serviceKey) noteModelCaller({ auth_uid: null, hive_id: hive_id || null });
-    if (!(_bearer && _serviceKey && _bearer === _serviceKey)) {
+    const _isService = isServiceRoleBearer(_bearer);   // the runtime key, or the scheduler\'s internal secret
+    if (_isService) noteModelCaller({ auth_uid: null, hive_id: hive_id || null });
+    if (!_isService) {
       const { data: { user: _caller } } = await db.auth.getUser(_bearer);
       if (!_caller) {
         return jsonResponse({ error: "Authentication required" }, 401, corsHeaders);

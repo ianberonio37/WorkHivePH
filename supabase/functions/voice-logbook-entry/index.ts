@@ -55,7 +55,8 @@ Output format:
 {
   "machine":           <string — equipment tag or name as spoken, null if not mentioned>,
   "problem":           <string — clear description of what was observed/reported>,
-  "root_cause":        <string — diagnosed cause if mentioned, otherwise null>,
+  "root_cause":        <the diagnosed cause if one was mentioned, as EXACTLY one of: "Wear" | "Lubrication Failure" | "Vibration / Fatigue" | "Misalignment" | "Overload" | "Contamination / Dirt" | "Corrosion" | "Electrical Fault" | "Mechanical Damage" | "Human Error" | "Design Issue" | "Unknown" — "Unknown" when a cause was mentioned but none of these fits; null when no cause was mentioned>,
+  "root_cause_note":   <string — the cause in the technician's own words when a cause was mentioned, otherwise null>,
   "action":            <string — what was done or what needs to be done>,
   "maintenance_type":  <"Breakdown / Corrective" | "Preventive Maintenance" | "Inspection" | "Project Work">,
   "status":            <"Open" | "Closed">,
@@ -236,6 +237,8 @@ serveObserved("voice-logbook-entry", tracedReply("voice-logbook-entry", async (r
       machine:          parsed.machine          ?? null,
       problem:          parsed.problem          ?? safe,
       root_cause:       parsed.root_cause       ?? null,
+      // BRH.10 AI: the words beside the listed cause - analytics group by the list, the person keeps what they said
+      root_cause_note:  parsed.root_cause_note  ?? null,
       action:           parsed.action           ?? null,
       maintenance_type: parsed.maintenance_type ?? "Breakdown / Corrective",
       status:           parsed.status           ?? "Open",

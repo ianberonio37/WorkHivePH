@@ -390,7 +390,7 @@
           {
             "kind": "take",
             "n": 4,
-            "item": "{machine} — {category} ({root_cause}, {downtime_hours}h down)",
+            "item": "{machine} — {category}: {problem|120} ({root_cause}, {downtime_hours}h down)",
             "join": "; ",
             "as": "recent"
           }

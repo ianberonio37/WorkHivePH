@@ -24,6 +24,7 @@ import { validateContract } from "../_shared/validate-contract.ts";
 // gains a `narration` field (1-2 sentences in the worker's persona voice).
 // See WORKHIVE_PERSONA_CONTRACT.md.
 import { clampPersona, buildPersonaBlock } from "../_shared/persona.ts";
+import { isServiceRoleBearer } from "../_shared/tenant-context.ts";
 
 // ── Canonical agent contracts produced by this orchestrator ─────────────────
 // All response shapes below are registered in canonical_agent_contracts
@@ -952,7 +953,7 @@ serveObserved("analytics-orchestrator", tracedReply("analytics-orchestrator", as
     const _authHeader = req.headers.get("authorization") || req.headers.get("Authorization") || "";
     const _bearer = _authHeader.toLowerCase().startsWith("bearer ") ? _authHeader.slice(7).trim() : "";
     const _serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-    const _isServiceRole = Boolean(_bearer) && Boolean(_serviceKey) && _bearer === _serviceKey;
+    const _isServiceRole = isServiceRoleBearer(_bearer);   // the runtime key, or the scheduler's internal secret
     let _soloRlUid: string | null = null;   // a verified person with no hive: limited on their own bucket below
     // the hive the limiters count on: a service-role caller's (trusted), or one the membership check below proved
     let _verifiedHiveId: string | null = _isServiceRole ? (hive_id || null) : null;

@@ -19,7 +19,7 @@
 const TARGET_DIM = 384;
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
-import { reportModelCall, reportModelCallFailed } from "./model-calls.ts";
+import { currentModelCallScope, embedFaultUrl, reportModelCall, reportModelCallFailed } from "./model-calls.ts";
 
 /** a provider's answer: the vector, and the input tokens it says it billed (null when it does not say) */
 type EmbedOut = { vec: number[]; tokens: number | null };
@@ -29,7 +29,8 @@ type EmbeddingProvider = {
   /** the model the provider runs - the record's `model` */
   model: string;
   envKey: string;
-  call: (text: string, apiKey: string) => Promise<EmbedOut>;
+  /** `ms`: how long this attempt may take - 15 s, or what is left of a budgeted walk (generateEmbeddingTagged opts.budgetMs) */
+  call: (text: string, apiKey: string, ms: number) => Promise<EmbedOut>;
 };
 
 /** input tokens from an embeddings API's usage block (prompt_tokens, else total_tokens) */
@@ -39,12 +40,22 @@ function _usageTokens(data: unknown): number | null {
   return Number.isFinite(n) && n >= 0 ? Math.round(n) : null;
 }
 
-/** how one slot answered, for the record's providers_tried: the HTTP status in its error, else timeout / threw */
+/** where a provider's request goes: its own URL, or on a LOCAL walk that faults it, the fake (model-calls.ts embed_fault) */
+function _via(provider: string, url: string): string {
+  return _IS_LOCAL_EMBED ? embedFaultUrl(provider, url) : url;
+}
+
+/** how one slot answered, for the record's providers_tried: the HTTP status in its error, else timeout / unreachable / threw.
+ *  ★THE LEDGER SAID "=101" FOR A REFUSED CONNECTION AND "=threw" FOR A TIMEOUT (OWN55 walk, 2026-10-27). The status was any
+ *  three digits in the message - a transport error's "(os error 101)" read as an HTTP status - and a timeout was matched on
+ *  "timeout", while Deno's AbortSignal.timeout says "Signal timed out." The status is now only the provider's own
+ *  "<name> <status>:" line (each call below throws exactly that), and `msg` is String(err), name included. */
 function _outcome(msg: string): string {
-  const m = /\b([1-5]\d\d)\b/.exec(msg);
+  const m = /^(?:Error: )?\S+ ([1-5]\d\d):/.exec(msg);
   if (m) return m[1];
-  if (/timeout|abort/i.test(msg)) return "timeout";
+  if (/timeout|timed out|abort/i.test(msg)) return "timeout";
   if (/bad shape/i.test(msg)) return "bad-shape";
+  if (/connection refused|connect error|unreachable|failed to lookup|dns error|error sending request/i.test(msg)) return "unreachable";
   return "threw";
 }
 
@@ -52,10 +63,10 @@ function _outcome(msg: string): string {
 // voyage-3.5-lite supports {256, 512, 1024, 2048} as native dims — 384 is not
 // in that set. Request 512 (smallest >= 384) then truncate to 384. The model
 // is Matryoshka-trained, so the first 384 dims preserve quality.
-async function voyageEmbed(text: string, apiKey: string): Promise<EmbedOut> {
-  const res = await fetch("https://api.voyageai.com/v1/embeddings", {
+async function voyageEmbed(text: string, apiKey: string, ms = 15000): Promise<EmbedOut> {
+  const res = await fetch(_via("voyage", "https://api.voyageai.com/v1/embeddings"), {
     method: "POST",
-    signal: AbortSignal.timeout(15000),
+    signal: AbortSignal.timeout(ms),
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
@@ -80,10 +91,10 @@ async function voyageEmbed(text: string, apiKey: string): Promise<EmbedOut> {
 }
 
 // ── Jina AI ──────────────────────────────────────────────────────────────
-async function jinaEmbed(text: string, apiKey: string): Promise<EmbedOut> {
-  const res = await fetch("https://api.jina.ai/v1/embeddings", {
+async function jinaEmbed(text: string, apiKey: string, ms = 15000): Promise<EmbedOut> {
+  const res = await fetch(_via("jina", "https://api.jina.ai/v1/embeddings"), {
     method: "POST",
-    signal: AbortSignal.timeout(15000),
+    signal: AbortSignal.timeout(ms),
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
@@ -113,10 +124,10 @@ async function jinaEmbed(text: string, apiKey: string): Promise<EmbedOut> {
 // vector(384) schema. IMPORTANT: Gemini does NOT unit-normalize outputs below
 // 3072 dims (Voyage and Jina return normalized vectors), so we L2-normalize
 // here to keep all three providers in a comparable space for cosine search.
-async function geminiEmbed(text: string, apiKey: string): Promise<EmbedOut> {
-  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/embeddings", {
+async function geminiEmbed(text: string, apiKey: string, ms = 15000): Promise<EmbedOut> {
+  const res = await fetch(_via("gemini", "https://generativelanguage.googleapis.com/v1beta/openai/embeddings"), {
     method: "POST",
-    signal: AbortSignal.timeout(15000),
+    signal: AbortSignal.timeout(ms),
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${apiKey}`,
@@ -146,14 +157,14 @@ async function geminiEmbed(text: string, apiKey: string): Promise<EmbedOut> {
 // self-host sentence-transformers `BAAI/bge-small-en-v1.5` used by the ingest
 // tool, so local-ingest and edge-query land in ONE space. Activates when both
 // CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN are set; skipped otherwise.
-async function cloudflareEmbed(text: string, apiToken: string): Promise<EmbedOut> {
+async function cloudflareEmbed(text: string, apiToken: string, ms = 15000): Promise<EmbedOut> {
   const acct = Deno.env.get("CLOUDFLARE_ACCOUNT_ID");
   if (!acct) throw new Error("CLOUDFLARE_ACCOUNT_ID not set");
   const res = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${acct}/ai/run/@cf/baai/bge-small-en-v1.5`,
+    _via("cloudflare", `https://api.cloudflare.com/client/v4/accounts/${acct}/ai/run/@cf/baai/bge-small-en-v1.5`),
     {
       method: "POST",
-      signal: AbortSignal.timeout(15000),
+      signal: AbortSignal.timeout(ms),
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiToken}` },
       body: JSON.stringify({ text: [text] }),
     },
@@ -176,10 +187,10 @@ async function cloudflareEmbed(text: string, apiToken: string): Promise<EmbedOut
 // docker network (BGE_EMBED_URL, e.g. http://host.docker.internal:8901/embed). SAME
 // model as the fastembed ingest path -> one vector space. The provider's "apiKey" IS
 // the URL (envKey BGE_EMBED_URL), so it activates only when that env is set.
-async function bgeLocalEmbed(_text: string, url: string): Promise<EmbedOut> {
-  const res = await fetch(url, {
+async function bgeLocalEmbed(_text: string, url: string, ms = 15000): Promise<EmbedOut> {
+  const res = await fetch(_via("bge-local", url), {
     method: "POST",
-    signal: AbortSignal.timeout(15000),
+    signal: AbortSignal.timeout(ms),
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ texts: [_text] }),
   });
@@ -255,6 +266,28 @@ const BGE_EMBED_URL = _IS_LOCAL_EMBED
 const EMBEDDING_PRIMARY = (Deno.env.get("EMBEDDING_PRIMARY")
   || (_IS_LOCAL_EMBED && BGE_EMBED_URL ? "bge-local" : "voyage")).toLowerCase();
 
+/** True when this environment can call the named provider (a key, or for bge-local its server URL). */
+// The embedder a WRITE must use - the space the corpus lives in (EMBEDDING_PRIMARY, or `pin` where this environment can
+// serve it). A caller that holds a query vector checks it against this before reusing the vector for a row (2026-10-26).
+// ★A REFUSED KEY WAS ASKED AGAIN ON EVERY CALL (2026-10-26): production's ledger held voyage=401 eight times in a week and
+// the local Voyage and Jina keys answer 401 too - a credential the provider refused stays refused until a person changes
+// it, so each retry only added a round trip to a fallback. A 401/403 parks that provider for this isolate's next six
+// hours (the model chain's PERMANENT_PARK, for embeddings). A timeout, a 429 or a 5xx is not parked here - those recover.
+const _refusedUntil = new Map<string, number>();
+const REFUSED_PARK_MS = 6 * 60 * 60 * 1000;
+
+export function pinnedEmbedderName(pin?: string): string {
+  const asked = (pin || EMBEDDING_PRIMARY).toLowerCase();
+  return providerConfigured(asked) ? asked : EMBEDDING_PRIMARY;
+}
+
+export function providerConfigured(name: string): boolean {
+  const p = ALL_PROVIDERS.find((x) => x.name === name);
+  if (!p) return false;
+  const key = p.name === "bge-local" ? BGE_EMBED_URL : Deno.env.get(p.envKey);
+  return !!key && !key.startsWith("PASTE_");
+}
+
 function orderedProviders(primary: string): EmbeddingProvider[] {
   const head = ALL_PROVIDERS.filter((p) => p.name === primary);
   const rest = ALL_PROVIDERS.filter((p) => p.name !== primary);
@@ -268,7 +301,7 @@ function orderedProviders(primary: string): EmbeddingProvider[] {
  * default. Throws if no provider has a valid key OR every configured one failed.
  */
 export async function generateEmbedding(
-  text: string, pin?: string, opts?: { strict?: boolean },
+  text: string, pin?: string, opts?: { strict?: boolean; budgetMs?: number },
 ): Promise<number[]> {
   return (await generateEmbeddingTagged(text, pin, opts)).vector;
 }
@@ -278,12 +311,42 @@ export async function generateEmbedding(
 export async function generateEmbeddingTagged(
   text: string,
   pin?: string,
-  opts?: { strict?: boolean },
+  opts?: { strict?: boolean; budgetMs?: number },
 ): Promise<{ vector: number[]; provider: string }> {
   if (!text || !text.trim()) {
     throw new Error("Cannot embed empty text");
   }
-  const wanted = (pin || EMBEDDING_PRIMARY).toLowerCase();
+  // ★ONE QUESTION WAS EMBEDDED TWICE PER TURN (OWN55 walk, 2026-10-27). The gateway embeds the turn for proven procedures
+  // and again for the knowledge base - the same text, the same space - so a slow provider was waited out twice: 34 s for
+  // one companion question with the primary down and Jina slow, against 12.5 s healthy. Within one request a vector is
+  // asked for once: a second identical ask (same space, same text, same strictness - a strict ask never shares a walk that
+  // may have answered from a fallback) shares the first walk, its answer or its failure. The memo lives on the request's
+  // model-call scope, so it never outlives the request.
+  const scope = currentModelCallScope();
+  if (scope) {
+    const key = `${opts?.strict ? "strict" : "chain"}\u0001${pinnedEmbedderName(pin)}\u0001${text}`;
+    const memo = (scope.embed_memo ||= new Map());
+    const hit = memo.get(key);
+    if (hit) return await hit;
+    const walk = _walk(text, pin, opts);
+    memo.set(key, walk);
+    return await walk;
+  }
+  return await _walk(text, pin, opts);
+}
+
+async function _walk(
+  text: string,
+  pin?: string,
+  opts?: { strict?: boolean; budgetMs?: number },
+): Promise<{ vector: number[]; provider: string }> {
+  // ★A PIN THIS ENVIRONMENT CANNOT SERVE NAMES THE ENVIRONMENT'S OWN SPACE (2026-10-26). The gateway pins its knowledge
+  // query to "bge-local", the space the LOCAL corpus lives in. Production has no bge server, so that pin fell to roster
+  // order - the dead Voyage key first (401 on every turn), then whichever key answered next - and the query vector's
+  // space depended on which keys happened to be set. A pin is a CORPUS model; where that model is not configured, the
+  // corpus here was embedded with this environment's primary, so the query must use it too.
+  const asked = (pin || EMBEDDING_PRIMARY).toLowerCase();
+  const wanted = providerConfigured(asked) ? asked : EMBEDDING_PRIMARY;
 
   // STRICT = INGEST. Failover is safe for a READ and poison for a WRITE: a degraded answer lasts one
   // response, but a persisted vector in a foreign space is permanent, well-formed, non-null, and therefore
@@ -301,14 +364,26 @@ export async function generateEmbeddingTagged(
   const errors: string[] = [];
   const tried: string[] = [];          // LM-O: the record's providers_tried
   const t0 = performance.now();        // LM-O: the record's latency (the whole walk the caller waited on)
+  // ★A BUDGETED WALK (OWN55, 2026-10-27): a caller for whom an embedding is an ENHANCEMENT (the gateway's knowledge and
+  // procedure blocks) gives the whole walk `budgetMs`; each attempt gets min(15 s, what is left), and a walk with under
+  // a quarter-second left stops (the thrown error says so). Unbudgeted calls keep 15 s per provider.
+  const deadline = opts?.budgetMs ? t0 + opts.budgetMs : Infinity;
   for (const provider of candidates) {
+    if ((_refusedUntil.get(provider.name) || 0) > Date.now()) continue;   // its key was refused - see _refusedUntil
     // bge-local's "key" is its URL (env or local default), not a secret in Deno.env.
     const apiKey = provider.name === "bge-local" ? BGE_EMBED_URL : Deno.env.get(provider.envKey);
     if (!apiKey || apiKey.startsWith("PASTE_")) {
       continue; // not configured
     }
+    const left = deadline - performance.now();
+    if (left < 250) {
+      // not a slot: this provider was never asked, so providers_tried does not name it (the attempt that spent the budget
+      // was cut by its own shortened timeout and already reads "=timeout")
+      errors.push(`${provider.name}: not asked - the ${opts?.budgetMs} ms walk budget was spent`);
+      break;
+    }
     try {
-      const out = await provider.call(text, apiKey);
+      const out = await provider.call(text, apiKey, Math.min(15000, Math.round(left)));
       const vec = out.vec;
       tried.push(`${provider.name}/${provider.model}=200`);
       reportModelCall({
@@ -328,8 +403,10 @@ export async function generateEmbeddingTagged(
       }
       return { vector: vec, provider: provider.name };
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
+      const msg = String(err);   // the name too: a timeout is "TimeoutError: Signal timed out."
       console.warn(`[embedding] ${provider.name} failed: ${msg} — trying next`);
+      const _ref = /^(?:Error: )?(\S+) (401|403)\b/.exec(msg);
+      if (_ref && _ref[1] === provider.name) _refusedUntil.set(provider.name, Date.now() + REFUSED_PARK_MS);
       errors.push(`${provider.name}: ${msg}`);
       tried.push(`${provider.name}/${provider.model}=${_outcome(msg)}`);
     }

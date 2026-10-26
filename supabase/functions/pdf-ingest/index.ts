@@ -72,7 +72,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 import { log } from "../_shared/logger.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
 import { beginRequest, ok, fail, recordModelHop } from "../_shared/envelope.ts";
-import { generateEmbedding } from "../_shared/embedding-chain.ts";
+import { generateEmbeddingTagged } from "../_shared/embedding-chain.ts";
 
 const _WH_SUPABASE_URL_M = Deno.env.get("SUPABASE_URL") || "";
 const _WH_SERVICE_KEY_M  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
@@ -204,7 +204,13 @@ async function processJob(
         errors++;
         continue;
       }
-      const embedding = await generateEmbedding(text);
+      // ★STRICT = INGEST, HERE TOO (OWN AI failure-mode lens, model-chain fallback, 2026-10-26). This walked the whole chain:
+      // walked live with the corpus's embedder (bge) stopped, it tried Voyage, Gemini and Jina in turn - three other vector
+      // spaces - and only failed because each key was dead or spent. Had one answered, the chunk would have been filed in a
+      // foreign space beside the hive's bge vectors: well-formed, permanent and never found again (embedding-chain.ts
+      // records the corpus poisoned twice that way). An ingest asks the pinned embedder only; if it cannot answer, the
+      // chunk fails and the job says so - a failed job can be run again, a foreign-space vector cannot be found.
+      const embedding = (await generateEmbeddingTagged(text, undefined, { strict: true })).vector;
       const { error } = await db.from("kb_chunks").insert({
         doc_id:    doc.id,
         chunk_num: i + 1,

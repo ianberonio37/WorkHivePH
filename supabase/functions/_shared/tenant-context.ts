@@ -79,10 +79,20 @@ export function extractBearer(req: Request): string {
   return h.toLowerCase().startsWith("bearer ") ? h.slice(7).trim() : "";
 }
 
-/** True when the bearer is the project service-role key (a trusted internal call). */
+/** True when the bearer is the project service-role key, or the internal-call secret (a trusted internal call).
+ *
+ *  ★NO SCHEDULED JOB COULD EVER PROVE IT WAS ONE (2026-10-26). Production's pg_cron jobs and outbox relays called
+ *  functions with a service key read from the database, but the key the function runtime holds as
+ *  SUPABASE_SERVICE_ROLE_KEY is one nothing outside it can read (its digest matches neither the legacy service JWT
+ *  the project lists nor any secret key), so every call answered 401 internal_only. WH_INTERNAL_CALL_SECRET is set as a
+ *  function secret and kept in Vault for the jobs (private.wh_setting('service_role_key')); it is long, random, and
+ *  never a JWT, so it is only ever compared here. */
 export function isServiceRoleBearer(bearer: string): boolean {
+  if (!bearer) return false;
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-  return Boolean(bearer) && Boolean(key) && bearer === key;
+  if (key && bearer === key) return true;
+  const internal = Deno.env.get("WH_INTERNAL_CALL_SECRET") || "";
+  return internal.length >= 32 && bearer === internal;
 }
 
 /** Resolve the caller's identity: service-role detection + auth_uid from the JWT.

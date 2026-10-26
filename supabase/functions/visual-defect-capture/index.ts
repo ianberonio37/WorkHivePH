@@ -69,7 +69,7 @@ import {
   checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse, limiterUnavailableResponse,
 } from "../_shared/rate-limit.ts";
 import { log } from "../_shared/logger.ts";
-import { generateEmbedding } from "../_shared/embedding-chain.ts";
+import { generateEmbeddingTagged } from "../_shared/embedding-chain.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role reads/writes.
 import { resolveIdentity, resolveTenancy } from "../_shared/tenant-context.ts";
@@ -501,7 +501,8 @@ serveObserved("visual-defect-capture", tracedReply("visual-defect-capture", asyn
         draft.knowledge ? `knowledge: ${draft.knowledge}` : "",
       ].filter(Boolean).join(" | ");
 
-      generateEmbedding(embeddingText)
+      // a ROW: strict - the corpus's own embedder (STRICT = INGEST; 2026-10-26)
+      generateEmbeddingTagged(embeddingText, undefined, { strict: true }).then((t) => t.vector)
         .then(async (embedding) => {
           const { data: ins, error: insErr } = await db.from("fault_knowledge").insert({
             hive_id:          verifiedHiveId,

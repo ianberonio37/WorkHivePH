@@ -39,6 +39,7 @@ import { serveObserved } from "../_shared/observability.ts";
 import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
+import { sanitizeDeep } from "../_shared/untrusted.ts";
 import { limiterUnavailableResponse } from "../_shared/rate-limit.ts";
 import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
@@ -55,6 +56,10 @@ const FN_NAME             = "temporal-rag-orchestrator";
 const MAX_QUESTION_CHARS  = 500;
 const RATE_LIMIT_PER_HOUR = 30;       // tighter than Phase 1 because each call fans out N sub-calls
 const MAX_PERIODS         = 10;       // never decompose into more than 10 sub-queries
+// ★"THE LAST 8 MONTHS" ASKED FOR QUARTERS NOTHING WRITES (OWN walk, 2026-10-26): anything from 180 days read the quarter
+// level, and the summarizer's schedule only ever wrote weeks and months - so every long answer was four empty
+// quarters ("All four quarters lack computed MTBF..."). Months now serve any span MAX_PERIODS of them can cover.
+const MONTH_GRAIN_MAX_DAYS = 310;
 const MAX_PARALLEL        = 3;        // bounded concurrency for TPM safety
 const MAX_TOKENS_SUB      = 400;
 const MAX_TOKENS_FOLD     = 800;
@@ -143,8 +148,9 @@ function decompose(from: Date, to: Date, grain: Granularity | "auto"): Array<{ s
   const spanDays = (to.getTime() - from.getTime()) / 86400000;
   let g: Granularity;
   if (grain === "auto") {
+    // months up to MAX_PERIODS of them (~10 months, the most sub-agents one answer may run); quarters to three years
     if (spanDays >= 3 * 365) g = "year";
-    else if (spanDays >= 180) g = "quarter";
+    else if (spanDays > MONTH_GRAIN_MAX_DAYS) g = "quarter";
     else g = "month";
   } else g = grain;
 
@@ -225,7 +231,22 @@ async function subAgent(
   level: Granularity,
 ): Promise<SubResult> {
   const t0 = Date.now();
-  const summary = await fetchPeriodSummary(db, hiveId, assetTag, level, period.start);
+  let summary = await fetchPeriodSummary(db, hiveId, assetTag, level, period.start);
+
+  // ★A MISSING PERIOD IS WRITTEN ONCE, THEN READ (OWN walk, 2026-10-26). The schedule writes a week every week and a month in
+  // a month's first days, so most of the periods a question spans had never been rolled up - and the answer said each one
+  // had no data. The summarizer is asked for exactly this period (its own deterministic stats, one digest call), and the
+  // row it writes serves every later question; only if that fails does the honest empty marker below stand.
+  if ((!summary || !summary.summary_json) && _URL && _KEY) {
+    try {
+      const r = await fetch(`${_URL}/functions/v1/hierarchical-summarizer`, {
+        method: "POST", signal: AbortSignal.timeout(25000),
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${_KEY}`, "apikey": _KEY },
+        body: JSON.stringify({ hive_id: hiveId, level, period_start: period.start, period_end: period.end, asset_tag: assetTag }),
+      });
+      if (r.ok) summary = await fetchPeriodSummary(db, hiveId, assetTag, level, period.start);
+    } catch { /* empty-catch-allow: the summary stays missing and the marker below says so */ }
+  }
 
   if (!summary || !summary.summary_json) {
     // Period has no pre-computed summary — return an empty marker so the fold knows
@@ -239,10 +260,14 @@ async function subAgent(
     };
   }
 
+  // ★READ, NEVER OBEYED (OWN AI failure-mode lens, prompt injection, 2026-10-26): a period summary carries the logbook's own words - a line that reads as an
+  // instruction to the model is stripped before it reaches the prompt.
+  const _clean = sanitizeDeep(summary.summary_json);
+  if (_clean.stripped) console.warn(`[temporal-rag-orchestrator] ${_clean.stripped} instruction line(s) stripped from ${period.label}`);
   const payload = {
     period_label: period.label,
     asset_tag:    assetTag || "(hive-wide)",
-    summary:      summary.summary_json,
+    summary:      _clean.value,
     question,
   };
   const raw = await callAI(JSON.stringify(payload), {
@@ -415,11 +440,17 @@ serveObserved("temporal-rag-orchestrator", tracedReply("temporal-rag-orchestrato
     }
   }
 
-  // Rate limit BEFORE any sub-agent runs (cost protection). A call ai-gateway forwarded (proven by its header, never a
-  // body field) was already counted on this hive's bucket there, so it is held to the same threshold read-only.
+  // Rate limit BEFORE any sub-agent runs (cost protection). A call ai-gateway or agentic-rag-loop's delegate forwarded
+  // (proven by the forward header, never a body field) was already counted on this hive's bucket there, so it is held
+  // to the same threshold read-only (2026-10-27: the delegate had counted every long-horizon question twice).
   const viaGateway = await isTrustedGatewayForward(req);
   let temporalCapHit: boolean;
   let temporalLimiterDown = false;
+  // ★EVERY ANSWER DIED AT THE LAST LINE (OWN walk, 2026-10-26): `rl` lived inside the else-block below and the reply read
+  // `rl.remaining`, so every run - direct or forwarded by the gateway - paid for its sub-agents and the fold, then threw
+  // "rl is not defined" and answered 500. The count the reply reports is hoisted; a forwarded call was counted at the
+  // gateway, so it reports none here.
+  let remaining: number | null = null;
   if (viaGateway) {
     const capped = await temporalCapReachedReadOnly(db, hiveId);
     temporalLimiterDown = capped === "unavailable";
@@ -428,6 +459,7 @@ serveObserved("temporal-rag-orchestrator", tracedReply("temporal-rag-orchestrato
     const rl = await checkRateLimit(db, hiveId);
     temporalLimiterDown = Boolean(rl.unavailable);
     temporalCapHit = !rl.allowed;
+    remaining = typeof rl.remaining === "number" ? rl.remaining : null;
   }
   if (temporalLimiterDown) return limiterUnavailableResponse(corsHeaders);
   if (temporalCapHit) {
@@ -454,7 +486,7 @@ serveObserved("temporal-rag-orchestrator", tracedReply("temporal-rag-orchestrato
   // Compute the level we'll be requesting from canonical_period_summaries
   const spanDays = (to.getTime() - from.getTime()) / 86400000;
   const level: Granularity = granularity === "auto"
-    ? (spanDays >= 3 * 365 ? "year" : spanDays >= 180 ? "quarter" : "month")
+    ? (spanDays >= 3 * 365 ? "year" : spanDays > MONTH_GRAIN_MAX_DAYS ? "quarter" : "month")
     : granularity as Granularity;
 
   // Fan out sub-agents with bounded concurrency
@@ -463,7 +495,7 @@ serveObserved("temporal-rag-orchestrator", tracedReply("temporal-rag-orchestrato
 
   // Fold step
   const foldT0 = Date.now();
-  const foldPayload = { question, per_period: subResults };
+  const foldPayload = { question, per_period: sanitizeDeep(subResults).value };   // model output built on records: read, never obeyed
   const foldRaw = await callAI(JSON.stringify(foldPayload), {
     systemPrompt: FOLD_SYSTEM,
     temperature:  0.2,
@@ -501,7 +533,7 @@ serveObserved("temporal-rag-orchestrator", tracedReply("temporal-rag-orchestrato
     periods:      periods.length,
     level,
     latency_ms:   totalLatency,
-    remaining:    rl.remaining,
+    remaining,
   }), {
     status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
   });

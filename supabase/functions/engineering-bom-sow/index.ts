@@ -5,6 +5,7 @@ import { handleHealth } from "../_shared/health.ts";
 
 // contract-allow: deterministic BOM/SOW generation; not a brain output
 import { callAI } from "../_shared/ai-chain.ts";
+import { sanitizeDeep } from "../_shared/untrusted.ts";
 import { log } from "../_shared/logger.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
@@ -3878,16 +3879,16 @@ Per-item EXACT structure with description="short item name only" and specificati
 (7) description="Locking Device", specification="hex locknut KM-series + tab lockwasher MB-series per DIN 981/5406, sized for ${dGoverning} mm bearing journal", qty=2, unit="set"
 (8) description="Keyway Milling Cutter Set", specification="HSS-Co5 staggered-tooth side-and-face cutters, ${keyW} mm width, dia 50-100 mm with 22 mm bore, ANSI/ASME B94.19", qty=1, unit="set"
 (9) description="Surface Treatment", specification="manganese phosphate per MIL-DTL-16232 Type M Class 4 or black oxide per MIL-DTL-13924 Class 1, 5-15 micron coating thickness for corrosion resistance", qty=1, unit="lot"
-(10) description="Shaft Alignment Tool", specification="dial indicator (0.01 mm resolution, 10 mm travel) with magnetic base + laser shaft alignment kit (rim-and-face method), per ISO 10816-3 commissioning requirements", qty=1, unit="set"
+(10) description="Shaft Alignment Tool", specification="dial indicator (0.01 mm resolution, 10 mm travel) with magnetic base + laser shaft alignment kit (rim-and-face method), per ISO 20816-3 (formerly ISO 10816-3) commissioning requirements", qty=1, unit="set"
 
 CRITICAL: Every "specification" field MUST be fully populated, never empty or just the item name. All specs MUST cite the actual numeric values shown above (${dGoverning} mm, ${torque} Nm, ${keyW} x ${keyH} x ${keyL} mm, etc.).
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
 Section 1.0 Scope: state the contractor shall design, fabricate, supply, and install a power transmission shaft transmitting ${powerKW} kW at ${speedRPM} RPM (torque ${torque} Nm), ${dGoverning} mm dia, ${material}, per ASME B106.1M Elliptic Criterion${twistOk ? '' : ` with the ${dGoverning} mm diameter selected to satisfy both DE-Goodman fatigue and 1 deg/m angle-of-twist limit`}. Reference governing safety factors: nf=${nfGood}, ny=${nyYld}, ${keyOk ? '' : 'and address the marginal n_key per Section 4 procedure'}.
-Section 2.0 Standards: cite ASME B106.1M (Design of Transmission Shafting), ASME B17.1 (Keys and Keyseats), Shigley's MED 10th Ed. (DE-Goodman fatigue), ISO 286 (shaft and hub fits), ISO 6194 (rotary lip seals), ISO 10816-3 (vibration severity zones), and PSME Code.
+Section 2.0 Standards: cite ASME B106.1M (Design of Transmission Shafting), ASME B17.1 (Keys and Keyseats), Shigley's MED 10th Ed. (DE-Goodman fatigue), ISO 286 (shaft and hub fits), ISO 6194 (rotary lip seals), ISO 20816-3:2022 (vibration severity zones, formerly ISO 10816-3), and PSME Code.
 Section 3.0 Materials: specify ${material} cold-drawn round bar (Sut not less than ${Number(results.Sut_MPa || 570)} MPa, Sy not less than ${Number(results.Sy_MPa || 310)} MPa per mill certificate), ASTM A108 grade. Reference BOM Items 1-10 for full materials list. ${keyOk ? '' : `Note: increase key length beyond ${keyL} mm or specify higher-grade key (AISI 4140 Q&T) to bring n_key to or above 1.5.`}
 Section 4.0 Procedure: machine ${dGoverning} mm shaft to bearing-seat tolerance h6 (ISO 286), coupling-fit tolerance k6, keyway tolerance JS9 per ASME B17.1. Surface roughness Ra not more than 1.6 micron at journals, Ra not more than 3.2 micron elsewhere. Mount couplings using induction heating to 80-100 deg C; verify shaft alignment within 0.05 mm TIR using dial indicator (BOM Item 10). Install keys with ${keyOk ? `verified key length ${keyL} mm minimum` : `INCREASED key length above ${keyL} mm to address marginal n_key=${nKey}`}.
-Section 5.0 Inspection and Commissioning: perform vibration check per ISO 10816-3 (Zone B not more than 4.5 mm/s rms) at 50%, 75%, and 100% load after 4-hour run-in. Verify operating speed remains below 75% of critical (${critRPM.toLocaleString()} RPM) or above 125% if running supercritical. Record bearing temperature (not more than 70 deg C above ambient) and shaft TIR runout. Submit commissioning report with signed mill certificates and inspection logs to the Engineer for approval before handover.
+Section 5.0 Inspection and Commissioning: perform vibration check per ISO 20816-3 (formerly ISO 10816-3) at 50%, 75%, and 100% load, accepting Zone A/B only: not more than 2.8 mm/s rms for a machine of 15 to 300 kW on a rigid foundation, 4.5 mm/s on a flexible one (for a machine of 15 kW or less, the ISO 10816-1 Class I limit of 1.8 mm/s) after 4-hour run-in. Verify operating speed remains below 75% of critical (${critRPM.toLocaleString()} RPM) or above 125% if running supercritical. Record bearing temperature (not more than 70 deg C above ambient) and shaft TIR runout. Submit commissioning report with signed mill certificates and inspection logs to the Engineer for approval before handover.
 
 Each "content" field MUST start with "The Contractor shall..." and use ASCII text only. Return ONLY the JSON object. No markdown, no preamble.`;
 
@@ -3960,7 +3961,7 @@ ${driveItemsBlock}
 Each "specification" field MUST include the actual numeric values from the design summary above (sheave dia, belt length, RPM, section, etc.).
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
-Sections: 1.0 Scope, 2.0 Standards (${driveStandards}, PSME Code, OSHA 1910.219 for guards), 3.0 Materials, 4.0 Installation (${isBelt ? 'sheave alignment within 0.5 deg parallelism, belt tension per RMA IP-20 force-deflection method, re-tension after 4-8 hours run-in' : isGear ? 'gear backlash 0.05-0.15mm, oil fill to sight glass, alignment within 0.05mm TIR' : 'chain tension 2-4% of slack-side span sag, lubrication every 8 hours'}), 5.0 Testing and Commissioning (run-in procedure, vibration check per ISO 10816-3 Zone B max 4.5 mm/s, temperature monitoring, no-load then load test).
+Sections: 1.0 Scope, 2.0 Standards (${driveStandards}, PSME Code, OSHA 1910.219 for guards), 3.0 Materials, 4.0 Installation (${isBelt ? 'sheave alignment within 0.5 deg parallelism, belt tension per RMA IP-20 force-deflection method, re-tension after 4-8 hours run-in' : isGear ? 'gear backlash 0.05-0.15mm, oil fill to sight glass, alignment within 0.05mm TIR' : 'chain tension 2-4% of slack-side span sag, lubrication every 8 hours'}), 5.0 Testing and Commissioning (run-in procedure, vibration check per ISO 20816-3 (formerly ISO 10816-3) accepting Zone A/B only - not more than 2.8 mm/s rms for 15 to 300 kW on a rigid foundation, 4.5 mm/s on a flexible one, 1.8 mm/s for 15 kW or less (ISO 10816-1 Class I) - temperature monitoring, no-load then load test).
 
 Content fields must start "The Contractor shall..." and reference the specific ${driveType} parameters. Return ONLY the JSON. No markdown.`;
 
@@ -4056,7 +4057,7 @@ Section content fields must START with "The Contractor shall..." and use these e
 2.0 Standards: ISO 281:2007 (Rolling bearings dynamic ratings and rating life), ISO 76 (static load ratings), ISO 15243 (failure mode classification), SKF General Catalog or equivalent manufacturer manual, PSME Code.
 3.0 Materials: ${materialsForSow}.
 4.0 Installation: mount bearing using induction heater to 80-100 deg C (do NOT exceed 120 deg C), verify shaft and housing fits per ISO 286 tolerance class (typically k5/k6 shaft, H7/H8 housing), install seals before bearing engagement, fill grease to 30-50 percent of bearing free volume.
-5.0 Monitoring: establish initial grease fill quantity per SKF General Catalog / DIN 51825 lubrication guide, set re-lubrication interval based on speed factor (n*dm) and operating temperature per SKF Catalog re-lubrication chart, take vibration baseline within first 100 operating hours per ISO 10816-3, monitor bearing temperature and inspect for ISO 15243 failure modes (flaking, smearing, corrosion) at scheduled PM intervals.
+5.0 Monitoring: establish initial grease fill quantity per SKF General Catalog / DIN 51825 lubrication guide, set re-lubrication interval based on speed factor (n*dm) and operating temperature per SKF Catalog re-lubrication chart, take vibration baseline within first 100 operating hours per ISO 20816-3 (formerly ISO 10816-3), monitor bearing temperature and inspect for ISO 15243 failure modes (flaking, smearing, corrosion) at scheduled PM intervals.
 
 Return ONLY the JSON. No markdown.`;
 
@@ -4516,12 +4517,12 @@ async function vibrationAnalysisBomSowAgent(
 
   const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, less-than-or-equal, greater-than-or-equal, sub/superscripts, Greek letters (zeta, omega), or middle-dot. Use "x" for multiplication, "to" for ranges (e.g. "4 to 20 mA"), "not less than" for ge, "not more than" for le, "deg C" for temperature, "deg" for angles, "Hz" for frequency, "mm/s" for velocity, "Phi" or "dia" for diameter prefix.`;
 
-  const prompt = `You are a senior Rotating Equipment / Mechanical Engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for vibration isolation and condition monitoring per ISO 10816-3, ISO 20816-1, and ISO 21940-11.
+  const prompt = `You are a senior Rotating Equipment / Mechanical Engineer in the Philippines preparing a Bill of Materials (BOM) and Scope of Works (SOW) for vibration isolation and condition monitoring per the ISO 10816-1 machine-class severity zones, ISO 20816-3:2022 (formerly ISO 10816-3), ISO 20816-1, and ISO 21940-11.
 
 ${asciiDirective}
 
 Project: ${project}
-Machine class: ${machClass} (per ISO 10816-3 Annex)
+Machine class: ${machClass} (per ISO 10816-1 Annex B; ISO 20816-3 groups machines differently)
 Mass: ${massKg} kg | Operating speed: ${speedRpm} RPM | Excitation freq: ${fopHz} Hz
 Stiffness k: ${stiffness} N/m | Damping ratio zeta: ${damping}
 Natural frequency fn: ${fnHz} Hz | Frequency ratio r = f_op / fn: ${ratioR}
@@ -4558,21 +4559,21 @@ Per-item EXACT structure with description="short item name only" and specificati
 
 (9) description="Anchor Bolt with Vibration Washer", specification="M20 ASTM F1554 Grade 36 anchor rod, 250 mm embedment into inertia base concrete, supplied with hex nut, hardened washer (F436), and vibration-isolation Belleville washer or wave washer to maintain preload under cyclic loading", qty=8, unit="set"
 
-(10) description="Vibration Data Collector / Analyzer", specification="portable handheld vibration analyzer with built-in ISO 10816-3 zone assessment, accepts IEPE accelerometer input, FFT spectrum analyzer 100 to 10000 line resolution, time-waveform capture, on-board database for trending baseline measurements, intrinsically safe certified for hazardous areas, calibration certificate traceable to NIST", qty=1, unit="piece"
+(10) description="Vibration Data Collector / Analyzer", specification="portable handheld vibration analyzer with built-in ISO 10816 / ISO 20816 zone assessment, accepts IEPE accelerometer input, FFT spectrum analyzer 100 to 10000 line resolution, time-waveform capture, on-board database for trending baseline measurements, intrinsically safe certified for hazardous areas, calibration certificate traceable to NIST", qty=1, unit="piece"
 
 CRITICAL: Every "specification" field MUST be fully populated with the actual numeric values shown above (${massKg} kg, ${fnHz} Hz, ${isolatorLoadKg} kg, ${inertiaBaseMassKg} kg, etc.) — never blank, never just the item name.
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
 
-Section 1.0 Scope: state the contractor shall furnish, install, balance, and commission a vibration isolation and condition-monitoring system for a ${machClass} rotating machine (mass ${massKg} kg, operating speed ${speedRpm} RPM, fn = ${fnHz} Hz, frequency ratio r = ${ratioR}) achieving ISO 10816-3 ${isoZone} severity (assessed v_rms = ${vRms} mm/s) with isolation efficiency not less than ${isolEff} percent (TR = ${TR}). Include inertia base, ${isolType.toLowerCase()} isolators at 4 mount points, accelerometer instrumentation, continuous transmitter wired to plant DCS/SCADA, and field dynamic balancing per ISO 21940-11.
+Section 1.0 Scope: state the contractor shall furnish, install, balance, and commission a vibration isolation and condition-monitoring system for a ${machClass} rotating machine (mass ${massKg} kg, operating speed ${speedRpm} RPM, fn = ${fnHz} Hz, frequency ratio r = ${ratioR}) achieving ISO 10816-1 class ${isoZone} severity (assessed v_rms = ${vRms} mm/s) with isolation efficiency not less than ${isolEff} percent (TR = ${TR}). Include inertia base, ${isolType.toLowerCase()} isolators at 4 mount points, accelerometer instrumentation, continuous transmitter wired to plant DCS/SCADA, and field dynamic balancing per ISO 21940-11.
 
-Section 2.0 Standards: cite ISO 10816-3 (Mechanical vibration - Evaluation of machine vibration by measurements on non-rotating parts), ISO 20816-1 (Mechanical vibration - Measurement and evaluation of machine vibration, general guidelines), ISO 21940-11 (Mechanical vibration - Rotor balancing - Procedures and tolerances for rotors with rigid behavior), ISO 5348 (Mechanical vibration and shock - Mechanical mounting of accelerometers), ISO 2372 (legacy reference - severity criteria, retained for cross-reference), and ASHRAE Applications Handbook Chapter 48 (vibration and noise control for HVAC and rotating equipment), plus PSME Code and DOLE D.O. 13 occupational vibration exposure limits.
+Section 2.0 Standards: cite ISO 10816-1 (Mechanical vibration - Evaluation of machine vibration by measurements on non-rotating parts; its Annex B machine classes set the severity zones used here), ISO 20816-3:2022 (Measurement and evaluation of machine vibration, industrial machines above 15 kW; formerly ISO 10816-3), ISO 20816-1 (Mechanical vibration - Measurement and evaluation of machine vibration, general guidelines), ISO 21940-11 (Mechanical vibration - Rotor balancing - Procedures and tolerances for rotors with rigid behavior), ISO 5348 (Mechanical vibration and shock - Mechanical mounting of accelerometers), ISO 2372 (legacy reference - severity criteria, retained for cross-reference), and ASHRAE Applications Handbook Chapter 48 (vibration and noise control for HVAC and rotating equipment), plus PSME Code.
 
 Section 3.0 Isolation System Installation: size the inertia base to not less than ${inertiaBaseMassKg} kg (3 x machine mass per ASHRAE) and pour with f'c = 21 MPa concrete cured 7 days minimum before isolator installation. Select ${isolType.toLowerCase()} isolators rated not less than ${isolatorLoadKg} kg per mount (machine mass / 4) with target vertical stiffness ${stiffnessPerIsoNmm} N/mm to achieve natural frequency fn = ${fnHz} Hz and frequency ratio r = ${ratioR} (must exceed sqrt(2) = 1.414 for effective isolation). Torque isolator mounting bolts to manufacturer specification (typically 100 to 200 Nm for M16); verify isolator deflection at 50 percent and 100 percent load before machine startup.
 
-Section 4.0 Balancing and Alignment: perform field dynamic balancing of all rotating components to balance grade ${gGrade} per ISO 21940-11 using a portable single- or two-plane balancer (BOM Item 5); record initial unbalance, trial-weight response, and final residual unbalance on a balancing certificate. Verify shaft alignment within not more than 0.05 mm TIR (angular and parallel) using laser shaft alignment kit. Capture baseline vibration measurement after balance and alignment using BOM Item 10 vibration analyzer; record FFT spectrum, time waveform, and ISO 10816-3 zone classification at all four bearing locations.
+Section 4.0 Balancing and Alignment: perform field dynamic balancing of all rotating components to balance grade ${gGrade} per ISO 21940-11 using a portable single- or two-plane balancer (BOM Item 5); record initial unbalance, trial-weight response, and final residual unbalance on a balancing certificate. Verify shaft alignment within not more than 0.05 mm TIR (angular and parallel) using laser shaft alignment kit. Capture baseline vibration measurement after balance and alignment using BOM Item 10 vibration analyzer; record FFT spectrum, time waveform, and severity zone classification (ISO 10816-1 class; ISO 20816-3 for machines above 15 kW) at all four bearing locations.
 
-Section 5.0 Monitoring and Acceptance: install accelerometers (BOM Item 3) at all four bearing locations per ISO 5348 mounting practice (epoxy-bonded stud mount, surface flatness not more than 0.025 mm/m). Wire each accelerometer to the vibration transmitter (BOM Item 4) via flexible conduit (BOM Item 8) for protection against machine micro-movement. Provide continuous 4 to 20 mA signals to plant DCS/SCADA with the following alert/shutdown thresholds per ISO 10816-3 Class ${machClass.replace(/[^IVX]/g, '') || 'II'}: alert at Zone B/C boundary (${(machClass.includes('I') && !machClass.includes('II')) ? '4.5' : machClass.includes('III') ? '7.1' : '4.5'} mm/s), shutdown at Zone D (${machClass.includes('III') ? '11.0' : machClass.includes('IV') ? '18.0' : '11.0'} mm/s). Document the commissioning baseline (FFT spectrum, time waveform, zone classification) and require monthly trending against the baseline.
+Section 5.0 Monitoring and Acceptance: install accelerometers (BOM Item 3) at all four bearing locations per ISO 5348 mounting practice (epoxy-bonded stud mount, surface flatness not more than 0.025 mm/m). Wire each accelerometer to the vibration transmitter (BOM Item 4) via flexible conduit (BOM Item 8) for protection against machine micro-movement. Provide continuous 4 to 20 mA signals to plant DCS/SCADA with the following alert/shutdown thresholds per ISO 10816-1 Class ${machClass.replace(/[^IVX]/g, '') || 'II'}: alert at Zone B/C boundary (${(machClass.includes('I') && !machClass.includes('II')) ? '4.5' : machClass.includes('III') ? '7.1' : '4.5'} mm/s), shutdown at Zone D (${machClass.includes('III') ? '11.0' : machClass.includes('IV') ? '18.0' : '11.0'} mm/s). Document the commissioning baseline (FFT spectrum, time waveform, zone classification) and require monthly trending against the baseline.
 
 Each "content" field MUST start with "The Contractor shall..." and use ASCII text only. Return ONLY the JSON. No markdown.`;
 
@@ -4818,7 +4819,13 @@ serveObserved("engineering-bom-sow", tracedReply("engineering-bom-sow", async (r
       });
     }
 
-    const { discipline, calc_type, calc_inputs, calc_results } = body;
+    // ★A FIELD IS READ, NEVER OBEYED (OWN AI failure-mode lens, prompt injection, 2026-10-26). Every generator below puts
+    // calc_inputs / calc_results text - a project name, a room function, a note, possibly from a shared hive project - into
+    // a prompt. A line that reads as an instruction to the model is stripped from every string, once, here.
+    const { discipline, calc_type } = body;
+    const { value: calc_inputs, stripped: _sIn } = sanitizeDeep(body.calc_inputs);
+    const { value: calc_results, stripped: _sRes } = sanitizeDeep(body.calc_results);
+    if (_sIn + _sRes) console.warn(`[engineering-bom-sow] ${_sIn + _sRes} instruction line(s) stripped from the calc fields`);
 
     if (!discipline || !calc_type || !calc_results) {
       return new Response(

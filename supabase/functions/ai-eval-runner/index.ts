@@ -561,7 +561,19 @@ serveObserved("ai-eval-runner", tracedReply("ai-eval-runner", async (req, trace)
       if (!onlyIds || onlyIds.has(fixture.id)) queue.push({ agentId, fixture });
     }
   }
-  const selected = queue.slice(offset, limit ? offset + limit : undefined);
+  // ★A DOUBLE FIRE LEAVES ONE EFFECT (OWN scheduled-work lens, 2026-10-26). The nightly slices pass one run_id per UTC
+  // night, so a second fire of the same slice (a manual re-run, a retried cron) asked every fixture again and logged each
+  // one again: the night's rows doubled, and so did its model spend. A fixture this run already GRADED is skipped; one
+  // that ended in an infrastructure error is asked again and its row replaced (ai_quality_log is unique per run, agent
+  // and question - 20261026000009).
+  const alreadyGraded = new Set<string>();
+  if (runIdIn) {
+    const { data: done } = await db.from("ai_quality_log").select("agent_id, question_id")
+      .eq("run_id", runId).eq("outcome", "graded");
+    for (const d of done || []) alreadyGraded.add(`${d.agent_id}::${d.question_id}`);
+  }
+  const selected = queue.slice(offset, limit ? offset + limit : undefined)
+    .filter((q) => !alreadyGraded.has(`${q.agentId}::${q.fixture.id}`));
 
   // The bench the fixtures are asked about (seeded on first use, re-anchored weekly).
   const bench = evalSession ? await loadEvalBench(db, evalSession.authUid) : null;
@@ -642,7 +654,7 @@ serveObserved("ai-eval-runner", tracedReply("ai-eval-runner", async (req, trace)
     if (judged?.judge_error) infraReason = judged.failure_reason || "judge error";
     const graded = !infraReason && judged !== null;
 
-    const { error: logErr } = await db.from("ai_quality_log").insert({
+    const { error: logErr } = await db.from("ai_quality_log").upsert({
       agent_id:          agentId,
       question_id:       fixture.id,
       question_text:     fixture.question,
@@ -655,7 +667,7 @@ serveObserved("ai-eval-runner", tracedReply("ai-eval-runner", async (req, trace)
       outcome:           graded ? "graded" : "infra_error",
       run_id:            runId,
       run_at:            runAt,
-    });
+    }, { onConflict: "run_id,agent_id,question_id" });
     if (logErr) log.warn(null, "ai_quality_log insert failed:", { detail: logErr.message });
 
     results.push({

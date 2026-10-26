@@ -50,8 +50,9 @@ import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trac
 import { noteModelCaller } from "../_shared/model-calls.ts";  // LM-O: who this request's model calls are for
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
+import { sanitizeDeep } from "../_shared/untrusted.ts";
 import { log } from "../_shared/logger.ts";
-import { generateEmbedding } from "../_shared/embedding-chain.ts";
+import { generateEmbeddingTagged } from "../_shared/embedding-chain.ts";
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // Pillar I (Gateway Spine): verify hive membership before service-role logbook reads.
@@ -235,7 +236,11 @@ serveObserved("semantic-fact-extractor", tracedReply("semantic-fact-extractor", 
     const validIds = new Set(group.map((e) => e.id));
     let raw = "";
     try {
-      raw = await callAI(formatEntriesForPrompt(group), {
+      // ★READ, NEVER OBEYED (OWN AI failure-mode lens, prompt injection, 2026-10-26): each entry is a worker's own words, and
+      // a line in one that reads as an instruction to the model is stripped before the entries are formatted. Ids are untouched.
+      const _clean = sanitizeDeep(group);
+      if (_clean.stripped) console.warn(`[semantic-fact-extractor] ${_clean.stripped} instruction line(s) stripped from logbook entries`);
+      raw = await callAI(formatEntriesForPrompt(_clean.value), {
         systemPrompt: EXTRACTION_SYSTEM,
         temperature:  0.1,
         maxTokens:    MAX_TOKENS,
@@ -272,7 +277,8 @@ serveObserved("semantic-fact-extractor", tracedReply("semantic-fact-extractor", 
     if (!embeddingDisabled && embedded < EMBED_CAP) {
       const text = tr.claim_text || `${tr.subject_ref} ${tr.predicate} ${tr.object_ref}`;
       try {
-        embedding = await generateEmbedding(text);
+        // a ROW: strict - the corpus's own embedder or no vector (STRICT = INGEST, embedding-chain.ts; 2026-10-26)
+        embedding = (await generateEmbeddingTagged(text, undefined, { strict: true })).vector;
         embedded++;
       } catch (err) {
         const msg = String(err);

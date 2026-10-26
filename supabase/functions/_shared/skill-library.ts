@@ -46,14 +46,14 @@ export async function matchProcedures(
   hiveId: string | null,
   workerName: string | null,
   query: string,
-  opts: { limit?: number; minSimilarity?: number } = {},
+  opts: { limit?: number; minSimilarity?: number; embed?: { strict?: boolean; budgetMs?: number } } = {},
 ): Promise<MatchedProcedure[]> {
   if (!query || !query.trim()) return [];
   if (!hiveId && !workerName) return [];
 
   let embedding: number[];
   try {
-    embedding = await generateEmbedding(query.slice(0, 2000));
+    embedding = await generateEmbedding(query.slice(0, 2000), undefined, opts.embed);   // the caller's terms (gateway: OWN55)
   } catch (err) {
     console.warn("[skill-library] embed failed (non-fatal):", err instanceof Error ? err.message : String(err));
     return [];

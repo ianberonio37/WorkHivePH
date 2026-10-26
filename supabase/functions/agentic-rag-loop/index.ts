@@ -53,7 +53,9 @@ import { modelCallsRefused } from "../_shared/model-calls.ts";  // a walk's no-m
 import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E/LM-O: one trace id per request
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.110.0";
 import { callAI } from "../_shared/ai-chain.ts";
+import { sanitizeUntrusted } from "../_shared/untrusted.ts";
 import { limiterUnavailableResponse } from "../_shared/rate-limit.ts";
+import { gatewayForwardHeaders } from "../_shared/gateway-trust.ts";  // the delegate is a counted forward, not a new call
 import { logAICost, estimateTokens } from "../_shared/cost-log.ts";
 import { getCorsHeaders } from "../_shared/cors.ts";
 // P1 roadmap 2026-05-26: envelope adoption (helper imported; success-path migration follows).
@@ -583,17 +585,31 @@ async function retrieverStage(
          early and PostgREST rejects the whole filter with 400 "failed to parse logic
          tree" - measured live 2026-08-26. This lane takes a natural-language QUESTION,
          so commas are not an edge case here, they are the common case. */
-      const safeQ = question.trim().slice(0, 80)
-        .replace(/[,()\\]/g, " ").replace(/\s+/g, " ").trim()
-        .replace(/%/g, "\\%").replace(/_/g, "\\_");
+      // ★THE WHOLE QUESTION WAS ONE SUBSTRING (OWN walk, 2026-10-26): "%What was the latest bearing noise problem on
+      // CMP-101 and what was done?%" against machine / root_cause / action matches no row ever written, so this lane
+      // answered nothing for any question a person actually asks - measured: 0 chunks for that question, 1 for "CMP-101"
+      // alone. It now searches the question's asset tags (and the router's), else its few longest content words.
+      const STOP = new Set(["what", "when", "where", "which", "about", "there", "their", "these", "those", "with", "from",
+        "that", "this", "have", "were", "does", "done", "show", "tell", "latest", "recent", "last", "problem", "problems",
+        "issue", "issues", "happened", "should", "could", "would", "please", "today", "week", "month", "year",
+        "keep", "keeps", "lately", "still", "again", "always", "much", "many", "some"]);
+      const esc = (t: string) => t.replace(/[,()\\"]/g, " ").trim().replace(/%/g, "\\%").replace(/_/g, "\\_");
+      const tags = [...new Set([...(String(question).toUpperCase().match(/\b[A-Z]{1,5}-\d{1,5}[A-Z]?\b/g) || []),
+                                 ...(assetTag ? [String(assetTag).toUpperCase()] : [])])].slice(0, 3);
+      const words = tags.length ? [] : [...new Set(String(question).toLowerCase().match(/[a-z][a-z0-9-]{3,}/g) || [])]
+        .filter((w) => !STOP.has(w)).sort((a, b) => b.length - a.length).slice(0, 3);
+      const terms = [...tags, ...words].map(esc).filter(Boolean);
       let q = db.from("v_logbook_truth")
         .select("id, machine, maintenance_type, category, root_cause, action, downtime_hours, status, created_at")
         .eq("hive_id", hiveId)
         .order("created_at", { ascending: false })
         .limit(15);
-      if (safeQ) {
-        q = q.or(`machine.ilike.%${safeQ}%,root_cause.ilike.%${safeQ}%,action.ilike.%${safeQ}%`);
+      if (terms.length) {
+        q = q.or(terms.flatMap((t) => tags.length
+          ? [`machine.ilike.%${t}%`]
+          : [`machine.ilike.%${t}%`, `root_cause.ilike.%${t}%`, `action.ilike.%${t}%`]).join(","));
       }
+      const safeQ = terms.join(" ");   // the chunk's similarity below still reads whether the lane was filtered
       /* The error was DESTRUCTURED AWAY here, and supabase-js RETURNS {data:null,error}
          rather than throwing - so a rejected filter never reached the catch below, and
          `logs || []` turned it into an ordinary empty result. The AI then answered with
@@ -645,7 +661,14 @@ async function retrieverStage(
     }
   }
 
-  return chunks.slice(0, RETRIEVAL_CAP);
+  // ★A RECORD IS READ, NEVER OBEYED (OWN AI failure-mode lens, prompt injection, 2026-10-26). Every chunk is text someone
+  // else wrote - a teammate's logbook entry, a summary, a document - and the grader, generator and checker all put it in a
+  // prompt. A line that reads as an instruction to the model is stripped here, once, before any stage sees it.
+  const kept = chunks.slice(0, RETRIEVAL_CAP);
+  let stripped = 0;
+  for (const c of kept) { const s = sanitizeUntrusted(c.text); c.text = s.text; stripped += s.stripped; }
+  if (stripped) console.warn(`[agentic-rag-loop] ${stripped} instruction line(s) stripped from retrieved records`);
+  return kept;
 }
 
 // ── Stage: Grader ────────────────────────────────────────────────────────────
@@ -896,7 +919,7 @@ async function writeTrace(
 // service-role key so the called fn sees us as trusted. AbortSignal.timeout
 // keeps the call bounded even if the target is unreachable.
 
-async function invokeEdgeFn<T = unknown>(fnName: string, body: Record<string, unknown>): Promise<T | null> {
+async function invokeEdgeFn<T = unknown>(fnName: string, body: Record<string, unknown>, extraHeaders: Record<string, string> = {}): Promise<T | null> {
   if (!_WH_URL || !_WH_KEY) return null;
   try {
     const res = await fetch(`${_WH_URL}/functions/v1/${fnName}`, {
@@ -908,6 +931,7 @@ async function invokeEdgeFn<T = unknown>(fnName: string, body: Record<string, un
         "apikey":        _WH_KEY,
         // a walk's no-model switch crosses the hop (2026-10-12): local runtime only, see model-calls.ts
         ...(modelCallsRefused() ? { "x-wh-walk-no-model": "1" } : {}),
+        ...extraHeaders,
       },
       body: JSON.stringify(body),
     });
@@ -947,8 +971,9 @@ async function recallMemories(hiveId: string | null, workerName: string | null, 
 
 function memoryBlockFor(memories: RecalledMemory[]): string {
   if (!memories.length) return "";
+  // a remembered fact came from an earlier answer built on others' records - read, never obeyed (2026-10-26)
   return "KNOWN CONTEXT FROM PRIOR SESSIONS:\n" +
-    memories.map(m => `  - [${m.memory_type}] ${m.content}`).join("\n") +
+    memories.map(m => `  - [${m.memory_type}] ${sanitizeUntrusted(m.content).text}`).join("\n") +
     "\n\n";
 }
 
@@ -1034,6 +1059,37 @@ interface TemporalDelegateResponse {
   remaining?:   number;
 }
 
+// "last 8 months", "past two years", "the last quarter", "since 2024", "since March 2025" -> an ISO window ending today.
+// null when the question names no relative window (the router's own dates stand).
+const _NUM: Record<string, number> = { one: 1, a: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9,
+  ten: 10, eleven: 11, twelve: 12, eighteen: 18, "twenty-four": 24 };
+const _MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+function relativeTimeScope(question: string, now: Date): { from: string; to: string } | null {
+  const q = String(question || "").toLowerCase();
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+  const back = (n: number, unit: string) => {
+    const d = new Date(now.getTime());
+    if (unit === "day") d.setUTCDate(d.getUTCDate() - n);
+    else if (unit === "week") d.setUTCDate(d.getUTCDate() - 7 * n);
+    else if (unit === "month") d.setUTCMonth(d.getUTCMonth() - n);
+    else if (unit === "quarter") d.setUTCMonth(d.getUTCMonth() - 3 * n);
+    else if (unit === "year") d.setUTCFullYear(d.getUTCFullYear() - n);
+    return d;
+  };
+  let m = q.match(/\b(?:last|past|previous|prior)\s+(\d{1,3}|one|a|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|eighteen|twenty-four)\s+(day|week|month|quarter|year)s?\b/);
+  if (m) {
+    const n = /^\d+$/.test(m[1]) ? Number(m[1]) : (_NUM[m[1]] || 0);
+    if (n > 0 && n <= 120) return { from: iso(back(n, m[2])), to: iso(now) };
+  }
+  m = q.match(/\b(?:the\s+)?(?:last|past|previous)\s+(day|week|month|quarter|year)\b/);
+  if (m) return { from: iso(back(1, m[1])), to: iso(now) };
+  m = q.match(new RegExp("\\bsince\\s+(" + _MONTHS.join("|") + ")\\s+(\\d{4})\\b"));
+  if (m) return { from: `${m[2]}-${String(_MONTHS.indexOf(m[1]) + 1).padStart(2, "0")}-01`, to: iso(now) };
+  m = q.match(/\bsince\s+(\d{4})\b/);
+  if (m && Number(m[1]) >= 2000 && Number(m[1]) <= now.getUTCFullYear()) return { from: `${m[1]}-01-01`, to: iso(now) };
+  return null;
+}
+
 function spanDaysFromTimeScope(scope: { from: string | null; to: string | null } | null | undefined): number {
   if (!scope || !scope.from) return 0;
   const fromMs = Date.parse(scope.from);
@@ -1056,7 +1112,12 @@ async function delegateToTemporal(
   if (assetTag)  body.asset_tag = assetTag;
   if (scope.from) body.from     = scope.from;
   if (scope.to)   body.to       = scope.to;
-  return await invokeEdgeFn<TemporalDelegateResponse>("temporal-rag-orchestrator", body);
+  // ★ONE QUESTION, ONE COUNT (2026-10-27). This function already counted the question on the hive's ai_rate_limits bucket;
+  // the delegate went out with only the service key, so temporal-rag-orchestrator counted the SAME question again - every
+  // long-horizon question moved the hive's bucket twice. The forward proof (an HMAC over this exact Authorization, minted
+  // with the service key) tells temporal it is a counted forward, so it holds it to its 30/hour cap READ-ONLY.
+  return await invokeEdgeFn<TemporalDelegateResponse>("temporal-rag-orchestrator", body,
+    await gatewayForwardHeaders(`Bearer ${_WH_KEY}`));
 }
 
 // ── Router→Cold-Archive wiring (Phase 6) ─────────────────────────────────────
@@ -1292,6 +1353,24 @@ serveObserved("agentic-rag-loop", tracedReply("agentic-rag-loop", async (req, tr
 
   // ── Stage 1: Router ────────────────────────────────────────────────────────
   const router = await routerStage(question, db, hiveId, workerName);
+  // ★"THE LAST 8 MONTHS" NEVER REACHED THE PERIOD SUMMARIES (OWN walk, 2026-10-26). The router is asked for ISO dates and is
+  // never told today's date, so a relative window - the way people actually ask - came back null (or a guessed year), the
+  // span read 0, and the temporal delegate never ran: the companion said "I don't have that 8-month trend" beside eight
+  // monthly summaries. A relative window is arithmetic, and code knows today: it is computed here and wins over the model.
+  {
+    const rel = relativeTimeScope(question, new Date());
+    if (rel) {
+      router.parsed.time_scope = rel;
+      // ★THE ROUTE WAS DECIDED ON THE MODEL'S GUESSED DATE (2026-10-27). routerStage promotes to cold_archive when the
+      // model's from-date is over 18 months old - and a model that does not know today put "the last 8 months" in 2024,
+      // so the question went to the cold archive and answered "I don't have enough recent records" (twice, walked). The
+      // window is now computed; the 18-month rule is re-applied to IT, and a recent window leaves the archive.
+      if (router.parsed.route === "cold_archive" && (Date.now() - Date.parse(rel.from)) <= 540 * 24 * 3600 * 1000) {
+        router.parsed.route = spanDaysFromTimeScope(rel) > TEMPORAL_DELEGATE_DAYS ? "temporal" : "semantic";
+        router.parsed.reasoning = `re-routed from cold_archive: the computed window ${rel.from}..${rel.to} is within 18 months`;
+      }
+    }
+  }
   stages.push({
     stage: "router", latency_ms: router.latency,
     tokens_in: estimateTokens(question) + estimateTokens(ROUTER_SYSTEM),

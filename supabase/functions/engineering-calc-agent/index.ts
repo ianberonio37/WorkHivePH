@@ -4,6 +4,7 @@ import { tracedReply } from "../_shared/trace-reply.ts";  // LM-E: one trace id 
 
 // contract-allow: deterministic engineering calcs; not a brain output
 import { callAI } from "../_shared/ai-chain.ts";
+import { sanitizeDeep } from "../_shared/untrusted.ts";
 import { log } from "../_shared/logger.ts";
 // Persona Contract: narrated-specialist mode — the report narrative gains a
 // `narration` field in the worker's persona voice (the formal report fields
@@ -1631,10 +1632,14 @@ async function generateReportNarrative(
   persona?: unknown,
 ): Promise<{ objective: string; assumptions: string; recommendations: string; narration?: string | null }> {
 
+  // ★A FIELD IS READ, NEVER OBEYED (OWN AI failure-mode lens, prompt injection, 2026-10-26): the inputs and results carry
+  // the person's free text (a project name, a note) into this prompt; a line that reads as an instruction is stripped.
+  const _si = sanitizeDeep(inputs), _sr = sanitizeDeep(results);
+  if (_si.stripped + _sr.stripped) console.warn(`[engineering-calc-agent] ${_si.stripped + _sr.stripped} instruction line(s) stripped from the calc fields`);
   const prompt = `You are a licensed Mechanical Engineer in the Philippines writing a professional design calculation report.
 Calculation type: ${calcType}
-Inputs: ${JSON.stringify(inputs, null, 2)}
-Results: ${JSON.stringify(results, null, 2)}
+Inputs: ${JSON.stringify(_si.value, null, 2)}
+Results: ${JSON.stringify(_sr.value, null, 2)}
 
 Write three short professional sections (2-4 sentences each):
 1. OBJECTIVE - what this calculation determines and why

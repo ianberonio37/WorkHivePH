@@ -39,6 +39,7 @@ void _whWarmClient;
 // substitution at summary build time (per-line scan beats whole-object
 // walk for the streamed-summary shape).
 import { redactPII as _redactPII, redactPIIWithMap, redactKnownNames } from "../_shared/redactPII.ts";  // eslint-disable-line
+import { isServiceRoleBearer } from "../_shared/tenant-context.ts";
 
 function callGroq(prompt: string, systemPrompt: string): Promise<string> {
   return callAI(prompt, { systemPrompt, temperature: 0.2, maxTokens: 1024, jsonMode: true });
@@ -769,12 +770,9 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
     // already words honestly ("The coach didn't send back any actions this time"). A model that answers with an empty
     // list still means "nothing to recommend".
     if (!aiAnswered(coachRaw)) return { mode: "coach", actions: null, agents_used: agentsToRun };
-    let actions: Record<string, unknown>[] = [];
-    try {
-      const parsedCoach = JSON.parse(coachRaw);
-      if (!Array.isArray(parsedCoach?.actions)) return { mode: "coach", actions: null, agents_used: agentsToRun };
-      actions = parsedCoach.actions;
-    } catch { return { mode: "coach", actions: null, agents_used: agentsToRun }; }
+    const parsedCoach = readModelObject(coachRaw);
+    if (!Array.isArray(parsedCoach?.actions)) return { mode: "coach", actions: null, agents_used: agentsToRun };
+    let actions = parsedCoach.actions as Record<string, unknown>[];
     // re-fill the placeholders the provider saw (see Step 4) before the plan reaches the supervisor
     try { actions = JSON.parse(_fill(JSON.stringify(actions))); } catch { /* keep as parsed */ }
     // WAT deterministic guard (FB4 grounding eval, 2026-07-01): the free-tier model keeps a
@@ -808,17 +806,28 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
   // An UNANSWERED chain ("{}") is no answer, not "I analyzed your data but had trouble formatting" - nothing was
   // analysed (2026-10-12, W4227). An empty answer reaches assistant.html's own honest no-answer path, and the gateway
   // does not remember it; a model that DID answer in a broken shape still gets the formatting sentence.
-  let answer: string = aiAnswered(synthRaw) ? "I analyzed your data but had trouble formatting the response. Please try again." : "";
-  try {
-    const parsed = JSON.parse(synthRaw).answer;
-    if (typeof parsed === "string") {
-      answer = parsed;
-    } else if (parsed && typeof parsed === "object") {
-      // LLM returned a structured object instead of a prose string. Format it
-      // as readable markdown-ish bullets so the chat UI can render it.
-      answer = formatStructuredAnswer(parsed);
+  // ★"WHAT DOES MTBF MEASURE?" WAS ANSWERED "I ANALYZED YOUR DATA BUT HAD TROUBLE FORMATTING" (OWN walk, 2026-10-26, phone-390,
+  // served by gemini-2.5-flash-lite). Only a bare `{"answer": ...}` was read; an object in fences or in prose, another key,
+  // or a plain-prose reply all became the formatting sentence, on a question the model had answered. They are read now,
+  // and a reply that still cannot be read is logged with its head, so the next one names its shape.
+  let answer = "";
+  const synthObj = readModelObject(synthRaw);
+  const parsed = synthObj ? (synthObj.answer ?? soleString(synthObj)) : undefined;
+  if (typeof parsed === "string" && parsed.trim()) {
+    answer = parsed;
+  } else if (parsed && typeof parsed === "object") {
+    // LLM returned a structured object instead of a prose string. Format it
+    // as readable markdown-ish bullets so the chat UI can render it.
+    answer = formatStructuredAnswer(parsed as Record<string, unknown>);
+  } else if (aiAnswered(synthRaw)) {
+    const prose = synthRaw.trim();
+    if (!synthObj && !/^[\[{`]/.test(prose)) {
+      answer = prose;   // answered in plain prose: an answer, in the wrong wrapper
+    } else {
+      console.warn(`[ai-orchestrator] synth answered in an unusable shape: ${prose.slice(0, 200)}`);
+      answer = "I analyzed your data but had trouble formatting the response. Please try again.";
     }
-  } catch { /* use fallback */ }
+  }
   answer = _fill(answer);   // the names the provider never saw, back in place (Step 4)
 
   // CL10 faithfulness rails (2026-07-08): (1) neutralize/hedge an ungrounded KPI %, then (2) strip any
@@ -836,6 +845,28 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
   }
 
   return { answer, agents_used: agentsToRun, raw_results: successfulResults };
+}
+
+// A model's JSON object, read the way models send it: bare, inside ```json fences, or as one object inside surrounding
+// prose. null when there is no object to read. Never throws.
+function readModelObject(raw: string): Record<string, unknown> | null {
+  const s = String(raw ?? "").trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+  const tries = [s];
+  const a = s.indexOf("{"), b = s.lastIndexOf("}");
+  if (a >= 0 && b > a && (a > 0 || b < s.length - 1)) tries.push(s.slice(a, b + 1));
+  for (const t of tries) {
+    try {
+      const v = JSON.parse(t);
+      if (v && typeof v === "object" && !Array.isArray(v)) return v as Record<string, unknown>;
+    } catch { /* empty-catch-allow: not this candidate - try the next */ }
+  }
+  return null;
+}
+
+// An object holding exactly one string (`{"response": "..."}`) carries the answer under another name.
+function soleString(o: Record<string, unknown>): string | undefined {
+  const vals = Object.values(o);
+  return vals.length === 1 && typeof vals[0] === "string" ? vals[0] as string : undefined;
 }
 
 // Coerce a structured object response into readable text. Keys become bold
@@ -963,11 +994,12 @@ serveObserved("ai-orchestrator", tracedReply("ai-orchestrator", async (req, trac
     //     scoping (the gateway redacts worker_name to "<redacted>")
     const _bearer = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
     const _serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    const _isService = isServiceRoleBearer(_bearer);   // the runtime key, or the scheduler\'s internal secret
     let _soloRlUid: string | null = null;   // a verified person with no hive: limited on their own bucket below
     // the hive the limiters count on: a service-role caller's (trusted), or one the membership check below proved
-    let _verifiedHiveId: string | null = (_bearer && _serviceKey && _bearer === _serviceKey) ? (hive_id || null) : null;
-    if (_bearer && _serviceKey && _bearer === _serviceKey) noteModelCaller({ auth_uid: null, hive_id: hive_id || null });
-    if (!(_bearer && _serviceKey && _bearer === _serviceKey)) {
+    let _verifiedHiveId: string | null = _isService ? (hive_id || null) : null;
+    if (_isService) noteModelCaller({ auth_uid: null, hive_id: hive_id || null });
+    if (!_isService) {
       const { data: { user: _caller } } = await db.auth.getUser(_bearer);
       if (!_caller) {
         return new Response(
@@ -1021,7 +1053,7 @@ serveObserved("ai-orchestrator", tracedReply("ai-orchestrator", async (req, trac
     // LLM10 unbounded-consumption: rate-limit the user-facing 7-agent fan-out (the hive.html Coach
     // calls this DIRECTLY, not via the gateway). Skip the trusted service_role path (gateway/cron,
     // rate-limited upstream); key on the verified hive (solo callers are bounded single-user).
-    if (!(_bearer && _serviceKey && _bearer === _serviceKey)) {
+    if (!_isService) {
       // D12 per-SURFACE quota, OBSERVE-mode (mirrors the shared gateway pattern). Always counts into
       // (hive, route, hour) via hive_route_calls so per-surface AI pressure is VISIBLE - the
       // hive-wide cap alone cannot show which surface is burning the budget. It does NOT deny:
@@ -1059,7 +1091,7 @@ serveObserved("ai-orchestrator", tracedReply("ai-orchestrator", async (req, trac
     // after the gate above verified the bearer (getUser + a worker profile); a service-role caller has no person and
     // keeps the service-role search. ai-gateway's forward proof is relayed only when it verifies for this bearer.
     let _soloSearchHeaders: Record<string, string> | null = null;
-    if (!hive_id && !(_bearer && _serviceKey && _bearer === _serviceKey)) {
+    if (!hive_id && !_isService) {
       _soloSearchHeaders = { "Authorization": req.headers.get("Authorization") || "" };
       const _soloViaGateway = await isTrustedGatewayForward(req);
       if (_soloViaGateway) {
