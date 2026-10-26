@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-07-07",
-        "dateModified": "2026-08-24",
+        "dateModified": "2026-10-27",
         "mainEntityOfPage": "https://workhiveph.com/learn/what-is-workhive-complete-platform-guide/",
         "inLanguage": "en-PH",
         "articleSection": "Platform",
@@ -81,7 +81,7 @@
             "name": "Is WorkHive really free?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 60 engineering calculators, and use the AI helper for free. The marketplace is contact-only, with no platform fees."
+              "text": "Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 60 engineering calculators, and use the AI helper for free. The marketplace is contact-only, with no platform fees: publishing a listing holds 10% of its price in WorkHive Credits, which come back in full if it does not sell."
             }
           },
           {
@@ -165,6 +165,10 @@
     .prose-wh blockquote { border-left: 3px solid var(--wh-orange,#F7A21B); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-style: italic; background: rgba(247,162,27,0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+/* A cell breaks between WORDS (2026-10-27): .prose-wh's overflow-wrap:anywhere let auto table layout shrink every column to one
+   letter, so on a phone 'WorkHive' read 'WorkHiv e' and the table never used its scroll region. A whole word is a cell's
+   minimum; a wide table scrolls inside [data-table-scroll]; an over-long token still wraps (break-word). */
+.prose-wh th, .prose-wh td { word-break: normal; overflow-wrap: break-word; }
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
       /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
          pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
@@ -326,7 +330,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-07-07">7 Jul 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
+      <span>Updated <time datetime="2026-10-27">27 Oct 2026</time></span>
       <span class="opacity-40">·</span>
       <span>12 min read</span>
     </div>
@@ -444,7 +448,7 @@
           <tr><td><a href="/project-report.html" class="wh-tap">Project Report</a></td><td>A print-ready report for a single project: summary, scope, progress, sign-off, and lessons, ready to hand to a contractor or client.</td></tr>
           <tr><td><a href="/audit-log.html" class="wh-tap">Audit Log and Compliance</a></td><td>A tamper-evident record of every power action (approvals, edits, deletes, member changes) with who did it and when, ready for an ISO or government review.</td></tr>
           <tr><td><a href="/engineering-design.html" class="wh-tap">Engineering Design Calculator</a></td><td>55 calculators across 6 disciplines, each done to Philippine standards, each giving you a materials list, a scope of work, and a diagram.</td></tr>
-          <tr><td><a href="/marketplace.html" class="wh-tap">Marketplace</a></td><td>A Philippine directory to find parts, training, and jobs from ID-verified sellers when your stock runs low. Contact-only, with no platform fees.</td></tr>
+          <tr><td><a href="/marketplace.html" class="wh-tap">Marketplace</a></td><td>A Philippine directory to find parts, training, and jobs from ID-verified sellers when your stock runs low. Contact-only, with no platform fees; a seller publishing a listing holds 10% of its price in credits, returned if it does not sell and passed to the buyer as a reward if it does.</td></tr>
           <tr><td><a href="/report-sender.html" class="wh-tap">Report Sender</a></td><td>Sends the shift handover and end-of-day summary to the right people by email. Add contacts by role and deliver a print-ready report.</td></tr>
           <tr><td><a href="/integrations.html" class="wh-tap">CMMS Integration</a></td><td>A two-way bridge to your current maintenance system (like SAP or IBM Maximo): import your data, sync jobs, and push completions without dropping what you already use.</td></tr>
           <tr><td><a href="/plant-connections.html" class="wh-tap">Plant Connections</a></td><td>A supervisor-only control panel for your plant's data plumbing: your current-system sync status, sensor list, company sign-in, and data-keeping settings in one place.</td></tr>
@@ -501,7 +505,8 @@
       <p>Across all 28 tools sits one AI helper. It is not a separate product you switch to: it lives on every page and knows your hive, your role, and your history. You can give it one of two expert personalities, and you can change which one you talk to at any time. There is a fuller walk-through in the <a href="/learn/ai-companion-hezekiah-zaniah-personas/">AI companion guide</a> and the <a href="/learn/ai-work-assistant-maintenance-technicians/">AI work assistant guide</a>, but here is what it actually does for a worker, in plain terms:</p>
       <ul>
         <li><strong>It answers from your own records.</strong> Ask it a question and it replies from your own logbook and job history, and it shows you where it found the answer, so you can trust it.</li>
-        <li><strong>You can just talk to it.</strong> Speak in English, Taglish, Bisaya, or Ilocano and it writes down what you say. It can also read the answer back out loud, so you can keep both hands on the job.</li>
+        <li><strong>It reads what your hive has filed, and says so.</strong> Besides your records, it is given the manuals and documents your hive has uploaded, facts drawn from past entries, and the industry standards library, all fetched under your own sign-in so it only sees what you may see. Under each answer a line lists what it was given, for example "Given with this answer: 2 team records (logbook ...) · 1 document (...) · 1 standard (...)".</li>
+        <li><strong>You can just talk to it.</strong> Speak in English or Taglish and it writes down what you say, in English. Bisaya or Ilocano come through as an English rendering that can miss words, so for a note kept in your own language use the Voice Journal, which keeps your words as you spoke them. It can also read the answer back out loud, so you can keep both hands on the job.</li>
         <li><strong>It sends you to the right page.</strong> Ask "where do I log this?" and it takes you straight there, instead of leaving you to hunt through menus.</li>
         <li><strong>It remembers.</strong> It remembers what you told it before, even days later, so you do not have to repeat yourself every morning.</li>
         <li><strong>It will not pass off an invented number as one of yours.</strong> If it does not have the figure, it says so and points you to the page where you can get it. Where it does offer an estimate, it is labelled as one rather than dressed up as a reading from your records.</li>
@@ -511,7 +516,7 @@
 
       <h2 id="free-offline">Free, offline-first, and built for Philippine plants</h2>
       <p>Two things make WorkHive different from the imported systems most Philippine plants have tried and abandoned.</p>
-      <p><strong>It is genuinely free.</strong> There is no per-seat license. You do not pay per user, and you do not need a credit card to start. The whole crew can be on it tomorrow. Even the marketplace is contact-only, with no platform fees. WorkHive earns its keep by being useful, not by charging you per head.</p>
+      <p><strong>It is genuinely free.</strong> There is no per-seat license. You do not pay per user, and you do not need a credit card to start. The whole crew can be on it tomorrow. Even the marketplace is contact-only, with no platform fees: a seller's listing holds 10% of its price in WorkHive Credits, which come back if it does not sell and go to the buyer as a reward if it does. WorkHive earns its keep by being useful, not by charging you per head.</p>
       <p><strong>It is built for the way Philippine plants actually work.</strong> It runs in a phone browser and works offline, so a brownout, a weak signal, or a tablet shared across a crew does not stop a repair from being recorded. It expects local conditions: the benchmarks account for typhoon season, brownouts, and salt air, and the engineering calculators use tropical constants instead of temperate defaults. The calculators, benchmarks, and safety references are anchored to Philippine standards, so the answers hold up for a local audit and a local reviewer.</p>
       <p>Here is how that plays out against a typical paid CMMS (computerized maintenance management system), feature by feature.</p>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table>
@@ -552,7 +557,7 @@
 
       <details class="faq-item">
         <summary>Is WorkHive really free?</summary>
-        <div class="faq-answer">Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 60 engineering calculators, and use the AI helper for free. The marketplace is contact-only, with no platform fees.</div>
+        <div class="faq-answer">Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 60 engineering calculators, and use the AI helper for free. The marketplace is contact-only, with no platform fees: publishing a listing holds 10% of its price in WorkHive Credits, which come back in full if it does not sell.</div>
       </details>
 
       <details class="faq-item">
@@ -690,7 +695,7 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-10-27">27 Oct 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

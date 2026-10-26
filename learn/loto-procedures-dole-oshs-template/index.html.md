@@ -1,6 +1,6 @@
 # Lock-Out Tag-Out (LOTO) Procedures: a Philippine Plant Template
 
-> A per-asset Lock-Out Tag-Out procedure template for Philippine plants under RA 11058 and DO 198-18: the seven-step sequence in the order that keeps someone alive, with a worked example for a 480V pump.
+> A per-asset Lock-Out Tag-Out procedure template for Philippine plants under RA 11058 and its revised rules, DO 252-25: the seven-step sequence in the order that keeps someone alive, with a worked example for a 480V pump.
 
 Source: https://workhiveph.com/learn/loto-procedures-dole-oshs-template/
 
@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 9 min read
 
-**Short answer:** Write one LOTO procedure per asset, and run the seven steps in order: the order is the safety measure, not a formality. The step that must come last is verification: release every scrap of stored energy first, then prove the machine is dead at the point where you are about to put your hands. This article gives you the sequence, a filled-in example for a 480V pump, and a template you can copy. The stake is statutory, not advisory: under **RA 11058** and **DO 198-18**, wilful failure to comply with an OSH standard carries an administrative fine of up to **₱100,000 per day** until the violation is corrected.
+**Short answer:** Write one LOTO procedure per asset, and run the seven steps in order: the order is the safety measure, not a formality. The step that must come last is verification: release every scrap of stored energy first, then prove the machine is dead at the point where you are about to put your hands. This article gives you the sequence, a filled-in example for a 480V pump, and a template you can copy. The stake is statutory, not advisory: under **RA 11058** and its revised rules, **DO 252-25**, wilful failure to comply with an OSH standard carries an administrative fine of up to **₱100,000 per day** until the violation is corrected.
 
 Who this is for
 
@@ -31,7 +31,7 @@ Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](ht
 
 To create a compliant LOTO procedure, write one per asset and run the seven-step lockout sequence on each machine, like a 480V Pump P-204B. Sign-off and an audit trail prove it was followed. In the Philippines the fine scales with the violation and with every day it continues, and it is set by the OSH law, not by the inspector.
 
-Lock-Out Tag-Out (LOTO) procedures are a critical component of workplace safety in Philippine manufacturing plants, such as those found in the Calabarzon region. These procedures ensure that equipment is properly shut down and secured before maintenance or repair work begins, preventing unexpected startup and protecting workers from serious injury or even death. In the Philippines the requirement is statutory: RA 11058 and DOLE Department Order 198-18 make the Occupational Safety and Health Standards enforceable and require safe work procedures for hazardous work, which is what a written LOTO procedure is. WorkHive's logbook carries a LOTO field on the job record, so the isolation is dated and attributed rather than remembered.
+Lock-Out Tag-Out (LOTO) procedures are a critical component of workplace safety in Philippine manufacturing plants, such as those found in the Calabarzon region. These procedures ensure that equipment is properly shut down and secured before maintenance or repair work begins, preventing unexpected startup and protecting workers from serious injury or even death. In the Philippines the requirement is statutory: RA 11058 and its implementing rules, DOLE Department Order 252, Series of 2025 (which replaced Department Order 198-18 on 16 May 2025), make the Occupational Safety and Health Standards enforceable and require safe work procedures for hazardous work, which is what a written LOTO procedure is. WorkHive's logbook carries a LOTO field on the job record, so the isolation is dated and attributed rather than remembered.
 
 Effective LOTO procedures involve a series of steps that must be followed in sequence to ensure equipment is safely secured. A sample equipment-specific LOTO procedure for a 480V Pump P-204B can serve as a template for other equipment. For instance, a maintenance planner at a plant in Batangas might use a LOTO procedure template to ensure that Pump P-204B is properly locked out before any maintenance work, on whichever shift the job lands. This helps prevent accidents and ensures compliance with DOLE OSHS regulations.
 
@@ -85,7 +85,7 @@ An isolation nobody recorded is an isolation you cannot prove, and on a plant ru
 
 **What WorkHive records, precisely.** The logbook entry for the job carries a deliberate LOTO field: a checkbox stating that energy isolation was applied, and an optional permit-to-work reference number beside it. Tick it and the entry shows a LOTO badge in the logbook list, carrying the permit number if you entered one. Because it sits on the entry it inherits the entry's date and the name of the worker who wrote it, and it is queryable: which matters more than it sounds: before that field existed an isolation could only be found by pattern-matching the free-text description, so it was accidental rather than deliberate, and could not be counted.
 
-**What it does not do, so you plan for it.** It is one field on the job record, not a lockout workflow: it does not walk the crew through the seven steps, does not hold a supervisor's approval before work starts, and does not track individual locks on and off. Those stay on your permit-to-work paperwork and on the hasp itself. What the digital record adds is the part paper loses: a dated, attributed, searchable trail an inspector can read months later, which under RA 11058 and DO 198-18 is exactly the part you are asked to produce.
+**What it does not do, so you plan for it.** It is one field on the job record, not a lockout workflow: it does not walk the crew through the seven steps, does not hold a supervisor's approval before work starts, and does not track individual locks on and off. Those stay on your permit-to-work paperwork and on the hasp itself. What the digital record adds is the part paper loses: a dated, attributed, searchable trail an inspector can read months later, which under RA 11058 and DO 252-25 is exactly the part you are asked to produce.
 
 ## The LOTO procedure template
 
@@ -116,7 +116,7 @@ The purpose of LOTO procedures is to ensure the safety of workers during mainten
 
 ### Which Philippine rules actually require LOTO?
 
-RA 11058 and its implementing order DO 198-18 make compliance with the Occupational Safety and Health Standards mandatory and set the penalties, and they require safe work procedures for hazardous work: which is what a written LOTO procedure is. Plants certified to ISO 45001 also carry it as an operational-control requirement.
+RA 11058 and its implementing rules, now DOLE Department Order 252-25 (in force since 16 May 2025, succeeding DO 198-18), make compliance with the Occupational Safety and Health Standards mandatory and set the penalties, and they require safe work procedures for hazardous work: which is what a written LOTO procedure is. Plants certified to ISO 45001 also carry it as an operational-control requirement.
 
 ### What is the 7-step lockout sequence?
 
@@ -138,10 +138,10 @@ On the logbook entry for the job. It carries a LOTO checkbox and an optional per
 
 ## Sources
 
-- [Republic Act 11058](https://www.officialgazette.gov.ph/2018/08/17/republic-act-no-11058/) and DOLE **Department Order 198-18**: OSH compliance and administrative penalties.
-- DOLE **Occupational Safety and Health Standards** (as amended): the standards RA 11058 and DO 198-18 make enforceable.
+- [Republic Act 11058](https://www.officialgazette.gov.ph/2018/08/17/republic-act-no-11058/) and DOLE **Department Order 252, Series of 2025**, the Revised Implementing Rules (effective 16 May 2025; succeeded Department Order 198-18): OSH compliance and administrative penalties.
+- DOLE **Occupational Safety and Health Standards** (as amended): the standards RA 11058 and DO 252-25 make enforceable.
 - ISO 45001: Occupational Health and Safety Management Systems: operational control (clause 8.1), under which a written isolation procedure sits.
 - IIEE Code: Philippine Electrical Code
 - ISO 14224: Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange
 
-<!-- md-twin source-sha: cb5c613d56072bec -->
+<!-- md-twin source-sha: 0d14dd038933d235 -->

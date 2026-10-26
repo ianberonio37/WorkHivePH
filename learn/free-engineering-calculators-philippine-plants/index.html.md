@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 24 Aug 2026
+Updated 27 Oct 2026
 ·
 10 min read
 
@@ -100,6 +100,8 @@ No hive yet? [Join WorkHive](https://workhiveph.com/?signup=1) first (free, take
 
 Every calculator below is free, works offline, and shows the formula plus a worked example with real numbers. Grouped by discipline:
 
+**New since the last update (October 2026):** the [Solar PV System Calculator](https://workhiveph.com/tools/solar-pv-calculator/) now carries an off-grid power-station planner. List the appliances and their hours of use, and it adds up the daily energy with the losses stated, sizes for the starting surge and the days without sun, then sizes the battery by chemistry and depth of discharge, the panels from your location's peak sun hours, the inverter, the MPPT charge controller, and the battery voltage (the lowest of 12, 24 or 48 V that keeps both DC currents within 100 A). It prices the station in pesos with prices you replace, keeps the plan on your device, shares it as a link, and prints a spec sheet referenced to IEEE 1562 and IEEE 1013 sizing and PEC 2017 Article 6.90. It needs no account.
+
 ### Reliability & Metrics (2)
 
 - [MTBF & MTTR Calculator](https://workhiveph.com/tools/mtbf-calculator/)
@@ -117,7 +119,7 @@ Every calculator below is free, works offline, and shows the formula plus a work
 - [Lightning Protection Calculator](https://workhiveph.com/tools/lightning-protection-calculator/)
 - [Power Factor Correction Calculator](https://workhiveph.com/tools/power-factor-correction-calculator/)
 - [Short Circuit Calculator](https://workhiveph.com/tools/short-circuit-calculator/)
-- [Solar PV System Calculator](https://workhiveph.com/tools/solar-pv-calculator/)
+- [Solar PV System Calculator](https://workhiveph.com/tools/solar-pv-calculator/) (with the off-grid power-station planner)
 - [Transformer Sizing Calculator](https://workhiveph.com/tools/transformer-sizing-calculator/)
 - [UPS Sizing Calculator](https://workhiveph.com/tools/ups-sizing-calculator/)
 - [Voltage Drop Calculator](https://workhiveph.com/tools/voltage-drop-calculator/)
@@ -285,4 +287,4 @@ Your saved calculations stay in your hive's project history, and you can read an
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: aa50f2d3b4ddab37 -->
+<!-- md-twin source-sha: efc0f1907c5ebe4c -->

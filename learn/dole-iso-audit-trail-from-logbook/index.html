@@ -46,7 +46,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-05-17",
-      "dateModified": "2026-10-16",
+      "dateModified": "2026-10-27",
       "mainEntityOfPage": "https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/",
       "inLanguage": "en-PH",
       "articleSection": "Maintenance",
@@ -166,6 +166,10 @@
     .prose-wh a { color: var(--wh-blue-light,#5FCCE8); text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: var(--wh-blue,#29B6D9); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+/* A cell breaks between WORDS (2026-10-27): .prose-wh's overflow-wrap:anywhere let auto table layout shrink every column to one
+   letter, so on a phone 'WorkHive' read 'WorkHiv e' and the table never used its scroll region. A whole word is a cell's
+   minimum; a wide table scrolls inside [data-table-scroll]; an over-long token still wraps (break-word). */
+.prose-wh th, .prose-wh td { word-break: normal; overflow-wrap: break-word; }
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
       /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
          pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
@@ -304,11 +308,11 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-10-16">16 Oct 2026</time></span>
+      <span>Updated <time datetime="2026-10-27">27 Oct 2026</time></span>
       <span class="opacity-40">·</span>
       <span>7 min read</span>
     </div>
-    <div class="answer-first"><strong>Short answer:</strong> A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds, and nothing in WorkHive purges that history: entries and their audit trail are kept for as long as your hive exists. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled.</div>
+    <div class="answer-first"><strong>Short answer:</strong> A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds, and nothing in WorkHive purges that history: entries and their audit trail are kept for as long as your hive exists. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled. The stakes are set by RA 11058 and its revised rules (DOLE Department Order 252-25): wilful non-compliance can draw a fine of up to &#8369;100,000 a day.</div>
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
       <ul><li>Plant safety officers</li>
@@ -389,7 +393,7 @@
 </article></main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-10-16">16 Oct 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-10-27">27 Oct 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

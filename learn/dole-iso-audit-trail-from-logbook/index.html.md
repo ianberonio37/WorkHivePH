@@ -10,11 +10,11 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 16 Oct 2026
+Updated 27 Oct 2026
 ·
 7 min read
 
-**Short answer:** A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds, and nothing in WorkHive purges that history: entries and their audit trail are kept for as long as your hive exists. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled.
+**Short answer:** A DOLE OSHS inspector or ISO 9001/14001/45001 auditor wants to sample three things from your maintenance records: that the entry was made at the time of the event (not backdated), that the worker who made it is identified, and that the entry has not been edited after the fact. WorkHive Audit Log makes all three queryable in seconds, and nothing in WorkHive purges that history: entries and their audit trail are kept for as long as your hive exists. The supervisor exports the requested date range from the Audit Log as CSV, or prints the period's Analytics Report as a PDF, and the inspector samples from a record that is already assembled. The stakes are set by RA 11058 and its revised rules (DOLE Department Order 252-25): wilful non-compliance can draw a fine of up to ₱100,000 a day.
 
 Who this is for
 
@@ -122,4 +122,4 @@ ISO 9001 Clause 10.2 corrective action: logbook entries with corrective-action t
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: e1694a2a054d759c -->
+<!-- md-twin source-sha: 7cceac464c17876f -->

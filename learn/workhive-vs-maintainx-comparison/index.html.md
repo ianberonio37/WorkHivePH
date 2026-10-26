@@ -20,8 +20,8 @@ Who this is for
 
 | Attribute | WorkHive | MaintainX |
 | --- | --- | --- |
-| Entry pricing | Free (worker tier) | $20/user/month billed annually ($25 monthly); Premium $65 |
-| Free tier | Yes: free at the worker tier | Yes: Basic is free forever (feature-capped) |
+| Entry pricing | Free (worker tier) | $20/user/month billed annually ($25 monthly); Premium $65 annually ($75 monthly) |
+| Free tier | Yes: free at the worker tier | Yes: Basic is free forever, capped at 2 active repeating work orders |
 | Request-only users | Free | Free and unlimited on every tier |
 | Offline capability | Offline-first capture and sync | Mobile app; connectivity-oriented |
 | Team communication | Community + shift handover | Strong in-app messaging (a core strength) |
@@ -30,7 +30,7 @@ Who this is for
 | Language | English plus eight Philippine languages by voice, including Filipino and Taglish | Multiple locales |
 | Best for | Zero-budget PH plants, poor connectivity | Teams prioritising mobile UX and messaging |
 
-Pricing verified against vendor and directory listings on 5 August 2026; SaaS pricing moves, so confirm current terms with the vendor before deciding. This comparison is reviewed quarterly for pricing and feature accuracy.
+Pricing re-checked against MaintainX's own pricing page on 27 October 2026 (first verified 5 August 2026): the prices are unchanged, and the free plan's caps are now listed in full. SaaS pricing moves, so confirm current terms with the vendor before deciding. This comparison is reviewed quarterly for pricing and feature accuracy.
 
 ## Where MaintainX is the better choice than WorkHive
 
@@ -50,7 +50,7 @@ Pricing verified against vendor and directory listings on 5 August 2026; SaaS pr
 
 ### Is MaintainX free?
 
-MaintainX offers a feature-capped freemium tier alongside paid plans starting around $20 per user per month (published entry pricing, August 2026). The free tier is designed to convert to paid seats as usage grows.
+Partly. MaintainX's Basic plan is free forever with unlimited work orders and unlimited requester users, but it holds only 2 active repeating work orders and 2 work orders with attached procedures, with one month of advanced analytics. Paid plans start at $20 per user per month billed yearly ($25 monthly), and Premium is $65 yearly ($75 monthly), as published on 27 October 2026. A preventive-maintenance schedule outgrows two repeating work orders quickly, which is where the free plan is designed to convert to paid seats.
 
 ### What is the main difference between WorkHive and MaintainX?
 
@@ -70,10 +70,10 @@ Or try the parts of it this page compares, without an account: the [MTBF calcula
 
 ## Sources
 
-- Vendor published pricing and feature pages (MaintainX), accessed August 2026.
+- Vendor published pricing and feature pages (MaintainX), first accessed August 2026 and re-checked 27 October 2026.
 - Independent CMMS (computerized maintenance management system) landscape reviews, 2026.
 - Related: [WorkHive vs UpKeep](https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/) · [Best free CMMS options](https://workhiveph.com/learn/best-free-cmms-software-philippines/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 174bed4e62f0ee34 -->
+<!-- md-twin source-sha: 3041d332152e7de8 -->

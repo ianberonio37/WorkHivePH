@@ -1,6 +1,6 @@
 # Vibration Analysis on a Phone Budget (Philippine PdM)
 
-> Learn how to run a phone-based vibration trend route in a Philippine plant: what a phone accelerometer can and cannot see, how to log readings with Voice Journal, and how to judge them against the ISO 10816-3 severity zone for the machine's class.
+> Learn how to run a phone-based vibration trend route in a Philippine plant: what a phone accelerometer can and cannot see, how to log readings with Voice Journal, and how to judge them against the ISO 10816-1 severity zone for the machine's class.
 
 Source: https://workhiveph.com/learn/vibration-analysis-on-a-phone-budget/
 
@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 8 min read
 
-**Short answer:** Predictive maintenance (PdM) is crucial for Philippine plants to reduce downtime and increase efficiency. However, not all plants have the budget for expensive vibration analyzers. Fortunately, phone-based vibration analysis apps can provide a cost-effective solution. Judge every reading against **ISO 10816-3**, and against the right machine class: on a medium machine (Class II, 15–300 kW on a rigid foundation) **2.8 mm/s** RMS is where it stops being satisfactory and **7.1 mm/s** is where it becomes severe. On a small machine (Class I, ≤15 kW) those boundaries are 1.8 and 4.5. WorkHive’s Vibration Analysis calculator works the zone out for you once you pick the class.
+**Short answer:** Predictive maintenance (PdM) is crucial for Philippine plants to reduce downtime and increase efficiency. However, not all plants have the budget for expensive vibration analyzers. Fortunately, phone-based vibration analysis apps can provide a cost-effective solution. Judge every reading against the **ISO 10816-1** severity zones for the right machine class: on a medium machine (Class II, 15–75 kW, or up to 300 kW on a special foundation) **2.8 mm/s** RMS is where it stops being satisfactory and **7.1 mm/s** is where it becomes severe. On a small machine (Class I, ≤15 kW) those boundaries are 1.8 and 4.5. WorkHive’s Vibration Analysis calculator works the zone out for you once you pick the class.
 
 Who this is for
 
@@ -43,7 +43,7 @@ Phone-based vibration analysis can detect three key failure modes: imbalance, mi
 
 During a weekly walkdown route at a PEZA plant in Cabuyao, Laguna, a maintenance planner reads each machine with the accelerometer app and dictates the number into Voice Journal on the spot. That is the part people skip and the part that decides whether the route is worth running: a reading that stays on the measuring app's screen is gone by the next machine. Voice Journal timestamps the entry and keeps it searchable, so the trend exists.
 
-A typical walkdown route might include critical equipment like Pump P-204B at a Bulacan manufacturing plant. On the walkdown, the shift in-charge dictates each reading into Voice Journal as it is taken. The numbers are then compared against the ISO 10816-3 zone for that machine's class: on a Class II medium machine, above 2.8 mm/s is unsatisfactory and above 7.1 mm/s is severe. Take the class from the motor rating, not from how big the machine looks: 4.5 is the severe threshold for a Class I machine of 15 kW or less, and using it on a 55 kW pump will have you chasing readings ISO 10816-3 calls acceptable.
+A typical walkdown route might include critical equipment like Pump P-204B at a Bulacan manufacturing plant. On the walkdown, the shift in-charge dictates each reading into Voice Journal as it is taken. The numbers are then compared against the ISO 10816-1 zone for that machine's class: on a Class II medium machine, above 2.8 mm/s is unsatisfactory and above 7.1 mm/s is severe. Take the class from the motor rating, not from how big the machine looks: 4.5 is the severe threshold for a Class I machine of 15 kW or less, and using it on a 55 kW pump will have you chasing readings its Class II limits call acceptable.
 
 Voice Journal is particularly useful for detecting certain failure modes, such as bearing wear. However, it's not suitable for detecting gear-mesh frequencies, which typically require more specialized equipment. A plant supervisor at a Davao plant might use Voice Journal to track vibration readings on a weekly basis, focusing on equipment with a history of bearing issues.
 
@@ -90,7 +90,7 @@ By using Voice Journal for phone vibration analysis, maintenance teams can detec
 
 Effective use of phone vibration analysis requires a thorough understanding of the equipment being monitored and the failure modes that can occur. By combining Voice Journal with knowledge of equipment operation and maintenance, teams can identify potential issues and take proactive steps to prevent failures. For instance, a plant in Batangas used Voice Journal to monitor the vibration levels of Boiler B-1 and was able to identify a potential issue before it caused a major breakdown. This approach can help Philippine plants reduce downtime and improve overall equipment reliability.
 
-**Open the tools:** two surfaces do the work here. **Voice Journal** captures each reading by voice on the round, offline. **Engineering Design → Vibration Analysis** then judges the number: pick the machine class and it returns the ISO 10816-3 severity zone, along with natural frequency and transmissibility if you are chasing a resonance.
+**Open the tools:** two surfaces do the work here. **Voice Journal** captures each reading by voice on the round, offline. **Engineering Design → Vibration Analysis** then judges the number: pick the machine class and it returns the ISO 10816-1 class severity zone, along with natural frequency and transmissibility if you are chasing a resonance.
 
 ## Frequently asked questions
 
@@ -104,7 +104,7 @@ No, phone vibration analysis has its limitations. It can detect certain types of
 
 ### What is ISO 10816 and how does it relate to vibration analysis?
 
-ISO 10816 evaluates machine vibration measured on non-rotating parts. Part 1 sets the general framework; Part 3 is the one you use on plant, because it puts machines into Class I to IV by power and foundation and gives each class its own A/B/C/D velocity zones. Class II covers 15-300 kW on a rigid foundation, with boundaries at 2.8 and 7.1 mm/s RMS; Class I covers 15 kW and under, at 1.8 and 4.5. Quoting a single threshold without naming the class is the commonest way the standard gets misapplied.
+ISO 10816 evaluates machine vibration measured on non-rotating parts. Part 1 sets the general framework, and its annex puts machines into Class I to IV by power and foundation, giving each class its own A/B/C/D velocity zones: Class II (medium machines of 15 to 75 kW, or up to 300 kW on a special foundation) has boundaries at 2.8 and 7.1 mm/s RMS; Class I (15 kW and under) at 1.8 and 4.5. Part 3 works differently: for industrial machines above 15 kW it uses Group 1 (above 300 kW) and Group 2 (15 to 300 kW) on rigid or flexible foundations, with its own limits, and it was replaced in 2022 by ISO 20816-3. Quoting a single threshold without naming the class or group is the commonest way the standard gets misapplied.
 
 ### How often should I perform vibration analysis?
 
@@ -122,6 +122,6 @@ The Department of Labor and Employment (DOLE) requires plants to implement a pre
 
 ## Sources
 
-- ISO 10816-3, **Mechanical vibration: Evaluation of machine vibration by measurements on non-rotating parts: Part 3: Industrial machines** (the Class I–IV severity zones quoted above). Part 1:2009 gives the general framework.
+- ISO 10816-1, **Mechanical vibration: Evaluation of machine vibration by measurements on non-rotating parts: Part 1: General guidelines** (its annex holds the Class I–IV severity zones quoted above; superseded by ISO 20816-1:2016). ISO 20816-3:2022, which replaced ISO 10816-3, covers industrial machines above 15 kW by Group 1 and Group 2 instead of these classes.
 
-<!-- md-twin source-sha: face1263e39929fa -->
+<!-- md-twin source-sha: d872aaf3fcbcc5bd -->

@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 7 Jul 2026
 ·
-Updated 24 Aug 2026
+Updated 27 Oct 2026
 ·
 12 min read
 
@@ -108,7 +108,7 @@ Stage 4 · Act and Prove (do it, share it, leave a trail)
 | [Project Report](https://workhiveph.com/project-report.html) | A print-ready report for a single project: summary, scope, progress, sign-off, and lessons, ready to hand to a contractor or client. |
 | [Audit Log and Compliance](https://workhiveph.com/audit-log.html) | A tamper-evident record of every power action (approvals, edits, deletes, member changes) with who did it and when, ready for an ISO or government review. |
 | [Engineering Design Calculator](https://workhiveph.com/engineering-design.html) | 55 calculators across 6 disciplines, each done to Philippine standards, each giving you a materials list, a scope of work, and a diagram. |
-| [Marketplace](https://workhiveph.com/marketplace.html) | A Philippine directory to find parts, training, and jobs from ID-verified sellers when your stock runs low. Contact-only, with no platform fees. |
+| [Marketplace](https://workhiveph.com/marketplace.html) | A Philippine directory to find parts, training, and jobs from ID-verified sellers when your stock runs low. Contact-only, with no platform fees; a seller publishing a listing holds 10% of its price in credits, returned if it does not sell and passed to the buyer as a reward if it does. |
 | [Report Sender](https://workhiveph.com/report-sender.html) | Sends the shift handover and end-of-day summary to the right people by email. Add contacts by role and deliver a print-ready report. |
 | [CMMS Integration](https://workhiveph.com/integrations.html) | A two-way bridge to your current maintenance system (like SAP or IBM Maximo): import your data, sync jobs, and push completions without dropping what you already use. |
 | [Plant Connections](https://workhiveph.com/plant-connections.html) | A supervisor-only control panel for your plant's data plumbing: your current-system sync status, sensor list, company sign-in, and data-keeping settings in one place. |
@@ -161,7 +161,8 @@ You climb these stairs for free. There is no paid tier that unlocks the advanced
 Across all 28 tools sits one AI helper. It is not a separate product you switch to: it lives on every page and knows your hive, your role, and your history. You can give it one of two expert personalities, and you can change which one you talk to at any time. There is a fuller walk-through in the [AI companion guide](https://workhiveph.com/learn/ai-companion-hezekiah-zaniah-personas/) and the [AI work assistant guide](https://workhiveph.com/learn/ai-work-assistant-maintenance-technicians/), but here is what it actually does for a worker, in plain terms:
 
 - **It answers from your own records.** Ask it a question and it replies from your own logbook and job history, and it shows you where it found the answer, so you can trust it.
-- **You can just talk to it.** Speak in English, Taglish, Bisaya, or Ilocano and it writes down what you say. It can also read the answer back out loud, so you can keep both hands on the job.
+- **It reads what your hive has filed, and says so.** Besides your records, it is given the manuals and documents your hive has uploaded, facts drawn from past entries, and the industry standards library, all fetched under your own sign-in so it only sees what you may see. Under each answer a line lists what it was given, for example "Given with this answer: 2 team records (logbook ...) · 1 document (...) · 1 standard (...)".
+- **You can just talk to it.** Speak in English or Taglish and it writes down what you say, in English. Bisaya or Ilocano come through as an English rendering that can miss words, so for a note kept in your own language use the Voice Journal, which keeps your words as you spoke them. It can also read the answer back out loud, so you can keep both hands on the job.
 - **It sends you to the right page.** Ask "where do I log this?" and it takes you straight there, instead of leaving you to hunt through menus.
 - **It remembers.** It remembers what you told it before, even days later, so you do not have to repeat yourself every morning.
 - **It will not pass off an invented number as one of yours.** If it does not have the figure, it says so and points you to the page where you can get it. Where it does offer an estimate, it is labelled as one rather than dressed up as a reading from your records.
@@ -173,7 +174,7 @@ The more your team logs, the more useful this helper becomes, because it is answ
 
 Two things make WorkHive different from the imported systems most Philippine plants have tried and abandoned.
 
-**It is genuinely free.** There is no per-seat license. You do not pay per user, and you do not need a credit card to start. The whole crew can be on it tomorrow. Even the marketplace is contact-only, with no platform fees. WorkHive earns its keep by being useful, not by charging you per head.
+**It is genuinely free.** There is no per-seat license. You do not pay per user, and you do not need a credit card to start. The whole crew can be on it tomorrow. Even the marketplace is contact-only, with no platform fees: a seller's listing holds 10% of its price in WorkHive Credits, which come back if it does not sell and go to the buyer as a reward if it does. WorkHive earns its keep by being useful, not by charging you per head.
 
 **It is built for the way Philippine plants actually work.** It runs in a phone browser and works offline, so a brownout, a weak signal, or a tablet shared across a crew does not stop a repair from being recorded. It expects local conditions: the benchmarks account for typhoon season, brownouts, and salt air, and the engineering calculators use tropical constants instead of temperate defaults. The calculators, benchmarks, and safety references are anchored to Philippine standards, so the answers hold up for a local audit and a local reviewer.
 
@@ -214,7 +215,7 @@ WorkHive is a free platform for every Filipino industrial worker, from the techn
 
 ### Is WorkHive really free?
 
-Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 60 engineering calculators, and use the AI helper for free. The marketplace is contact-only, with no platform fees.
+Yes. There is no per-seat charge and no credit card needed to use it. You and your whole crew can sign up, record work, plan maintenance, run the 60 engineering calculators, and use the AI helper for free. The marketplace is contact-only, with no platform fees: publishing a listing holds 10% of its price in WorkHive Credits, which come back in full if it does not sell.
 
 ### What tools are inside WorkHive?
 
@@ -315,4 +316,4 @@ Prefer to read first? [Meet Hezekiah and Zaniah](https://workhiveph.com/learn/ai
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 36e6e4acd1938b49 -->
+<!-- md-twin source-sha: 83381cfd7a4b8901 -->

@@ -51,7 +51,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-08-05",
-      "dateModified": "2026-08-24",
+      "dateModified": "2026-10-27",
       "mainEntityOfPage": "https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/",
       "inLanguage": "en-PH",
       "articleSection": "Comparison",
@@ -82,7 +82,7 @@
           "name": "Is a CMMS expensive?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "It does not have to be. Paid products commonly start around $20 per user per month, but WorkHive is free at the worker tier, so cost is not a reason to stay on a spreadsheet."
+            "text": "It does not have to be. Per-seat products start at $20 to $25 per user per month billed yearly (MaintainX $20, UpKeep $24 and Coast $25 on their own pricing pages, 27 October 2026), but WorkHive is free at the worker tier, so cost is not a reason to stay on a spreadsheet."
           }
         },
         {
@@ -90,7 +90,7 @@
           "name": "Can I import my existing spreadsheet?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes: start by importing the asset list to build the register, then let new work accumulate in the system. Do not try to backfill years of history; it rarely survives the effort and the value is in what happens next."
+            "text": "Yes. In WorkHive a supervisor imports it on the CMMS Integration page: a CSV or Excel file of assets, work orders, PM schedules or spare parts, read in the browser (the file is never uploaded; only the rows you import are saved). Start with the asset list to build the register, then let new work accumulate in the system. Do not try to backfill years of history; it rarely survives the effort and the value is in what happens next."
           }
         },
         {
@@ -165,6 +165,10 @@
     .prose-wh blockquote { border-left: 3px solid var(--wh-orange,#F7A21B); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-style: italic; background: rgba(247,162,27,0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+/* A cell breaks between WORDS (2026-10-27): .prose-wh's overflow-wrap:anywhere let auto table layout shrink every column to one
+   letter, so on a phone 'WorkHive' read 'WorkHiv e' and the table never used its scroll region. A whole word is a cell's
+   minimum; a wide table scrolls inside [data-table-scroll]; an over-long token still wraps (break-word). */
+.prose-wh th, .prose-wh td { word-break: normal; overflow-wrap: break-word; }
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
       /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
          pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
@@ -319,7 +323,7 @@
 
       <h2 id="matrix">Spreadsheet vs CMMS: side-by-side comparison</h2>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Attribute</th><th>Spreadsheet</th><th>CMMS</th></tr></thead><tbody>
-        <tr><td>Cost</td><td>Effectively free</td><td>Free (WorkHive worker tier) to ~$20+/user/month</td></tr>
+        <tr><td>Cost</td><td>Effectively free</td><td>Free (WorkHive worker tier) to $20-25+/user/month</td></tr>
         <tr><td>Setup time</td><td>Minutes</td><td>Days to weeks</td></tr>
         <tr><td>Multi-user editing</td><td>Conflict-prone</td><td>Built for it</td></tr>
         <tr><td>PM reminders</td><td>Manual</td><td>Automatic, with overdue tracking</td></tr>
@@ -344,11 +348,11 @@
       </details>
       <details class="faq-item">
         <summary>Is a CMMS expensive?</summary>
-        <div class="faq-answer">It does not have to be. Paid products commonly start around $20 per user per month, but WorkHive is free at the worker tier, so cost is not a reason to stay on a spreadsheet.</div>
+        <div class="faq-answer">It does not have to be. Per-seat products start at $20 to $25 per user per month billed yearly (MaintainX $20, UpKeep $24 and Coast $25 on their own pricing pages, 27 October 2026), but WorkHive is free at the worker tier, so cost is not a reason to stay on a spreadsheet.</div>
       </details>
       <details class="faq-item">
         <summary>Can I import my existing spreadsheet?</summary>
-        <div class="faq-answer">Yes: start by importing the asset list to build the register, then let new work accumulate in the system. Do not try to backfill years of history; it rarely survives the effort and the value is in what happens next.</div>
+        <div class="faq-answer">Yes. In WorkHive a supervisor imports it on the CMMS Integration page: a CSV or Excel file of assets, work orders, PM schedules or spare parts, read in the browser (the file is never uploaded; only the rows you import are saved). Start with the asset list to build the register, then let new work accumulate in the system. Do not try to backfill years of history; it rarely survives the effort and the value is in what happens next.</div>
       </details>
       <details class="faq-item">
         <summary>What is the real cost of staying on spreadsheets?</summary>
@@ -360,7 +364,7 @@
       <h2 id="sources">Sources</h2>
       <ul>
         <li><a href="https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency">US Department of Energy / PNNL</a>, <strong>Operations &amp; Maintenance Best Practices Guide, Release 3.0</strong> (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).</li>
-        <li><a href="https://smrp.org/">SMRP</a>, <strong>Best Practices Metric 2.1.1 (PM Compliance)</strong> &mdash; target &ge;90% schedule compliance.</li>
+        <li><a href="https://smrp.org/">SMRP</a>, <strong>Best Practices Metric 5.4.14 (PM and PdM Compliance)</strong>: target &ge;90% schedule compliance. (Metric 2.1.1, cited here until October 2026, is OEE.)</li>
         <li>Related: <a href="/learn/start-digital-maintenance-guide/">Start digital maintenance</a> &middot; <a href="/learn/best-free-cmms-software-philippines/">Best free CMMS options</a>.</li>
       </ul>
 
@@ -383,7 +387,7 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">2026-08-24</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-10-27">27 Oct 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

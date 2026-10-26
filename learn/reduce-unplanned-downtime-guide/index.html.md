@@ -37,7 +37,7 @@ The test of a root-cause fix is simple: the interval to the next identical failu
 
 ## Step 3: hold PM compliance above 90%
 
-PM compliance is the leading indicator: it moves before MTBF does. The SMRP benchmark is at least **90%** of preventive tasks completed on time, and **95%+** for critical assets. “On time” has a precise definition worth knowing: completed by the due date plus 20% of the task's own frequency, capped at 28 days, so a monthly PM has roughly a six-day window, not a whole month. Worth knowing before you compare: WorkHive’s own compliance figure is computed as completions against scheduled tasks inside a period (30 or 90 days), not by applying that per-task grace window, so the in-app number and an SMRP-audited number are not the same calculation. Compare like with like before judging yourself against the 90% benchmark. Below 80% the programme is not functioning; below 90% it is not protective.
+PM compliance is the leading indicator: it moves before MTBF does. The SMRP benchmark is at least **90%** of preventive tasks completed on time, and **95%+** for critical assets. “On time” has a precise definition worth knowing. SMRP metric 5.4.14 lets a site pick one of three rules and hold it: completed by the due date, by the due date plus one day, or by the due date plus 20% of the task's own frequency, capped at 28 days. Even on that last, most generous rule a monthly PM has roughly a six-day window, not a whole month, and a figure quoted without its rule cannot be compared with another site's. Worth knowing before you compare: WorkHive’s own compliance figure is computed as completions against scheduled tasks inside a period (30 or 90 days), not by applying that per-task grace window, so the in-app number and an SMRP-audited number are not the same calculation. Compare like with like before judging yourself against the 90% benchmark. Below 80% the programme is not functioning; below 90% it is not protective.
 
 Two rules make it stick: schedule work the crew can actually do (an over-ambitious plan produces 40% compliance and cynicism), and make overdue work visible to a named owner. Start from [free PM checklist templates](https://workhiveph.com/learn/free-pm-checklist-templates/) rather than a blank sheet.
 
@@ -45,7 +45,7 @@ Two rules make it stick: schedule work the crew can actually do (an over-ambitio
 
 Condition monitoring is where plants overspend first and benefit last. Applied to the critical few from step 1, it catches failures before they stop the line; applied everywhere, it produces alerts nobody reads.
 
-Start at the cheapest tier that answers a real question: phone-based vibration screening and thermography cover a lot of ground before any sensor purchase. See [predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/) and set bands using [ISO 10816 alert thresholds](https://workhiveph.com/learn/predictive-alert-thresholds-plants/).
+Start at the cheapest tier that answers a real question: phone-based vibration screening and thermography cover a lot of ground before any sensor purchase. See [predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/) and set bands using the [vibration alert thresholds guide](https://workhiveph.com/learn/predictive-alert-thresholds-plants/): the severity zones now sit in ISO 20816-3:2022, which replaced ISO 10816-3 and keeps its A-to-D zones.
 
 ## What to expect, and in what order
 
@@ -86,11 +86,11 @@ The PM Scheduler is the step after recording stoppages, where a due date chases 
 
 ## Sources
 
-- [SMRP](https://smrp.org/), **Best Practices Metrics, 6th Edition**: PM schedule compliance benchmark 90% (95%+ for critical assets); a PM counts as on time if completed by the due date + 20% of its frequency, capped at 28 days. Downtime-reduction ranges quoted here are widely-reported industry outcomes, not an SMRP-published figure.
+- [SMRP](https://smrp.org/), **Best Practices Metrics, 6th Edition**: PM schedule compliance benchmark 90% (95%+ for critical assets); metric 5.4.14 (PM and PdM compliance) counts a PM as on time by one of three site-chosen rules: the due date, the due date + 1 day, or the due date + 20% of its frequency capped at 28 days. Downtime-reduction ranges quoted here are widely-reported industry outcomes, not an SMRP-published figure.
 - [US Department of Energy / PNNL](https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency), **Operations & Maintenance Best Practices Guide, Release 3.0** (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).
-- [ISO 14224](https://www.iso.org/standard/64076.html), **Reliability and maintenance data collection**; ISO 10816-3 (vibration severity).
+- [ISO 14224](https://www.iso.org/standard/64076.html), **Reliability and maintenance data collection**; ISO 20816-3:2022 (vibration severity; it replaced ISO 10816-3:2009).
 - Related: [Maintenance metrics guide](https://workhiveph.com/learn/maintenance-metrics-reliability-guide/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 946d6b5a8789f851 -->
+<!-- md-twin source-sha: c20a23b1aa92c8fb -->

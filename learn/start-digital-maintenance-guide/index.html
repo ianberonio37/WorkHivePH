@@ -51,7 +51,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-08-05",
-      "dateModified": "2026-08-05",
+      "dateModified": "2026-10-27",
       "mainEntityOfPage": "https://workhiveph.com/learn/start-digital-maintenance-guide/",
       "inLanguage": "en-PH",
       "articleSection": "Getting Started",
@@ -195,6 +195,10 @@
     .prose-wh blockquote { border-left: 3px solid var(--wh-orange,#F7A21B); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-style: italic; background: rgba(247,162,27,0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+/* A cell breaks between WORDS (2026-10-27): .prose-wh's overflow-wrap:anywhere let auto table layout shrink every column to one
+   letter, so on a phone 'WorkHive' read 'WorkHiv e' and the table never used its scroll region. A whole word is a cell's
+   minimum; a wide table scrolls inside [data-table-scroll]; an over-long token still wraps (break-word). */
+.prose-wh th, .prose-wh td { word-break: normal; overflow-wrap: break-word; }
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
       /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
          pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
@@ -328,7 +332,7 @@
          fix_learn_freshness.py guarantees, lifted from each page's own dateModified. -->
     <p class="text-white/50 text-sm mb-8">By WorkHive Editorial Team · Published 2026-08-05 · 8 min read</p>
 
-    <div class="answer-first">To go from spreadsheets to digital maintenance, do four things in order. First, start a <strong>digital logbook</strong>, so every job is recorded the day it happens. Second, build an <strong>asset register</strong> on the ISO 14224 hierarchy, so every record is tagged to equipment. Third, turn recurring jobs into a <strong>preventive-maintenance schedule</strong>. Fourth, run a structured <strong>shift handover</strong>, so nothing is lost between crews. A small plant can do all four in about 30 days at zero software cost. A preventive programme runs about <strong>12&ndash;18% cheaper</strong> than running reactive. Predictive maintenance saves a further 8&ndash;12% (US Department of Energy / PNNL).</div>
+    <div class="answer-first">To go from spreadsheets to digital maintenance, do four things in order. First, start a <strong>digital logbook</strong>, so every job is recorded the day it happens. Second, build an <strong>asset register</strong> on the ISO 14224 hierarchy, so every record is tagged to equipment. Third, turn recurring jobs into a <strong>preventive-maintenance schedule</strong>. Fourth, run a structured <strong>shift handover</strong>, so nothing is lost between crews. A small plant can do all four in about 30 days at zero software cost, and a preventive programme runs about <strong>12&ndash;18% cheaper</strong> than running reactive (US Department of Energy / PNNL).</div>
 
     <div class="audience-block">
       <p class="audience-label">Who this is for</p>
@@ -358,19 +362,19 @@
     <div class="prose-wh">
 
       <h2 id="why">Why digitise maintenance at all</h2>
-      <p>A spreadsheet inherited from a departed engineer is a liability. Its formulas drift, its tabs multiply, and the one person who understood it is gone. Digital maintenance replaces that with structured, searchable, portable records. The payoff is not fancy dashboards. It is a technician answering &ldquo;when did we last replace this seal, and why?&rdquo; in ten seconds instead of never. The US Department of Energy puts a preventive programme at roughly <strong>12-18% cheaper</strong> than running reactive. Predictive maintenance saves a further 8-12%. That is why the steps below start with recording and scheduling.</p>
+      <p>A spreadsheet inherited from a departed engineer is a liability. Its formulas drift, its tabs multiply, and the one person who understood it is gone. Digital maintenance replaces that with structured, searchable, portable records. The payoff is a technician answering &ldquo;when did we last replace this seal, and why?&rdquo; in ten seconds instead of never. The US Department of Energy puts a preventive programme at roughly <strong>12-18% cheaper</strong> than running reactive. Predictive maintenance saves a further 8-12%. That is why the steps below start with recording and scheduling.</p>
 
       <h2 id="logbook">Step 1: the digital logbook</h2>
       <p>Everything starts with capture. If a job is not written down the day it happens, the data is gone. A digital logbook takes 20 seconds per entry and immediately makes downtime, parts used, and repeat failures visible. The full rollout is in <a href="/learn/start-digital-logbook-philippine-factory/">start a digital logbook in a Philippine factory</a>. It includes how to get technicians to actually use it. For plants with spotty Wi-Fi, a logbook must work offline and sync later. That is a core WorkHive design choice.</p>
 
       <h2 id="assets">Step 2: the asset register (ISO 14224)</h2>
-      <p>A logbook is only useful if every entry is tagged to a specific asset. That means building an <strong>asset register</strong>: a hierarchy of plant &rarr; system &rarr; equipment &rarr; component. Follow the ISO 14224 taxonomy, so your data can be compared with industry benchmarks. You do not need a consultant or a budget. The step-by-step method is in <a href="/learn/building-asset-register-zero-budget/">building an asset register on zero budget</a>.</p>
+      <p>A logbook is only useful if every entry is tagged to a specific asset. That means building an <strong>asset register</strong>: a hierarchy of plant &rarr; system &rarr; equipment &rarr; component. Follow the ISO 14224 taxonomy, so your data can be compared with industry benchmarks. You do not need a consultant or a budget. The step-by-step method is in <a href="/learn/building-asset-register-zero-budget/">building an asset register on zero budget</a>. If the asset list already lives in a spreadsheet, do not retype it: in WorkHive a supervisor imports it on the CMMS Integration page as a CSV or Excel file, which is read in the browser (the file is never uploaded; only the rows you import are saved), and the same import takes PM schedules and spare parts.</p>
 
       <h2 id="pm">Step 3: the preventive-maintenance schedule</h2>
       <p>With assets and history in place, turn the recurring jobs into a real PM schedule. Lubrication, inspections and filter changes each get a due date and an owner. Track completion as PM compliance: aim for the SMRP &ge;90% benchmark. Start from proven <a href="/learn/free-pm-checklist-templates/">free PM checklist templates</a> rather than a blank sheet. The <a href="/learn/maintenance-metrics-reliability-guide/">maintenance metrics guide</a> shows how to prove the schedule is working.</p>
 
       <h2 id="handover">Step 4: structured shift handover</h2>
-      <p>Most plant knowledge is lost in the 5 minutes between shifts. A structured handover closes that gap: open work, abnormal conditions, pending parts. It is the cheapest reliability win available. Use the ready-made format in <a href="/learn/maintenance-shift-handover-template/">the maintenance shift handover template</a>. Voice capture in Tagalog or Taglish removes the &ldquo;I&rsquo;ll write it later&rdquo; excuse: see <a href="/learn/voice-to-text-maintenance-philippine-plant-floor/">voice-to-text on the plant floor</a>.</p>
+      <p>Most plant knowledge is lost in the 5 minutes between shifts. A structured handover closes that gap: open work, abnormal conditions, pending parts. It is the cheapest reliability win available. Use the ready-made format in <a href="/learn/maintenance-shift-handover-template/">the maintenance shift handover template</a>. In WorkHive, Shift Brain drafts the next shift's plan before sign-on (top risks, checks due, carry-over jobs, parts to set aside) for the supervisor to publish, and Report Sender emails the handover to the people you add by role. Voice capture in Tagalog or Taglish removes the &ldquo;I&rsquo;ll write it later&rdquo; excuse: see <a href="/learn/voice-to-text-maintenance-philippine-plant-floor/">voice-to-text on the plant floor</a>.</p>
 
       <h2 id="rollout">The 30-day rollout</h2>
       <p><strong>Week 1:</strong> logbook live, every job recorded. <strong>Week 2:</strong> asset register built for the critical line. <strong>Week 3:</strong> PM schedule loaded for those assets. <strong>Week 4:</strong> shift handover formalised and the first metrics reviewed. Do it on one critical line first, prove the value, then expand: a full-plant big-bang almost always stalls. Every step above uses free WorkHive tools, so the only cost is discipline.</p>
@@ -403,7 +407,7 @@
       <h2 id="sources">Sources</h2>
       <ul>
         <li><a href="https://www.iso.org/standard/64076.html">ISO 14224</a>, <strong>Collection and exchange of reliability and maintenance data for equipment</strong>.</li>
-        <li>SMRP, <strong>Best Practices Metric 5.4 (PM Compliance)</strong>.</li>
+        <li>SMRP, <strong>Best Practices Metric 5.4.14 (PM and PdM Compliance)</strong>: work orders completed by their due date over work orders due; SMRP's target is above 90%.</li>
         <li><a href="https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency">US Department of Energy / PNNL</a>, <strong>Operations &amp; Maintenance Best Practices Guide, Release 3.0</strong> (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).</li>
         <li>Related WorkHive guides: <a href="/learn/start-digital-logbook-philippine-factory/">Digital logbook</a> &middot; <a href="/learn/building-asset-register-zero-budget/">Asset register</a> &middot; <a href="/learn/maintenance-shift-handover-template/">Shift handover</a>.</li>
       </ul>
@@ -427,7 +431,7 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-05">2026-08-05</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-10-27">27 Oct 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

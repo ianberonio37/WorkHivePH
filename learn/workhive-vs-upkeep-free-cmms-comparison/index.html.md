@@ -6,11 +6,11 @@ Source: https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/
 
 By WorkHive Editorial Team · Published 2026-08-05 · 6 min read
 
-**Choose UpKeep** if you need mature manufacturing-compliance and audit-readiness workflows, a large integration catalogue, and vendor support you can escalate to: its published entry pricing is about **$20 per user per month**. **Choose WorkHive** if cost per seat is the blocker and your plant floor has unreliable wifi: WorkHive is **free at the worker tier** (not a capped trial), works **offline-first**, is built for the Philippine context (DOLE OSHS records, Tagalog/Taglish voice capture, peso context), and bundles **60 engineering calculators**. The honest summary: UpKeep is the more established product with the deeper enterprise feature set; WorkHive removes the per-seat cost and the connectivity assumption.
+**Choose UpKeep** if you need mature manufacturing-compliance and audit-readiness workflows, a large integration catalogue, and vendor support you can escalate to: its published entry pricing is **$24 per user per month**. **Choose WorkHive** if cost per seat is the blocker and your plant floor has unreliable wifi: WorkHive is **free at the worker tier** (not a capped trial), works **offline-first**, is built for the Philippine context (DOLE OSHS records, Tagalog/Taglish voice capture, peso context), and bundles **60 engineering calculators**. The honest summary: UpKeep is the more established product with the deeper enterprise feature set; WorkHive removes the per-seat cost and the connectivity assumption.
 
 Who this is for
 
-- Small maintenance teams looking at UpKeep's free tier
+- Small maintenance teams weighing UpKeep's per-seat price
 - Maintenance supervisors and planners
 - Plant managers weighing price against features
 - Procurement officers comparing published pricing
@@ -21,8 +21,8 @@ Who this is for
 
 | Attribute | WorkHive | UpKeep |
 | --- | --- | --- |
-| Entry pricing | Free (worker tier) | $20/user/month (Essential); Premium $55/user/month |
-| Free tier | Yes: free at the worker tier, not time-limited | Freemium, feature-capped |
+| Entry pricing | Free (worker tier) | $24/user/month (Essential); Premium $55/user/month |
+| Free tier | Yes: free at the worker tier, not time-limited | No free plan since October 2026 (free trial; view-only and requester users free) |
 | Offline capability | Offline-first; entries captured on the floor and synced later | Mobile app; generally assumes connectivity |
 | Core maintenance features | Logbook, PM scheduler, inventory, asset register, skill matrix | Work orders, PM, inventory, asset management |
 | Engineering calculators | 60 standards-referenced calculators included | Not a core focus |
@@ -31,7 +31,7 @@ Who this is for
 | Integrations | SAP / Maximo patterns documented; smaller catalogue | Large third-party integration catalogue |
 | Best for | Small Philippine plants, zero budget, patchy wifi | Teams needing mature compliance workflows and vendor support |
 
-Pricing verified against vendor and directory listings on 5 August 2026; SaaS pricing moves, so confirm current terms with the vendor before deciding. This comparison is reviewed quarterly for pricing and feature accuracy.
+Pricing re-checked against UpKeep's own pricing page on 27 October 2026 (first verified 5 August 2026): the Essential seat rose from $20 to $24 and the free plan is gone. SaaS pricing moves, so confirm current terms with the vendor before deciding. This comparison is reviewed quarterly for pricing and feature accuracy.
 
 ## Where UpKeep is the better choice than WorkHive
 
@@ -46,7 +46,7 @@ Being straight about this matters. UpKeep is a mature, well-resourced product, a
 
 Equally straight in the other direction:
 
-- **Cost per seat is the blocker.** At ~$20/user/month, a 10-technician team is about $2,400/year before anything else. WorkHive is free at the worker tier, so cost does not scale with headcount.
+- **Cost per seat is the blocker.** At $24/user/month, a 10-technician team is about $2,880/year before anything else. WorkHive is free at the worker tier, so cost does not scale with headcount.
 - **The plant floor has unreliable wifi.** WorkHive is offline-first: entries are captured locally and sync when a connection returns. If capture waits for signal, it does not happen.
 - **Your team works in Filipino or Taglish.** Voice-to-text capture in Tagalog/Taglish removes the "I'll write it later" failure mode. See [voice-to-text on the plant floor](https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/).
 - **You need Philippine compliance records**: DOLE OSHS audit trails, LOTO permits, and the action record an RA 11285 energy audit asks for: a reading logged, a figure corrected, an efficiency measure signed off, each against the person and the date. WorkHive does not meter your plant, so the kilowatt-hours still come from your meters and your energy management system. See the [PH plant compliance guide](https://workhiveph.com/learn/ph-plant-compliance-guide/).
@@ -66,7 +66,7 @@ Yes. WorkHive is free at the worker tier (not a time-limited trial or a capped f
 
 ### How much does UpKeep cost?
 
-UpKeep's published entry pricing is around $20 per user per month as of August 2026, with higher tiers for advanced features. Verify current pricing with the vendor, since SaaS pricing changes frequently.
+UpKeep's published entry pricing is $24 per user per month (Essential) as of 27 October 2026, up from $20 in August, with Premium at $55 and quoted Professional and Enterprise tiers. UpKeep no longer lists a free plan; it offers a free trial, and view-only, requester and third-party users need no paid seat. Verify current pricing with the vendor, since SaaS pricing changes frequently.
 
 ### Does WorkHive work offline?
 
@@ -86,10 +86,10 @@ Or try what “free” actually means here, with no account: the [OEE calculator
 
 ## Sources
 
-- Vendor published pricing and feature pages (UpKeep), accessed August 2026.
+- Vendor published pricing and feature pages (UpKeep), first accessed August 2026 and re-checked 27 October 2026.
 - Independent CMMS (computerized maintenance management system) landscape reviews, 2026 (entry pricing and positioning across MaintainX, Limble, UpKeep, Coast, Fiix, eMaint, Tractian).
 - Related WorkHive guides: [Start digital maintenance](https://workhiveph.com/learn/start-digital-maintenance-guide/) · [PH plant compliance](https://workhiveph.com/learn/ph-plant-compliance-guide/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 307c8dbee8e734ab -->
+<!-- md-twin source-sha: e22cd01dea4a9c7c -->

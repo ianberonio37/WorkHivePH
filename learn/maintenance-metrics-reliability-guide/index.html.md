@@ -53,7 +53,7 @@ OEE, MTBF, and MTTR are *lagging* indicators: they tell you what already broke. 
 
 ## Climbing the reliability ladder: RCM, FMEA, and predictive alerts
 
-Once the basics are measured, the next rungs are analytical. **FMEA** (Failure Mode and Effects Analysis) ranks what to fix first by risk: see a full [FMEA worked example on a Philippine bottling line](https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/). **RCM** (Reliability-Centered Maintenance) then decides the right strategy per failure mode: [RCM for Philippine plants](https://workhiveph.com/learn/reliability-centered-maintenance-philippine-plants/). Finally, **condition-based alert thresholds** catch failures before they happen: the ISO 10816 vibration bands and how to set them are in [predictive alert thresholds](https://workhiveph.com/learn/predictive-alert-thresholds-plants/).
+Once the basics are measured, the next rungs are analytical. **FMEA** (Failure Mode and Effects Analysis) ranks what to fix first by risk: see a full [FMEA worked example on a Philippine bottling line](https://workhiveph.com/learn/fmea-worked-example-philippine-bottling-line/). **RCM** (Reliability-Centered Maintenance) then decides the right strategy per failure mode: [RCM for Philippine plants](https://workhiveph.com/learn/reliability-centered-maintenance-philippine-plants/). Finally, **condition-based alert thresholds** catch failures before they happen: the vibration severity zones of ISO 20816-3 (the 2022 standard that replaced ISO 10816-3 and keeps its A-to-D zones) and how to set alerts on them are in [predictive alert thresholds](https://workhiveph.com/learn/predictive-alert-thresholds-plants/).
 
 ## Free calculators and next steps
 
@@ -75,7 +75,7 @@ Availability = MTBF divided by (MTBF + MTTR). For a pump with MTBF 800 hours and
 
 ### What PM compliance should I target?
 
-The <a href="https://smrp.org/">Society for Maintenance and Reliability Professionals (SMRP)</a> benchmark is at least 90% schedule compliance: the percentage of preventive maintenance tasks completed on or before their due date. It is the leading indicator that drives MTBF and OEE upward.
+The [Society for Maintenance and Reliability Professionals (SMRP)](https://smrp.org/) benchmark, Best Practices Metric 5.4.14, is at least 90% schedule compliance: the percentage of preventive maintenance tasks completed on or before their due date. It is the leading indicator that drives MTBF and OEE upward.
 
 ### Do I need software to track these metrics?
 
@@ -85,11 +85,11 @@ No. You can start with a disciplined logbook and a checklist. The value is in co
 
 ## Sources
 
-- [Society for Maintenance and Reliability Professionals (SMRP)](https://smrp.org/), **Best Practices Metrics (5.4 PM Compliance, 5.1 OEE)**.
+- [Society for Maintenance and Reliability Professionals (SMRP)](https://smrp.org/), **Best Practices Metrics (5.4.14 PM and PdM Compliance, 2.1.1 OEE)**.
 - [ISO 14224](https://www.iso.org/standard/64076.html), **Collection and exchange of reliability and maintenance data for equipment**.
-- ISO 10816-3, **Mechanical vibration: evaluation of machine vibration**.
+- ISO 20816-3:2022, **Mechanical vibration: measurement and evaluation of machine vibration, Part 3** (industrial machines above 15 kW, 120 to 30,000 r/min). It replaced ISO 10816-3:2009 and ISO 7919-3.
 - Related WorkHive guides: [OEE](https://workhiveph.com/learn/what-is-oee-how-to-calculate/) · [MTBF vs MTTR](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/) · [RCM](https://workhiveph.com/learn/reliability-centered-maintenance-philippine-plants/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: dbf980e0d87baa68 -->
+<!-- md-twin source-sha: d38018ea42145757 -->

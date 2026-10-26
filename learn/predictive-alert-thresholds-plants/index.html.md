@@ -10,7 +10,7 @@ By **WorkHive Editorial Team**
 ·
 Published 17 May 2026
 ·
-Updated 24 Aug 2026
+Updated 27 Oct 2026
 ·
 7 min read
 
@@ -46,7 +46,7 @@ Three tiers, not seven. Many sensor vendor dashboards ship with 5 to 7 alert lev
 
 ## ISO 10816 vibration thresholds by asset class
 
-ISO 10816 defines vibration severity zones for industrial machinery. The standard is the right starting point; tune from there based on your plant's history.
+ISO 10816 defines vibration severity zones for industrial machinery, and the table below is the Class I to IV guidance from ISO 10816-1. The ISO 10816 parts have since been replaced by the ISO 20816 series: ISO 20816-3:2022 (formerly ISO 10816-3) groups machines above 15 kW by Group 1 and Group 2 and foundation, with its own limits, so check large machines against it. The standard is the right starting point; tune from there based on your plant's history.
 
 | Asset class | Zone A (Good) | Zone B (Acceptable) | Zone C (Unsatisfactory) | Zone D (Unacceptable) |
 | --- | --- | --- | --- | --- |
@@ -101,7 +101,7 @@ Three: Notice (log it, keep watching), Warning (plan an investigation within a w
 
 ### Where do ISO 10816 vibration thresholds fit in?
 
-ISO 10816 defines vibration severity zones (A Good, B Acceptable, C Unsatisfactory, D Unacceptable) by asset class. Map them to your tiers: Notice fires at A to B transition, Warning at B to C, Action at C to D. Always use the asset-class-specific thresholds (Class I to IV) rather than a single plant-wide value.
+ISO 10816-1 defines vibration severity zones (A Good, B Acceptable, C Unsatisfactory, D Unacceptable) by machine class, Class I to IV; for industrial machines above 15 kW, ISO 20816-3 (formerly ISO 10816-3) sets zones by Group 1 and Group 2 instead. Map them to your tiers: Notice fires at A to B transition, Warning at B to C, Action at C to D. Always use the asset-class-specific thresholds (Class I to IV) rather than a single plant-wide value.
 
 ### How do I prevent alert fatigue?
 
@@ -122,11 +122,11 @@ Start with vendor defaults (or ISO 10816 for vibration), but tune within 90 days
 ## Sources
 
 - ISO 10816, **Mechanical vibration: Evaluation of machine vibration by measurements on non-rotating parts**, all parts.
-- ISO 20816, **Mechanical vibration: Measurement and evaluation of machine vibration** (successor to ISO 10816).
+- ISO 20816-1:2016 and ISO 20816-3:2022, **Mechanical vibration: Measurement and evaluation of machine vibration** (the series that replaced ISO 10816; Part 3 replaced ISO 10816-3).
 - API 670, **Machinery Protection Systems**. Source for absolute vibration shutdown thresholds on rotating equipment.
 - WorkHive platform positioning, "Four Gaps One Hive" with Alert Hub as the Intelligence-gap accelerator. [workhiveph.com](https://workhiveph.com/)
 - Related WorkHive guides: [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/) · [MTBF vs MTTR](https://workhiveph.com/learn/mtbf-vs-mttr-for-supervisors/)
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: e980c41032071503 -->
+<!-- md-twin source-sha: 05620465bcedb951 -->

@@ -46,7 +46,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-05-17",
-      "dateModified": "2026-08-24",
+      "dateModified": "2026-10-27",
       "mainEntityOfPage": "https://workhiveph.com/learn/predictive-alert-thresholds-plants/",
       "inLanguage": "en-PH",
       "articleSection": "Maintenance",
@@ -70,7 +70,7 @@
           "name": "Where do ISO 10816 vibration thresholds fit in?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "ISO 10816 defines vibration severity zones (A Good, B Acceptable, C Unsatisfactory, D Unacceptable) by asset class. Map them to your tiers: Notice fires at A to B transition, Warning at B to C, Action at C to D. Always use the asset-class-specific thresholds (Class I to IV) rather than a single plant-wide value."
+            "text": "ISO 10816-1 defines vibration severity zones (A Good, B Acceptable, C Unsatisfactory, D Unacceptable) by machine class, Class I to IV; for industrial machines above 15 kW, ISO 20816-3 (formerly ISO 10816-3) sets zones by Group 1 and Group 2 instead. Map them to your tiers: Notice fires at A to B transition, Warning at B to C, Action at C to D. Always use the asset-class-specific thresholds (Class I to IV) rather than a single plant-wide value."
           }
         },
         {
@@ -166,6 +166,10 @@
     .prose-wh a { color: var(--wh-blue-light,#5FCCE8); text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: var(--wh-blue,#29B6D9); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+/* A cell breaks between WORDS (2026-10-27): .prose-wh's overflow-wrap:anywhere let auto table layout shrink every column to one
+   letter, so on a phone 'WorkHive' read 'WorkHiv e' and the table never used its scroll region. A whole word is a cell's
+   minimum; a wide table scrolls inside [data-table-scroll]; an over-long token still wraps (break-word). */
+.prose-wh th, .prose-wh td { word-break: normal; overflow-wrap: break-word; }
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
       /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
          pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
@@ -304,7 +308,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
+      <span>Updated <time datetime="2026-10-27">27 Oct 2026</time></span>
       <span class="opacity-40">·</span>
       <span>7 min read</span>
     </div>
@@ -340,7 +344,7 @@
       </tbody></table></div>
       <p>Three tiers, not seven. Many sensor vendor dashboards ship with 5 to 7 alert levels which look sophisticated and fail in practice. Three tiers map to three distinct human responses: keep watching, plan a check, act now.</p>
       <h2 id="iso-10816">ISO 10816 vibration thresholds by asset class</h2>
-      <p>ISO 10816 defines vibration severity zones for industrial machinery. The standard is the right starting point; tune from there based on your plant's history.</p>
+      <p>ISO 10816 defines vibration severity zones for industrial machinery, and the table below is the Class I to IV guidance from ISO 10816-1. The ISO 10816 parts have since been replaced by the ISO 20816 series: ISO 20816-3:2022 (formerly ISO 10816-3) groups machines above 15 kW by Group 1 and Group 2 and foundation, with its own limits, so check large machines against it. The standard is the right starting point; tune from there based on your plant's history.</p>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Asset class</th><th>Zone A (Good)</th><th>Zone B (Acceptable)</th><th>Zone C (Unsatisfactory)</th><th>Zone D (Unacceptable)</th></tr></thead><tbody>
       <tr><td>Class I (small motors below 15 kW)</td><td>&lt; 0.71 mm/s</td><td>0.71 to 1.8</td><td>1.8 to 4.5</td><td>&gt; 4.5</td></tr>
       <tr><td>Class II (medium motors 15 to 75 kW)</td><td>&lt; 1.12</td><td>1.12 to 2.8</td><td>2.8 to 7.1</td><td>&gt; 7.1</td></tr>
@@ -368,14 +372,14 @@
       </div>
       <h2 id="faq">Frequently asked questions</h2>
       <details class="faq-item"><summary>What are the right number of alert tiers?</summary><div class="faq-answer">Three: Notice (log it, keep watching), Warning (plan an investigation within a week), Action (stop or de-rate this shift). Five to seven tiers, which some sensor vendor dashboards ship with, look sophisticated but fail in practice because humans cannot reliably distinguish more than three response modes.</div></details>
-      <details class="faq-item"><summary>Where do ISO 10816 vibration thresholds fit in?</summary><div class="faq-answer">ISO 10816 defines vibration severity zones (A Good, B Acceptable, C Unsatisfactory, D Unacceptable) by asset class. Map them to your tiers: Notice fires at A to B transition, Warning at B to C, Action at C to D. Always use the asset-class-specific thresholds (Class I to IV) rather than a single plant-wide value.</div></details>
+      <details class="faq-item"><summary>Where do ISO 10816 vibration thresholds fit in?</summary><div class="faq-answer">ISO 10816-1 defines vibration severity zones (A Good, B Acceptable, C Unsatisfactory, D Unacceptable) by machine class, Class I to IV; for industrial machines above 15 kW, ISO 20816-3 (formerly ISO 10816-3) sets zones by Group 1 and Group 2 instead. Map them to your tiers: Notice fires at A to B transition, Warning at B to C, Action at C to D. Always use the asset-class-specific thresholds (Class I to IV) rather than a single plant-wide value.</div></details>
       <details class="faq-item"><summary>How do I prevent alert fatigue?</summary><div class="faq-answer">Weekly review of any alert silenced more than 3 times. Retune the threshold (too tight), promote it (asset really is degraded), or root-cause why the asset runs outside design (operating-condition problem, not alert problem). 15 minutes per week with the reliability engineer and operator. Plants that skip this discipline have their PdM programs die within 12 months.</div></details>
       <details class="faq-item"><summary>What is a reasonable alert volume per asset per month?</summary><div class="faq-answer">Tier 1 critical assets: 1 to 3 Notice alerts per month, 0 to 1 Warning, almost zero Action. Tier 2 high assets: 0 to 1 Notice per month. Tier 3 medium: should not be alerting routinely; investigate any pattern. Tier 4 low: usually no alerts (run to failure). If you are seeing 10+ alerts per month per Tier 1 asset, your thresholds are too tight.</div></details>
       <details class="faq-item"><summary>Who should own each alert tier?</summary><div class="faq-answer">Notice alerts: operator on duty for the asset (logged automatically, no immediate response required). Warning: maintenance supervisor in addition to operator. Action: reliability engineer plus supervisor on call. The owner is named in WorkHive Alert Hub for accountability; unowned alerts get silenced because nobody owns the response.</div></details>
       <details class="faq-item"><summary>Should I use vendor-default thresholds or set my own?</summary><div class="faq-answer">Start with vendor defaults (or ISO 10816 for vibration), but tune within 90 days based on your plant's actual baseline. Vendor defaults assume a generic plant; your assets have specific running conditions (Philippine ambient temperature, your power quality, your duty cycle) that shift the thresholds. Plants that never tune from defaults get either too many alerts or too few.</div></details>
       <h2 id="sources">Sources</h2>
       <ul><li>ISO 10816, <strong>Mechanical vibration: Evaluation of machine vibration by measurements on non-rotating parts</strong>, all parts.</li>
-        <li>ISO 20816, <strong>Mechanical vibration: Measurement and evaluation of machine vibration</strong> (successor to ISO 10816).</li>
+        <li>ISO 20816-1:2016 and ISO 20816-3:2022, <strong>Mechanical vibration: Measurement and evaluation of machine vibration</strong> (the series that replaced ISO 10816; Part 3 replaced ISO 10816-3).</li>
         <li>API 670, <strong>Machinery Protection Systems</strong>. Source for absolute vibration shutdown thresholds on rotating equipment.</li>
         <li>WorkHive platform positioning, "Four Gaps One Hive" with Alert Hub as the Intelligence-gap accelerator. <a href="/">workhiveph.com</a></li>
         <li>Related WorkHive guides: <a href="/learn/predictive-maintenance-on-a-budget-philippines/">Predictive maintenance on a budget</a> · <a href="/learn/mtbf-vs-mttr-for-supervisors/">MTBF vs MTTR</a></li></ul>
@@ -394,7 +398,7 @@
 </article></main>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-10-27">27 Oct 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

@@ -23,6 +23,9 @@ Free industrial tools for every Filipino worker. Log jobs, schedule PMs and trac
 
 [Join the Hive](?signup=1)
 [See How It Works](#platform)
+ §BRH.11 AM (Ian, 2026-10-26): the home-screen install is offered where a phone visitor looks first, at rest -
+ the native prompt where the browser has one, the hub's per-platform guide everywhere else; hidden once installed 
+Install the app
 
 Free to use, sign up to start:
 [Logbook](?signup=1)
@@ -413,4 +416,4 @@ Sign Up
 
 Source: [our downtime guide](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/). A common industry range, not a fixed standard · updated 24 Aug 2026
 
-<!-- md-twin source-sha: 56b1a186b0ef7c67 -->
+<!-- md-twin source-sha: f15fa57da170acc2 -->

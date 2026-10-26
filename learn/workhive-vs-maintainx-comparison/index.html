@@ -51,7 +51,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-08-05",
-      "dateModified": "2026-08-24",
+      "dateModified": "2026-10-27",
       "mainEntityOfPage": "https://workhiveph.com/learn/workhive-vs-maintainx-comparison/",
       "inLanguage": "en-PH",
       "articleSection": "Comparison",
@@ -66,7 +66,7 @@
           "name": "Is MaintainX free?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "MaintainX offers a feature-capped freemium tier alongside paid plans starting around $20 per user per month (published entry pricing, August 2026). The free tier is designed to convert to paid seats as usage grows."
+            "text": "Partly. MaintainX's Basic plan is free forever with unlimited work orders and unlimited requester users, but it holds only 2 active repeating work orders and 2 work orders with attached procedures, with one month of advanced analytics. Paid plans start at $20 per user per month billed yearly ($25 monthly), and Premium is $65 yearly ($75 monthly), as published on 27 October 2026. A preventive-maintenance schedule outgrows two repeating work orders quickly, which is where the free plan is designed to convert to paid seats."
           }
         },
         {
@@ -187,6 +187,10 @@
     .prose-wh blockquote { border-left: 3px solid var(--wh-orange,#F7A21B); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-style: italic; background: rgba(247,162,27,0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+/* A cell breaks between WORDS (2026-10-27): .prose-wh's overflow-wrap:anywhere let auto table layout shrink every column to one
+   letter, so on a phone 'WorkHive' read 'WorkHiv e' and the table never used its scroll region. A whole word is a cell's
+   minimum; a wide table scrolls inside [data-table-scroll]; an over-long token still wraps (break-word). */
+.prose-wh th, .prose-wh td { word-break: normal; overflow-wrap: break-word; }
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
       /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
          pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
@@ -333,8 +337,8 @@
 
       <h2 id="matrix">WorkHive vs MaintainX: feature and pricing comparison</h2>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Attribute</th><th>WorkHive</th><th>MaintainX</th></tr></thead><tbody>
-        <tr><td>Entry pricing</td><td>Free (worker tier)</td><td>$20/user/month billed annually ($25 monthly); Premium $65</td></tr>
-        <tr><td>Free tier</td><td>Yes: free at the worker tier</td><td>Yes: Basic is free forever (feature-capped)</td></tr>
+        <tr><td>Entry pricing</td><td>Free (worker tier)</td><td>$20/user/month billed annually ($25 monthly); Premium $65 annually ($75 monthly)</td></tr>
+        <tr><td>Free tier</td><td>Yes: free at the worker tier</td><td>Yes: Basic is free forever, capped at 2 active repeating work orders</td></tr>
         <tr><td>Request-only users</td><td>Free</td><td>Free and unlimited on every tier</td></tr>
         <tr><td>Offline capability</td><td>Offline-first capture and sync</td><td>Mobile app; connectivity-oriented</td></tr>
         <tr><td>Team communication</td><td>Community + shift handover</td><td>Strong in-app messaging (a core strength)</td></tr>
@@ -342,7 +346,7 @@
         <tr><td>Engineering calculators</td><td>60 standards-referenced calculators</td><td>Not a core focus</td></tr>
         <tr><td>Language</td><td>English plus eight Philippine languages by voice, including Filipino and Taglish</td><td>Multiple locales</td></tr>
         <tr><td>Best for</td><td>Zero-budget PH plants, poor connectivity</td><td>Teams prioritising mobile UX and messaging</td></tr>
-        </tbody></table></div><p><small>Pricing verified against vendor and directory listings on 5 August 2026; SaaS pricing moves, so confirm current terms with the vendor before deciding. This comparison is reviewed quarterly for pricing and feature accuracy.</small></p>
+        </tbody></table></div><p><small>Pricing re-checked against MaintainX's own pricing page on 27 October 2026 (first verified 5 August 2026): the prices are unchanged, and the free plan's caps are now listed in full. SaaS pricing moves, so confirm current terms with the vendor before deciding. This comparison is reviewed quarterly for pricing and feature accuracy.</small></p>
 
       <h2 id="where-maintainx-wins">Where MaintainX is the better choice than WorkHive</h2>
       <ul><li><strong>In-app communication.</strong> MaintainX threads the conversation onto the work order itself, so a job and the talk about it never drift apart; if your team coordinates chat-first, that is a real advantage.</li><li><strong>Native mobile polish.</strong> A native app experience beats a browser PWA on ergonomics for heavy daily use.</li><li><strong>Procurement comfort.</strong> A funded vendor with support commitments is easier to justify in some organisations.</li><li><strong>Free requester seats.</strong> Employees who only submit work requests are free and unlimited on every MaintainX tier, so a plant with many requesters and few technicians pays less than a per-seat headline suggests.</li></ul>
@@ -354,7 +358,7 @@
 
       <details class="faq-item">
         <summary>Is MaintainX free?</summary>
-        <div class="faq-answer">MaintainX offers a feature-capped freemium tier alongside paid plans starting around $20 per user per month (published entry pricing, August 2026). The free tier is designed to convert to paid seats as usage grows.</div>
+        <div class="faq-answer">Partly. MaintainX's Basic plan is free forever with unlimited work orders and unlimited requester users, but it holds only 2 active repeating work orders and 2 work orders with attached procedures, with one month of advanced analytics. Paid plans start at $20 per user per month billed yearly ($25 monthly), and Premium is $65 yearly ($75 monthly), as published on 27 October 2026. A preventive-maintenance schedule outgrows two repeating work orders quickly, which is where the free plan is designed to convert to paid seats.</div>
       </details>
       <details class="faq-item">
         <summary>What is the main difference between WorkHive and MaintainX?</summary>
@@ -373,7 +377,7 @@
 
       <h2 id="sources">Sources</h2>
       <ul>
-        <li>Vendor published pricing and feature pages (MaintainX), accessed August 2026.</li>
+        <li>Vendor published pricing and feature pages (MaintainX), first accessed August 2026 and re-checked 27 October 2026.</li>
         <li>Independent CMMS (computerized maintenance management system) landscape reviews, 2026.</li>
         <li>Related: <a href="/learn/workhive-vs-upkeep-free-cmms-comparison/">WorkHive vs UpKeep</a> &middot; <a href="/learn/best-free-cmms-software-philippines/">Best free CMMS options</a>.</li>
       </ul>
@@ -397,7 +401,7 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">2026-08-24</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-10-27">27 Oct 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

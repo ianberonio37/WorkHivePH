@@ -12,7 +12,7 @@ By WorkHive Editorial Team
 ·
 9 min read
 
-**Short answer:** The Republic Act 11285, also known as the Energy Efficiency and Conservation Act, aims to promote energy efficiency and conservation in the Philippines. To ensure compliance, plant managers and workers must understand the requirements and regulations. This checklist provides a comprehensive guide to help plant-floor personnel comply with the law. The thresholds decide whether this applies to you: a plant consuming **500,000 to under 4 million kWh** a year is a **Type 1** designated establishment and **4 million kWh** or more makes it **Type 2**: both must report annually to the **DOE** and run an energy management system based on **ISO 50001**.
+**Short answer:** The Republic Act 11285, also known as the Energy Efficiency and Conservation Act, aims to promote energy efficiency and conservation in the Philippines. To ensure compliance, plant managers and workers must understand the requirements and regulations. This checklist provides a comprehensive guide to help plant-floor personnel comply with the law. The thresholds decide how it applies to you, and for industrial plants they changed on 11 January 2024 (DOE circular DC2023-12-0037): **50,001 to 1,000,000 kWh** a year is **Type 1**, **1,000,001 to 8,000,000 kWh** is **Type 2**, and above **8,000,000 kWh** is **Type 3**; every type must report annually to the **DOE** and run an energy management system based on **ISO 50001**.
 
 Who this is for
 
@@ -29,7 +29,7 @@ Part of the [Philippine plant compliance guide: DOLE OSHS, LOTO and RA 11285](ht
 
 ## Overview of RA 11285
 
-The Energy Efficiency and Conservation Act, also known as Republic Act 11285, aims to promote energy efficiency and conservation in the Philippines. This law requires certain establishments to implement energy-efficient practices and report their energy consumption annually. For instance, a plant located in Calabarzon, such as the one in Cabuyao, Laguna, consuming more than 500,000 kWh a year, is a DOE Designated Establishment and must comply - Type 1 below 4 million kWh a year, Type 2 at or above it.
+The Energy Efficiency and Conservation Act, also known as Republic Act 11285, aims to promote energy efficiency and conservation in the Philippines. This law requires certain establishments to implement energy-efficient practices and report their energy consumption annually. For instance, a plant in Cabuyao, Laguna, using 500,000 kWh a year is a DOE Designated Establishment: under the industrial bands in force since January 2024 that is Type 1, with Type 2 above 1,000,000 kWh and Type 3 above 8,000,000 kWh.
 
 The law's purpose is to reduce energy consumption and greenhouse gas emissions. It applies to establishments that use a significant amount of energy, such as industrial plants, commercial buildings, and government institutions. In the Philippines, a shift in-charge at a plant in Pampanga, working a rotating shift, may be responsible for monitoring energy usage and reporting any issues to the plant supervisor. Failure to comply carries penalties that scale with the size of the establishment and with whether the lapse is repeated.
 
@@ -39,7 +39,7 @@ Energy audits are a critical component of RA 11285 compliance. An energy audit c
 
 ## DOE Designated Establishment Threshold
 
-Under Republic Act 11285, the Department of Energy (DOE) designates certain establishments as having high energy consumption. These are called DOE Designated Establishments. They are required to implement energy efficiency and conservation measures. If your plant in Calabarzon consumes more than 500,000 kWh a year you are a DOE Designated Establishment; at 4 million kWh a year and above you are Type 2 rather than Type 1. This classification has significant implications for your plant's energy management practices, including regular energy audits.
+Under Republic Act 11285, the Department of Energy (DOE) designates certain establishments as having high energy consumption. These are called DOE Designated Establishments. They are required to implement energy efficiency and conservation measures. If your plant in Calabarzon consumes more than 50,000 kWh a year it is at least a Type 1 DOE Designated Establishment under the industrial bands of DC2023-12-0037; above 1,000,000 kWh it is Type 2, and above 8,000,000 kWh Type 3. This classification has significant implications for your plant's energy management practices, including regular energy audits.
 
 Audit plays a crucial role in ensuring compliance with RA 11285. For DOE Designated Establishments, an energy audit must be conducted to identify areas of energy inefficiency. This audit evaluates your plant's energy usage patterns, including those of critical equipment like Pump P-204B or Boiler B-1. By conducting an audit, you can pinpoint opportunities for energy savings and prioritize actions to reduce consumption. For instance, a plant in Batangas might conduct an audit that reveals a 15% energy saving potential by optimizing the operation of Conveyor #2.
 
@@ -66,7 +66,7 @@ In the event of an audit, having a complete and accurate energy report can help 
 
 ## Energy Audit Triggers
 
-Energy audits play a crucial role in ensuring plant-floor compliance with Republic Act 11285. The Department of Energy requires energy audits of Designated Establishments - that is, of any establishment above the 500,000 kWh a year designation floor. For instance, a plant located in Calabarzon, such as the Laguna Technopark in Cabuyao, may need to conduct an energy audit to identify areas of inefficiency. The WorkHive Audit tool carries the checklist, so each item is recorded against the person who checked it and the date they did.
+Energy audits play a crucial role in ensuring plant-floor compliance with Republic Act 11285. The Department of Energy requires energy audits of Designated Establishments - that is, with the audit level set by the establishment's type (the 500,000 kWh floor many summaries still quote is the pre-2024 figure; industrial Type 1 now starts at 50,001 kWh). For instance, a plant located in Calabarzon, such as the Laguna Technopark in Cabuyao, may need to conduct an energy audit to identify areas of inefficiency. The WorkHive Audit tool carries the checklist, so each item is recorded against the person who checked it and the date they did.
 
 An energy audit is triggered when a Designated Establishment's annual energy consumption exceeds the threshold or when there are significant changes in energy usage patterns. The audit aims to identify opportunities for energy efficiency improvements and provide recommendations for implementation. A plant supervisor at a facility in Batangas, for example, may initiate an energy audit to investigate unusual consumption spikes on a continuous operation, and shift changes are where they most often show up: equipment left running between crews is the classic cause.
 
@@ -106,7 +106,7 @@ The purpose of RA 11285 is to promote energy efficiency and conservation in the 
 
 ### Who is responsible for complying with RA 11285?
 
-Establishments that consume 500,000 kWh a year or more are required to comply with RA 11285 - Type 1 from 500,000 kWh to under 4 million kWh, Type 2 at 4 million kWh and above. This includes industrial, commercial, and residential establishments.
+Designated establishments in the industrial, commercial and transport sectors, each classified by the previous year's total energy use under its own DOE circular. For industrial plants, DOE Department Circular DC2023-12-0037 (effective 11 January 2024) sets the bands: up to 50,000 kWh is Others, 50,001 to 1,000,000 kWh is Type 1, 1,000,001 to 8,000,000 kWh is Type 2, and above 8,000,000 kWh is Type 3. The older 500,000 kWh floor and 4 million kWh Type 2 line no longer apply to industry.
 
 ### What is the deadline for submitting the annual energy report?
 
@@ -133,4 +133,4 @@ The WorkHive Audit Log captures the energy-related ACTIONS: a reading recorded, 
 - International Organization for Standardization (ISO). (2016). ISO 14224:2016.
 - Society for Maintenance and Reliability Professionals (SMRP). (2019). CMRP Body of Knowledge.
 
-<!-- md-twin source-sha: ac685aa18942efab -->
+<!-- md-twin source-sha: 21cf8440f211a3f8 -->

@@ -45,7 +45,7 @@
         "author": { "@type": "Organization", "name": "WorkHive Editorial Team", "url": "https://workhiveph.com/" },
         "publisher": { "@id": "https://workhiveph.com/#organization" },
         "datePublished": "2026-05-17",
-        "dateModified": "2026-08-24",
+        "dateModified": "2026-10-27",
         "mainEntityOfPage": "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/",
         "inLanguage": "en-PH",
         "articleSection": "Engineering",
@@ -166,6 +166,10 @@
     .prose-wh blockquote { border-left: 3px solid var(--wh-orange,#F7A21B); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-style: italic; background: rgba(247,162,27,0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+/* A cell breaks between WORDS (2026-10-27): .prose-wh's overflow-wrap:anywhere let auto table layout shrink every column to one
+   letter, so on a phone 'WorkHive' read 'WorkHiv e' and the table never used its scroll region. A whole word is a cell's
+   minimum; a wide table scrolls inside [data-table-scroll]; an over-long token still wraps (break-word). */
+.prose-wh th, .prose-wh td { word-break: normal; overflow-wrap: break-word; }
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
       /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
          pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
@@ -315,7 +319,7 @@
       <span class="opacity-40">·</span>
       <span>Published <time datetime="2026-05-17">17 May 2026</time></span>
       <span class="opacity-40">·</span>
-      <span>Updated <time datetime="2026-08-24">24 Aug 2026</time></span>
+      <span>Updated <time datetime="2026-10-27">27 Oct 2026</time></span>
       <span class="opacity-40">·</span>
       <span>10 min read</span>
     </div>
@@ -444,6 +448,7 @@ NOT 541 mm. Use 467 mm in Darcy-Weisbach.</pre>
       
       <h2 id="all-calculators">All 60 calculators</h2>
       <p>Every calculator below is free, works offline, and shows the formula plus a worked example with real numbers. Grouped by discipline:</p>
+      <p><strong>New since the last update (October 2026):</strong> the <a href="/tools/solar-pv-calculator/" class="wh-tap">Solar PV System Calculator</a> now carries an off-grid power-station planner. List the appliances and their hours of use, and it adds up the daily energy with the losses stated, sizes for the starting surge and the days without sun, then sizes the battery by chemistry and depth of discharge, the panels from your location's peak sun hours, the inverter, the MPPT charge controller, and the battery voltage (the lowest of 12, 24 or 48 V that keeps both DC currents within 100 A). It prices the station in pesos with prices you replace, keeps the plan on your device, shares it as a link, and prints a spec sheet referenced to IEEE 1562 and IEEE 1013 sizing and PEC 2017 Article 6.90. It needs no account.</p>
       <h3>Reliability &amp; Metrics (2)</h3>
       <ul>
         <li><a href="/tools/mtbf-calculator/" class="wh-tap">MTBF &amp; MTTR Calculator</a></li>
@@ -461,7 +466,7 @@ NOT 541 mm. Use 467 mm in Darcy-Weisbach.</pre>
         <li><a href="/tools/lightning-protection-calculator/" class="wh-tap">Lightning Protection Calculator</a></li>
         <li><a href="/tools/power-factor-correction-calculator/" class="wh-tap">Power Factor Correction Calculator</a></li>
         <li><a href="/tools/short-circuit-calculator/" class="wh-tap">Short Circuit Calculator</a></li>
-        <li><a href="/tools/solar-pv-calculator/" class="wh-tap">Solar PV System Calculator</a></li>
+        <li><a href="/tools/solar-pv-calculator/" class="wh-tap">Solar PV System Calculator</a> (with the off-grid power-station planner)</li>
         <li><a href="/tools/transformer-sizing-calculator/" class="wh-tap">Transformer Sizing Calculator</a></li>
         <li><a href="/tools/ups-sizing-calculator/" class="wh-tap">UPS Sizing Calculator</a></li>
         <li><a href="/tools/voltage-drop-calculator/" class="wh-tap">Voltage Drop Calculator</a></li>
@@ -653,7 +658,7 @@ NOT 541 mm. Use 467 mm in Darcy-Weisbach.</pre>
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-10-27">27 Oct 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

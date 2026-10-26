@@ -51,7 +51,7 @@
         "@id": "https://workhiveph.com/#organization"
       },
       "datePublished": "2026-08-05",
-      "dateModified": "2026-08-24",
+      "dateModified": "2026-10-27",
       "mainEntityOfPage": "https://workhiveph.com/learn/reduce-unplanned-downtime-guide/",
       "inLanguage": "en-PH",
       "articleSection": "Reliability",
@@ -165,6 +165,10 @@
     .prose-wh blockquote { border-left: 3px solid var(--wh-orange,#F7A21B); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-style: italic; background: rgba(247,162,27,0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+/* A cell breaks between WORDS (2026-10-27): .prose-wh's overflow-wrap:anywhere let auto table layout shrink every column to one
+   letter, so on a phone 'WorkHive' read 'WorkHiv e' and the table never used its scroll region. A whole word is a cell's
+   minimum; a wide table scrolls inside [data-table-scroll]; an over-long token still wraps (break-word). */
+.prose-wh th, .prose-wh td { word-break: normal; overflow-wrap: break-word; }
     .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
       /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
          pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
@@ -323,10 +327,10 @@
       <p>Restoring a machine is not the same as fixing it. For each top failure mode, ask what condition produced it: lubrication, alignment, contamination, operating outside design, or a PM that was put off and is still due. <a href="/learn/fmea-worked-example-philippine-bottling-line/">FMEA</a> gives a structured way to rank by risk, and <a href="/learn/reliability-centered-maintenance-philippine-plants/"><abbr title="reliability-centered maintenance">RCM</abbr></a> picks the right strategy per mode instead of applying the same PM to everything.</p><p>The test of a root-cause fix is simple: the interval to the next identical failure gets longer. If MTBF (mean time between failures) is flat, the cause was not addressed.</p>
 
       <h2 id="step-3-pm-compliance">Step 3: hold PM compliance above 90%</h2>
-      <p>PM compliance is the leading indicator: it moves before MTBF does. The SMRP benchmark is at least <strong>90%</strong> of preventive tasks completed on time, and <strong>95%+</strong> for critical assets. &ldquo;On time&rdquo; has a precise definition worth knowing: completed by the due date plus 20% of the task's own frequency, capped at 28 days, so a monthly PM has roughly a six-day window, not a whole month. Worth knowing before you compare: WorkHive&rsquo;s own compliance figure is computed as completions against scheduled tasks inside a period (30 or 90 days), not by applying that per-task grace window, so the in-app number and an SMRP-audited number are not the same calculation. Compare like with like before judging yourself against the 90% benchmark. Below 80% the programme is not functioning; below 90% it is not protective.</p><p>Two rules make it stick: schedule work the crew can actually do (an over-ambitious plan produces 40% compliance and cynicism), and make overdue work visible to a named owner. Start from <a href="/learn/free-pm-checklist-templates/">free PM checklist templates</a> rather than a blank sheet.</p>
+      <p>PM compliance is the leading indicator: it moves before MTBF does. The SMRP benchmark is at least <strong>90%</strong> of preventive tasks completed on time, and <strong>95%+</strong> for critical assets. &ldquo;On time&rdquo; has a precise definition worth knowing. SMRP metric 5.4.14 lets a site pick one of three rules and hold it: completed by the due date, by the due date plus one day, or by the due date plus 20% of the task's own frequency, capped at 28 days. Even on that last, most generous rule a monthly PM has roughly a six-day window, not a whole month, and a figure quoted without its rule cannot be compared with another site's. Worth knowing before you compare: WorkHive&rsquo;s own compliance figure is computed as completions against scheduled tasks inside a period (30 or 90 days), not by applying that per-task grace window, so the in-app number and an SMRP-audited number are not the same calculation. Compare like with like before judging yourself against the 90% benchmark. Below 80% the programme is not functioning; below 90% it is not protective.</p><p>Two rules make it stick: schedule work the crew can actually do (an over-ambitious plan produces 40% compliance and cynicism), and make overdue work visible to a named owner. Start from <a href="/learn/free-pm-checklist-templates/">free PM checklist templates</a> rather than a blank sheet.</p>
 
       <h2 id="step-4-condition-monitoring">Step 4: monitor the critical assets only</h2>
-      <p>Condition monitoring is where plants overspend first and benefit last. Applied to the critical few from step 1, it catches failures before they stop the line; applied everywhere, it produces alerts nobody reads.</p><p>Start at the cheapest tier that answers a real question: phone-based vibration screening and thermography cover a lot of ground before any sensor purchase. See <a href="/learn/predictive-maintenance-on-a-budget-philippines/">predictive maintenance on a budget</a> and set bands using <a href="/learn/predictive-alert-thresholds-plants/">ISO 10816 alert thresholds</a>.</p>
+      <p>Condition monitoring is where plants overspend first and benefit last. Applied to the critical few from step 1, it catches failures before they stop the line; applied everywhere, it produces alerts nobody reads.</p><p>Start at the cheapest tier that answers a real question: phone-based vibration screening and thermography cover a lot of ground before any sensor purchase. See <a href="/learn/predictive-maintenance-on-a-budget-philippines/">predictive maintenance on a budget</a> and set bands using the <a href="/learn/predictive-alert-thresholds-plants/">vibration alert thresholds guide</a>: the severity zones now sit in ISO 20816-3:2022, which replaced ISO 10816-3 and keeps its A-to-D zones.</p>
 
       <h2 id="what-to-expect">What to expect, and in what order</h2>
       <div data-table-scroll style="overflow-x:auto;-webkit-overflow-scrolling:touch;" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>Horizon</th><th>What changes</th></tr></thead><tbody><tr><td>Month 1-2</td><td>Downtime recorded by cause; the Pareto is visible for the first time</td></tr><tr><td>Month 3-6</td><td>Top failure modes addressed at root cause; PM compliance climbing toward 90%</td></tr><tr><td>Month 6-12</td><td>MTBF rising on treated assets; condition monitoring on the critical few</td></tr><tr><td>Month 12-18</td><td>Typically 15-25% reduction in unplanned downtime; 35-50% in mature programmes</td></tr></tbody></table></div><p>The order matters more than the speed. Plants that buy sensors before they have a downtime record almost always end up with data they cannot act on.</p>
@@ -358,9 +362,9 @@
 
       <h2 id="sources">Sources</h2>
       <ul>
-        <li><a href="https://smrp.org/">SMRP</a>, <strong>Best Practices Metrics, 6th Edition</strong>: PM schedule compliance benchmark 90% (95%+ for critical assets); a PM counts as on time if completed by the due date + 20% of its frequency, capped at 28 days. Downtime-reduction ranges quoted here are widely-reported industry outcomes, not an SMRP-published figure.</li>
+        <li><a href="https://smrp.org/">SMRP</a>, <strong>Best Practices Metrics, 6th Edition</strong>: PM schedule compliance benchmark 90% (95%+ for critical assets); metric 5.4.14 (PM and PdM compliance) counts a PM as on time by one of three site-chosen rules: the due date, the due date + 1 day, or the due date + 20% of its frequency capped at 28 days. Downtime-reduction ranges quoted here are widely-reported industry outcomes, not an SMRP-published figure.</li>
         <li><a href="https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency">US Department of Energy / PNNL</a>, <strong>Operations &amp; Maintenance Best Practices Guide, Release 3.0</strong> (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).</li>
-        <li><a href="https://www.iso.org/standard/64076.html">ISO 14224</a>, <strong>Reliability and maintenance data collection</strong>; ISO 10816-3 (vibration severity).</li>
+        <li><a href="https://www.iso.org/standard/64076.html">ISO 14224</a>, <strong>Reliability and maintenance data collection</strong>; ISO 20816-3:2022 (vibration severity; it replaced ISO 10816-3:2009).</li>
         <li>Related: <a href="/learn/maintenance-metrics-reliability-guide/">Maintenance metrics guide</a> &middot; <a href="/learn/predictive-maintenance-on-a-budget-philippines/">Predictive maintenance on a budget</a>.</li>
       </ul>
 
@@ -383,7 +387,7 @@
 
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
-    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">2026-08-24</time></p>
+    <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-10-27">27 Oct 2026</time></p>
     <div class="flex items-center gap-6">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors" data-i="faq">FAQ</a>

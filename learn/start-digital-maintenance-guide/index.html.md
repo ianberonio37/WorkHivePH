@@ -6,7 +6,7 @@ Source: https://workhiveph.com/learn/start-digital-maintenance-guide/
 
 By WorkHive Editorial Team · Published 2026-08-05 · 8 min read
 
-To go from spreadsheets to digital maintenance, do four things in order. First, start a **digital logbook**, so every job is recorded the day it happens. Second, build an **asset register** on the ISO 14224 hierarchy, so every record is tagged to equipment. Third, turn recurring jobs into a **preventive-maintenance schedule**. Fourth, run a structured **shift handover**, so nothing is lost between crews. A small plant can do all four in about 30 days at zero software cost. A preventive programme runs about **12–18% cheaper** than running reactive. Predictive maintenance saves a further 8–12% (US Department of Energy / PNNL).
+To go from spreadsheets to digital maintenance, do four things in order. First, start a **digital logbook**, so every job is recorded the day it happens. Second, build an **asset register** on the ISO 14224 hierarchy, so every record is tagged to equipment. Third, turn recurring jobs into a **preventive-maintenance schedule**. Fourth, run a structured **shift handover**, so nothing is lost between crews. A small plant can do all four in about 30 days at zero software cost, and a preventive programme runs about **12–18% cheaper** than running reactive (US Department of Energy / PNNL).
 
 Who this is for
 
@@ -19,7 +19,7 @@ Who this is for
 
 ## Why digitise maintenance at all
 
-A spreadsheet inherited from a departed engineer is a liability. Its formulas drift, its tabs multiply, and the one person who understood it is gone. Digital maintenance replaces that with structured, searchable, portable records. The payoff is not fancy dashboards. It is a technician answering “when did we last replace this seal, and why?” in ten seconds instead of never. The US Department of Energy puts a preventive programme at roughly **12-18% cheaper** than running reactive. Predictive maintenance saves a further 8-12%. That is why the steps below start with recording and scheduling.
+A spreadsheet inherited from a departed engineer is a liability. Its formulas drift, its tabs multiply, and the one person who understood it is gone. Digital maintenance replaces that with structured, searchable, portable records. The payoff is a technician answering “when did we last replace this seal, and why?” in ten seconds instead of never. The US Department of Energy puts a preventive programme at roughly **12-18% cheaper** than running reactive. Predictive maintenance saves a further 8-12%. That is why the steps below start with recording and scheduling.
 
 ## Step 1: the digital logbook
 
@@ -27,7 +27,7 @@ Everything starts with capture. If a job is not written down the day it happens,
 
 ## Step 2: the asset register (ISO 14224)
 
-A logbook is only useful if every entry is tagged to a specific asset. That means building an **asset register**: a hierarchy of plant → system → equipment → component. Follow the ISO 14224 taxonomy, so your data can be compared with industry benchmarks. You do not need a consultant or a budget. The step-by-step method is in [building an asset register on zero budget](https://workhiveph.com/learn/building-asset-register-zero-budget/).
+A logbook is only useful if every entry is tagged to a specific asset. That means building an **asset register**: a hierarchy of plant → system → equipment → component. Follow the ISO 14224 taxonomy, so your data can be compared with industry benchmarks. You do not need a consultant or a budget. The step-by-step method is in [building an asset register on zero budget](https://workhiveph.com/learn/building-asset-register-zero-budget/). If the asset list already lives in a spreadsheet, do not retype it: in WorkHive a supervisor imports it on the CMMS Integration page as a CSV or Excel file, which is read in the browser (the file is never uploaded; only the rows you import are saved), and the same import takes PM schedules and spare parts.
 
 ## Step 3: the preventive-maintenance schedule
 
@@ -35,7 +35,7 @@ With assets and history in place, turn the recurring jobs into a real PM schedul
 
 ## Step 4: structured shift handover
 
-Most plant knowledge is lost in the 5 minutes between shifts. A structured handover closes that gap: open work, abnormal conditions, pending parts. It is the cheapest reliability win available. Use the ready-made format in [the maintenance shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/). Voice capture in Tagalog or Taglish removes the “I’ll write it later” excuse: see [voice-to-text on the plant floor](https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/).
+Most plant knowledge is lost in the 5 minutes between shifts. A structured handover closes that gap: open work, abnormal conditions, pending parts. It is the cheapest reliability win available. Use the ready-made format in [the maintenance shift handover template](https://workhiveph.com/learn/maintenance-shift-handover-template/). In WorkHive, Shift Brain drafts the next shift's plan before sign-on (top risks, checks due, carry-over jobs, parts to set aside) for the supervisor to publish, and Report Sender emails the handover to the people you add by role. Voice capture in Tagalog or Taglish removes the “I’ll write it later” excuse: see [voice-to-text on the plant floor](https://workhiveph.com/learn/voice-to-text-maintenance-philippine-plant-floor/).
 
 ## The 30-day rollout
 
@@ -68,10 +68,10 @@ Yes, if the tool is offline-first. WorkHive captures entries locally and syncs w
 ## Sources
 
 - [ISO 14224](https://www.iso.org/standard/64076.html), **Collection and exchange of reliability and maintenance data for equipment**.
-- SMRP, **Best Practices Metric 5.4 (PM Compliance)**.
+- SMRP, **Best Practices Metric 5.4.14 (PM and PdM Compliance)**: work orders completed by their due date over work orders due; SMRP's target is above 90%.
 - [US Department of Energy / PNNL](https://www.energy.gov/femp/articles/operations-and-maintenance-best-practices-guide-achieving-operational-efficiency), **Operations & Maintenance Best Practices Guide, Release 3.0** (preventive vs reactive cost savings: 12-18%; predictive adds 8-12%).
 - Related WorkHive guides: [Digital logbook](https://workhiveph.com/learn/start-digital-logbook-philippine-factory/) · [Asset register](https://workhiveph.com/learn/building-asset-register-zero-budget/) · [Shift handover](https://workhiveph.com/learn/maintenance-shift-handover-template/).
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 3dc4720028477ff1 -->
+<!-- md-twin source-sha: e9817326752bc9ee -->
