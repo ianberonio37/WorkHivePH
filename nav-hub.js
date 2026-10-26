@@ -181,7 +181,12 @@
     };
     addLink('icon', 'favicon.svg', { type: 'image/svg+xml' });   // modern SVG favicon
     addLink('alternate icon', 'favicon.ico');                    // .ico fallback (older browsers)
-    addLink('apple-touch-icon', 'workhive-logo-tight.png');      // iOS home-screen icon
+    // iOS home-screen icon. ★ROOT-ABSOLUTE AND SQUARE (§BRH.11 AM, 2026-10-26): this was the relative
+    // 'workhive-logo-tight.png' - a file that lives in brand_assets/ and not at the root, so it 404'd on the root pages
+    // and, resolving against the SERVED url, 404'd under every /learn/ and /tools/ page too; and it was 768x543, which
+    // iOS letterboxes. apple-touch-icon-180.png is cut from the 1024 source on the hub's own navy ground (iOS fills
+    // transparency with black), one file for every host.
+    addLink('apple-touch-icon', '/brand_assets/apple-touch-icon-180.png', { sizes: '180x180' });
     // theme-color (mobile browser chrome) — the canonical brand orange; change it HERE, once.
     if (!document.querySelector('meta[name="theme-color"]')) {
       const m = document.createElement('meta');
@@ -790,6 +795,10 @@
           right: 24px;
           z-index: 9998;
           font-family: var(--wh-font, 'Poppins', sans-serif);
+          /* the safe-area insets, readable from JS through getComputedStyle (env() itself is CSS-only):
+             placePanel() and clampBottom() keep the FAB and the opened panel out of the notch and the home bar */
+          --wh-sat: env(safe-area-inset-top, 0px);
+          --wh-sab: env(safe-area-inset-bottom, 0px);
         }
 
         /* ── FAB ── */
@@ -916,6 +925,19 @@
         }
         #wh-hub-panel::-webkit-scrollbar { width: 4px; }
         #wh-hub-panel::-webkit-scrollbar-thumb { background: rgba(247,162,27,0.2); border-radius: 2px; }
+        /* ★THE PANEL FLIPS BELOW A FAB THAT HAS NO ROOM ABOVE IT (Ian, 2026-10-26, §BRH.11 AN: "when you put it at
+           the top, all of it is being swallowed at the top ... iOS does not adjust"). Anchored by its bottom, the panel
+           always grew UPWARD from the FAB; a FAB dragged to the top opened a panel whose body sat above the viewport
+           with a sliver showing. placePanel() measures the room above and below the FAB (safe-area insets included)
+           and anchors the panel on the side that has it, capped to that room so it scrolls rather than clips.
+           Gate: hub-panel-on-screen (tools/validate_hub_panel_on_screen.py + prove_hub_panel_on_screen.mjs). */
+        #wh-hub.wh-panel-below #wh-hub-panel {
+          bottom: auto;
+          top: 68px;
+          transform: translateY(-10px) scale(0.96);
+          transform-origin: top right;
+        }
+        #wh-hub.wh-panel-below #wh-hub-panel.open { transform: translateY(0) scale(1); }
         #wh-hub-panel.open {
           opacity: 1;
           transform: translateY(0) scale(1);
@@ -1246,8 +1268,27 @@
 
         /* ── FAB-CONSOLIDATION: Assistant action row (Companion + Feedback) — token-built ── */
         #wh-hub-assist-row {
-          display: grid; grid-template-columns: 1fr 1fr; gap: var(--wh-space-2, 8px); margin: 0 0 var(--wh-space-3, 12px);
+          display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--wh-space-2, 8px); margin: 0 0 var(--wh-space-3, 12px);
         }
+        /* two columns again once the app is installed and the Install control has gone */
+        #wh-hub-assist-row.wh-hub-assist-row--2 { grid-template-columns: 1fr 1fr; }
+        /* §BRH.11 AM (Ian, 2026-10-26): the install control lives here, visible at rest on every host - it never waits for
+           beforeinstallprompt (iOS never fires it); the guide below it says how, per platform, with the icon that lands */
+        #wh-hub-install {
+          background: rgba(var(--wh-orange-rgb, 247,162,27),0.1); border-color: rgba(var(--wh-orange-rgb, 247,162,27),0.28); color: var(--wh-orange, #F7A21B);
+        }
+        #wh-hub-install:hover { background: rgba(var(--wh-orange-rgb, 247,162,27),0.18); border-color: rgba(var(--wh-orange-rgb, 247,162,27),0.45); }
+        #wh-hub-install[hidden] { display: none; }
+        #wh-hub-install-guide {
+          margin: 0 0 var(--wh-space-3, 12px); padding: 12px 14px; border-radius: var(--wh-radius, 12px);
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+          color: rgba(255,255,255,0.86); font-size: 12px; line-height: 1.55;
+        }
+        #wh-hub-install-guide[hidden] { display: none; }
+        #wh-hub-install-guide strong { color: #fff; }
+        #wh-hub-install-guide ol { margin: 6px 0 0 18px; padding: 0; }
+        #wh-hub-install-guide li { margin: 2px 0; }
+        #wh-hub-install-guide img { float: right; width: 48px; height: 48px; border-radius: var(--wh-radius, 12px); margin: 0 0 8px 10px; }
         .wh-hub-assist-btn {
           display: flex; align-items: center; justify-content: center; gap: var(--wh-space-2, 8px);
           min-height: 48px; padding: 10px 12px; border-radius: var(--wh-radius, 12px);
@@ -1317,7 +1358,15 @@
             <span aria-hidden="true">💬</span>
             <span>${_tt('Feedback', 'Feedback')}</span>
           </button>
+          <!-- §BRH.11 AM (Ian, 2026-10-26: "users should have something icon where they can just click or tap to easily
+               install it and visible right away"): visible at rest on every host; the native prompt where there is one,
+               the per-platform guide everywhere else; hidden once installed -->
+          <button type="button" id="wh-hub-install" class="wh-hub-assist-btn" aria-label="${_tt('Install WorkHive on this device', 'I-install ang WorkHive sa device na ito')}" aria-expanded="false" aria-controls="wh-hub-install-guide">
+            <span class="ic ic-phone" aria-hidden="true"></span>
+            <span>${_tt('Install', 'I-install')}</span>
+          </button>
         </div>
+        <div id="wh-hub-install-guide" role="region" aria-label="${_tt('How to install WorkHive', 'Paano i-install ang WorkHive')}" hidden></div>
 
         <!-- Phase E.3c: Global Search trigger — opens Cmd+K overlay on mobile too -->
         <button type="button" id="wh-hub-global-search" style="display:flex; align-items:center; gap:8px; width:100%; min-height:44px; padding:10px 12px; margin:0 0 8px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px; color:var(--wh-orange, #F7A21B); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; text-align:left;" aria-label="${_tt('Open global search', 'Buksan ang global search')}">
@@ -1512,11 +1561,18 @@
 
   // ─── Open / Close ─────────────────────────────────────────────────────────────
   function openHub() {
+    // ★BACK WITH THE HUB OPEN LEFT THE PAGE (OWN browser-Back walk, 2026-10-27). The panel is role="dialog" and covers
+    // the phone's width, and it held no history entry, so Back - the only close on Android - threw the person off the
+    // page with it. It now takes part in the shared Back stack (utils.js whBackEntryOpen): Back closes it first.
+    if (!isOpen && typeof window.whBackEntryOpen === 'function') {
+      window.whBackEntryOpen(document.getElementById('wh-hub-panel'), function () { closeHub(true); });
+    }
     isOpen = true;
     document.getElementById('wh-hub').classList.add('hub-open');
     document.getElementById('wh-hub-fab').classList.add('open');
     document.getElementById('wh-hub-fab').setAttribute('aria-expanded', 'true');
     document.getElementById('wh-hub-panel').classList.add('open');
+    placePanel();   // above or below the FAB, whichever side has the room (AN, 2026-10-26)
     // Legacy hook (kept harmless): companion + conn-chip no longer react to this class
     // — the companion is now launched from the Companion row (body.wh-companion-open).
     document.body.classList.add('wh-hub-open');
@@ -1525,6 +1581,8 @@
   }
 
   function closeHub(restoreFocus) {
+    // closed by the fab, Escape, a click outside or a hand-off: give its entry back (a Back close has already popped it)
+    if (isOpen && typeof window.whBackEntryClose === 'function') window.whBackEntryClose(document.getElementById('wh-hub-panel'));
     isOpen = false;
     document.getElementById('wh-hub').classList.remove('hub-open');
     document.getElementById('wh-hub-fab').classList.remove('open');
@@ -1708,7 +1766,7 @@
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
       if (saved && (saved.side === 'left' || saved.side === 'right') && typeof saved.bottom === 'number') {
-        applyPosition(saved.side, Math.max(16, Math.min(saved.bottom, window.innerHeight - 80)));
+        applyPosition(saved.side, clampBottom(saved.bottom));
         return;
       }
     } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
@@ -1717,6 +1775,46 @@
 
   function savePosition(side, bottom) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ side, bottom })); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+  }
+
+  // ★THE OPENED PANEL STAYS ON THE SCREEN (Ian, 2026-10-26, §BRH.11 AN). Three facts the walk measured in this file:
+  // the panel is anchored by `bottom` and grew upward wherever the FAB rested; the drag clamp (innerHeight - 80) kept
+  // the FAB on screen but said nothing about the panel; the stored position was clamped once at load and never again,
+  // while iOS changes innerHeight every time Safari's toolbar collapses. So: the safe-area insets are read (through
+  // --wh-sat/--wh-sab - env() is CSS-only), the FAB's clamp honours the top inset, the panel is anchored on the side
+  // of the FAB that has room and capped to it, and the position is re-clamped on every resize.
+  function safeInset(which) {
+    try {
+      const hub = document.getElementById('wh-hub');
+      return parseFloat(getComputedStyle(hub).getPropertyValue(which === 'top' ? '--wh-sat' : '--wh-sab')) || 0;
+    } catch (_) { return 0; }
+  }
+
+  function clampBottom(bottomPx) {
+    // 80 = the 56px FAB + the 24px it keeps from the top edge; the top inset (notch / status bar) comes off too, and so
+    // does the stack lift a page with a fixed bottom bar adds (--wh-fab-lift, pm-scheduler: 65px) - the MCP walk of
+    // 2026-10-26 planted the FAB at innerHeight-80 there and read it at -41..15, above the viewport, because the lift
+    // is applied on top of the clamped bottom
+    var lift = 0;
+    try { lift = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--wh-fab-lift')) || 0; } catch (_) { lift = 0; }
+    return Math.max(16, Math.min(bottomPx, window.innerHeight - 80 - safeInset('top') - lift));
+  }
+
+  function placePanel() {
+    const hub   = document.getElementById('wh-hub');
+    const fab   = document.getElementById('wh-hub-fab');
+    const panel = document.getElementById('wh-hub-panel');
+    if (!hub || !fab || !panel) return;
+    const r = fab.getBoundingClientRect();
+    // the panel's edge sits 12px off the FAB (the 68px anchor less the 56px FAB) and keeps 8px from the screen edge
+    const above = r.top - 12 - safeInset('top') - 8;
+    const below = window.innerHeight - r.bottom - 12 - safeInset('bottom') - 8;
+    panel.style.maxHeight = '';                       // measure the natural height, not the last cap
+    const need = panel.offsetHeight;
+    const goBelow = need > above && below > above;    // flip only when the top cannot hold it and the bottom holds more
+    hub.classList.toggle('wh-panel-below', goBelow);
+    const room = Math.max(120, goBelow ? below : above);
+    if (need > room) panel.style.maxHeight = room + 'px';   // scroll inside the room rather than leave the screen
   }
 
   function makeDraggable() {
@@ -1749,7 +1847,7 @@
       if (Math.abs(dx) > 4 || Math.abs(dy) > 4) didDrag = true;
       if (!didDrag) return;
       const hub    = document.getElementById('wh-hub');
-      const newBot = Math.max(16, Math.min(startBottom - dy, window.innerHeight - 80));
+      const newBot = clampBottom(startBottom - dy);
       if (snapSide === 'right') hub.style.right = Math.max(0, startRight - dx) + 'px';
       else                      hub.style.left  = Math.max(0, startLeft  + dx) + 'px';
       hub.style.bottom = newBot + 'px';
@@ -1777,9 +1875,118 @@
     });
   }
 
+  // ─── Install (§BRH.11 AM, 2026-10-26) ────────────────────────────────────────
+  // Ian: "users should have something icon where they can just click or tap to easily install it and visible right
+  // away on their homescreen for desktop and phone." Before this the only install button lived on the landing page,
+  // inside the desktop header, and showed only after beforeinstallprompt - which iOS Safari never fires and Chromium
+  // fires only once its installability test passes - so a person on a phone never saw it anywhere. The hub is on every
+  // host, so the control lives in its assist row, at rest; a tap does what the label promises on every platform.
+  let _installPrompt = null;
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); _installPrompt = e; });
+
+  function installState() {
+    const ua = navigator.userAgent;
+    const iosCr = /CriOS/.test(ua);
+    return {
+      standalone: window.navigator.standalone === true ||
+                  (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches),
+      iosCr: iosCr,
+      ios: /iPad|iPhone|iPod/.test(ua) && !iosCr,
+      android: /Android/.test(ua)
+    };
+  }
+
+  function installGuideHtml() {
+    // static copy, no person's data: the same steps report-sender.html has carried since 2026-07, now one source
+    const s = installState();
+    const icon = '<img src="/brand_assets/apple-touch-icon-180.png" alt="" width="48" height="48">';
+    if (s.iosCr) {
+      return icon + '<strong>' + _tt('Chrome on iPhone cannot install apps', 'Hindi makapag-install ang Chrome sa iPhone') + '</strong><br>'
+        + _tt('Open this page in <strong>Safari</strong>, then tap Install app.', 'Buksan ang page na ito sa <strong>Safari</strong>, saka i-tap ang I-install.');
+    }
+    if (s.ios) {
+      return icon + '<strong>' + _tt('Install on iPhone (Safari)', 'I-install sa iPhone (Safari)') + '</strong><ol>'
+        + '<li>' + _tt('Tap the <strong>Share</strong> icon at the bottom of Safari', 'I-tap ang <strong>Share</strong> sa ibaba ng Safari') + '</li>'
+        + '<li>' + _tt('Scroll down and tap <strong>Add to Home Screen</strong>', 'Mag-scroll pababa at i-tap ang <strong>Add to Home Screen</strong>') + '</li>'
+        + '<li>' + _tt('Tap <strong>Add</strong>', 'I-tap ang <strong>Add</strong>') + '</li></ol>';
+    }
+    if (s.android) {
+      return icon + '<strong>' + _tt('Install on Android', 'I-install sa Android') + '</strong><ol>'
+        + '<li>' + _tt('Open the browser menu (&#8942;)', 'Buksan ang menu ng browser (&#8942;)') + '</li>'
+        + '<li>' + _tt('Tap <strong>Install app</strong> or <strong>Add to Home screen</strong>', 'I-tap ang <strong>Install app</strong> o <strong>Add to Home screen</strong>') + '</li>'
+        + '<li>' + _tt('Tap <strong>Install</strong>', 'I-tap ang <strong>Install</strong>') + '</li></ol>';
+    }
+    return icon + '<strong>' + _tt('Install on desktop (Chrome / Edge)', 'I-install sa desktop (Chrome / Edge)') + '</strong><ol>'
+      + '<li>' + _tt('Look for the install icon at the right end of the address bar', 'Hanapin ang install icon sa kanang dulo ng address bar') + '</li>'
+      + '<li>' + _tt('Click it and choose <strong>Install</strong>', 'I-click ito at piliin ang <strong>Install</strong>') + '</li></ol>';
+  }
+
+  function openInstallGuide() {
+    if (!isOpen) openHub();
+    const g = document.getElementById('wh-hub-install-guide');
+    const b = document.getElementById('wh-hub-install');
+    if (!g) return;
+    g.innerHTML = installGuideHtml();
+    g.hidden = false;
+    if (b) b.setAttribute('aria-expanded', 'true');
+    placePanel();   // the panel grew: keep it on the screen
+  }
+
+  function wireInstall() {
+    const b = document.getElementById('wh-hub-install');
+    const g = document.getElementById('wh-hub-install-guide');
+    if (!b) return;
+    const hide = function () {
+      b.hidden = true;
+      if (g) g.hidden = true;
+      const row = document.getElementById('wh-hub-assist-row');
+      if (row) row.classList.add('wh-hub-assist-row--2');
+    };
+    if (installState().standalone) { hide(); return; }
+    window.addEventListener('appinstalled', hide);
+    b.addEventListener('click', async function () {
+      if (_installPrompt) {
+        // ★A PROMPT THAT CANNOT SHOW FALLS BACK TO THE WAY (MCP walk BRH579, 2026-10-26). Chromium had fired
+        // beforeinstallprompt, the tap took this path, prompt() threw (no trusted gesture in that session) and the
+        // first version swallowed it and returned - the person saw nothing. prompt() rejecting, or userChoice never
+        // settling, now opens the guide; only an accepted or dismissed choice is the person's answer.
+        const p = _installPrompt;
+        _installPrompt = null;   // one attempt per captured prompt; a second tap goes straight to the guide
+        try {
+          // prompt() itself can hang when the browser cannot raise the dialog (measured in the 2026-10-26 MCP walk:
+          // the await never returned), so the dialog AND the choice are raced together against one budget
+          const attempt = (async function () { await p.prompt(); return await p.userChoice; })();
+          const r = await Promise.race([attempt, new Promise(function (res) { setTimeout(function () { res(null); }, 1500); })]);
+          if (r && r.outcome === 'accepted') { hide(); return; }
+          if (r && r.outcome === 'dismissed') return;
+        } catch (_) { /* empty-catch-allow: the prompt is the browser's; when it cannot show, the guide is the way */ }
+      }
+      if (g && !g.hidden) { g.hidden = true; b.setAttribute('aria-expanded', 'false'); placePanel(); return; }
+      openInstallGuide();
+    });
+  }
+  window.WHHub = Object.assign(window.WHHub || {}, { openInstallGuide: openInstallGuide });
+
   // ─── Event Wiring ─────────────────────────────────────────────────────────────
   function wireEvents() {
     makeDraggable();
+    wireInstall();
+
+    // a position legal under one toolbar state sits under the other's on iOS: re-clamp on every resize, and
+    // re-place the opened panel (AN, 2026-10-26)
+    let _reclamp = null;
+    window.addEventListener('resize', function () {
+      if (_reclamp) return;
+      _reclamp = requestAnimationFrame(function () {
+        _reclamp = null;
+        try {
+          const hub = document.getElementById('wh-hub');
+          if (!hub) return;
+          applyPosition(snapSide, clampBottom(window.innerHeight - hub.getBoundingClientRect().bottom));
+          if (isOpen) placePanel();
+        } catch (_) { /* empty-catch-allow: best-effort re-clamp */ }
+      });
+    });
 
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && isOpen) {
@@ -2048,8 +2255,17 @@
       panel.addEventListener('click', function(e) {
         const tile = e.target.closest('a[href]');
         if (tile) trackToolClick(tile.getAttribute('href'));
+        // A tile leaving with the hub open replaces the hub's Back entry with the next page; a plain link would leave the
+        // entry behind, and Back from that page would land on it - a press that does nothing once this page reloads.
+        if (!tile || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        if (tile.target && tile.target !== '_self') return;
+        if (!(typeof window.whBackEntryLeave === 'function' && window.whBackEntryLeave(panel))) return;
+        e.preventDefault();
+        location.replace(tile.href);
       });
     }
+    // a page restored from the back-forward cache comes back as it was left: with the hub open and no entry behind it
+    window.addEventListener('pageshow', function (e) { if (e.persisted && isOpen) closeHub(); });
   }
 
   // ─── Init ─────────────────────────────────────────────────────────────────────

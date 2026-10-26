@@ -979,6 +979,10 @@
   // /functions/v1/embed-entry call when that path is exposed without
   // requiring an auth.uid (today it embeds journal entries, not query
   // strings). TODO closes when that work lands.
+  // (2026-10-26) Retrieval moved to the server: ai-gateway embeds the question once (its journal recall) and asks for the
+  // hive's documents, facts and standards itself, with the person's own client - see _shared/hive-knowledge.ts. The three
+  // browser lookups below therefore never run on a turn; this stays a stub so nothing re-wires them into a prompt that no
+  // server reads.
   async function _embedQuery(_transcript) {
     return null;
   }
@@ -1062,166 +1066,6 @@
     return fallback;
   }
 
-  // Fetch canonical data for the classified intent. Returns a small
-  // string block to inject into the system prompt, or '' if anything
-  // fails. Reads v_kpi_truth (MTBF/MTTR/downtime/failures) and
-  // v_risk_truth (risk_top). Hive-scoped via the worker's active hive.
-  // Sub-second latency; no AI cost; uses the canonical source the rest
-  // of the platform reads from.
-  async function _fetchCanonicalData(db, hiveId, intent) {
-    if (!db || !intent || !hiveId) return '';
-    try {
-      if (intent.kind === 'risk_top') {
-        const { data, error } = await db.from('v_risk_truth')
-          .select('asset_name, risk_score, risk_level')
-          .eq('hive_id', hiveId)
-          .order('risk_score', { ascending: false })
-          .order('asset_name')   // MR4 tiebreaker: DISTINCT ON (hive_id, asset_name) is the view's key
-          .limit(intent.limit || 3);
-        if (error || !data || !data.length) return '';
-        const lines = data.map(r => '  - ' + r.asset_name + ': ' + r.risk_level + ' (score ' + Number(r.risk_score).toFixed(2) + ')');
-        return 'CANONICAL DATA from v_risk_truth — your hive\'s top at-risk assets right now:\n' + lines.join('\n');
-      }
-      // All MTBF / MTTR / downtime / failures live in v_kpi_truth.
-      // ★BRH-V (2026-10-21): v_kpi_truth is a MATERIALIZED view - no row policy can apply to it - and the API served it to
-      // anon and to every member, every hive's rows (Supabase's advisor, materialized_view_in_api). It is the service
-      // role's alone now; a member reads their own hive through hive_kpis(), which checks membership and returns nothing
-      // for a hive the person does not belong to.
-      const win = intent.window_days || 30;
-      const col = _kpiColumn(intent.kind, win);
-      if (!col) return '';
-      const { data, error } = await db.rpc('hive_kpis', { p_hive_id: hiveId })
-        .select('machine, ' + col + ', generated_at')
-        .not(col, 'is', null);
-      if (error || !data || !data.length) return '';
-      // Aggregate to a hive-level rollup the worker would actually expect.
-      // MTBF / MTTR average across machines; downtime / failures sum.
-      let value, unit, agg;
-      if (intent.kind === 'mtbf') {
-        const nums = data.map(r => Number(r[col])).filter(n => !isNaN(n) && n > 0);
-        if (!nums.length) return '';
-        value = (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(1);
-        unit = 'days'; agg = 'average across ' + nums.length + ' machines';
-      } else if (intent.kind === 'mttr') {
-        const nums = data.map(r => Number(r[col])).filter(n => !isNaN(n) && n > 0);
-        if (!nums.length) return '';
-        value = (nums.reduce((a, b) => a + b, 0) / nums.length).toFixed(1);
-        unit = 'hours'; agg = 'average across ' + nums.length + ' machines';
-      } else if (intent.kind === 'downtime') {
-        const nums = data.map(r => Number(r[col])).filter(n => !isNaN(n));
-        value = nums.reduce((a, b) => a + b, 0).toFixed(1);
-        unit = 'hours'; agg = 'sum across ' + nums.length + ' machines';
-      } else if (intent.kind === 'failures_count') {
-        const nums = data.map(r => Number(r[col])).filter(n => !isNaN(n));
-        value = nums.reduce((a, b) => a + b, 0);
-        unit = 'breakdowns'; agg = 'sum across ' + nums.length + ' machines';
-      } else {
-        return '';
-      }
-      const label = _kpiLabel(intent.kind);
-      const generated = data[0] && data[0].generated_at ? new Date(data[0].generated_at).toISOString().slice(0, 16).replace('T', ' ') : 'recent';
-      return 'CANONICAL DATA from v_kpi_truth — your hive\'s actual ' + label + ':\n' +
-             '  - ' + label + ' over the last ' + win + ' days: ' + value + ' ' + unit + ' (' + agg + ')\n' +
-             '  - Source snapshot: ' + generated + ' UTC, refreshed hourly';
-    } catch (err) {
-      console.warn('[WHVoice] canonical fetch failed (non-fatal):', err && err.message);
-      return '';
-    }
-  }
-
-  function _kpiColumn(kind, win) {
-    const w = (win === 90 || win === 365) ? win : 30;
-    if (kind === 'mtbf')           return 'mtbf_' + w + 'd';
-    if (kind === 'mttr')           return 'mttr_' + w + 'd';
-    if (kind === 'downtime')       return 'total_downtime_' + w + 'd';
-    if (kind === 'failures_count') return 'failures_' + w + 'd';
-    return null;
-  }
-
-  function _kpiLabel(kind) {
-    if (kind === 'mtbf')           return 'MTBF';
-    if (kind === 'mttr')           return 'MTTR';
-    if (kind === 'downtime')       return 'total downtime';
-    if (kind === 'failures_count') return 'breakdown count';
-    return kind;
-  }
-
-  // Pull the worker's recent journal turns so the model has actual
-  // conversation continuity ("the downtime you started", "yung pump
-  // kanina") instead of asking generic clarifiers. Tries the DB first
-  // (signed-in workers), then falls back to the session-only array
-  // (anon workers in the Tester). Cheap on both paths, best-effort.
-  async function _fetchRecentMemory(db, workerName) {
-    let agentMemoryTurns = [];
-    let voiceJournalTurns = [];
-
-    // Phase 2: Try agent_memory table first (current session + recent history)
-    if (db && workerName) {
-      const sessionId = _getSessionId();
-      try {
-        // Fetch current session memory (most recent, highest fidelity)
-        const { data: sessionData, error: sessionErr } = await db.from('agent_memory')
-          .select('turn_num, user_input, assistant_response')
-          .eq('session_id', sessionId)
-          .order('turn_num', { ascending: true })
-          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(10);
-
-        if (!sessionErr && sessionData && sessionData.length) {
-          agentMemoryTurns = sessionData.map(row => ({
-            user: String(row.user_input || ''),
-            assistant: String(row.assistant_response || ''),
-            turn_num: row.turn_num,
-          }));
-        }
-      } catch (err) {
-        console.warn('[WHVoice] agent_memory fetch failed (Phase 2):', err && err.message);
-      }
-    }
-
-    // Fallback: voice_journal_entries (older history, broader context)
-    if (db && workerName && agentMemoryTurns.length < 5) {
-      try {
-        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-        const { data, error } = await db.from('voice_journal_entries')
-          .select('transcript, reply, created_at')
-          .eq('worker_name', workerName)
-          .gte('created_at', since)
-          .order('created_at', { ascending: false })
-          .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(5);
-        if (!error && data && data.length) {
-          voiceJournalTurns = data.slice().reverse().map(row => ({
-            user:      String(row.transcript || ''),
-            assistant: String(row.reply || ''),
-          }));
-        }
-      } catch (_) { /* RLS denial / network — fall through */ /* empty-catch-allow: best-effort silent swallow */ }
-    }
-
-    // Merge: session turns (fresh), then journal turns (older). Dedupe by user message.
-    const sessionTurns = _sessionTurns.map(t => ({ user: t.user, assistant: t.assistant }));
-    const allTurns = agentMemoryTurns.concat(voiceJournalTurns).concat(sessionTurns);
-
-    const seen = new Set();
-    const merged = [];
-    for (const turn of allTurns) {
-      const key = turn.user.slice(0, 80);
-      if (seen.has(key)) continue;
-      seen.add(key);
-      merged.push(turn);
-    }
-
-    if (!merged.length) return '';
-
-    // Format memory block with turn numbers for clarity
-    return 'RECENT SESSION MEMORY:\n' + merged.map((t, idx) => {
-      const u = t.user.slice(0, 240).trim();
-      const a = t.assistant.slice(0, 240).trim();
-      return `Turn ${idx + 1}:\nWorker asked: ${u}\nYou replied: ${a}`;
-    }).filter(Boolean).join('\n\n---\n\n');
-  }
-
   // Phase 2: Store turn in agent_memory table (session-scoped, durable memory)
   async function _storeTurn(db, hiveId, workerName, transcript, response, intentKind, confidence, responseTimeMs) {
     if (!db || !hiveId || !workerName) return; // silent no-op for anon
@@ -1263,56 +1107,6 @@
     }
   }
 
-  // Phase 5: Fetch active proactive alerts (KPI spikes, risk escalation, overdue PM)
-  async function _fetchProactiveAlerts(db, hiveId) {
-    if (!db || !hiveId) {
-      console.warn('[WHVoice] Fetch alerts: missing db or hiveId', { hasDb: !!db, hiveId });
-      return [];
-    }
-    try {
-      console.log('[WHVoice] Calling fetch_active_alerts RPC with hiveId:', hiveId); // console-log-allow: RPC call observability (alerts fetch debug)
-      const { data, error } = await db.rpc('fetch_active_alerts', { p_hive_id: hiveId });
-      console.log('[WHVoice] RPC response:', { data, error }); // console-log-allow: RPC response observability
-      if (error) {
-        console.warn('[WHVoice] Fetch alerts RPC error:', JSON.stringify(error));
-        return [];
-      }
-      if (!data || !Array.isArray(data)) {
-        console.warn('[WHVoice] Fetch alerts returned invalid data:', data, 'type:', typeof data);
-        return [];
-      }
-      // Validate alert structure — ensure description & action_suggested exist
-      const validated = data.slice(0, 5).map((a) => {
-        if (!a.description || !a.action_suggested) {
-          console.warn('[WHVoice] Alert missing description or action:', a);
-        }
-        return a;
-      });
-      console.log('[WHVoice] Fetched alerts:', validated.length, 'alerts'); // console-log-allow: alerts count confirmation
-      return validated;
-    } catch (err) {
-      console.warn('[WHVoice] Proactive alerts fetch exception:', err && err.message);
-      return [];
-    }
-  }
-
-  // Phase 6: Offline resilience — cache snapshot + response queue
-  async function _cacheOfflineSnapshot(db, hiveId, snapshot) {
-    if (!db) return;
-    try {
-      const hash = String(snapshot).slice(0, 100);
-      await db.from('offline_snapshot_cache').insert({
-        worker_id: (await db.auth.getUser())?.data?.user?.id,
-        hive_id: hiveId,
-        snapshot_data: JSON.parse(snapshot || '{}'),
-        snapshot_hash: hash,
-        expires_at: new Date(Date.now() + 24*60*60*1000).toISOString(),
-      });
-    } catch (err) {
-      console.warn('[WHVoice] Offline cache failed:', err && err.message);
-    }
-  }
-
   // Phase 7: TTS quality metrics + caching
   //
   // T85 (2026-08-26): `persona` was HARDCODED 'zaniah' here, so every one of these rows
@@ -1338,10 +1132,14 @@
   }
 
   // Phase 8: Capture response quality for learning loop
-  async function _captureAnalytics(db, sessionId, turnNum, category, quality, confidence) {
-    if (!db) return;
+  // ★EVERY ROW WAS REFUSED (OWN walk, 2026-10-26): conversation_analytics admits a row only for one of the person's own
+  // hives (conversation_analytics_hive_rw), and this insert carried no hive_id - 42501 on every companion turn, so the
+  // learning loop this feeds had no rows. The turn's hive goes with it; a hive-less turn has nowhere it may be kept.
+  async function _captureAnalytics(db, sessionId, turnNum, category, quality, confidence, hiveId) {
+    if (!db || !hiveId) return;
     try {
       await db.from('conversation_analytics').insert({
+        hive_id: hiveId,
         session_id: sessionId,
         turn_num: turnNum,
         question_category: category,
@@ -1351,21 +1149,6 @@
       });
     } catch (err) {
       console.warn('[WHVoice] Analytics capture failed:', err && err.message);
-    }
-  }
-
-  // Phase 9: Cross-hive context awareness
-  async function _fetchCrossHiveContext(db) {
-    if (!db) return '';
-    try {
-      const { data, error } = await db.from('cross_hive_alerts')
-        .select('alert_reason, severity')
-        .eq('severity', 'critical')
-        .limit(3);
-      if (error || !data || data.length === 0) return '';
-      return 'CROSS-HIVE CONTEXT: ' + data.map(a => a.alert_reason).join('; ');
-    } catch (err) {
-      return '';
     }
   }
 
@@ -1381,189 +1164,6 @@
       });
     } catch (err) {
       console.warn('[WHVoice] Avatar state update failed:', err && err.message);
-    }
-  }
-
-  // Phase 11: Multilingual term lookup (per-term — for UI rendering)
-  async function _lookupMultilingualTerm(db, englishTerm, targetLanguage) {
-    if (!db || !targetLanguage || targetLanguage === 'en') return englishTerm;
-    try {
-      const { data, error } = await db.from('multilingual_terms')
-        .select(targetLanguage === 'tl' ? 'tagalog_term' : 'visayan_term')
-        .eq('english_term', englishTerm)
-        .limit(1);
-      if (error || !data || !data[0]) return englishTerm;
-      return targetLanguage === 'tl' ? (data[0].tagalog_term || englishTerm) : (data[0].visayan_term || englishTerm);
-    } catch (err) {
-      return englishTerm;
-    }
-  }
-
-  // Day 5 (L7): Load PH industrial phrase glossary for the LLM system prompt.
-  // The 207 Tagalog/Visayan terms seeded by tools/day5_seed_filipino_phrases.py
-  // act as a context cache so the LLM correctly understands worker code-switching
-  // ("may oil leak sa motor" -> oil leak + motor). Module-scope memoized; the
-  // table is small (~207 rows) so one fetch per page load is plenty.
-  let _filipinoGlossaryCache = null;
-  async function _fetchFilipinoGlossary(db) {
-    if (_filipinoGlossaryCache !== null) return _filipinoGlossaryCache;
-    if (!db) { _filipinoGlossaryCache = ''; return ''; }
-    try {
-      const { data, error } = await db.from('multilingual_terms')
-        .select('english_term, tagalog_term, visayan_term, domain')
-        .order('domain', { ascending: true });
-      if (error || !data || !data.length) { _filipinoGlossaryCache = ''; return ''; }
-
-      // Format: one line per term, grouped by domain header. Skip rows with no
-      // translations at all (no point spending tokens on bare English).
-      const byDomain = {};
-      for (const row of data) {
-        if (!row.tagalog_term && !row.visayan_term) continue;
-        if (!byDomain[row.domain]) byDomain[row.domain] = [];
-        const parts = [row.english_term];
-        if (row.tagalog_term) parts.push('tl: ' + row.tagalog_term);
-        if (row.visayan_term) parts.push('ceb: ' + row.visayan_term);
-        byDomain[row.domain].push(parts.join(' / '));
-      }
-      const lines = [];
-      for (const dom of Object.keys(byDomain).sort()) {
-        lines.push('[' + dom + '] ' + byDomain[dom].join('; '));
-      }
-      _filipinoGlossaryCache = lines.join('\n');
-      return _filipinoGlossaryCache;
-    } catch (err) {
-      console.warn('[WHVoice] Filipino glossary fetch failed:', err && err.message);
-      _filipinoGlossaryCache = '';
-      return '';
-    }
-  }
-
-  // Phase 3: Semantic RAG — embed query and search knowledge base
-  async function _fetchRAGContext(db, hiveId, transcript) {
-    if (!db || !hiveId || !transcript) return '';
-    try {
-      // 2026-05-19 Step C/D: embedding via _embedQuery() stub until a
-      // browser-callable embed-entry edge fn exists. Returns null today,
-      // which short-circuits RAG context — graceful degrade, no offline
-      // banner. See validate_legacy_worker_decommission.py.
-      const embedding = await _embedQuery(transcript);
-      if (!embedding) return '';
-
-      // Semantic search in kb_chunks via RPC
-      const { data: chunks, error } = await db.rpc('semantic_search_kb', {
-        p_hive_id: hiveId,
-        p_query_embedding: embedding,
-        p_similarity_threshold: 0.7,
-        p_limit: 5,
-      });
-
-      if (error || !chunks || chunks.length === 0) return '';
-
-      // ★THE BLOCK THAT FORMATS THIS ALREADY EXISTED AND WAS NEVER CALLED. `_buildRagBlock` caps the
-      // whole context at 2,000 characters, stops at six hits and prints each hit's retrieval SCORE;
-      // this loop had no cap at all (five hits x 300 chars plus titles, and nothing stopping a larger
-      // p_limit later), no score, and a header the model never got telling it what the block is. Two
-      // formatters for one job, and the weaker one was the one running. The doc TITLE is kept as the
-      // citation - it is worth more to the model than a row id - by passing it as the hit's id, so the
-      // line reads "[doc:Pump Manual score=0.82] ...": title, confidence, and a bounded block.
-      return _buildRagBlock(chunks.map((c) => ({
-        id: (c.doc_title || 'untitled').slice(0, 50),
-        // the live function returns `similarity_score`, not `similarity` - read from the database, not
-        // from the name it ought to have had; the wrong one prints "score=0.00" beside every hit, which
-        // is a confidence figure the model would have believed
-        score: c.similarity_score,
-        snippet: c.chunk_text || '',
-      })), 2000);
-    } catch (err) {
-      console.warn('[WHVoice] RAG context fetch failed:', err && err.message);
-      return '';
-    }
-  }
-
-  // Day 5 / Day 8 (L5): Knowledge-graph triples retrieval — TWO STORES.
-  // - knowledge_graph_facts            = HIVE-scoped     (this hive's claims)
-  // - platform_knowledge_graph_facts   = PLATFORM-scoped (regulatory canon)
-  // Mirrors the kb_chunks vs. industry_standards_chunks split. One query
-  // embedding fans out to both RPCs; results merged by similarity score.
-  // The 2026-05-19 migration moved 1,533 standards-derived triples out of
-  // the hive table (where they had been broadcast x3 = 4,605 rows) into
-  // the platform table — single source of truth per canonical-audit reflex.
-  async function _fetchKGContext(db, hiveId, transcript) {
-    if (!db || !transcript) return '';
-    try {
-      const embedding = await _embedQuery(transcript);
-      if (!embedding) return '';
-
-      // Fan out: hive-scoped only if we have a hive_id, platform always.
-      const hivePromise = hiveId
-        ? db.rpc('semantic_search_kg_facts', {
-            p_hive_id:              hiveId,
-            p_query_embedding:      embedding,
-            p_similarity_threshold: 0.5,
-            p_limit:                4,
-            p_min_confidence:       0.6,
-          })
-        : Promise.resolve({ data: [], error: null });
-
-      const platformPromise = db.rpc('semantic_search_platform_kg_facts', {
-        p_query_embedding:      embedding,
-        p_similarity_threshold: 0.5,
-        p_limit:                4,
-        p_min_confidence:       0.6,
-      });
-
-      const [hiveRes, platformRes] = await Promise.all([hivePromise, platformPromise]);
-
-      const hiveFacts     = (hiveRes && !hiveRes.error && Array.isArray(hiveRes.data))     ? hiveRes.data     : [];
-      const platformFacts = (platformRes && !platformRes.error && Array.isArray(platformRes.data)) ? platformRes.data : [];
-      const combined = [...hiveFacts, ...platformFacts];
-      if (combined.length === 0) return '';
-
-      // Lower similarity_score = closer in cosine distance (matches RPC convention).
-      combined.sort((a, b) => (a.similarity_score || 1) - (b.similarity_score || 1));
-      const top = combined.slice(0, 6);
-
-      return top.map(f => {
-        const claim = (f.claim_text || `${f.subject_ref} ${f.predicate} ${f.object_ref}`).slice(0, 220);
-        const src   = (f.source_ref || f.source_type || '').slice(0, 40);
-        return src ? `[${src}] ${claim}` : claim;
-      }).join('\n');
-    } catch (err) {
-      console.warn('[WHVoice] KG context fetch failed:', err && err.message);
-      return '';
-    }
-  }
-
-  // Day 4: Platform-wide standards retrieval (industry_standards_chunks).
-  // Mirrors _fetchRAGContext but is HIVE-AGNOSTIC — standards are global.
-  // Use when worker asks about ISO/IEC/ASHRAE/NFPA/PSME/DOLE regulations or
-  // best practice canon. Returned chunks carry the standard_code as citation.
-  async function _fetchStandardsContext(db, transcript) {
-    if (!db || !transcript) return '';
-    try {
-      const embedding = await _embedQuery(transcript);
-      if (!embedding) return '';
-
-      // Platform-wide semantic search — no hive_id param.
-      // Lower threshold (0.5) since standards corpus is narrower than per-hive KB.
-      const { data: chunks, error } = await db.rpc('semantic_search_industry_standards', {
-        p_query_embedding:       embedding,
-        p_similarity_threshold:  0.5,
-        p_limit:                 3,
-        p_family:                null,  // all families
-      });
-
-      if (error || !chunks || chunks.length === 0) return '';
-
-      return chunks.map(c => {
-        const code = (c.standard_code || 'standard').slice(0, 40);
-        const section = c.section ? ` §${c.section}` : '';
-        const text = (c.chunk_text || '').slice(0, 300);
-        return `[${code}${section}] ${text}`;
-      }).join('\n\n');
-    } catch (err) {
-      console.warn('[WHVoice] Standards context fetch failed:', err && err.message);
-      return '';
     }
   }
 
@@ -5040,7 +4640,7 @@
   // tagout" / "isolation" / "padlock the breaker". The companion
   // MUST not proceed with diagnostic work intents until LOTO is
   // confirmed.
-  const _LOTO_RE = /\b(?:loto|lockout[\s\-]?tagout|lockout\s+tag\s*out|lock\s+out|tag\s+out|isolation|isolate(?:\s+the\s+\w+)?|padlock(?:\s+the\s+breaker)?|de[\-\s]?energi[sz]e|line\s+breaking|i[\-\s]?lock\s+mo|i[\-\s]?isolate\s+mo)\b/i;
+  const _LOTO_RE = /\b(?:loto|lock[\s\-]?out(?:[\s\-]?tag[\s\-]?out)?|tag[\s\-]?out|isolation|isolate(?:\s+the\s+\w+)?|padlock(?:\s+the\s+breaker)?|de[\-\s]?energi[sz]e|line\s+breaking|i[\-\s]?lock\s+mo|i[\-\s]?isolate\s+mo)\b/i;
   function _detectLotoIntent(text) {
     const s = String(text || '');
     if (!s || s.length > 200) return false;
@@ -6005,7 +5605,7 @@
   // come from?" — worker is questioning the reasoning behind a prior
   // claim. The LLM should TRACE: name the source view, the row, and
   // the timestamp. No more "the data shows" without saying which data.
-  const _EXPLAIN_RE = /^(?:why|how do you know|how did you|where did you get|where(?:'|’)?s that from|paano mo nalaman|saan galing|saan mo nakuha|prove it|show me how)\b/i;
+  const _EXPLAIN_RE = /^(?:why\s+(?:did|do)\s+you|why\s+(?:is|are)\s+(?:that|it|the\s+\w+)\s+(?:that\s+|so\s+)?(?:low|high|different|wrong)|how do you know|how did you|where did you get|where(?:'|’)?s that from|paano mo nalaman|saan galing|saan mo nakuha|prove it|show me how)\b/i;
   function _isExplainRequest(text) {
     const s = String(text || '').trim();
     if (!s) return false;
@@ -6044,76 +5644,6 @@
     const s = String(text || '').trim();
     if (!s) return false;
     return _EXPORT_RE.test(s);
-  }
-
-  // Phase 4.31 (turn #26): Repeated-issue surface.
-  // Best-effort query against v_logbook_truth for same-asset failure
-  // repetition in the last 30 days. If the same machine has 3+ entries
-  // with similar failure mode, the LLM gets a flag in the prompt so it
-  // can escalate ("this is the 3rd corrective on Compressor C-01 this
-  // month — worth flagging to your supervisor"). Empty string when no
-  // repetition or query fails — never blocks.
-  async function _fetchRepeatedIssueFlag(db, hiveId) {
-    if (!db || !hiveId) return '';
-    try {
-      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-      const { data } = await db.from('v_logbook_truth')
-        .select('machine,category,maintenance_type')
-        .eq('hive_id', hiveId)
-        .eq('maintenance_type', 'Corrective')
-        .gte('created_at', since)
-        .limit(200);
-      if (!Array.isArray(data) || data.length === 0) return '';
-      // Group by machine. Any machine with >= 3 corrective entries is
-      // "chronic" in the 30-day window.
-      const counts = {};
-      data.forEach(row => {
-        const m = String(row.machine || '').trim();
-        if (!m) return;
-        counts[m] = (counts[m] || 0) + 1;
-      });
-      const chronic = Object.entries(counts)
-        .filter(([_, n]) => n >= 3)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 3);
-      if (chronic.length === 0) return '';
-      const lines = chronic.map(([m, n]) => '  - ' + m + ': ' + n + ' corrective entries in last 30 days').join('\n');
-      return '\nREPEATED ISSUES (last 30 days, ≥3 corrective each — surface ' +
-             'these IF the worker asks about any of these machines, or ' +
-             'proactively if context warrants):\n' + lines + '\n';
-    } catch (_) {
-      return '';
-    }
-  }
-
-  // Phase 4.43 (turn #38): Skill-gap nudge fetch.
-  // Pulls v_worker_skill_truth for the current worker, identifies the
-  // lowest-level discipline relative to their primary, and emits a
-  // SKILL GAP block when the gap is meaningful (level <=2 / Awareness
-  // or Foundational). Empty string when no gap or query fails. The
-  // anchor lets the LLM offer a quick refresher path without becoming
-  // a nag (only surfaces when the conversation naturally warrants it).
-  async function _fetchSkillGapFlag(db, workerName) {
-    if (!db || !workerName) return '';
-    try {
-      const { data } = await db.from('v_worker_skill_truth')
-        .select('discipline,level:current_level,primary_skill,role')
-        .eq('worker_name', workerName)
-        .limit(20);
-      if (!Array.isArray(data) || data.length === 0) return '';
-      const gaps = data.filter(r => typeof r.level === 'number' && r.level <= 2);
-      if (gaps.length === 0) return '';
-      // Surface up to 2 lowest-level gaps so the prompt stays short.
-      const sorted = gaps.slice().sort((a, b) => (a.level || 99) - (b.level || 99)).slice(0, 2);
-      const lines = sorted.map(g =>
-        '  - ' + (g.discipline || 'discipline') + ' (Level ' + (g.level || 0) + ')'
-      ).join('\n');
-      return '\nSKILL GAPS (Awareness / Foundational level — surface ONLY if the ' +
-             'worker\'s question maps to one of these, and only as a one-line ' +
-             'offer: "want a quick refresher on <discipline>?"):\n' + lines + '\n';
-    } catch (_) {
-      return '';
-    }
   }
 
   // Phase 4.32 (turn #27): Standards lookup detector.
@@ -6214,451 +5744,6 @@
       return `I think you\'re asking about ${newName}, but we were just discussing ${priorName}. Did you mean to keep talking about ${priorName}, or switch to ${newName}?`;
     }
     return `I think you\'re asking about ${newName}. Is that right?`;
-  }
-
-  // Phase 1: Semantic Router — classify whether question needs platform data, semantic depth, or simple reply
-  async function _classifySemanticRoute(transcript, routerIntents) {
-    // Short-circuit: if voice-action-router already classified as a data intent,
-    // skip the LLM call and route straight to platform (saves ~500ms + cost).
-    const firstIntent = routerIntents && routerIntents[0];
-    if (firstIntent && ['mtbf', 'mttr', 'downtime', 'risk_top', 'failures_count', 'oee', 'availability'].includes(firstIntent.kind)) {
-      return { route: 'platform', confidence: 0.95, reasoning: 'Router pre-classified as data intent: ' + firstIntent.kind };
-    }
-
-    // Pre-check: heuristic catches KPI keywords before the LLM call (faster + cheaper)
-    const tLower = String(transcript || '').toLowerCase();
-    if (/\b(mtbf|mttr|oee|availability|reliability|uptime|downtime|how many|overdue|risk|low stock|out of stock)\b/.test(tLower)) {
-      return { route: 'platform', confidence: 0.9, reasoning: 'KPI keywords detected: ' + tLower };
-    }
-
-    // 2026-05-19 Companion Streamline Step C/D: removed the LLM-assisted
-    // intent classification call (previously hit the legacy Cloudflare
-    // Worker). The heuristics above (router pre-classify + KPI keyword
-    // regex) cover the vast majority of voice traffic already, and the
-    // LLM call was the silent failure mode that stranded users behind
-    // "Sorry, I'm offline" replies. If you reintroduce LLM-assisted
-    // routing, point it at ai-gateway with a dedicated `intent-router`
-    // agent registered in AGENT_ROUTES — never at an external Worker.
-    return _heuristicRoute(transcript);
-  }
-
-  // Heuristic fallback for semantic router (keywords-based)
-  function _heuristicRoute(transcript) {
-    const t = String(transcript || '').toLowerCase();
-    if (/(mtbf|mttr|oee|availability|reliability|uptime|downtime|how many|count|overdue|down|running|risk|alert|stock|status|equipment|today|this week|this month)/.test(t)) {
-      return { route: 'platform', confidence: 0.8, reasoning: 'Platform/KPI keywords detected' };
-    } else if (/(why|how can|prevent|improve|trend|pattern|analysis|cause)/.test(t)) {
-      return { route: 'semantic', confidence: 0.7, reasoning: 'Analysis keywords detected' };
-    } else if (/(thanks|thank|hi|hello|bye)/.test(t)) {
-      return { route: 'simple', confidence: 0.8, reasoning: 'Greeting or closing' };
-    } else {
-      return { route: 'platform', confidence: 0.5, reasoning: 'Ambiguous; defaulting to platform (data first)' };
-    }
-  }
-
-  // Phase 1: Platform Scraper Agent — fetch real-time KPI data for status queries
-  async function _invokePlatformScraper(db, hiveId, workerName) {
-    if (!hiveId) return '';
-    try {
-      // Call platform-scraper edge function for KPI aggregation
-      const fetcher = (typeof window.fetchWithTimeout === 'function')
-        ? window.fetchWithTimeout
-        : (u, o) => fetch(u, o);
-
-      const resp = await fetcher(SUPABASE_URL + '/functions/v1/platform-scraper', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          hive_id: hiveId,
-          worker_name: workerName,
-        }),
-      }, 5000);
-
-      if (resp && resp.ok) {
-        const data = await resp.json();
-        return data.summary || '';
-      }
-    } catch (err) {
-      console.warn('[WHVoice] platform scraper edge function failed (non-fatal):', err && err.message);
-    }
-
-    // Fallback: direct DB queries if edge function unavailable
-    try {
-      if (!db) return '';
-      const [eqStatus, riskAssets, pmStatus, invAlerts, adoptionMetrics] = await Promise.all([
-        _fetchEquipmentStatus(db, hiveId),
-        _fetchRiskAssets(db, hiveId, 2),
-        _fetchPMStatus(db, hiveId),
-        _fetchInventoryAlerts(db, hiveId),
-        _fetchAdoptionMetrics(db, hiveId),
-      ]);
-
-      const parts = [];
-      if (eqStatus) parts.push(eqStatus);
-      if (riskAssets) parts.push('At-risk assets: ' + riskAssets);
-      if (pmStatus) parts.push(pmStatus);
-      if (invAlerts) parts.push('Inventory: ' + invAlerts);
-      if (adoptionMetrics) parts.push(adoptionMetrics);
-
-      return parts.length ? parts.join(' ') : '';
-    } catch (err2) {
-      console.warn('[WHVoice] platform scraper fallback failed:', err2 && err2.message);
-      return '';
-    }
-  }
-
-  // Full platform snapshot — scans every canonical truth view + worker-scoped tables in parallel.
-  // Returns one comprehensive block that gives the LLM complete platform awareness.
-  // The LLM picks what's relevant to the user's question from this snapshot.
-  async function _fetchFullPlatformSnapshot(db, hiveId, workerName) {
-    if (!db) {
-      console.warn('[WHVoice] Snapshot: missing db');
-      return '';
-    }
-    if (!hiveId) {
-      console.warn('[WHVoice] Snapshot: hiveId not set in context, checking localStorage fallback');
-      // Fallback: if hive_id not in context, try all common localStorage keys
-      hiveId = whHiveId() ||
-               /* storage-key-allow: bootstrap fallback for hive context */ whHiveId() || '';
-      if (!hiveId) {
-        console.warn('[WHVoice] Snapshot: no hiveId found in localStorage either');
-        return '';
-      }
-      console.log('[WHVoice] Snapshot: recovered hiveId from localStorage:', hiveId); // console-log-allow: snapshot hiveId recovery diagnostic
-    }
-    const today = whManilaYmd();
-
-    const fetches = await Promise.allSettled([
-      db.from('v_kpi_truth').select('machine,mtbf_30d,mttr_30d,total_downtime_30d,failures_30d').eq('hive_id', hiveId).limit(50),
-      db.from('v_risk_truth').select('asset_name,risk_score,risk_level,mtbf_days,days_until_failure').eq('hive_id', hiveId).order('risk_score', { ascending: false }).order('asset_name').limit(5),
-      db.from('v_pm_compliance_truth').select('asset_name,category,criticality,last_anchor_date,days_since_last_completion,completions_30d,skips_90d').eq('hive_id', hiveId).limit(20),
-      // Open logbook items (the "open work" backlog — what Day Planner shows in its sidebar)
-      db.from('v_logbook_truth').select('machine,category,problem,action,status,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Open').order('created_at', { ascending: false }).order('id').limit(30),
-      db.from('v_inventory_items_truth').select('part_name,part_number,qty_on_hand,min_qty,reorder_point').eq('hive_id', hiveId).limit(50),
-      db.from('v_asset_truth').select('name,tag,iso_class,criticality,last_failure_at,lifetime_logbook_entries').eq('hive_id', hiveId).limit(100),
-      db.from('v_adoption_truth').select('risk_tier,risk_score,active_ratio_risk,momentum_risk,snapshot_date').eq('hive_id', hiveId).order('snapshot_date', { ascending: false }).order('hive_id').limit(1),
-      db.from('v_knowledge_truth').select('source,content,created_at').eq('hive_id', hiveId).order('created_at', { ascending: false }).order('id').limit(5),
-      // Schedule items for the worker — broaden to recent + upcoming so we never say "nothing" when items exist
-      workerName ? db.from('schedule_items').select('title,start_time,end_time,category,item_status,date,worker_name').eq('worker_name', workerName).order('date', { ascending: false }).order('id').limit(30) : Promise.resolve({ data: [] }),
-      workerName ? db.from('v_worker_skill_truth').select('discipline,primary_skill,role').eq('worker_name', workerName).limit(10) : Promise.resolve({ data: [] }),
-      db.from('v_anomaly_truth').select('machine,composite_score,logbook_cluster_score,snapshot_date').eq('hive_id', hiveId).order('snapshot_date', { ascending: false }).order('id').limit(5),
-      db.from('v_project_truth').select('name,project_code,project_type,status,priority').eq('hive_id', hiveId).limit(10),
-      // Recent CLOSED logbook (so Zaniah can answer "what did we fix recently?")
-      db.from('v_logbook_truth').select('machine,category,problem,action,date,created_at,worker_name').eq('hive_id', hiveId).eq('status', 'Closed').order('created_at', { ascending: false }).order('id').limit(10),
-    ]);
-
-    const data = fetches.map((r, i) => {
-      const result = r.status === 'fulfilled' && r.value && r.value.data ? r.value.data : [];
-      if (r.status === 'rejected') {
-        console.warn('[WHVoice] Query', i, 'rejected:', r.reason);
-      }
-      return result;
-    });
-    const [kpi, risk, pm, openLogbook, inventory, assets, adoption, knowledge, schedule, skills, anomalies, projects, recentClosed] = data;
-    const logbook = openLogbook; // alias for backward compat with formatting below
-
-    console.log('[WHVoice] Snapshot context:', { hiveId, workerName }); // console-log-allow: snapshot context dump (once per session-open)
-    console.log('[WHVoice] Snapshot data counts:', { // console-log-allow: snapshot data counts (once per session-open)
-      kpi: kpi.length, risk: risk.length, pm: pm.length, openLogbook: openLogbook.length,
-      inventory: inventory.length, assets: assets.length, adoption: adoption.length,
-      knowledge: knowledge.length, schedule: schedule.length, skills: skills.length,
-      anomalies: anomalies.length, projects: projects.length, recentClosed: recentClosed.length
-    });
-
-    const parts = ['═══ FULL PLATFORM SNAPSHOT (live, scanned just now) ═══'];
-
-    // KPI summary (MTBF/MTTR averages, downtime totals)
-    if (kpi.length) {
-      const mtbfs = kpi.map(r => Number(r.mtbf_30d)).filter(n => n > 0);
-      const mttrs = kpi.map(r => Number(r.mttr_30d)).filter(n => n > 0);
-      const dts = kpi.map(r => Number(r.total_downtime_30d)).filter(n => !isNaN(n));
-      const fails = kpi.map(r => Number(r.failures_30d)).filter(n => !isNaN(n));
-      const avg = (arr) => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : 'n/a';
-      const sum = (arr) => arr.length ? arr.reduce((a,b)=>a+b,0).toFixed(1) : 'n/a';
-      parts.push(`KPIs (last 30d, ${kpi.length} machines):\n  MTBF avg=${avg(mtbfs)} days | MTTR avg=${avg(mttrs)} hours | Total downtime=${sum(dts)} hours | Failures=${sum(fails)}`);
-    }
-
-    // Equipment breakdown by criticality
-    if (assets.length) {
-      const byCrit = {};
-      assets.forEach(a => { byCrit[a.criticality || 'unknown'] = (byCrit[a.criticality || 'unknown'] || 0) + 1; });
-      const recentFails = assets.filter(a => a.last_failure_at).length;
-      parts.push(`Equipment (${assets.length} assets): ${Object.entries(byCrit).map(([s,c])=>`${c} ${s}`).join(', ')}. ${recentFails} have failure history.`);
-    }
-
-    // Top risk assets
-    if (risk.length) {
-      parts.push(`Top risk assets:\n  ` + risk.map(r => `${r.asset_name} (${r.risk_level}, score ${Number(r.risk_score).toFixed(2)}, MTBF ${r.mtbf_days || 'n/a'}d, days until failure ${r.days_until_failure || 'n/a'})`).join('\n  '));
-    }
-
-    // PM compliance — recently completed vs stale
-    if (pm.length) {
-      const stale = pm.filter(p => p.days_since_last_completion && p.days_since_last_completion > 30).length;
-      const recent = pm.filter(p => p.completions_30d && p.completions_30d > 0).length;
-      parts.push(`PM compliance: ${recent} completed in last 30d, ${stale} stale (no PM in 30+ days) of ${pm.length} tracked assets`);
-      /* T189 (2026-08-28): SKIPPED PMs ARE PART OF THE PICTURE AND THE COMPANION COULD NOT SEE THEM.
-         v_pm_compliance_truth used to count a skip as a completion, so "N completed" silently
-         included work someone had recorded as NOT done; the view now separates them, and this is
-         where the separated half has to land. Without it the companion answers "how are we doing on
-         PMs?" with a strictly rosier plant than exists — omitting the one fact a maintenance
-         supervisor most needs, since deliberately skipped work is more actionable than merely stale
-         work: somebody already decided not to do it, and the assistant would never mention it.
-         Scoped to the same bounded 20-asset sample as the line above, and stated as skips rather
-         than folded into any total, so the model cannot re-merge what the view just separated. */
-      const skipped = pm.reduce((n, p) => n + (Number(p.skips_90d) || 0), 0);
-      if (skipped > 0) {
-        const skippedAssets = pm.filter(p => Number(p.skips_90d) > 0);
-        parts.push(`  PM SKIPS: ${skipped} scope item(s) recorded as SKIPPED (not done) in the last 90d across ${skippedAssets.length} asset(s)` +
-          (skippedAssets.length ? `:\n    ` + skippedAssets.slice(0, 5).map(p => `${p.asset_name} (${p.criticality}): ${p.skips_90d} skipped`).join('\n    ') : '') +
-          `\n  A skip is recorded NON-PERFORMANCE, not a completion — never report it as work done.`);
-      }
-      if (stale > 0) {
-        parts.push(`  Stale PMs:\n    ` + pm.filter(p => p.days_since_last_completion && p.days_since_last_completion > 30).slice(0, 5).map(p => `${p.asset_name} (${p.criticality}): ${p.days_since_last_completion} days since last PM`).join('\n    '));
-      }
-    }
-
-    // OPEN logbook items — these are what Day Planner shows as "open work"
-    if (openLogbook.length) {
-      parts.push(`OPEN WORK ITEMS from logbook (${openLogbook.length} unresolved, what Day Planner shows in sidebar):\n  ` + openLogbook.slice(0, 15).map(l => `${(l.created_at || l.date || '').slice(0,10)} ${l.machine || ''} [${l.category || ''}]: ${(l.problem || l.action || '').slice(0, 80)} (by ${l.worker_name || '?'})`).join('\n  '));
-    }
-
-    // Recently CLOSED logbook
-    if (recentClosed && recentClosed.length) {
-      parts.push(`Recently CLOSED logbook (last ${recentClosed.length}):\n  ` + recentClosed.slice(0, 5).map(l => `${(l.created_at || l.date || '').slice(0,10)} ${l.machine || ''} [${l.category || ''}]: ${(l.problem || l.action || '').slice(0, 80)}`).join('\n  '));
-    }
-
-    // Inventory — low stock
-    if (inventory.length) {
-      const lowStock = inventory.filter(i => i.reorder_point && Number(i.qty_on_hand) < Number(i.reorder_point));
-      const outOfStock = inventory.filter(i => Number(i.qty_on_hand) === 0);
-      parts.push(`Inventory (${inventory.length} items): ${outOfStock.length} out of stock, ${lowStock.length} low stock${lowStock.length ? '\n  Low: ' + lowStock.slice(0,5).map(i => `${i.part_name} (${i.qty_on_hand}/${i.reorder_point})`).join(', ') : ''}`);
-    }
-
-    // Anomalies
-    if (anomalies.length) {
-      parts.push(`Active anomalies (${anomalies.length}):\n  ` + anomalies.map(a => `${a.machine}: composite score ${a.composite_score}, logbook cluster ${a.logbook_cluster_score}`).join('\n  '));
-    }
-
-    // Projects
-    if (projects.length) {
-      parts.push(`Active projects:\n  ` + projects.map(p => `${p.name} (${p.project_type || 'n/a'}) — ${p.status} [${p.priority || 'normal'}]`).join('\n  '));
-    }
-
-    // Day Planner breakdown — match the UI's TODAY / THIS WEEK / OVERDUE counters
-    const weekStart = whManilaYmd(new Date(Date.now() - 7 * 86400000));
-    const weekEnd = whManilaYmd(new Date(Date.now() + 7 * 86400000));
-    const todayItems = schedule.filter(s => s.date === today);
-    const thisWeekItems = schedule.filter(s => s.date >= weekStart && s.date <= weekEnd);
-    const overdueItems = schedule.filter(s => s.date && s.date < today && s.item_status !== 'closed' && s.item_status !== 'done');
-    const totalOpenWork = openLogbook.length;
-
-    if (schedule.length || totalOpenWork) {
-      const dpLines = [`Your Day Planner status:`];
-      dpLines.push(`  TODAY (${today}): ${todayItems.length} scheduled items`);
-      dpLines.push(`  THIS WEEK (${weekStart} to ${weekEnd}): ${thisWeekItems.length} scheduled items`);
-      dpLines.push(`  OVERDUE scheduled: ${overdueItems.length} past their date and not yet closed`);
-      dpLines.push(`  OPEN WORK from logbook (sidebar): ${totalOpenWork} unresolved items`);
-      if (todayItems.length) {
-        dpLines.push(`  Today's items:\n    ` + todayItems.map(s => `${s.start_time || ''}-${s.end_time || ''} ${s.title || ''} [${s.category || 'task'}] (${s.item_status || 'pending'})`).join('\n    '));
-      }
-      if (overdueItems.length) {
-        dpLines.push(`  Overdue items:\n    ` + overdueItems.slice(0, 5).map(s => `${s.date}: ${s.title || ''} [${s.category || 'task'}]`).join('\n    '));
-      }
-      parts.push(dpLines.join('\n'));
-    } else if (workerName) {
-      parts.push(`Your Day Planner: no schedule items found for "${workerName}". (Open Work items above may still be relevant — they're what shows in the planner sidebar.)`);
-    }
-
-    // Worker skills / role
-    if (skills.length) {
-      parts.push(`Your skills: ` + skills.map(s => `${s.discipline}${s.primary_skill ? ' (' + s.primary_skill + ')' : ''}${s.role ? ' role=' + s.role : ''}`).join(', '));
-    }
-
-    // Adoption / activity risk
-    if (adoption.length && adoption[0]) {
-      const a = adoption[0];
-      parts.push(`Hive adoption health: tier=${a.risk_tier || 'n/a'}, risk_score=${a.risk_score}, active_ratio_risk=${a.active_ratio_risk}, momentum_risk=${a.momentum_risk} (snapshot ${a.snapshot_date})`);
-    }
-
-    // Knowledge base
-    if (knowledge.length) {
-      parts.push(`Recent knowledge entries (${knowledge.length}):\n  ` + knowledge.map(k => `[${k.source}] "${(k.content || '').slice(0, 100)}..."`).join('\n  '));
-    }
-
-    return parts.length > 1 ? parts.join('\n\n') : '';
-  }
-
-  // Helper: fetch equipment status from v_asset_truth (running / idle / maintenance / down)
-  async function _fetchEquipmentStatus(db, hiveId) {
-    try {
-      // Canonical column is `status` (not `state`); PostgREST has no server-side
-      // GROUP BY in select() — fetch the column and tally client-side.
-      const { data, error } = await db.from('v_asset_truth')
-        .select('status')
-        .eq('hive_id', hiveId)
-        .not('status', 'is', null)
-        .limit(500);
-      if (error || !data || !data.length) return '';
-      const counts = {};
-      for (const r of data) {
-        const k = r.status || 'unknown';
-        counts[k] = (counts[k] || 0) + 1;
-      }
-      // Only the OPERATIONAL vocabulary is real equipment status. The canonical
-      // status enum is an approval state (approved/pending) — NOT equipment
-      // status — so stay silent unless operational telemetry is present (mirrors
-      // the platform-scraper edge fn). Avoids feeding the LLM "30 approved".
-      const OPERATIONAL = ['running', 'idle', 'maintenance', 'down'];
-      const parts = OPERATIONAL.filter(s => counts[s]).map(s => counts[s] + ' ' + s);
-      return parts.length ? 'Equipment: ' + parts.join(', ') + '.' : '';
-    } catch (_) { return ''; }
-  }
-
-  // Helper: fetch top N assets by risk score
-  async function _fetchRiskAssets(db, hiveId, limit) {
-    try {
-      const { data, error } = await db.from('v_risk_truth')
-        .select('asset_name, risk_level')
-        .eq('hive_id', hiveId)
-        .order('risk_score', { ascending: false })
-        .order('asset_name')   // MR4 tiebreaker: DISTINCT ON (hive_id, asset_name) is the view's key
-        .limit(limit);
-      if (error || !data || !data.length) return '';
-      return data.map(r => r.asset_name + ' (' + r.risk_level + ')').join(', ');
-    } catch (_) { return ''; }
-  }
-
-  // Helper: fetch PM status (due this week / overdue)
-  async function _fetchPMStatus(db, hiveId) {
-    try {
-      const dueSoon = await db.from('v_pm_scope_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_due_soon', true);
-      const overdue = await db.from('v_pm_scope_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_overdue', true);
-      /* A head:true COUNT resolves with {count:null, error}; it does not throw, so the catch below
-         never fires on a failed read. `count || 0` made a HALF-read look whole: with due=5 readable
-         and overdue unreadable, this spoke "PMs: 5 due this week." and silently dropped the overdue
-         clause — a voice answer that omits overdue PMs is the one omission that matters here. If
-         either side is unknown, say the status is incomplete rather than assert a partial one. */
-      const _ok = r => r && !r.error && r.count !== null && r.count !== undefined;
-      if (!_ok(dueSoon) || !_ok(overdue)) return 'PM status could not be read just now.';
-      const due = dueSoon.count;
-      const overdueCount = overdue.count;
-      if (due + overdueCount === 0) return '';
-      return 'PMs: ' + due + ' due this week' + (overdueCount ? ', ' + overdueCount + ' overdue' : '') + '.';
-    } catch (_) { return ''; }
-  }
-
-  // Helper: fetch inventory alerts (low stock / out of stock)
-  async function _fetchInventoryAlerts(db, hiveId) {
-    try {
-      const low = await db.from('v_inventory_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_low_stock', true);
-      const out = await db.from('v_inventory_items_truth').select('*', { count: 'exact', head: true }).eq('hive_id', hiveId).eq('is_out_of_stock', true);
-      // Same half-read trap as _fetchPMStatus above: an unreadable out-of-stock count would have
-      // been spoken as "3 low" with the out-of-stock clause silently dropped.
-      const _okc = r => r && !r.error && r.count !== null && r.count !== undefined;
-      if (!_okc(low) || !_okc(out)) return 'stock status could not be read just now';
-      const lowCount = low.count;
-      const outCount = out.count;
-      if (lowCount + outCount === 0) return '';
-      return (lowCount ? lowCount + ' low' : '') + (outCount ? (lowCount ? ' + ' : '') + outCount + ' out of stock' : '');
-    } catch (_) { return ''; }
-  }
-
-  // Helper: fetch adoption signal. v_adoption_truth models adoption as RISK
-  // (risk_tier/risk_score) — there is no active-worker count column, so the old
-  // active_workers_week/adoption_score reads always 400'd. Surface the latest tier.
-  async function _fetchAdoptionMetrics(db, hiveId) {
-    try {
-      const { data, error } = await db.from('v_adoption_truth')
-        .select('risk_tier, risk_score, snapshot_date')
-        .eq('hive_id', hiveId)
-        .order('snapshot_date', { ascending: false })
-        .order('hive_id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(1);
-      const row = Array.isArray(data) && data.length ? data[0] : null;
-      if (error || !row || !row.risk_tier) return '';
-      return 'Adoption risk: ' + row.risk_tier + '.';
-    } catch (_) { return ''; }
-  }
-
-  // Phase 1: RAG Agent — fetch semantic context from voice journal (Phase 1.5: optional semantic search)
-  async function _invokeRAGAgent(db, workerName, firstIntent, transcript) {
-    if (!db || !workerName) return '';
-    try {
-      const ctx = _ctx();
-      const auth_uid = ctx && ctx.user && ctx.user.id;
-      if (!auth_uid) return ''; // Anon users have no voice journal
-
-      // Phase 1.5: Try semantic search via edge function (falls back to recency)
-      const fetcher = (typeof window.fetchWithTimeout === 'function')
-        ? window.fetchWithTimeout
-        : (u, o) => fetch(u, o);
-
-      // Pillar R/I: send the signed-in user's JWT so the edge fn verifies identity
-      // server-side (closes the auth_uid IDOR — it ignores body.auth_uid and uses
-      // the JWT-derived uid). Falls back to the publishable key only when there is
-      // no session, in which case the edge returns an empty journal.
-      const _userTok = ((await db.auth.getSession())?.data?.session?.access_token) || SUPABASE_KEY;
-      const ragResp = await fetcher(SUPABASE_URL + '/functions/v1/voice-semantic-rag', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + _userTok,
-          'apikey': SUPABASE_KEY,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          auth_uid,
-          query_text: transcript,
-          limit: 5,
-        }),
-      }, 5000);
-
-      if (ragResp && ragResp.ok) {
-        const ragData = await ragResp.json();
-        const results = ragData.results || [];
-        const method = ragData.method || 'fallback';
-
-        if (!results.length) return '';
-
-        // Format turns for semantic context: older turns first
-        const turns = results.map((row, idx) => {
-          const ts = new Date(row.created_at).toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
-          const sim = row.similarity ? ' (match: ' + Math.round(row.similarity * 100) + '%)' : '';
-          return 'At ' + ts + sim + ':\nYou: ' + String(row.transcript || '').slice(0, 100) + '\nAssistant: ' + String(row.reply || '').slice(0, 100);
-        });
-
-        const methodLabel = method === 'semantic' ? ' (semantic match)' : ' (recent entries)';
-        return turns.length ? 'Your voice history' + methodLabel + ':\n' + turns.join('\n---\n') : '';
-      }
-    } catch (err) {
-      console.warn('[WHVoice] RAG agent failed (non-fatal):', err && err.message);
-    }
-
-    // Fallback: fetch recent turns directly from DB (Phase 1 style)
-    try {
-      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-      const { data, error } = await db.from('voice_journal_entries')
-        .select('transcript, reply, created_at')
-        .eq('worker_name', workerName)
-        .gt('created_at', since)
-        .order('created_at', { ascending: false })
-        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(5)
-        .execute();
-
-      if (error || !data || !data.length) return '';
-
-      const turns = data.reverse().map(row => {
-        const ts = new Date(row.created_at).toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });
-        return 'At ' + ts + ':\nYou: ' + String(row.transcript || '').slice(0, 100) + '\nAssistant: ' + String(row.reply || '').slice(0, 100);
-      });
-
-      return turns.length ? 'Recent context from your voice history:\n' + turns.join('\n---\n') : '';
-    } catch (_) {
-      return '';
-    }
   }
 
   // Phase 3: Error Recovery — generate intelligent fallback reply when AI is offline
@@ -6765,9 +5850,14 @@
     // sometimes invents plausible-sounding tags ("Pump P-104") that
     // don't exist in the worker's hive — destroys trust on first read.
     const hallucinationGuardAnchor =
+      // ★THE GUARD FORBADE THE SOURCES IT NEVER SAW (OWN walk, 2026-10-26): written while retrieval was dead, it allowed
+      // only CANONICAL DATA, prior turns and the utterance - so once the hive's documents, the team's knowledge-graph facts
+      // and the standards reached the prompt, the model obeyed the guard and refused them ("I don't have the grease interval",
+      // with "every 2,000 operating hours" in RAG CONTEXT three sections up). Those blocks are the hive's own record too.
       'HALLUCINATION GUARD — you may ONLY mention asset tags, part numbers, ' +
-      'machine names, KPI values, or page names that appear verbatim in CANONICAL ' +
-      'DATA above, in PRIOR TURNS WITH THIS WORKER, or in the worker\'s own ' +
+      'machine names, figures, intervals, KPI values, or page names that appear verbatim in CANONICAL ' +
+      'DATA, PLATFORM DATA, RAG CONTEXT (your hive\'s documents), KNOWLEDGE GRAPH (facts from your team\'s ' +
+      'records), INDUSTRY STANDARDS, in PRIOR TURNS WITH THIS WORKER, or in the worker\'s own ' +
       'utterance. If you want to reference something not there, say plainly ' +
       '"your records don\'t show that one — check Asset Hub" instead of inventing. ' +
       'A friendly-but-wrong tag destroys trust on first read.\n';
@@ -6782,7 +5872,9 @@
       'CITATION RULE — when your reply quotes a number, percentage, or ' +
       'date that came from CANONICAL DATA, name the source view in plain ' +
       'prose: "from v_kpi_truth", "per v_pm_compliance_truth", "the logbook ' +
-      'shows…". One short citation per reply is enough. Skip the citation ' +
+      'shows…". From a document in RAG CONTEXT, name the document ("per the Pump ' +
+      'Manual"); from the KNOWLEDGE GRAPH, say "your team\'s logbook shows…"; from ' +
+      'INDUSTRY STANDARDS, name the standard code. One short citation per reply is enough. Skip the citation ' +
       'when the reply is tone-only (no numbers).\n';
 
     // Phase 4.24 (turn #25) SHIFT CONTEXT ANCHOR — PH industrial plants
@@ -7479,20 +6571,8 @@
       return;
     }
 
-    // Phase 5: Fetch proactive alerts (KPI spikes, risk escalation, overdue PM)
-    const proactiveAlerts = await _fetchProactiveAlerts(db, ctx.hive_id).catch(() => []);
 
-    // Phase 4.31 (turn #26): Fetch repeated-issue flag for the hive.
-    // Best-effort, in parallel where possible. Surfaces machines with
-    // 3+ corrective entries in 30d so the LLM can suggest escalation.
-    const repeatedIssueFlag = await _fetchRepeatedIssueFlag(db, ctx.hive_id).catch(() => '');
 
-    // Phase 4.43 (turn #38): Skill-gap nudge.
-    // Best-effort fetch of v_worker_skill_truth. Empty string when no
-    // gap, fetch fails, or worker isn't registered. The anchor surfaces
-    // a one-line refresher offer when the LLM judges it relevant — it
-    // does NOT force the LLM to mention it on every turn.
-    const skillGapFlag = await _fetchSkillGapFlag(db, ctx.worker_name).catch(() => '');
 
     // Phase 4.32 (turn #27): Detect standards mention in the transcript
     // and emit a STANDARDS QUERY anchor so the LLM grounds on the
@@ -7512,116 +6592,19 @@
     // so the LLM sees them in the prompt alongside the static T26 + T27
     // anchors. Stays out of _buildVoiceSystemPrompt to keep that
     // function's signature small.
-    let perTurnAnchors = '';
-    if (_isActionRequest(transcript)) {
-      perTurnAnchors +=
-        '\nACTION CONFIRMATION — worker started with a write-action verb ' +
-        '(log / create / file / schedule). Do NOT execute the side effect ' +
-        'this turn. Reply with: "Confirm: <restate the action in 1 line> — ' +
-        'sabihin yes para gawin." Voice-action-router only executes after ' +
-        'an explicit yes on the NEXT turn.\n';
-    }
-    if (_isBatchAction(transcript)) {
-      perTurnAnchors +=
-        '\nBATCH ACTION — worker named multiple items in one breath (comma + ' +
-        '"and" / "at"). Parse the list, restate as a numbered batch, then ' +
-        'ask for ONE confirmation for the whole batch ("3 entries — confirm ' +
-        'all?"). Never split into multiple confirmation rounds.\n';
-    }
-    if (_isExplainRequest(transcript)) {
-      perTurnAnchors +=
-        '\nEXPLAIN PATH — worker is questioning your reasoning. Trace it: ' +
-        'name the SOURCE VIEW (e.g. v_kpi_truth), the ROW count or date ' +
-        'window the figure came from, and the most recent timestamp. ' +
-        '"MTBF is 14 days — from v_kpi_truth, 6 corrective entries between ' +
-        'May 1 and May 21." No more "the data shows" without showing which.\n';
-    }
     const mentionedCoWorker = _detectMention(transcript);
-    if (mentionedCoWorker) {
-      perTurnAnchors +=
-        '\nCO-WORKER MENTION — the worker named "' + mentionedCoWorker + '" ' +
-        'as a teammate on this task. If the conversation involves logging ' +
-        'an action, include co_worker = "' + mentionedCoWorker + '" in the ' +
-        'confirmation summary so voice-action-router tags the logbook row.\n';
-    }
-    if (_detectFatigueSignal(transcript)) {
-      perTurnAnchors +=
-        '\nFATIGUE SIGNAL — worker said something tired / frustrated. ' +
-        'Open with one short empathy line ("pagod ka na, hindi ba"), then ' +
-        'answer in ONE sentence max. If they continue venting on the next ' +
-        'turn, suggest a break or talking to their supervisor — do NOT ' +
-        'stack more technical advice on top.\n';
-    }
-    if (_isExportRequest(transcript)) {
-      perTurnAnchors +=
-        '\nEXPORT REQUEST — worker wants this session captured outside the ' +
-        'journal. Acknowledge briefly ("Sige, I\'ll prepare a summary") and ' +
-        'point to Report Sender (report-sender.html) as the surface that ' +
-        'emails transcripts. Don\'t fabricate sending it yourself.\n';
-    }
-    // T50 photo intent — offer visual-defect-capture in plain prose.
-    if (_isPhotoIntent(transcript)) {
-      perTurnAnchors +=
-        '\nPHOTO INTENT — worker wants to share a photo. Offer ONCE: ' +
-        '"open Visual Defect Capture from the logbook, snap a shot, and ' +
-        'I\'ll read it back to you". Don\'t open the page yourself; the ' +
-        'worker drives the camera, not the LLM.\n';
-    }
-    // T53 summary request — switch the LLM to summary mode.
-    if (_isSummaryRequest(transcript)) {
-      perTurnAnchors +=
-        '\nSUMMARY MODE — worker requested a recap. Produce a 4-bullet ' +
-        'summary from PRIOR TURNS WITH THIS WORKER + CANONICAL DATA: ' +
-        '(1) main topics covered, (2) decisions / confirmations, (3) ' +
-        'open items / unanswered questions, (4) suggested next step. ' +
-        'No prose intro / outro. Bullets only.\n';
-    }
     // T48 terminology resolution — async fetch + inject resolved tag.
     const resolvedAsset = await _resolveTerminology(db, ctx.hive_id, transcript).catch(() => null);
-    if (resolvedAsset) {
-      perTurnAnchors +=
-        '\nTERMINOLOGY RESOLVED — worker said a nickname that fuzzy-matched ' +
-        'to asset_tag "' + resolvedAsset.asset_tag + '" (' + (resolvedAsset.name || '') +
-        '). Treat the rest of the turn as if they said the tag explicitly. ' +
-        'If unsure, briefly confirm: "you mean ' + resolvedAsset.asset_tag + ', right?".\n';
-    }
     // T49 branch recall — if worker referenced a prior thread, surface it.
     const recalledBranch = _detectBranchRecall(transcript);
-    if (recalledBranch) {
-      perTurnAnchors +=
-        '\nBRANCH RECALL — worker wants to return to the "' + recalledBranch.label +
-        '" thread (' + Math.round((Date.now() - recalledBranch.ts) / 60000) + ' min ago). ' +
-        'Resume from that intent + slots: ' + JSON.stringify(recalledBranch.slots) + '. ' +
-        'Acknowledge the switch ("right, back to ' + recalledBranch.label + '") before answering.\n';
-    }
-    // T54 identity drift — flag if worker_name changed mid-session.
-    if (_trackIdentity(ctx.worker_name)) {
-      perTurnAnchors +=
-        '\nIDENTITY DRIFT — the worker_name on this turn differs from the ' +
-        'first turn of the session. Open with a single calm verification ' +
-        'line: "quick check — is this still ' + (ctx.worker_name || 'you') +
-        '?". Do NOT log any action this turn until they confirm.\n';
-    }
 
     // T58 Action replay — "same fix on P-205" after a confirmed action.
     const replay = _detectActionReplay(transcript);
-    if (replay) {
-      perTurnAnchors +=
-        '\nACTION REPLAY — worker wants to repeat the last confirmed action ' +
-        '("' + replay.verb + '") on a new asset: ' + replay.newAsset + '. ' +
-        'Substitute asset_tag = ' + replay.newAsset + ' into the same slot ' +
-        'shape: ' + JSON.stringify(replay.slots) + '. Confirm once before ' +
-        'voice-action-router executes.\n';
-    }
 
     // T59 Language opt-in — persist the worker's choice.
     const langChange = _detectLanguagePref(transcript);
     if (langChange) {
       _setLanguagePref(langChange);
-      perTurnAnchors +=
-        '\nLANGUAGE PREF UPDATED — worker opted into "' + langChange + '". ' +
-        'Acknowledge in one short line ("sige, ' + langChange + ' na") + reply ' +
-        'in the new language from here.\n';
     }
 
     // T60 Brevity toggle.
@@ -7634,45 +6617,11 @@
     const timerSpec = _detectTimerRequest(transcript);
     if (timerSpec) {
       const scheduled = _scheduleTimer(timerSpec);
-      if (scheduled) {
-        perTurnAnchors +=
-          '\nTIMER SCHEDULED — set a reminder in ' + Math.round(timerSpec.ms / 60000) +
-          ' minutes about "' + timerSpec.label + '". Acknowledge in one line ' +
-          '("sige, paalalahanan kita") and do NOT re-prompt for confirmation.\n';
-      }
     }
 
     // T64 Action queue — multi-step ("log entry then start PM then notify").
     const actionQueue = _parseActionQueue(transcript);
-    if (actionQueue && actionQueue.length > 1) {
-      perTurnAnchors +=
-        '\nACTION QUEUE — worker chained ' + actionQueue.length + ' steps. ' +
-        'Enumerate them ("1. ' + actionQueue.join(', 2. ').slice(0, 200) + '") ' +
-        'and confirm the FIRST step only. Voice-action-router will pick up the ' +
-        'remaining steps after each confirmation lands.\n';
-    }
 
-    // T65 PDF export — point to Report Sender, never fabricate sending.
-    if (_isPdfExportRequest(transcript)) {
-      perTurnAnchors +=
-        '\nPDF EXPORT REQUEST — worker wants this conversation saved as a PDF. ' +
-        'Do NOT pretend to generate or send anything. Tell them to tap the export ' +
-        'icon, or open Report Sender from the menu — that surface owns the PDF ' +
-        'pipeline. One short line, then stop.\n';
-    }
-
-    // T70 Daily digest — 5-line briefing format.
-    if (_isDigestRequest(transcript)) {
-      perTurnAnchors +=
-        '\nDIGEST MODE — worker asked for a shift/overnight digest. Reply as ' +
-        'exactly 5 lines:\n' +
-        '  1) Open alerts (count + top 2 with severity)\n' +
-        '  2) Closed PMs since last shift (count)\n' +
-        '  3) Overdue PMs (count + top asset_tag)\n' +
-        '  4) Watch list (assets with anomaly flag — top 2)\n' +
-        '  5) Focus item (the one thing you would do first this shift)\n' +
-        'No prose intro / outro. Numbers from PLATFORM SNAPSHOT only.\n';
-    }
 
     // T71 Push opt-in detected — request browser permission inline.
     if (_isPushOptInReply(transcript)) {
@@ -7681,242 +6630,26 @@
         // Fire the permission prompt — user-gesture window is open.
         try { _requestPushPerm(); } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
       }
-      perTurnAnchors +=
-        '\nPUSH READINESS — worker opted into alerts. Browser permission ' +
-        'state is "' + pushState + '". If granted, confirm in one line ("sige, ' +
-        'aalertan kita sa critical events"). If denied/unsupported, say plainly ' +
-        '"alerts are blocked in your browser — open site settings to enable" — ' +
-        'do NOT promise alerts you cannot deliver.\n';
     }
 
-    // T75 Toxicity guard — de-escalate, never amplify.
-    const _tox = _detectToxicLanguage(transcript);
-    if (_tox && _tox.severity >= 0.45) {
-      perTurnAnchors +=
-        '\nTOXICITY GUARD — the worker\'s turn contains hostile/abusive language ' +
-        '(severity ' + _tox.severity.toFixed(2) + '). Do NOT repeat the term, do NOT ' +
-        'match the tone, and do NOT moralise. Reply in one calm sentence: ' +
-        'acknowledge the frustration ("ok, kasi mukha talagang stressful"), then ' +
-        'offer the next concrete action. If the language is directed at a ' +
-        'colleague, point to the Shift Supervisor — never coach the worker on ' +
-        'how to talk to that person.\n';
-    }
-
-    // T76 Question shape — drives reply structure.
-    const _shape = _classifyQuestionShape(transcript);
-    if (_shape && _shape !== 'unknown') {
-      perTurnAnchors +=
-        '\nQUESTION SHAPE — this turn is "' + _shape + '". Reply structure: ' +
-        (_shape === 'data' ? 'lead with the number + unit + source view name; ONE follow-up line max.' :
-         _shape === 'how_to' ? 'numbered steps (1, 2, 3); link to the relevant page at the end.' :
-         _shape === 'opinion' ? 'state your view with confidence calibration; cite the canonical data behind it.' :
-         _shape === 'troubleshoot' ? 'lead with the most likely cause; offer to walk through the diagnostic tree.' :
-         _shape === 'social' ? 'one warm line, no data dump; ask what they\'re working on.' :
-         'plain answer.') + '\n';
-    }
-
-    // T77 Freshness disclosure — caller asks how current the data is.
-    if (_isFreshnessRequest(transcript)) {
-      perTurnAnchors +=
-        '\nFRESHNESS DISCLOSURE — worker asked how fresh the data is. Pull the ' +
-        'last_updated timestamp from PLATFORM SNAPSHOT for the relevant truth view ' +
-        'and state it plainly ("v_kpi_truth was refreshed 3 min ago"). If the ' +
-        'snapshot doesn\'t carry a freshness stamp, say so — do NOT invent.\n';
-    }
-
-    // T79 Share request — emit a shareable session link.
-    if (_isShareRequest(transcript)) {
-      const _sId = (typeof _getSessionId === 'function') ? _getSessionId() : null;
-      const _link = _buildShareLink(_sId);
-      if (_link) {
-        perTurnAnchors +=
-          '\nSHARE LINK — worker wants to forward this conversation. Quote the ' +
-          'URL exactly: ' + _link + ' — tell them to paste it in Slack/SMS. Don\'t ' +
-          'try to send it yourself; the link IS the share mechanism.\n';
-      }
-    }
-
-    // T80 Readback request — re-trigger TTS on the prior reply.
-    if (_isReadbackRequest(transcript) && _sessionTurns.length > 0) {
-      perTurnAnchors +=
-        '\nREADBACK — worker wants the prior reply spoken aloud again, not a new ' +
-        'answer. Repeat the LAST assistant turn verbatim (no rephrasing, no new ' +
-        'analysis). Voice client will route this through TTS — keep the reply ' +
-        'short so the read-back fits in their listening window.\n';
-    }
-
-    // T81 Scope query — disclose actual capabilities.
-    if (_isScopeQuery(transcript)) {
-      perTurnAnchors +=
-        '\nSCOPE DISCLOSURE — worker asked what you can do. Ground the answer in ' +
-        'the actual capability list:\n' +
-        '  • answer questions about KPIs (MTBF, MTTR, OEE) using v_*_truth views\n' +
-        '  • surface open alerts + overdue PMs\n' +
-        '  • log a journal entry / schedule a PM (if voice-execute is ON)\n' +
-        '  • point you at the right page for deeper work\n' +
-        'DO NOT invent abilities (predicting future failures, sending email, ' +
-        'doing maintenance). Be honest about the boundary.\n';
-    }
-
-    // T82 Correction handler — redo last answer with new info.
-    if (_isCorrection(transcript)) {
-      perTurnAnchors +=
-        '\nCORRECTION — worker said your last answer used wrong info. Apologise ' +
-        'in HALF a line ("ah ok"), then REDO the answer using the corrected ' +
-        'detail. Do NOT defend the prior answer; do NOT ask why. Just produce ' +
-        'the right one.\n';
-    }
-
-    // T84 Crisis escalation — extended (self-harm + workplace violence).
-    const _crisis = _detectCrisisEscalation(transcript);
-    if (_crisis && _crisis.kind) {
-      perTurnAnchors += (_crisis.kind === 'self_harm')
-        ? '\nCRISIS — self-harm signal. Drop the technical reply. One short line ' +
-          'of care, then the National Center for Mental Health crisis line: ' +
-          '1553 (PH toll-free). Then "may we connect you to your supervisor or HR?".\n'
-        : '\nCRISIS — workplace-violence signal. One short line of care, then ' +
-          '"tell Safety Officer / HR right away — would you like me to flag this ' +
-          'to your supervisor through the Alert Hub?". Do NOT advise tactics.\n';
-    }
-
-    // T182 INCIDENT GATE — actual injury / first-aid needed. Highest
-    // priority safety anchor; fires before LOTO/hot-work/confined gates.
-    if (_isIncidentReport(transcript)) {
-      perTurnAnchors +=
-        '\nINCIDENT GATE — worker is reporting an actual injury on site. Drop ' +
-        'every other reply path. One short line of care, then route: "Tap the ' +
-        'red SOS button in Alert Hub or call site Safety Officer NOW. I am ' +
-        'flagging this to your supervisor on logging." Do NOT advise first aid ' +
-        'beyond "stop the bleed / clear the area / wait for medic" basics. The ' +
-        'router will write to safety_incident_queue on confirmation.\n';
-    }
-
-    // T175 LOTO GATE — lockout-tagout mentioned. Diagnostic-work
-    // intents MUST NOT proceed until isolation is confirmed.
-    if (_detectLotoIntent(transcript)) {
-      perTurnAnchors +=
-        '\nLOTO GATE — worker mentioned lockout-tagout / isolation / ' +
-        'de-energize. Before ANY diagnostic step proceeds, confirm verbatim: ' +
-        '(1) energy source identified, (2) breaker/valve locked, (3) zero-energy ' +
-        'verified, (4) tag in place with worker name + date. Ask which energy ' +
-        'type applies, then follow that row of the energy isolation checklist ' +
-        'EXACTLY - never improvise a step:\n' +
-        Object.keys(_ENERGY_ISOLATION).map((k) => '  • ' + k + ': ' + _energyIsolationChecklist(k).join(' → ')).join('\n') +
-        '\nIf ANY step is unconfirmed, stop and ask. Never let confidence ' +
-        'override the gate.\n';
-    }
-
-    // T176 HOT WORK GATE — welding / grinding / cutting torch on
-    // plant. Requires a current hot-work permit + fire watch.
-    if (_detectHotWorkIntent(transcript)) {
-      perTurnAnchors +=
-        '\nHOT WORK GATE — worker mentioned welding / grinding / cutting / ' +
-        'brazing / paghihinang. Required before any flame touches metal: (1) ' +
-        'hot-work permit issued + still within validity window, (2) fire watch ' +
-        'assigned, (3) flammables cleared 11m radius (or fire-blanket coverage), ' +
-        '(4) PPE per the hot_work matrix (welding hood shade 10+, FR clothing, ' +
-        'leather gloves). Ask "permit number + expiry?" if not yet on the turn ' +
-        'transcript.\n';
-    }
-
-    // T177 CONFINED SPACE GATE — tank / sump / vessel entry. MUST
-    // trigger gas-test workflow (PH OSHS limits) + attendant +
-    // rescue plan. Entering without gas reading is P0.
-    if (_detectConfinedSpaceIntent(transcript)) {
-      perTurnAnchors +=
-        '\nCONFINED SPACE GATE — worker mentioned tank / sump / vessel / ' +
-        'manhole entry. Required before ANY entry: (1) 4-gas reading within ' +
-        'PH OSHS limits — O2 19.5-23.5%, LEL ≤10%, CO ≤35ppm, H2S ≤10ppm, (2) ' +
-        'attendant stationed at entry with comms, (3) rescue plan agreed + ' +
-        'retrieval line attached, (4) confined-space entry permit. Ask for ' +
-        'the gas-test reading first — do not advise on the task until the ' +
-        'numbers are confirmed in range.\n';
-    }
-
-    // T178 PPE QUERY — answer from the matrix, never improvise.
-    if (_isPpeQuery(transcript)) {
-      perTurnAnchors +=
-        '\nPPE MATRIX — worker asked what PPE to wear. Answer ONLY from the ' +
-        'authoritative matrix below — never invent. If the hazard kind is ' +
-        'unclear, ask one short clarifying question (hot work? confined space? ' +
-        'electrical? chemical? height? or general task?) before listing PPE.\n' +
-        // ★THE PROMPT SAID "ANSWER ONLY FROM THE AUTHORITATIVE MATRIX BELOW" AND THE MATRIX BELOW WAS A
-        // COPY. _PPE_MATRIX holds the six hazard rows and _ppeFor reads them - and _ppeFor was never
-        // called anywhere in the platform, because all six rows had been retyped into this string by
-        // hand. Two sources for one safety table is one source too many: correcting the matrix would
-        // leave the model still reading the transcription. Confined-space PPE in particular has to
-        // agree with the gas-test gate above it. The list is now GENERATED from the table it claims to
-        // be, so the claim is true and the function that owns it is the one that answers.
-        Object.keys(_PPE_MATRIX).map((k) => '  • ' + k + ': ' + _ppeFor(k).join(', ')).join('\n') + '\n';
-    }
-
-    // T179 NEAR-MISS CAPTURE — close call, no injury yet.
-    if (_isNearMissReport(transcript)) {
-      perTurnAnchors +=
-        '\nNEAR-MISS CAPTURE — worker described a close call (no injury). One ' +
-        'short empathy line ("naks, mabuti naiwasan mo"), then offer to log a ' +
-        'near-miss report: "want me to file this as a near-miss? safety team ' +
-        'can review the root cause." Voice-action-router writes to ' +
-        'safety_near_miss on yes. Distinct from INCIDENT GATE (actual injury).\n';
-    }
-
-    // T180 JSA OFFER — first time / never done before.
-    if (_shouldOfferJsa(transcript)) {
-      perTurnAnchors +=
-        '\nJSA OFFER — worker said this is their first time on the task. ' +
-        // ...and the same duplication, for the same reason: _buildJsaTemplate owns the four steps and
-        // was never called, because they had been retyped here. Generated from the template now, so a
-        // change to the JSA is a change to the JSA rather than to one of its two copies.
-        'Offer a 4-step JSA in one line: "let us walk through a quick JSA — ' +
-        _buildJsaTemplate('').steps.map((s) => '(' + s.step + ') ' + s.label.toLowerCase()).join(', ') +
-        '." Wait for their yes before stepping ' +
-        'through each. Adding more than 4 steps defeats the purpose.\n';
-    }
-
-    // T85 Numeric precision — sticky anchor (every turn).
-    perTurnAnchors +=
-      '\nPRECISION RULE — every KPI number you quote MUST include a unit and ' +
-      'sensible precision: percentages to 1 decimal (92.4%), times to whole ' +
-      'units (14 days, 38 min), counts as integers. Never quote a raw 92.4823. ' +
-      'No-data is "no data yet" + the source view name, not 0 or N/A.\n';
+    // ★THE PER-TURN ANCHORS ARE GONE (BRH-AP, 2026-10-27). About sixty detectors here appended an instruction for the model
+    // to perTurnAnchors, a string no request carried, so no model ever received one. The ones a reply needs are stated by
+    // voice-journal-agent from the transcript (_shared/turn-steering.ts: the safety gates, enforced in code for the
+    // life-safety six, and how to answer - recap, correction, register, dialect, shape, ...; the reply reports them as
+    // `steering`). Where a detector also DOES something on this page (a timer, a push prompt, a pin, an erasure, a buddy)
+    // that action stays. Promises nothing performs were dropped with their text: a share link voice-journal.html never
+    // opens, a "next yes" that writes a handoff / shared note / watchlist / mentor question (those writers have no caller),
+    // a consent and a voice-only mode said to be "persisted" that nothing persists, a resolution filed to a table that
+    // does not exist.
 
     // T86 Asset tag normalization — when normalizer returns a tag.
-    const _normTag = _normalizeAssetTag(transcript);
-    if (_normTag) {
-      perTurnAnchors +=
-        '\nASSET TAG NORMALIZED — the worker said this asset; canonical form is "' +
-        _normTag + '". Use this exact form (with hyphen) when querying or quoting.\n';
-    }
 
     // T87 Time range normalization — surface ISO bounds for SQL clarity.
-    const _normTime = _normalizeTimeRange(transcript);
-    if (_normTime && _normTime.start) {
-      perTurnAnchors +=
-        '\nTIME RANGE NORMALIZED — worker referenced a time window. Canonical span: ' +
-        _normTime.start + ' to ' + _normTime.end + ' (' + _normTime.days +
-        ' day' + (_normTime.days === 1 ? '' : 's') +
-        '). Use this when filtering PLATFORM SNAPSHOT data.\n';
-    }
 
     // T88 Ack-style toggle — persist + acknowledge in 1 line.
     const _ackToggle = _detectAckStyleToggle(transcript);
     if (_ackToggle) {
       _setAckStyle(_ackToggle);
-      perTurnAnchors +=
-        '\nACK STYLE — worker switched to "' + _ackToggle + '" mode. ' +
-        (_ackToggle === 'terse'
-          ? 'No "naks" / "sige" / "ah" before the data — answer cold + direct.'
-          : 'One short warm ack line ("ah ok kuya") before the data is welcome.') + '\n';
-    }
-
-    // T89 Forbidden-topic redirect.
-    const _forbidden = _detectForbiddenTopic(transcript);
-    if (_forbidden) {
-      perTurnAnchors += (_forbidden === 'competitor')
-        ? '\nFORBIDDEN — competitor name detected. Don\'t compare, don\'t comment. ' +
-          '"I focus on the work in front of you — let\'s look at your plant\'s data."\n'
-        : '\nFORBIDDEN — office-politics / chismis detected. Redirect: "let\'s stay ' +
-          'on what we can fix today — what machine or PM is on your mind?".\n';
     }
 
     // T91 Pin request.
@@ -7925,21 +6658,6 @@
       if (last && last.assistant && ctx && ctx.worker_name) {
         _pinTurn(ctx.worker_name, { text: last.assistant, intent: priorIntent || '' });
       }
-      perTurnAnchors +=
-        '\nPIN — worker pinned the prior reply. Acknowledge in one line ("sige, ' +
-        'pinned mo na") and proceed normally. The pinned list will surface again ' +
-        'at the start of their next session.\n';
-    }
-
-    // T92 Help command — short-circuit before LLM.
-    if (_isHelpCommand(transcript)) {
-      perTurnAnchors +=
-        '\nHELP — worker asked for help. Surface this exact mini-tour:\n' +
-        '  1) Ask about KPIs: "what is the MTBF for P-203"\n' +
-        '  2) Log: "log a 15-min stop on C-01"\n' +
-        '  3) Schedule: "schedule a PM for next Tuesday"\n' +
-        '  4) Get a digest: "morning summary please"\n' +
-        '  Say "what can you do" for the full list.\n';
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -7949,22 +6667,6 @@
     // ═══════════════════════════════════════════════════════════════════════
 
     // T100 SESSION TAG — "tag this as X" labels the session.
-    const _sessTag = _detectSessionTagRequest(transcript);
-    if (_sessTag) {
-      perTurnAnchors +=
-        '\nSESSION TAG — worker labelled this session "' + _sessTag + '". ' +
-        'Acknowledge in one line ("sige, tagged as ' + _sessTag + '"). ' +
-        'Future references to this session by tag are resolvable.\n';
-    }
-
-    // T102 STT MANGLED — heuristic flag for garbled transcript.
-    if (_looksGrammarMangled(transcript)) {
-      perTurnAnchors +=
-        '\nSTT MANGLED — transcript looks garbled (consonant clusters, no ' +
-        'verb). Lead with a soft "did you mean…" guess based on closest ' +
-        'asset tag / KPI in CANONICAL DATA, then offer to retry. Never log ' +
-        'an action on a mangled turn.\n';
-    }
 
     // T104 SHIFT END — within 30 min of worker's shift end.
     // empty-catch-allow: localStorage may be denied in private browsing.
@@ -7972,30 +6674,9 @@
     // a non-critical UX nudge that re-fires on the next turn anyway.
     try {
       const _shiftEnd = Number(localStorage.getItem('wh_shift_end_hour')); // storage-key-allow: T104 worker preference, set by worker profile UI (not in current source tree)
-      if (Number.isFinite(_shiftEnd) && _isNearShiftEnd(_shiftEnd, 30)) {
-        perTurnAnchors +=
-          '\nSHIFT END HORIZON — worker is within 30 min of shift end. Offer ' +
-          'handover prep in one line ("want me to draft the handover for next ' +
-          'shift?"). Do NOT start long diagnostic threads — wrap up.\n';
-      }
     } catch (_) { /* localStorage may be denied */ /* empty-catch-allow: best-effort silent swallow */ }
 
-    // T96 QUIET HOURS — non-critical alerts muted 22:00-06:00 PHT.
-    if (_isQuietHours(new Date())) {
-      perTurnAnchors +=
-        '\nQUIET HOURS — non-critical replies should stay concise. Critical / ' +
-        'safety items still surface in full; everything else gets a one-line ' +
-        'summary unless the worker explicitly asks for more.\n';
-    }
 
-    // T114 MENTOR HANDOFF — "ask Kuya Ben" / "tanungin natin si mentor".
-    if (_isMentorHandoff(transcript)) {
-      perTurnAnchors +=
-        '\nMENTOR HANDOFF — worker wants senior input. Acknowledge ("sige, ' +
-        'i-relay ko ito sa mentor queue") and route the question into ' +
-        'mentor_relay_queue. Do NOT fabricate an expert answer; defer to the ' +
-        'real mentor.\n';
-    }
 
     // T115 PII SCRUB — strip phone/email/ID markers before any persistence.
     // Calling here makes the scrubbed form available as _piiScrubbed for
@@ -8004,23 +6685,9 @@
     try {
       const _sc = _scrubPii(transcript);
       if (_sc && _sc.text) _piiScrubbed = _sc.text;
-      if (_sc && _sc.markers && _sc.markers.length > 0) {
-        perTurnAnchors +=
-          '\nPII SCRUBBED — worker turn contained ' + _sc.markers.join(', ') +
-          '. Reply MUST use the scrubbed canonical form (no raw phone / email / ' +
-          'ID). The unscrubbed transcript is dropped before audit log write.\n';
-      }
     } catch (_) { /* scrubber is best-effort */ /* empty-catch-allow: best-effort silent swallow */ }
 
     // T116 CONSENT CHANGE — explicit grant/revoke voice consent.
-    const _consent = _detectConsentChange(transcript);
-    if (_consent) {
-      perTurnAnchors +=
-        '\nCONSENT CHANGE — worker said "' + _consent + '" voice consent. ' +
-        'Acknowledge in plain language ("sige, ' + _consent + ' ka na — voice ' +
-        'logging is ' + (_consent === 'grant' ? 'on' : 'off') + '") and persist ' +
-        'to wh_voice_consent. PH Data Privacy Act.\n';
-    }
 
     // T118 ERASURE — the confirmed yes the anchor below promises. Checked BEFORE the request branch so a
     // fresh request in the same breath cannot consume its own confirmation, and cleared either way so the
@@ -8029,201 +6696,53 @@
       _erasureAwaitingYes = false;
       if (_AFFIRMATION_RE.test(String(transcript || '').trim())) {
         const _erased = await _executeErasure(_getDb(), _ctx());
-        perTurnAnchors += _erased
-          ? '\nERASURE DONE — the worker confirmed and their voice + journal history for this hive HAS ' +
-            'BEEN DELETED. Say so in one line, past tense. Do not offer to do it again.\n'
-          // never announce a deletion that did not happen - the mirror of the same rule for writes
-          : '\nERASURE FAILED — the deletion could not be completed and NOTHING was removed. Say that ' +
-            'plainly in one line and tell them to ask their supervisor to raise it.\n';
       }
     }
 
     // T118 ERASURE REQUEST — right-to-be-forgotten.
     if (_isErasureRequest(transcript)) {
       _erasureAwaitingYes = true;
-      perTurnAnchors +=
-        '\nERASURE REQUEST — worker invoked right-to-erasure. Reply in one ' +
-        'line: "I can clear your voice + journal history for this hive. ' +
-        'Confirm with yes — this cannot be undone." The scoped DELETE runs ' +
-        'on the next confirmed yes; an audit row records the request.\n';
     }
 
     // T120 SUSPICIOUS ACTIVITY — per-worker pattern check.
     if (ctx && ctx.worker_name) {
       try {
         const _susp = _detectSuspiciousActivity(ctx.worker_name);
-        if (_susp && _susp.kind) {
-          perTurnAnchors +=
-            '\nSUSPICIOUS ACTIVITY — pattern "' + _susp.kind + '" detected for ' +
-            'this worker (' + (_susp.count || '?') + ' events). Stay calm + ' +
-            'helpful — do NOT accuse. If pattern persists, flag to supervisor ' +
-            'via the Alert Hub on the worker\'s next confirmed action.\n';
-        }
       } catch (_) { /* aggregate may be missing */ /* empty-catch-allow: best-effort silent swallow */ }
     }
 
     // T133 VOICE-ONLY TOGGLE — UI dim / audio-only mode.
-    const _voiceOnly = _detectVoiceOnlyToggle(transcript);
-    if (_voiceOnly) {
-      perTurnAnchors +=
-        '\nVOICE-ONLY TOGGLE — worker requested "' + _voiceOnly + '" mode. ' +
-        'Acknowledge in one short line; the UI dim + caption suppress is ' +
-        'driven by wh_voice_only_mode persisted state.\n';
-    }
 
     // T140 MEMORY PRESSURE — device under load.
     try {
       const _mem = _checkMemoryPressure();
-      if (_mem && _mem.level === 'high') {
-        perTurnAnchors +=
-          '\nMEMORY PRESSURE — device is under high memory load. Keep replies ' +
-          'concise and skip long RAG citations this turn. Suggest closing ' +
-          'background tabs if the next turn also degrades.\n';
-      }
     } catch (_) { /* perf API may be unavailable */ /* empty-catch-allow: best-effort silent swallow */ }
 
     // T146 HANDOFF — "send this to Kuya Ben".
-    const _handoffTo = _detectHandoffRequest(transcript);
-    if (_handoffTo) {
-      perTurnAnchors +=
-        '\nHANDOFF — worker wants to forward this turn to "' + _handoffTo + '". ' +
-        'Confirm in one line ("sige, i-pasa ko kay ' + _handoffTo + '") and the ' +
-        'next yes writes a row to companion_handoff. Do NOT auto-send; require ' +
-        'the explicit yes.\n';
-    }
 
-    // T147 SHARED NOTE — broadcast to team thread.
-    if (_isSharedNoteRequest(transcript)) {
-      perTurnAnchors +=
-        '\nSHARED NOTE — worker wants to post this to the team thread. ' +
-        'Confirm in one line; on yes, write to shared_voice_notes. The note ' +
-        'surfaces on the Hive page for everyone in the hive.\n';
-    }
 
     // T149 WATCHLIST — subscribe to asset notifications.
-    const _watchTag = _detectWatchRequest(transcript);
-    if (_watchTag) {
-      perTurnAnchors +=
-        '\nWATCHLIST — worker wants notifications on "' + _watchTag + '". ' +
-        'Acknowledge ("sige, aalertan kita pag may kilos sa ' + _watchTag +
-        '") and upsert to asset_watchlist on the next confirmed yes.\n';
-    }
 
-    // T151 RESOLUTION — fault fixed; offer to capture the fix.
-    if (_detectResolution(transcript)) {
-      perTurnAnchors +=
-        '\nRESOLUTION CAPTURE — worker reported the fault is fixed ("ayos na ' +
-        '/ gumana na / fixed it"). Acknowledge briefly, then offer: "want me ' +
-        'to log the fix to fault_knowledge so the next worker can find it?". ' +
-        'On yes, write the resolution to fault_knowledge_base. This is how ' +
-        'tribal knowledge becomes searchable.\n';
-    }
-
-    // T204 ENERGY QUERY — surface sustainability KPIs.
-    if (_isEnergyQuery(transcript)) {
-      perTurnAnchors +=
-        '\nENERGY QUERY — worker asked about energy / kWh / carbon / ' +
-        'compressed-air / motor-efficiency. Pull from PLATFORM SNAPSHOT ' +
-        'energy block. Quote EnPI (ISO 50001) with unit, compare to baseline, ' +
-        'and if a leak/standby waste is detected, name the asset. PH grid ' +
-        'factor 0.717 kgCO2e/kWh.\n';
-    }
-
-    // T207 TAGALOG IMPERATIVE — direct command form ("i-X mo").
-    if (_isTagalogImperative(transcript)) {
-      perTurnAnchors +=
-        '\nTAGALOG IMPERATIVE — worker used a direct command ("i-X mo / ' +
-        'pakisuyo"). Reply in Tagalog/Taglish, not pure English. Match the ' +
-        'register: imperative form deserves an active-voice answer, not a ' +
-        'passive English explainer.\n';
-    }
-
-    // T209 POLITENESS REGISTER — formal "po/ho" vs casual "tol/pre".
-    const _register = _classifyPolitenessRegister(transcript);
-    if (_register && _register !== 'unknown') {
-      perTurnAnchors +=
-        '\nPOLITENESS REGISTER — worker is "' + _register + '". ' +
-        (_register === 'formal'
-          ? 'Use "po/ho" forms. No slang. Address as "sir/maam" or family role (kuya/ate).'
-          : _register === 'casual'
-            ? 'Drop honorifics, match the tol/pre/bro energy, no "po".'
-            : 'Mixed — start neutral, follow the worker\'s next turn lead.') + '\n';
-    }
 
     // T153 BUDDY SET — "buddy up with Juan" / "kasama ko sa shift si Romeo".
     // Persist on the spot so the buddy is queryable from the next turn.
     const _buddyName = _detectBuddySet(transcript);
     if (_buddyName && ctx && ctx.worker_name) {
       try { _setBuddy(ctx.worker_name, _buddyName); } catch (_) { /* best-effort */ /* empty-catch-allow: best-effort silent swallow */ }
-      perTurnAnchors +=
-        '\nBUDDY SET — worker paired with "' + _buddyName + '" for this shift. ' +
-        'Acknowledge in one line ("sige, kasama mo ngayon si ' + _buddyName +
-        '"). Future logbook entries / handoffs may auto-include the buddy.\n';
-    }
-
-    // T205 / T206 DIALECT NOTE — extends T59 LANGUAGE PREF with
-    // implicit dialect detection. Fires when ≥2 Cebuano or Ilonggo
-    // markers appear, even without an explicit "switch to" request.
-    const _ceb = _isCebuanoLeaning(transcript);
-    const _ilo = _isIlonggoLeaning(transcript);
-    if (_ceb || _ilo) {
-      perTurnAnchors +=
-        '\nDIALECT NOTE — worker is leaning ' + (_ceb ? 'Cebuano (Bisaya)' : 'Ilonggo (Hiligaynon)') +
-        ' based on dialect markers (unsa/asa/kinsa for Cebuano, gid/bala/manami for Ilonggo). ' +
-        'Reply in matching dialect-leaning Tagalog/Taglish — do NOT force pure Tagalog. If unsure, ' +
-        'keep the answer short and follow the worker\'s next turn lead.\n';
     }
 
     // ═══════════════════════════════════════════════════════════════════════
     // END PHASE A COMPREHENSIVE WIRING
     // ═══════════════════════════════════════════════════════════════════════
 
-    // FULL PLATFORM SCAN: pull everything from every truth view in parallel, hand to LLM.
-    // No routing decisions, no intent classification — the LLM gets the complete platform
-    // snapshot every turn and picks what's relevant. This eliminates "I don't have that info"
-    // for any data that exists on the platform (KPIs, PM, inventory, logbook, schedule,
-    // skills, projects, anomalies, knowledge, adoption — all in one shot).
-    const firstIntent = routerIntents && routerIntents[0];
-    const [platformSnapshot, platformData, memoryBlock, ragContext, crossHiveContext, standardsContext, filipinoGlossary, kgContext] = await Promise.all([
-      _fetchFullPlatformSnapshot(db, ctx.hive_id, ctx.worker_name).catch((err) => {
-        console.warn('[WHVoice] Platform snapshot failed:', err);
-        return '';
-      }),
-      _invokePlatformScraper(db, ctx.hive_id, ctx.worker_name).catch(() => ''),
-      _fetchRecentMemory(db, ctx.worker_name),
-      _fetchRAGContext(db, ctx.hive_id, transcript).catch(() => ''),
-      _fetchCrossHiveContext(db).catch(() => ''),  // Phase 9: Cross-hive awareness
-      _fetchStandardsContext(db, transcript).catch(() => ''),  // Day 4: platform-wide standards RAG
-      _fetchFilipinoGlossary(db).catch(() => ''),  // Day 5 (L7): PH industrial phrase glossary (memoized)
-      _fetchKGContext(db, ctx.hive_id, transcript).catch(() => ''),  // Day 5 (L5): KG triples retrieval
-    ]);
-
-    // canonicalData carries the full snapshot — every truth view in one block.
-    // platformData (legacy scraper) and ragContext stay separate for now.
-    // Turn #26 + #27 anchors are appended here so the prompt builder
-    // doesn't need a signature change.
-    // ★THE CANONICAL-DATA PATH WAS BUILT, GUARDED BY ITS OWN VALIDATOR, AND NEVER CALLED. When a worker
-    // asks "what's our MTBF this month", `_classifyDataIntent` names the question and
-    // `_fetchCanonicalData` answers it from v_kpi_truth / v_risk_truth - the same views the analytics
-    // page reads - in one sub-second query, with the source view and the snapshot time attached. Neither
-    // function had a call site anywhere in the platform: the only text reaching the model was
-    // `platformSnapshot`, the LEGACY scraper this was written to supersede. The gate that certifies the
-    // wiring compared where the three functions are DEFINED, and definitions happen to sit in the right
-    // order, so it read PASS for as long as the feature has existed.
-    const _dataIntent  = _classifyDataIntent(transcript);
-    const _canonBlock  = _dataIntent ? await _fetchCanonicalData(db, ctx.hive_id, _dataIntent) : '';
-    // the canonical block goes FIRST: when the truth view and the legacy scraper disagree, the model
-    // should read the canonical number before it reads the scraped one
-    const canonicalData = (_canonBlock ? _canonBlock + '\n\n' : '') + (platformSnapshot || '') + repeatedIssueFlag + skillGapFlag + standardsQueryAnchor + perTurnAnchors;
-    if (!canonicalData && db && ctx.hive_id && ctx.worker_name) {
-      console.warn('[WHVoice] No platform snapshot returned; check DB connection or query errors');
-    }
-
-    const system = _buildVoiceSystemPrompt(persona, ctx.worker_name, hiveName, pageLabel, routingHint, memoryBlock, canonicalData, routerContext, platformData, ragContext, priorDialogState, proactiveAlerts, crossHiveContext, standardsContext, filipinoGlossary, kgContext, transcript);
-    const messages = [
-      { role: 'system', content: system },
-      { role: 'user',   content: transcript },
-    ];
+    // ★THE BROWSER BUILT A PROMPT NO SERVER READ (BRH-AO, 2026-10-27). Every turn this awaited ten reads - a full platform
+    // snapshot (14 truth views), the legacy scraper, recent memory, cross-hive alerts, a 207-term glossary, canonical KPI
+    // data, active alerts, a repeated-issue flag and a skill-gap flag - folded them and the per-turn anchors into a system
+    // prompt, and sent it as context.platform_prompt. No server code reads that field: ai-gateway builds the voice-journal
+    // prompt itself (persona, the ops snapshot from hive_kpis(), agent memory, journal recall, knowledge, procedures). So
+    // the person waited for 31 requests and a 32 KB upload before their question was even asked (measured: 1.6 s median,
+    // 3.5 s cold, tools/prove_companion_turn_cost.mjs). The reads are gone; the question goes straight to the gateway.
+    const firstIntent = routerIntents && routerIntents[0];   // the router's own label for this turn (dialog state, analytics)
 
     // ★THE MONTHLY COST CAP, ENFORCED FOR THE FIRST TIME (wired 2026-09-08). `_getMonthlyCost` and
     // `_exceededCostCap` sit under a comment stating exactly this behaviour - "when the running total
@@ -8307,6 +6826,7 @@
           if (ragAnswer && ragAnswer.length > 20 && ragData.checker_passed !== false) {
             _setStatus(personaName + ' (agentic-RAG) says:');
             _renderReplyBubble(ragAnswer, persona, _traceIdOf(ragData));
+            _renderGivenLine(_ragGivenParts(ragData));
             if (typeof window.speakPersona === 'function') {
               window.speakPersona(ragAnswer, { persona });
             }
@@ -8349,7 +6869,7 @@
       // prompt voice-handler builds (canonicalData / RAG / KG / dialog
       // state) rides along as context.platform_prompt for the agent to
       // optionally consume; the agent's own persona block + Step D
-      // domain lens still wraps everything.
+      // domain lens still wraps everything. (2026-10-27: nothing rides along any more - see BRH-AO above.)
       const fetcher = (typeof window.fetchWithTimeout === 'function')
         ? window.fetchWithTimeout
         : (u, o) => fetch(u, o);
@@ -8360,7 +6880,6 @@
         context: {
           persona:         persona,
           page:            (ctx && ctx.page) || 'voice-journal',
-          platform_prompt: system,  // rich grounding voice-handler assembled
           source:          'voice-handler',
         },
       };
@@ -8480,6 +6999,7 @@
 
       _setStatus(personaName + ' says:');
       _renderReplyBubble(answer, persona, _gwTraceId);
+      _renderGivenLine(_gatewayGivenParts(data && data.grounded_on));
       const ttsStartMs = Date.now();
       if (typeof window.speakPersona === 'function') {
         window.speakPersona(answer, { persona });
@@ -8511,12 +7031,10 @@
       _storeTurn(db, ctx.hive_id, ctx.worker_name, transcript, answer, newIntentKind, newConfidence, 0);
       // Phase 4: Update dialog state with new intent + context (enable multi-turn slot carryover)
       _updateDialogState(db, ctx.hive_id, sessionId, newIntentKind, newConfidence, {}, false, null);
-      // Phase 6: Cache snapshot for offline resilience
-      _cacheOfflineSnapshot(db, ctx.hive_id, canonicalData);
       // Phase 7: Log TTS metrics (latency + success)
       _logTTSMetrics(db, ctx.hive_id, ttsLatencyMs, null, persona);
       // Phase 8: Capture conversation analytics
-      _captureAnalytics(db, sessionId, _turnNum, newIntentKind || 'unknown', 1, newConfidence);
+      _captureAnalytics(db, sessionId, _turnNum, newIntentKind || 'unknown', 1, newConfidence, ctx.hive_id);
       // Phase 10: Update avatar state (response generated, neutral emotion by default)
       _updateAvatarState(db, sessionId, 'responding', 'helpful');
       _showTalkAgainButton();
@@ -8544,12 +7062,10 @@
       // doesn't get lost. Not when the gateway already kept it (an identified caller past its persist-first
       // write): a second row is the double-write [journal-single-write] exists to prevent.
       if (!_gwServerKept) _saveJournalTurn(db, ctx, transcript, fallbackReply, persona);
-      // Phase 6: Cache snapshot even on failure
-      _cacheOfflineSnapshot(db, ctx.hive_id, canonicalData);
       // Phase 7: Log TTS metrics with error marker
       _logTTSMetrics(db, ctx.hive_id, ttsLatencyMs, String(err && err.message || 'Unknown error'), persona);
       // Phase 8: Capture analytics (quality=-1 for failed responses)
-      _captureAnalytics(db, sessionId, _turnNum, 'fallback', -1, 0);
+      _captureAnalytics(db, sessionId, _turnNum, 'fallback', -1, 0, ctx.hive_id);
       // Phase 10: Update avatar state (fallback state)
       _updateAvatarState(db, sessionId, 'offline', 'concerned');
       _showTalkAgainButton();
@@ -8558,6 +7074,56 @@
 
   // traceId: the answering call's id when this bubble IS that call's answer (gateway / agentic-RAG); omitted for
   // every locally composed line (cache replay, greeting, clarification, reminder, offline fallback), which no call made.
+  // ★WHAT THE ANSWER WAS GIVEN, SAID UNDER IT (OWN AI failure-mode lens, provenance, 2026-10-26). The companion's prompt
+  // now carries retrieved items - the team's extracted facts (each tagged with the logbook entry it came from), the hive's
+  // documents and the industry standards - and the reply said nothing about them. This line names what the SERVER says it
+  // put in the prompt (ai-gateway's grounded_on; agentic-rag-loop's citations / periods), so it can never claim a source
+  // the model was not given - and it says "given", never "used".
+  function _gatewayGivenParts(g) {
+    if (!g || typeof g !== 'object') return [];
+    const list = (a) => (Array.isArray(a) ? a.map((x) => String(x || '').slice(0, 60)).filter(Boolean) : []);
+    const recs = list(g.records), docs = list(g.documents), stds = list(g.standards);
+    const parts = [];
+    if (recs.length) parts.push(recs.length + (recs.length === 1 ? ' team record' : ' team records') + ' (logbook ' + recs.slice(0, 3).join(', ') + (recs.length > 3 ? ', …' : '') + ')');
+    if (docs.length) parts.push(docs.length + (docs.length === 1 ? ' document' : ' documents') + ' (' + docs.slice(0, 2).join(', ') + (docs.length > 2 ? ', …' : '') + ')');
+    if (stds.length) parts.push(stds.length + (stds.length === 1 ? ' standard' : ' standards') + ' (' + stds.slice(0, 2).join(', ') + (stds.length > 2 ? ', …' : '') + ')');
+    return parts;
+  }
+  // The long-horizon path (agentic-rag-loop) answers from its own retrieval: its citations are the chunk ids it used
+  // (log#, voice#, def#, hier#/cold#, stats#), and a delegated temporal answer carries the periods it summarised.
+  function _ragGivenParts(d) {
+    if (!d || typeof d !== 'object') return [];
+    if (d.delegated && Array.isArray(d.per_period) && d.per_period.length) {
+      const labels = d.per_period.map((p) => p && p.period).filter(Boolean);
+      const n = d.per_period.length;
+      return [n + (n === 1 ? ' period summary' : ' period summaries') + (labels.length ? ' (' + labels[0] + (labels.length > 1 ? ' to ' + labels[labels.length - 1] : '') + ')' : '')];
+    }
+    const ids = (Array.isArray(d.citations) ? d.citations : []).map((c) => String((c && (c.chunk_id || c.id)) || '')).filter(Boolean);
+    const count = (pfx) => ids.filter((i) => pfx.some((p) => i.indexOf(p + '#') === 0)).length;
+    const parts = [];
+    const recs = count(['log']), jr = count(['voice']), sums = count(['hier', 'cold']), defs = count(['def']), stats = count(['stats']);
+    if (recs) parts.push(recs + (recs === 1 ? ' team record' : ' team records'));
+    if (jr) parts.push(jr + (jr === 1 ? ' entry from your journal' : ' entries from your journal'));
+    if (sums) parts.push(sums + (sums === 1 ? ' period summary' : ' period summaries'));
+    if (defs) parts.push(defs + (defs === 1 ? ' metric definition' : ' metric definitions'));
+    if (stats) parts.push('the fleet figures');
+    return parts;
+  }
+  function _renderGivenLine(parts) {
+    try {
+      const bubble = document.querySelector('#wh-voice-intents .wh-voice-bubble');
+      if (!bubble) return;
+      const old = bubble.parentNode && bubble.parentNode.querySelector('.wh-voice-grounding');
+      if (old) old.remove();
+      if (!parts || !parts.length) return;
+      const p = document.createElement('p');
+      p.className = 'wh-voice-grounding';
+      p.style.cssText = 'margin:6px 0 0 36px;font-size:0.75rem;line-height:1.4;color:var(--wh-steel-bright, #c3cad3);';
+      p.textContent = 'Given with this answer: ' + parts.join(' · ') + '.';
+      bubble.insertAdjacentElement('afterend', p);
+    } catch (_) { /* empty-catch-allow: the line is context, never a blocker for the reply */ }
+  }
+
   function _renderReplyBubble(text, persona, traceId) {
     const slot = document.getElementById('wh-voice-intents');
     if (!slot) return;

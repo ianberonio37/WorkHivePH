@@ -13,7 +13,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=optional" rel="stylesheet" />
   <script src="browser-floor.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+  <!-- async (OWN dependency lens, 2026-10-26): sync in <head>, a slow CDN held the WHOLE page unrendered; the chart has its own
+       fallback table and redraws when the library lands -->
+  <script async src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
@@ -631,6 +633,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
 </div>
 
 <script src="utils.js"></script>
+<script>whWatchLibrary('https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js', 'Chart', 'The skills chart library');</script>
 <script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whReadError whRequireOnline whSourcesSync whStartupHive whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
@@ -1442,9 +1445,16 @@ function renderRadarChart() {
       }
     });
     document.getElementById('chart-fallback').style.display = 'none';
+    document.getElementById('radar-canvas').style.display = '';   // a draw after a fallback must show the canvas again
   } catch(e) {
     // Chart.js CDN failed: show fallback table
     console.warn('Chart.js unavailable:', e);
+    // Chart.js is deferred now (a slow CDN no longer holds the whole page), so the profile can arrive first: if the
+    // library is still on its way, the table stands in until it lands and the radar is drawn then
+    if (typeof Chart === 'undefined' && !renderRadarChart._waiting) {
+      const lib = document.querySelector('script[src*="chart.js@"]');
+      if (lib) { renderRadarChart._waiting = true; lib.addEventListener('load', () => { renderRadarChart._waiting = false; renderRadarChart(); }, { once: true }); }
+    }
     document.getElementById('radar-canvas').style.display = 'none';
     document.getElementById('chart-fallback').style.display = 'block';
     const tbody = document.getElementById('fallback-table');

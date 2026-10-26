@@ -2874,7 +2874,7 @@
         .eq('asset_id', nodeId)
         .order('recorded_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(500);   // cap-ok (LB1): its largest group (asset_id, hive_id) is far under 500 - sized live by list-caps-say-more
+        .limit(500);   // more-said: by loadDetailTelemetry (a full 500 counts the window and says "latest 500 of N readings" - an asset logging 3 parameters every 15 min passes 500 in under 2 days, so cap-ok was false; 4,284 measured 2026-10-26)
 
       if (error) {
         // PGRST205 = view not yet present (migration not applied) - silently hide.

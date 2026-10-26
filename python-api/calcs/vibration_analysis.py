@@ -1,8 +1,9 @@
 """
 Vibration Analysis - Phase 9a
-Standards: ISO 10816-3 (Vibration severity - industrial machines),
-           ISO 10816-1 (General guidelines),
+Standards: ISO 10816-1 Annex B (machine classes I-IV and their severity zones, ex ISO 2372),
            ISO 20816-1:2016 (supersedes 10816-1),
+           ISO 20816-3:2022 (formerly ISO 10816-3; groups machines above 15 kW by Group 1/2 and
+           foundation with its OWN limits - not the class table below, which it never contained),
            ANSI S2.19 (Mechanical vibration),
            Rao's Mechanical Vibrations (6th Ed.) - theory
 Libraries: math (all formulas closed-form)
@@ -20,7 +21,7 @@ Methods:
 
 import math
 
-# ─── ISO 10816-3 machine classes ──────────────────────────────────────────────
+# ─── ISO 10816-1 (Annex B) machine classes ──────────────────────────────────────────────
 # Class I: small machines ≤ 15 kW
 # Class II: medium machines 15–75 kW, or to 300 kW on rigid foundation
 # Class III: large machines > 300 kW on rigid foundation
@@ -52,7 +53,7 @@ ISO10816_ZONES: dict[str, dict] = {
     },
 }
 
-# ─── ISO 10816-3 evaluation zones ────────────────────────────────────────────
+# ─── ISO 10816-1 class evaluation zones ────────────────────────────────────────────
 def _iso_zone(v_rms_mm_s: float, machine_class: str) -> str:
     zones = ISO10816_ZONES.get(machine_class, ISO10816_ZONES["Class II (15–300 kW, rigid foundation)"])
     if v_rms_mm_s <= zones["A_mm_s"]:  return "Zone A - New machine (acceptable)"
@@ -253,5 +254,5 @@ def calculate(inputs: dict) -> dict:
             "machine_class":   machine_class,
         },
         "calculation_source": "python/math",
-        "standard": "ISO 10816-3 | ISO 20816-1 | ISO 21940-11 | ANSI S2.19 | Rao Mechanical Vibrations 6th Ed.",
+        "standard": "ISO 10816-1 (class zones) | ISO 20816-1 | ISO 21940-11 | ANSI S2.19 | Rao Mechanical Vibrations 6th Ed.",
     }

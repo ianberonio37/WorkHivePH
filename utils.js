@@ -75,6 +75,9 @@
   };
   try {
     window.addEventListener('error', function (e) {
+      // The browser's "ResizeObserver loop completed with undelivered notifications" carries no error object: it says a
+      // resize callback's layout change was delivered next frame, not that a script failed (walked on assistant, 2026-10-26).
+      if (e && !e.error && /^ResizeObserver loop/.test(String(e.message || ''))) return;
       window.whLogError('uncaught-error', (e && (e.error || e.message)) || e);
     });
     window.addEventListener('unhandledrejection', function (e) {
@@ -140,6 +143,95 @@ function whTold(kind, sentence, err) {
 }
 if (typeof window !== 'undefined') window.whTold = whTold;
 var _whToldRecent = null;
+
+// ★A SERVICE WE DEPEND ON FAILED UNDER THE PAGE (OWN dependency lens, 2026-10-26). The calculation service on Render, the
+// map tiles, the breach-check API, a library CDN: each page now falls back and says so, and this records it for the
+// founder as context 'dependency:<host>:<kind>' (kind: down | slow | quota or 429 | changed API), grouped on the operator
+// console. Same shape as whTold - the hive only, identity bound by the database - so a visitor's report is admitted too
+// (20261026000013). `shown` is the sentence the person read, if any. One row per host+kind per load, never throws.
+var _whDepSeen = Object.create(null), _whDepPending = [], _whDepTimer = null;
+function whDependency(host, kind, detail, shown) {
+  try {
+    var ctx = ('dependency:' + String(host || '?') + ':' + String(kind || 'down')).slice(0, 80);
+    if (_whDepSeen[ctx]) return;
+    var db = window._whSupabaseClient;
+    if (!db || typeof db.from !== 'function') {
+      // a library that failed under the page is known at DOMContentLoaded, often before the page builds its client:
+      // held and sent when the client exists (<= 10 s), the way whTold holds a notice
+      if (_whDepPending.length < 10) _whDepPending.push([host, kind, detail, shown]);
+      if (!_whDepTimer) {
+        var _depTries = 0;
+        // refresh-hidden: not a refresh - at most 20 tries to hand over failures the page already met, then it stops
+        _whDepTimer = setInterval(function () {
+          _depTries++;
+          if (window._whSupabaseClient || _depTries > 20) {
+            clearInterval(_whDepTimer); _whDepTimer = null;
+            var q = _whDepPending.splice(0);
+            if (window._whSupabaseClient) q.forEach(function (x) { whDependency(x[0], x[1], x[2], x[3]); });
+          }
+        }, 500);
+      }
+      return;
+    }
+    _whDepSeen[ctx] = 1;
+    db.from('client_errors').insert({
+      context: ctx,
+      shown: shown ? String(shown).slice(0, 400) : null,
+      message: String((detail && (detail.message || detail)) || kind || '').slice(0, 2000),
+      hive_id: (typeof window.whHiveId === 'function' ? window.whHiveId() : null) || null,
+      page: (location && location.pathname) || null,
+      user_agent: (navigator && navigator.userAgent || '').slice(0, 300)
+    }).then(function () {}, function () {});
+  } catch (_) { /* empty-catch-allow: reporting a failed dependency must never itself fail the page */ }
+}
+if (typeof window !== 'undefined') window.whDependency = whDependency;
+
+// A third-party LIBRARY the page includes async (Chart.js, Mermaid, html2pdf from a CDN): the window's load event waits for
+// every async script to run or fail, so a missing global then means it did not load (refused, rate-limited, or rejected
+// by its SRI hash), and the resource timing says whether it was slow. Recorded through whDependency; the page's own guard says
+// what the person meets ("The PDF exporter could not be loaded ..."). Call it once per library.
+function whWatchLibrary(src, globalName, what) {
+  var run = function () {
+    try {
+      var host = new URL(src, location.href).host;
+      var present = String(globalName).split('.').reduce(function (o, k) { return o && o[k]; }, window);
+      var entry = (performance && performance.getEntriesByName) ? performance.getEntriesByName(src)[0] : null;
+      if (!present) {
+        // the status says which failure it was, where the CDN allows timing (jsdelivr/cdnjs send Timing-Allow-Origin):
+        // a 200 with no library means the file was refused by its SRI hash or no longer defines the global
+        var st = entry && entry.responseStatus;
+        var kind = st === 429 ? 'quota or 429' : (st >= 200 && st < 300) ? 'changed API' : 'down';
+        whDependency(host, kind, String(what) + ' did not load' + (st ? ' (HTTP ' + st + ')' : '') + ': ' + src);
+        return;
+      }
+      if (entry && entry.duration > 10000) whDependency(host, 'slow', String(what) + ' took ' + Math.round(entry.duration / 1000) + ' s to load');
+    } catch (_) { /* empty-catch-allow: watching a library must never fail the page */ }
+  };
+  if (document.readyState === 'complete') run(); else window.addEventListener('load', run, { once: true });
+}
+if (typeof window !== 'undefined') window.whWatchLibrary = whWatchLibrary;
+
+// The web font (Google Fonts, display=optional): a refused or rate-limited font file leaves the person the system font -
+// readable, no layout shift, nothing to tell them. The founder is told: the browser's own FontFaceSet reports the failed
+// load, and the font file's response status (fonts.gstatic.com sends Timing-Allow-Origin) says which failure it was.
+try {
+  if (typeof document !== 'undefined' && document.fonts && document.fonts.addEventListener) {
+    document.fonts.addEventListener('loadingerror', function (e) {
+      try {
+        var fam = (e && e.fontfaces && e.fontfaces[0] && e.fontfaces[0].family) || 'a web font';
+        var files = (performance.getEntriesByType ? performance.getEntriesByType('resource') : [])
+          .filter(function (r) { return /fonts\.gstatic\.com/.test(r.name); });
+        var bad = files.filter(function (r) { return r.responseStatus && r.responseStatus >= 400; })[0] || files[files.length - 1];
+        var st = bad && bad.responseStatus;
+        var kind = st === 429 ? 'quota or 429' : (st >= 200 && st < 300) ? 'changed API' : 'down';
+        // a refused font file leaves NO resource-timing entry in Chrome (measured 2026-10-26: a 429 showed none), so the
+        // status is often unknowable here - the record says so rather than guessing the kind
+        whDependency('fonts.gstatic.com', kind, String(fam).replace(/["']/g, '') + ' did not load'
+          + (st ? ' (HTTP ' + st + ')' : ' (its status is not visible to the page)') + '; the system font stood in');
+      } catch (_) { /* empty-catch-allow: font telemetry must never fail the page */ }
+    });
+  }
+} catch (_) { /* empty-catch-allow */ }
 
 // A page's OWN failure sentence, shown through its own showToast (every page has one, with its own signature), is
 // told too. Which toasts are failures: one the page marks as an error (class/type 'error', skillmatrix's ✗), or one whose
@@ -6847,11 +6939,14 @@ const WH_AUDIT_ACTIONS = {
   approve_listing:             { icon: '✓',  label: 'Approved listing', tone: 'pos' },
   reject_listing:              { icon: '✗',  label: 'Rejected listing', tone: 'neg' },
   moderate_listing:            { icon: '✎',  label: 'Changed listing status' },
+  unpublish_listing:           { icon: '⤺',  label: 'Unpublished listing, back to review', tone: 'neg' },
   triage_feedback:             { icon: '✎',  label: 'Triaged feedback' },
   edit_seller_messenger:       { icon: '✎',  label: 'Changed seller Messenger link' },
   edit_seller_certs:           { icon: '✎',  label: 'Updated seller certifications' },
   verify_seller_cert:          { icon: '✓',  label: 'Verified seller certification', tone: 'pos' },
   verify_seller_kyb:           { icon: '✓',  label: 'Verified seller business details', tone: 'pos' },
+  unverify_seller_cert:        { icon: '✗',  label: 'Removed seller certification badge', tone: 'neg' },
+  unverify_seller_kyb:         { icon: '✗',  label: 'Removed seller ID badge', tone: 'neg' },
   verify_topup:                { icon: '✓',  label: 'Verified credit top-up', tone: 'pos' },
   reject_topup:                { icon: '✗',  label: 'Rejected credit top-up', tone: 'neg' },
   open_dispute:                { icon: '⚠',  label: 'Opened dispute', tone: 'neg' },
@@ -7090,6 +7185,83 @@ function whAuditView(row) {
     else whToggleAria();
   }
 
+  // ── The Back stack, shared (OWN browser-Back walk, 2026-10-27) ──────────────────
+  // The T42 contract below (each open overlay holds one history entry; Back closes the top one through its own path;
+  // a close by any other means gives the entry back) lived inside whModalA11y, so only an overlay wired for the full
+  // dialog a11y bar could take part. The nav-hub panel - role="dialog", on every page, a near-full-width sheet at 390 -
+  // has its own Escape and focus handling and was never wired: measured on all twelve walked pages, Back with it open
+  // threw the person off the page. One stack, now callable by any overlay that owns its own a11y:
+  //   whBackEntryOpen(el, close)  - el is open; Back calls close()
+  //   whBackEntryClose(el)        - el closed by its own means; its entry is given back
+  //   whBackEntryLeave(el)        - el is the top entry and a link inside it is about to navigate: the entry is dropped
+  //                                 WITHOUT a give-back and the caller navigates with location.replace, so the new page
+  //                                 replaces the overlay's entry. A plain link would leave the entry behind, and Back
+  //                                 from the next page would land on it as a dead press whenever the page reloads.
+  function backEntryOpen(el, close) {
+    try {
+      window.__whModalBackStack = window.__whModalBackStack || [];
+      if (!window.__whModalBackWired) {
+        window.__whModalBackWired = true;
+        // entries owed by modals that opened while a give-back was landing (see below)
+        window.__whModalBackFlush = function () {
+          var owed = window.__whModalBackOwed | 0;
+          window.__whModalBackOwed = 0;
+          while (owed-- > 0) { try { history.pushState({ whModalBack: true }, ''); } catch (_) { /* empty-catch-allow */ } }
+        };
+        window.addEventListener('popstate', function () {
+          if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) return;   // a give-back, not a person's Back
+          var stk = window.__whModalBackStack;
+          if (stk && stk.length) {
+            var top = stk.pop();
+            try { top.close(); } catch (_) { /* empty-catch-allow: close best-effort */ }
+          }
+        });
+      }
+      // ★A MODAL THAT OPENS AS ANOTHER CLOSES TAKES OVER ITS ENTRY (2026-10-12, W4791: lesson -> exam,
+      // exam -> result, result -> lesson). The closing modal's give-back is deferred a task (deactivate), so
+      // an open in the same turn simply keeps the entry - no back, no push, nothing for Chrome to reorder.
+      // An open while a give-back is still landing pushes once it has landed (whBookkeepingTraversal).
+      if ((window.__whModalBackPending | 0) > 0) window.__whModalBackPending--;
+      else if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) window.__whModalBackOwed = (window.__whModalBackOwed | 0) + 1;
+      else history.pushState({ whModalBack: true }, '');
+      window.__whModalBackStack.push({ el: el, close: close });
+    } catch (_) { /* empty-catch-allow: history unavailable → behavior degrades to pre-contract */ }
+  }
+  function backEntryClose(el) {
+    try {
+      var stk = window.__whModalBackStack, at = -1;
+      if (stk) { for (var k = stk.length - 1; k >= 0; k--) { if (stk[k].el === el) { at = k; break; } } }
+      if (at >= 0) {
+        stk.splice(at, 1);
+        if ((window.__whModalBackOwed | 0) > 0) window.__whModalBackOwed--;   // its entry was never pushed
+        else {
+          window.__whModalBackPending = (window.__whModalBackPending | 0) + 1;
+          if (!window.__whModalBackTimer) {
+            window.__whModalBackTimer = setTimeout(function () {
+              window.__whModalBackTimer = 0;
+              var n = window.__whModalBackPending | 0;
+              window.__whModalBackPending = 0;
+              if (n > 0 && window.whBookkeepingBack) window.whBookkeepingBack(n);
+            }, 0);
+          }
+        }
+      }
+    } catch (_) { /* empty-catch-allow: history unavailable */ }
+  }
+  function backEntryLeave(el) {
+    try {
+      var stk = window.__whModalBackStack;
+      if (!stk || !stk.length || stk[stk.length - 1].el !== el) return false;
+      if ((window.__whModalBackOwed | 0) > 0 || (window.__whModalBackPending | 0) > 0) return false;   // entry not settled: plain link
+      if (!(history.state && history.state.whModalBack)) return false;
+      stk.pop();
+      return true;
+    } catch (_) { return false; }
+  }
+  window.whBackEntryOpen = backEntryOpen;
+  window.whBackEntryClose = backEntryClose;
+  window.whBackEntryLeave = backEntryLeave;
+
   window.whModalA11y = function whModalA11y(modalEl, opts) {
     if (!modalEl || modalEl.__whModalA11y) return null;   // null el or already wired
     opts = opts || {};
@@ -7187,34 +7359,7 @@ function whAuditView(row) {
       // open modal via its OWN close path (same logic as Escape); a close by any
       // other means (X, backdrop, save) consumes the entry with a suppressed back.
       // Back now dismisses the modal, and only exits the page when nothing is open.
-      try {
-        window.__whModalBackStack = window.__whModalBackStack || [];
-        if (!window.__whModalBackWired) {
-          window.__whModalBackWired = true;
-          // entries owed by modals that opened while a give-back was landing (see below)
-          window.__whModalBackFlush = function () {
-            var owed = window.__whModalBackOwed | 0;
-            window.__whModalBackOwed = 0;
-            while (owed-- > 0) { try { history.pushState({ whModalBack: true }, ''); } catch (_) { /* empty-catch-allow */ } }
-          };
-          window.addEventListener('popstate', function () {
-            if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) return;   // a give-back, not a person's Back
-            var stk = window.__whModalBackStack;
-            if (stk && stk.length) {
-              var top = stk.pop();
-              try { top.close(); } catch (_) { /* empty-catch-allow: close best-effort */ }
-            }
-          });
-        }
-        // ★A MODAL THAT OPENS AS ANOTHER CLOSES TAKES OVER ITS ENTRY (2026-10-12, W4791: lesson -> exam,
-        // exam -> result, result -> lesson). The closing modal's give-back is deferred a task (deactivate), so
-        // an open in the same turn simply keeps the entry - no back, no push, nothing for Chrome to reorder.
-        // An open while a give-back is still landing pushes once it has landed (whBookkeepingTraversal).
-        if ((window.__whModalBackPending | 0) > 0) window.__whModalBackPending--;
-        else if (window.whIsBookkeepingBack && window.whIsBookkeepingBack()) window.__whModalBackOwed = (window.__whModalBackOwed | 0) + 1;
-        else history.pushState({ whModalBack: true }, '');
-        window.__whModalBackStack.push({ el: modalEl, close: closeViaOwnPath });
-      } catch (_) { /* empty-catch-allow: history unavailable → behavior degrades to pre-contract */ }
+      backEntryOpen(modalEl, closeViaOwnPath);
       // Respect a page that already autofocused something inside the modal
       // (e.g. dayplanner focuses #m-title) — only grab focus if it's outside.
       setTimeout(function() {
@@ -7232,25 +7377,7 @@ function whAuditView(row) {
       // exits the page, not a ghost state. Entries are interchangeable, so a modal that
       // closes from under another gives one back too. The give-back waits a task: a modal
       // opening in the same turn takes the entry over instead (activate, above).
-      try {
-        var stk = window.__whModalBackStack, at = -1;
-        if (stk) { for (var k = stk.length - 1; k >= 0; k--) { if (stk[k].el === modalEl) { at = k; break; } } }
-        if (at >= 0) {
-          stk.splice(at, 1);
-          if ((window.__whModalBackOwed | 0) > 0) window.__whModalBackOwed--;   // its entry was never pushed
-          else {
-            window.__whModalBackPending = (window.__whModalBackPending | 0) + 1;
-            if (!window.__whModalBackTimer) {
-              window.__whModalBackTimer = setTimeout(function () {
-                window.__whModalBackTimer = 0;
-                var n = window.__whModalBackPending | 0;
-                window.__whModalBackPending = 0;
-                if (n > 0 && window.whBookkeepingBack) window.whBookkeepingBack(n);
-              }, 0);
-            }
-          }
-        }
-      } catch (_) { /* empty-catch-allow: history unavailable */ }
+      backEntryClose(modalEl);
       try { document.removeEventListener('keydown', onKey, true); } catch (_) { /* empty-catch-allow */ }
       try { if (lastFocus && lastFocus.focus) lastFocus.focus(); } catch (_) { /* empty-catch-allow */ }
     }

@@ -3129,7 +3129,9 @@ document.getElementById('btn-export-hive')?.addEventListener('click', async (ev)
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 2000);
-    if (typeof window.whToast === 'function') window.whToast('Your export has been downloaded.');
+    // window.whToast is defined nowhere on this platform (utils.js says so itself), so the export confirmed nothing; this
+    // page's own showToast is the one that renders (2026-10-26)
+    showToast('Your export has been downloaded.');
   } catch (e) {
     // ★A RETRY MUST BE ABLE TO SUCCEED (gate MK11). My first version hand-rolled a 403 test and fell back
     // to "please try again" for everything else - which is the exact shape this platform has already been
@@ -3155,8 +3157,9 @@ document.getElementById('btn-export-hive')?.addEventListener('click', async (ev)
       : (typeof window.whWriteError === 'function'
           ? window.whWriteError(e, _t('The export could not be built just now. Your data is still here, and nothing was lost.', 'Hindi nabuo ang export ngayon. Nandito pa ang data mo, at walang nawala.'))
           : _t('The export could not be built just now. Your data is still here, and nothing was lost.', 'Hindi nabuo ang export ngayon. Nandito pa ang data mo, at walang nawala.'));
-    if (typeof window.whToast === 'function') window.whToast(msg);
-    else if (typeof window.whConfirm === 'function') await window.whConfirm(msg, { okLabel: 'OK' });
+    // an error the supervisor must read: the dialog it always reached (whToast never existed), the toast only without one
+    if (typeof window.whConfirm === 'function') await window.whConfirm(msg, { okLabel: 'OK' });
+    else showToast(msg);
   } finally {
     btn.disabled = false;
     btn.textContent = original;

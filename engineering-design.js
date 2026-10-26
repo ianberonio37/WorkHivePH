@@ -231,7 +231,7 @@ const CALC_TYPES_UI = {
     { id: 'Heat Exchanger',        icon: '🌡️',desc: 'LMTD/NTU-ε, overall U, tube count, shell ID: TEMA / ASME Sec. VIII', available: true, subcat: 'Component Analysis' },
     // Structural & Environmental
     { id: 'Beam / Column Design',  icon: '🏗️',desc: 'Steel LRFD (AISC 360) + RC beam/column (ACI 318): NSCP 2015', available: true, subcat: 'Structural & Environmental' },
-    { id: 'Vibration Analysis',    icon: '📳', desc: 'SDOF natural freq, transmissibility, ISO 10816-3 severity zones', available: true, subcat: 'Structural & Environmental' },
+    { id: 'Vibration Analysis',    icon: '📳', desc: 'SDOF natural freq, transmissibility, ISO 10816-1 class severity zones', available: true, subcat: 'Structural & Environmental' },
     { id: 'Noise / Acoustics',     icon: '🔊', desc: 'Room SPL, barrier IL, OSHA TWA dose, NC rating: ISO 9613 / DOLE', available: true, subcat: 'Structural & Environmental' },
     // Vertical Transportation
     { id: 'Elevator Traffic Analysis', icon: '🛗', desc: 'RTT, interval, handling capacity: ASME A17.1 / EN 81', available: true, subcat: 'Vertical Transportation' },
@@ -2419,10 +2419,11 @@ const GUIDES = {
   },
 
   'Vibration Analysis': {
-    title: 'Vibration Analysis: ISO 10816-3 Severity Assessment / SDOF Dynamics',
-    subtitle: 'Computes natural frequency, transmissibility, rotating imbalance response, and ISO 10816-3 severity zone for industrial rotating machinery.',
+    title: 'Vibration Analysis: ISO 10816-1 Class Severity Assessment / SDOF Dynamics',
+    subtitle: 'Computes natural frequency, transmissibility, rotating imbalance response, and the ISO 10816-1 class severity zone for industrial rotating machinery.',
     standards: [
-      'ISO 10816-3: Mechanical vibration: Evaluation of machine vibration by measurements on non-rotating parts',
+      'ISO 10816-1 (Annex B machine classes I to IV, ex ISO 2372; superseded by ISO 20816-1:2016): Mechanical vibration: Evaluation of machine vibration by measurements on non-rotating parts',
+      'ISO 20816-3:2022 (formerly ISO 10816-3): industrial machines above 15 kW, classed by Group 1 / Group 2 and foundation, with their own zone limits',
       'ISO 20816-1:2016: Measurement and evaluation of machine vibration',
       'ISO 21940-11: Rotor balancing: Procedures and tolerances (replaces ISO 1940)',
       'ANSI S2.19: Mechanical Vibration: Balance Quality Requirements',
@@ -2442,17 +2443,17 @@ const GUIDES = {
     fields: [
       { name: 'Machine Mass (kg)', tip: 'Total mass of the rotating machine including motor, base, and any attached equipment. Used to compute natural frequency and critical damping.' },
       { name: 'Operating Speed (RPM)', tip: 'Running speed. The frequency ratio r = operating speed / natural speed determines whether the system is sub-resonant (r<1) or super-resonant (r>1).' },
-      { name: 'Machine Class (ISO 10816-3)', tip: 'Class I ≤15kW. Class II 15–300kW on rigid foundation. Class III >300kW rigid. Class IV >300kW flexible. Each class has different Zone A/B/C/D velocity thresholds.' },
+      { name: 'Machine Class (ISO 10816-1)', tip: 'Class I ≤15kW. Class II 15–300kW on rigid foundation. Class III >300kW rigid. Class IV >300kW flexible. Each class has different Zone A/B/C/D velocity thresholds. These are the ISO 10816-1 class limits; ISO 20816-3 (formerly 10816-3) groups machines above 15 kW differently and its limits differ.' },
       { name: 'Isolator Type', tip: 'Rubber mounts have high damping (ζ≈0.08–0.10), good for variable-speed machines. Steel springs have low damping (ζ≈0.01): best isolation efficiency but risk resonance at start/stop. Air springs give the lowest natural frequency.' },
       { name: 'Stiffness k (N/m)', tip: 'Combined stiffness of all isolators supporting the machine. Auto-filled when you select an isolator type. Lower stiffness → lower fn → better isolation (r further above √2).' },
-      { name: 'Measured Velocity (mm/s RMS)', tip: 'Field measurement from a vibration analyser or data collector. Enter 0 to use the calculated imbalance response instead. ISO 10816-3 zone assessment uses this value.' },
+      { name: 'Measured Velocity (mm/s RMS)', tip: 'Field measurement from a vibration analyser or data collector. Enter 0 to use the calculated imbalance response instead. The ISO 10816-1 class zone assessment uses this value.' },
       { name: 'Imbalance Mass / Eccentricity', tip: 'Used to compute theoretical vibration amplitude from rotating imbalance. Eccentricity = distance from mass centre to rotation axis. Balancing grade G = e × ω (mm/s).' },
     ],
     notes: [
-      'ISO 10816-3 Zones: A = new machine (good), B = acceptable long-term, C = short-term only (investigate), D = danger (shutdown immediately).',
+      'ISO 10816-1 class zones: A = new machine (good), B = acceptable long-term, C = short-term only (investigate), D = danger (shutdown immediately).',
       'Isolation is only effective when r > √2 ≈ 1.41 (TR < 1). Below this the isolator amplifies vibration. At r = 1 (resonance) the system is dangerous: avoid ±10% of fn.',
       'Balancing grades: G1: turbines/compressors. G2.5: fans, pumps. G6.3: general industrial motors. G40: crankshafts without own bearings.',
-      'In the Philippines, ISO 10816 vibration limits are referenced in DOLE OSHS and used by third-party machinery inspection bodies (SGS, TÜV, Bureau Veritas).',
+      'These zones are acceptance and trending guidance for the machine, not a legal limit: DOLE OSH rules address the vibration a worker is exposed to, not machine severity.',
       'For variable-speed drives (VFD), check that the natural frequency fn does not fall within the normal operating speed range: set a skip frequency band in the VFD if it does.',
     ],
   },
@@ -7722,7 +7723,7 @@ function renderInputForm(calcType) {
         <div><div class="field-label">Measured Velocity (0 = compute)</div><div class="input-group"><input aria-label="Measured Velocity" id="f-vib-measured" class="wh-input" type="number" value="0" min="0" step="0.1"/><span class="input-unit">mm/s RMS</span></div></div>
       </div>
       <div class="mb-4">
-        <div class="field-label">ISO 10816-3 Machine Class</div>
+        <div class="field-label">ISO 10816-1 Machine Class</div>
         <div class="toggle-group" id="tg-machine-class">
           <button class="toggle-btn" data-val="Class I (≤15 kW)" onclick="toggle('tg-machine-class','Class I (≤15 kW)')">Class I ≤15 kW</button>
           <button class="toggle-btn active" data-val="Class II (15–300 kW, rigid foundation)" onclick="toggle('tg-machine-class','Class II (15–300 kW, rigid foundation)')">Class II 15–300 kW</button>
@@ -7745,7 +7746,7 @@ function renderInputForm(calcType) {
         <div><div class="field-label">Eccentricity</div><div class="input-group"><input aria-label="Eccentricity" id="f-eccentricity" class="wh-input" type="number" value="5" min="0" step="0.1"/><span class="input-unit">mm</span></div></div>
       </div>
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
-        Standards: ISO 10816-3 | ISO 20816-1 | ISO 21940-11 (balancing) | ANSI S2.19
+        Standards: ISO 10816-1 (classes) | ISO 20816-1 | ISO 21940-11 (balancing) | ANSI S2.19
       </div>
     `;
     setStep(4);
@@ -10934,7 +10935,7 @@ function showReport() {
     } else if (_calcType === 'V-Belt Drive Design' && descEl) {
       descEl.textContent = 'Generates a V-belt drive schematic showing driver and driven sheaves with diameter labels, belt tangents, center distance, and belt section/number/speed/wrap angle badges per RMA IP-20 / ASME B17.1';
     } else if (_calcType === 'Vibration Analysis' && descEl) {
-      descEl.textContent = 'Generates a spring-mass-damper diagram and magnification factor vs frequency ratio chart with ISO 10816-3 vibration severity zone badge per ISO 10816-3';
+      descEl.textContent = 'Generates a spring-mass-damper diagram and magnification factor vs frequency ratio chart with the ISO 10816-1 class vibration severity zone badge';
     } else if (_calcType === 'Noise / Acoustics' && descEl) {
       descEl.textContent = 'Generates a room SPL plan showing source, propagation rings, receiver position, SPL bar chart and DOLE D.O.13 (85 dBA) and NC curve compliance badges per ISO 9613 / DOLE D.O.13';
     } else if (_calcType === 'Shaft Design' && descEl) {
@@ -18793,7 +18794,11 @@ async function _tryServerPdf(html, fileName) {
   }, 45000);
   if (!resp) throw new Error('PDF API timed out');
   if (!resp.ok) throw new Error(`PDF API ${resp.status}`);
+  // a changed answer is not a PDF: a 200 carrying JSON or an HTML error page was saved as a broken .pdf (2026-10-26)
+  const type = (resp.headers.get('content-type') || '').toLowerCase();
+  if (!type.includes('application/pdf')) throw new Error(`PDF API answered ${type || 'no content type'}, not a PDF`);
   const blob = await resp.blob();
+  if (!blob.size) throw new Error('PDF API answered an empty file');
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url; a.download = fileName; a.click();
@@ -18870,12 +18875,44 @@ async function printReport() {
 
   // Try server-side vector PDF first (weasyprint); fall back to html2pdf if
   // the API is cold-starting or unavailable.
+  // OWN dependency lens (2026-10-26): the service sleeps on Render's free tier and a cold start takes up to 45 s - the
+  // button stayed live and silent the whole time. It now locks, says it is working, says why after a few seconds, and
+  // says so when the PDF was made on this device instead; the founder sees each fallback in client_errors.
+  const btn = document.getElementById('pdf-btn');
+  const status = document.getElementById('pdf-status');
+  if (btn && btn.disabled) return;
+  const say = (text) => { if (status) { status.textContent = text; status.hidden = !text; } };
+  if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.classList.add('is-loading'); }
+  say('Preparing your PDF…');
+  const slow = setTimeout(() => say('The PDF service is waking up. This can take up to 45 seconds.'), 4000);
+  const t0 = Date.now();
   try {
     const html = _prepareReportHtml(reportEl);
     await _tryServerPdf(html, fileName);
+    say('');
+    // a slow answer that still arrived is the founder's early warning (cold starts), not the person's problem
+    const secs = Math.round((Date.now() - t0) / 1000);
+    if (secs > 10) _edDependencyFailed('pdf', new Error(`PDF API slow: answered in ${secs} s`));
   } catch (e) {
     console.warn('Server PDF unavailable, using html2pdf fallback:', e.message);
+    _edDependencyFailed('pdf', e);
+    say('The PDF service did not answer, so this PDF was made on this device. It may look slightly different.');
     _fallbackHtml2pdf(reportEl, fileName);
+  } finally {
+    clearTimeout(slow);
+    if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.classList.remove('is-loading'); }
+  }
+}
+
+/* what the founder sees: a failed call to the calculation service is logged as a dependency failure (client_errors,
+   context dependency:<host>:<kind>), grouped on the operator console - the page itself always has a fallback */
+function _edDependencyFailed(kind, err) {
+  const m = String((err && err.message) || err || '');
+  const why = /timed out|\bslow\b/i.test(m) ? 'slow' : /\b429\b/.test(m) ? 'quota or 429' : /not a PDF|empty file|no svg/i.test(m) ? 'changed API' : 'down';
+  if (typeof window.whDependency === 'function') {
+    window.whDependency('engineering-calc-api.onrender.com', why, kind + ': ' + m.slice(0, 200));
+  } else if (typeof window.whLogError === 'function') {
+    window.whLogError('dependency:engineering-calc-api.onrender.com:' + why, new Error(kind + ': ' + m.slice(0, 200)));
   }
 }
 
@@ -18908,6 +18945,8 @@ async function _callPythonDiagram(calcType, inputs, results) {
   if (!res.ok) throw new Error(`Diagram API error ${res.status}`);
   const data = await res.json();
   if (data.not_implemented) throw new Error('not_implemented');
+  // a changed answer (a renamed key, an error object) returned undefined into the renderer (2026-10-26)
+  if (typeof data.svg !== 'string' || !data.svg.includes('<svg')) throw new Error('Diagram API answered no svg');
   return data.svg;
 }
 
@@ -19083,6 +19122,7 @@ async function _runDrawing() {
     } catch (err) {
       if (err.message !== 'not_implemented') {
         console.warn('Python diagram failed, falling back to JS:', err.message);
+        _edDependencyFailed('diagram', err);
       }
       // Fall through to JS builder if Python fails
     }
@@ -19212,7 +19252,7 @@ async function _runDrawing() {
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `fn=${Number(_r.fn_Hz||0).toFixed(2)} Hz  |  v_rms=${Number(_r.V_rms_mm_s||0).toFixed(2)} mm/s  |  ${String(_r.iso_zone||'Zone A')}`,
-        { drawingNo:'MECH-VIB-SCH-001', drawingTitle:'Vibration Analysis: SDOF Response', standard:'ISO 10816-3 / ISO 20816' }));
+        { drawingNo:'MECH-VIB-SCH-001', drawingTitle:'Vibration Analysis: SDOF Response', standard:'ISO 10816-1 / ISO 20816' }));
     } else if (ct === 'Noise / Acoustics') {
       const svg = buildNoiseAcousticsSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
@@ -26568,7 +26608,7 @@ function buildVBeltDriveSVG(inputs, results) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
 }
 
-// ─── Vibration Analysis — ISO 10816-3 ────────────────────────────────────────
+// ─── Vibration Analysis — ISO 10816-1 classes ────────────────────────────────────────
 function buildVibrationSVG(inputs, results) {
   const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
   const r=results||{},inp=inputs||{};
@@ -26594,7 +26634,7 @@ function buildVibrationSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`VIBRATION ANALYSIS - fn=${fn} Hz  |  v_rms=${Vrms} mm/s  |  Zone ${zoneTail}  |  ISO 10816-3`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`VIBRATION ANALYSIS - fn=${fn} Hz  |  v_rms=${Vrms} mm/s  |  Zone ${zoneTail}  |  ISO 10816-1`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
   // Spring-mass-damper diagram
   const CX=150,CY=180;
@@ -26657,7 +26697,7 @@ function buildVibrationSVG(inputs, results) {
   p.push(_plumbT(bX+ChW/2,bY+28,`MF = ${MF}  |  T = ${T}  |  Isolation = ${isolEff}%  |  Margin ${resMgn}%`,{sz:7.5,c:CC}));
   const LY=STRIP_Y+6;
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
-  p.push(_plumbT(18,LY+10,'LEGEND: ISO 10816-3 Velocity Zones',{a:'start',sz:8,c:CC,w:'700'}));
+  p.push(_plumbT(18,LY+10,'LEGEND: ISO 10816-1 Class Velocity Zones',{a:'start',sz:8,c:CC,w:'700'}));
   [[ISO_A,'Zone A: < 2.3 mm/s (New machine)'],[ISO_B,'Zone B: 2.3–4.5 mm/s (Satisfactory)'],
    [ISO_C,'Zone C: 4.5–7.1 mm/s (Unsatisfactory)'],[ISO_D,'Zone D: > 7.1 mm/s (Danger)']].forEach(([c,lbl],i)=>{
     p.push(`<line x1="25" y1="${LY+26+i*11}" x2="40" y2="${LY+26+i*11}" stroke="${c}" stroke-width="4"/>`);
@@ -29545,7 +29585,7 @@ function renderBomTablePreview(items) {
             : isNoise
             ? `Quantities are based on the Noise / Acoustics Assessment design calculation result (ISO 9613-2, OSHA 29 CFR 1910.95, DOLE D.O. 13 Series 1998, ASHRAE 2019 Ch. 8). Engineer shall verify all quantities on-site before procurement. All noise measurement, control, and hearing protection equipment shall conform to the cited standards. Contractor shall submit material data sheets and compliance certifications for Engineer's approval prior to procurement.`
             : isVibr
-            ? `Quantities are based on the Vibration Analysis design calculation result (ISO 10816-3, ISO 2372). Engineer shall verify all quantities on-site before procurement. All vibration isolation mounts, pads, and monitoring equipment shall conform to applicable ISO and manufacturer standards. Contractor shall submit material data sheets for Engineer's approval prior to procurement.`
+            ? `Quantities are based on the Vibration Analysis design calculation result (ISO 10816-1 class zones, ex ISO 2372). Engineer shall verify all quantities on-site before procurement. All vibration isolation mounts, pads, and monitoring equipment shall conform to applicable ISO and manufacturer standards. Contractor shall submit material data sheets for Engineer's approval prior to procurement.`
             : isFluPwr
             ? `Quantities are based on the Fluid Power (Hydraulics / Pneumatics) design calculation result (ISO 4413, ISO 4414, NFPA T3.9.17). Engineer shall verify all quantities on-site before procurement. All hydraulic cylinders, pumps, valves, accumulators, and piping shall conform to applicable ISO and NFPA standards. Contractor shall submit material data sheets and pressure test certificates for Engineer's approval prior to procurement.`
             : isET
@@ -29771,7 +29811,7 @@ function renderSowDocPreview(sections) {
     : isNoiseS
     ? `Noise / Acoustics: Space type ${_lastInputs?.space_type || ''}, Lw=${_lastInputs?.source_Lw_dB||''}dB, Lp=${Number(_lastResults?.Lp_at_distance_dB||0).toFixed(1)}dB @ ${_lastInputs?.distance_m||''}m, NC-${_lastResults?.NC_limit||''} target, ISO 9613 / DOLE D.O.13`
     : isVibrS
-    ? `Vibration Analysis: ${_lastResults?.machine_class || _lastInputs?.machine_class || ''}, n=${_lastInputs?.speed_rpm || ''}rpm, fn=${Number(_lastResults?.fn_Hz||0).toFixed(2)}Hz, Severity: ${_lastResults?.iso_zone || ''}, TR=${_lastResults?.transmissibility || ''}, v_rms=${Number(_lastResults?.V_rms_mm_s||0).toFixed(2)}mm/s, ISO 10816-3`
+    ? `Vibration Analysis: ${_lastResults?.machine_class || _lastInputs?.machine_class || ''}, n=${_lastInputs?.speed_rpm || ''}rpm, fn=${Number(_lastResults?.fn_Hz||0).toFixed(2)}Hz, Severity: ${_lastResults?.iso_zone || ''}, TR=${_lastResults?.transmissibility || ''}, v_rms=${Number(_lastResults?.V_rms_mm_s||0).toFixed(2)}mm/s, ISO 10816-1 class zones`
     : isFluPwrS
     ? `Fluid Power: ${_lastInputs?.system_type || 'Hydraulic'} system, Cyl Force ${_orNA(_lastResults?.cylinder?.F_extend_kN, 1)}kN, Pump ${Number(_lastResults?.pump?.P_motor_kW||0).toFixed(2)}kW, Pressure ${_lastInputs?.system_pressure_bar || ''}bar`
     : isXFMR
@@ -29913,7 +29953,7 @@ ${isLight
   : isNoiseS
   ? `This Scope of Works is based on the Noise / Acoustics Assessment Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes and standards including DOLE Department Order No. 13 Series 1998 (Health and Safety in Construction), OSHA 29 CFR 1910.95 (Occupational Noise Exposure), ISO 9613-2 (Outdoor Sound Propagation), ISO 3745 (Sound Power: Precision Methods), IEC 61672-1 (Sound Level Meters), and ASHRAE 2019 Handbook Ch. 8. Any deviations from this scope must be approved in writing by the Engineer before execution. The Contractor shall coordinate with all affected trades to ensure a complete and compliant noise control installation.`
   : isVibrS
-  ? `This Scope of Works is based on the Vibration Analysis Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable standards including ISO 10816-3 (Mechanical Vibration: Evaluation of Machine Vibration), ISO 2372 (Vibration Severity Criteria), and ASME B31 piping code requirements for vibration in piping systems. All isolation and damping equipment shall be selected and installed per manufacturer recommendations and ISO guidelines. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  ? `This Scope of Works is based on the Vibration Analysis Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable standards including ISO 10816-1 / ISO 2372 (class vibration severity criteria), ISO 20816-3:2022 (Measurement and Evaluation of Machine Vibration, industrial machines above 15 kW; formerly ISO 10816-3), and ASME B31 piping code requirements for vibration in piping systems. All isolation and damping equipment shall be selected and installed per manufacturer recommendations and ISO guidelines. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isFluPwrS
   ? `This Scope of Works is based on the Fluid Power (Hydraulics / Pneumatics) Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable standards including ISO 4413 (Safety Requirements for Hydraulic Fluid Power Systems), ISO 4414 (Safety Requirements for Pneumatic Fluid Power Systems), NFPA T3.9.17 (Hydraulic Fluid Power: Pumps), ISO 4399 (Fluid Power: Connections and Components), and applicable DOLE OSH mechanical safety requirements. The Contractor shall coordinate with all affected trades and ensure a complete, safe, and compliant fluid power installation. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isETS
@@ -32100,7 +32140,7 @@ function renderVibrationReport(inputs, r, narrative) {
   const speedRpm   = Number(inputs.speed_rpm || 1450);
   const fopHz      = Number(r.f_op_Hz || inputs.excitation_freq_hz || 10);
   const eccentMm   = Number(inputs.eccentricity_mm || 0.1);
-  // Class-specific severity zones (ISO 10816-3 Annex)
+  // Class-specific severity zones (ISO 10816-1 Annex B; ISO 10816-3 / 20816-3 use groups, not these classes)
   const isClass1 = String(r.machine_class || inputs.machine_class || '').includes('Class I') && !String(r.machine_class || inputs.machine_class || '').includes('Class II');
   const isClass3 = String(r.machine_class || inputs.machine_class || '').includes('Class III');
   const zoneBC   = isClass1 ? 1.8 : isClass3 ? 4.5 : 2.8;
@@ -32110,7 +32150,7 @@ function renderVibrationReport(inputs, r, narrative) {
   document.getElementById('report-panel')/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.</div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a1a;padding-bottom:0.75rem;margin-bottom:1rem;">
-      <div><!-- heading-allow: standalone calc report template --><h1>VIBRATION ANALYSIS</h1><div style="font-size:0.8rem;color:#555;">ISO 10816-3 / ISO 20816-1 / ISO 21940-11 Severity Assessment</div></div>
+      <div><!-- heading-allow: standalone calc report template --><h1>VIBRATION ANALYSIS</h1><div style="font-size:0.8rem;color:#555;">ISO 10816-1 / ISO 20816-1 / ISO 21940-11 Severity Assessment</div></div>
       <div style="text-align:right;font-size:0.78rem;color:#555;"><div>Rev. ${e('0')}</div><div>Date: ${dateStr}</div></div>
     </div>
 
@@ -32118,21 +32158,22 @@ function renderVibrationReport(inputs, r, narrative) {
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th style="width:30%;">Machine Tag</th><td>${e(inputs.project_name)}</td><th style="width:25%;">Prepared by</th><td>${e(WORKER_NAME)}</td></tr>
       <tr><th>Machine Class</th><td>${escHtml(r.machine_class || inputs.machine_class || 'Class II')}</td><th>PRC License No.</th><td>${e('')}</td></tr>
-      <tr><th>Calculation Standard</th><td>ISO 10816-3 / ISO 20816-1 / ISO 21940-11</td><th>Checked by</th><td>${e('')}</td></tr>
+      <tr><th>Calculation Standard</th><td>ISO 10816-1 / ISO 20816-1 / ISO 21940-11</td><th>Checked by</th><td>${e('')}</td></tr>
       <tr><th>Date Prepared</th><td>${dateStr}</td><th>Approved by</th><td>${e('')}</td></tr>
     </table>
 
     <h2>1. Objective</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To determine the dynamic response (natural frequency, magnification factor, transmissibility, and assessed RMS velocity) of a single-degree-of-freedom (SDOF) spring-mass-damper system representing a ${escHtml(r.machine_class || 'Class II')} rotating machine of mass ${massKg} kg supported on isolators of stiffness ${stiffness} N/m with damping ratio zeta = ${dampRatio}, excited by an unbalance force at ${fopHz} Hz (operating speed ${speedRpm} RPM); and to classify the assessed vibration severity per ISO 10816-3.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To determine the dynamic response (natural frequency, magnification factor, transmissibility, and assessed RMS velocity) of a single-degree-of-freedom (SDOF) spring-mass-damper system representing a ${escHtml(r.machine_class || 'Class II')} rotating machine of mass ${massKg} kg supported on isolators of stiffness ${stiffness} N/m with damping ratio zeta = ${dampRatio}, excited by an unbalance force at ${fopHz} Hz (operating speed ${speedRpm} RPM); and to classify the assessed vibration severity by the ISO 10816-1 machine class.`)}</p>
 
     <h2>2. References</h2>
-    <p style="font-size:0.83rem;color:#333;">ISO 10816-3: Mechanical vibration - Evaluation of machine vibration by measurements on non-rotating parts (Class I-IV severity zones)<br>
+    <p style="font-size:0.83rem;color:#333;">ISO 10816-1: Mechanical vibration - Evaluation of machine vibration by measurements on non-rotating parts, general guidelines (Annex B Class I-IV severity zones; superseded by ISO 20816-1:2016)<br>
+    ISO 20816-3:2022: Measurement and evaluation of machine vibration, industrial machines above 15 kW (formerly ISO 10816-3; Group 1/2 limits, not the classes above)<br>
     ISO 20816-1: Mechanical vibration - Measurement and evaluation of machine vibration, general guidelines<br>
     ISO 21940-11: Mechanical vibration - Rotor balancing - Tolerances for rotors with rigid behavior (G-grades)<br>
     ISO 5348: Mechanical vibration and shock - Mechanical mounting of accelerometers<br>
     ISO 2372: Mechanical vibration of machines (legacy severity criteria, retained for cross-reference)<br>
     ASHRAE Applications Handbook Chapter 48: Vibration and Noise Control<br>
-    PSME Code; DOLE D.O. 13 (occupational vibration exposure limits)</p>
+    PSME Code</p>
 
     <h2>3. SDOF System Parameters</h2>
     <p style="font-size:0.83rem;color:#333;">For a single-degree-of-freedom spring-mass-damper system:</p>
@@ -32172,7 +32213,7 @@ function renderVibrationReport(inputs, r, narrative) {
     <p style="font-size:0.83rem;color:#333;">
       Peak displacement: X = (m&middot;e/M) &times; r&sup2; &times; MF = <strong>${r.X_mm} mm</strong><br>
       Peak velocity: V<sub>peak</sub> = X &times; &omega; = ${r.X_mm} &times; (2&pi; &times; ${fopHz}) = <strong>${r.V_peak_mm_s} mm/s</strong><br>
-      RMS velocity: V<sub>rms</sub> = V<sub>peak</sub> / &radic;2 = ${r.V_peak_mm_s} / &radic;2 = <strong>${r.V_rms_mm_s} mm/s</strong> &nbsp; (assessed value for ISO 10816-3)<br>
+      RMS velocity: V<sub>rms</sub> = V<sub>peak</sub> / &radic;2 = ${r.V_peak_mm_s} / &radic;2 = <strong>${r.V_rms_mm_s} mm/s</strong> &nbsp; (assessed value for the ISO 10816-1 class zones)<br>
       Transmitted force: F<sub>t</sub> = F<sub>excit</sub> &times; TR = <strong>${r.Ft_N} N</strong>
     </p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
@@ -32183,13 +32224,13 @@ function renderVibrationReport(inputs, r, narrative) {
       <tr><td>Transmitted force F<sub>t</sub></td><td class="num">${r.Ft_N} N</td></tr>
     </table>
 
-    <h2>6. ISO 10816-3 Severity Assessment</h2>
+    <h2>6. ISO 10816-1 Class Severity Assessment</h2>
     <div style="text-align:center;padding:1.5rem;border:2px solid ${zoneColor};border-radius:0.75rem;margin:1rem 0;">
       <div style="font-size:0.9rem;color:#555;">Assessed Velocity (RMS)</div>
       <div style="font-size:2rem;font-weight:800;color:#162032;">${r.v_assessed_mm_s || r.V_rms_mm_s} mm/s RMS</div>
       <div style="font-size:1rem;font-weight:700;color:${zoneColor};">${escHtml(r.iso_zone)}</div>
     </div>
-    <p style="font-size:0.83rem;color:#333;">ISO 10816-3 severity zones for <strong>${escHtml(r.machine_class || 'Class II')}</strong>:</p>
+    <p style="font-size:0.83rem;color:#333;">ISO 10816-1 class severity zones for <strong>${escHtml(r.machine_class || 'Class II')}</strong>:</p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th style="width:30%;">Zone</th><th>RMS Velocity Range</th><th>Interpretation</th></tr>
       <tr><td>Zone A</td><td class="num">not more than ${zoneBC} mm/s</td><td>New machine - acceptable</td></tr>
@@ -32206,10 +32247,10 @@ function renderVibrationReport(inputs, r, narrative) {
     </p>
 
     <h2>8. Assumptions</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Linear single-degree-of-freedom (SDOF) spring-mass-damper model with viscous damping; valid for primary rigid-body modes below the first internal natural frequency of the machine structure.\n2. Harmonic (sinusoidal) excitation at the operating speed; multiple harmonics and broadband excitation require separate analysis.\n3. Rigid foundation below the isolation system; foundation flexibility would lower the actual fn and increase MF.\n4. Constant mass, stiffness, and damping over the operating range; nonlinear isolators (rubber) may show 10 to 20 percent stiffness change with load and temperature.\n5. Eccentricity e = ${eccentMm} mm assumed for unbalance response; replace with measured runout or balancing-machine residual unbalance for actual machines.\n6. ISO 10816-3 severity zones apply to bearing-housing measurements at the machine; for cantilevered or remote sensor placement, apply correction factors per ISO 20816-1.\n7. Resonance band defined as plus/minus 10 percent of fn; designs targeting the f_op below 75 percent of fn or above 125 percent of fn typically achieve adequate isolation.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Linear single-degree-of-freedom (SDOF) spring-mass-damper model with viscous damping; valid for primary rigid-body modes below the first internal natural frequency of the machine structure.\n2. Harmonic (sinusoidal) excitation at the operating speed; multiple harmonics and broadband excitation require separate analysis.\n3. Rigid foundation below the isolation system; foundation flexibility would lower the actual fn and increase MF.\n4. Constant mass, stiffness, and damping over the operating range; nonlinear isolators (rubber) may show 10 to 20 percent stiffness change with load and temperature.\n5. Eccentricity e = ${eccentMm} mm assumed for unbalance response; replace with measured runout or balancing-machine residual unbalance for actual machines.\n6. ISO 10816-1 class zones apply to bearing-housing measurements at the machine; for cantilevered or remote sensor placement, apply correction factors per ISO 20816-1.\n7. Resonance band defined as plus/minus 10 percent of fn; designs targeting the f_op below 75 percent of fn or above 125 percent of fn typically achieve adequate isolation.`)}</p>
 
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. ${r.zone_ok ? `Vibration severity ${r.iso_zone} - machine is within acceptable operating limits per ISO 10816-3 for the stated machine class.` : `Vibration severity ${r.iso_zone} EXCEEDS acceptable limits per ISO 10816-3 - investigate root cause (unbalance, misalignment, resonance, bearing wear) and correct before continued operation.`}\n2. ${r.resonance_risk ? 'CRITICAL: operating speed is within plus/minus 10 percent of natural frequency. Change operating speed by not less than 25 percent OR change isolator stiffness to shift fn outside the resonance band before commissioning.' : `Resonance margin ${r.resonance_margin_pct} percent from fn - design clear of resonance band; no immediate concern.`}\n3. ${r.isolation_ok ? `Isolator selection is effective: TR = ${r.transmissibility} gives ${r.isolation_efficiency_pct} percent isolation. Verify deflection at rated load matches data sheet.` : 'Isolator is amplifying transmission (r below sqrt(2)). Reselect softer isolators to lower fn until r exceeds 1.414 (typically r in 2.5 to 5 range gives 85 to 95 percent isolation).'}\n4. Field-balance all rotating components to balance grade ${escHtml(r.balance_grade)} per ISO 21940-11 before commissioning. Document residual unbalance on a balancing certificate.\n5. Verify shaft alignment within plus/minus 0.05 mm TIR (angular and parallel) using laser shaft alignment kit; misalignment is the second leading cause of elevated vibration after unbalance.\n6. Capture commissioning baseline: FFT spectrum, time waveform, and ISO 10816-3 zone classification at all four bearing locations using a portable vibration analyzer. Store baseline in CMMS for monthly trending.\n7. Install permanent accelerometers per ISO 5348 (epoxy-bonded stud mount, surface flatness within 0.025 mm/m) at horizontal, vertical, and axial directions on each bearing housing. Wire to a 4 to 20 mA transmitter feeding the plant DCS/SCADA.\n8. Configure DCS alarm thresholds: alert at Zone B/C boundary (${zoneCD} mm/s), shutdown at Zone D (${zoneDmax} mm/s); enable trending to detect bearing degradation and resonance shifts over time.\n9. Schedule re-balance and alignment verification every 12 months OR after any major maintenance event (bearing replacement, coupling change, foundation grouting repair).\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the commissioning vibration baseline report before placing the machine into routine operation.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. ${r.zone_ok ? `Vibration severity ${r.iso_zone} - machine is within acceptable operating limits per ISO 10816-1 for the stated machine class.` : `Vibration severity ${r.iso_zone} EXCEEDS acceptable limits per ISO 10816-1 for the stated machine class - investigate root cause (unbalance, misalignment, resonance, bearing wear) and correct before continued operation.`}\n2. ${r.resonance_risk ? 'CRITICAL: operating speed is within plus/minus 10 percent of natural frequency. Change operating speed by not less than 25 percent OR change isolator stiffness to shift fn outside the resonance band before commissioning.' : `Resonance margin ${r.resonance_margin_pct} percent from fn - design clear of resonance band; no immediate concern.`}\n3. ${r.isolation_ok ? `Isolator selection is effective: TR = ${r.transmissibility} gives ${r.isolation_efficiency_pct} percent isolation. Verify deflection at rated load matches data sheet.` : 'Isolator is amplifying transmission (r below sqrt(2)). Reselect softer isolators to lower fn until r exceeds 1.414 (typically r in 2.5 to 5 range gives 85 to 95 percent isolation).'}\n4. Field-balance all rotating components to balance grade ${escHtml(r.balance_grade)} per ISO 21940-11 before commissioning. Document residual unbalance on a balancing certificate.\n5. Verify shaft alignment within plus/minus 0.05 mm TIR (angular and parallel) using laser shaft alignment kit; misalignment is the second leading cause of elevated vibration after unbalance.\n6. Capture commissioning baseline: FFT spectrum, time waveform, and severity zone classification (ISO 10816-1 class; ISO 20816-3 for machines above 15 kW) at all four bearing locations using a portable vibration analyzer. Store baseline in CMMS for monthly trending.\n7. Install permanent accelerometers per ISO 5348 (epoxy-bonded stud mount, surface flatness within 0.025 mm/m) at horizontal, vertical, and axial directions on each bearing housing. Wire to a 4 to 20 mA transmitter feeding the plant DCS/SCADA.\n8. Configure DCS alarm thresholds: alert at Zone B/C boundary (${zoneCD} mm/s), shutdown at Zone D (${zoneDmax} mm/s); enable trending to detect bearing degradation and resonance shifts over time.\n9. Schedule re-balance and alignment verification every 12 months OR after any major maintenance event (bearing replacement, coupling change, foundation grouting repair).\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the commissioning vibration baseline report before placing the machine into routine operation.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">

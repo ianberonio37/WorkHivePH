@@ -365,6 +365,7 @@
         <div class="sc-hero" id="inv-pending-hero">0</div>
         <div data-i="p_loading_b04b" class="sc-sub" id="inv-pending-sub">Loading...</div>
         <span class="sc-tag" id="inv-pending-tag">-</span>
+        <button type="button" id="inv-pending-show" class="hidden" onclick="invShowPending()" style="display:block;margin-top:0.5rem;min-height:44px;padding:0 0.75rem;font-size:0.8125rem;font-weight:700;border-radius:0.5rem;border:1px solid var(--wh-orange);background:transparent;color:var(--wh-orange-text, var(--wh-orange));cursor:pointer;">Show in list</button>
       </div>
     </div>
     <div class="action-card">
@@ -416,6 +417,9 @@
           <option data-i="p_lowstock_a6e1" value="low">Low stock</option>
           <option data-i="p_instock_3f13" value="ok">In stock</option>
           <option data-i="p_surplus_f7b0" value="surplus">Surplus</option>
+          <!-- 2026-10-27: the next-step box told a supervisor to 'Filter to "Pending approval"' and no such option existed, and a
+               worker's own pending part sat on page 4 of the list with a card that said REVIEW and nothing to tap. -->
+          <option value="pending">Pending approval</option>
         </select>
       </div>
     </div>
@@ -1121,12 +1125,18 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
     lowCount === 0 ? 'STOCKED' : lowCount > 5 ? 'WIDESPREAD' : 'PLAN RESTOCK',
     lowCount === 0 ? 'green' : lowCount > 5 ? 'red' : 'amber'
   );
+  // A worker's pending parts are their OWN (the hive read gives a worker approved stock plus their own rows), and a worker
+  // cannot approve: REVIEW is a supervisor's verb. The worker is told the part is waiting, and both get a way to the list.
+  const _invApprover = !HIVE_ID || HIVE_ROLE === 'supervisor';
   setCard('pending',
     String(pendingCount),
-    pendingCount === 0 ? 'Nothing awaiting supervisor sign-off' : `${pendingCount} part${pendingCount === 1 ? '' : 's'} awaiting supervisor approval`,
-    pendingCount === 0 ? 'CLEAR' : pendingCount > 5 ? 'BACKLOG' : 'REVIEW',
-    pendingCount === 0 ? 'green' : pendingCount > 5 ? 'red' : 'amber'
+    pendingCount === 0 ? 'Nothing awaiting supervisor sign-off'
+      : _invApprover ? `${pendingCount} part${pendingCount === 1 ? '' : 's'} awaiting supervisor approval`
+      : pendingCount === 1 ? 'Your part is waiting for a supervisor to approve it' : `${pendingCount} of your parts are waiting for a supervisor to approve`,
+    pendingCount === 0 ? 'CLEAR' : !_invApprover ? 'WAITING' : pendingCount > 5 ? 'BACKLOG' : 'REVIEW',
+    pendingCount === 0 ? 'green' : pendingCount > 5 && _invApprover ? 'red' : 'amber'
   );
+  { const b = document.getElementById('inv-pending-show'); if (b) b.classList.toggle('hidden', !(pendingCount > 0)); }
 
   // Verdict
   let tone, label, sub;
@@ -1171,6 +1181,7 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
       b.textContent = label; b.classList.remove('hidden'); b.setAttribute('href', opts.href || '#');
       b.onclick = opts.href ? null : (e) => { e.preventDefault();
         try { if (opts.click) { const c = document.querySelector(opts.click); if (c) c.click(); } } catch (_) { /* empty-catch-allow: bridge click is best-effort */ }
+        if (opts.status) invSetStatusFilter(opts.status);
         const t = opts.scroll && document.querySelector(opts.scroll); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     };
     /* C-AH (2026-09-11): this whole block was English-only under the Filipino heading
@@ -1210,7 +1221,7 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
     } else if (pendingCount > 5) {
       text = _t(`${pendingCount} part${pendingCount === 1 ? '' : 's'} ${pendingCount === 1 ? 'is' : 'are'} awaiting your approval. Filter to "Pending approval" and clear the backlog: Use and Restock are locked until you sign off.`,
                 `${pendingCount} part ang naghihintay ng approval mo. I-filter sa "Mga pending na part" at linisin ang backlog: naka-lock ang Use at Restock hangga't hindi ka pumipirma.`);
-      setCta(_t(`Review ${pendingCount} pending →`, `Suriin ang ${pendingCount} pending →`), { scroll: '#parts-list' });
+      setCta(_t(`Review ${pendingCount} pending →`, `Suriin ang ${pendingCount} pending →`), { scroll: '#parts-list', status: 'pending' });
     } else if (lowCount > 0) {
       // ci_domain_truth inventory CI2: lead time is stated WHERE the reorder is suggested — a person
       // deciding when to order needs to know how long delivery takes, at the moment of the decision.
@@ -1238,10 +1249,14 @@ function renderInventorySummary(items, lowCount, outCount, criticalCount) {
       text = _t(`${lowCount} part${lowCount === 1 ? '' : 's'} at or below the reorder threshold. Order them before the next shift planning so they arrive before they hit zero.${leadNote}`,
                 `${lowCount} part ang nasa o mas mababa sa reorder threshold. I-order ang mga ito bago ang susunod na shift planning para dumating bago maubos.${leadNote}`);
       setCta(_t(`Order ${lowCount} low part${lowCount === 1 ? '' : 's'} →`, `Mag-order ng ${lowCount} mababang part →`), { scroll: '#parts-list' });
+    } else if (pendingCount > 0 && !(!HIVE_ID || HIVE_ROLE === 'supervisor')) {
+      text = _t(`${pendingCount === 1 ? 'Your part is' : pendingCount + ' of your parts are'} waiting for a supervisor to approve. Until then Use and Restock stay locked on ${pendingCount === 1 ? 'it' : 'them'}; nothing else needs doing.`,
+                `${pendingCount} sa mga part mo ang naghihintay ng approval ng supervisor. Hanggang doon, naka-lock ang Use at Restock.`);
+      setCta(_t(`Show my pending part${pendingCount === 1 ? '' : 's'} →`, `Ipakita ang pending kong part →`), { scroll: '#parts-list', status: 'pending' });
     } else if (pendingCount > 0) {
       text = _t(`${pendingCount} part${pendingCount === 1 ? '' : 's'} awaiting your approval. Filter to "Pending approval" below and sign off so workers can use them.`,
                 `${pendingCount} part ang naghihintay ng approval mo. I-filter sa "Mga pending na part" sa ibaba at pumirma para magamit ito ng mga worker.`);
-      setCta(_t(`Approve ${pendingCount} pending →`, `Aprubahan ang ${pendingCount} pending →`), { scroll: '#parts-list' });
+      setCta(_t(`Approve ${pendingCount} pending →`, `Aprubahan ang ${pendingCount} pending →`), { scroll: '#parts-list', status: 'pending' });
     } else {
       text = _t('Inventory is healthy. Re-check after the next big job to confirm nothing dropped below its reorder point.',
                 'Malusog ang inventory. Suriin ulit pagkatapos ng susunod na malaking trabaho para makumpirmang walang bumaba sa reorder point nito.');
@@ -1264,6 +1279,20 @@ function _invFolded(item) {
   }
   return f;
 }
+// The pending card and the next-step button both hand off to the list with the filter applied, so the part a person is
+// told about is the part they then see - not one 8-row page of 28 in creation order (2026-10-27).
+function invSetStatusFilter(value) {
+  const sel = document.getElementById('filter-status');
+  if (!sel || ![...sel.options].some(o => o.value === value)) return;
+  sel.value = value;
+  sel.dispatchEvent(new Event('change', { bubbles: true }));
+}
+function invShowPending() {
+  invSetStatusFilter('pending');
+  const list = document.getElementById('parts-list');
+  if (list) list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function renderParts() {
   const items   = loadInventory();
   // C1 (Arc X recall->recognition): keep the Add-Part "Part Number" datalist in
@@ -1400,6 +1429,7 @@ function renderParts() {
     if (statusF === 'low' && st !== 'low')             return false;
     if (statusF === 'ok'  && st !== 'ok')              return false;
     if (statusF === 'surplus' && st !== 'surplus')     return false;
+    if (statusF === 'pending' && item.status !== 'pending') return false;
     if (!query) return true;
     // Phase 5b.2: linked_asset_ids is gone; map uuids back to display codes
     // for the search filter so the user can still match by "PMP-001" etc.

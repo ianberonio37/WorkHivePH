@@ -898,6 +898,9 @@
                   <option data-i="p_designissue_5eaa" value="Design Issue">Design Issue</option>
                   <option data-i="p_unknown_bc78" value="Unknown">Unknown</option>
                 </select>
+                <!-- BRH.10 AI: the cause in the words a voice entry gave, kept beside the listed cause the analytics group by -->
+                <input type="hidden" id="f-root-cause-note" value="">
+                <p id="f-root-cause-said" class="text-xs text-white/80 mt-1.5" hidden>In their words: <span></span></p>
               </div>
 
               <div class="step-nav">
@@ -968,7 +971,7 @@
                 </div>
 
                 <!-- LOTO / Permit-to-Work — deliberate safety-isolation record (Extension 3;
-                     RA 11058 / DOLE DO 198-18 permit-to-work, ISO 45001 operational control).
+                     RA 11058 / DOLE DO 252-25 (its revised rules, which replaced DO 198-18) permit-to-work, ISO 45001 operational control).
                      First-class field (was regex-inferred free text only). -->
                 <div id="loto-section" class="hidden">
                   <label class="wh-label flex items-center gap-1.5">
@@ -2094,7 +2097,7 @@ async function searchTeam(append = false, byPress = false) {
   // team card's work-order badge was undefined. Both are now selected; validate_logbook.py checks every r.<col> the
   // mapping reads is in this list, and that updated_at survives into the cached row (see the mine loader).
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo_path, photo_thumb_path, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, auth_uid, wo_state, wo_assigned_to')
+    .select('id, date, machine, category, maintenance_type, root_cause, root_cause_note, problem, action, knowledge, downtime_hours, photo_path, photo_thumb_path, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, auth_uid, wo_state, wo_assigned_to')
     .eq('hive_id', HIVE_ID)
     .order('date', { ascending: false })
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -2127,7 +2130,7 @@ async function searchTeam(append = false, byPress = false) {
 
   const mapped = (data || []).map(r => ({
     id: r.id, date: r.date, machine: r.machine || '', category: r.category,
-    maintenance_type: r.maintenance_type, root_cause: r.root_cause,
+    maintenance_type: r.maintenance_type, root_cause: r.root_cause, root_cause_note: r.root_cause_note || null,
     problem: r.problem, action: r.action, knowledge: r.knowledge,
     downtime_hours: r.downtime_hours, photo_path: r.photo_path || null, photo_thumb_path: r.photo_thumb_path || null, status: r.status,
     asset_node_id: r.asset_node_id || null, parts_used: r.parts_used || [],
@@ -2688,7 +2691,7 @@ async function loadEntries(append = false) {
   // Guarding on the mode is the minimal fix and simply enforces what the comment already promised.
   if (_viewMode !== 'team' && _elList && !_elList.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_elList, 4, 'your logbook entries');
   let query = db.from('logbook')
-    .select('id, date, machine, category, maintenance_type, root_cause, problem, action, knowledge, downtime_hours, photo_path, photo_thumb_path, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, auth_uid, wo_state, wo_assigned_to')
+    .select('id, date, machine, category, maintenance_type, root_cause, root_cause_note, problem, action, knowledge, downtime_hours, photo_path, photo_thumb_path, status, asset_node_id, parts_used, closed_at, created_at, updated_at, tasklist_acknowledged, tasklist_note, failure_consequence, readings_json, production_output, loto_applied, permit_reference, worker_name, auth_uid, wo_state, wo_assigned_to')
     .or(_MINE())
     .order('date', { ascending: false })
     .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -2793,7 +2796,7 @@ async function loadEntries(append = false) {
       // view modal render), and the save now refuses rather than overwrite when a server row has no snapshot.
       const mapped = {
         id: r.id, date: r.date, machine: r.machine || '', category: r.category,
-        maintenance_type: r.maintenance_type, root_cause: r.root_cause,
+        maintenance_type: r.maintenance_type, root_cause: r.root_cause, root_cause_note: r.root_cause_note || null,
         problem: r.problem, action: r.action, knowledge: r.knowledge,
         downtime_hours: r.downtime_hours, photo_path: r.photo_path || null, photo_thumb_path: r.photo_thumb_path || null, status: r.status,
         asset_node_id: r.asset_node_id || null, parts_used: r.parts_used || [],
@@ -2832,6 +2835,27 @@ const LB_AI_FIELD_EL = {
   action: 'f-action', root_cause: 'f-root-cause', knowledge: 'f-knowledge', downtime_hours: 'f-downtime',
   wo_state: 'f-wo-state', wo_assigned_to: 'f-wo-assigned-to',
 };
+// ★A BREAKDOWN CAUSE THE ANALYTICS CAN GROUP (BRH.10 AI, 2026-10-26). The cause select takes only one of the form's
+// 12 causes; the words a voice entry, a prefill or a draft gave are kept beside it (root_cause_note), so repeat-failure
+// and Pareto group by the list and the person keeps what they said. Setting a select to text it has no option for
+// leaves it blank, so this reports filled only when the select took the cause.
+function lbSetSaidCause(words) {
+  const w = String(words || '').trim();
+  const inp = document.getElementById('f-root-cause-note');
+  const cap = document.getElementById('f-root-cause-said');
+  if (inp) inp.value = w;
+  if (cap) { cap.hidden = !w; const s = cap.querySelector('span'); if (s) s.textContent = w; }
+}
+function lbFillCause(cause, said) {
+  const sel = document.getElementById('f-root-cause');
+  const want = String(cause || '').trim().toLowerCase();
+  const opt = sel && want ? Array.from(sel.options).find(o => o.value && o.value.toLowerCase() === want) : null;
+  if (opt) sel.value = opt.value;
+  const words = String(said || (opt ? '' : cause) || '').trim();
+  lbSetSaidCause(opt && words.toLowerCase() === opt.value.toLowerCase() ? '' : words);
+  return !!opt;
+}
+
 function lbNoteAiFill(field) {
   let v;
   if (field === 'status') v = document.querySelector('input[name="f-status"]:checked')?.value;
@@ -2870,6 +2894,7 @@ async function addEntry(entry) {
     id: entry.id, date: entry.date,
     machine: entry.machine, maintenance_type: entry.maintenance_type,
     category: entry.category, problem: entry.problem, root_cause: entry.root_cause,
+    root_cause_note: entry.root_cause_note || null,
     action: entry.action, knowledge: entry.knowledge, downtime_hours: entry.downtime_hours,
     photo: entry.photo, status: entry.status, hive_id: HIVE_ID,
     asset_node_id: entry.asset_node_id || null,
@@ -5268,6 +5293,7 @@ async function openModal(id) {
     <div class="mb-4">
       <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-1.5">Root Cause</p>
       <p class="text-sm text-white/85 leading-relaxed">${escHtml(entry.root_cause)}</p>
+      ${entry.root_cause_note ? `<p class="text-xs text-white/80 mt-1">In their words: ${escHtml(entry.root_cause_note)}</p>` : ''}
     </div>` : ''}
 
     ${entry.action ? `
@@ -5406,6 +5432,7 @@ async function openEditModal(id, given) {
   document.getElementById('f-category').value   = entry.category || '';
   document.getElementById('f-problem').value    = entry.problem  || '';
   document.getElementById('f-root-cause').value = entry.root_cause || '';
+  lbSetSaidCause(entry.root_cause_note || '');
   document.getElementById('f-action').value     = entry.action   || '';
   document.getElementById('f-knowledge').value  = entry.knowledge || '';
   document.getElementById('f-downtime').value   = entry.downtime_hours != null ? entry.downtime_hours : '';
@@ -5587,6 +5614,7 @@ async function saveEditFromForm() {
     category:              document.getElementById('f-category').value,
     problem:               document.getElementById('f-problem').value.trim(),
     root_cause:            document.getElementById('f-root-cause').value,
+    root_cause_note:       (document.getElementById('f-root-cause-note')?.value || '').trim() || null,
     action:                document.getElementById('f-action').value.trim(),
     knowledge:             document.getElementById('f-knowledge').value.trim(),
     downtime_hours:        downtimeRaw !== '' ? parseFloat(downtimeRaw) : null,
@@ -6214,6 +6242,7 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     date: new Date().toISOString(),
     machine, maintenance_type: maintType, category, problem,
     root_cause: rootCause, action, knowledge, downtime_hours: downtimeHours,
+    root_cause_note: (document.getElementById('f-root-cause-note')?.value || '').trim() || null,
     failure_consequence: failureConsequence,
     readings_json: readingsJson,
     production_output: productionOutput,
@@ -6531,6 +6560,8 @@ function clearForm() {
   vdcReset();
   _pendingAssetRefId  = null;
   window._lbAiFilled  = {};   // LM-V (LM422): a fresh entry has no AI-drafted fields yet
+  // form.reset() keeps a hidden input's value (setting it rewrote its default), so the last entry's words go here
+  lbSetSaidCause('');
   _pmItemsForAsset    = [];
   _pmOnTrackExpanded  = false;
   document.getElementById('pm-tasks-panel').classList.add('hidden');
@@ -6739,7 +6770,7 @@ function applySmartVoiceFill(e, transcript, reply) {
   const filled = [];
   if (e.problem) { const el = document.getElementById('f-problem'); if (el) { el.value = e.problem; filled.push('Problem'); lbNoteAiFill('problem'); } }
   if (e.action)  { const el = document.getElementById('f-action');  if (el) { el.value = e.action;  filled.push('Action'); lbNoteAiFill('action'); } }
-  if (e.root_cause) { const el = document.getElementById('f-root-cause'); if (el) { el.value = e.root_cause; filled.push('Root Cause'); lbNoteAiFill('root_cause'); } }
+  if (e.root_cause || e.root_cause_note) { if (lbFillCause(e.root_cause, e.root_cause_note)) { filled.push('Root Cause'); lbNoteAiFill('root_cause'); } }
   if (e.maintenance_type) {
     const sel = document.getElementById('f-maint-type');
     if (sel) {
@@ -7023,15 +7054,10 @@ function vdcApplyDraft(payload, voiceNote) {
     }
   }
 
-  // Root cause: free-text select with text fallback; only set if matching option.
-  if (draft.root_cause) {
+  // Root cause: one of the form's causes, the words kept beside it; a cause the person already picked stays.
+  if (draft.root_cause || draft.root_cause_note) {
     const sel = document.getElementById('f-root-cause');
-    if (sel) {
-      const opt = Array.from(sel.options).find(o =>
-        String(o.value).toLowerCase() === String(draft.root_cause).toLowerCase()
-      );
-      if (opt && !sel.value) { sel.value = opt.value; filled.push('Root Cause'); lbNoteAiFill('root_cause'); }
-    }
+    if (sel && !sel.value && lbFillCause(draft.root_cause, draft.root_cause_note)) { filled.push('Root Cause'); lbNoteAiFill('root_cause'); }
   }
 
   // Asset auto-link if AI matched a known tag.
@@ -8010,6 +8036,7 @@ function saveDraft() {
       category:    document.getElementById('f-category').value,
       problem,
       rootCause:   document.getElementById('f-root-cause').value,
+      rootCauseNote: document.getElementById('f-root-cause-note')?.value || '',
       action,
       knowledge:   document.getElementById('f-knowledge').value,
       downtime:    document.getElementById('f-downtime').value,
@@ -8042,6 +8069,7 @@ function restoreDraft() {
     if (draft.category)  document.getElementById('f-category').value  = draft.category;
     if (draft.problem)   document.getElementById('f-problem').value   = draft.problem;
     if (draft.rootCause) document.getElementById('f-root-cause').value = draft.rootCause;
+    if (draft.rootCauseNote) lbSetSaidCause(draft.rootCauseNote);
     if (draft.action)    document.getElementById('f-action').value    = draft.action;
     if (draft.knowledge) document.getElementById('f-knowledge').value = draft.knowledge;
     if (draft.downtime)  document.getElementById('f-downtime').value  = draft.downtime;
@@ -8290,7 +8318,7 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
       _setVal('f-category',   p.category || '');
       _setVal('f-problem',    p.problem || '');
       _setVal('f-action',     p.action || '');
-      _setVal('f-root-cause', p.root_cause || '');
+      lbFillCause(p.root_cause || '', p.root_cause_note || '');
       if (p.downtime_hours != null) _setVal('f-downtime', String(p.downtime_hours));
       if (p.status === 'Open' || p.status === 'Closed') {
         _setRadio('f-status', p.status);

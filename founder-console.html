@@ -384,7 +384,13 @@
       height:100%; background:linear-gradient(90deg,var(--green),var(--blue));
       border-radius:999px; transition:width .5s;
     }
-    .group-stats { font-size: 0.75rem; color:var(--muted); min-width:88px; text-align:right; }
+    .group-stats { font-size: 0.75rem; color:var(--muted); min-width:88px; text-align:right; font-variant-numeric: tabular-nums; }
+    /* Scheduled work: the healthy jobs fold away behind one 44px row; the failing ones stay open above it */
+    .sched-working { margin-top:.85rem; border:1px solid var(--border); border-radius:.5rem; overflow:hidden; }
+    .sched-working > summary { min-height:44px; display:flex; align-items:center; padding:0 .85rem; cursor:pointer;
+                               font-size:.78rem; font-weight:600; color:var(--text); }
+    .sched-working > summary:focus-visible { outline:2px solid var(--blue); outline-offset:-2px; }
+    #sched-content .group-stats { flex:2; }
 
     .fail-list {
       margin-top:.85rem; display:flex; flex-direction:column; gap:.4rem;
@@ -867,6 +873,48 @@
             </div>
           </section>
 
+          <!-- ★A REPORTED LISTING HAD NOWHERE TO GO (OWN in-app search walk, 2026-10-26). A buyer's "Report listing" lands in
+               feedback triage naming the listing, and the only control that took a LIVE listing down - marketplace-admin's
+               Published tab, with its search - was retired behind the overlay. The console moderated drafts only. -->
+          <section class="panel" id="mkt-published-card" data-opc="marketplace-admin.html::published-listings">
+            <div class="panel-hdr">
+              <div style="flex:1">
+                <h2>Find a published listing</h2>
+                <div class="panel-sub">Take a live listing back to review</div>
+              </div>
+              <span id="mkt-published-count" class="count">-</span>
+            </div>
+            <div class="panel-body">
+              <p class="mod-sub" style="margin:0 0 0.6rem;">Search by title, seller, or the listing id a buyer's report names.
+                Unpublish takes the listing off the marketplace and puts it back in review. The seller sees your reason and
+                can fix and resubmit. Approving it again follows the usual rules, so a new seller already over the
+                three-live-listing limit stays in review until their first sale.</p>
+              <input class="fb-filter" id="mkt-published-search" type="search" style="width:100%;margin-bottom:0.6rem;"
+                aria-label="Search published listings by title, seller or listing id" placeholder="Title, seller or listing id…"
+                autocomplete="off" maxlength="120" />
+              <div id="mkt-published-content" aria-live="polite"><div class="mod-empty">Loading…</div></div>
+            </div>
+          </section>
+
+          <!-- ★A BADGE THAT COULD BE GIVEN AND NEVER TAKEN BACK (2026-10-26): Verify lives above; removing a badge lived only on
+               retired marketplace-admin (its unverify / cert-unverify controls). -->
+          <section class="panel" id="mkt-verified-card" data-opc="marketplace-admin.html::seller-badges">
+            <div class="panel-hdr">
+              <div style="flex:1">
+                <h2>Verified sellers</h2>
+                <div class="panel-sub">Remove a badge a seller should no longer hold</div>
+              </div>
+              <span id="mkt-verified-count" class="count">-</span>
+            </div>
+            <div class="panel-body">
+              <p class="mod-sub" style="margin:0 0 0.6rem;">Buyers decide whether to send money on these badges. Removing one
+                takes it off every listing and the seller's profile at once. You can verify them again later.</p>
+              <input class="fb-filter" id="mkt-verified-search" type="search" style="width:100%;margin-bottom:0.6rem;"
+                aria-label="Search verified sellers by name" placeholder="Seller name…" autocomplete="off" maxlength="80" />
+              <div id="mkt-verified-content" aria-live="polite"><div class="mod-empty">Loading…</div></div>
+            </div>
+          </section>
+
           <!-- (Discount vouchers left this console with OPC, 2026-10-22: vouchers are retired by decision - redemption
                answers "Vouchers are retired" and guard_vouchers_retired refuses a new or re-activated voucher - so its
                Create voucher and Resume could only fail. The credit position still counts the grants already made.) -->
@@ -1082,6 +1130,54 @@
             </div>
             <div class="panel-body">
               <div id="tech-content"><!-- populated by renderTechHealth() --></div>
+            </div>
+          </section>
+
+          <!-- OWN scheduled-work lens (2026-10-26): a job that fails, or whose function refuses it, reached no person -
+               cron's history and pg_net's answers were read by nothing. founder_scheduled_work() joins both. -->
+          <section class="panel" id="scheduled-work" data-opc="founder-console.html::scheduled-work">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-sched"></span>
+              <div style="flex:1">
+                <h2>Scheduled work</h2>
+                <div class="panel-sub">Did every scheduled job run, and did the function it calls answer?</div>
+              </div>
+              <span class="updated" id="sched-updated">-</span>
+            </div>
+            <div class="panel-body">
+              <div id="sched-content"><!-- populated by renderScheduledWork() --></div>
+            </div>
+          </section>
+
+          <!-- OWN dependency lens (2026-10-26): client_errors held every failure people's browsers reported, read by
+               nothing. founder_client_errors() groups the last 7 days; a dependency failure reads as the service. -->
+          <section class="panel" id="screen-failures" data-opc="founder-console.html::what-failed-on-peoples-screens">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-screen"></span>
+              <div style="flex:1">
+                <h2>What failed on people's screens</h2>
+                <div class="panel-sub">What their browsers reported in the last 7 days, grouped, newest first</div>
+              </div>
+              <span class="updated" id="screen-updated">-</span>
+            </div>
+            <div class="panel-body">
+              <div id="screen-content"><!-- populated by renderScreenFailures() --></div>
+            </div>
+          </section>
+
+          <!-- OWN dependency + AI failure-mode lenses (2026-10-26): ai_cost_log.providers_tried named every provider slot and how
+               it answered, and nothing read it - a dead Voyage key and a four-day-dead embedder went unseen. -->
+          <section class="panel" id="model-providers" data-opc="founder-console.html::model-providers">
+            <div class="panel-hdr">
+              <span class="rag-dot" id="rag-providers"></span>
+              <div style="flex:1">
+                <h2>Model providers</h2>
+                <div class="panel-sub">Which AI providers answered in the last 24 hours, and how the others failed</div>
+              </div>
+              <span class="updated" id="providers-updated">-</span>
+            </div>
+            <div class="panel-body">
+              <div id="providers-content"><!-- populated by renderModelProviders() --></div>
             </div>
           </section>
 
@@ -1705,7 +1801,7 @@
 
       try {
         // All 8 panels + Hero feeders fetched in parallel (Promise.all = ~1-2s total)
-        const [tech, dau14, aicost, hives, mau, maturity, pareto, mkt, aiprov, audit, memento, ceval, uses, ai30] = await Promise.all([
+        const [tech, dau14, aicost, hives, mau, maturity, pareto, mkt, aiprov, audit, memento, ceval, uses, ai30, sched, screen, providers] = await Promise.all([
           fetchTechHealth(ctrl.signal),
           fetchDau14d(),         // 14d sparkline + today's DAU
           fetchAiCostToday(),
@@ -1720,9 +1816,15 @@
           fetchCompanionEval(),
           fetchFeatureUse(),      // what people used each page for (moved from Platform Actions' usage card)
           fetchAiCost30d(),       // the inputs a 30-day AI return would rest on (AI Quality's ROI panel)
+          fetchScheduledWork(),   // every cron job's last run and its function's answer
+          fetchScreenFailures(),  // what people's browsers reported, grouped (client_errors)
+          fetchModelProviders(),  // each AI provider's slots and how they answered (ai_cost_log.providers_tried)
         ]);
         renderHero({ tech, dau: dau14, aicost, hives, mau });
         renderTechHealth(tech);
+        renderScheduledWork(sched);
+        renderScreenFailures(screen);
+        renderModelProviders(providers);
         renderMementoHealth(memento);
         renderCompanionEval(ceval);
         renderGrowthPulse(dau14, mau, uses);
@@ -2073,6 +2175,163 @@
         watch.textContent = 'Nothing on fire. Skim sections below for trends.';
         watch.className = 'tldr-watch';
       }
+    }
+
+    async function fetchScheduledWork() {
+      try {
+        const db = getDb();
+        const { data, error } = await db.rpc('founder_scheduled_work');
+        if (error) return { _error: error.message };
+        return { rows: data || [] };
+      } catch (e) { return { _error: String(e && e.message || e) }; }
+    }
+
+    function schedAgo(ts) {
+      if (!ts) return 'never';
+      const m = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
+      return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' hr ago' : Math.round(m / 1440) + ' days ago';
+    }
+
+    /* A job is failing when its last run failed, or when the function it called answered with anything but success -
+       cron calls an HTTP job "succeeded" the moment the request is queued, whatever the function says. */
+    function schedFailure(r) {
+      if (r.last_status === 'failed') return 'Its last run failed: ' + (r.last_message || 'no message');
+      if (r.last_call_error) return (r.fn || 'its function') + (r.last_call_status ? ' answered ' + r.last_call_status : '') + ': ' + r.last_call_error;
+      if (r.last_call_status && (r.last_call_status < 200 || r.last_call_status > 299)) return (r.fn || 'its function') + ' answered ' + r.last_call_status;
+      return '';
+    }
+
+    function renderScheduledWork(res) {
+      const el = document.getElementById('sched-content');
+      const upd = document.getElementById('sched-updated');
+      const dot = document.getElementById('rag-sched');
+      dot.className = 'rag-dot';
+      if (!res || res._error) {
+        el.innerHTML = '<div class="honest-empty"><div class="hetitle">Scheduled work could not be read</div>'
+          + '<p>' + escHtml(res && res._error || 'No answer') + '</p>'
+          + '<div class="hewhy">Refresh to try again. Only a platform admin can read it.</div></div>';
+        upd.textContent = '-';
+        dot.classList.add('warn');
+        return;
+      }
+      const rows = res.rows;
+      const failing = rows.filter((r) => schedFailure(r));
+      const working = rows.filter((r) => !schedFailure(r));
+      const weekly = working.filter((r) => (r.failed_7d || 0) + (r.calls_failed_7d || 0) > 0).length;
+      dot.classList.add(failing.length ? 'fail' : weekly ? 'warn' : 'good');
+      upd.textContent = 'Read ' + schedAgo(new Date().toISOString());
+      const failHtml = failing.map((r) => '<div class="fail-item"><span class="fail-dot"></span><div>'
+        + '<div class="fail-label">' + escHtml(r.jobname) + (r.active ? '' : ' (paused)') + '</div>'
+        + '<div class="fail-group">' + escHtml(schedFailure(r).slice(0, 200)) + ' · ' + escHtml(schedAgo(r.last_call_at || r.last_run_at))
+        + ' · ' + ((r.failed_7d || 0) + (r.calls_failed_7d || 0)) + ' failed this week</div></div></div>').join('');
+      const workHtml = working.map((r) => {
+        const week = (r.failed_7d || 0) + (r.calls_failed_7d || 0);
+        const did = r.fn ? (r.last_call_status ? r.fn + ' answered ' + r.last_call_status : 'calls ' + r.fn) : (r.last_message || '');
+        return '<div class="group-row"><span class="group-name">' + escHtml(r.jobname) + (r.active ? '' : ' (paused)') + '</span>'
+          + '<span class="group-stats">' + escHtml(r.last_run_at ? 'ran ' + schedAgo(r.last_run_at) : 'not run yet')
+          + (did ? ' · ' + escHtml(did.slice(0, 60)) : '') + (week ? ' · ' + week + ' failed this week' : '') + '</span></div>';
+      }).join('');
+      el.innerHTML = '<p class="panel-sub">' + rows.length + ' jobs · ' + (failing.length
+          ? '<strong>' + failing.length + ' failing</strong>' : 'none failing') + (weekly ? ' · ' + weekly + ' recovered after a failure this week' : '') + '</p>'
+        + (failing.length ? '<div class="fail-list">' + failHtml + '</div>' : '')
+        + (working.length ? '<details class="sched-working"><summary>' + working.length + ' working</summary>' + workHtml + '</details>' : '');
+    }
+
+    async function fetchScreenFailures() {
+      try {
+        const { data, error } = await getDb().rpc('founder_client_errors', { p_days: 7 });
+        if (error) return { _error: error.message };
+        return { rows: data || [] };
+      } catch (e) { return { _error: String(e && e.message || e) }; }
+    }
+
+    /* a dependency failure is named as the service and what it did; every other context is shown as it was logged */
+    function screenContext(ctx) {
+      const m = /^dependency:([^:]+):(.+)$/.exec(ctx || '');
+      if (m) return 'A service we depend on: ' + m[1] + ' (' + m[2] + ')';
+      // told-* contexts hold the sentence the person was shown (utils.js, SL L4)
+      const t = /^told-(.+)$/.exec(ctx || '');
+      return t ? 'A person was told (' + t[1] + ')' : (ctx || 'error');
+    }
+
+    function renderScreenFailures(res) {
+      const el = document.getElementById('screen-content');
+      const dot = document.getElementById('rag-screen');
+      dot.className = 'rag-dot';
+      if (!res || res._error) {
+        el.innerHTML = '<div class="honest-empty"><div class="hetitle">What failed could not be read</div>'
+          + '<p>' + escHtml(res && res._error || 'No answer') + '</p>'
+          + '<div class="hewhy">Refresh to try again. Only a platform admin can read it.</div></div>';
+        dot.classList.add('warn');
+        document.getElementById('screen-updated').textContent = '-';
+        return;
+      }
+      const rows = res.rows;
+      document.getElementById('screen-updated').textContent = 'Read ' + schedAgo(new Date().toISOString());
+      const day = rows.filter((r) => Date.now() - new Date(r.last_seen).getTime() < 86400000);
+      const deps = rows.filter((r) => /^dependency:/.test(r.context || ''));
+      dot.classList.add(deps.some((r) => day.includes(r)) ? 'fail' : day.length ? 'warn' : 'good');
+      if (!rows.length) {
+        el.innerHTML = '<p class="panel-sub">Nothing failed on anyone\'s screen in the last 7 days.</p>';
+        return;
+      }
+      const total = rows.reduce((n, r) => n + Number(r.times || 0), 0);
+      el.innerHTML = '<p class="panel-sub">' + total + ' reports in ' + (rows.length >= 50 ? 'the 50 newest' : rows.length) + ' groups'
+        + (deps.length ? ' · <strong>' + deps.length + ' from a service we depend on</strong>' : '') + '</p>'
+        + '<div class="fail-list">' + rows.slice(0, 12).map((r) => '<div class="fail-item"><span class="fail-dot"></span><div>'
+          + '<div class="fail-label">' + escHtml(screenContext(r.context)) + ' · ' + escHtml(String(r.page || '').replace(/^\/(workhive\/)?/, '')) + '</div>'
+          + '<div class="fail-group">' + escHtml(String(r.sample || '').slice(0, 160)) + '</div>'
+          + '<div class="fail-group">' + (Number(r.times) === 1 ? 'once' : Number(r.times) + ' times') + ' · ' + Number(r.people) + (Number(r.people) === 1 ? ' person' : ' people')
+          + ' · last ' + escHtml(schedAgo(r.last_seen)) + '</div></div></div>').join('') + '</div>'
+        // the read returns at most 50 groups: 50 means "50 or more", never a total
+        + (rows.length > 12 ? '<p class="panel-sub">Showing the 12 newest groups of ' + (rows.length >= 50 ? '50 or more' : rows.length) + '.</p>' : '');
+    }
+
+    async function fetchModelProviders() {
+      try {
+        const { data, error } = await getDb().rpc('founder_model_providers', { p_days: 1 });
+        if (error) return { _error: error.message };
+        return { rows: data || [] };
+      } catch (e) { return { _error: String(e && e.message || e) }; }
+    }
+
+    function renderModelProviders(res) {
+      const el = document.getElementById('providers-content');
+      const dot = document.getElementById('rag-providers');
+      dot.className = 'rag-dot';
+      if (!res || res._error) {
+        el.innerHTML = '<div class="honest-empty"><div class="hetitle">The model providers could not be read</div>'
+          + '<p>' + escHtml(res && res._error || 'No answer') + '</p>'
+          + '<div class="hewhy">Refresh to try again. Only a platform admin can read it.</div></div>';
+        dot.classList.add('warn');
+        document.getElementById('providers-updated').textContent = '-';
+        return;
+      }
+      const rows = res.rows;
+      document.getElementById('providers-updated').textContent = 'Read ' + schedAgo(new Date().toISOString());
+      if (!rows.length) { el.innerHTML = '<p class="panel-sub">No model was asked in the last 24 hours.</p>'; dot.classList.add('good'); return; }
+      // a provider that answered nothing it was asked is down for this platform; one failing some of the time is a warning
+      const dead = rows.filter((r) => Number(r.asked) > 0 && Number(r.served) === 0);
+      const shaky = rows.filter((r) => Number(r.failed) > 0 && Number(r.served) > 0);
+      dot.classList.add(dead.length ? 'fail' : shaky.length ? 'warn' : 'good');
+      const why = (r) => [['rate_limited', 'rate-limited'], ['server_error', 'server error'], ['timed_out', 'timed out'],
+        ['refused_auth', 'key refused'], ['unusable', 'answer unusable'], ['threw', 'did not answer']]
+        .filter(([k]) => Number(r[k]) > 0).map(([k, label]) => Number(r[k]) + ' ' + label).join(', ');
+      const failing = rows.filter((r) => Number(r.failed) > 0);
+      const healthy = rows.filter((r) => Number(r.failed) === 0);
+      el.innerHTML = '<p class="panel-sub">' + rows.length + ' providers asked · '
+        + (dead.length ? '<strong>' + dead.length + ' answered nothing</strong>' : 'every provider answered at least once') + '</p>'
+        + (failing.length ? '<div class="fail-list">' + failing.map((r) => '<div class="fail-item"><span class="fail-dot"></span><div>'
+          // 'chain' is not a provider: it is the whole walk running out of its 50 s budget before any provider answered
+          + (r.provider === 'chain'
+            ? '<div class="fail-label">The whole model walk ran out of time · ' + Number(r.failed) + (Number(r.failed) === 1 ? ' time' : ' times') + '</div>'
+              + '<div class="fail-group">every provider it reached was slow or refused, so the person was told the AI is unavailable</div>'
+            : '<div class="fail-label">' + escHtml(r.provider) + ' · served ' + Number(r.served) + ' of ' + Number(r.asked) + '</div>'
+              + '<div class="fail-group">' + escHtml(why(r)) + '</div>')
+          + '<div class="fail-group">last: ' + escHtml(String(r.last_failure || '').slice(0, 90)) + ' · ' + escHtml(schedAgo(r.last_failed_at)) + '</div>'
+          + '</div></div>').join('') + '</div>' : '')
+        + healthy.map((r) => '<div class="group-row"><span class="group-name">' + escHtml(r.provider) + '</span>'
+          + '<span class="group-stats">served all ' + Number(r.asked) + '</span></div>').join('');
     }
 
     function renderTechHealth(tech) {

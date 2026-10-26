@@ -2926,6 +2926,13 @@ function renderRegisteredAssets(list) {
 
   if (!list.length) {
     listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '';
+    // ★A SEARCH THAT MATCHES NOTHING IS NOT "NO ASSETS" (OWN in-app search lens, 2026-10-26): with 30 registered assets
+    // a search miss read "No registered assets found" - the sentence for a hive with none. textContent: the query is
+    // the person's own text and is shown back, never parsed as markup.
+    const q = (document.getElementById('asset-search')?.value || '').trim();
+    emptyEl.textContent = (q && registeredAssets.length)
+      ? `No registered assets match "${q.slice(0, 60)}". Clear the search to see all ${registeredAssets.length}, or fill in the form below manually.`
+      : 'No registered assets found. Fill in the form below manually.';
     emptyEl.classList.remove('hidden');
     return;
   }

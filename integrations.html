@@ -856,6 +856,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         </div>
       </div>
 
+      <!-- 2026-10-27: no built-in mapping (SAP, Maximo, generic) names a breakdown-cause column and this form never wrote
+           field_map, so every work order a connector made here synced with an empty cause - and the analytics Pareto had
+           nothing to group. The column is named by the person who knows their export; the logbook trigger files it under
+           the closest of the 12 listed causes and keeps the original words as the note. -->
+      <div style="margin-bottom:12px;">
+        <label for="sc-cause-field" class="wh-label">Breakdown cause column (optional)</label>
+        <input id="sc-cause-field" class="wh-input" type="text" autocomplete="off" maxlength="60" placeholder="the column your export names the cause in" />
+        <p style="font-size:0.75rem; color:var(--muted); margin-top:4px; line-height:1.4;">None of the built-in mappings carry a breakdown cause, so without this every synced work order arrives with no cause. Type the column exactly as your export spells it; WorkHive files each value under the closest of the logbook's 12 causes and keeps the original words as a note.</p>
+      </div>
+
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn btn-blue" onclick="testSyncConfig()" style="flex:1;" data-i="testconnection">Test Connection</button>
         <button class="btn btn-gold" onclick="saveSyncConfig()" style="flex:1;" data-i="saveampenable">Save &amp; Enable</button>
@@ -2551,6 +2561,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // ── Live Sync ─────────────────────────────────────────────────────────────
   let _editingConfigId = null;
   let _editingConfigUpdatedAt = null;   // P6: OC snapshot for the shared per-hive connector config
+  let _editingFieldMap = {};             // the connector's own field_map, so an edit keeps keys this form does not show
 
   // Records whose sync failed durably (v_external_sync_truth.is_error). Read once on load; 0 until
   // then, so a page that never got the count simply does not raise the alarm rather than guessing.
@@ -2835,7 +2846,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const freq     = document.getElementById('sc-freq').value;
     if (!url) { showToast('Endpoint URL is required.'); return; }
 
-    const row = { hive_id: HIVE_ID, system_type: type, label: label || type, endpoint_url: url, auth_token: token || null, sync_freq: freq, enabled: true };
+    const causeCol = (document.getElementById('sc-cause-field')?.value || '').trim();
+    const fieldMap = { ...(_editingConfigId ? _editingFieldMap : {}) };
+    if (causeCol) fieldMap.root_cause = causeCol; else delete fieldMap.root_cause;
+    const row = { hive_id: HIVE_ID, system_type: type, label: label || type, endpoint_url: url, auth_token: token || null, sync_freq: freq, enabled: true, field_map: fieldMap };
     if (_editingConfigId) {
       // P6 optimistic concurrency: only overwrite if the connector hasn't changed since we loaded it.
       let _q = db.from('integration_configs').update(row).eq('id', _editingConfigId);
@@ -2848,9 +2862,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (insErr) { showToast(whWriteError(insErr, _t('Could not save the config. WorkHive stored nothing; try again.', 'Hindi ma-save ang config. Walang na-store; subukan muli.'))); return; }
     }
     _editingConfigId = null;
+    _editingFieldMap = {};
     document.getElementById('sc-label').value = '';
     document.getElementById('sc-url').value   = '';
     document.getElementById('sc-token').value = '';
+    { const c = document.getElementById('sc-cause-field'); if (c) c.value = ''; }
     showToast('Sync config saved.');
     if (typeof whUse === 'function') whUse(db, 'sync_config_saved');
     loadSyncConfigs();
@@ -2935,6 +2951,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       document.getElementById('sc-type').value  = data.system_type || 'sap_pm';
       document.getElementById('sc-url').value   = data.endpoint_url || '';
       document.getElementById('sc-freq').value  = data.sync_freq || 'daily';
+      _editingFieldMap = (data.field_map && typeof data.field_map === 'object' && !Array.isArray(data.field_map)) ? { ...data.field_map } : {};
+      { const c = document.getElementById('sc-cause-field'); if (c) c.value = _editingFieldMap.root_cause || ''; }
     });
   }
 

@@ -2790,6 +2790,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // Plain-Read details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
     if (typeof wireDetailToggle === 'function') wireDetailToggle();
     _hiveSeated.then(() => loadHistory());   // BRH-H: the history is the hive's - read once the hive is the account's
+
+    // ★ONE ACCOUNT ON TWO DEVICES (2026-10-27, OWN two-devices lens). A recipient added on the phone reached this page only
+    // through a reload - report_contacts is not in the realtime publication - and the reload threw away a recipient
+    // being typed into the open sheet here (walked: phone 390 + desktop 1280, same supervisor). Coming back to the tab is
+    // the moment a person switches devices, so the list is re-read then; the sheet's fields and the ticked recipients
+    // (_selectedContacts, by id) are untouched. Throttled so a flurry of focus events costs one read.
+    let _rsLastReread = 0;
+    async function _rsRereadOnReturn() {
+      if (document.visibilityState !== 'visible' || !_rsContactsSettled) return;
+      if (Date.now() - _rsLastReread < 5000) return;
+      _rsLastReread = Date.now();
+      try { await loadContacts(); updateSendBtn(); } catch (_) { /* empty-catch-allow: the list on screen stays as it was */ }
+    }
+    document.addEventListener('visibilitychange', _rsRereadOnReturn);
+    window.addEventListener('focus', _rsRereadOnReturn);
   </script>
 
   <script src="nav-hub.js"></script>

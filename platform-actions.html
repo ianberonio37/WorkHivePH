@@ -619,6 +619,44 @@
       } catch (err) { return { _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null, _retryAfter: err && err.retryAfter || null }; }
     }
 
+    /* ★FIND A PUBLISHED LISTING (OWN in-app search walk, 2026-10-26). A buyer's report names a live listing, and the
+       control that took one down lived only on retired marketplace-admin. Empty = the 20 most recently published; text =
+       title or seller (and a listing id exactly). The person's text sits inside PostgREST's or=() quoted, so a comma or a
+       parenthesis is text, not syntax, and LIKE's own % and _ are escaped, so "50%" finds "50%" rather than everything. */
+    const _UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    function _orIlike(col, q) {
+      const like = q.replace(/[\\%_]/g, (c) => '\\' + c);
+      return `${col}.ilike."*${like.replace(/[\\"]/g, (c) => '\\' + c)}*"`;
+    }
+    async function fetchPublished(q) {
+      try {
+        let rq = db.from('v_marketplace_listings_truth')
+          .select('id,title,section,category,price,seller_name,updated_at')
+          .eq('status', 'published');
+        if (q && _UUID.test(q)) rq = rq.eq('id', q);
+        else if (q) rq = rq.or(_orIlike('title', q) + ',' + _orIlike('seller_name', q));
+        const r = await rq.order('updated_at', { ascending: false }).order('id').limit(20 + 1);   // more-said: by renderPublished (a 21st row is the probe) - no count or sum is derived from this read
+        if (r.error) return { q, _error: r.error.message, _code: r.error.code || null, _status: r.error.status || null };
+        return { q, rows: (r.data || []).slice(0, 20), more: (r.data || []).length > 20 };
+      } catch (err) { return { q, _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null }; }
+    }
+
+    /* ★A BADGE THAT COULD BE GIVEN AND NEVER TAKEN BACK (2026-10-26, the control census of the retired pages). The console
+       verifies a seller's identity and certifications; removing either lived only on retired marketplace-admin - so a
+       seller found misrepresenting kept "ID Verified" on every listing, and buyers decide whether to send money on it.
+       Empty = the 20 most recently updated verified sellers; text = part of the seller's name. */
+    async function fetchVerifiedSellers(q) {
+      try {
+        let rq = db.from('v_marketplace_sellers_truth')
+          .select('id,worker_name,tier,kyb_verified,cert_verified,active_listings_count,updated_at')
+          .or('kyb_verified.eq.true,cert_verified.eq.true');
+        if (q) rq = rq.ilike('worker_name', '*' + q.replace(/[\\%_]/g, (c) => '\\' + c) + '*');
+        const r = await rq.order('updated_at', { ascending: false }).order('id').limit(20 + 1);   // more-said: by renderVerifiedSellers (a 21st row is the probe) - no count or sum is derived from this read
+        if (r.error) return { q, _error: r.error.message, _code: r.error.code || null, _status: r.error.status || null };
+        return { q, rows: (r.data || []).slice(0, 20), more: (r.data || []).length > 20 };
+      } catch (err) { return { q, _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null }; }
+    }
+
     /* GCash top-up verification — the founder-income intake. A provider sent GCash P2P to the platform
        number and filed the reference; the founder checks the GCash app, then Verify (a DB trigger mints
        the credits) or Reject. Every credit in the economy originates here, so this queue being reachable
@@ -1224,11 +1262,30 @@
       setCount('cp-cover', cover === null ? '\u2014' : cover.toFixed(2) + 'x',
                cover === null ? '' : (cover >= 1 ? '' : (cover >= 0.8 ? 'warn' : 'fail')));
 
+      /* \u2605A LOW COVER READ WITH NO REASON (BRH.10 AK, 2026-10-26). Production's cover reads 0.00x in red: no top-ups,
+         500 credits owed, all of it the starter grant a verified seller receives free, once, by policy. The number
+         was right and said nothing about why, so it read as an emergency. What is owed is split by what backs it,
+         and a cover under 1.00 that the starter credit explains says so. */
+      const starter = sum('starter_grant');
+      const otherOwed = (liability === null || topups === null || starter === null) ? null : liability - topups - starter;
+      // the rest is negative when commission taken outweighs adjustments and fees: "−₱280.00", never "₱-280.00"
+      const signedPeso = n => (n !== null && isFinite(Number(n)) && Number(n) < 0) ? '−' + peso(-Number(n)) : peso(n);
+      const coverWhy = (cover !== null && cover < 1 && starter !== null && starter > 0 && liability > 0)
+        ? (topups + starter >= liability
+            ? `Below 1.00 because ${peso(starter)} of what is owed is starter credit: free, once per verified seller, by policy, so no cash came in for it.`
+            : `Below 1.00: ${peso(starter)} of what is owed is starter credit no cash came in for, and the rest is not fully covered by top-ups.`)
+        : '';
+
       box.innerHTML =
         `<div class="mod-row"><div class="mod-main"><strong>${e(peso(liability))}</strong>
            <span class="mod-sub">Credit liability: services owed, not profit</span></div></div>`
+      + (liability > 0 && otherOwed !== null
+          ? `<div class="mod-row"><div class="mod-main"><strong>${e(peso(topups))} \u00b7 ${e(peso(starter))} \u00b7 ${e(signedPeso(otherOwed))}</strong>
+               <span class="mod-sub">What is owed, by what backs it: paid in by top-ups \u00b7 starter credit (free) \u00b7 the rest (adjustments, fees, rewards, commission taken)</span></div></div>`
+          : '')
       + `<div class="mod-row"><div class="mod-main"><strong>${e(cover === null ? '\u2014' : cover.toFixed(2) + 'x')}</strong>
            <span class="mod-sub">Liability cover: cash in vs credits owed; keep at or above 1.00</span></div></div>`
+      + (coverWhy ? `<div class="mod-row"><div class="mod-main"><span class="mod-sub" id="cp-cover-why">${e(coverWhy)}</span></div></div>` : '')
       + (supply === null ? '' :
           `<div class="mod-row"><div class="mod-main"><strong>${e(num(supply))}</strong>
              <span class="mod-sub">Total WorkHive Credits: the cap; lifetime liability cannot exceed it</span></div></div>`
@@ -1288,6 +1345,90 @@
       }
     }
 
+    function renderPublished(m) {
+      const box = document.getElementById('mkt-published-content');
+      if (!box) return;
+      box.removeAttribute('aria-busy');
+      const q = m.q || '';
+      if (m._error) { box.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`; setCount('mkt-published-count', '—', ''); return; }
+      const rows = m.rows || [];
+      setCount('mkt-published-count', m.more ? '20+' : rows.length, '');
+      if (!rows.length) {
+        box.innerHTML = `<div class="mod-empty">${e(q
+          ? emptyText(`No published listing matches "${q.slice(0, 60)}". Search part of the title, the seller's name, or the listing id a report names.`)
+          : emptyText('Nothing is published on the marketplace right now.'))}</div>`;
+        return;
+      }
+      const head = q
+        ? (m.more ? `The first 20 matches for "${q.slice(0, 60)}", newest first. Add a word to narrow it.` : '')
+        : (m.more ? 'The 20 most recently published. Search to find an older one.' : 'Everything published, newest first.');
+      box.innerHTML = (head ? `<p class="mod-sub" style="margin:0 0 0.4rem;">${e(head)}</p>` : '') + rows.map(l => `
+          <div class="mod-row">
+            <div class="mod-main"><strong>${e(l.title || 'Untitled')}</strong>
+              <span class="mod-sub">${e(l.section || '')}${l.category ? ' · ' + e(l.category) : ''} · ${_modPrice(l.price)} · ${e(l.seller_name || '—')}</span></div>
+            <div class="mod-actions">
+              <button class="mod-btn no" data-mkt-act="unpublish-listing" data-id="${e(l.id)}" data-stamp="${e(l.updated_at || '')}" data-title="${e(l.title || '')}" data-i="unpublish">Unpublish</button>
+            </div>
+          </div>`).join('');
+    }
+    let _pubTimer = null, _pubSeq = 0;
+    async function searchPublished() {
+      const q = ((document.getElementById('mkt-published-search') || {}).value || '').trim();
+      const seq = ++_pubSeq;
+      const box = document.getElementById('mkt-published-content');
+      if (box) box.setAttribute('aria-busy', 'true');
+      const m = await fetchPublished(q);
+      if (seq === _pubSeq) renderPublished(m);   // a slower earlier answer never paints over the latest search
+    }
+    function wirePublishedSearch() {
+      const inp = document.getElementById('mkt-published-search');
+      if (!inp || inp.dataset.whWired) return;
+      inp.dataset.whWired = '1';
+      inp.addEventListener('input', () => { clearTimeout(_pubTimer); _pubTimer = setTimeout(searchPublished, 300); });
+    }
+
+    function renderVerifiedSellers(m) {
+      const box = document.getElementById('mkt-verified-content');
+      if (!box) return;
+      box.removeAttribute('aria-busy');
+      const q = m.q || '';
+      if (m._error) { box.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`; setCount('mkt-verified-count', '—', ''); return; }
+      const rows = m.rows || [];
+      setCount('mkt-verified-count', m.more ? '20+' : rows.length, '');
+      if (!rows.length) {
+        box.innerHTML = `<div class="mod-empty">${e(q
+          ? emptyText(`No verified seller's name matches "${q.slice(0, 60)}".`)
+          : emptyText('No seller holds a verified badge right now.'))}</div>`;
+        return;
+      }
+      const head = m.more ? (q ? `The first 20 matches for "${q.slice(0, 60)}". Add more of the name to narrow it.`
+                               : 'The 20 most recently changed verified sellers. Search a name to find another.') : '';
+      box.innerHTML = (head ? `<p class="mod-sub" style="margin:0 0 0.4rem;">${e(head)}</p>` : '') + rows.map(s => `
+          <div class="mod-row">
+            <div class="mod-main"><strong>${e(s.worker_name || '—')}</strong>
+              <span class="mod-sub">${s.kyb_verified ? 'ID verified' : 'ID not verified'} · ${s.cert_verified ? 'certifications verified' : 'certifications not verified'} · ${Number(s.active_listings_count || 0)} live listing${Number(s.active_listings_count) === 1 ? '' : 's'}</span></div>
+            <div class="mod-actions">
+              ${s.kyb_verified ? `<button class="mod-btn no" data-mkt-act="unverify-kyb" data-seller-id="${e(s.id)}" data-name="${e(s.worker_name || '')}" data-i="unverify">Remove ID badge</button>` : ''}
+              ${s.cert_verified ? `<button class="mod-btn no" data-mkt-act="unverify-cert" data-seller-id="${e(s.id)}" data-name="${e(s.worker_name || '')}" data-i="cert-unverify">Remove certification badge</button>` : ''}
+            </div>
+          </div>`).join('');
+    }
+    let _verTimer = null, _verSeq = 0;
+    async function searchVerifiedSellers() {
+      const q = ((document.getElementById('mkt-verified-search') || {}).value || '').trim();
+      const seq = ++_verSeq;
+      const box = document.getElementById('mkt-verified-content');
+      if (box) box.setAttribute('aria-busy', 'true');
+      const m = await fetchVerifiedSellers(q);
+      if (seq === _verSeq) renderVerifiedSellers(m);   // a slower earlier answer never paints over the latest search
+    }
+    function wireVerifiedSearch() {
+      const inp = document.getElementById('mkt-verified-search');
+      if (!inp || inp.dataset.whWired) return;
+      inp.dataset.whWired = '1';
+      inp.addEventListener('input', () => { clearTimeout(_verTimer); _verTimer = setTimeout(searchVerifiedSellers, 300); });
+    }
+
     // One delegated listener for all moderation action buttons (data-attrs = XSS-safe).
     let _mktModWired = false;
     function wireMktModeration() {
@@ -1333,9 +1474,66 @@
         btn.setAttribute('aria-busy', 'true');
         btn.textContent = act === 'approve-listing' ? 'Approving…'
                         : act === 'reject-listing'  ? 'Rejecting…'
+                        : act === 'unpublish-listing' ? 'Unpublishing…'
+                        : (act === 'unverify-kyb' || act === 'unverify-cert') ? 'Removing…'
                         : 'Verifying…';
         try {
-          if (act === 'approve-listing' || act === 'reject-listing') {
+          if (act === 'unverify-kyb' || act === 'unverify-cert') {
+            // Removing a trust badge: buyers stop seeing it at once, so it is confirmed by name first, written by the
+            // seller's id only, and guarded on the badge still being held - a second admin's removal is a clean no-op.
+            const _who = btn.dataset.name || 'this seller';
+            const _isCert = act === 'unverify-cert';
+            if (typeof window.whConfirm === 'function') {
+              const _okR = await window.whConfirm(`Remove ${_who}'s ${_isCert ? 'certification badge' : 'ID Verified badge'}? `
+                + `Buyers stop seeing it on every listing and the profile at once, until you verify them again.`,
+                { okLabel: 'Remove badge', cancelLabel: 'Keep' });
+              if (!_okR) { _btnRestore(); return; }
+            }
+            const _sid = btn.dataset.sellerId || '';
+            if (!_sid) { _btnRestore(); showToast('This seller row has no id, so nothing was changed. Search again and retry.', 'error'); return; }
+            const _now = new Date().toISOString();
+            const _upd = _isCert ? { cert_verified: false, cert_verified_at: null, updated_at: _now }
+                                 : { kyb_verified: false, kyb_verified_at: null, updated_at: _now };
+            const { data: _rv, error } = await db.from('marketplace_sellers').update(_upd)
+              .eq('id', _sid).eq(_isCert ? 'cert_verified' : 'kyb_verified', true).select('id');
+            if (error) throw error;
+            if (!_rv || !_rv.length) {
+              _btnRestore();
+              showToast('Nothing was changed: the badge may already be removed, or this session is not a platform admin. Search again to see where it stands.', 'error');
+              await searchVerifiedSellers();
+              return;
+            }
+            showToast(`${_who}'s ${_isCert ? 'certification badge' : 'ID Verified badge'} is removed. Buyers no longer see it.`, 'info');
+            if (typeof whUse === 'function') whUse(db, _isCert ? 'seller_certs_unverified' : 'seller_identity_unverified');
+            await searchVerifiedSellers();
+          } else if (act === 'unpublish-listing') {
+            // A LIVE listing back to review, with the reason the seller sees - marketplace-admin's Unpublish, on the live
+            // console. Guarded on the version the founder searched (updated_at): a seller's edit since then, or another
+            // admin's decision, makes this a clean no-op instead of a decision about content nobody looked at.
+            if (typeof whPrompt !== 'function') { _btnRestore(); showToast('Cannot collect a reason right now. Reload and try again.', 'error'); return; }
+            let _reason = await whPrompt(`Unpublish "${btn.dataset.title || 'this listing'}". Tell the seller why:`,
+              { okLabel: 'Unpublish', cancelLabel: 'Cancel', inputLabel: 'Reason shown to the seller (e.g. a buyer reported the photo does not match the part)' });
+            if (_reason === null) { _btnRestore(); return; }   // cancelled: nothing written
+            _reason = String(_reason).trim();
+            if (!_reason) { _btnRestore(); showToast('A reason is required so the seller can fix and resubmit.', 'error'); return; }
+            const _nowIso = new Date().toISOString();
+            let _uq = db.from('marketplace_listings')
+              .update({ status: 'draft', updated_at: _nowIso, moderated_at: _nowIso, moderation_reason: _reason,
+                        moderated_by: (typeof whWorker === 'function' && whWorker()) || 'admin' })
+              .eq('id', btn.dataset.id).eq('status', 'published');
+            if (btn.dataset.stamp) _uq = _uq.eq('updated_at', btn.dataset.stamp);
+            const { data: _un, error } = await _uq.select('id');
+            if (error) throw error;
+            if (!_un || !_un.length) {
+              _btnRestore();
+              showToast('Nothing was changed: this listing was edited or already taken down since you searched, or this session is not a platform admin. Search again to see where it stands.', 'error');
+              await searchPublished();
+              return;
+            }
+            showToast('Listing unpublished: it is off the marketplace and back in review. The seller sees your reason.', 'info');
+            if (typeof whUse === 'function') whUse(db, 'listing_unpublished');
+            await searchPublished();
+          } else if (act === 'approve-listing' || act === 'reject-listing') {
             const newStatus = act === 'approve-listing' ? 'published' : 'removed';
             // MK2/J20 (deepwalk 2026-07-24): THIS is the live moderation surface (marketplace-admin.html
             // is retired behind #wh-retired-overlay and points here). A rejection must carry a reason back

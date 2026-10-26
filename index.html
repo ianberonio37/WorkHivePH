@@ -1313,7 +1313,7 @@
     <a href="/learn/"    class="block py-3 text-white/80 font-medium hover:text-white transition-colors">Learn</a>
     <div class="pt-4 flex flex-col gap-3">
       <button id="pwa-install-btn-mobile" onclick="triggerInstall()"
-              class="hidden items-center justify-center gap-2 text-sm text-center font-bold"
+              class="flex items-center justify-center gap-2 text-sm text-center font-bold"
               style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.35);color:var(--wh-orange-text);padding:10px 16px;border-radius:8px;width:100%;"
               aria-label="Install WorkHive">
         <span class="ic ic-parts" aria-hidden="true"></span>
@@ -1665,6 +1665,14 @@
             See How It Works
             <span class="ic ic-next" aria-hidden="true"></span>
           </a>
+          <!-- §BRH.11 AM (Ian, 2026-10-26): the home-screen install is offered where a phone visitor looks first, at rest -
+               the native prompt where the browser has one, the hub's per-platform guide everywhere else; hidden once installed -->
+          <button type="button" id="pwa-install-btn-hero" onclick="triggerInstall()" class="cta-text-link"
+                  style="background:none;border:0;padding:0;font:inherit;cursor:pointer;min-height:44px;"
+                  aria-label="Install WorkHive on this device">
+            <span class="ic ic-phone" aria-hidden="true"></span>
+            Install the app
+          </button>
         </div>
 
         <!-- Free-tools row: the platform is free to use, but C4 removed account-less guest
@@ -3485,7 +3493,20 @@
   // a password ask the Pwned Passwords range API the k-anonymity way: only the first 5 hex characters of the
   // password's SHA-1 leave the browser, padded responses hide which range was asked, and the match happens here.
   // Asking can fail (offline, blocked, slow): then the person is let through - this protects, it never locks out.
+  // ★AND THEY ARE TOLD, AND THE FOUNDER SEES IT (OWN dependency lens, 2026-10-26): a check that could not run used to
+  // read exactly like "not breached" - to the person and to no one else. _breachUnchecked says why (down / slow /
+  // quota or 429 / changed API - an answer that is not the range format is NOT read as "clean"), the callers add one
+  // sentence, and the failure is logged as dependency:api.pwnedpasswords.com:<kind>.
+  let _breachUnchecked = '';
+  const BREACH_UNCHECKED_NOTE = 'We could not check this password against public breach lists just now. If you use it anywhere else, change it later.';
   async function _passwordBreached(pw) {
+    _breachUnchecked = '';
+    const unchecked = (kind, detail) => {
+      _breachUnchecked = kind;
+      // whDependency, not whLogError: a visitor signing up is not signed in, and only this shape is admitted for them
+      if (typeof window.whDependency === 'function') window.whDependency('api.pwnedpasswords.com', kind, String(detail).slice(0, 160), BREACH_UNCHECKED_NOTE);
+      return false;
+    };
     try {
       if (!pw || !(window.crypto && crypto.subtle && window.TextEncoder)) return false;
       const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(pw));
@@ -3495,14 +3516,18 @@
       const res = await fetch('https://api.pwnedpasswords.com/range/' + hex.slice(0, 5),
         { headers: { 'Add-Padding': 'true' }, signal: ctl ? ctl.signal : undefined, cache: 'no-store' });
       if (timer) clearTimeout(timer);
-      if (!res.ok) return false;
+      if (res.status === 429) return unchecked('quota or 429', 'range lookup answered 429');
+      if (!res.ok) return unchecked('down', 'range lookup answered ' + res.status);
+      const lines = (await res.text()).split('\n').map(l => l.trim()).filter(Boolean);
+      if (!lines.length || !lines.every(l => /^[0-9A-F]{35}:\d+$/i.test(l))) return unchecked('changed API', 'range lookup answered something that is not SUFFIX:COUNT lines');
       const suffix = hex.slice(5);
-      return (await res.text()).split('\n').some(line => {
-        const parts = line.trim().split(':');
-        return parts[0] === suffix && Number(parts[1]) > 0;   // padding entries carry a count of 0
+      return lines.some(line => {
+        const parts = line.split(':');
+        return parts[0].toUpperCase() === suffix && Number(parts[1]) > 0;   // padding entries carry a count of 0
       });
-    } catch (_) {
-      return false;   // empty-catch-allow: a breach check that cannot be asked never blocks a sign-up
+    } catch (e) {
+      // a breach check that cannot be asked never blocks a sign-up
+      return unchecked(e && e.name === 'AbortError' ? 'slow' : 'down', (e && e.message) || e);
     }
   }
   // ★C24 (wave-4, 2026-09-14): the normalisation above is silent - "jeepney.oscarph" signs in as jeepneyoscarph and,
@@ -3563,7 +3588,8 @@
         return;
       }
       const { error } = await _getDb().auth.updateUser({ password: np });
-      await window.whConfirm(error ? (_t('Could not update password: ', 'Hindi ma-update ang password: ') + error.message) : 'Password updated. You can now sign in with it.', { okLabel: 'OK', cancelLabel: '' });
+      await window.whConfirm(error ? (_t('Could not update password: ', 'Hindi ma-update ang password: ') + error.message)
+        : 'Password updated. You can now sign in with it.' + (_breachUnchecked ? ' ' + BREACH_UNCHECKED_NOTE : ''), { okLabel: 'OK', cancelLabel: '' });
     });
   } catch (_e) { /* empty-catch-allow: recovery listener is best-effort */ }
 
@@ -4129,6 +4155,10 @@
       _ops.style.display = 'block';
       if (typeof _initDashboard === 'function') _initDashboard(displayName).then(() => { if (typeof whFreshnessFooter === 'function' && document.getElementById('ops-home')?.style.display !== 'none') whFreshnessFooter(); }); // G1 (FAMILY F3)
     }
+    // the breach check could not run: the account was made (it never locks anyone out), and the person is told so.
+    // showToast is this script's own #wh-toast (role=status) - in scope here, NOT on window (window.showToast exists
+    // only after the SSO path assigns one, so testing for it would skip the sentence on every sign-up)
+    if (_breachUnchecked) showToast(BREACH_UNCHECKED_NOTE);
 
     /* C2: confirm linked records ONLY when records were actually linked.
        T185 (2026-08-26, measured): this used to COUNT v_worker_truth rows matching displayName -
@@ -4378,7 +4408,9 @@
       host.id = 'wh-toast';
       host.setAttribute('role', 'status');
       host.setAttribute('aria-live', 'polite');
-      host.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:rgba(22,32,50,0.95);color:#F4F6FA;padding:0.6rem 1rem;border-radius:12px;font-size:0.8rem;border:1px solid rgba(255,255,255,0.12);z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,0.4);max-width:90vw;';
+      // width:max-content - with left:50% and no width the box shrank into HALF the screen (192px on a 390 phone,
+      // a one-sentence notice wrapped to six lines); it now takes its sentence's width up to 90vw / 32rem
+      host.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:rgba(22,32,50,0.95);color:#F4F6FA;padding:0.6rem 1rem;border-radius:12px;font-size:0.8rem;border:1px solid rgba(255,255,255,0.12);z-index:9999;box-shadow:0 6px 18px rgba(0,0,0,0.4);width:max-content;max-width:min(90vw, 32rem);';
       document.body.appendChild(host);
     }
     host.textContent = msg;
@@ -4845,10 +4877,19 @@
    after utils.js, its body unedited), which put this page one un-nonced inline script over the CSP ratchet's 12. Two
    adjacent, self-contained IIFEs share one tag; their order is unchanged. */
 
-/* ── PWA Install Button ── */
+/* ── PWA Install Button ──
+   ★VISIBLE AT REST, NOT ONLY AFTER beforeinstallprompt (Ian, 2026-10-26, §BRH.11 AM: "users should have something
+   icon where they can just click or tap to easily install it and visible right away"). The buttons used to appear only
+   when Chromium fired beforeinstallprompt - which iOS Safari never fires and Chromium fires only once its
+   installability test passes - so a person on a phone never saw them anywhere. Now they show unless the app is
+   already installed (display-mode: standalone / navigator.standalone / appinstalled), and a tap does what the label
+   promises on every platform: the native prompt where there is one, otherwise the hub's per-platform guide
+   (nav-hub.js openInstallGuide: Share -> Add to Home Screen on iOS, the address-bar install icon on desktop). */
 (function() {
   var _prompt = null;
-  var IDS = ['pwa-install-btn', 'pwa-install-btn-mobile'];
+  var IDS = ['pwa-install-btn', 'pwa-install-btn-mobile', 'pwa-install-btn-hero'];
+  var _standalone = (window.navigator.standalone === true) ||
+                    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
 
   function showBtns() {
     IDS.forEach(function(id) {
@@ -4866,18 +4907,24 @@
   window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
     _prompt = e;
-    showBtns();
   });
 
   window.triggerInstall = async function() {
-    if (!_prompt) return;
-    _prompt.prompt();
-    var result = await _prompt.userChoice;
-    if (result.outcome === 'accepted') hideBtns();
-    _prompt = null;
+    if (_prompt) {
+      _prompt.prompt();
+      var result = await _prompt.userChoice;
+      if (result.outcome === 'accepted') hideBtns();
+      _prompt = null;
+      return;
+    }
+    // no native prompt here (iOS, or Chromium before its test passes): show the way, never do nothing
+    if (window.WHHub && typeof window.WHHub.openInstallGuide === 'function') { window.WHHub.openInstallGuide(); return; }
+    var el = document.getElementById('wh-hub-fab');
+    if (el) el.click();
   };
 
   window.addEventListener('appinstalled', hideBtns);
+  if (_standalone) hideBtns(); else showBtns();
 })();
 </script>
 
@@ -5532,14 +5579,26 @@
           // its own piece, newest first, so the first one seen per asset is still its newest.
           const _since = new Date(Date.now() - 30 * 86400000).toISOString();
           // canonical-allow: solo-mode fallback - the truth view is hive-scoped only; per-asset completion rows are needed
-          const { data: comps } = await whInChunks(assetIds, (part) => db.from('pm_completions')
-            .select('asset_id, completed_at')
-            .in('asset_id', part)
-            .eq('status', 'done')
-            .gte('completed_at', _since)
-            .order('completed_at', { ascending: false })
-            .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-            .limit(500));   // window-ok[30d] (LB1): one worker's PM completions in 30 days, sized live
+          // ★A FULL PIECE HID AN ASSET SERVICED LAST WEEK (2026-10-26, list-caps-say-more: 967 completions in 30 days against
+          // a 500 cap). A piece of 100 assets that logs more than 500 in a month leaves out every asset whose newest is past
+          // the 500th, and each read as never serviced - counted overdue. A 501st row says the piece overflowed; the
+          // assets it did not show are then asked for their newest one each, so the answer is complete, not capped.
+          const { data: comps } = await whInChunks(assetIds, async (part) => {
+            const r = await db.from('pm_completions')
+              .select('asset_id, completed_at')
+              .in('asset_id', part)
+              .eq('status', 'done')
+              .gte('completed_at', _since)
+              .order('completed_at', { ascending: false })
+              .order('id')   // MR4 tiebreaker: the sort above is not total on its own
+              .limit(500 + 1);   // more-said: by _showOpsHome (a 501st row asks the unseen assets one by one - complete, nothing left to say)
+            if (r.error || (r.data || []).length <= 500) return r;
+            const seen = new Set(r.data.map(c => c.asset_id));
+            const rest = await Promise.all(part.filter(id => !seen.has(id)).map(id => db.from('pm_completions')
+              .select('asset_id, completed_at').eq('asset_id', id).eq('status', 'done').gte('completed_at', _since)
+              .order('completed_at', { ascending: false }).limit(1)));
+            return { data: r.data.concat(...rest.map(x => x.data || [])), error: rest.find(x => x.error)?.error || null };
+          });
           const lastByAsset = {};
           (comps || []).forEach(c => {
             if (!lastByAsset[c.asset_id]) lastByAsset[c.asset_id] = new Date(c.completed_at).getTime();

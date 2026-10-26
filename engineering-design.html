@@ -785,7 +785,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
             <div data-i="p_reportpreview_592c" class="text-sm font-semibold" style="color:rgba(255,255,255,0.83);">Report Preview</div>
             <div class="flex flex-wrap gap-2">
-              <button class="btn-ghost text-sm py-2 px-4 flex-1 sm:flex-none" onclick="printReport()" data-i="downloadpdf">⬇ Download PDF</button>
+              <button id="pdf-btn" class="btn-ghost text-sm py-2 px-4 flex-1 sm:flex-none" onclick="printReport()" data-i="downloadpdf">⬇ Download PDF</button>
               <!-- id so saveCalc() can disable its own control while the insert is in flight: the inline
                    onclick passes no element, and an un-disabled Save is two engineering_calcs rows. -->
               <button id="save-calc-btn" class="btn-primary text-sm py-2 px-4 flex-1 sm:flex-none" onclick="saveCalc()" data-i="save">💾 Save</button>
@@ -794,6 +794,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <button type="button" id="ed-compare-btn" class="btn-ghost text-sm py-2 px-4 flex-1 sm:flex-none" onclick="edCompareKeep()">⇄ Compare</button>
             </div>
           </div>
+          <!-- OWN dependency lens (2026-10-26): the PDF service sleeps on Render's free tier; a person waiting up to 45 s is
+               told why, and told when the PDF was made on their device instead -->
+          <p id="pdf-status" class="text-xs mb-3" role="status" aria-live="polite" style="color:rgba(255,255,255,0.80);" hidden></p>
           <div id="ed-share-box" class="ed-share-box" hidden>
             <label for="ed-share-url">Link to this calculation. It carries the inputs, the project name too.</label>
             <input id="ed-share-url" type="url" readonly>
@@ -992,12 +995,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script>window.addEventListener('load', function () { if (window.whAutoRememberFilters) whAutoRememberFilters('eng-search', ['calc-search']); });</script><!-- G5a: remember the calc search cross-session -->
 
 <!-- html2pdf: clean PDF export without browser headers/footers -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc" crossorigin="anonymous"></script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha384-Yv5O+t3uE3hunW8uyrbpPW3iw6/5/Y7HitWJBLgqfMoA36NogMmy+8wWZMpn3HWc" crossorigin="anonymous"></script>
 
 <!-- Mermaid.js: system diagram rendering -->
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" crossorigin="anonymous"></script>
+<script async src="https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js" integrity="sha384-T/0lMUdJpd2S1ZHtRiofG3htU3xPCrFVeAQ1UUE2TJwlEJSV5NUwn30kP28n238E" crossorigin="anonymous" onload="window.mermaid && window.mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' })"></script>
 <script>
-  mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
+  // both libraries load async (OWN dependency lens, 2026-10-26): sync, a slow CDN held the page and the calculator below them;
+  // deferred, it still held the calculator, queued behind them. Mermaid initialises from its own onload (inline at parse
+  // time it threw a ReferenceError whenever the CDN did not deliver it); the diagram and PDF paths already guard a missing library
+  if (window.whWatchLibrary) {
+    whWatchLibrary('https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.min.js', 'mermaid', 'The system diagram library');
+    whWatchLibrary('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js', 'html2pdf', 'The PDF exporter');
+  }
 </script>
 
 <!-- Engineering symbol library: SVG primitives for SLD, P&ID, LPS drawings -->

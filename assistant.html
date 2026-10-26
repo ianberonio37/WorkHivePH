@@ -865,6 +865,15 @@
       if (chat && chat.style.display !== 'none') { _whSuppressPush = true; showScreen('setup-screen'); _whSuppressPush = false; }
     });
     let _whSuppressPush = false;
+    // ★BACK FROM A PAGE THE PERSON HAD JUST OPENED SHOWED A SCREEN THEY NEVER SAW (OWN161 walk, 2026-10-27). A remembered
+    // name routes the load straight into the chat, and showScreen pushed {whChat:1} for it - so the first Back after
+    // arriving from index landed on the setup screen of the same page, and leaving took two presses. The page made that
+    // move, not the person: the load route enters the chat with no entry, and sendMessage pushes one when the thread first
+    // holds something Back would lose. A Start Chat tap from setup is the person's own navigation and still pushes.
+    function _whEnterChat() {
+      _whSuppressPush = true;
+      try { startChat(); } finally { _whSuppressPush = false; }   // startChat reaches showScreen before its first await
+    }
 
     function showScreen(id) {
       if (id === 'chat-screen' && !_whSuppressPush && !(history.state && history.state.whChat)) {
@@ -982,7 +991,11 @@
       // counts, same scoping, and the unknown-versus-zero discipline kept per row.
       let logbookCount = null;   // null = not read yet; a real 0 means 'none', and the two must not render alike
       let assetCount = null, pmCount = null;
-      if (name) {
+      // ★THE COUNTS WAITED FOR A NAME THE ACCOUNT ALREADY HAD (OWN walk, 2026-10-26). This block ran only `if (name)`, so a
+      // signed-in person whose device remembered no name read nothing - and the three unread counts below rendered "Could
+      // not read your records", a failure for a read that was never made. The account is the identity; the name only
+      // reaches legacy rows no account holds.
+      {
         // Cold-load 401 sibling (matches buildSystemPrompt's fix): restoreIdentityFromSession
         // is fire-and-forget, so this count can race the JWT attach on a fresh device and 401
         // → a false "0 records" + empty-nudge. getUser() settles the client's auth first.
@@ -1001,7 +1014,8 @@
           (_uid
             ? db.from('v_logbook_truth').select('id', { count: 'exact', head: true })
                 .or('auth_uid.eq.' + _uid + ',and(auth_uid.is.null,worker_name.eq.' + JSON.stringify(String(name || '')) + ')')
-            : db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', name)),
+            : name ? db.from('v_logbook_truth').select('id', { count: 'exact', head: true }).eq('worker_name', name)
+            : Promise.resolve({ count: 0 })),   // signed out and nameless: no records reachable, a known 0 like the two below
           // canonical-allow: the same lightweight counts startChat uses for hasRecords (not truth reads);
           // scopeOwn applies the hive_id/auth_uid scoping, and a signed-out reader gets a known 0.
           _uid ? whScopeOwn(db.from('asset_nodes').select('id', { count: 'exact', head: true }), _uid) : Promise.resolve({ count: 0 }),
@@ -2422,6 +2436,10 @@ happens to know maintenance, not a manual.`;
       _pendingUserEl = addUserBubble(text);
       _pendingText   = text;
       sessionMessages.push({ role: 'user', content: text });
+      // The thread now holds something Back would lose, so it earns its entry here (the load route skips it - _whEnterChat)
+      if (currentScreen === 'chat-screen' && !(history.state && history.state.whChat)) {
+        try { history.pushState({ whChat: 1 }, ''); } catch (_) { /* empty-catch-allow: history blocked in some webviews */ }
+      }
       // ★MY OWN FIX WAS WRONG ON ITS OWN TERMS (design lens critique, 2026-09-15). Batch 4 packed the last
       // six turns into `context.recent_turns` saying the page "stops withholding what it has". Two things
       // are true instead. The only `recent_turns` in the functions tree is in _shared/memory.ts, a SERVER
@@ -3072,6 +3090,17 @@ happens to know maintenance, not a manual.`;
       if (typeof restoreIdentityFromSession === 'function') {
         restoreIdentityFromSession(db).catch(() => {});
       }
+      // ★SIGNED IN, NOTHING REMEMBERED: SETUP ASKED FOR A NAME THE ACCOUNT HAD (OWN walk, 2026-10-26). The routing below reads
+      // the name CACHE, so a signed-in worker whose device remembered no name (Bryan, walked at 390 and 1280) stood on
+      // "YOUR NAME" with an empty box. The restore above announces the account's name (wh-identity-changed); a person still
+      // on setup with the box empty is routed exactly as one whose name was remembered.
+      window.addEventListener('wh-identity-changed', (ev) => {
+        const now = ev && ev.detail && ev.detail.now;
+        const el = document.getElementById('worker-name');
+        if (!now || !el || el.value.trim() || currentScreen !== 'setup-screen') return;
+        el.value = now;
+        _whEnterChat();
+      });
 
       // W3-DF: now that `db` exists, ask whether this reader actually HAS a session and upgrade the
       // scope chip if so. Until this resolves the chip carries the cautious sentence, which is the
@@ -3121,7 +3150,7 @@ happens to know maintenance, not a manual.`;
       if (savedName) {
         // Already signed in: skip setup and go straight to chat
         document.getElementById('worker-name').value = savedName;
-        startChat();
+        _whEnterChat();
       } else {
         // 2026-10-06 (assistant x assistive-tech, PostgREST stopped): this blamed the connection for every failure,
         // including a service outage with navigator.onLine TRUE. whReadError names the cause it can actually see.

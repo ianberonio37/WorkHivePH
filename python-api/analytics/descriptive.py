@@ -394,6 +394,9 @@ def calc_repeat_failures(logbook_entries: list[dict]) -> dict:
 
     df = _corrective_only(df)
     df = df[df["root_cause"].notna() & (df["root_cause"].str.strip() != "")]
+    # BRH.10 AI (2026-10-26): "Unknown" is the list's word for no cause found - two of them on a machine are not the
+    # same cause failing twice, so they never read as an ineffective repair
+    df = df[df["root_cause"].str.strip().str.lower() != "unknown"]
 
     if df.empty:
         return {"repeats": [], "note": "No corrective entries with root_cause logged"}

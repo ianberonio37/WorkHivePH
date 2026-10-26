@@ -157,3 +157,31 @@
     };
   }
 })();
+
+// ── In-page jumps add no history (OWN browser Back, 2026-10-27) ──────────────────────────────────────────────────────
+// Not i18n: this file is simply the one script every public article and calculator page already loads, so it is where
+// a public-page behaviour lands without editing ~120 pages and their generators. MEASURED: on a learn article, three
+// taps in the table of contents left two extra history entries, so the reader's Back walked back through the article
+// instead of leaving it (tools/prove_anchor_back.mjs). A tap on a same-page #link now scrolls to its target, moves focus
+// there as the native jump does (for keyboard and screen-reader readers), and REPLACES the URL's #fragment instead of
+// adding an entry - one Back leaves the page. Modified clicks, a bare "#", and links whose target is missing are left
+// to the browser. Scrolling follows the page's own CSS scroll-behaviour (none of these pages sets one).
+(function whAnchorJumpsReplace() {
+  if (typeof document === 'undefined' || window.__whAnchorJumps) return;
+  window.__whAnchorJumps = true;
+  document.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest('a[href^="#"]') : null;
+    if (!a) return;
+    var h = a.getAttribute('href');
+    if (!h || h.length < 2) return;
+    var t = null;
+    try { t = document.getElementById(decodeURIComponent(h.slice(1))); } catch (_) { t = null; }
+    if (!t) return;
+    e.preventDefault();
+    t.scrollIntoView({ block: 'start' });
+    try { history.replaceState(history.state, '', h); } catch (_) { /* the jump still happened */ }
+    if (!t.hasAttribute('tabindex') && !/^(A|BUTTON|INPUT|SELECT|TEXTAREA|SUMMARY)$/.test(t.tagName)) t.setAttribute('tabindex', '-1');
+    try { t.focus({ preventScroll: true }); } catch (_) { /* focus is best-effort */ }
+  });
+})();

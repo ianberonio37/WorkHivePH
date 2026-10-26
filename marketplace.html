@@ -4693,7 +4693,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     slot.innerHTML = '<div id="svc-pin-map" style="height:220px;border-radius:var(--wh-radius);overflow:hidden;"'
       + ' role="application" aria-label="Tap the map to mark where the job is"></div>'
       + '<p id="svc-pin-note" style="font-size: 0.75rem;opacity:0.85;margin-top:0.25rem;">Tap the map where the job is.</p>';
-    const map = whMap.create('svc-pin-map', _svcPin ? { center: _svcPin, zoom: 14 } : { zoom: 11 });
+    const _pinFail = 'The map could not load right now. Your typed address still works - providers will read it.';
+    const map = whMap.create('svc-pin-map', _svcPin ? { center: _svcPin, zoom: 14, failText: _pinFail } : { zoom: 11, failText: _pinFail });
     if (!map) { slot.innerHTML = '<p style="font-size:0.75rem;opacity:0.8;">' + _t("Map unavailable on this device. ", "Hindi available ang mapa sa device na ito. ") + ''
       + 'Your typed address still works.</p>'; return; }
     let mk = _svcPin ? whMap.marker(map, _svcPin, 'site', 'Job site') : null;
