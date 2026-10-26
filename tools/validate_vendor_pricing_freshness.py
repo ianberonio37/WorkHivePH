@@ -59,7 +59,7 @@ BRANDS = re.compile(
     r"Maintenance Connection|Asset Panda|ManagerPlus|Brightly)\b")
 PRICE = re.compile(r"\$\s?\d")
 # "verified ... on 5 August 2026" / "accessed August 2026" style
-VERIFIED = re.compile(r"verified[^.<>]{0,120}?on\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})", re.I)
+VERIFIED = re.compile(r"(?:verified|re-checked)[^.<>]{0,120}?on\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})", re.I)
 CADENCE = re.compile(r"reviewed\s+(quarterly|monthly|annually)", re.I)
 
 WINDOW = {"monthly": 31, "quarterly": 92, "annually": 366}
@@ -105,8 +105,10 @@ def audit(today: _dt.date | None = None, pages: list[str] | None = None) -> dict
             continue
         rel = p.relative_to(ROOT).as_posix() if str(ROOT) in str(p) else p.name
         cad = (CADENCE.search(html).group(1).lower() if CADENCE.search(html) else DEFAULT_CADENCE)
-        m = VERIFIED.search(html)
-        when = _parse(m.group(1)) if m else None
+        # the LATEST check counts: a refresh writes "re-checked ... on <new date> (first verified <old date>)", and the
+        # first match alone would read the page as never re-checked - or, phrased the other way round, as older (2026-10-27)
+        dates = [d for d in (_parse(x.group(1)) for x in VERIFIED.finditer(html)) if d]
+        when = max(dates) if dates else None
         row = {"page": rel, "cadence": cad, "verified": when.isoformat() if when else None,
                "age_days": (today - when).days if when else None,
                "window": WINDOW[cad], "prices": len(PRICE.findall(html))}

@@ -109,6 +109,16 @@ def scan_source(src: str):
         # file mentioned a flag, which would clear a target that never touched one.
         if any(re.search(rf"\b{re.escape(v)}\b", target) for v in derived):
             continue
+        # ★A MERGE IS NOT A CLOBBER (2026-10-27). A prover that READS the same file into the object it writes back
+        # (`const prior = existsSync(OUT) ? JSON.parse(readFileSync(OUT, ...)) : {...}` ... `writeFileSync(OUT,
+        # JSON.stringify(prior ...))`) re-measures only what the run touched and keeps every other verdict - a --page
+        # run updates one page of the full sweep, which is the opposite of destroying it. Both halves are required:
+        # reading the file and then writing a fresh object would still clobber.
+        holder = re.search(r"\bconst\s+([A-Za-z_$][\w$]*)\s*=\s*[^;]*JSON\.parse\(\s*readFileSync\(\s*"
+                           + re.escape(target) + r"\b", src)
+        if holder and re.search(r"writeFileSync\(\s*" + re.escape(target) + r"\s*,\s*JSON\.stringify\(\s*"
+                                + re.escape(holder.group(1)) + r"\b", src):
+            continue
         bad.append(target[:70])
     return bad
 
@@ -153,6 +163,15 @@ def selftest() -> int:
         len(scan_source("writeFileSync('x_report.json', JSON.stringify(o));")), 0)
     chk("a non-report write is out of scope",
         len(scan_source(narrowing + "writeFileSync('scratch.json', JSON.stringify(o));")), 0)
+    # 2026-10-27: read-merge-write keeps the sweep; reading and then writing a FRESH object still clobbers
+    chk("accepts a read-merge-write of the same file",
+        len(scan_source(narrowing + "const OUT = 'x_report.json';\n"
+                                    "const prior = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : { pages: {} };\n"
+                                    "writeFileSync(OUT, JSON.stringify(prior, null, 1));")), 0)
+    chk("catches a read followed by a write of a fresh object",
+        len(scan_source(narrowing + "const OUT = 'x_report.json';\n"
+                                    "const prior = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : { pages: {} };\n"
+                                    "writeFileSync(OUT, JSON.stringify(fresh, null, 1));")), 1)
     print(f"\n  SELFTEST: {'PASS' if ok else 'FAIL'}")
     return 0 if ok else 1
 

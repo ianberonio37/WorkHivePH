@@ -20,8 +20,28 @@ from __future__ import annotations
 import subprocess
 import sys
 
-BRYAN = "91e0d1eb-cd96-43ee-af5f-0ff2714b3923"      # worker, Baguio Textile Mills
-LEANDRO = "bcb5a6e3-fb12-4238-bc1e-ffeb48f60d53"    # supervisor of Baguio Textile Mills
+BAGUIO = "084c113b-99c0-45c6-a8e8-b4b8349da46d"     # pinned by the seeder (hives_workers.PINNED_HIVE_IDS)
+
+
+def _one(sql: str) -> str | None:
+    try:
+        out = subprocess.run(["docker", "exec", "-i", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres",
+                              "-At", "-c", sql], capture_output=True, text=True, timeout=60).stdout.strip()
+    except Exception:
+        return None
+    return out.splitlines()[0] if out else None
+
+
+def people() -> tuple[str | None, str | None]:
+    """A worker and the supervisor of Baguio, resolved LIVE (2026-10-27): the literal uids this gate named were recreated
+    with new ids on 2026-10-26, and a uid that names nobody reads 0 rows - the gate then 'proved' the supervisor sees
+    nothing. A worker is a worker-only member of Baguio; the supervisor is its supervisor."""
+    worker = _one(f"select auth_uid from hive_members m where hive_id = '{BAGUIO}' and role = 'worker' and status = 'active'"
+                  " and auth_uid is not null and not exists (select 1 from hive_members s where s.auth_uid = m.auth_uid"
+                  " and s.role = 'supervisor' and s.status = 'active') order by joined_at, id limit 1")
+    sup = _one(f"select auth_uid from hive_members where hive_id = '{BAGUIO}' and role = 'supervisor' and status = 'active'"
+               " and auth_uid is not null order by joined_at, id limit 1")
+    return worker, sup
 
 
 def as_user(uid: str) -> tuple[int, int, int, int] | None:
@@ -44,7 +64,8 @@ def as_user(uid: str) -> tuple[int, int, int, int] | None:
 
 
 def main() -> int:
-    w, s = as_user(BRYAN), as_user(LEANDRO)
+    worker, sup = people()
+    w, s = (as_user(worker) if worker else None), (as_user(sup) if sup else None)
     if w is None or s is None:
         print("FAIL observability-reads - the local database could not be asked (is supabase_db_workhive up?)")
         return 1

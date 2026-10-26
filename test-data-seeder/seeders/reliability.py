@@ -899,18 +899,22 @@ def seed_reliability(client, log, ctx: dict) -> dict:
             beta = round(random.uniform(0.95, 1.35), 2)
             eta  = round(random.uniform(200, 460), 1)
             pattern = "random" if beta < 1.05 else "wearout"
-        n_failures = random.randint(4, 12)
+        # the fitter's own rule (python-api/reliability/weibull.py): fewer than 4 failure events -> insufficient_data,
+        # no fit attempted. The seed drew 4-12 every time, so the REFUSAL state - the one that tells a planner not to act
+        # on a number - never existed locally (validate_workflow_states_present, 2026-10-27).
+        n_failures = random.randint(2, 12)
+        thin = n_failures < 4
         weibull_rows.append({
             "hive_id":            n["hive_id"],
             "asset_id":           n["id"],
             "fmea_mode_id":       None,
-            "beta":               beta,
-            "eta_days":           eta,
-            "failure_pattern":    pattern,
+            "beta":               None if thin else beta,
+            "eta_days":           None if thin else eta,
+            "failure_pattern":    "insufficient_data" if thin else pattern,
             "n_failures":         n_failures,
             "n_censored":         random.randint(0, 2),
             "fit_method":         "mle_lifelines",
-            "log_likelihood":     round(-1 * random.uniform(20, 80), 2),
+            "log_likelihood":     None if thin else round(-1 * random.uniform(20, 80), 2),
             "source_window_days": 730,
         })
 

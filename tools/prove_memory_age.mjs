@@ -29,7 +29,12 @@ function load(name) { return readFileSync(join(SHARED, name), "utf8").replace(/\
 function toModule(src, file) {
   let s = src
     .replace(/^import \{ SupabaseClient \} from "https:\/\/esm\.sh\/[^"]+";\n/m, "")
-    .replace(/^import \{ generateEmbedding \} from "\.\/embedding-chain\.ts";\n/m, "const generateEmbedding = async () => [];\n")
+    // any import from the embedding chain (journal-recall took generateEmbeddingTagged + pinnedEmbedderName in OWN55,
+    // 2026-10-27): this prover reads ages, never vectors, so every embedder is a stub that returns none
+    .replace(/^import \{[^}]*\} from "\.\/embedding-chain\.ts";\n/m,
+      "const generateEmbedding = async () => [];\n"
+      + "const generateEmbeddingTagged = async () => ({ vector: [], embedder: null });\n"
+      + "const pinnedEmbedderName = () => null;\n")
     .replace(/from "\.\/(memory_age|redactPII)\.ts"/g, 'from "./$1.mjs"');
   if (/from "https?:/.test(s) || /from "\.\/(?!memory_age|redactPII)/.test(s)) throw new Error(`${file}: an import the prover does not stub`);
   return stripTypeScriptTypes(s, { mode: "strip" });

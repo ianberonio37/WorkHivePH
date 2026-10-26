@@ -10,13 +10,18 @@
 -- only through bring_personal_history_into_hive(), by their press, by account. Fixture: Jun Salvador (6daa77a1), a solo
 -- owner with personal entries, made a Baguio member inside this rolled-back transaction; a NAMESAKE holding his name in
 -- a hive he is not in must not be able to move his entries.
+-- accounts by EMAIL, resolved before any role switch (literal uids rotted when accounts were recreated, 2026-10-27)
+CREATE TEMP TABLE IF NOT EXISTS _probe_acct AS SELECT
+  (SELECT id FROM auth.users WHERE email = 'bryangarcia@auth.workhiveph.com') AS bryan,
+  (SELECT id FROM auth.users WHERE email = 'junvanowner@auth.workhiveph.com') AS jun;
+GRANT SELECT ON _probe_acct TO authenticated;
 BEGIN;
 CREATE TEMP TABLE _jun AS SELECT array_agg(id) AS ids, count(*) AS n FROM public.logbook
- WHERE auth_uid = '6daa77a1-bc07-4cef-b363-92ccdb4735e2' AND hive_id IS NULL;
+ WHERE auth_uid = (SELECT jun FROM _probe_acct) AND hive_id IS NULL;
 -- not a member: refused
 SAVEPOINT a;
 SET LOCAL ROLE authenticated;
-SELECT set_config('request.jwt.claims', '{"sub":"6daa77a1-bc07-4cef-b363-92ccdb4735e2","role":"authenticated"}', true);
+SELECT set_config('request.jwt.claims', json_build_object('sub', (SELECT jun FROM _probe_acct)::text, 'role', 'authenticated')::text, true);
 DO $$ BEGIN
   PERFORM public.bring_personal_history_into_hive('084c113b-99c0-45c6-a8e8-b4b8349da46d');
   RAISE NOTICE 'FAIL a person who is not an active member cannot bring history in (it was allowed)';
@@ -36,9 +41,9 @@ CREATE TEMP TABLE _ns AS SELECT public.bring_personal_history_into_hive('084c113
 RESET ROLE;
 -- Jun himself, now a member
 INSERT INTO public.hive_members (hive_id, worker_name, auth_uid, role, status) VALUES
-  ('084c113b-99c0-45c6-a8e8-b4b8349da46d', 'Jun Salvador (probe)', '6daa77a1-bc07-4cef-b363-92ccdb4735e2', 'worker', 'active');
+  ('084c113b-99c0-45c6-a8e8-b4b8349da46d', 'Jun Salvador (probe)', (SELECT jun FROM _probe_acct), 'worker', 'active');
 SET LOCAL ROLE authenticated;
-SELECT set_config('request.jwt.claims', '{"sub":"6daa77a1-bc07-4cef-b363-92ccdb4735e2","role":"authenticated"}', true);
+SELECT set_config('request.jwt.claims', json_build_object('sub', (SELECT jun FROM _probe_acct)::text, 'role', 'authenticated')::text, true);
 CREATE TEMP TABLE _me AS SELECT public.bring_personal_history_into_hive('084c113b-99c0-45c6-a8e8-b4b8349da46d') AS r;
 RESET ROLE;
 SELECT CASE WHEN (SELECT (r->>'moved')::int FROM _ns) = 0
@@ -61,7 +66,7 @@ SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM public.logbook WHERE id IN (SELECT un
                   AND action = 'amend_closed_logbook_entry' AND created_at > now() - interval '1 minute') = 1
             THEN 'PASS' ELSE 'FAIL' END || ' a real amendment of a closed entry is still audited';
 ROLLBACK;
-SELECT CASE WHEN (SELECT count(*) FROM public.logbook WHERE auth_uid = '6daa77a1-bc07-4cef-b363-92ccdb4735e2' AND hive_id IS NOT NULL) = 0
+SELECT CASE WHEN (SELECT count(*) FROM public.logbook WHERE auth_uid = (SELECT jun FROM _probe_acct) AND hive_id IS NOT NULL) = 0
              AND NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'namesake.jun.probe@auth.workhiveph.com')
-             AND NOT EXISTS (SELECT 1 FROM public.hive_members WHERE auth_uid = '6daa77a1-bc07-4cef-b363-92ccdb4735e2')
+             AND NOT EXISTS (SELECT 1 FROM public.hive_members WHERE auth_uid = (SELECT jun FROM _probe_acct))
             THEN 'PASS' ELSE 'FAIL' END || ' nothing persisted after the rollback';

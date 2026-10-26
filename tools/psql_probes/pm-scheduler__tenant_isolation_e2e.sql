@@ -14,7 +14,9 @@ SELECT hm.hive_id, hm.auth_uid,
        (SELECT count(*) FROM pm_assets      WHERE hive_id <> hm.hive_id) AS f_assets,
        (SELECT count(*) FROM pm_completions WHERE hive_id <> hm.hive_id) AS f_comps,
        (SELECT count(*) FROM pm_scope_items WHERE hive_id <> hm.hive_id) AS f_scope
-FROM hive_members hm WHERE hm.status='active' AND hm.auth_uid IS NOT NULL LIMIT 1;
+FROM hive_members hm WHERE hm.status='active' AND hm.auth_uid IS NOT NULL
+  -- a member of ONE hive: a two-hive member legitimately reads both (the fixture, not a leak - 2026-10-27)
+  AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = hm.auth_uid AND y.status = 'active') = 1 LIMIT 1;
 GRANT SELECT ON _ti TO authenticated;
 SELECT 'control_sees_foreign | ' || ((SELECT f_assets FROM _ti) > 0 AND (SELECT f_comps FROM _ti) > 0
                                      AND (SELECT f_scope FROM _ti) > 0);

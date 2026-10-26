@@ -39,8 +39,11 @@ MIG = ROOT / "supabase" / "migrations"
 BACKFILL = "20261015800000_brh_x_explicit_api_grants.sql"
 API = ("anon", "authenticated", "service_role")
 NAME = r"(?:public\.)?\"?([a-z_][a-z0-9_]*)\"?"
+# ★ANY SCHEMA, AND ONLY public IS THE API (2026-10-27): with only `public.` optional, `create table private.scheduled_calls`
+# read as a table named "private" in public. Group 2 is a schema other than public (None for public or none named);
+# group 3 is the object. An object outside public is not reachable through the API and needs no API grant.
 CREATE = re.compile(r"\bcreate\s+(?:or\s+replace\s+)?(?:unlogged\s+)?(table|view|materialized\s+view|sequence)\s+"
-                    r"(?:if\s+not\s+exists\s+)?" + NAME, re.I)
+                    r"(?:if\s+not\s+exists\s+)?(?:(?!public\.)([a-z_][a-z0-9_]*)\.(?=\"?[a-z_]))?" + NAME, re.I)
 GRANT = re.compile(r"\bgrant\s+[a-z ,()_]+?\s+on\s+(?:table\s+|sequence\s+)?((?:(?:public\.)?\"?[a-z_][a-z0-9_]*\"?\s*,\s*)*"
                    r"(?:public\.)?\"?[a-z_][a-z0-9_]*\"?)\s+to\s+([a-z_, ]+)", re.I)
 REVOKE_ALL = re.compile(r"\brevoke\s+all\s+(?:privileges\s+)?on\s+(?:table\s+)?" + NAME + r"\s+from\s+([a-z_, ]+)", re.I)
@@ -90,7 +93,7 @@ def check_static(migs) -> list[str]:
     for name, text in migs:
         t = strip_sql(text)
         if name <= BACKFILL:
-            existed |= {m.group(2).lower() for m in CREATE.finditer(t)}
+            existed |= {m.group(3).lower() for m in CREATE.finditer(t) if not m.group(2)}
             if name == BACKFILL:
                 existed |= {m.group(1) for m in TUPLE.finditer(t)}
             continue
@@ -99,7 +102,9 @@ def check_static(migs) -> list[str]:
                   if {"anon", "authenticated"} <= {r.strip().lower() for r in m.group(2).split(",")}}
         dropped = {m.group(1).lower(): m.start() for m in DROP.finditer(t)}
         for m in CREATE.finditer(t):
-            obj = m.group(2).lower()
+            if m.group(2):
+                continue   # another schema: not reachable through the API
+            obj = m.group(3).lower()
             replace = bool(re.match(r"create\s+or\s+replace\s+view", m.group(0), re.I))
             keeps = replace and obj in existed and not (obj in dropped and dropped[obj] < m.start())
             existed.add(obj)

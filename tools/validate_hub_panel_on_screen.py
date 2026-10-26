@@ -48,7 +48,8 @@ STATIC = {
                                                               re.compile(r"""classList\.toggle\(\s*['"]wh-panel-below['"]""")),
     "the top safe-area inset is read": (re.compile(r"safe-area-inset-top"),),
     "the stored position is re-clamped on resize": (re.compile(r"""addEventListener\(\s*['"]resize['"][\s\S]{0,600}clampBottom\("""),),
-    "openHub() places the panel": (re.compile(r"function openHub\(\)[\s\S]{0,600}placePanel\(\)"),),
+    # window 600 -> 1500 (2026-10-27): openHub gained the Back-stack entry and its comment, which pushed the call past 600
+    "openHub() places the panel": (re.compile(r"function openHub\(\)[\s\S]{0,1500}placePanel\(\)"),),
     "the drag clamp honours the inset": (re.compile(CLAMP_BODY + r"safeInset\(\s*['\"]top['\"]\s*\)"),),
     "the drag clamp takes off a fixed bottom bar's lift": (re.compile(CLAMP_BODY + r"--wh-fab-lift"),
                                                           # a subtraction, not the "-lift" inside the property's own name
@@ -63,7 +64,9 @@ def static_findings(src: str) -> list[str]:
 def report_findings(src: str, rep: dict | None) -> list[str]:
     if rep is None:
         return ["no hub_panel_on_screen_report.json - run: node tools/prove_hub_panel_on_screen.mjs (and --engine webkit)"]
-    sha = hashlib.sha256(src.encode("utf-8")).hexdigest()[:12]
+    # the FILE's bytes, as the prover hashes them (readFileSync): a text read normalises CRLF, so on a Windows checkout
+    # the two hashes never met and a fresh report read as stale (2026-10-27)
+    sha = hashlib.sha256((ROOT / "nav-hub.js").read_bytes()).hexdigest()[:12]
     out = []
     if rep.get("nav_hub_sha") != sha:
         out.append(f"the report was taken against nav-hub.js {rep.get('nav_hub_sha')}, the file is now {sha} - re-run the prover")

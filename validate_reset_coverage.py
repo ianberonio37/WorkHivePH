@@ -162,6 +162,9 @@ def parse_reset_py() -> tuple[set, set]:
     src = read_file(str(RESET_PY))
     if not src:
         return set(), set()
+    # Comments out first (2026-10-27): an apostrophe in a comment ("rows' link") opened a 'string' the entry regex then
+    # carried to the next apostrophe, and 60+ real entries vanished inside it - the gate reported asset_nodes uncleared.
+    src = "\n".join(re.sub(r"\s#.*$", "", line) if not line.lstrip().startswith("#") else "" for line in src.splitlines())
 
     main_set: set = set()
     non_id_set: set = set()

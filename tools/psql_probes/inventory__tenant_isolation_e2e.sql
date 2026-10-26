@@ -24,6 +24,8 @@ SELECT hm.hive_id, hm.auth_uid,
        (SELECT i.id FROM inventory_items i WHERE i.hive_id <> hm.hive_id AND i.hive_id IS NOT NULL LIMIT 1) AS foreign_item,
        (SELECT count(*) FROM inventory_transactions) AS n0
 FROM hive_members hm WHERE hm.status='active' AND hm.auth_uid IS NOT NULL
+  -- a member of ONE hive: a two-hive member legitimately reads both (the fixture, not a leak - 2026-10-27)
+  AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = hm.auth_uid AND y.status = 'active') = 1
   AND EXISTS (SELECT 1 FROM inventory_items i WHERE i.hive_id = hm.hive_id) LIMIT 1;
 GRANT SELECT ON _ti TO authenticated;
 SELECT 'control_sees_foreign | ' || ((SELECT f_items FROM _ti) > 0 AND (SELECT f_txns FROM _ti) > 0);

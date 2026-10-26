@@ -149,12 +149,22 @@ def _snapshot_L_minus_1_5() -> dict:
     return snap
 
 
+# The first number of most baselines is a count of defects, so a rise is rot. These leading keys name a
+# figure that should GROW - a score, a pass count, an adoption floor, a journey percentage - and for them
+# the naive diff was inverted both ways: guard_mutation's score 99 -> 100 blocked a commit as a regression
+# (2026-10-27), and a journeys_pct falling 100 -> 90 would have been banked as a ratchet.
+HIGHER_IS_BETTER_KEYS = {
+    "score", "covered", "pass", "U_pass", "S_pass", "adopters", "adopter_floor", "adoption_pct",
+    "journeys_pct", "journey_pct", "walkthrough_coverage",
+}
+
+
 def _snapshot_L0() -> dict:
     """L0 static validators with forward-only ratchet baselines. Reads
     each *_baseline.json + corresponding *_report.json to surface
     'current' and 'baseline' counts. Tightening = ratchet event."""
     snap: dict[str, Any] = {"baselines": {}, "total_baseline_count": 0,
-                            "validators_with_baseline": 0}
+                            "validators_with_baseline": 0, "higher_is_better": []}
     for bf in sorted(ROOT.glob("*_baseline.json")):
         name = bf.name.replace("_baseline.json", "")
         try:
@@ -164,9 +174,12 @@ def _snapshot_L0() -> dict:
         # The baseline file stores the locked count under various keys
         # depending on the validator. Pull the first numeric value.
         baseline_count = 0
-        for v in baseline_doc.values():
+        for k, v in baseline_doc.items():
             if isinstance(v, (int, float)):
-                baseline_count = int(v); break
+                baseline_count = int(v)
+                if k in HIGHER_IS_BETTER_KEYS:
+                    snap["higher_is_better"].append(name)
+                break
         snap["baselines"][name] = baseline_count
         snap["total_baseline_count"] += baseline_count
         snap["validators_with_baseline"] += 1
@@ -209,13 +222,14 @@ def _diff_L0(prev: dict, curr: dict) -> tuple[list, list]:
     """Compare baselines across turns. Return (ratchets, regressions)."""
     p_base = prev.get("baselines", {})
     c_base = curr.get("baselines", {})
+    better_up = set(curr.get("higher_is_better", []))
     ratchets, regressions = [], []
     for name, c_val in c_base.items():
         p_val = p_base.get(name, c_val)  # unknown = no change
-        if c_val < p_val:
-            ratchets.append({"validator": name, "from": p_val, "to": c_val})
-        elif c_val > p_val:
-            regressions.append({"validator": name, "from": p_val, "to": c_val})
+        if c_val == p_val:
+            continue
+        worse = (c_val < p_val) if name in better_up else (c_val > p_val)
+        (regressions if worse else ratchets).append({"validator": name, "from": p_val, "to": c_val})
     # New baselines (validator added this turn)
     for name in c_base:
         if name not in p_base:
@@ -261,6 +275,10 @@ ENV_ERROR_SIGNATURES = (
 # *_baseline.json files that are NOT a single validator's ratchet (gate-wide
 # snapshots) — never classified as a code regression.
 NON_VALIDATOR_BASELINES = {"platform"}
+# A baseline whose validator is not named validate_<baseline>.py. Without the mapping the rise is filed
+# `unknown` and scored: ai_seams 185 -> 186 (2026-10-27) was one reviewed seam with its contract test,
+# and it blocked a commit as a regression.
+VALIDATOR_FOR_BASELINE = {"ai_seams": "validate_ai_seams_inventory.py"}
 
 
 def _read_single_baseline(name: str) -> int | None:
@@ -285,6 +303,9 @@ def _baseline_to_validator(name: str) -> Path | None:
     improved" shape. With the path found, the existing machinery does the right thing on its own: the
     re-run exits 0 and the rise classifies as adoption-ratchet. Nothing is loosened -- a validator
     that actually FAILS at the new count still classifies `real` and still scores."""
+    if name in VALIDATOR_FOR_BASELINE:
+        cand = ROOT / VALIDATOR_FOR_BASELINE[name]
+        return cand if cand.exists() else None
     for cand in (ROOT / f"validate_{name}.py", ROOT / "tools" / f"validate_{name}.py"):
         if cand.exists():
             return cand

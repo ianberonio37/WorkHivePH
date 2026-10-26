@@ -222,7 +222,7 @@ def seed_pm(client, log, ctx: dict) -> dict:
     # toggle can be unchecked. A sample keeps both branches of that reality present in the data.
     try:
         done = [c for c in (client.table("pm_completions")
-                            .select("id,hive_id,asset_id,worker_name,completed_at,notes")
+                            .select("id,hive_id,asset_id,worker_name,auth_uid,completed_at,notes")
                             .eq("status", "done").limit(40).execute().data or [])]
         if done:
             pm_asset_ids = list({c["asset_id"] for c in done if c.get("asset_id")})
@@ -246,6 +246,9 @@ def seed_pm(client, log, ctx: dict) -> dict:
                     "id":                f"pmlog-{c['id'][:12]}",
                     "hive_id":           c["hive_id"],
                     "worker_name":       c["worker_name"],
+                    # the completion's author owns the mirrored entry: logbook's write policy keys on auth_uid, so a
+                    # row without it is one its own author can never edit (author-can-edit-own-work, 2026-10-27)
+                    "auth_uid":          c.get("auth_uid"),
                     "date":              c["completed_at"],
                     "machine":           tag,                      # the TAG, not the display name
                     "asset_node_id":     node_by_pm_asset.get(c.get("asset_id")),  # canonical lineage, gate #27

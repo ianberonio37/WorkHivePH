@@ -80,6 +80,7 @@ EXTERNAL_USE_KEYS: dict = {
 # When missing, the function should branch gracefully (CORS fallback to *,
 # feature disabled banner, etc.). Documented case-by-case.
 OPTIONAL_VARS: dict = {
+    "WH_INTERNAL_CALL_SECRET": "scheduled jobs' bearer in production (tenant-context.ts isServiceRoleBearer): the runtime's own service key cannot be read there, so cron sends this from Vault. UNSET (local) MEANS ONLY THE SERVICE KEY IS ACCEPTED - and a value under 32 characters is refused, so a short or empty secret can never admit a caller (2026-10-26).",
     "AI_EVAL_RUN_BUDGET_MS": "ai-eval-runner wall-clock budget; falls back to 110000 ms (floor 30000) when unset, so a run stops starting fixtures before the hosted 150 s limit (2026-10-08)",
     "ALLOWED_ORIGIN": "CORS allowlist; falls back to '*' when unset (dev)",
     "RESEND_API_KEY": "Email sends silently noop without it; report-sender shows 'email not configured'",

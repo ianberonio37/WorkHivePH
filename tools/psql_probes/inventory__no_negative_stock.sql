@@ -27,6 +27,11 @@ SELECT i.id AS item_id, i.qty_on_hand AS before_qty, hm.auth_uid,
 FROM inventory_items i
 JOIN hive_members hm ON hm.hive_id = i.hive_id AND hm.status = 'active' AND hm.auth_uid IS NOT NULL
 WHERE i.qty_on_hand > 0
+  -- an item with nothing STAGED for a predicted failure: guard_staged_stock rightly refuses to let a use eat staged
+  -- stock, so an overdraw of a staged item proves that guard, not this clamp (a clean reseed picked HPU-001's staged
+  -- part first, 2026-10-27)
+  AND NOT EXISTS (SELECT 1 FROM parts_staged_reservations r
+                   WHERE r.item_id = i.id AND r.consumed_at IS NULL AND r.released_at IS NULL)
 LIMIT 1;
 SELECT 'teeth_fixture_found | ' || EXISTS (SELECT 1 FROM _fix);
 

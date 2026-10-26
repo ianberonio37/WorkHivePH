@@ -160,7 +160,10 @@ def link_graph(strip_scripts: bool = False) -> dict:
     # reported "learn/index.html links to nothing" while the file plainly links to every article. An earlier
     # fix had already taught the graph to recognise `/learn/` as a DESTINATION; being a destination and
     # being a source are two different memberships and only one of them had been granted.
-    for pat in ("*.html", "tools/*/index.html", "learn/*/index.html", "learn/index.html", "tools/index.html"):
+    # ★AND THE OTHER PUBLIC DIRECTORIES (2026-10-27): about/, feedback/, privacy-policy/, terms-of-service/ are pages a
+    # journey names too, and with only tools/ and learn/ known the gate reported index -> about "no page offers this
+    # destination at all" while index.html links /about/ in its footer. `*/index.html` covers every one-level section.
+    for pat in ("*.html", "tools/*/index.html", "learn/*/index.html", "*/index.html"):
         for f in glob.glob(str(ROOT / pat)):
             p = Path(f)
             # ★KEY IT THE WAY THE PATHS NAME IT. The journey paths say "tools/oee-calculator/index.html";
@@ -201,10 +204,12 @@ def link_graph(strip_scripts: bool = False) -> dict:
                     h = h + "/index.html"
                 elif h.startswith(("tools/", "learn/")) and not h.endswith(".html"):
                     h = h.rstrip("/") + "/index.html"
+                elif not h.endswith(".html") and "." not in h.split("/")[-1] and (ROOT / h / "index.html").is_file():
+                    h = h.rstrip("/") + "/index.html"   # /about/, /feedback/ - any section with its own index
                 if not h.endswith(".html"):
                     continue
                 # a root page is named by its file; a subpage by the path the journey paths use
-                hrefs.add(h if h.startswith(("tools/", "learn/")) else h.split("/")[-1])
+                hrefs.add(h if (h.startswith(("tools/", "learn/")) or h.endswith("/index.html")) else h.split("/")[-1])
             out[key] = hrefs
     return out
 
@@ -366,9 +371,13 @@ def role_blocked_hops(paths=None, casts=None, links=None) -> list:
                 crossed = True
                 mode = after
                 continue
-            # a destination only a signed-OUT visitor can reach is unreachable to every cast here: each of
-            # them is somebody with an account, and the landing page hides that section from them
+            # a destination only a signed-OUT visitor can reach is unreachable to a cast with an account: the
+            # landing page hides that section from them. ★EXCEPT THE CAST THAT HAS NONE (2026-10-27): an `anon`
+            # archetype that has not crossed the auth wall IS the signed-out visitor the section is shown to -
+            # CX-PROD:anon and OWN:anon were reported unable to reach public-feed for being exactly its reader.
             if b in outonly:
+                if arch.split(":")[-1].strip() == "anon" and not crossed:
+                    continue
                 out.append((arch, mode, a, b, ["signed-out visitors only"], None))
                 continue
             r = roles.get(b)

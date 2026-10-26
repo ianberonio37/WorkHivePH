@@ -223,20 +223,28 @@ def apply(revert: bool) -> int:
             have_names = {u.strip() for u in units}
             vans = [v for v in vans if v[0] not in have_tags and v[1] not in have_names]
             vans = vans[:max(0, FLEET_MIN_UNITS - len(units))]
+            # each unit belongs to the fleet's supervisor, by ACCOUNT: asset_nodes' write policy keys on auth_uid, and a
+            # van written with none could never be edited by the person who runs the fleet (author-can-edit-own-work
+            # counted 14 such vans after a clean reseed, 2026-10-27)
+            owner = (psql(f"select auth_uid || '|' || worker_name from hive_members where hive_id = '{hid}' "
+                          "and role = 'supervisor' and status = 'active' and auth_uid is not null "
+                          "order by joined_at, id limit 1") or "").split("|", 1)
+            o_uid = f"'{owner[0]}'" if len(owner) == 2 and owner[0] else "NULL"
+            o_name = f"'{q(owner[1])}'" if len(owner) == 2 and owner[1] else "NULL"
             vrows = []
             for tag, vname, make, model, year, odo in vans:
                 meta = ('{"vin": null, "make": "%s", "year": "%s", "model": "%s", "plate": "%s", '
                         '"odometer_km": %d, "insurance_expiry": null, "registration_expiry": null, '
                         '"odometer_baseline_km": %d}') % (make, year, model, tag, odo, odo)
-                vrows.append("('{h}','{t}','{n}','equipment','medium','approved','{m}'::jsonb,'{{\"seed\":\"{k}\"}}'::jsonb)".format(
-                    h=hid, t=q(tag), n=q(vname), m=meta, k=MARKER))
+                vrows.append("('{h}','{t}','{n}','equipment','medium','approved','{m}'::jsonb,'{{\"seed\":\"{k}\"}}'::jsonb,{o},{w})".format(
+                    h=hid, t=q(tag), n=q(vname), m=meta, k=MARKER, o=o_uid, w=o_name))
             # Nothing left to add once the fleet is already at the floor. An empty VALUES list is a SQL
             # error, and "already stocked" is the normal outcome of a re-run, not a failure.
             if not vrows:
                 print(f"  {f}: already owns {len(units)} unit(s) - at or above the floor of {FLEET_MIN_UNITS}")
                 added = []
             else:
-                ins = psql("insert into asset_nodes (hive_id, tag, name, level, criticality, status, vehicle_meta, external_ids) values "
+                ins = psql("insert into asset_nodes (hive_id, tag, name, level, criticality, status, vehicle_meta, external_ids, auth_uid, worker_name) values "
                            + ",".join(vrows) + " returning name")
                 if ins is None:
                     print(f"  {f}: the vehicle insert did not answer - skipped rather than write jobs about phantom units")
@@ -316,7 +324,7 @@ def apply(revert: bool) -> int:
         ]
         for j, (mtype, problem, action, cause) in enumerate(RECURRING):
             when = (now - timedelta(days=12 + j * 24)).isoformat()      # ~12, 36 and 60 days back: inside the rule's 90-day window
-            rows.append("('{h}','{w}','{m}','{c}','{p}','{a}','{k}','Closed','{t}','{d}','{mt}','{rc}','{ca}')".format(
+            rows.append("('{h}','{w}','{m}','{c}','{p}','{a}','{k}','Closed','{t}','{d}','{mt}','{rc}','{ca}',(select auth_uid from worker_profiles where display_name = '{w}' limit 1))".format(
                 h=hid, w=q(who), m=q(units[0]), c="Vehicle", p=q(problem), a=q(action),
                 k=q(f"{MARKER}: the recurrence a fleet actually sees, on one unit"),
                 t=when, d=when[:10], mt=q(mtype), rc=q(cause),
@@ -328,13 +336,15 @@ def apply(revert: bool) -> int:
             # "Completed" - the word I brought. And `date` IS NOT NULL AND HAS NO DEFAULT. The first run wrote nothing and said so quietly
             # ("wrote 0 rows"), because the helper swallowed the constraint error - the column the product
             # actually keys its day on had to be read from the failure, not assumed from `created_at`.
-            rows.append("('{h}','{w}','{m}','{c}','{p}','{a}','{k}','Closed','{t}','{d}','{mt}','{rc}','{ca}')".format(
+            rows.append("('{h}','{w}','{m}','{c}','{p}','{a}','{k}','Closed','{t}','{d}','{mt}','{rc}','{ca}',(select auth_uid from worker_profiles where display_name = '{w}' limit 1))".format(
                 h=hid, w=q(who), m=q(unit), c="Vehicle", p=q(problem), a=q(action),
                 k=q(f"{MARKER}: seeded so the fleet journeys have a real history to walk"),
                 t=when, d=when[:10], mt=q(mtype), rc=q(cause),
                 ca=(datetime.fromisoformat(when) + timedelta(hours=CLOSE_HOURS[i % len(CLOSE_HOURS)])).isoformat()))
         if made == -1:
-            ins = psql("insert into logbook (hive_id, worker_name, machine, category, problem, action, knowledge, status, created_at, date, maintenance_type, root_cause, closed_at) values "
+            # auth_uid: logbook's write policy keys on it - the supervisor could not edit the history written in their
+            # name without it (author-can-edit-own-work, 33 rows after a clean reseed, 2026-10-27)
+            ins = psql("insert into logbook (hive_id, worker_name, machine, category, problem, action, knowledge, status, created_at, date, maintenance_type, root_cause, closed_at, auth_uid) values "
                        + ",".join(rows) + " returning id")
             if ins is None:
                 print(f"  {f}: the insert did not answer (database unreachable) - nothing written")
@@ -354,11 +364,13 @@ def apply(revert: bool) -> int:
                      ("Air filter element", "FLT-AIR-STD", 8, 3, "Filters"),
                      ("Wheel bearing grease 1kg", "GRS-WB-1KG", 5, 2, "Lubricants")]
             # worker_name is NOT NULL with no default - the person who keeps the shelf, read from the hive
-            vals = ",".join("('{h}','{w}','{n}','{p}',{q},{m},'{c}','{k}')".format(
+            # ...and its ACCOUNT: inventory_items' write policy keys on auth_uid (2026-10-27, 15 authorless parts)
+            vals = ",".join("('{h}','{w}','{n}','{p}',{q},{m},'{c}','{k}',"
+                            "(select auth_uid from worker_profiles where display_name = '{w}' limit 1))".format(
                 h=hid, w=q(who), n=q(name), p=q(pn), q=qty, m=mn, c=q(cat),
                 k=q(f"{MARKER}: parts the seeded jobs consume")) for name, pn, qty, mn, cat in parts)
             got = psql("insert into inventory_items (hive_id, worker_name, part_name, part_number, qty_on_hand, "
-                       f"min_qty, category, notes) values {vals} returning id")
+                       f"min_qty, category, notes, auth_uid) values {vals} returning id")
             n_parts = len([x for x in (got or "").split("\n") if x.strip()])
             print(f"  {f}: wrote {n_parts} inventory item(s) so the spare-part journey has something to move")
             total += n_parts

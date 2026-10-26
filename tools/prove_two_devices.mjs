@@ -22,6 +22,7 @@ import { chromium } from 'playwright';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { signIn, makeHelpers, assertSignedIn } from './live_page_journeys.mjs';
 import { JOURNEYS } from './live_page_journeys.registry.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const args = process.argv.slice(2);
 // one check per page the OWN two-devices lens names (OWN144..158), in that order
@@ -212,6 +213,8 @@ async function runOne(browser, id) {
   const out = { id, page: pageFile, role, ran: new Date().toISOString() };
   const ctxB = await browser.newContext({ viewport: { width: 1280, height: 900 }, timezoneId: 'Asia/Manila' });
   const ctxA = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, timezoneId: 'Asia/Manila' });
+  // SL LB3: a long list draws every row on both devices, so "the write appears on the other one" reads the whole list
+  await ctxB.addInitScript(ALL_ROWS_DRAWN); await ctxA.addInitScript(ALL_ROWS_DRAWN);
   let scCtx = null, qReal = null;
   try {
     const sb = await assertSignedIn(signIn(ctxB, role));

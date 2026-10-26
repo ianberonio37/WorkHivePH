@@ -16,6 +16,11 @@
 -- Cast: Christine Dizon (supervisor, hive 084c113b...) as the member; Bryan Garcia (member of 084c113b only) as the
 -- non-member of hive b4f7fe63.
 \set ON_ERROR_STOP on
+-- accounts by EMAIL, resolved before any role switch (literal uids rotted when accounts were recreated, 2026-10-27)
+CREATE TEMP TABLE IF NOT EXISTS _probe_acct AS SELECT
+  (SELECT id FROM auth.users WHERE email = 'bryangarcia@auth.workhiveph.com') AS bryan,
+  (SELECT id FROM auth.users WHERE email = 'junvanowner@auth.workhiveph.com') AS jun;
+GRANT SELECT ON _probe_acct TO authenticated;
 BEGIN;
 
 -- fixtures, as the owner connection (inside the rolled-back transaction)
@@ -23,7 +28,11 @@ CREATE TEMP TABLE _fx AS
 SELECT (SELECT id FROM public.inventory_items WHERE hive_id = '084c113b-99c0-45c6-a8e8-b4b8349da46d' AND status = 'approved'
          ORDER BY id LIMIT 1) AS item_own,
        (SELECT id FROM public.inventory_items WHERE hive_id = 'b4f7fe63-92e1-4f8d-b96e-625c3f85ba61' AND status = 'approved'
-         ORDER BY id LIMIT 1) AS item_foreign;
+         ORDER BY id LIMIT 1) AS item_foreign,
+       -- the acting supervisor, resolved LIVE (2026-10-27): the literal account this proof named was recreated with a new
+       -- id on 2026-10-26, so every call ran as nobody and the RLS refusal read as an RPC failure
+       (SELECT auth_uid FROM public.hive_members WHERE hive_id = '084c113b-99c0-45c6-a8e8-b4b8349da46d'
+           AND role = 'supervisor' AND status = 'active' AND auth_uid IS NOT NULL ORDER BY joined_at, id LIMIT 1) AS sup;
 INSERT INTO public.parts_staging_recommendations (id, hive_id, asset_name, risk_score, failure_mode, parts, rationale,
                                                   confidence, status, generated_at, expires_at)
 SELECT 'aaaaaaaa-0000-4000-8000-000000000001', '084c113b-99c0-45c6-a8e8-b4b8349da46d', 'PROOF pump', 0.9, 'wear',
@@ -33,7 +42,7 @@ SELECT 'aaaaaaaa-0000-4000-8000-000000000001', '084c113b-99c0-45c6-a8e8-b4b8349d
 GRANT SELECT ON _fx TO authenticated;
 
 SET LOCAL ROLE authenticated;
-SELECT set_config('request.jwt.claims', '{"sub":"b2916047-d5b6-4707-bb12-5a569acc1d74","role":"authenticated"}', true);
+SELECT set_config('request.jwt.claims', json_build_object('sub', (SELECT sup FROM _fx)::text, 'role', 'authenticated')::text, true);
 
 -- 1. inventory_adjust: a changed count writes ONE adjustment row and moves the balance together
 CREATE TEMP TABLE _r1 AS
@@ -85,7 +94,7 @@ SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM public.pm_assets WHERE asset_name = '
             THEN 'PASS' ELSE 'FAIL' END || ' a task that cannot be written leaves no asset behind';
 
 -- 4. a non-member: Bryan Garcia on a part in a hive he does not belong to
-SELECT set_config('request.jwt.claims', '{"sub":"91e0d1eb-cd96-43ee-af5f-0ff2714b3923","role":"authenticated"}', true);
+SELECT set_config('request.jwt.claims', json_build_object('sub', (SELECT bryan FROM _probe_acct)::text, 'role', 'authenticated')::text, true);
 SELECT CASE WHEN (public.inventory_adjust(f.item_foreign, NULL, 1, 'foreign')->>'reason') = 'not_found'
             THEN 'PASS' ELSE 'FAIL' END || ' a non-member cannot adjust another hive''s part (not_found)' FROM _fx f;
 

@@ -10,8 +10,15 @@
 -- the_rest_belongs_to_accounts (2026-10-08, migration 20261008000062). Orders, disputes, reviews, saved searches and
 -- the watchlist used the same name test as listings and inquiries did. For each party a NAMESAKE is made inside one
 -- rolled-back transaction - an account whose only tie is a hive membership under that party's name. Fixtures (looked
--- up, not typed): Romeo Beltran's order of Bryan Garcia's listing; Leonardo Romero's review; Isidro Suarez's watchlist
+-- up, not typed): Romeo Beltran's order of a seller's listing (read from the row); Leonardo Romero's review; Isidro Suarez's watchlist
 -- row; Hector Salvador's saved search.
+-- accounts by EMAIL, resolved before any role switch (literal uids rotted when accounts were recreated, 2026-10-27)
+CREATE TEMP TABLE IF NOT EXISTS _probe_acct AS SELECT
+  -- the SELLER of Romeo Beltran's own row (whoever the seed made it), not a pinned person
+  (SELECT l.auth_uid FROM public.marketplace_orders o JOIN public.marketplace_listings l ON l.id = o.listing_id
+     WHERE o.buyer_name = 'Romeo Beltran' AND l.auth_uid IS NOT NULL ORDER BY o.created_at LIMIT 1) AS seller,
+  (SELECT id FROM auth.users WHERE email = 'junvanowner@auth.workhiveph.com') AS jun;
+GRANT SELECT ON _probe_acct TO authenticated;
 BEGIN;
 SELECT CASE WHEN NOT EXISTS (
          SELECT 1 FROM pg_policy p JOIN pg_class c ON c.oid = p.polrelid WHERE c.relname LIKE 'marketplace%'
@@ -19,7 +26,7 @@ SELECT CASE WHEN NOT EXISTS (
             AND (coalesce(pg_get_expr(p.polqual, p.polrelid), '') || coalesce(pg_get_expr(p.polwithcheck, p.polrelid), '')) NOT ILIKE '%auth.uid()%')
        THEN 'PASS' ELSE 'FAIL' END || ' no marketplace policy decides access by a name alone';
 SELECT set_config('probe.order', (SELECT o.id::text FROM public.marketplace_orders o JOIN public.marketplace_listings l ON l.id = o.listing_id
-  WHERE o.buyer_name = 'Romeo Beltran' AND l.auth_uid = '91e0d1eb-cd96-43ee-af5f-0ff2714b3923' ORDER BY o.created_at LIMIT 1), true);
+  WHERE o.buyer_name = 'Romeo Beltran' AND l.auth_uid = (SELECT seller FROM _probe_acct) ORDER BY o.created_at LIMIT 1), true);
 SELECT set_config('probe.buyer', (SELECT buyer_auth_uid::text FROM public.marketplace_orders WHERE id = current_setting('probe.order')::uuid), true);
 SELECT set_config('probe.review', (SELECT id::text FROM public.marketplace_reviews WHERE reviewer_name = 'Leonardo Romero' AND request_id IS NULL ORDER BY created_at LIMIT 1), true);
 INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
@@ -60,7 +67,7 @@ SELECT set_config('request.jwt.claims', json_build_object('sub', current_setting
 CREATE TEMP TABLE _b AS SELECT (SELECT count(*) FROM public.marketplace_orders WHERE id = current_setting('probe.order')::uuid) AS seen;
 INSERT INTO public.marketplace_watchlist (worker_name, listing_id, auth_uid)
 SELECT 'Romeo Beltran', (SELECT id FROM public.marketplace_listings WHERE status = 'published' ORDER BY created_at LIMIT 1), '00000000-0000-4000-8000-00000000c003';
-SELECT set_config('request.jwt.claims', '{"sub":"91e0d1eb-cd96-43ee-af5f-0ff2714b3923","role":"authenticated"}', true);
+SELECT set_config('request.jwt.claims', json_build_object('sub', (SELECT seller FROM _probe_acct)::text, 'role', 'authenticated')::text, true);
 CREATE TEMP TABLE _sl AS SELECT (SELECT count(*) FROM public.marketplace_orders WHERE id = current_setting('probe.order')::uuid) AS seen;
 RESET ROLE;
 SELECT CASE WHEN (SELECT seen FROM _b) = 1 AND (SELECT seen FROM _sl) = 1
@@ -75,7 +82,7 @@ DO $$ BEGIN
 EXCEPTION WHEN insufficient_privilege THEN
   BEGIN
     SET LOCAL ROLE authenticated;
-    PERFORM set_config('request.jwt.claims', '{"sub":"91e0d1eb-cd96-43ee-af5f-0ff2714b3923","role":"authenticated"}', true);
+    PERFORM set_config('request.jwt.claims', json_build_object('sub', (SELECT seller FROM _probe_acct)::text, 'role', 'authenticated')::text, true);
     PERFORM reviewer_auth_uid FROM public.marketplace_reviews LIMIT 1;
     RAISE NOTICE 'FAIL the reviewer''s account key is not readable by anyone browsing reviews (a member read it)';
   EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'PASS the reviewer''s account key is not readable by anyone browsing reviews';

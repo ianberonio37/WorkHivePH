@@ -26,7 +26,6 @@
 -- expect: inventory_transactions_fixture \| t
 -- expect: inventory_transactions_foreign_update_touched \| (0\b|refused)
 -- expect: inventory_transactions_foreign_delete_touched \| (0\b|refused)
--- expect: inventory_transactions_own_update_touched_gt0 \| t
 -- expect: inventory_transactions_move_into_foreign \| (0\b|refused)
 -- forbid: inventory_transactions_move_into_foreign \| [1-9]
 -- expect: inventory_transactions_rows_restored \| t

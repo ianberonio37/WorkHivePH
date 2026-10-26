@@ -204,6 +204,19 @@ def fetch_hive_workers(url: str, key: str) -> Dict[str, List[str]]:
     return {k: sorted(v) for k, v in out.items()}
 
 
+# name -> account, filled once in main(). logbook's write policy keys on auth_uid, and 22,833 rows written with a name and
+# no account were rows their own author could never edit (author-can-edit-own-work after a clean reseed, 2026-10-27).
+_UID_OF: Dict[str, str] = {}
+
+
+def fetch_profile_uids(url: str, key: str) -> Dict[str, str]:
+    import requests
+    r = requests.get(f"{url}/rest/v1/worker_profiles?select=display_name,auth_uid&limit=5000",
+                     headers={"apikey": key, "Authorization": f"Bearer {key}"}, timeout=60)
+    r.raise_for_status()
+    return {p["display_name"]: p["auth_uid"] for p in r.json() if p.get("display_name") and p.get("auth_uid")}
+
+
 def build_one_row(
     hive_id: str,
     asset: str,
@@ -225,7 +238,9 @@ def build_one_row(
 
     # closed_at: shift from created_at by the downtime (minimum 30 min for closed rows)
     closed_offset_min = max(30, int(downtime * 60))
-    closed_at = when_utc + timedelta(minutes=closed_offset_min)
+    # never later than now: a close in the future reads as open work a plan dropped
+    closed_at = min(when_utc + timedelta(minutes=closed_offset_min), datetime.now(timezone.utc))
+    worker = random.choice(workers) if workers else (template.get("worker_name") or "Synthetic Worker")
 
     return {
         "id":               str(uuid.uuid4()),    # logbook.id is NOT NULL without DEFAULT — client must generate
@@ -237,7 +252,8 @@ def build_one_row(
         "root_cause":       root_cause,
         "downtime_hours":   downtime,
         "status":           status,
-        "worker_name":      random.choice(workers) if workers else (template.get("worker_name") or "Synthetic Worker"),
+        "worker_name":      worker,
+        "auth_uid":         _UID_OF.get(worker),
         "action":           (template.get("action") or "")[:200] or "Routine work per SOP.",
         "problem":          (template.get("problem") or "")[:200] or ("Reported fault" if maint_type == "Breakdown / Corrective" else None),
         "created_at":       when_utc.isoformat(),
@@ -430,6 +446,7 @@ def main() -> int:
         templates    = fetch_templates(url, key)
         hive_assets  = fetch_hive_assets(url, key)
         hive_workers = fetch_hive_workers(url, key)
+        _UID_OF.update(fetch_profile_uids(url, key))
     else:
         url, key  = "http://127.0.0.1:54321", "DRY-RUN"
         templates = []

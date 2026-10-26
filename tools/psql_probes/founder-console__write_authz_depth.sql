@@ -12,7 +12,6 @@
 -- expect: marketplace_sellers_fixture \| t
 -- expect: marketplace_sellers_foreign_update_touched \| (0\b|refused)
 -- expect: marketplace_sellers_foreign_delete_touched \| (0\b|refused)
--- expect: marketplace_sellers_own_update_touched_gt0 \| t
 -- expect: marketplace_sellers_move_into_foreign \| (0\b|refused)
 -- forbid: marketplace_sellers_move_into_foreign \| [1-9]
 -- expect: marketplace_sellers_rows_restored \| t

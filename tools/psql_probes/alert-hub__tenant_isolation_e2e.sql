@@ -8,7 +8,9 @@ CREATE TEMP TABLE _te AS
 SELECT hm.hive_id, hm.auth_uid,
        (SELECT count(*) FROM v_alert_truth WHERE hive_id <> hm.hive_id) AS foreign_alerts,
        (SELECT count(*) FROM amc_briefings WHERE hive_id <> hm.hive_id) AS foreign_briefs
-FROM hive_members hm WHERE hm.status='active' AND hm.auth_uid IS NOT NULL LIMIT 1;
+FROM hive_members hm WHERE hm.status='active' AND hm.auth_uid IS NOT NULL
+  -- a member of ONE hive: a two-hive member legitimately reads both (the fixture, not a leak - 2026-10-27)
+  AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = hm.auth_uid AND y.status = 'active') = 1 LIMIT 1;
 GRANT SELECT ON _te TO authenticated;
 SELECT 'control_sees_foreign | ' ||
   (((SELECT foreign_alerts FROM _te) > 0) AND ((SELECT foreign_briefs FROM _te) > 0));

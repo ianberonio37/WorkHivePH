@@ -52,7 +52,13 @@ def check(path: Path) -> list[str]:
         elif re.search(r"\n\s*if \(name\) \{", body.group(1)):
             bad.append("assistant.html: the records counts wait for a cached name (`if (name)`) - a signed-in person "
                        "with none is told 'Could not read your records' for a read never made")
-        if not re.search(r"addEventListener\('wh-identity-changed'[\s\S]{0,400}startChat\(\)", code):
+        # routed inline, or through a NAMED handler (2026-10-27: the handler removes itself once it has routed, so it is
+        # declared first and passed by name). _whEnterChat is startChat under the Back-stack guard (assistant.html).
+        routes = r"(?:startChat|_whEnterChat)\(\)"
+        inline = re.search(r"addEventListener\('wh-identity-changed',\s*\([\s\S]{0,400}" + routes, code)
+        named = re.search(r"addEventListener\('wh-identity-changed',\s*([A-Za-z_$][\w$]*)\s*\)", code)
+        by_name = named and re.search(r"\bconst\s+" + re.escape(named.group(1)) + r"\s*=\s*\([\s\S]{0,600}?" + routes, code)
+        if not (inline or by_name):
             bad.append("assistant.html: setup does not route on the account's announced name (wh-identity-changed -> startChat)")
     return bad
 

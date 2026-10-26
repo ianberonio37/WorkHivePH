@@ -14,6 +14,7 @@ don't need to compute it client-side.
 from __future__ import annotations
 
 import math
+import os
 import random
 from datetime import datetime, timedelta, timezone
 
@@ -42,6 +43,13 @@ PARAMS = {
 # up the seed. We use 30-min intervals -> 30*48*3 = 4320 rows per asset,
 # which is enough for the Live Telemetry tile + Z-score chip to render.
 INTERVAL_MINUTES = 30
+# WH_SEED_SENSOR_INTERVAL_MINUTES: a lighter seed for a memory-starved host (2026-10-27: 78k readings through REST took
+# the Docker engine down twice at 0.7 GB free). 120 still gives 360 points per parameter per asset - the Z-score and the
+# trend still render. Unset, the seed is exactly as before.
+try:
+    INTERVAL_MINUTES = max(1, int(os.environ.get("WH_SEED_SENSOR_INTERVAL_MINUTES") or INTERVAL_MINUTES))
+except ValueError:
+    pass
 DAYS = 30
 ASSETS_PER_HIVE = 6   # seed top N assets per hive to keep total bounded
 

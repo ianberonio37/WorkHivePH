@@ -9,7 +9,10 @@ WHERE table_name IN ('v_logbook_truth','schedule_items','v_skill_badges_truth',
                      'v_inventory_items_truth','v_pm_compliance_truth','voice_journal_entries');
 CREATE TEMP TABLE _cl AS
 SELECT hm.hive_id, hm.auth_uid FROM hive_members hm
-WHERE hm.status='active' AND hm.auth_uid IS NOT NULL LIMIT 1;
+WHERE hm.status='active' AND hm.auth_uid IS NOT NULL
+  -- a member of ONE hive: a two-hive member legitimately reads both (the fixture, not a leak - 2026-10-27)
+  AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = hm.auth_uid AND y.status = 'active') = 1
+LIMIT 1;
 GRANT SELECT ON _cl TO authenticated;
 BEGIN;
 SET LOCAL ROLE authenticated;

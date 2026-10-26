@@ -28,6 +28,13 @@ def seed_shift_plans(client, log, ctx: dict) -> dict:
     shift_window = _current_shift_window()
     today = datetime.date.today().isoformat()
 
+    # ★THE CARRY LIST IS THE HIVE'S OWN OPEN WORK, AS THE PLANNER SELECTS IT (2026-10-27). An empty list over a hive with
+    # 9-25 open entries is a plan that silently dropped them, and shift-brain counts this array - the probe
+    # shift-brain__carry_count_true read every seeded plan as truncated. Same query as shift-planner-orchestrator's
+    # fetchCarryForward: Open, older than 8 hours, oldest first, at most 30, with the cap flag saying when it is full.
+    CARRY_FWD_LIMIT = 30
+    cutoff = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=8)).isoformat()
+
     rows = []
     for hive in hives:
         hive_assets = assets_by_hive.get(hive["id"]) or []
@@ -35,10 +42,16 @@ def seed_shift_plans(client, log, ctx: dict) -> dict:
             {"asset_name": a.get("asset_id") or a.get("name"), "risk_score": 0.78}
             for a in hive_assets[:3]
         ]
+        carry = (client.table("logbook")
+                 .select("id, machine, problem, maintenance_type, status, created_at, worker_name, downtime_hours, "
+                         "loto_applied, permit_reference")
+                 .eq("hive_id", hive["id"]).eq("status", "Open").lt("created_at", cutoff)
+                 .order("created_at").limit(CARRY_FWD_LIMIT).execute().data or [])
         payload = {
             "risk_top":       risk_top,
             "pms_due":        [],   # populated by orchestrator in real runs
-            "carry_forward":  [],
+            "carry_forward":  carry,
+            "caps":           {"carry_forward": len(carry) >= CARRY_FWD_LIMIT},
             "parts_prestage": [],
             "assignments":    [],
             "projects_today": [],

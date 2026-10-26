@@ -62,8 +62,6 @@ SIGNED_OUT = {
     "listing_reservation_amount": "the public marketplace states a listing's reservation: arithmetic on its price",
     "service_knob": "the marketplace's published service terms (offer and quote windows, broadcast radius)",
     "service_knob_pct": "the marketplace's published percentages (commission, listing fee, cashback)",
-    "semantic_search_industry_standards": "the voice companion's public reference: published industry standards",
-    "semantic_search_platform_kg_facts": "the voice companion's public reference: the published knowledge graph",
     "seller_has_published_listing": "an anon row policy on marketplace_sellers and the public sellers view ask it",
     "marketplace_sellers_public_rows": "the public seller list (v_marketplace_sellers_public) - per-seller totals that must "
                                        "not depend on who asks, so they are counted with the owner's rights (BRH-R)",

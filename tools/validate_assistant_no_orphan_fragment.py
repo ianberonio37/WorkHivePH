@@ -36,7 +36,8 @@ STEP1_GUARD_RE = re.compile(r"stream-orphan guard[\s\S]{0,900}?_fragment\s*=\s*_
 # (!/[.!?...]/.test(_fb) && _fb.length < 12)`). Matching on `throw` keeps the lock (deleting the throw,
 # or falling through to render the fragment, still reddens) without pinning the exception's class.
 STEP2_GUARD_RE = re.compile(r"fallback half[\s\S]{0,600}?_fb\.length\s*<\s*4[\s\S]{0,400}?\bthrow\b")
-AUTOSTART_RE = re.compile(r"savedName\s*=\s*localStorage\.getItem\(KEY_WORKER\)[\s\S]{0,500}?startChat\(\)")
+# _whEnterChat() is startChat() under the Back-stack guard (assistant.html, 2026-10-27) - the same auto-start
+AUTOSTART_RE = re.compile(r"savedName\s*=\s*localStorage\.getItem\(KEY_WORKER\)[\s\S]{0,500}?(?:startChat|_whEnterChat)\(\)")
 # ★AND THE 12-HOUR BOUND WAS THE BUG, NOT THE LOCK (2026-09-28). This demanded `12 * 3600 * 1000`.
 # assistant.html cut it to `3600 * 1000` on purpose, and its comment says why: the cache ran twelve
 # hours while the limit it reports is a rolling 60-MINUTE window, so a restored reading could warn

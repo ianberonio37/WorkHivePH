@@ -19,8 +19,9 @@ import { join } from 'node:path';
 import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 
-const SRC = readFileSync('supabase/functions/_shared/cache.ts', 'utf8');
-const CHAIN = readFileSync('supabase/functions/_shared/ai-chain.ts', 'utf8');
+// line endings normalised: a Windows checkout holds these files with CRLF, and the patterns below speak LF (2026-10-27)
+const SRC = readFileSync('supabase/functions/_shared/cache.ts', 'utf8').replace(/\r\n/g, '\n');
+const CHAIN = readFileSync('supabase/functions/_shared/ai-chain.ts', 'utf8').replace(/\r\n/g, '\n');
 const answered = CHAIN.match(/export function aiAnswered\([\s\S]*?\n}\n/);
 if (!answered) { console.log('FAIL cache-keeps-no-no-answer: aiAnswered() not found in _shared/ai-chain.ts'); process.exit(1); }
 

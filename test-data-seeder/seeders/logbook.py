@@ -1,6 +1,6 @@
 """Seed logbook entries with values matching the platform's actual form fields."""
 import random
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from data.ph_equipment import EQUIPMENT_CATALOG
 from data.ph_faults import FAULTS_BY_CATEGORY, get_faults_for_category
@@ -196,7 +196,10 @@ def seed_logbook(client, log, ctx: dict) -> dict:
             # ~5% of breakdowns left open
             is_open = (maint_type == "Breakdown / Corrective" and random.random() < 0.05)
             status = "Open" if is_open else "Closed"
-            closed_at = None if is_open else to_iso(ts + timedelta(hours=max(0.5, downtime)))
+            # a close cannot be later than the moment the seed runs (an entry from this morning with 8 h of downtime
+            # closes now, not tonight)
+            closed_at = None if is_open else to_iso(min(ts + timedelta(hours=max(0.5, downtime)),
+                                                        datetime.now(timezone.utc)))
 
             rows.append({
                 "id": entry_id,

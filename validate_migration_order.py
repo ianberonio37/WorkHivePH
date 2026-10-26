@@ -85,7 +85,7 @@ CREATE_TABLE_RE = re.compile(
     r"""CREATE\s+
         (?:TABLE|(?:MATERIALIZED\s+)?VIEW)
         \s+(?:IF\s+NOT\s+EXISTS\s+)?
-        (?:(?P<schema>public|auth)\.|"(?P<schema_q>public|auth)"\.)?
+        (?:(?P<schema>public|auth|private)\.|"(?P<schema_q>public|auth|private)"\.)?
         "?(?P<name>\w+)"?\s*(?:\(|AS\b)""",
     re.IGNORECASE | re.VERBOSE,
 )
@@ -97,7 +97,7 @@ ALTER_ADD_COLUMN_RE = re.compile(
 )
 CREATE_FN_RE = re.compile(
     r"""CREATE(?:\s+OR\s+REPLACE)?\s+FUNCTION\s+
-        (?:(?:public|auth)\.)?
+        (?:(?:public|auth|private)\.)?
         "?(?P<name>\w+)"?\s*\(""",
     re.IGNORECASE | re.VERBOSE,
 )
@@ -107,7 +107,7 @@ ALTER_REF_RE = re.compile(
     r"""ALTER\s+TABLE\s+
         (?:ONLY\s+)?
         (?:IF\s+EXISTS\s+)?           # optional, can precede the schema prefix
-        (?:(?:public|auth)\.|"public"\.)?
+        (?:(?:public|auth|private)\.|"public"\.)?
         "?(?P<name>\w+)"?""",
     re.IGNORECASE | re.VERBOSE,
 )
@@ -115,22 +115,22 @@ INDEX_REF_RE = re.compile(
     r"""CREATE\s+(?:UNIQUE\s+)?INDEX\s+
         (?:CONCURRENTLY\s+)?
         (?:IF\s+NOT\s+EXISTS\s+)?
-        "?\w+"?\s+ON\s+(?:(?:public|auth)\.|"public"\.)?
+        "?\w+"?\s+ON\s+(?:(?:public|auth|private)\.|"public"\.)?
         "?(?P<name>\w+)"?""",
     re.IGNORECASE | re.VERBOSE,
 )
 POLICY_REF_RE = re.compile(
     r"""CREATE\s+POLICY\s+"?[\w\s-]+"?\s+ON\s+
-        (?:(?:public|auth)\.|"public"\.)?
+        (?:(?:public|auth|private)\.|"public"\.)?
         "?(?P<name>\w+)"?""",
     re.IGNORECASE | re.VERBOSE,
 )
 TRIGGER_REF_RE = re.compile(
     r"""CREATE\s+(?:OR\s+REPLACE\s+)?TRIGGER\s+\w+\s+
         (?:BEFORE|AFTER|INSTEAD\s+OF)[\s\S]*?
-        ON\s+(?:(?:public|auth)\.)?"?(?P<table>\w+)"?
+        ON\s+(?:(?:public|auth|private)\.)?"?(?P<table>\w+)"?
         [\s\S]*?EXECUTE\s+(?:PROCEDURE|FUNCTION)\s+
-        (?:(?:public|auth)\.)?"?(?P<fn>\w+)""",
+        (?:(?:public|auth|private)\.)?"?(?P<fn>\w+)""",
     re.IGNORECASE | re.VERBOSE,
 )
 
@@ -167,7 +167,7 @@ def build_column_first_seen() -> dict[tuple[str, str], str]:
         # Inline columns from CREATE TABLE bodies
         for tm in re.finditer(
             r"""CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?
-                (?:(?:public|auth)\.|"public"\.)?
+                (?:(?:public|auth|private)\.|"public"\.)?
                 "?(?P<name>\w+)"?\s*\(
                 (?P<body>[\s\S]*?)\n\s*\);""",
             sql, re.IGNORECASE | re.VERBOSE,

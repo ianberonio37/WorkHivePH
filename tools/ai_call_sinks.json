@@ -1080,7 +1080,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "82023c3a29c1c432"
+      "source_sha256": "64705bbaa78f456f"
     },
     "voice-logbook-entry": {
       "calls_model": true,

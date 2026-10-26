@@ -38,10 +38,15 @@ PAGE_TABLES = {
 }
 # tables whose UPDATE policy is scoped to the row's OWNER or to SUPERVISORS, not to any hive member: the own-hive
 # control cannot be proved with a plain member, so only the foreign-refusal half is asserted (stated in the recipe).
-OWNER_SCOPED = {"marketplace_listings", "marketplace_inquiries", "marketplace_reviews", "marketplace_orders",
+# marketplace_sellers: mkt_sellers_update keys on the profile's own auth_uid (or a marketplace admin) - a member may not
+# edit a hive-mate's seller profile, so only the refusal half applies (2026-10-27)
+OWNER_SCOPED = {"marketplace_sellers", "marketplace_listings", "marketplace_inquiries", "marketplace_reviews", "marketplace_orders",
                 "marketplace_disputes", "service_credit_topups", "logbook", "hive_members", "report_contacts",
                 "ai_reply_feedback", "alert_dismissals",
-                "pm_completions"}   # a member may not edit another worker's completion (measured 2026-09-05: own-hive no-op update touched 0)
+                "pm_completions",
+                # the ledger: inventory_transactions_write WITH CHECK keys on the row's own auth_uid - a member may write
+                # only their own movements (measured 2026-10-27: a hive-mate's row refused with 42501 on a no-op update)
+                "inventory_transactions"}   # a member may not edit another worker's completion (measured 2026-09-05: own-hive no-op update touched 0)
 
 
 def written_tables(page: str) -> set[str]:
@@ -88,6 +93,13 @@ def pk_col(table: str) -> str:
     return out if out and "ERROR" not in out else "id"
 
 
+# a marketplace row is written by its two PARTIES by account, from whichever hive it is stored in: the foreign
+# fixture must be a row the member is neither the buyer nor the seller of (2026-10-27)
+PARTY_TABLES = ("marketplace_inquiries", "marketplace_orders")
+PARTY_SQL = ("\n          AND x.buyer_auth_uid IS DISTINCT FROM m.auth_uid"
+             "\n          AND NOT EXISTS (SELECT 1 FROM marketplace_listings l WHERE l.id = x.listing_id AND l.auth_uid = m.auth_uid)")
+
+
 def recipe(page: str, tables: list[str]) -> str:
     slug = page.replace(".html", "")
     head = [
@@ -115,21 +127,25 @@ def recipe(page: str, tables: list[str]) -> str:
         expects.append(f"-- expect: {k}_move_into_foreign \\| (0\\b|refused)")
         expects.append(f"-- forbid: {k}_move_into_foreign \\| [1-9]")   # a row moved into a foreign hive
         expects.append(f"-- expect: {k}_rows_restored \\| t")
+        party = PARTY_SQL if t in PARTY_TABLES else ""
         body.append(f"""
 CREATE TEMP TABLE _wx_{k} AS
 SELECT m.auth_uid AS me, m.hive_id AS mine,
        (SELECT x.{pk} FROM {t} x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
-          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active')
+          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active'){party}
         LIMIT 1) AS foreign_row,
        (SELECT x.{pk} FROM {t} x WHERE x.hive_id = m.hive_id LIMIT 1) AS own_row,
        (SELECT x.hive_id FROM {t} x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
-          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active')
+          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active'){party}
         LIMIT 1) AS foreign_hive,
        (SELECT count(*) FROM {t}) AS n0
 FROM hive_members m
 WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND EXISTS (SELECT 1 FROM {t} x WHERE x.hive_id = m.hive_id)
+  -- a VALID foreign row exists for this member (an empty one manufactured a 'move into NULL', 2026-10-27)
+  AND EXISTS (SELECT 1 FROM {t} x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
+          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active'){party})
   -- a marketplace/platform admin may write across hives BY DESIGN (is_marketplace_admin()); the refusal is proved for a plain member
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins a WHERE a.auth_uid = m.auth_uid)   -- by account, never by display name
 ORDER BY (m.role = 'supervisor') DESC

@@ -42,6 +42,10 @@ SELECT i.id AS item_id, i.hive_id, i.qty_on_hand AS before_qty,
 FROM inventory_items i
 WHERE i.hive_id IS NOT NULL AND i.qty_on_hand >= 2
   AND EXISTS (SELECT 1 FROM hive_members hm WHERE hm.hive_id=i.hive_id AND hm.status='active' AND hm.auth_uid IS NOT NULL)
+  -- nothing STAGED for a predicted failure: guard_staged_stock rightly refuses a use that would eat staged stock, which
+  -- proves that guard and not this invariant (a clean reseed picked HX-001's staged part, 2026-10-27)
+  AND NOT EXISTS (SELECT 1 FROM parts_staged_reservations r
+                   WHERE r.item_id = i.id AND r.consumed_at IS NULL AND r.released_at IS NULL)
 LIMIT 1;
 GRANT SELECT ON _f TO authenticated;
 

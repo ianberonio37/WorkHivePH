@@ -104,6 +104,12 @@ ALLOW_PATTERNS = {
 # Same shape as silo_monitor's HOTSPOT_IGNORE_TABLES but for the
 # fuel-registration check.
 
+# Engine objects that are infrastructure, not a canonical metric a page shows (same class as the fuel list's
+# "cross-cutting infra"): read by the operator's monitoring, never by a surface that would need an anchor.
+ENGINE_ANCHOR_IGNORE = {
+    "v_scheduled_call_health",   # 20261026000010: Grafana's cron-failure alert counts refused scheduled calls from it
+}
+
 FUEL_ANCHOR_IGNORE_TABLES = {
     # Auth / Supabase internals
     "auth", "users", "auth_users", "auth_sessions",
@@ -374,8 +380,11 @@ def check_fuel_anchor() -> dict:
 
     # Walk every migration for CREATE TABLE statements.
     # Handles: CREATE TABLE [IF NOT EXISTS] [["]public["]\.]["]table_name["]
+    # ★A SCHEMA IS NOT A TABLE (2026-10-27): the old pattern made the schema prefix optional only for `public`, so
+    # `CREATE TABLE private.scheduled_calls` read as a table named 'private'. Any schema is taken; a table outside
+    # public is server-only bookkeeping that no page or API reads, which is not fuel.
     CREATE_RE = re.compile(
-        r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:\"?public\"?\s*\.\s*)?\"?([a-z_][a-z0-9_]*)\"?",
+        r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:\"?([a-z_][a-z0-9_]*)\"?\s*\.\s*)?\"?([a-z_][a-z0-9_]*)\"?",
         re.IGNORECASE,
     )
     # SQL keywords that can never be table names but might slip through if
@@ -391,7 +400,8 @@ def check_fuel_anchor() -> dict:
         sql_stripped = re.sub(r"--[^\n]*", "", sql)
         sql_stripped = re.sub(r"/\*[\s\S]*?\*/", "", sql_stripped)
         for m in CREATE_RE.finditer(sql_stripped):
-            table = m.group(1).lower()
+            if m.group(1) and m.group(1).lower() != "public": continue
+            table = m.group(2).lower()
             if table in SQL_KEYWORDS_DENY: continue
             if table in seen_tables: continue
             seen_tables.add(table)
@@ -496,6 +506,7 @@ def check_engine_anchor() -> dict:
                         name.startswith("compute_") or name.startswith("v_")):
                     continue
             if name in registered_engine_names: continue
+            if name in ENGINE_ANCHOR_IGNORE: continue
             if key in dropped_engine: continue   # retired in a later migration
             # Trigger / internal-only views skipped via allowlist
             if has_allow_in_context(sql, m.start(), "engine", context_lines=4): continue

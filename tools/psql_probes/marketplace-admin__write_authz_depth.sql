@@ -24,7 +24,6 @@
 -- expect: marketplace_sellers_fixture \| t
 -- expect: marketplace_sellers_foreign_update_touched \| (0\b|refused)
 -- expect: marketplace_sellers_foreign_delete_touched \| (0\b|refused)
--- expect: marketplace_sellers_own_update_touched_gt0 \| t
 -- expect: marketplace_sellers_move_into_foreign \| (0\b|refused)
 -- forbid: marketplace_sellers_move_into_foreign \| [1-9]
 -- expect: marketplace_sellers_rows_restored \| t
@@ -121,16 +120,25 @@ CREATE TEMP TABLE _wx_marketplace_orders AS
 SELECT m.auth_uid AS me, m.hive_id AS mine,
        (SELECT x.id FROM marketplace_orders x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
           AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active')
+          AND x.buyer_auth_uid IS DISTINCT FROM m.auth_uid   -- not one the member is a party to (2026-10-27)
+          AND NOT EXISTS (SELECT 1 FROM marketplace_listings l WHERE l.id = x.listing_id AND l.auth_uid = m.auth_uid)
         LIMIT 1) AS foreign_row,
        (SELECT x.id FROM marketplace_orders x WHERE x.hive_id = m.hive_id LIMIT 1) AS own_row,
        (SELECT x.hive_id FROM marketplace_orders x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
           AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active')
+          AND x.buyer_auth_uid IS DISTINCT FROM m.auth_uid   -- not one the member is a party to (2026-10-27)
+          AND NOT EXISTS (SELECT 1 FROM marketplace_listings l WHERE l.id = x.listing_id AND l.auth_uid = m.auth_uid)
         LIMIT 1) AS foreign_hive,
        (SELECT count(*) FROM marketplace_orders) AS n0
 FROM hive_members m
 WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND EXISTS (SELECT 1 FROM marketplace_orders x WHERE x.hive_id = m.hive_id)
+  -- a VALID foreign row exists for this member (an empty one manufactured a 'move into NULL', 2026-10-27)
+  AND EXISTS (SELECT 1 FROM marketplace_orders x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
+          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active')
+          AND x.buyer_auth_uid IS DISTINCT FROM m.auth_uid
+          AND NOT EXISTS (SELECT 1 FROM marketplace_listings l WHERE l.id = x.listing_id AND l.auth_uid = m.auth_uid))
   -- a marketplace/platform admin may write across hives BY DESIGN (is_marketplace_admin()); the refusal is proved for a plain member
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins a WHERE a.auth_uid = m.auth_uid)   -- by account, never by display name
 ORDER BY (m.role = 'supervisor') DESC

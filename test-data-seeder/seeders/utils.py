@@ -64,6 +64,10 @@ def random_timestamp_in_last_n_days(n: int = 90, rng: random.Random | None = Non
     target = (now - timedelta(days=days_ago)).replace(
         hour=hour, minute=minute, second=second, microsecond=0
     )
+    # "today at 23:00" before 23:00 is a moment that has not happened: a seeded entry created, or closed, after the seed
+    # ran reads as open work a plan dropped (shift-brain__carry_count_true, 2026-10-27). A future pick moves back a day.
+    if target > now:
+        target -= timedelta(days=1)
     return target
 
 
@@ -106,10 +110,16 @@ def submitted_before(approved_at, rng: random.Random | None = None):
 
 
 def batch_insert(client, table: str, rows: list, chunk: int = 500) -> int:
-    """Insert rows in batches; returns total inserted count."""
+    """Insert rows in batches; returns total inserted count.
+
+    default_to_null=False (PostgREST `Prefer: missing=default`): a batch whose rows carry DIFFERENT keys is sent with the
+    union of the columns, and by default every key a row lacks arrives as NULL - not as the column's default. The
+    reliability seeder gives approved rows a created_at and pending rows none, so every pending row hit created_at's
+    NOT NULL and the whole rcm_fmea_modes batch failed (2026-10-27: 0 RCM strategies after a reseed). A key a row
+    states as None is still written as NULL."""
     inserted = 0
     for i in range(0, len(rows), chunk):
         batch = rows[i : i + chunk]
-        client.table(table).insert(batch).execute()
+        client.table(table).insert(batch, default_to_null=False).execute()
         inserted += len(batch)
     return inserted

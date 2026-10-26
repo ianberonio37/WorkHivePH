@@ -53,6 +53,7 @@
 import { chromium } from 'playwright';
 import { writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const BASE = (process.env.WH_SMOKE_BASE || 'https://workhiveph.com').replace(/\/$/, '');
 const EMAIL = process.env.WH_SMOKE_EMAIL || '';
@@ -152,6 +153,7 @@ const browser = await chromium.launch();
  * inserts themselves and never send them. Page errors still reach client_errors: those would be real defects. */
 async function quietContext(browser) {
   const c = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  await c.addInitScript(ALL_ROWS_DRAWN);   // SL LB3: a long list draws every row, so a page's text is the whole page
   await c.route(/\/rest\/v1\/analytics_events/, (route) =>
     route.request().method() === 'POST' ? route.fulfill({ status: 201, body: '' }) : route.continue());
   return c;

@@ -6,6 +6,11 @@
 -- platform_average_is_the_platform (2026-10-08, migration 20261008000063). The seller dashboard's "platform avg" was
 -- computed in the browser from inquiries RLS let the caller read - their own - so a seller was compared with
 -- themselves. marketplace_platform_response_hours() answers across the platform, as one number, null below 5 replies.
+-- accounts by EMAIL, resolved before any role switch (literal uids rotted when accounts were recreated, 2026-10-27)
+CREATE TEMP TABLE IF NOT EXISTS _probe_acct AS SELECT
+  (SELECT id FROM auth.users WHERE email = 'bryangarcia@auth.workhiveph.com') AS bryan,
+  (SELECT id FROM auth.users WHERE email = 'junvanowner@auth.workhiveph.com') AS jun;
+GRANT SELECT ON _probe_acct TO authenticated;
 BEGIN;
 CREATE TEMP TABLE _n0 AS SELECT count(*) AS n FROM public.marketplace_inquiries WHERE replied_at IS NOT NULL;
 SELECT CASE WHEN (SELECT n FROM _n0) >= 5 OR public.marketplace_platform_response_hours() IS NULL
@@ -17,7 +22,7 @@ SELECT l.id, 'Probe Buyer', 'probe 63 ' || g, 'replied', now() - interval '3 hou
 CREATE TEMP TABLE _calls AS SELECT
   (SELECT public.marketplace_platform_response_hours()) AS as_owner;
 SET LOCAL ROLE authenticated;
-SELECT set_config('request.jwt.claims', '{"sub":"91e0d1eb-cd96-43ee-af5f-0ff2714b3923","role":"authenticated"}', true);
+SELECT set_config('request.jwt.claims', json_build_object('sub', (SELECT bryan FROM _probe_acct)::text, 'role', 'authenticated')::text, true);
 CREATE TEMP TABLE _bryan AS SELECT public.marketplace_platform_response_hours() AS h;
 SELECT set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000f00d","role":"authenticated"}', true);
 CREATE TEMP TABLE _stranger AS SELECT public.marketplace_platform_response_hours() AS h;

@@ -1355,6 +1355,10 @@ BRH_CLASS = {
 }
 
 
+# the page a person meets a shared script's code on (a BRH site whose `page` is a script, not a page)
+SCRIPT_HOST = {"voice-handler.js": "hive.html", "nav-hub.js": "index.html", "utils.js": "index.html"}
+
+
 def _gate_checked_cast(page: str, candidates: list[str]) -> str:
     """The first candidate whose own route to `page` the journey-paths gate accepts - sublayer_inventory.casts' rule,
     for one page: the seeder and the gate cannot disagree about who may walk a row. The gate's link graph and hub
@@ -1409,7 +1413,11 @@ def bug_hunt_rows(existing: list[dict], replay: bool = False) -> list[dict]:
         # a founder surface the hub offers nobody is reached DIRECTLY by platform staff (SL's rule for `oversight`):
         # a hub route to it is a hop no page offers, and journey-paths refuses it
         direct = persona == "oversight" and page != "index.html"
-        pages = [page] if direct else _path(_start(page), page, [], cast=_cast_of(persona))
+        # a site in a shared SCRIPT is met on a page: the journey walks to the page that hosts it, while brh.page keeps
+        # the code location (2026-10-27 - AO/AP's voice-handler.js was a journey hop no page links, and journey-paths
+        # refused all 68 rows). The companion is met on the hive board.
+        walk = page if page.endswith(".html") else SCRIPT_HOST.get(page, "hive.html")
+        pages = [walk] if direct else _path(_start(walk), walk, [], cast=_cast_of(persona))
         who = "a person" if persona == "any" else persona
         where = f"{_short(page)}:{line}" if line else _short(page)
         rows.append({

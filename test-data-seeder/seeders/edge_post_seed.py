@@ -20,7 +20,25 @@ def _functions_base_url() -> str:
 
 def _service_key() -> str | None:
     # supabase Python client stores the key it was given — we read the env directly
-    return os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    if key:
+        return key
+    # ★THE FUNCTIONS ONLY KNOW THEIR OWN SERVICE KEY (2026-10-27). The tester's .env carries SUPABASE_SECRET_KEY (the
+    # new sb_secret_ form) and no SUPABASE_SERVICE_ROLE_KEY, so this fell through to the anon key and every post-seed
+    # call answered 401 "Sign-in required" - no benchmarks, no intelligence report, no failure signatures were ever
+    # seeded, and the probes grounded on them failed after a clean reseed. tenant-context.ts accepts the runtime's own
+    # SUPABASE_SERVICE_ROLE_KEY as the service bearer, so a LOCAL run reads it from the local edge container (never
+    # printed, never stored). Anything that is not the local stack keeps the old behaviour.
+    if "127.0.0.1" in _functions_base_url() or "localhost" in _functions_base_url():
+        try:
+            import subprocess
+            r = subprocess.run(["docker", "exec", "supabase_edge_runtime_workhive", "printenv", "SUPABASE_SERVICE_ROLE_KEY"],
+                               capture_output=True, text=True, timeout=15)
+            if r.returncode == 0 and r.stdout.strip():
+                return r.stdout.strip()
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    return os.getenv("SUPABASE_ANON_KEY")
 
 
 def _invoke(name: str, body: dict, log) -> dict | None:

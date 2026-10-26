@@ -184,11 +184,11 @@ def run() -> dict:
     # An `await` INSIDE the .then() lambda is fine; it's just sequencing the
     # local async work and does not block the caller's response.
     if "fault_knowledge" in src:
-        # Find any `generateEmbedding(` not preceded by `await `.
-        unawaited = re.search(r"(?<!await\s)generateEmbedding\s*\(", src)
+        # Find any `generateEmbedding(` / `generateEmbeddingTagged(` (the strict-ingest form, 2026-10-26) not preceded by `await `.
+        unawaited = re.search(r"(?<!await\s)generateEmbedding(?:Tagged)?\s*\(", src)
         has_then  = ".then(" in src
         # Fail only if generateEmbedding is awaited at top level OR no .then() chain exists.
-        top_level_awaited = re.search(r"\bawait\s+generateEmbedding\s*\(", src)
+        top_level_awaited = re.search(r"\bawait\s+generateEmbedding(?:Tagged)?\s*\(", src)
         if top_level_awaited:
             issues.append({"check": "l3_fire_forget", "layer": "L3",
                            "reason": "generateEmbedding is awaited at the top level. "

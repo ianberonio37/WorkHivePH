@@ -204,10 +204,8 @@ def seed_amc(client, log, ctx: dict) -> dict:
                 approver = random.choice(workers).get("display_name") if workers else "Supervisor"
                 row["approved_by"]    = approver
                 row["approved_at"]    = (generated_at + timedelta(minutes=random.randint(15, 240))).isoformat()
-                row["approved_notes"] = random.choice([
-                    "", "looks good", "stage parts at 0645",
-                    "watch unit 2 closely", "swap PM order, electrical first",
-                ])
+                # no approved_notes: the column was dropped as a phantom (20260520000008) and the write failed the
+                # whole batch - 0 briefings seeded (found by a reseed, 2026-10-27)
             rows.append(row)
 
     if not rows:

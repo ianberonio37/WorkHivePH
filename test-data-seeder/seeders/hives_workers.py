@@ -9,6 +9,7 @@ import random
 from data.filipino_names import random_full_name
 from data.ph_locations import CITIES, HIVE_TEMPLATES
 from .utils import random_invite_code
+from datetime import datetime, timedelta, timezone
 
 WORKER_PROFILES = [
     {"role": "supervisor", "tier": "heavy", "logbook_target": 500, "count": 3},
@@ -37,6 +38,18 @@ def _synthetic_email(username: str) -> str:
     return f"{username}{AUTH_DOMAIN}"
 
 
+# ★A RESEED KEEPS THE HIVES' IDS (2026-10-27). Over a hundred references in tools/, tests/ and tools/psql_probes name these
+# three ids (prover_harness HIVE, the probes' own/foreign hive, banked receipts), and they held only because earlier resets
+# failed before deleting the hives. The first clean reset gave every hive a new random id and those references named
+# nothing. The names are deterministic (the orchestrator seeds `random`), so each is pinned by name; a name not listed
+# keeps a fresh id. Ids that have already rotted (9b4eaeac, c9def338, 636cf7e8) are not revived.
+PINNED_HIVE_IDS = {
+    "Baguio Textile Mills":        "084c113b-99c0-45c6-a8e8-b4b8349da46d",
+    "Manila Electronics Assembly": "b4f7fe63-92e1-4f8d-b96e-625c3f85ba61",
+    "Lucena Pharmaceutical Mfg.":  "4eec150e-4837-417b-bdd8-009b0192acfe",
+}
+
+
 def seed_hives_and_workers(client, log) -> dict:
     log("Seeding 3 hives across PH industrial sectors...")
 
@@ -45,11 +58,11 @@ def seed_hives_and_workers(client, log) -> dict:
 
     hive_rows = []
     for city, tpl in zip(used_cities, used_templates):
-        hive_rows.append({
-            "name": tpl["name"].format(city=city),
-            "invite_code": random_invite_code(),
-            "created_by": "Seed Admin",
-        })
+        name = tpl["name"].format(city=city)
+        row = {"name": name, "invite_code": random_invite_code(), "created_by": "Seed Admin"}
+        if name in PINNED_HIVE_IDS:
+            row["id"] = PINNED_HIVE_IDS[name]
+        hive_rows.append(row)
 
     res = client.table("hives").insert(hive_rows).execute()
     hives = res.data
@@ -202,6 +215,10 @@ def seed_hives_and_workers(client, log) -> dict:
                     "auth_uid":    primary["auth_uid"],
                     "role":        "supervisor" if primary["role"] != "supervisor" else "worker",
                     "status":      "active",
+                    # joined at a DIFFERENT moment: a person joins their second hive later, and two memberships
+                    # stamped in one insert tie on joined_at - which index/hive_deterministic needs absent to
+                    # prove its own ordering (a clean reseed tied every pair, 2026-10-27)
+                    "joined_at":   (datetime.now(timezone.utc) - timedelta(days=20 + len(_cross_hive))).isoformat(),
                 })
         member_rows.extend(_cross_hive)
 
@@ -226,7 +243,8 @@ def seed_hives_and_workers(client, log) -> dict:
                 "status":      "kicked",
             })
 
-    client.table("hive_members").insert(member_rows).execute()
+    # missing=default: only the cross-hive rows state joined_at; every other row takes the column default, not NULL
+    client.table("hive_members").insert(member_rows, default_to_null=False).execute()
     log(f"  inserted {len(member_rows)} hive_members"
         f" (incl. 1 multi-hive worker so the hive-switch journey is walkable,"
         f" and 1 kicked member so the revocation/rejoin-blocked branch is walkable)")

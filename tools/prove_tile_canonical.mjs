@@ -47,7 +47,9 @@ const PAIRS = [
   { page: 'hive.html', id: 'adoption-risk-score', what: 'adoption risk',
     sql: `select risk_score from v_adoption_truth where hive_id=${H} order by snapshot_date desc limit 1` },
   { page: 'hive.html', id: 'pulse-jobs-today', what: 'jobs logged since midnight',
-    sql: `select count(*) from v_logbook_truth where hive_id=${H} and created_at >= date_trunc('day', now())` },
+    // the HIVE's midnight (Asia/Manila), as the page counts it - date_trunc('day', now()) is UTC midnight on this database,
+    // 8 hours earlier, and read 9 against the page's honest 2 once the UTC day held more rows (2026-10-27)
+    sql: `select count(*) from v_logbook_truth where hive_id=${H} and created_at >= (date_trunc('day', now() at time zone 'Asia/Manila') at time zone 'Asia/Manila')` },
   { page: 'hive.html', id: 'approval-badge', what: 'everything a supervisor owes a decision on (assets+parts+FMEA+strategies+briefings)',
     sql: `select (select count(*) from asset_nodes where hive_id=${H} and status='pending') + (select count(*) from inventory_items where hive_id=${H} and status='pending') + (select count(*) from rcm_fmea_modes where hive_id=${H} and approved_by is null) + (select count(*) from rcm_strategies where hive_id=${H} and approved_by is null) + (select count(*) from v_amc_truth where hive_id=${H} and status='pending')` },
   { page: 'inventory.html', id: 'stat-total', what: 'approved parts', sql: `select count(*) from ${INV}` },

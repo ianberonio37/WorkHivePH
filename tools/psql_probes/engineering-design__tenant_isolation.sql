@@ -13,6 +13,8 @@ SELECT hm.hive_id, hm.auth_uid,
        (SELECT count(*) FROM engineering_calcs WHERE hive_id <> hm.hive_id) AS foreign_calcs,
        (SELECT count(*) FROM engineering_calcs WHERE hive_id  = hm.hive_id) AS own_calcs
 FROM hive_members hm WHERE hm.status='active' AND hm.auth_uid IS NOT NULL
+  -- a member of ONE hive: a two-hive member legitimately reads both (the fixture, not a leak - 2026-10-27)
+  AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = hm.auth_uid AND y.status = 'active') = 1
   AND EXISTS (SELECT 1 FROM engineering_calcs e WHERE e.hive_id = hm.hive_id) LIMIT 1;
 GRANT SELECT ON _ti TO authenticated;
 SELECT 'control_sees_foreign | ' || ((SELECT foreign_calcs FROM _ti) > 0);
