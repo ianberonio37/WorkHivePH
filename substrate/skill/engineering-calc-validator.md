@@ -2,7 +2,7 @@
 name: skill-engineering-calc-validator
 type: skill
 source: skill:engineering-calc-validator
-source_sha: 93aed52446d5e896
+source_sha: 748e47ef5c8dfe3d
 last_verified: 2026-07-13
 supersedes: null
 ---

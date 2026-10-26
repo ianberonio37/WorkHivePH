@@ -3,11 +3,12 @@
     "description": "C4 Phase 1 — frozen seam counts per kind. Forward-only ratchet (new seams require catalog commit)."
   },
   "by_kind": {
-    "ai→ai": 1,
+    "ai→ai": 2,
     "ai→quota": 49,
     "ai→tenant": 89,
     "saas→ai": 46
   },
-  "seam_count": 185,
-  "_review_2026_10_13": "2026-10-13 release re-baseline, reviewed seam by seam: of the 14 new seams, 9 'saas->ai' are TEST HARNESSES (tools/w4_*_walk.body.js, tools/lm_walk*.js, tools/dialog_targets.mjs) that stub or call AI functions - not product surface; 2 'ai->quota' are agentic-rag-loop and temporal-rag-orchestrator newly importing the rate limiter (a hardening); 3 'ai->tenant' are hive-scoped reads (ai-eval-runner's own eval hive; ai-gateway's v_logbook_truth filtered by hive_id). Queued: exclude tools/ harnesses from the product seam miner."
+  "seam_count": 186,
+  "_review_2026_10_13": "2026-10-13 release re-baseline, reviewed seam by seam: of the 14 new seams, 9 'saas->ai' are TEST HARNESSES (tools/w4_*_walk.body.js, tools/lm_walk*.js, tools/dialog_targets.mjs) that stub or call AI functions - not product surface; 2 'ai->quota' are agentic-rag-loop and temporal-rag-orchestrator newly importing the rate limiter (a hardening); 3 'ai->tenant' are hive-scoped reads (ai-eval-runner's own eval hive; ai-gateway's v_logbook_truth filtered by hive_id). Queued: exclude tools/ harnesses from the product seam miner.",
+  "_review_2026_10_27": "2026-10-27 M1 release: +1 'ai->ai', ai-eval-runner -> ai-gateway (the eval runner calls the gateway with the eval ACCOUNT's own Bearer, never the service key; a non-2xx or empty answer is recorded as infra, never graded). Owned by tools/contract_test_eval_runner_gateway.py, registered in ai_seam_contracts.json."
 }

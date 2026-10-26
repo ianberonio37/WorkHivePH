@@ -2,7 +2,7 @@
 name: edge-fn-hierarchical-summarizer
 type: edge-fn
 source: file:supabase/functions/hierarchical-summarizer/index.ts
-source_sha: 9b5f83ba0f56a510
+source_sha: 2b0f13b13fe1ca48
 last_verified: 2026-07-13
 supersedes: null
 ---

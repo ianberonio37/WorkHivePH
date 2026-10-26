@@ -1,37 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:703
-source_sha: 3338a7cc753d2855
+source: dir:supabase/migrations:725
+source_sha: d68a9eb05ff81674
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (703 migrations)
+## migration · catalog (725 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260803000024_a_read_only_view_holding_write_verbs` — (misc DDL/DML)
-- `20260803000025_register_the_credit_economy_in_the_canonical_registry` — (misc DDL/DML)
-- `20260803000026_thirty_registrations_that_never_landed` — (misc DDL/DML)
-- `20260803000027_the_trust_signals_were_invisible_to_the_people_they_persuade` — policies:mkt_sellers_read_anon
-- `20260803000028_anon_could_truncate_140_tables` — (misc DDL/DML)
-- `20260803000029_a_disputed_job_kept_the_credits_the_buyer_paid` — fns:apply_dispute_adjustment
-- `20260803000030_no_revenue_means_the_rate_is_zero_in_all_three_places` — fns:mint_settlement_commission,service_knob_pct · tables:hive_service_settings
-- `20260803000031_a_job_marked_done_waited_forever_for_a_buyer_who_never_came_back` — fns:service_knob,service_objection_deadline,sweep_service_completions · tables:hive_service_settings,service_payments
-- `20260803000032_the_completion_window_needs_a_clock_that_actually_ticks` — (misc DDL/DML)
-- `20260803000033_a_silent_window_is_just_a_slower_way_to_lose` — fns:enqueue_user_push,fanout_completion_push · triggers:trg_fanout_completion_push
-- `20260803000034_the_screen_and_the_sweep_must_quote_the_same_date` — fns:raise_service_objection
-- `20260803000035_ten_percent_means_ten_percent` — fns:listing_reservation_amount,service_knob · tables:hive_service_settings
-- `20260803000036_no_vouchers_and_a_floor_under_the_listing_price` — fns:guard_listing_meets_minimum,guard_vouchers_retired,redeem_service_voucher,service_knob · triggers:trg_guard_listing_meets_minimum,trg_guard_vouchers_retired · tables:hive_service_settings
-- `20260803000037_a_service_is_a_listing_too` — fns:grant_service_reward,guard_accept_requires_reservation,release_service_reservation_on_close · triggers:trg_guard_accept_requires_reservation,trg_zz_grant_service_reward,trg_zz_release_service_reservation · tables:credit_reservations
-- `20260803000038_credits_that_appear_without_anyone_pressing_verify` — policies:gcash_inbound_receipts_admin_read · fns:match_gcash_receipt · triggers:trg_match_gcash_receipt · tables:gcash_inbound_receipts
-- `20260803000039_one_person_one_wallet` — fns:guard_accept_requires_reservation,person_credit_balance,provider_credit_balance,seller_credit_balance
-- `20260803000040_a_rejected_topup_could_be_revived_and_minted` — fns:guard_service_topup_status
-- `20260803000041_the_other_three_readers_that_still_split_one_wallet` — fns:guard_reward_spend_cap,my_credit_balance
-- `20260803000042_the_supply_cap_did_not_watch_the_only_door_credits_use` — fns:guard_service_topup_status
-- `20260803000043_anon_could_delete_the_founders_receipt_queue` — (misc DDL/DML)
-- `20260803000044_register_the_receipt_intake_in_the_canonical_registry` — (misc DDL/DML)
-- `20260803000045_the_voucher_refusal_took_the_endpoint_down_instead` — fns:redeem_service_voucher
 - `20260803000046_restore_the_explicit_security_invoker_declaration` — (misc DDL/DML)
 - `20260804000047_the_platforms_money_position_was_world_readable` — policies:credit_treasury_read
 - `20260804000048_any_signed_in_user_could_list_who_the_admins_are` — policies:mkt_admins_read,mkt_admins_read_self
@@ -210,6 +188,28 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261022000005_listings_public_is_mine_asked_once` — (misc DDL/DML)
 - `20261022000006_anchor_ledger_totals_and_platform_trail` — (misc DDL/DML)
 - `20261023000001_register_thermography_standards` — (misc DDL/DML)
+- `20261026000001_a_hiring_post_is_not_a_sale` — fns:guard_listing_meets_minimum
+- `20261026000002_a_breakdown_cause_from_the_list` — fns:logbook_keep_said_cause,wh_listed_root_cause · triggers:trg_logbook_listed_cause · tables:logbook
+- `20261026000003_repeat_failures_leave_unknown_out` — fns:get_repeat_failures
+- `20261026000004_analytics_leave_trashed_entries_out` — fns:get_downtime_pareto,get_failure_frequency,get_mtbf_by_machine,get_mttr_by_machine,get_repeat_failures
+- `20261026000005_scheduled_jobs_read_their_endpoint_from_vault` — fns:drain_service_outbox,private
+- `20261026000006_embedding_outbox_drains_in_the_database` — fns:private · tables:embedding_outbox
+- `20261026000007_relay_sweeps_orphans_before_it_claims` — fns:private
+- `20261026000008_scheduled_work_is_watched` — fns:founder_scheduled_work,private · tables:private
+- `20261026000009_a_double_fire_leaves_one_effect` — fns:snapshot_db_size,sweep_listing_holding_fee
+- `20261026000010_grafana_sees_refused_calls` — (misc DDL/DML)
+- `20261026000011_a_provider_outage_is_waited_out` — fns:private
+- `20261026000012_what_failed_on_peoples_screens` — fns:founder_client_errors
+- `20261026000013_a_visitor_can_report_a_failed_dependency` — policies:client_errors_insert_anon
+- `20261026000014_the_relay_stops_hammering_a_dead_provider` — fns:private · tables:embedding_outbox
+- `20261026000015_which_model_provider_is_failing` — fns:founder_model_providers
+- `20261026000016_a_removed_badge_is_a_decision` — fns:audit_platform_decision
+- `20261027000001_derived_knowledge_is_bounded_upstream` — (misc DDL/DML)
+- `20261027000002_an_unreachable_provider_did_not_answer` — fns:founder_model_providers
+- `20261027000003_register_iso_20816_3` — (misc DDL/DML)
+- `20261027000004_grants_follow_the_callers` — (misc DDL/DML)
+- `20261027000005_deleting_an_asset_keeps_one_pm_summary` — fns:pm_knowledge_unlink_without_duplicate · triggers:trg_asset_node_delete_keeps_one_pm_summary
+- `20261027000006_a_deal_cannot_be_re_filed` — fns:guard_deal_listing_and_hive · triggers:trg_guard_inquiry_listing_and_hive,trg_guard_marketplace_order_status,trg_guard_order_listing_and_hive
 
 (showing last 200)
 

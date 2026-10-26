@@ -2,7 +2,7 @@
 name: skill-marketplace
 type: skill
 source: skill:marketplace
-source_sha: 1066e3eaa5483a39
+source_sha: e53cb1b211b33fa2
 last_verified: 2026-07-13
 supersedes: null
 ---

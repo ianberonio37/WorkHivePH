@@ -63,9 +63,9 @@
     },
     {
       "page": "skillmatrix.html",
-      "add": 13,
+      "add": 14,
       "remove": 1,
-      "add_raw": 16,
+      "add_raw": 17,
       "rebuild_scoped": 3,
       "risky": false
     },
@@ -121,9 +121,9 @@
     },
     {
       "page": "assistant.html",
-      "add": 9,
-      "remove": 0,
-      "add_raw": 10,
+      "add": 10,
+      "remove": 1,
+      "add_raw": 11,
       "rebuild_scoped": 1,
       "risky": false
     },

@@ -2,43 +2,45 @@
 name: ops-cron-realtime
 type: ops
 source: db:cron.job+pg_publication_tables
-source_sha: a1cec72d6056d416
+source_sha: ff69f68916050c36
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## ops · cron jobs + realtime publication
 
-**pg_cron jobs (38)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
+**pg_cron jobs (40)** — a failing cron is SILENT; audit `cron.job_run_details` for failures:
 - `achievement-xp-log-purge` @ `0 3 * * 0` → DELETE FROM public.achievement_xp_log x      WHERE x.earned_at < now() - interva
 - `agent-memory-retention` @ `15 4 * * *` →        DELETE FROM public.agent_memory        WHERE kind = 'turn'          AND c
-- `ai-eval-daily-analytics` @ `33 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
-- `ai-eval-daily-asset-brain` @ `30 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
-- `ai-eval-daily-logbook-voice` @ `42 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
-- `ai-eval-daily-project` @ `36 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
-- `ai-eval-daily-report-voice` @ `45 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
-- `ai-eval-daily-shift` @ `39 3 * * *` →        SELECT net.http_post(         url     := current_setting('app.supabase_fu
-- `amc-brief-0600pht` @ `0 22 * * *` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/a
+- `ai-eval-daily-analytics` @ `33 3 * * *` →        SELECT private.note_scheduled_call('ai-eval-daily-analytics', 'ai-eval-ru
+- `ai-eval-daily-asset-brain` @ `30 3 * * *` →        SELECT private.note_scheduled_call('ai-eval-daily-asset-brain', 'ai-eval-
+- `ai-eval-daily-logbook-voice` @ `42 3 * * *` →        SELECT private.note_scheduled_call('ai-eval-daily-logbook-voice', 'ai-eva
+- `ai-eval-daily-project` @ `36 3 * * *` →        SELECT private.note_scheduled_call('ai-eval-daily-project', 'ai-eval-runn
+- `ai-eval-daily-report-voice` @ `45 3 * * *` →        SELECT private.note_scheduled_call('ai-eval-daily-report-voice', 'ai-eval
+- `ai-eval-daily-shift` @ `39 3 * * *` →        SELECT private.note_scheduled_call('ai-eval-daily-shift', 'ai-eval-runner
+- `amc-brief-0600pht` @ `0 22 * * *` → SELECT private.note_scheduled_call('amc-brief-0600pht', 'amc-orchestrator', net.
 - `amc-expire-stale-0555pht` @ `55 21 * * *` → SELECT public.amc_expire_stale();
 - `analytics-events-retention` @ `50 4 * * *` →  delete from public.analytics_events where created_at < now() - interval '400 da
-- `batch-risk-scoring-daily` @ `0 5 * * *` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/b
-- `benchmark-compute-weekly` @ `30 21 * * 0` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/b
+- `batch-risk-scoring-daily` @ `0 5 * * *` → SELECT private.note_scheduled_call('batch-risk-scoring-daily', 'batch-risk-scori
+- `benchmark-compute-weekly` @ `30 21 * * 0` → SELECT private.note_scheduled_call('benchmark-compute-weekly', 'benchmark-comput
 - `client-errors-retention` @ `40 4 * * *` →  delete from public.client_errors where created_at < now() - interval '90 days' 
 - `cron-history-retention` @ `20 4 * * *` →  delete from cron.job_run_details where end_time < now() - interval '7 days' 
 - `embedding-cache-retention` @ `25 4 * * *` →        -- LRU age eviction: drop cache entries not used in 45 days. Recomputed o
-- `failure-digest-weekly` @ `0 7 * * 1` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/s
-- `failure-signature-scan-daily` @ `0 21 * * *` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/f
+- `embedding-outbox-relay` @ `* * * * *` → SELECT private.relay_embedding_outbox(20);
+- `failure-digest-weekly` @ `0 7 * * 1` → SELECT private.note_scheduled_call('failure-digest-weekly', 'scheduled-agents', 
+- `failure-signature-scan-daily` @ `0 21 * * *` → SELECT private.note_scheduled_call('failure-signature-scan-daily', 'failure-sign
 - `gateway-audit-retention` @ `30 4 * * *` →        DELETE FROM public.gateway_audit_log        WHERE created_at < now() - IN
 - `hard-delete-soft-expired` @ `0 4 * * *` →  SELECT public.hard_delete_expired_soft_deletes(); 
-- `hierarchical-summaries-weekly` @ `0 21 * * 0` →    SELECT net.http_post(     url := current_setting('app.supabase_functions_url'
+- `hierarchical-summaries-weekly` @ `0 21 * * 0` →    SELECT private.note_scheduled_call('hierarchical-summaries-weekly', 'hierarch
 - `hive-route-calls-retention` @ `45 4 * * *` →        DELETE FROM public.hive_route_calls        WHERE hour_bucket < now() - IN
 - `listing-holding-fee-monthly` @ `0 3 1 * *` → SELECT public.sweep_listing_holding_fee();
-- `ml-retrain-weekly` @ `0 18 * * 6` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/t
+- `ml-retrain-weekly` @ `0 18 * * 6` → SELECT private.note_scheduled_call('ml-retrain-weekly', 'trigger-ml-retrain', ne
 - `ops-db-size-snapshot-daily` @ `10 0 * * *` → select public.snapshot_db_size()
 - `parts-recs-expire-0550pht` @ `50 21 * * *` → SELECT public.expire_stale_parts_recommendations();
 - `pm-auto-hail-daily` @ `15 0 * * *` → select public.sweep_pm_auto_hail();
-- `pm-overdue-daily` @ `0 6 * * *` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/s
-- `predictive-weekly` @ `0 20 * * 0` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/s
-- `project-risk-weekly` @ `0 6 * * 3` → SELECT net.http_post(url := current_setting('app.supabase_functions_url') || '/s
+- `pm-overdue-daily` @ `0 6 * * *` → SELECT private.note_scheduled_call('pm-overdue-daily', 'scheduled-agents', net.h
+- `predictive-weekly` @ `0 20 * * 0` → SELECT private.note_scheduled_call('predictive-weekly', 'scheduled-agents', net.
+- `project-risk-weekly` @ `0 6 * * 3` → SELECT private.note_scheduled_call('project-risk-weekly', 'scheduled-agents', ne
+- `scheduled-calls-settle` @ `*/5 * * * *` → SELECT private.settle_scheduled_calls();
 - `service-availability-reconcile-1min` @ `* * * * *` → SELECT public.reconcile_provider_availability();
 - `service-broadcast-sweep-1min` @ `* * * * *` → SELECT public.sweep_service_broadcasts();
 - `service-completion-sweep-hourly` @ `7 * * * *` → SELECT public.sweep_service_completions();

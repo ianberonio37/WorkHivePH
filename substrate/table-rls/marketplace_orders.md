@@ -2,7 +2,7 @@
 name: table-rls-marketplace_orders
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_orders
-source_sha: f419b911b589a5f5
+source_sha: 166f5c0b5fe1a7a3
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -20,7 +20,7 @@ Policies:
 - `mkt_orders_read` [SELECT · roles=public] USING=`((buyer_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR is_marketplace_admin())` CHECK=`∅`
 - `mkt_orders_update` [UPDATE · roles=public] USING=`((buyer_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR is_marketplace_admin())` CHECK=`((buyer_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR is_marketplace_admin())`
 
-Guard triggers: `trg_bind_order_buyer`, `trg_guard_marketplace_order_status`
+Guard triggers: `trg_bind_order_buyer`, `trg_guard_marketplace_order_status`, `trg_guard_order_listing_and_hive`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

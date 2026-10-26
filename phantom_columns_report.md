@@ -9,14 +9,17 @@ candidates punch list. Allowlist a column by adding it to
 
 - Tables scanned:           **182**
 - Total columns:            **1943**
-- Alive (consumed):         **1478** ✅
+- Alive (consumed):         **1476** ✅
 - Universal-skipped:        **465** (id, created_at, hive_id, ...)
 - Allowlisted phantoms:     **0**
-- Phantom (deletion cand):  **0** ❌
+- Phantom (deletion cand):  **2** ❌
 
-## Tables with phantom columns (0)
+## Tables with phantom columns (2)
 
-_None — every non-universal column has at least one consumer._
+| Table | Phantom cols | Phantom column names |
+|---|---:|---|
+| `cross_hive_alerts` | 1 | `alert_reason` |
+| `offline_snapshot_cache` | 1 | `snapshot_hash` |
 
 ## What to do with a phantom column
 

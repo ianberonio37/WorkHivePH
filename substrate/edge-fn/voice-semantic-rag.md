@@ -2,7 +2,7 @@
 name: edge-fn-voice-semantic-rag
 type: edge-fn
 source: file:supabase/functions/voice-semantic-rag/index.ts
-source_sha: 79b48a8fefd611a7
+source_sha: dd99a1e1e84785a6
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-marketplace_inquiries
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_inquiries
-source_sha: 0a416612ff5b18bd
+source_sha: aae8e3367af7b32e
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -19,7 +19,7 @@ Policies:
 - `mkt_inq_read` [SELECT · roles=public] USING=`((buyer_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR is_marketplace_admin())` CHECK=`∅`
 - `mkt_inq_update` [UPDATE · roles=public] USING=`((buyer_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR is_marketplace_admin())` CHECK=`((buyer_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR is_marketplace_admin())`
 
-Guard triggers: `trg_bind_inquiry_buyer`, `trg_text_caps_mkt_inquiries`
+Guard triggers: `trg_bind_inquiry_buyer`, `trg_guard_inquiry_listing_and_hive`, `trg_text_caps_mkt_inquiries`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

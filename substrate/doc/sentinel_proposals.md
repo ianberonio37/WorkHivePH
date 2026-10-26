@@ -2,7 +2,7 @@
 name: doc-sentinel_proposals
 type: doc
 source: file:sentinel_proposals.md
-source_sha: 9e1ab0e561eeb010
+source_sha: 522930de8b7aae9c
 last_verified: 2026-07-13
 supersedes: null
 ---

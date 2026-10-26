@@ -2,7 +2,7 @@
 name: edge-fn-semantic-fact-extractor
 type: edge-fn
 source: file:supabase/functions/semantic-fact-extractor/index.ts
-source_sha: 0aa50ab1a9577828
+source_sha: c38b5e3b33672fbf
 last_verified: 2026-07-13
 supersedes: null
 ---

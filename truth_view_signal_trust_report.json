@@ -1,48 +1,17 @@
 {
   "summary": {
-    "view_column_pairs": 339,
+    "view_column_pairs": 325,
     "at_risk": 0,
     "review": 9,
-    "files_scanned": 351
+    "files_scanned": 355
   },
   "pairs": [
-    {
-      "view": "v_adoption_truth",
-      "column": "active_ratio_risk",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_adoption_truth",
-      "column": "momentum_risk",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
     {
       "view": "v_adoption_truth",
       "column": "risk_score",
       "consumers": [
         {
           "file": "supabase/functions/platform-scraper/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -58,11 +27,6 @@
           "file": "supabase/functions/platform-scraper/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -74,11 +38,6 @@
       "consumers": [
         {
           "file": "supabase/functions/platform-scraper/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -408,11 +367,6 @@
           "file": "alert-hub.html",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -433,28 +387,10 @@
     },
     {
       "view": "v_anomaly_truth",
-      "column": "logbook_cluster_score",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_anomaly_truth",
       "column": "machine",
       "consumers": [
         {
           "file": "alert-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -468,19 +404,6 @@
       "consumers": [
         {
           "file": "alert-hub.html",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_anomaly_truth",
-      "column": "snapshot_date",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -853,11 +776,6 @@
           "file": "supabase/functions/asset-brain-query/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -925,11 +843,6 @@
         },
         {
           "file": "supabase/functions/asset-brain-query/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -2033,11 +1946,6 @@
           "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -2113,11 +2021,6 @@
           "smells": []
         },
         {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "worker-drawer.js",
           "shape": "direct",
           "smells": []
@@ -2157,11 +2060,6 @@
         },
         {
           "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -2229,11 +2127,6 @@
           "smells": []
         },
         {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "worker-drawer.js",
           "shape": "direct",
           "smells": []
@@ -2273,11 +2166,6 @@
         },
         {
           "file": "supabase/functions/batch-risk-scoring/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         },
@@ -2554,97 +2442,6 @@
       "risk": "OK"
     },
     {
-      "view": "v_knowledge_truth",
-      "column": "content",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_knowledge_truth",
-      "column": "source",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_kpi_truth",
-      "column": "failures_30d",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_kpi_truth",
-      "column": "machine",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_kpi_truth",
-      "column": "mtbf_30d",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_kpi_truth",
-      "column": "mttr_30d",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_kpi_truth",
-      "column": "total_downtime_30d",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
       "view": "v_logbook_truth",
       "column": "action",
       "consumers": [
@@ -2690,11 +2487,6 @@
         },
         {
           "file": "supabase/functions/semantic-fact-extractor/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -2789,11 +2581,6 @@
         },
         {
           "file": "supabase/functions/trigger-ml-retrain/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -3225,11 +3012,6 @@
           "file": "supabase/functions/weibull-fitter/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -3587,11 +3369,6 @@
         },
         {
           "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -4512,11 +4289,6 @@
           "file": "supabase/functions/trigger-ml-retrain/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -4565,24 +4337,6 @@
           "file": "supabase/functions/trigger-ml-retrain/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_pm_compliance_truth",
-      "column": "completions_30d",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -4606,11 +4360,6 @@
           "file": "supabase/functions/analytics-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -4622,11 +4371,6 @@
       "consumers": [
         {
           "file": "supabase/functions/amc-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -4653,11 +4397,6 @@
       "consumers": [
         {
           "file": "supabase/functions/batch-risk-scoring/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -4696,19 +4435,6 @@
         },
         {
           "file": "supabase/functions/trigger-ml-retrain/index.ts",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_pm_compliance_truth",
-      "column": "skips_90d",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -5871,24 +5597,6 @@
           "file": "supabase/functions/project-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_project_truth",
-      "column": "priority",
-      "consumers": [
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -5910,11 +5618,6 @@
         },
         {
           "file": "supabase/functions/scheduled-agents/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -5968,11 +5671,6 @@
           "file": "supabase/functions/project-progress/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -6007,11 +5705,6 @@
         },
         {
           "file": "supabase/functions/project-progress/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -6265,11 +5958,6 @@
           "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -6296,11 +5984,6 @@
         },
         {
           "file": "supabase/functions/asset-brain-query/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -6410,11 +6093,6 @@
           "file": "supabase/functions/asset-brain-query/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -6463,11 +6141,6 @@
           "file": "supabase/functions/shift-planner-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -6514,11 +6187,6 @@
         },
         {
           "file": "supabase/functions/shift-planner-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }
@@ -7360,11 +7028,6 @@
           "file": "supabase/functions/analytics-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -7388,11 +7051,6 @@
           "file": "supabase/functions/analytics-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -7406,11 +7064,6 @@
           "file": "supabase/functions/ai-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
-        },
-        {
-          "file": "voice-handler.js",
-          "shape": "direct",
-          "smells": []
         }
       ],
       "smells": [],
@@ -7422,11 +7075,6 @@
       "consumers": [
         {
           "file": "supabase/functions/amc-orchestrator/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "voice-handler.js",
           "shape": "direct",
           "smells": []
         }

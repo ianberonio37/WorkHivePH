@@ -3,8 +3,8 @@
 Generated for 60 uncovered CHECK(s) across 11 per-page validators. Each check is one rule
 the platform should obey - and currently no Playwright spec exercises it.
 
-**Check coverage:** 80.6% (261 of 324 per-page checks - HONEST behavioral coverage)
-**Topic coverage:** 93.6% (44 of 47 per-page validators - loose, validator-level)
+**Check coverage:** 80.3% (261 of 325 per-page checks - HONEST behavioral coverage)
+**Topic coverage:** 91.7% (44 of 48 per-page validators - loose, validator-level)
 **Raw coverage:** 78.7% (328 of 417 validators)
 
 Each section below groups uncovered checks by validator. Use the per-check
@@ -499,7 +499,7 @@ page would just duplicate the validator with 50x the runtime.
 - `validate_i18n_family_consistency.py` (1 checks) - validate_i18n_family_consistency
 - `validate_user_facing_jargon.py` (1 checks) - validate_user_facing_jargon
 
-## Infrastructure gaps (84)
+## Infrastructure gaps (83)
 
 These validators have no UI surface - they enforce backend / schema /
 edge function / configuration rules. Layer 0 is the right enforcement
@@ -517,7 +517,6 @@ layer; no Playwright scenario is needed.
 - `validate_circuit_breaker.py` (no named checks) - validate_circuit_breaker
 - `validate_clone_debt.py` (no named checks) - validate_clone_debt
 - `validate_cold_start_memoization.py` (4 checks) - validate_cold_start_memoization
-- `validate_component_adoption.py` (no named checks) - validate_component_adoption
 - `validate_connection_pool_saturation.py` (1 checks) - validate_connection_pool_saturation
 - `validate_contact_consistency.py` (3 checks) - validate_contact_consistency
 - `validate_cors_wildcard.py` (4 checks) - validate_cors_wildcard
@@ -590,4 +589,4 @@ layer; no Playwright scenario is needed.
 - `validate_trigger_reentrancy.py` (4 checks) - validate_trigger_reentrancy
 - `validate_validator_self_coverage.py` (4 checks) - validate_validator_self_coverage
 
-_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 2 platform-wide and 84 infrastructure._
+_Generated 11 per-page proposal bundles. Skipped 0 with no extractable tokens. Tagged 2 platform-wide and 83 infrastructure._

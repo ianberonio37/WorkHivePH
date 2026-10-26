@@ -2,19 +2,19 @@
 name: page-assistant
 type: page
 source: file:assistant.html
-source_sha: 7dae657d26e0b6a2
+source_sha: 489038152d725c5d
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `assistant.html` — AI Work Assistant: WorkHive
 
-Size: 237KB · 62 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 240KB · 64 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (1): `ai_reply_feedback.insert`
 **RPC calls**: (none)
 **Edge invokes**: `ai-gateway`, `semantic-search`
 **Truth views read**: `v_inventory_items_truth`, `v_logbook_truth`, `v_pm_compliance_truth`, `v_skill_badges_truth`
 
-**Functions**: _attachChatFeedback, _cells, _gwIsTransport, _gwStatus, _horizon, _isRow, _isSep, _loadRecordsSummary, _markTurnUnsent, _mdish, _nearBottom, _ownScope, _paintQuotaNote, _phrased, _raceGatewayData, _recordChatFeedback, _safeHref, _setAssistantScopeChip, _setJournalNote, _writeScope, _writeSummary, addAssistantBubble, addStarterChips, addSystemNotice, addTypingIndicator, addUserBubble, autoResize, bindConnDot, buildSystemPrompt, clearChat, closeList, closeTable, composerHint, flushPara, handleBack, handleInputKey, handleTabKey, inline, isRateLimited, loadRecordsSummary, mkBtn, num, oneGreetingPerThread, paint, paintLangToggles, removeTypingIndicator, restoreAssistantDraft, s, scopeOwn, scrollToBottom, sendMessage, setAssistantLang, setFailure, showScreen, showToast, startChat, stopAsk, switchAssistantTab, syncSendBtn, trackComposerHeight …
+**Functions**: _attachChatFeedback, _cells, _gwIsTransport, _gwStatus, _horizon, _isRow, _isSep, _loadRecordsSummary, _markTurnUnsent, _mdish, _nearBottom, _ownScope, _paintQuotaNote, _phrased, _raceGatewayData, _recordChatFeedback, _safeHref, _setAssistantScopeChip, _setJournalNote, _whEnterChat, _whRouteOnIdentity, _writeScope, _writeSummary, addAssistantBubble, addStarterChips, addSystemNotice, addTypingIndicator, addUserBubble, autoResize, bindConnDot, buildSystemPrompt, clearChat, closeList, closeTable, composerHint, flushPara, handleBack, handleInputKey, handleTabKey, inline, isRateLimited, loadRecordsSummary, mkBtn, num, oneGreetingPerThread, paint, paintLangToggles, removeTypingIndicator, restoreAssistantDraft, s, scopeOwn, scrollToBottom, sendMessage, setAssistantLang, setFailure, showScreen, showToast, startChat, stopAsk, switchAssistantTab …
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

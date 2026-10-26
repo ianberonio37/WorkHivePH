@@ -2,7 +2,7 @@
 name: skill-seo-content
 type: skill
 source: skill:seo-content
-source_sha: 6473f8a195d20ebd
+source_sha: 10a3e5c98c50ce76
 last_verified: 2026-07-13
 supersedes: null
 ---

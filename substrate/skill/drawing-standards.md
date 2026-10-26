@@ -2,7 +2,7 @@
 name: skill-drawing-standards
 type: skill
 source: skill:drawing-standards
-source_sha: 5c623542572affd2
+source_sha: 8571c03ee3b3a180
 last_verified: 2026-07-13
 supersedes: null
 ---

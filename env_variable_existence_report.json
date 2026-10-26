@@ -1,10 +1,10 @@
 {
   "summary": {
-    "files_scanned": 198,
+    "files_scanned": 202,
     "total_refs": 400,
     "total_missing": 0,
     "baseline": 0,
-    "env_names_known": 53
+    "env_names_known": 54
   },
   "per_file": [
     {
@@ -29,6 +29,10 @@
     },
     {
       "file": "supabase/functions/_shared/benchmarks.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/build_stamps.ts",
       "missing": []
     },
     {
@@ -93,6 +97,10 @@
     },
     {
       "file": "supabase/functions/_shared/health.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/hive-knowledge.ts",
       "missing": []
     },
     {
@@ -181,6 +189,14 @@
     },
     {
       "file": "supabase/functions/_shared/trace-store.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/turn-steering.ts",
+      "missing": []
+    },
+    {
+      "file": "supabase/functions/_shared/untrusted.ts",
       "missing": []
     },
     {

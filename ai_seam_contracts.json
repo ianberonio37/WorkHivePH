@@ -121,6 +121,10 @@
   "saas→ai/utils.js→embed-entry": {
    "contract_test": "tools/contract_test_embed_entry_caller.py",
    "note": "Pins the whEmbedEntry wire: verbatim JSON payload + apikey/Bearer headers, caller reads only ok/status (fire-and-forget), wh_embed_retry queue replays the same wire; callee must keep reading a JSON body."
+  },
+  "ai→ai/ai-eval-runner→ai-gateway": {
+   "contract_test": "tools/contract_test_eval_runner_gateway.py",
+   "note": "Pins the eval runner's wire to the gateway: the eval ACCOUNT's own Bearer (never the service key) + apikey, a bounded call, { agent, message, context, hive_id } as the gateway destructures it, and the shared envelope's data.answer read back with a non-2xx / empty answer recorded as infra, never graded."
   }
  }
 }

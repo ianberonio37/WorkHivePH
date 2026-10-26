@@ -2,7 +2,7 @@
 name: edge-fn-visual-defect-capture
 type: edge-fn
 source: file:supabase/functions/visual-defect-capture/index.ts
-source_sha: cdc2d10f9e0facc9
+source_sha: 0652d7879298603b
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,13 +2,13 @@
 name: page-engineering-design
 type: page
 source: file:engineering-design.html
-source_sha: f78bf91d019b8dea
+source_sha: 53f1c8669cb8cc80
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `engineering-design.html` — Engineering Design Calculator: WorkHive
 
-Size: 58KB · 0 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 59KB · 0 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)

@@ -1,7 +1,7 @@
 {
   "summary": {
-    "files_scanned": 139,
-    "total_calls": 863,
+    "files_scanned": 143,
+    "total_calls": 866,
     "total_unbounded": 0,
     "baseline": 0
   },
@@ -147,6 +147,10 @@
       "issues": []
     },
     {
+      "file": "supabase/functions/_shared/build_stamps.ts",
+      "issues": []
+    },
+    {
       "file": "supabase/functions/_shared/cache.ts",
       "issues": []
     },
@@ -208,6 +212,10 @@
     },
     {
       "file": "supabase/functions/_shared/health.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/hive-knowledge.ts",
       "issues": []
     },
     {
@@ -296,6 +304,14 @@
     },
     {
       "file": "supabase/functions/_shared/trace-store.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/turn-steering.ts",
+      "issues": []
+    },
+    {
+      "file": "supabase/functions/_shared/untrusted.ts",
       "issues": []
     },
     {

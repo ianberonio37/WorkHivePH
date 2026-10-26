@@ -1,102 +1,6 @@
 {
-  "turn": 485,
+  "turn": 487,
   "history": [
-    {
-      "turn": 476,
-      "ts": "2026-09-28T20:37:24",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 50,
-          "to": 50,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 3816,
-          "to": 3816,
-          "delta": 0
-        },
-        "L0_validators_with_baseline": {
-          "from": 209,
-          "to": 209,
-          "delta": 0
-        },
-        "L2_sentinel_specs": {
-          "from": 29,
-          "to": 29,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": [],
-      "L0_regressions_quarantined": [],
-      "env_up": null,
-      "promotions": {
-        "rule_candidates": 13,
-        "sentinel_candidates": 1,
-        "tracked_total": 14,
-        "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
-        "top_sentinel": "sentinel:user_facing_jargon"
-      }
-    },
-    {
-      "turn": 477,
-      "ts": "2026-09-29T11:31:09",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 50,
-          "to": 50,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 3816,
-          "to": 3816,
-          "delta": 0
-        },
-        "L0_validators_with_baseline": {
-          "from": 209,
-          "to": 209,
-          "delta": 0
-        },
-        "L2_sentinel_specs": {
-          "from": 29,
-          "to": 29,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": [],
-      "L0_regressions_quarantined": [],
-      "env_up": null,
-      "promotions": {
-        "rule_candidates": 13,
-        "sentinel_candidates": 1,
-        "tracked_total": 14,
-        "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
-        "top_sentinel": "sentinel:user_facing_jargon"
-      }
-    },
     {
       "turn": 478,
       "ts": "2026-09-29T12:11:04",
@@ -522,6 +426,223 @@
         "top_rule": "rule:html:loads_utils_js",
         "top_sentinel": "sentinel:user_facing_jargon"
       }
+    },
+    {
+      "turn": 486,
+      "ts": "2026-10-27T08:44:32",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 50,
+          "to": 50,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 3804,
+          "to": 3570,
+          "delta": -234
+        },
+        "L0_validators_with_baseline": {
+          "from": 214,
+          "to": 217,
+          "delta": 3
+        },
+        "L2_sentinel_specs": {
+          "from": 29,
+          "to": 29,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [
+        {
+          "validator": "css_rules_reach_markup",
+          "from": 224,
+          "to": 79
+        },
+        {
+          "validator": "design_detector",
+          "from": 82,
+          "to": 0
+        },
+        {
+          "validator": "design_tokens",
+          "from": 143,
+          "to": 127
+        },
+        {
+          "validator": "clone_debt",
+          "from": 44,
+          "to": 39
+        },
+        {
+          "validator": "au_adoption",
+          "from": 42,
+          "to": 39
+        },
+        {
+          "validator": "component_adoption",
+          "from": 42,
+          "to": 39
+        },
+        {
+          "validator": "rate_limit_fairness",
+          "from": 4,
+          "to": 2
+        },
+        {
+          "validator": "role_check",
+          "from": 94,
+          "to": 92
+        },
+        {
+          "validator": "heading_hierarchy",
+          "from": 1,
+          "to": 0
+        }
+      ],
+      "L0_regressions": [
+        {
+          "validator": "ai_seams",
+          "from": 177,
+          "to": 185,
+          "classification": "unknown",
+          "scored": true,
+          "env_up": true,
+          "note": "no validate_<name>.py to re-run; surfaced conservatively"
+        },
+        {
+          "validator": "guard_mutation",
+          "from": 99,
+          "to": 100,
+          "classification": "unknown",
+          "scored": true,
+          "env_up": true,
+          "note": "no validate_<name>.py to re-run; surfaced conservatively"
+        }
+      ],
+      "L0_regressions_quarantined": [
+        {
+          "validator": "cache_hit_rate",
+          "from": 4,
+          "to": 5,
+          "classification": "adoption-ratchet",
+          "scored": false,
+          "env_up": true,
+          "fresh_count": 5
+        },
+        {
+          "validator": "db_adoption",
+          "from": 245,
+          "to": 247,
+          "classification": "adoption-ratchet",
+          "scored": false,
+          "env_up": true,
+          "fresh_count": 247
+        },
+        {
+          "validator": "render_budget",
+          "from": 17,
+          "to": 20,
+          "classification": "adoption-ratchet",
+          "scored": false,
+          "env_up": true,
+          "fresh_count": 20
+        },
+        {
+          "validator": "rendered_i18n",
+          "from": 64,
+          "to": 66,
+          "classification": "adoption-ratchet",
+          "scored": false,
+          "env_up": true,
+          "fresh_count": 66
+        },
+        {
+          "validator": "structured_log_adoption",
+          "from": 46,
+          "to": 54,
+          "classification": "adoption-ratchet",
+          "scored": false,
+          "env_up": true,
+          "fresh_count": 54
+        }
+      ],
+      "env_up": true,
+      "promotions": {
+        "rule_candidates": 13,
+        "sentinel_candidates": 2,
+        "tracked_total": 15,
+        "below_threshold": 0,
+        "top_rule": "rule:html:loads_utils_js",
+        "top_sentinel": "sentinel:user_facing_jargon"
+      }
+    },
+    {
+      "turn": 487,
+      "ts": "2026-10-27T12:34:00",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 50,
+          "to": 50,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 3570,
+          "to": 3571,
+          "delta": 1
+        },
+        "L0_validators_with_baseline": {
+          "from": 217,
+          "to": 217,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 29,
+          "to": 29,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [],
+      "L0_regressions": [],
+      "L0_regressions_quarantined": [
+        {
+          "validator": "ai_seams",
+          "from": 185,
+          "to": 186,
+          "classification": "adoption-ratchet",
+          "scored": false,
+          "env_up": true,
+          "fresh_count": 186
+        }
+      ],
+      "env_up": true,
+      "promotions": {
+        "rule_candidates": 13,
+        "sentinel_candidates": 2,
+        "tracked_total": 15,
+        "below_threshold": 0,
+        "top_rule": "rule:html:loads_utils_js",
+        "top_sentinel": "sentinel:user_facing_jargon"
+      }
     }
   ],
   "snapshots": {
@@ -549,7 +670,7 @@
         "ai_asset": 0,
         "ai_eval": 58,
         "ai_seam_coverage": 27,
-        "ai_seams": 177,
+        "ai_seams": 186,
         "ai_surface_quota": 100,
         "ai_ufai": 0,
         "ai_write_provenance": 100,
@@ -563,7 +684,7 @@
         "aria_label_coverage": 0,
         "article_taxonomy": 0,
         "asset_hub_deepwalk": 100,
-        "au_adoption": 42,
+        "au_adoption": 39,
         "auth_identity_ufai": 0,
         "author_can_edit_own_work": 0,
         "authority_link": 0,
@@ -578,18 +699,18 @@
         "browser_ci_persona": 140,
         "bug_repro_ratchet": 0,
         "button_type_in_form": 0,
-        "cache_hit_rate": 4,
+        "cache_hit_rate": 5,
         "calc_claim_consistency": 0,
         "canonical_anchor": 4,
         "canonical_drift": 0,
         "canonical_url_consistency": 0,
         "client_write_grants": 0,
-        "clone_debt": 44,
+        "clone_debt": 39,
         "commission_leakage": 0,
         "companion_delivery": 0,
         "companion_diverse": 12,
         "companion_page_coverage": 0,
-        "component_adoption": 42,
+        "component_adoption": 39,
         "component_purity": 0,
         "connection_pool_saturation": 0,
         "connection_surface": 0,
@@ -599,16 +720,17 @@
         "csp": 46,
         "css_class_existence": 0,
         "css_id_existence": 0,
-        "css_rules_reach_markup": 224,
+        "css_rules_reach_markup": 79,
         "cta_activation": 0,
         "cta": 0,
         "cwv": 0,
         "data_db_ufai": 0,
-        "db_adoption": 245,
+        "db_adoption": 247,
         "deeplink_param_contracts": 0,
+        "definer_doors": 0,
         "deploy_safety": 3,
-        "design_detector": 82,
-        "design_tokens": 143,
+        "design_detector": 0,
+        "design_tokens": 127,
         "device_clock": 0,
         "document_write": 0,
         "drop_if_exists": 0,
@@ -648,9 +770,9 @@
         "gateway_tenancy": 0,
         "getelementbyid_orphan_setter": 0,
         "grounding_contract": 0,
-        "guard_mutation": 99,
+        "guard_mutation": 100,
         "hail_geo_coverage": 1,
-        "heading_hierarchy": 1,
+        "heading_hierarchy": 0,
         "health_endpoint": 0,
         "health_surface": 0,
         "hive_deepwalk": 100,
@@ -689,6 +811,8 @@
         "no_em_dash": 0,
         "orphan_depth": 0,
         "orphan_kpi_tiles": 0,
+        "page_craft": 0,
+        "page_reach": 0,
         "paginated_order": 0,
         "pareto_content": 0,
         "password_input_form": 0,
@@ -707,7 +831,7 @@
         "python_api_ufai": 0,
         "query_column_existence": 0,
         "rate_limit_adoption": 2,
-        "rate_limit_fairness": 4,
+        "rate_limit_fairness": 2,
         "reachable_capability": 0,
         "realtime_channel_cleanup": 0,
         "realtime_payload_columns": 0,
@@ -715,16 +839,16 @@
         "realtime_subscription_isolation": 0,
         "realtime_ufai": 0,
         "redundant_widgets": 1,
-        "render_budget": 17,
+        "render_budget": 20,
         "render_sweep": 28,
-        "rendered_i18n": 64,
+        "rendered_i18n": 66,
         "request_budget": 1,
         "resilience_dr": 0,
         "rls_coverage": 0,
         "rls_open_policy": 2,
         "rls_permissive_bypass": 0,
         "rls_strict": 16,
-        "role_check": 94,
+        "role_check": 92,
         "role_string_consistency": 0,
         "rpc_argument_consistency": 0,
         "saas_layer_open": 0,
@@ -740,7 +864,7 @@
         "settimeout_string": 0,
         "sitemap_page_existence": 0,
         "source_chip_truth": 0,
-        "structured_log_adoption": 46,
+        "structured_log_adoption": 54,
         "supabase_object_existence": 0,
         "tabindex_positive": 0,
         "table_accessible_name": 0,
@@ -759,8 +883,29 @@
         "view_select_star": 0,
         "viewport_user_scalable": 0
       },
-      "total_baseline_count": 3804,
-      "validators_with_baseline": 214
+      "total_baseline_count": 3571,
+      "validators_with_baseline": 217,
+      "higher_is_better": [
+        "ai_seam_coverage",
+        "ai_surface_quota",
+        "asset_hub_deepwalk",
+        "browser_calc_sweep",
+        "cache_hit_rate",
+        "edge_error_capture",
+        "envelope_return_shape",
+        "frontend_ufai",
+        "guard_mutation",
+        "hive_deepwalk",
+        "llm_cache_adoption",
+        "logbook_deepwalk",
+        "marketplace_deepwalk",
+        "perf_scale",
+        "playwright_staleness",
+        "pm_deepwalk",
+        "project_manager_deepwalk",
+        "render_sweep",
+        "structured_log_adoption"
+      ]
     },
     "L2": {
       "sentinel_specs": 29,
@@ -776,92 +921,92 @@
     "rule:html:loads_utils_js": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 485,
-      "seen_turns": 429
+      "last_seen_turn": 487,
+      "seen_turns": 431
     },
     "rule:seeder:accepts_client_param": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 485,
-      "seen_turns": 429
+      "last_seen_turn": 487,
+      "seen_turns": 431
     },
     "rule:validator:has_main_guard": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 485,
-      "seen_turns": 429
+      "last_seen_turn": 487,
+      "seen_turns": 431
     },
     "sentinel:user_facing_jargon": {
       "kind": "sentinel",
       "first_seen_turn": 109,
-      "last_seen_turn": 485,
-      "seen_turns": 377
+      "last_seen_turn": 487,
+      "seen_turns": 379
     },
     "rule:html:has_main_landmark": {
       "kind": "rule",
       "first_seen_turn": 142,
-      "last_seen_turn": 485,
-      "seen_turns": 344
+      "last_seen_turn": 487,
+      "seen_turns": 346
     },
     "rule:edge:uses_error_envelope": {
       "kind": "rule",
       "first_seen_turn": 315,
-      "last_seen_turn": 485,
-      "seen_turns": 171
+      "last_seen_turn": 487,
+      "seen_turns": 173
     },
     "rule:edge:sets_content_type_json": {
       "kind": "rule",
       "first_seen_turn": 315,
-      "last_seen_turn": 485,
-      "seen_turns": 171
+      "last_seen_turn": 487,
+      "seen_turns": 173
     },
     "rule:edge:imports_supabase_esm": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 485,
-      "seen_turns": 131
+      "last_seen_turn": 487,
+      "seen_turns": 133
     },
     "rule:edge:reads_supabase_url_env": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 485,
-      "seen_turns": 131
+      "last_seen_turn": 487,
+      "seen_turns": 133
     },
     "rule:edge:reads_service_role_env": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 485,
-      "seen_turns": 131
+      "last_seen_turn": 487,
+      "seen_turns": 133
     },
     "rule:edge:handles_options": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 485,
-      "seen_turns": 63
+      "last_seen_turn": 487,
+      "seen_turns": 65
     },
     "rule:edge:uses_get_cors_headers": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 485,
-      "seen_turns": 63
+      "last_seen_turn": 487,
+      "seen_turns": 65
     },
     "rule:edge:has_try_catch": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 485,
-      "seen_turns": 63
+      "last_seen_turn": 487,
+      "seen_turns": 65
     },
     "rule:html:has_details_toggle": {
       "kind": "rule",
       "first_seen_turn": 473,
-      "last_seen_turn": 485,
-      "seen_turns": 13
+      "last_seen_turn": 487,
+      "seen_turns": 15
     },
     "sentinel:i18n_family_consistency": {
       "kind": "sentinel",
       "first_seen_turn": 483,
-      "last_seen_turn": 485,
-      "seen_turns": 3
+      "last_seen_turn": 487,
+      "seen_turns": 5
     }
   }
 }

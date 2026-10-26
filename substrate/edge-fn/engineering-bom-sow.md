@@ -2,7 +2,7 @@
 name: edge-fn-engineering-bom-sow
 type: edge-fn
 source: file:supabase/functions/engineering-bom-sow/index.ts
-source_sha: 993bd7f772a19665
+source_sha: dfd1a6bbd38aa18a
 last_verified: 2026-07-13
 supersedes: null
 ---

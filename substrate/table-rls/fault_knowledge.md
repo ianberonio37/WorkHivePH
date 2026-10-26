@@ -2,7 +2,7 @@
 name: table-rls-fault_knowledge
 type: table-rls
 source: db:pg_policies+pg_trigger:fault_knowledge
-source_sha: 8fb46a0398f84808
+source_sha: 06cf1fc72e696d9e
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -18,8 +18,6 @@ Policies:
 - `fault_knowledge_insert_locked` [INSERT · roles=public] USING=`∅` CHECK=`false`
 - `fault_knowledge_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (((hive_id IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_mem` CHECK=`∅`
 - `fault_knowledge_update_locked` [UPDATE · roles=public] USING=`false` CHECK=`false`
-
-Guard triggers: `trg_daily_cap_fault_knowledge`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

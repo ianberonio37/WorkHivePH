@@ -1,7 +1,7 @@
 {
   "summary": {
     "specs_scanned": 53,
-    "total_lookups": 236,
+    "total_lookups": 240,
     "total_drift": 2,
     "baseline": 2
   },
@@ -320,7 +320,7 @@
       "misses": [
         {
           "id": "wh-ai-trigger",
-          "offset": 41216
+          "offset": 43320
         }
       ]
     },

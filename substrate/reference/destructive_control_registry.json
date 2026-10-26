@@ -50,11 +50,11 @@
     ],
     "engineering-design.js": [
       {
-        "line": 29032,
+        "line": 29072,
         "message_head": "Delete this calculation?"
       },
       {
-        "line": 29185,
+        "line": 29225,
         "message_head": "Remove ${label} from the BOM?"
       }
     ],
@@ -68,103 +68,103 @@
         "message_head": "Your account has been deactivated and your personal data anonymized."
       },
       {
-        "line": 3189,
+        "line": 3192,
         "message_head": "${_coSups[0]}${_coSups.length > 1 ? ' and others' : ''} also supervise${_coSups.length > 1 ? '' : 's'} this hive, so it keeps a supervisor w"
       },
       {
-        "line": 3204,
+        "line": 3207,
         "message_head": "Leave this hive? You'll lose access to its board and can't post here anymore. Your past logbook entries stay in the hive's records."
       },
       {
-        "line": 3234,
+        "line": 3237,
         "message_head": "You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it ca"
       },
       {
-        "line": 3445,
+        "line": 3448,
         "message_head": "Rename this hive. Everyone in it will see the new name."
       },
       {
-        "line": 5127,
+        "line": 5130,
         "message_head": "Reset ${workerName}'s password? You'll get a one-time temporary password to give them. They should change it after signing in."
       },
       {
-        "line": 5154,
+        "line": 5157,
         "message_head": "Temporary password for ${workerName}:\\n\\n${data.temp_password}\\n\\nGive this to ${workerName} now; it won't be shown again. Ask them to chang"
       },
       {
-        "line": 6411,
+        "line": 6414,
         "message_head": "Reject \"${label}\" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing."
       }
     ],
     "index.html": [
       {
-        "line": 3532,
+        "line": 3557,
         "message_head": "Enter the email on your account for a reset link. No email on file (most field workers)? Ask your hive supervisor to reset your password for"
       },
       {
-        "line": 3540,
+        "line": 3565,
         "message_head": "Could not send the reset link right now. Please try again, or ask your supervisor to reset your password."
       },
       {
-        "line": 3545,
+        "line": 3570,
         "message_head": "Could not send the reset link. Ask your hive supervisor to reset your password."
       },
       {
-        "line": 3554,
+        "line": 3579,
         "message_head": "Set a new password (at least 8 characters):"
       },
       {
-        "line": 3557,
+        "line": 3582,
         "message_head": "Password must be at least 8 characters. Reopen the reset link to try again."
       },
       {
-        "line": 3561,
+        "line": 3586,
         "message_head": "That password has appeared in a public data breach. Reopen the reset link and choose a different one."
       },
       {
-        "line": 3696,
+        "line": 3722,
         "message_head": "Enter your company email domain (e.g. acmecorp.com):"
       },
       {
-        "line": 4299,
+        "line": 4329,
         "message_head": "Deactivate your account? Your name and email will be permanently anonymized and you will"
       }
     ],
     "integrations.html": [
       {
-        "line": 1508,
+        "line": 1518,
         "message_head": "Remove everything this wizard just created? This deletes the vehicle, its PM schedule"
       },
       {
-        "line": 2998,
+        "line": 3016,
         "message_head": "Revoke this API key? Any integrations using it will stop working."
       },
       {
-        "line": 3062,
+        "line": 3080,
         "message_head": "Undo this import? This will delete the ${entityType} records from external_sync and attempt to remove the corresponding logbook/asset/invent"
       }
     ],
     "inventory.html": [
       {
-        "line": 2251,
+        "line": 2281,
         "message_head": "${_uResv} ${_uUnit} of this part is staged for a predicted failure. Taking ${qty} spends the"
       },
       {
-        "line": 2643,
+        "line": 2673,
         "message_head": "Remove \"${item.part_name}\" (${item.part_number}) from inventory? You can restore it from Recently deleted for at least 30 days."
       }
     ],
     "logbook.html": [
       {
-        "line": 2367,
+        "line": 2370,
         "message_head": "Discard this offline save? It was never saved to the server, so it will be gone."
       },
       {
-        "line": 3114,
+        "line": 3139,
         "message_head": "Delete this entry? Any XP it earned is taken back. You can restore it from Recently deleted for at least 30 days."
       },
       {
-        "line": 3493,
+        "line": 3518,
         "message_head": "Remove this asset from the registry? It and its reliability history (Weibull fits, FMEA modes,"
       }
     ],
@@ -198,43 +198,59 @@
         "message_head": "Delete this saved search? This cannot be undone."
       },
       {
-        "line": 4835,
+        "line": 4836,
         "message_head": "You already hailed this at the same address in the last few minutes, and providers are still being notified about it. Hail a second one?"
       },
       {
-        "line": 5474,
+        "line": 5475,
         "message_head": "What went wrong with this job?"
       },
       {
-        "line": 5503,
+        "line": 5504,
         "message_head": "Cancel this request?"
       }
     ],
     "operator-actions.js": [
       {
-        "line": 307,
+        "line": 345,
         "message_head": "Verify this top-up? Credits are minted into the provider’s wallet immediately"
       },
       {
-        "line": 807,
+        "line": 942,
+        "message_head": "Remove ${_who}'s ${_isCert ? 'certification badge' : 'ID Verified badge'}?"
+      },
+      {
+        "line": 969,
+        "message_head": "Unpublish \"${btn.dataset.title || 'this listing'}\". Tell the seller why:"
+      },
+      {
+        "line": 1005,
         "message_head": "Reject this listing. Tell the seller why:"
       },
       {
-        "line": 1136,
+        "line": 1334,
         "message_head": "Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be"
       }
     ],
     "platform-actions.html": [
       {
-        "line": 852,
+        "line": 890,
         "message_head": "Verify this top-up? Credits are minted into the provider’s wallet immediately"
       },
       {
-        "line": 1352,
+        "line": 1487,
+        "message_head": "Remove ${_who}'s ${_isCert ? 'certification badge' : 'ID Verified badge'}?"
+      },
+      {
+        "line": 1514,
+        "message_head": "Unpublish \"${btn.dataset.title || 'this listing'}\". Tell the seller why:"
+      },
+      {
+        "line": 1550,
         "message_head": "Reject this listing. Tell the seller why:"
       },
       {
-        "line": 1681,
+        "line": 1879,
         "message_head": "Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be"
       }
     ],
@@ -244,11 +260,11 @@
         "message_head": "Auto-hail this asset’s PM work? When an item falls due, WorkHive files a service request for you and providers nearby can accept it."
       },
       {
-        "line": 3148,
+        "line": 3155,
         "message_head": "\"${name}\" is already registered as an asset.\\n\\nOpen it to add more tasks instead?"
       },
       {
-        "line": 3419,
+        "line": 3426,
         "message_head": "Delete \"${currentAsset.asset_name}\"? Its ${_blast} go with it into Recently deleted, where you can restore them for at least 30 days."
       }
     ],
@@ -308,15 +324,15 @@
     ],
     "utils.js": [
       {
-        "line": 6706,
+        "line": 6798,
         "message_head": "Delete X?"
       },
       {
-        "line": 6709,
+        "line": 6801,
         "message_head": "Enter name"
       }
     ]
   },
   "total_files": 20,
-  "total_controls": 68
+  "total_controls": 72
 }

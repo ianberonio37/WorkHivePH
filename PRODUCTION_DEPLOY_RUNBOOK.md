@@ -1,3 +1,43 @@
+# Production Deploy Runbook — M1 release (2026-10-27) — IN PROGRESS
+
+> **Why now:** the trajectory roadmap's milestone M1 - T1 (defects a person meets today) has no buildable row left: what
+> stays open is banked at locking (the board's job), waits on this push (KA-R refreshes, OWN62), on the Gemini quota, or
+> on Ian's dashboard (pg_net, backups). Ian, 2026-10-27: *"we deploy functions and push frontend to production when we
+> achieved considerable important closed trajectories worth pushing to production."*
+>
+> **Pre-flight - the first gate run (pre-push hook) read 61 static red + 1 data red; all cleared.** Most were gates that
+> no longer read this week's code (a parser that took `private.x` for a table named "private" - in three gates; an
+> apostrophe in a comment that hid 60 reset entries; CRLF vs LF in two hash/regex checks; patterns that predated the Back
+> stack and the server-side companion). Real ones, fixed: four app icons the deploy allowlist left out (404 in
+> production), the inventory "Show in list" button always visible (an inline display beat the hidden class), and the
+> local test database itself (see below).
+>
+> **The clean reseed (what the gate's own Phase 1 does) exposed 50 more probe reds** - the suite had only ever passed on a
+> lived-in database. Fixed in the seed, not the expectations: hive ids pinned by name (100+ tool references), accounts
+> resolved by e-mail in the probes, `seeders/probe_fixtures.py` (rows that only walks used to write), the three fleet
+> hives + Ben's personal vehicle (`seeders/fleets.py`), five years of history and the fleet tools run by the seed
+> (`run_history_tools`), `batch_insert(default_to_null=False)`, no future timestamps, authors bound at insert, a Weibull
+> refusal state, a live carry-forward list. Fixture selection made valid in the probes (single-hive member, not a
+> party, owner-scoped tables, nothing staged). `WH_SEED_SENSOR_INTERVAL_MINUTES=120` for this 8 GB host.
+>
+> - **Leg A - DB: 4 migrations**, all verified in production after the push:
+>   - `20261027000003` registers ISO 20816-3 (the vibration work cites it; canonical-anchor L6).
+>   - `20261027000004` closes two searches to visitors - only the gateway calls them now, for a signed-in person
+>     (anon EXECUTE false, authenticated true) - and writes down service_role's read of `v_scheduled_call_health`.
+>   - `20261027000005` **a real defect**: deleting an asset node whose PM summary shares a name with an unlinked one
+>     failed (23505 on `pm_knowledge_one_per_unlinked_asset` via ON DELETE SET NULL) - a supervisor's hard delete and the
+>     30-day purge alike. A BEFORE DELETE trigger keeps one summary.
+>   - `20261027000006` **a security hole**: `guard_marketplace_order_status` (an order's parties and price are immutable)
+>     fired only `ON UPDATE OF status`, so `UPDATE ... SET price` skipped it while authenticated holds column UPDATE on
+>     price/hive/listing - a buyer could rewrite what they pay. It fires on every update now; and an inquiry or order takes
+>     its hive from its listing on a client insert and keeps listing + hive on update (a party could re-file it into another
+>     hive). Probe evidence: "move into foreign" touched 1 row, then refused 23514.
+> - **Leg B - Edge:** the 29 functions bundling `_shared/ai-chain.ts` (AI_ASSET_VERSION 13), `persona.ts` (14),
+>   `turn-steering.ts` (an example asset tag became a placeholder), plus `agentic-rag-loop` and `ai-eval-runner` (a bounded
+>   read). `edge_remote_deps_lock.py --online` PASS before deploying.
+
+---
+
 # Production Deploy Runbook — release `27733934` (2026-10-23/24) ✅ DEPLOYED
 
 > **✅ DEPLOYED 2026-10-24 (executed by Claude on Ian's explicit instruction: "ok now let us now push to production,"

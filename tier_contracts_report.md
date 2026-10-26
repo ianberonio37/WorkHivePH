@@ -6,18 +6,19 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 
 | Tier | Registry file | Registered | Discovered | Pending |
 |---|---|---:|---:|---:|
-| F (Fuel) | `canonical/capture_contracts.json` | 494 | 267 | 50 |
+| F (Fuel) | `canonical/capture_contracts.json` | 494 | 271 | 54 |
 | E (Engine) | `canonical/formula_contracts.json` | 24 | 23 | 20 |
 | B (Brain) | `canonical/agent_contracts.json` | 7 | 110 | 14 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
-## Tier F (Fuel) — pending registrations (50)
+## Tier F (Fuel) — pending registrations (54)
 
 - `cl-text`
 - `ed-share-url`
 - `f-lead-time`
 - `f-loto`
 - `f-permit-ref`
+- `f-root-cause-note`
 - `file-any`
 - `file-photo`
 - `filter-route`
@@ -25,11 +26,14 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `ideal_cycle_time_seconds`
 - `jd-input`
 - `join-name-input`
+- `mkt-published-search`
+- `mkt-verified-search`
 - `pc-ret-soft`
 - `post-part-number`
 - `post-source-item-id`
 - `promote-dedupe`
 - `rm-current-title`
+- `sc-cause-field`
 - `svc-hail-address`
 - `svc-hail-item`
 - `svc-hail-urgency`
@@ -59,10 +63,6 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `veh-odo`
 - `veh-plate`
 - `veh-reg`
-- `veh-scope`
-- `veh-vin`
-- `veh-year`
-- `window`
 
 ## Tier E (Engine) — pending registrations (20)
 
