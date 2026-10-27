@@ -1,5 +1,18 @@
-# Production Deploy Runbook — M1 release (2026-10-27) — IN PROGRESS
+# Production Deploy Runbook — M1 release (2026-10-27) ✅ DEPLOYED
 
+> **✅ DEPLOYED 2026-10-27.** Leg A (4 migrations) and Leg B (30 functions) earlier the same day; Leg C pushed
+> `7121ac8d..8d0153e2` through the pre-push release gate on its fifth run (the first, before the reseed, read 61 + 1
+> red): **883 PASS / 0 FAIL static, data 61 pass / 0 fail**. Production serves `workhive-shell-v578`; the four app icons answer 200 (were 404).
+> **Post-deploy smoke:** public 120/120 clean; app 26/26 clean (the smoke-bench supervisor, credentials now in
+> `.env`); flows - **2 red, both the Gemini embedding quota**: every embed call has answered 429 "exceeded your current
+> quota" since a 245-call load at 2026-10-26 07:00 UTC, and production's chain has no second embedding provider, so
+> `embed-entry` 500s (flow 5) and the assistant's retrieval reaches nothing (flow 3). Not this release's code; the quota
+> resets at Pacific midnight - re-run `--tier=flows` after it. **IndexNow:** 120 URLs accepted (HTTP 200).
+> Runs 2-4 each found something: run 2 (12:37), 11 static + 4 data - derived files and seed states (below); run 3
+> (13:43), T71's incidents file derived before run 2 rewrote the board; run 4 (14:25), a substrate chunk my own skill
+> note moved, and two probe fixtures whose unordered `LIMIT 1` passed only when the data put an eligible row first (the
+> gate's own writes between runs reshuffled it).
+>
 > **Why now:** the trajectory roadmap's milestone M1 - T1 (defects a person meets today) has no buildable row left: what
 > stays open is banked at locking (the board's job), waits on this push (KA-R refreshes, OWN62), on the Gemini quota, or
 > on Ian's dashboard (pg_net, backups). Ian, 2026-10-27: *"we deploy functions and push frontend to production when we

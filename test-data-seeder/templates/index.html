@@ -1364,6 +1364,9 @@
       <button class="seed-btn" data-action="voice_alerts"
         data-tip-title="Voice Alerts (Phase 5)"
         data-tip="Populates anomaly_alerts with 5 realistic scenarios (maintenance overdue, KPI spikes, risk escalation). Test proactive alert surfacing.">Voice Alerts (Phase 5)</button>
+      <button class="seed-btn" data-action="analytics_history"
+        data-tip-title="14. Analytics History"
+        data-tip="90 days of page visits and uses per active member, with accounts that come back within a week, within a month or never, plus 40 signed-out sessions. Powers the console's 'Did they come back?' panel.">14. Analytics History</button>
       <button class="seed-btn reset-btn" data-action="reset"
         data-tip-title="Reset All"
         data-tip="Wipe every seeded table. Use before a fresh Seed Everything when you want a deterministic baseline.">Reset All</button>
@@ -2261,6 +2264,10 @@
         data-tip-title="13. Voice Journal"
         data-tip="5-10 journal entries per worker (linked auth_uid required) across the last 30 days. Mix of English + Tagalog. Topics span bearing checks, lubrication PMs, inventory low-stock, safety toolbox talks, walkdowns. Powers voice-journal.html history feed."
         data-tip-foot="Required for: voice-journal.html history feed, semantic recall RPC tests.">13. Voice Journal</button>
+      <button class="seed-btn" data-action="analytics_history"
+        data-tip-title="14. Analytics History"
+        data-tip="90 days of page visits and uses (page_view + feature_use) per active member, named after each page's real actions: some come back within a week, some within a month, some never; 40 signed-out sessions use but cannot return. Deterministic (fixed random seed)."
+        data-tip-foot="Required for: founder-console's 'Did they come back?' panel and tools/prove_outcome_figures.py (an empty ledger reads VACUOUS).">14. Analytics History</button>
     </div>
     <details class="section-help">
       <summary>When do I seed, and which buttons should I press?</summary>

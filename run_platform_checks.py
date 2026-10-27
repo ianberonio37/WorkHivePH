@@ -13288,6 +13288,20 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # ★DID THEY COME BACK, PROVED FROM THE LEDGER (T2 OUT85-87, 2026-10-27). The console's outcomes panel reads
+        # founder_outcomes; this gate computes every figure again in Python from the RAW analytics_events rows (no SQL
+        # shared with the RPC), opens the console's Platform tab as a platform admin and reads each [data-fig] span as
+        # rendered. Three verdicts: use, return (7 and 30 days, beside the cohort) and repeat use. An all-zero ledger is
+        # VACUOUS, never a pass; the walk's own page views are answered in the browser so the instrument never writes to
+        # the ledger it measures. Teeth: a panel that drew cohort_7 under the 30-day column failed 28/28 pages.
+        "id":      "outcome-figures",
+        "script":  os.path.join("tools", "prove_outcome_figures.py"),
+        "args":    [],
+        "label":   "Outcome figures (the console's use, return and repeat-use figures equal a recomputation from the raw event ledger)",
+        "group":   "Data",
+        "skip_if_fast": False,
+    },
+    {
         # ★THE TENANT BOUNDARY, ASKED ON THE APP'S OWN PATH (live-walk wave, 2026-09-06). For every public table
         # carrying hive_id, a PLAIN member of one hive asks PostgREST for another hive's rows with a real user token,
         # and must get none - so a pass covers the GRANTs and the policy together, exactly as the browser meets them.

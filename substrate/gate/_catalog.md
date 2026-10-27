@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 2912949d50fe7b66
+source_sha: 1b159fda2c8a334f
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1475) — the 'what's already gated' brain
+## gate · registered validators (1476) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -217,12 +217,13 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `companion_memory_reembed` ⚡ [fail] — Companion Memory C2.3: re-embed-retry (null procedural becomes searchable after re-embed)
 - `companion_memory_supersedes` ⚡ [fail] — Companion Memory C2.1: supersedes down-rank (obsolete procedure ranks below its replacement)
 
-### Data (6)
+### Data (7)
 - `analytics-skip-trash` ⚡ [fail] — 2026-10-26 (found on the BRH.10 AI walk of analytics.html): an entry in the trash never counts in the analytics. The logbook's reads go through v_logbook_truth,
 - `breakdown-cause-listed` ⚡ [fail] — §BRH.10 AI (2026-10-26): every breakdown cause is one the analytics can group. The logbook form offers 12 causes; the voice entry, the CSV import and the CMMS s
 - `cap-honesty` ⚡ [fail] — Cap honesty (every capped read with rows hidden behind it sits on a page that can admit the cap)
 - `export-truthful` [fail] — Export truthful (every export control produces an artifact that arrives, is named, and carries what the screen showed)
 - `export-truthful-teeth` [fail] — Export-truthful judgment bites (8 fixture controls graded the known way: silent and lying controls fail E1, E2/E3/E4 each fail their own file, an in-page view, 
+- `outcome-figures` ⚡ [fail] — Outcome figures (the console's use, return and repeat-use figures equal a recomputation from the raw event ledger)
 - `tile-canonical` ⚡ [fail] — Tile == canonical (every headline number on the board equals the v_*_truth query behind it)
 
 ### Data Engineer (1)

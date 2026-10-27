@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1057-files
-source_sha: e9212fa733271534
+source_sha: ae18143c65520be6
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -39,7 +39,7 @@ Entries (name · type · sha):
 - `feedback_a_ceiling_written_into_a_tools_docstring` · feedback · 98f30b6b69cc6e6e
 - `feedback_a_checkpoint_must_count_the_unit_of_work` · feedback · e42483f6615af752
 - `feedback_a_claim_must_name_what_it_rests_on` · feedback · 53b626884aebece2
-- `feedback_a_clean_reseed_is_the_gates_real_test` · feedback · 16b8980a141a4b3c
+- `feedback_a_clean_reseed_is_the_gates_real_test` · feedback · 1552d31c297ec6f5
 - `feedback_a_click_that_changes_nothing_logs_as_ok` · feedback · bbb54b4a275f0fd9
 - `feedback_a_clone_metric_that_never_read_the_code` · feedback · ea97b606a37cab98
 - `feedback_a_closed_lane_can_still_be_static` · feedback · 0ddbabeb8541cd87

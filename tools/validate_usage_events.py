@@ -105,6 +105,9 @@ USES = {
     "operator-actions.js": ["topup_verified", "topup_rejected", "listing_approved", "listing_rejected",
                             "seller_identity_verified", "seller_certs_verified", "feedback_triaged"],
     "founder-console.html": [],      # its uses are the queues' (operator-actions.js); listed for U8's one page view
+    # the calculator (T2 OUT, 2026-10-27): the one OUT page that recorded visits and no use. Its script is split out of
+    # the page, so the file listed is the script; a shared link opening a calculation is a replay, not a use (no calc_run)
+    "engineering-design.js": ["calc_run", "calc_saved", "report_exported", "link_shared", "bom_sow_generated"],
 }
 RETIRED = {"platform-actions.html", "marketplace-admin.html"}      # a retired page's use IS its visit
 # a retired page whose script is the SOURCE a live file is generated from: its uses run there, so they are not a retired

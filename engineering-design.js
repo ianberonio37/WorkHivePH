@@ -10192,6 +10192,8 @@ async function runCalculation() {
 
     _renderComputed(inputs, data);
     showToast('Calculation complete!');
+    // a use is recorded once the engine answered (SL L3 / T2 OUT): the page recorded visits and never what it was used for
+    whUse(db, 'calc_run', { calc: _calcType });
 
   } catch (err) {
     showEmpty();
@@ -10558,7 +10560,10 @@ function edShareLink() {
   const url = location.origin + location.pathname + '?calc=' + encodeURIComponent(slug) + '#share=' + edShareEncode(_calcType, _lastInputs);
   const box = document.getElementById('ed-share-box');
   const field = document.getElementById('ed-share-url');
-  const said = (how) => showToast(how + ' It carries this calculation\'s inputs: anyone with a WorkHive account who opens it sees it run again.', 7000);
+  const said = (how) => {
+    whUse(db, 'link_shared', { calc: _calcType });   // only once the link reached the share sheet or the clipboard
+    showToast(how + ' It carries this calculation\'s inputs: anyone with a WorkHive account who opens it sees it run again.', 7000);
+  };
   const offer = () => {
     if (box && field) { box.hidden = false; field.value = url; field.focus(); field.select(); }
     showToast('Copy the link below to share this calculation.', 6000);
@@ -18862,6 +18867,7 @@ function _fallbackHtml2pdf(reportEl, fileName) {
     reportEl.style.maxWidth = origMaxWidth;
     document.getElementById('pdf-pagebreak-rules')?.remove();
     document.getElementById('pdf-disclaimer')?.remove();
+    whUse(db, 'report_exported', { calc: _calcType, how: 'device' });
   });
 }
 
@@ -18890,6 +18896,7 @@ async function printReport() {
     const html = _prepareReportHtml(reportEl);
     await _tryServerPdf(html, fileName);
     say('');
+    whUse(db, 'report_exported', { calc: _calcType, how: 'server' });
     // a slow answer that still arrived is the founder's early warning (cold starts), not the person's problem
     const secs = Math.round((Date.now() - t0) / 1000);
     if (secs > 10) _edDependencyFailed('pdf', new Error(`PDF API slow: answered in ${secs} s`));
@@ -28725,6 +28732,7 @@ async function saveCalc() {
       // calc is reachable evidence, so the confirmation names where it is, that it is there NOW, and
       // what can be done with it next.
       showToast('Saved -> it is in your calculation history now, and you can reopen or export it from the History tab.');
+      whUse(db, 'calc_saved', { calc: _calcType });
     }
   } finally {
     _savingCalc = false;
@@ -28825,6 +28833,7 @@ async function saveWithBomSow() {
     } else {
       // Was 'Saved with BOM + SOW.' - it named WHAT was saved but not where it went or what to do next.
       showToast('Saved -> the calculation, its BOM and its SOW are in your history now, and you can reopen or export them from the History tab.');
+      whUse(db, 'calc_saved', { calc: _calcType, bom_sow: true });
     }
   } finally {
     _savingBomSow = false;
@@ -29155,6 +29164,7 @@ async function generateBomSowChecklist() {
     document.getElementById('bom-loading').classList.add('hidden');
     document.getElementById('bom-checklist-panel').classList.remove('hidden');
     switchBomTab('bom');
+    whUse(db, 'bom_sow_generated', { calc: _calcType });
 
   } catch (err) {
     document.getElementById('bom-loading').classList.add('hidden');

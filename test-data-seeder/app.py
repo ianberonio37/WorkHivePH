@@ -28,6 +28,7 @@ from seeders.community import seed_community
 from seeders.projects import seed_projects
 from seeders.reset import reset_all
 from seeders.achievements import seed_achievements
+from seeders.analytics_history import seed_analytics_history
 
 import subprocess
 import sys
@@ -460,6 +461,8 @@ def api_seed_module(module):
     standalone_map = {
         "hives_workers":  lambda c, log: seed_hives_and_workers(c, log),
         "achievements":   lambda c, log: seed_achievements(c, log),
+        # 90 days of visits and uses for the console's "Did they come back?" figures (T2 OUT, 2026-10-27)
+        "analytics_history": lambda c, log: seed_analytics_history(c, log),
     }
 
     from seeders.dayplanner import seed_dayplanner

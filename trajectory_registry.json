@@ -1127556,8 +1127556,8 @@
     },
     {
       "id": "OUT1",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - achievements · worker",
       "pages": [
@@ -1127610,12 +1127610,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for achievements is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. achievements.html: its primary actions record a feature_use where the use is confirmed - achievement_opened (tools/validate_usage_events.py U2 holds each literal in achievements.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 0 use(s) in the last 7 Manila days by 0 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT2",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - achievements · worker",
       "pages": [
@@ -1127668,12 +1127675,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for achievements is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. achievements.html: came back within 7 days 1 of 2, within 30 days 1 of 1 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT3",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - achievements · worker",
       "pages": [
@@ -1127726,12 +1127740,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for achievements is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. achievements.html: repeat use 0 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT4",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - alert hub · worker",
       "pages": [
@@ -1127784,12 +1127805,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for alert hub is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. alert-hub.html: its primary actions record a feature_use where the use is confirmed - alert_handled, alert_snoozed, alert_seen, alert_unseen, alert_put_back, brief_approved, brief_rejected (tools/validate_usage_events.py U2 holds each literal in alert-hub.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 3 use(s) in the last 7 Manila days by 1 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT5",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - alert hub · worker",
       "pages": [
@@ -1127842,12 +1127870,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for alert hub is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. alert-hub.html: came back within 7 days 2 of 2, within 30 days 2 of 2 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT6",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - alert hub · worker",
       "pages": [
@@ -1127900,12 +1127935,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for alert hub is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. alert-hub.html: repeat use 1 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT7",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - analytics report · fleet-supervisor",
       "pages": [
@@ -1127958,12 +1128000,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for analytics report is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics-report.html: its primary actions record a feature_use where the use is confirmed - report_generated, report_exported, print_opened (tools/validate_usage_events.py U2 holds each literal in analytics-report.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 1 use(s) in the last 7 Manila days by 1 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT8",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - analytics report · fleet-supervisor",
       "pages": [
@@ -1128016,12 +1128065,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for analytics report is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics-report.html: came back within 7 days 1 of 3, within 30 days 2 of 3 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT9",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - analytics report · fleet-supervisor",
       "pages": [
@@ -1128074,12 +1128130,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for analytics report is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics-report.html: repeat use 0 of 3 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT10",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - analytics · fleet-supervisor",
       "pages": [
@@ -1128134,12 +1128197,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for analytics is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics.html: its primary actions record a feature_use where the use is confirmed - phase_opened, period_changed (tools/validate_usage_events.py U2 holds each literal in analytics.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 3 use(s) in the last 7 Manila days by 2 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT11",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - analytics · fleet-supervisor",
       "pages": [
@@ -1128194,12 +1128264,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for analytics is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics.html: came back within 7 days 2 of 4, within 30 days 3 of 3 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT12",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - analytics · fleet-supervisor",
       "pages": [
@@ -1128254,12 +1128331,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for analytics is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics.html: repeat use 1 of 4 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT13",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - asset hub · worker",
       "pages": [
@@ -1128312,12 +1128396,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for asset hub is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. asset-hub.html: its primary actions record a feature_use where the use is confirmed - asset_opened, fmea_mode_added, rcm_strategy_saved, fmea_mode_approved, fmea_mode_deleted, rcm_strategy_approved, rcm_strategy_deleted (tools/validate_usage_events.py U2 holds each literal in asset-hub.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 1 use(s) in the last 7 Manila days by 1 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT14",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - asset hub · worker",
       "pages": [
@@ -1128370,12 +1128461,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for asset hub is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. asset-hub.html: came back within 7 days 3 of 3, within 30 days 2 of 2 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT15",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - asset hub · worker",
       "pages": [
@@ -1128428,12 +1128526,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for asset hub is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. asset-hub.html: repeat use 2 of 3 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT16",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - assistant · worker",
       "pages": [
@@ -1128486,12 +1128591,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for assistant is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. assistant.html: its primary actions record a feature_use where the use is confirmed - question_answered, answer_rated (tools/validate_usage_events.py U2 holds each literal in assistant.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 0 use(s) in the last 7 Manila days by 0 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT17",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - assistant · worker",
       "pages": [
@@ -1128544,12 +1128656,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for assistant is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. assistant.html: came back within 7 days 1 of 2, within 30 days 1 of 2 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT18",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - assistant · worker",
       "pages": [
@@ -1128602,12 +1128721,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for assistant is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. assistant.html: repeat use 0 of 1 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT19",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - community · fleet-supervisor",
       "pages": [
@@ -1128660,12 +1128786,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for community is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. community.html: its primary actions record a feature_use where the use is confirmed - post_published, post_edited, reply_posted, reaction_added, best_answer_marked, best_answer_removed, post_pinned, post_unpinned, post_flagged, post_unflagged, post_deleted, post_restored, post_reported (tools/validate_usage_events.py U2 holds each literal in community.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 1 use(s) in the last 7 Manila days by 1 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT20",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - community · fleet-supervisor",
       "pages": [
@@ -1128718,12 +1128851,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for community is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. community.html: came back within 7 days 2 of 5, within 30 days 5 of 5 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT21",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - community · fleet-supervisor",
       "pages": [
@@ -1128776,12 +1128916,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for community is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. community.html: repeat use 1 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT22",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - dayplanner · fleet-supervisor",
       "pages": [
@@ -1128834,12 +1128981,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for dayplanner is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. dayplanner.html: its primary actions record a feature_use where the use is confirmed - item_added, item_edited, item_removed (tools/validate_usage_events.py U2 holds each literal in dayplanner.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 0 use(s) in the last 7 Manila days by 0 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT23",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - dayplanner · fleet-supervisor",
       "pages": [
@@ -1128892,12 +1129046,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for dayplanner is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. dayplanner.html: came back within 7 days 1 of 5, within 30 days 3 of 4 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT24",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - dayplanner · fleet-supervisor",
       "pages": [
@@ -1128950,12 +1129111,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for dayplanner is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. dayplanner.html: repeat use 1 of 3 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT25",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - engineering design · solo-owner",
       "pages": [
@@ -1129008,12 +1129176,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for engineering design is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. engineering-design.html: its primary actions record a feature_use where the use is confirmed - calc_run, calc_saved, report_exported, link_shared, bom_sow_generated (tools/validate_usage_events.py U2 holds each literal in engineering-design.js; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). Instrumented this unit: the calculator recorded visits and no use; calc_run after the engine answers a fresh run (a shared link opening a calculation is a replay, not a use), calc_saved in both savers, report_exported on the server PDF and the on-device one, link_shared once the link reached the share sheet or clipboard, bom_sow_generated. Walked live: a Pump Sizing (TDH) run as Leandro Marquez landed one feature_use calc_run row with his account; the form refused an empty flow rate first and recorded nothing, as a refused action should. The ledger counts them: 6 use(s) in the last 7 Manila days by 2 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT26",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - engineering design · solo-owner",
       "pages": [
@@ -1129066,12 +1129241,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for engineering design is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. engineering-design.html: came back within 7 days 1 of 3, within 30 days 0 of 1 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT27",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - engineering design · solo-owner",
       "pages": [
@@ -1129124,12 +1129306,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for engineering design is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. engineering-design.html: repeat use 1 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT28",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - hive · worker",
       "pages": [
@@ -1129182,12 +1129371,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for hive is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. hive.html: its primary actions record a feature_use where the use is confirmed - hive_joined, hive_left, supervisor_handed_off, hive_renamed, member_removed, submission_approved, submission_rejected, hive_focus_set, handover_generated, handover_copied, handover_printed, history_brought_in (tools/validate_usage_events.py U2 holds each literal in hive.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 2 use(s) in the last 7 Manila days by 1 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT29",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - hive · worker",
       "pages": [
@@ -1129240,12 +1129436,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for hive is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. hive.html: came back within 7 days 0 of 5, within 30 days 2 of 2 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT30",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - hive · worker",
       "pages": [
@@ -1129298,12 +1129501,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for hive is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. hive.html: repeat use 0 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT31",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - index · worker",
       "pages": [
@@ -1129356,12 +1129566,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for index is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. index.html: its primary actions record a feature_use where the use is confirmed - stage_opened, all_tools_opened, persona_switched (tools/validate_usage_events.py U2 holds each literal in index.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 1 use(s) in the last 7 Manila days by 0 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT32",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - index · worker",
       "pages": [
@@ -1129414,12 +1129631,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for index is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. index.html: came back within 7 days 1 of 5, within 30 days 2 of 3 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT33",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - index · worker",
       "pages": [
@@ -1129472,12 +1129696,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for index is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. index.html: repeat use 0 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT34",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - integrations · solo-owner",
       "pages": [
@@ -1129530,12 +1129761,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for integrations is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. integrations.html: its primary actions record a feature_use where the use is confirmed - vehicle_added, tab_opened, hive_gate_followed, import_run, api_key_created, api_key_revoked, sync_config_saved, sync_run, import_rolled_back, conflict_resolved (tools/validate_usage_events.py U2 holds each literal in integrations.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 1 use(s) in the last 7 Manila days by 1 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT35",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - integrations · solo-owner",
       "pages": [
@@ -1129588,12 +1129826,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for integrations is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. integrations.html: came back within 7 days 2 of 3, within 30 days 3 of 3 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT36",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - integrations · solo-owner",
       "pages": [
@@ -1129646,12 +1129891,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for integrations is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. integrations.html: repeat use 1 of 3 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT37",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - inventory · worker",
       "pages": [
@@ -1129704,12 +1129956,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for inventory is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. inventory.html: its primary actions record a feature_use where the use is confirmed - part_used, part_restocked, part_added, part_edited (tools/validate_usage_events.py U2 holds each literal in inventory.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 0 use(s) in the last 7 Manila days by 0 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT38",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - inventory · worker",
       "pages": [
@@ -1129762,12 +1130021,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for inventory is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. inventory.html: came back within 7 days 1 of 4, within 30 days 1 of 1 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT39",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - inventory · worker",
       "pages": [
@@ -1129820,12 +1130086,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for inventory is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. inventory.html: repeat use 1 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT40",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - logbook · worker",
       "pages": [
@@ -1129878,12 +1130151,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for logbook is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. logbook.html: its primary actions record a feature_use where the use is confirmed - entry_logged, entry_edited, entry_closed, team_searched, entries_exported, asset_registered, asset_edited (tools/validate_usage_events.py U2 holds each literal in logbook.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 3 use(s) in the last 7 Manila days by 1 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT41",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - logbook · worker",
       "pages": [
@@ -1129936,12 +1130216,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for logbook is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. logbook.html: came back within 7 days 2 of 2, within 30 days 1 of 1 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT42",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - logbook · worker",
       "pages": [
@@ -1129994,12 +1130281,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for logbook is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. logbook.html: repeat use 1 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT43",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - marketplace seller profile · buyer",
       "pages": [
@@ -1130052,12 +1130346,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for marketplace seller profile is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller-profile.html: its primary actions record a feature_use where the use is confirmed - section_opened, seller_contacted (tools/validate_usage_events.py U2 holds each literal in marketplace-seller-profile.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 2 use(s) in the last 7 Manila days by 1 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT44",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - marketplace seller profile · buyer",
       "pages": [
@@ -1130110,12 +1130411,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for marketplace seller profile is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller-profile.html: came back within 7 days 2 of 2, within 30 days 2 of 2 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT45",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - marketplace seller profile · buyer",
       "pages": [
@@ -1130168,12 +1130476,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for marketplace seller profile is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller-profile.html: repeat use 1 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT46",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - marketplace seller · buyer",
       "pages": [
@@ -1130226,12 +1130541,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for marketplace seller is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller.html: its primary actions record a feature_use where the use is confirmed - inquiry_replied, inquiry_closed, listing_edited, listing_deleted, messenger_saved, certs_saved, starter_claimed, job_accepted, job_advanced (tools/validate_usage_events.py U2 holds each literal in marketplace-seller.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 4 use(s) in the last 7 Manila days by 2 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT47",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - marketplace seller · buyer",
       "pages": [
@@ -1130284,12 +1130606,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for marketplace seller is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller.html: came back within 7 days 3 of 3, within 30 days 3 of 3 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT48",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - marketplace seller · buyer",
       "pages": [
@@ -1130342,12 +1130671,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for marketplace seller is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller.html: repeat use 2 of 3 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT49",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - marketplace · buyer",
       "pages": [
@@ -1130400,12 +1130736,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for marketplace is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace.html: its primary actions record a feature_use where the use is confirmed - listing_opened, listing_watched, inquiry_sent, quotes_requested, search_saved, review_posted, listing_submitted (tools/validate_usage_events.py U2 holds each literal in marketplace.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 4 use(s) in the last 7 Manila days by 2 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT50",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - marketplace · buyer",
       "pages": [
@@ -1130458,12 +1130801,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for marketplace is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace.html: came back within 7 days 1 of 1, within 30 days 1 of 1 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT51",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - marketplace · buyer",
       "pages": [
@@ -1130516,12 +1130866,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for marketplace is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace.html: repeat use 1 of 1 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT52",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - ph intelligence · fleet-supervisor",
       "pages": [
@@ -1130574,12 +1130931,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for ph intelligence is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. ph-intelligence.html: its primary actions record a feature_use where the use is confirmed - report_generated (tools/validate_usage_events.py U2 holds each literal in ph-intelligence.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 8 use(s) in the last 7 Manila days by 2 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT53",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - ph intelligence · fleet-supervisor",
       "pages": [
@@ -1130632,12 +1130996,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for ph intelligence is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. ph-intelligence.html: came back within 7 days 2 of 3, within 30 days 2 of 2 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT54",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - ph intelligence · fleet-supervisor",
       "pages": [
@@ -1130690,12 +1131061,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for ph intelligence is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. ph-intelligence.html: repeat use 2 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT55",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - plant connections · machine-client",
       "pages": [
@@ -1130748,12 +1131126,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for plant connections is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. plant-connections.html: its primary actions record a feature_use where the use is confirmed - connections_refreshed, retention_set (tools/validate_usage_events.py U2 holds each literal in plant-connections.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 3 use(s) in the last 7 Manila days by 2 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT56",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - plant connections · machine-client",
       "pages": [
@@ -1130806,12 +1131191,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for plant connections is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. plant-connections.html: came back within 7 days 3 of 4, within 30 days 2 of 3 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT57",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - plant connections · machine-client",
       "pages": [
@@ -1130864,12 +1131256,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for plant connections is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. plant-connections.html: repeat use 2 of 3 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT58",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - pm scheduler · worker",
       "pages": [
@@ -1130922,12 +1131321,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for pm scheduler is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. pm-scheduler.html: its primary actions record a feature_use where the use is confirmed - pm_completed, pm_task_added, pm_asset_added, pm_asset_edited, auto_hail_on, auto_hail_off (tools/validate_usage_events.py U2 holds each literal in pm-scheduler.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 8 use(s) in the last 7 Manila days by 3 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT59",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - pm scheduler · worker",
       "pages": [
@@ -1130980,12 +1131386,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for pm scheduler is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. pm-scheduler.html: came back within 7 days 4 of 5, within 30 days 3 of 3 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT60",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - pm scheduler · worker",
       "pages": [
@@ -1131038,12 +1131451,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for pm scheduler is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. pm-scheduler.html: repeat use 2 of 4 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT61",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - project manager · fleet-supervisor",
       "pages": [
@@ -1131096,12 +1131516,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for project manager is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-manager.html: its primary actions record a feature_use where the use is confirmed - project_created, project_edited, project_deleted, project_status_set, item_status_changed, change_order_submitted, change_order_approved, change_order_rejected, change_order_cancelled, lessons_saved, project_linked, scope_imported, progress_acknowledged (tools/validate_usage_events.py U2 holds each literal in project-manager.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 5 use(s) in the last 7 Manila days by 3 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT62",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - project manager · fleet-supervisor",
       "pages": [
@@ -1131154,12 +1131581,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for project manager is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-manager.html: came back within 7 days 3 of 4, within 30 days 3 of 3 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT63",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - project manager · fleet-supervisor",
       "pages": [
@@ -1131212,12 +1131646,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for project manager is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-manager.html: repeat use 2 of 3 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT64",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - project report · fleet-supervisor",
       "pages": [
@@ -1131270,12 +1131711,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for project report is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-report.html: its primary actions record a feature_use where the use is confirmed - report_exported, print_opened, narrative_generated (tools/validate_usage_events.py U2 holds each literal in project-report.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 0 use(s) in the last 7 Manila days by 0 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT65",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - project report · fleet-supervisor",
       "pages": [
@@ -1131328,12 +1131776,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for project report is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-report.html: came back within 7 days 2 of 2, within 30 days 1 of 1 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT66",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - project report · fleet-supervisor",
       "pages": [
@@ -1131386,12 +1131841,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for project report is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-report.html: repeat use 0 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT67",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - public feed · anon",
       "pages": [
@@ -1131440,12 +1131902,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for public feed is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. public-feed.html: its primary actions record a feature_use where the use is confirmed - more_loaded (tools/validate_usage_events.py U2 holds each literal in public-feed.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 2 use(s) in the last 7 Manila days by 1 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT68",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - public feed · anon",
       "pages": [
@@ -1131494,12 +1131963,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for public feed is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. public-feed.html: came back within 7 days 0 of 7, within 30 days 2 of 5 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT69",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - public feed · anon",
       "pages": [
@@ -1131548,12 +1132024,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for public feed is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. public-feed.html: repeat use 0 of 5 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT70",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - report sender · fleet-supervisor",
       "pages": [
@@ -1131606,12 +1132089,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for report sender is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. report-sender.html: its primary actions record a feature_use where the use is confirmed - report_sent, recipient_added, recipient_removed (tools/validate_usage_events.py U2 holds each literal in report-sender.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 8 use(s) in the last 7 Manila days by 2 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT71",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - report sender · fleet-supervisor",
       "pages": [
@@ -1131664,12 +1132154,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for report sender is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. report-sender.html: came back within 7 days 1 of 3, within 30 days 3 of 3 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT72",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - report sender · fleet-supervisor",
       "pages": [
@@ -1131722,12 +1132219,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for report sender is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. report-sender.html: repeat use 1 of 3 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT73",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - resume · worker",
       "pages": [
@@ -1131780,12 +1132284,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for resume is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. resume.html: its primary actions record a feature_use where the use is confirmed - resume_saved, resume_export, resume_autofill, resume_upload_import, resume_polish, resume_tailor, resume_summarize, resume_jd_score, resume_cover_letter, resume_print_opened (tools/validate_usage_events.py U2 holds each literal in resume.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 1 use(s) in the last 7 Manila days by 1 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT74",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - resume · worker",
       "pages": [
@@ -1131838,12 +1132349,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for resume is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. resume.html: came back within 7 days 1 of 3, within 30 days 1 of 1 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT75",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - resume · worker",
       "pages": [
@@ -1131896,12 +1132414,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for resume is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. resume.html: repeat use 1 of 2 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT76",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - shift brain · worker",
       "pages": [
@@ -1131954,12 +1132479,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for shift brain is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. shift-brain.html: its primary actions record a feature_use where the use is confirmed - plan_published, plan_archived, plan_rerun, shift_window_opened (tools/validate_usage_events.py U2 holds each literal in shift-brain.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 5 use(s) in the last 7 Manila days by 3 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT77",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - shift brain · worker",
       "pages": [
@@ -1132012,12 +1132544,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for shift brain is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. shift-brain.html: came back within 7 days 1 of 3, within 30 days 2 of 3 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT78",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - shift brain · worker",
       "pages": [
@@ -1132070,12 +1132609,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for shift brain is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. shift-brain.html: repeat use 0 of 3 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT79",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · use: every primary action on the page records a feature_use event - skillmatrix · worker",
       "pages": [
@@ -1132128,12 +1132674,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'use' figure for skillmatrix is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. skillmatrix.html: its primary actions record a feature_use where the use is confirmed - lesson_opened, exam_started, exam_graded, targets_saved (tools/validate_usage_events.py U2 holds each literal in skillmatrix.html; U5 holds every whUse client in scope, now including split-out scripts; live V1-V4 as a visitor, a member and an admin). The ledger counts them: 9 use(s) in the last 7 Manila days by 2 account(s), shown on the console and equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates usage-events, outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "usage-events",
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT80",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · return: accounts that used the page again within 7 and 30 days, computed from analytic - skillmatrix · worker",
       "pages": [
@@ -1132186,12 +1132739,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'return' figure for skillmatrix is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. skillmatrix.html: came back within 7 days 3 of 6, within 30 days 3 of 5 (accounts whose first visit in the last 90 days is at least 7 / 30 days old, a later Manila day counted), computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT81",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · satisfaction: repeat use of the same page by the same account within 7 days, stated as 'repe - skillmatrix · worker",
       "pages": [
@@ -1132244,12 +1132804,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'satisfaction' figure for skillmatrix is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. skillmatrix.html: repeat use 1 of 4 (accounts whose first use is at least 7 days old, using the page on two or more days that week) - stated on the console as repeat use, never as satisfaction; the feedback form stays the only direct voice, computed by founder_outcomes (20261027000007, SECURITY INVOKER, platform admin only through analytics_events RLS) and shown in the console's 'Did they come back?' panel with its period and basis (figure_sources: .out-ret / .out-rep). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT82",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · console: use per page per week: founder-console's outcome card reads use per page per week through a bounded a - founder console · oversight",
       "pages": [
@@ -1132296,12 +1132863,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'console: use per page per week' figure for founder console is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. founder-console.html 'console: use per page per week': the 'Did they come back?' panel (Platform tab, the full row of 'Who's using it?') reads founder_outcomes(90) - one bounded admin-only rollup, never rows - and draws each figure beside its cohort with the period and basis in its figure source; an unreadable ledger says unknown, an empty one says so. Laid out for both widths: a full-row table at desktop, each page a labelled block at phone width (measured: no sideways scroll at 390 or 1280). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT83",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · console: return within 7 / 30 days: the return figure per page, with its period and basis beside it - founder console · oversight",
       "pages": [
@@ -1132348,12 +1132922,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'console: return within 7 / 30 days' figure for founder console is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. founder-console.html 'console: return within 7 / 30 days': the 'Did they come back?' panel (Platform tab, the full row of 'Who's using it?') reads founder_outcomes(90) - one bounded admin-only rollup, never rows - and draws each figure beside its cohort with the period and basis in its figure source; an unreadable ledger says unknown, an empty one says so. Laid out for both widths: a full-row table at desktop, each page a labelled block at phone width (measured: no sideways scroll at 390 or 1280). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT84",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · console: repeat use within 7 days: the repeat-use figure per page, labelled as repeat use - founder console · oversight",
       "pages": [
@@ -1132400,12 +1132981,19 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'console: repeat use within 7 days' figure for founder console is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. founder-console.html 'console: repeat use within 7 days': the 'Did they come back?' panel (Platform tab, the full row of 'Who's using it?') reads founder_outcomes(90) - one bounded admin-only rollup, never rows - and draws each figure beside its cohort with the period and basis in its figure source; an unreadable ledger says unknown, an empty one says so. Laid out for both widths: a full-row table at desktop, each page a labelled block at phone width (measured: no sideways scroll at 390 or 1280). Equal to tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger). Gates outcome-figures, figure-sources-written.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures",
+          "figure-sources-written"
+        ]
       }
     },
     {
       "id": "OUT85",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · gate: use figures from the ledger: tools/prove_outcome_figures.py recomputes use per page through psql and compar - founder console · oversight",
       "pages": [
@@ -1132452,12 +1133040,18 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'gate: use figures from the ledger' figure for founder console is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. founder-console.html 'gate: use figures from the ledger': tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger) - PASS at both viewports over 29 pages (non-vacuous: an all-zero ledger reads VACUOUS, never PASS; seeders/analytics_history.py writes the shapes). Teeth: the panel drawing cohort_7 under the 30-day column failed 28/28 pages on the return gate while use and repeat stayed green; the self-test plants a screen difference and an empty ledger. psql reads the ledger; registered as gate outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT86",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · gate: return figures from the ledger: the return figures recomputed through psql equal the console's - founder console · oversight",
       "pages": [
@@ -1132504,12 +1133098,18 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'gate: return figures from the ledger' figure for founder console is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. founder-console.html 'gate: return figures from the ledger': tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger) - PASS at both viewports over 29 pages (non-vacuous: an all-zero ledger reads VACUOUS, never PASS; seeders/analytics_history.py writes the shapes). Teeth: the panel drawing cohort_7 under the 30-day column failed 28/28 pages on the return gate while use and repeat stayed green; the self-test plants a screen difference and an empty ledger. psql reads the ledger; registered as gate outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures"
+        ]
       }
     },
     {
       "id": "OUT87",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OUT",
       "title": "outcome · gate: repeat-use figures from the ledger: the repeat-use figures recomputed through psql equal the console's - founder console · oversight",
       "pages": [
@@ -1132556,6 +1133156,12 @@
         ],
         "instrument": "psql + playwright-mcp (the console figure against the ledger)",
         "closes": "the 'gate: repeat-use figures from the ledger' figure for founder console is computed from analytics_events, shown with its period and basis, and equals the psql recomputation"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. founder-console.html 'gate: repeat-use figures from the ledger': tools/prove_outcome_figures.py (the raw analytics_events rows recomputed in Python - no SQL shared with founder_outcomes - against the founder console's rendered [data-fig] spans, read in Playwright Chromium as a platform admin at phone-390 and desktop-1280; the walk's own page views never reach the ledger) - PASS at both viewports over 29 pages (non-vacuous: an all-zero ledger reads VACUOUS, never PASS; seeders/analytics_history.py writes the shapes). Teeth: the panel drawing cohort_7 under the 30-day column failed 28/28 pages on the return gate while use and repeat stayed green; the self-test plants a screen difference and an empty ledger. psql reads the ledger; registered as gate outcome-figures.",
+      "artifacts": {
+        "gates": [
+          "outcome-figures"
+        ]
       }
     },
     {

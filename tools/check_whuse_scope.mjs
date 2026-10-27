@@ -67,8 +67,15 @@ let bad = 0, calls = 0;
 for (const file of process.argv.slice(2)) {
   // an HTML comment that MENTIONS "<script>" would open a false match and swallow the real script after it; blank
   // the comments first (newlines kept, so line numbers still point at the file)
-  const html = readFileSync(file, 'utf8').replace(/<!--[\s\S]*?-->/g, (c) => c.replace(/[^\n]/g, ' '));
   const programs = [];
+  // ★A SPLIT-OUT SCRIPT WAS READ AS A PAGE WITH NO SCRIPTS (2026-10-27). operator-actions.js and engineering-design.js are
+  // listed in USES, and this loop looked for <script> tags in them, found none and counted zero calls - so U5 passed
+  // both without checking a single whUse. A .js file IS one classic script.
+  if (/\.m?js$/i.test(file)) {
+    try { programs.push({ ast: acorn.parse(readFileSync(file, 'utf8'), { ecmaVersion: 2021, sourceType: 'script', allowReturnOutsideFunction: true, locations: true }), startLine: 1 }); }
+    catch (e) { bad++; console.log(`  UNCHECKED ${file}: the script did not parse (${e.message})`); }
+  }
+  const html = /\.m?js$/i.test(file) ? '' : readFileSync(file, 'utf8').replace(/<!--[\s\S]*?-->/g, (c) => c.replace(/[^\n]/g, ' '));
   for (const m of html.matchAll(SCRIPT)) {
     const attrs = m[1] || '';
     if (/\bsrc=/.test(attrs) || /type=["'](application\/(ld\+)?json|module|text\/template)/i.test(attrs)) continue;

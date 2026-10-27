@@ -284,6 +284,25 @@
     .opc-table td { padding:.35rem .5rem; border-bottom:1px solid rgba(255,255,255,.05); color:var(--text); vertical-align:top; }
     .opc-table td.num { text-align:right; white-space:nowrap; }
     .opc-table tr:last-child td { border-bottom:none; }
+    /* the outcomes table: a count beside the cohort it is out of, the who-used line under the use count */
+    .out-sub { display:block; font-size:0.75rem; color:var(--muted); margin-top:2px; }
+    .out-none, .out-pct { color:var(--muted); }
+    /* a five-column table needs the whole row: in a half-width cell the return and repeat columns sat behind a scroll */
+    .section-grid > .panel.span-all { grid-column:1 / -1; }
+    /* every figure here is tappable (whFigureSources): its 48px hit area reaches ~21px past a short number, and in the last
+       column that reached past the table and gave the box a 13px sideways scroll - room for it inside the cell */
+    @media (min-width:601px) { #outcomes .opc-table td:last-child { padding-right:1.5rem; } }
+    /* at phone width each page is a block: its name, then the four figures two by two, each named by its column */
+    @media (max-width:600px) {
+      #outcomes .opc-table thead { display:none; }
+      #outcomes .opc-table tr { display:grid; grid-template-columns:1fr 1fr; gap:.35rem .9rem; padding:.6rem 0;
+        border-bottom:1px solid rgba(255,255,255,.05); }
+      #outcomes .opc-table tr:last-child { border-bottom:none; }
+      #outcomes .opc-table th[scope="row"] { grid-column:1 / -1; padding:0; color:var(--text); font-size:0.875rem; }
+      #outcomes .opc-table td { display:block; padding:0; border-bottom:none; text-align:left; }
+      #outcomes .opc-table td::before { content:attr(data-label); display:block; font-size:0.75rem; color:var(--muted);
+        margin-bottom:1px; }
+    }
 
     /* ── Panel ── */
     .panel {
@@ -1028,6 +1047,17 @@
               <span class="updated" id="growth-updated">-</span>
             </div>
             <div class="panel-body"><div id="growth-content"></div></div>
+          </section>
+
+          <section class="panel span-all" id="outcomes">
+            <div class="panel-hdr">
+              <div style="flex:1">
+                <h2>Did they come back?</h2>
+                <div class="panel-sub">Per page: uses this week, the accounts that returned, and repeat use</div>
+              </div>
+              <span class="updated" id="outcomes-updated">-</span>
+            </div>
+            <div class="panel-body"><div id="outcomes-content"></div></div>
           </section>
 
           <section class="panel" id="maturity-distribution" data-opc="founder-console.html::bottom-5-needing-intervention">
@@ -1802,7 +1832,7 @@
 
       try {
         // All 8 panels + Hero feeders fetched in parallel (Promise.all = ~1-2s total)
-        const [tech, dau14, aicost, hives, mau, maturity, pareto, mkt, aiprov, audit, memento, ceval, uses, ai30, sched, screen, providers] = await Promise.all([
+        const [tech, dau14, aicost, hives, mau, maturity, pareto, mkt, aiprov, audit, memento, ceval, uses, ai30, sched, screen, providers, outcomes] = await Promise.all([
           fetchTechHealth(ctrl.signal),
           fetchDau14d(),         // 14d sparkline + today's DAU
           fetchAiCostToday(),
@@ -1820,6 +1850,7 @@
           fetchScheduledWork(),   // every cron job's last run and its function's answer
           fetchScreenFailures(),  // what people's browsers reported, grouped (client_errors)
           fetchModelProviders(),  // each AI provider's slots and how they answered (ai_cost_log.providers_tried)
+          fetchOutcomes(),        // per page: use, return within 7 / 30 days, repeat use (founder_outcomes, T2 OUT)
         ]);
         renderHero({ tech, dau: dau14, aicost, hives, mau });
         renderTechHealth(tech);
@@ -1829,6 +1860,7 @@
         renderMementoHealth(memento);
         renderCompanionEval(ceval);
         renderGrowthPulse(dau14, mau, uses);
+        renderOutcomes(outcomes);
         renderMaturity(maturity);
         renderPareto(pareto);
         renderMarketplace(mkt);
@@ -2848,6 +2880,67 @@
     }
 
 
+    // ★DID THEY COME BACK (T2 OUT, 2026-10-27). Growth Pulse counts visits and what each page was used for; nothing on the
+    // console said whether anyone RETURNED. founder_outcomes answers it per page from the event ledger, and every figure is
+    // drawn as a count beside its cohort ("3 of 5"), never a bare rate: 1 of 1 is not 100% of anything, and a follow-up
+    // still running is not a "did not come back" (the RPC counts only accounts whose window has closed). Repeat use is
+    // behaviour, never a rating - what people say lives in Feedback. tools/prove_outcome_figures.py recomputes each figure
+    // from the raw ledger and reads this table's [data-fig] spans. null = the read failed (unknown, not "none").
+    async function fetchOutcomes() {
+      try {
+        const { data, error } = await db.rpc('founder_outcomes', { p_days: 90 });
+        return error ? null : (Array.isArray(data) ? data : []);
+      } catch (e) { return null; }   // empty-catch-allow: null is said as "unknown, not none" by the renderer
+    }
+
+    function renderOutcomes(rows) {
+      const el = document.getElementById('outcomes-content');
+      document.getElementById('outcomes-updated').textContent = 'analytics_events · last 90d';
+      if (!Array.isArray(rows)) {
+        el.innerHTML = honestEmpty('Outcomes unavailable',
+          'We could not read the event ledger, so whether people came back is unknown, not "no one".', '');
+        return;
+      }
+      if (!rows.length) {
+        el.innerHTML = honestEmpty('No visits recorded in 90 days',
+          'Each page appears here with its uses and returns once people open it.', '');
+        return;
+      }
+      const n = (v) => (Number(v) || 0).toLocaleString();
+      const fig = (key, v) => '<span data-fig="' + key + '">' + n(v) + '</span>';
+      // a returned count beside the cohort it is out of; a percentage only once the cohort is big enough to mean one
+      const pair = (k, c, r, cls, label) => {
+        const kk = Number(r[k]) || 0, cc = Number(r[c]) || 0;
+        const open = '<td class="num ' + cls + '" data-pair="' + k + ',' + c + '" data-label="' + label + '">';
+        if (!cc) return open + '<span class="out-none">no one due yet</span></td>';
+        return open + fig(k, kk) + ' of ' + fig(c, cc)
+          + (cc >= 5 ? '<span class="out-pct"> · ' + Math.round((kk / cc) * 100) + '%</span>' : '') + '</td>';
+      };
+      const line = (r) => {
+        const acc = Number(r.use_accounts_7d) || 0;
+        return '<tr data-out-page="' + escHtml(String(r.page)) + '">'
+          + '<th scope="row">' + escHtml(String(r.page)) + '</th>'
+          + '<td class="num out-use" data-label="Uses, last 7 days">' + fig('uses_7d', r.uses_7d)
+          + '<span class="out-sub">' + fig('use_accounts_7d', acc) + (acc === 1 ? ' account' : ' accounts')
+          + ' · ' + fig('use_sessions_7d', r.use_sessions_7d) + ' signed-out</span></td>'
+          + pair('returned_7', 'cohort_7', r, 'out-ret', 'Came back within 7 days')
+          + pair('returned_30', 'cohort_30', r, 'out-ret', 'Came back within 30 days')
+          + pair('repeat_7', 'repeat_cohort', r, 'out-rep', 'Repeat use within 7 days')
+          + '</tr>';
+      };
+      el.innerHTML = '<div class="opc-table-wrap"><table class="opc-table" aria-label="Use, return and repeat use per page">'
+        + '<thead><tr><th scope="col">Page</th><th scope="col" class="num">Uses, last 7 days</th>'
+        + '<th scope="col" class="num">Came back within 7 days</th><th scope="col" class="num">Came back within 30 days</th>'
+        + '<th scope="col" class="num">Repeat use within 7 days</th></tr></thead><tbody>'
+        + rows.map(line).join('') + '</tbody></table></div>'
+        + '<p class="panel-sub" style="margin-top:.6rem;">Came back: of the accounts whose first visit to the page in the last'
+        + ' 90 days is at least 7 (or 30) days old, those who visited again on a later day within that time. Repeat use: of the'
+        + ' accounts whose first use is at least 7 days old, those who used the page on two or more days that week - behaviour,'
+        + ' not a rating; what people say is in Feedback. A signed-out visit is counted in uses only: it cannot return.'
+        + ' Days are Manila days.</p>';
+    }
+
+
     // ★ONE HOME PER NUMBER (OPC, 2026-10-22). The stair distribution this panel drew is now the Platform tab's dashboard
     // panel "Hive maturity (stair distribution)", read from the same truth view. This panel keeps the part only it had:
     // which hives most need a hand, by name, and what blocks each one.
@@ -3058,6 +3151,6 @@
   <script defer src="session-timeout.js"></script>
   <script defer src="device-fingerprint.js"></script>
 <!-- wh-figure-sources: generated by tools/render_figure_sources.py from figure_sources.json - do not edit -->
-<script type="application/json" id="wh-figure-sources">[{"sel":"#cp-cover","shows":"liability cover: cash in against credits owed","basedOn":"verified top-ups and starter grants divided by the credits outstanding","reads":"v_service_credit_ledger_truth","period":"Now: the credit ledger when the page loaded"},{"sel":"#cp-content","shows":"the credit position: liability, cover and the treasury","basedOn":"the credit ledger, and the treasury's cap and credits issued","reads":"v_service_credit_ledger_truth, v_credit_posture","period":"Now: the credit ledger when the page loaded"},{"sel":"#svc-topups-count","shows":"top-ups waiting for verification (read up to 50)","basedOn":"service credit top-ups not yet verified","reads":"v_service_credit_topups_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#mkt-listings-count","shows":"listing drafts waiting for review (read up to 50)","basedOn":"marketplace listings still in draft","reads":"v_marketplace_listings_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#mkt-sellers-count","shows":"sellers waiting for review (read up to 50)","basedOn":"marketplace sellers not yet verified","reads":"v_marketplace_sellers_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#fb-count-badge","shows":"feedback waiting for triage","basedOn":"feedback marked new or not yet answered","reads":"platform_feedback","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#growth-content","shows":"people today and over 14 days, people in 30 days, and what each page was used for","basedOn":"people seen per Manila day, people and signed-out sessions over 30 days; uses counted per page and action, accounts and signed-out sessions apart","reads":"founder_dau_series, founder_mau, founder_anon_sessions, founder_feature_use","period":"The last 14 days for the daily line, the last 30 days for the rest"},{"sel":"[data-dash=\"dev-ds\"] .opc-dash-body","shows":"the platform's centralization measures","basedOn":"the repository's component-purity, storage-key and rubric baselines, and the shared behaviours wh-patterns.js holds, read when the tab opens","reads":"component_purity_baseline.json, storage_key_registry.json, ufai-rubric-spec.json, family_rubric_scoreboard.json, wh-patterns.js","period":"When the tab opened: the repository's latest measured baselines"}]</script>
+<script type="application/json" id="wh-figure-sources">[{"sel":"#cp-cover","shows":"liability cover: cash in against credits owed","basedOn":"verified top-ups and starter grants divided by the credits outstanding","reads":"v_service_credit_ledger_truth","period":"Now: the credit ledger when the page loaded"},{"sel":"#cp-content","shows":"the credit position: liability, cover and the treasury","basedOn":"the credit ledger, and the treasury's cap and credits issued","reads":"v_service_credit_ledger_truth, v_credit_posture","period":"Now: the credit ledger when the page loaded"},{"sel":"#svc-topups-count","shows":"top-ups waiting for verification (read up to 50)","basedOn":"service credit top-ups not yet verified","reads":"v_service_credit_topups_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#mkt-listings-count","shows":"listing drafts waiting for review (read up to 50)","basedOn":"marketplace listings still in draft","reads":"v_marketplace_listings_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#mkt-sellers-count","shows":"sellers waiting for review (read up to 50)","basedOn":"marketplace sellers not yet verified","reads":"v_marketplace_sellers_truth","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#fb-count-badge","shows":"feedback waiting for triage","basedOn":"feedback marked new or not yet answered","reads":"platform_feedback","period":"Now: waiting when the queues last refreshed (every 60 seconds)"},{"sel":"#growth-content","shows":"people today and over 14 days, people in 30 days, and what each page was used for","basedOn":"people seen per Manila day, people and signed-out sessions over 30 days; uses counted per page and action, accounts and signed-out sessions apart","reads":"founder_dau_series, founder_mau, founder_anon_sessions, founder_feature_use","period":"The last 14 days for the daily line, the last 30 days for the rest"},{"sel":"[data-dash=\"dev-ds\"] .opc-dash-body","shows":"the platform's centralization measures","basedOn":"the repository's component-purity, storage-key and rubric baselines, and the shared behaviours wh-patterns.js holds, read when the tab opens","reads":"component_purity_baseline.json, storage_key_registry.json, ufai-rubric-spec.json, family_rubric_scoreboard.json, wh-patterns.js","period":"When the tab opened: the repository's latest measured baselines"},{"sel":"#outcomes-content .out-use","shows":"uses of each page in the last 7 days, with the signed-in accounts and the signed-out sessions apart","basedOn":"every recorded use on the page that is not a page visit (what founder_feature_use counts), per page","reads":"founder_outcomes","period":"The last 7 Manila days"},{"sel":"#outcomes-content .out-ret","shows":"accounts that came back to the page within 7 and within 30 days, beside how many could have","basedOn":"accounts whose first visit to the page in the last 90 days is at least 7 (or 30) days old, and of those the ones with a visit on a later Manila day within that time","reads":"founder_outcomes","period":"First visits in the last 90 days whose 7- or 30-day window has closed"},{"sel":"#outcomes-content .out-rep","shows":"accounts that used the page on two or more days in the week after their first use - repeat use, not a rating","basedOn":"accounts whose first use of the page in the last 90 days is at least 7 days old, and of those the ones with uses on two or more Manila days within 7 days of it","reads":"founder_outcomes","period":"First uses in the last 90 days whose 7-day window has closed"}]</script>
 </body>
 </html>

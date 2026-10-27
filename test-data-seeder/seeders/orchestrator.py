@@ -33,6 +33,7 @@ from .edge_post_seed import run_post_seed_edges
 from .embed_corpus import run_post_seed_embed
 from .probe_fixtures import seed_probe_fixtures
 from .fleets import seed_fleets
+from .analytics_history import seed_analytics_history
 
 
 # Fixed RNG seed so each full reseed produces the same volume of rows per hive.
@@ -193,6 +194,7 @@ def seed_everything(client, log) -> dict:
     rebind_platform_admins(client, log)
     bind_seeded_authors(client, log)
     seed_probe_fixtures(client, log)                 # the rows tools/psql_probes ground on (after authors are bound)
+    seed_analytics_history(client, log)              # 90 days of visits and uses: the outcome figures' ledger (T2 OUT)
     run_history_tools(log)                           # fleets' operating life + five years of history in every hive
 
     log("=" * 50)

@@ -681,6 +681,27 @@
    "basedOn": "the repository's component-purity, storage-key and rubric baselines, and the shared behaviours wh-patterns.js holds, read when the tab opens",
    "reads": "component_purity_baseline.json, storage_key_registry.json, ufai-rubric-spec.json, family_rubric_scoreboard.json, wh-patterns.js",
    "period": "When the tab opened: the repository's latest measured baselines"
+  },
+  {
+   "sel": "#outcomes-content .out-use",
+   "shows": "uses of each page in the last 7 days, with the signed-in accounts and the signed-out sessions apart",
+   "basedOn": "every recorded use on the page that is not a page visit (what founder_feature_use counts), per page",
+   "reads": "founder_outcomes",
+   "period": "The last 7 Manila days"
+  },
+  {
+   "sel": "#outcomes-content .out-ret",
+   "shows": "accounts that came back to the page within 7 and within 30 days, beside how many could have",
+   "basedOn": "accounts whose first visit to the page in the last 90 days is at least 7 (or 30) days old, and of those the ones with a visit on a later Manila day within that time",
+   "reads": "founder_outcomes",
+   "period": "First visits in the last 90 days whose 7- or 30-day window has closed"
+  },
+  {
+   "sel": "#outcomes-content .out-rep",
+   "shows": "accounts that used the page on two or more days in the week after their first use - repeat use, not a rating",
+   "basedOn": "accounts whose first use of the page in the last 90 days is at least 7 days old, and of those the ones with uses on two or more Manila days within 7 days of it",
+   "reads": "founder_outcomes",
+   "period": "First uses in the last 90 days whose 7-day window has closed"
   }
  ]
 }
