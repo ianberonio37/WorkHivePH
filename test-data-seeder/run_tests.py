@@ -193,20 +193,26 @@ def s2_hive_scoping(db):
 
 
 def s2_workers_hive_consistency(db):
-    """Each worker's logbook entries should all share the same hive_id as their hive_members row."""
+    """Each worker's logbook entries sit in a hive they belong to (or in their own solo lane, hive_id NULL).
+
+    A person can belong to more than one hive (Leandro Marquez supervises Baguio and works in Manila). This check mapped
+    each name to ONE hive - whichever membership row came last - so 2,457 of Leandro's entries, every one in a hive he is
+    a member of, read as 'in the wrong hive' (2026-10-27, the clean reseed's multi-hive fixtures)."""
     results = []
     members = db.table("hive_members").select("worker_name, hive_id").execute().data
-    member_hive = {m["worker_name"]: m["hive_id"] for m in members}
+    member_hives: dict = {}
+    for m in members:
+        member_hives.setdefault(m["worker_name"], set()).add(m["hive_id"])
 
     # Sample a few workers
     bad = []
-    for worker_name, expected_hive in list(member_hive.items())[:5]:
+    for worker_name, hives in sorted(member_hives.items())[:5]:
         entries = db.table("logbook").select("hive_id").eq("worker_name", worker_name).limit(50).execute().data
-        wrong = [e for e in entries if e["hive_id"] != expected_hive]
+        wrong = [e for e in entries if e["hive_id"] is not None and e["hive_id"] not in hives]
         if wrong:
-            bad.append(f"{worker_name}: {len(wrong)} entries in wrong hive")
+            bad.append(f"{worker_name}: {len(wrong)} entries in a hive they do not belong to")
     if not bad:
-        results.append(ok("sampled 5 workers — all logbook entries match their hive_members.hive_id"))
+        results.append(ok("sampled 5 workers — every logbook entry sits in a hive the worker belongs to (or their solo lane)"))
     else:
         results.append(fail(f"hive mismatch: {bad}"))
     return results

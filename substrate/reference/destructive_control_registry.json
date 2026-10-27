@@ -146,11 +146,11 @@
     ],
     "inventory.html": [
       {
-        "line": 2281,
+        "line": 2283,
         "message_head": "${_uResv} ${_uUnit} of this part is staged for a predicted failure. Taking ${qty} spends the"
       },
       {
-        "line": 2673,
+        "line": 2675,
         "message_head": "Remove \"${item.part_name}\" (${item.part_number}) from inventory? You can restore it from Recently deleted for at least 30 days."
       }
     ],

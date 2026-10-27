@@ -64,7 +64,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 
 **JOURNEY ARCHETYPES WITH NO CLOSED ROW** (38): BRH-AC:oversight, BRH-AF:oversight, BRH-AH:oversight, BRH-Z:oversight, CX-FND:adversary, CX-FND:assistive-tech, CX-FND:buyer, CX-FND:driver-worker, CX-FND:fleet-supervisor, CX-FND:machine-client, CX-FND:new-user, CX-FND:oversight, CX-FND:returner, CX-FND:seller, CX-FND:solo-owner, CX-FND:supervisor, CX-FND:worker, CX-PROD:adversary, CX-PROD:assistive-tech, CX-PROD:buyer, CX-PROD:driver-worker, CX-PROD:fleet-supervisor, CX-PROD:machine-client, CX-PROD:new-user, CX-PROD:oversight, CX-PROD:returner, CX-PROD:seller, CX-PROD:solo-owner, CX-PROD:supervisor, CX-PROD:worker, OUT:return, OUT:satisfaction, OUT:use, OWN:assistive-tech, SE:emotional state, SE:mastery, SE:verbal persuasion, SE:vicarious
 
-**BY PAGE CLASS** (rows · U/F/A/I): root 33760 · 11110/10589/7507/11784 · learn 7934 · 2581/2250/2160/2530 · calc 8946 · 2967/2418/2515/2809 · other 868 · 314/209/290/273 · no page (edge functions, shared components) 637
+**BY PAGE CLASS** (rows · U/F/A/I): root 33760 · 11110/10589/7507/11784 · learn 7934 · 2581/2250/2160/2530 · calc 8946 · 2967/2418/2515/2809 · other 800 · 314/209/222/205 · no page (edge functions, shared components) 637
 
 **REGISTRY: 39151 trajectories · 37479 in scope · 1672 descoped (out of the denominator, each with its reason in the row's basis)** — `trajectory_registry.json` (updated 2026-10-27). **Completion is the CLOSED/OPEN line above — the MCP-deepwalk measure — and nothing else.** A row's own pct (specced 5 · walked 25 · fixed 60 · locked 100) is in-flight bookkeeping cited by its basis, not a completion figure; 20328 specced · 15689 locking · 1672 descoped · 1441 locked · 21 fixing.
 

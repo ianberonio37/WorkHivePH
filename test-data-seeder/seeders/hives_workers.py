@@ -260,4 +260,20 @@ def seed_hives_and_workers(client, log) -> dict:
         for entry in ws:
             log(f"    - {entry}")
 
+    # ★AN ESTABLISHED HIVE HAS ALREADY SAID WHAT IT IS FOR (2026-10-27). hive.html asks a supervisor "What should WorkHive
+    # focus on for your hive?" in a full-screen aria-modal dialog while hives.intent is empty. The clean reseed left every
+    # hive empty, so the board opened behind that dialog for every supervisor and the a11y gate's keyboard walk measured
+    # the dialog holding focus (21/47 controls) - the page doing the right thing for a NEW hive. These hives are years
+    # into their history, so each records the answer its supervisor gave, in the dialog's own payload shape. The fleet
+    # hives (seeded later, newer) stay unanswered, so the first-visit dialog remains walkable.
+    goals = ["predictive", "downtime", "compliance"]
+    for i, h in enumerate(hives):
+        sup = next((w["display_name"] for w in workers if w["hive_id"] == h["id"] and w["role"] == "supervisor"), None)
+        if not sup:
+            continue
+        client.table("hives").update({"intent": {
+            "primary_goal": goals[i % len(goals)], "captured_role": "supervisor", "captured_by": sup,
+            "captured_at": (datetime.now(timezone.utc) - timedelta(days=300)).isoformat(),
+        }}).eq("id", h["id"]).execute()
+
     return {"hives": hives, "workers": workers}

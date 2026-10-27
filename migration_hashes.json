@@ -722,5 +722,6 @@
   "20261027000002_an_unreachable_provider_did_not_answer.sql": "e8bcff0bf552f03ab2ef54ef3e7d32ad54f49ae7b7f4d495d6b88719f55df35e",
   "20261027000003_register_iso_20816_3.sql": "e781c59e6875e1790781950506c808f49bd0c5289c01f63736e529b16b3dee64",
   "20261027000004_grants_follow_the_callers.sql": "e2ef65c20c3db9b336e85b088d5252efce570342db6d983cdaa4c2717bc00ecb",
-  "20261027000005_deleting_an_asset_keeps_one_pm_summary.sql": "2afce913cdc7a4b1abfb0aa802c7f8c76fcf361e8ced5da5e5bceaaf7615f5e2"
+  "20261027000005_deleting_an_asset_keeps_one_pm_summary.sql": "2afce913cdc7a4b1abfb0aa802c7f8c76fcf361e8ced5da5e5bceaaf7615f5e2",
+  "20261027000006_a_deal_cannot_be_re_filed.sql": "7b2630462b6a42b9a703c81920aee6627dd5ec80556a6fcd2f6e582d3ec548fb"
 }

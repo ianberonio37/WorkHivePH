@@ -49,6 +49,11 @@ export const BLIND_BY_DESIGN = {
   // to be rate-limited. A member therefore sees none of the row the hive probe calls his, which
   // is the policy working (that row belongs to another identity), not a refusal to show him his.
   ai_user_rate_limits: 'per-user store (user_id = auth.uid()::text) + non-user ip:/status buckets; hive_id is incidental and mostly NULL, so a hive-scoped control reads BLIND',
+  // ★DECLARED 2026-10-27, read from the policies: platform_feedback has no own-rows read at all - "feedback public reads
+  // published" (is_public = true), "feedback admin reads all" (is_platform_admin()) and the grafana reader. A private
+  // note goes to the operator and nobody else, its author included. The control read 'n/a' until the seed's probe
+  // fixture put a private row in the member's hive; BLIND on that row is the policy working.
+  platform_feedback: 'private until published: only is_public rows, a platform admin and grafana_reader read it - the author included, nobody reads a private note back',
   // ★DECLARED 2026-09-28, AND THE DECLARATION IS ALSO A FINDING. wh_traces carries two policies:
   // wh_traces_grafana_slo_read (grafana_reader) and wh_traces_hive_read (SELECT, authenticated,
   // USING hive_id = (request.jwt.claims ->> 'hive_id')::uuid). That second one reads the hive from

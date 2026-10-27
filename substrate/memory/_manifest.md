@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1057-files
-source_sha: 2611c54e3828d80f
+source_sha: e9212fa733271534
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -39,7 +39,7 @@ Entries (name · type · sha):
 - `feedback_a_ceiling_written_into_a_tools_docstring` · feedback · 98f30b6b69cc6e6e
 - `feedback_a_checkpoint_must_count_the_unit_of_work` · feedback · e42483f6615af752
 - `feedback_a_claim_must_name_what_it_rests_on` · feedback · 53b626884aebece2
-- `feedback_a_clean_reseed_is_the_gates_real_test` · feedback · 1f40afd3f9b71cf0
+- `feedback_a_clean_reseed_is_the_gates_real_test` · feedback · 16b8980a141a4b3c
 - `feedback_a_click_that_changes_nothing_logs_as_ok` · feedback · bbb54b4a275f0fd9
 - `feedback_a_clone_metric_that_never_read_the_code` · feedback · ea97b606a37cab98
 - `feedback_a_closed_lane_can_still_be_static` · feedback · 0ddbabeb8541cd87
@@ -125,7 +125,7 @@ Entries (name · type · sha):
 - `feedback_a_migration_must_carry_the_rules_that_targeted_the_old_element` · feedback · 4cbd474ba1f5b8e3
 - `feedback_a_mirror_guarantees_agreement_not_correctness` · feedback · bc5c3bbb3df3713f
 - `feedback_a_more_specific_label_on_unchanged_behaviour_is_a_lie` · feedback · 5a19f1c03ab2a664
-- `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 0c67c5877d2e8bbb
+- `feedback_a_mutation_score_is_the_only_teeth_metric` · feedback · 91c89b394fd219ad
 - `feedback_a_name_is_not_an_identity` · feedback · 33f4821e7a1aeaeb
 - `feedback_a_needs_ian_list_is_a_stop` · feedback · 2ebd443668a5d1d1
 - `feedback_a_new_audience_reveals_the_lane_you_forgot` · feedback · a09bf8f30cb84ea7

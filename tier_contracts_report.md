@@ -8,7 +8,7 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 |---|---|---:|---:|---:|
 | F (Fuel) | `canonical/capture_contracts.json` | 494 | 271 | 54 |
 | E (Engine) | `canonical/formula_contracts.json` | 24 | 23 | 20 |
-| B (Brain) | `canonical/agent_contracts.json` | 7 | 110 | 14 |
+| B (Brain) | `canonical/agent_contracts.json` | 7 | 114 | 14 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
 ## Tier F (Fuel) — pending registrations (54)

@@ -1,6 +1,6 @@
-# Flywheel Turn #487
+# Flywheel Turn #488
 
-_2026-10-27T12:34:00_
+_2026-10-27T12:52:49_
 
 ## Layer deltas
 
@@ -9,7 +9,7 @@ _2026-10-27T12:34:00_
 | L-1   | cluster proposals       | 0 | 0 | · |
 | L-1.5 | rules in manifest       | 50 | 50 | · |
 | L0    | baselines tracked       | 217 | 217 | · |
-| L0    | total locked count      | 3570 | 3571 | ↑1 ❌ |
+| L0    | total locked count      | 3571 | 3572 | ↑1 ❌ |
 | L2    | sentinel parity cases   | 29 | 29 | · |
 | L13   | stale walkthroughs      | 0 | 0 | · |
 
@@ -17,7 +17,7 @@ _2026-10-27T12:34:00_
 
 | Validator | Was | Now | Class | Note |
 |---|---:|---:|---|---|
-| `ai_seams` | 185 | 186 | **adoption-ratchet** |  |
+| `db_adoption` | 247 | 248 | **adoption-ratchet** |  |
 
 ## ⏫ Promotions — queued for one-pass approval
 

@@ -275,13 +275,16 @@ def apply(revert: bool) -> int:
                 # read the plate the vehicle was registered with; a VALUES list cannot hold a subquery,
                 # and there are a handful of units, so one small read each is the plain way to do it
                 plate = psql(f"select tag from asset_nodes where hive_id = '{hid}' and name = '{q(u)}' and tag is not null limit 1")
-                prows.append("('{h}','{w}','{a}','Vehicle','Route depot','medium','{d}',{tg})".format(
+                # ...and its ACCOUNT, as every pm.py schedule carries: 14 fleet schedules named their keeper in
+                # text only, and the data phase's "auth_uid populated everywhere" failed on them (2026-10-27)
+                prows.append("('{h}','{w}','{a}','Vehicle','Route depot','medium','{d}',{tg},"
+                             "(select auth_uid from hive_members where hive_id = '{h}' and worker_name = '{w}' limit 1))".format(
                     h=hid, w=q(_pmwho), a=q(u), d=_anchor,
                     tg=("'" + q(plate.strip()) + "'") if (plate and plate.strip()) else "null"))
             if not prows:
                 pass                      # nothing new was registered, so nothing new needs a schedule
             else:
-                pins = psql("insert into pm_assets (hive_id, worker_name, asset_name, category, location, criticality, last_anchor_date, tag_id) values "
+                pins = psql("insert into pm_assets (hive_id, worker_name, asset_name, category, location, criticality, last_anchor_date, tag_id, auth_uid) values "
                             + ",".join(prows) + " returning id")
                 if pins is None:
                     print(f"  {f}: the PM insert did not answer - the vehicles exist, their schedules do not")
@@ -382,19 +385,22 @@ def apply(revert: bool) -> int:
             # different stock levels. Nine items ended up disagreeing and THREE banked invariants went
             # red on it: inventory__stock_conserved, __movement_leaves_row and __no_negative_stock.
             # Both halves looked right in isolation, which is exactly why nobody saw it.
-            # The opening balance is part of creating the item, not a separate act: `receive` is the
-            # product's own word for stock arriving, and qty_after equals what the shelf was set to.
+            # The opening balance is part of creating the item, not a separate act, and qty_after equals what
+            # the shelf was set to. Its type is `add`, the page's own word for initial stock (inventory.html's
+            # first save; VALID_TXN_TYPES use/restock/adjustment/add). This wrote `receive` - a word no page
+            # writes - and no account, so the release gate's data phase failed on 15 fleet rows (2026-10-27).
             ids = [x.strip() for x in (got or "").split("\n") if x.strip()]
             if ids:
                 ob = ",".join(
-                    "('invopen-' || replace(gen_random_uuid()::text,'-',''), '{w}', '{i}', 'receive', "
+                    "('invopen-' || replace(gen_random_uuid()::text,'-',''), '{w}', '{i}', 'add', "
                     "(select qty_on_hand from inventory_items where id = '{i}'), "
                     "(select qty_on_hand from inventory_items where id = '{i}'), "
-                    "'{k}: opening stock', '{h}')".format(w=q(who), i=q(i), h=hid,
-                                                          k=q(MARKER))
+                    "'{k}: opening stock', '{h}', "
+                    "(select auth_uid from inventory_items where id = '{i}'))".format(w=q(who), i=q(i), h=hid,
+                                                                                      k=q(MARKER))
                     for i in ids)
                 opened = psql("insert into inventory_transactions (id, worker_name, item_id, type, "
-                              f"qty_change, qty_after, note, hive_id) values {ob} returning id")
+                              f"qty_change, qty_after, note, hive_id, auth_uid) values {ob} returning id")
                 n_ob = len([x for x in (opened or "").split("\n") if x.strip()])
                 print(f"  {f}: and {n_ob} opening-balance row(s), so the shelf and its ledger start level")
 
@@ -411,6 +417,14 @@ def apply(revert: bool) -> int:
         #     left NULL because this table's allowed words have not been read from its CHECK, and a word
         #     I bring is exactly what wrote "Completed" into a logbook that only accepts Open/Closed/
         #     Resolved. The dates are spread because a daily-cap trigger guards this table.
+        # ★A COMPLETION COMPLETES A TASK, AND THESE SCHEDULES HAD NONE. The vehicle schedules were written with no
+        # pm_scope_items, so their completions carried scope_item_id NULL - 14 completions of nothing in particular,
+        # which the data phase failed (2026-10-27) and pm-scheduler cannot place on a task. Each vehicle schedule gets
+        # the one task every fleet schedule starts from, once (a schedule that already has a task keeps its own).
+        psql("insert into pm_scope_items (asset_id, hive_id, item_text, frequency, anchor_date) "
+             "select p.id, p.hive_id, 'Change engine oil and oil filter; check brakes, lights and tyres', 'Monthly', "
+             f"p.last_anchor_date from pm_assets p where p.hive_id = '{hid}' and p.category = 'Vehicle' "
+             "and not exists (select 1 from pm_scope_items s where s.asset_id = p.id)")
         cdone = psql(f"select count(*) from pm_completions where hive_id = '{hid}' and coalesce(notes,'') like '%{MARKER}%'")
         if cdone is not None and cdone.isdigit() and int(cdone) == 0:
             # ★`asset_id` ON THIS TABLE IS NOT AN ASSET. Its foreign key is `pm_completions_asset_id_fkey
@@ -428,10 +442,11 @@ def apply(revert: bool) -> int:
             # is the record that a legally-required task was performed; a name nobody can resolve to a
             # person is not attribution. The uid is read from the membership this seeder already casts.
             got = psql(
-                "insert into pm_completions (hive_id, worker_name, auth_uid, asset_id, completed_at, notes) "
+                "insert into pm_completions (hive_id, worker_name, auth_uid, asset_id, scope_item_id, completed_at, notes) "
                 f"select '{hid}', '{q(who)}', "
                 f"(select m.auth_uid from hive_members m where m.hive_id = '{hid}' and m.worker_name = '{q(who)}' limit 1), "
-                f"p.id, now() - ((row_number() over (order by p.id)) * interval '4 days'), "
+                "p.id, (select s.id from pm_scope_items s where s.asset_id = p.id order by s.created_at, s.id limit 1), "
+                f"now() - ((row_number() over (order by p.id)) * interval '4 days'), "
                 f"'{q(MARKER)}: the completion that closes this schedule' "
                 f"from pm_assets p where p.hive_id = '{hid}' returning id")
             n_done = len([x for x in (got or "").splitlines() if x.strip()])

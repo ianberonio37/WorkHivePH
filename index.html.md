@@ -416,4 +416,4 @@ Sign Up
 
 Source: [our downtime guide](https://workhiveph.com/learn/reduce-unplanned-downtime-guide/). A common industry range, not a fixed standard · updated 24 Aug 2026
 
-<!-- md-twin source-sha: f15fa57da170acc2 -->
+<!-- md-twin source-sha: 2fdbf4e6c90ccd25 -->

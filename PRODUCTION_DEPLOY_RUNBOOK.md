@@ -34,7 +34,23 @@
 >     hive). Probe evidence: "move into foreign" touched 1 row, then refused 23514.
 > - **Leg B - Edge:** the 29 functions bundling `_shared/ai-chain.ts` (AI_ASSET_VERSION 13), `persona.ts` (14),
 >   `turn-steering.ts` (an example asset tag became a placeholder), plus `agentic-rag-loop` and `ai-eval-runner` (a bounded
->   read). `edge_remote_deps_lock.py --online` PASS before deploying.
+>   read). `edge_remote_deps_lock.py --online` PASS before deploying. Later the same day `failure-signature-scan` again
+>   (a canonical-allow comment on its own write-path read moved its build stamp); `verify_function_builds --target prod`
+>   62/62.
+> - **Leg C - the second gate run (pre-push, 2026-10-27 12:37) read 11 static + 4 data red; all cleared.**
+>   - The commit hook first stopped on the flywheel's two "regressions": it read every baseline's first number as a
+>     defect count, so the mutation SCORE rising 99 -> 100 was rot, and `ai_seams` 185 -> 186 (one reviewed seam with its
+>     contract test) had no validator it could re-run. The flywheel now knows which leading figures should grow.
+>   - Derived files my late edits moved: substrate chunks, `tools/ai_call_sinks.json`, two markdown twins, the destructive
+>     roster, the roadmap scoreboard. Regenerated after the last edit.
+>   - **The service worker:** inventory.html and nav-hub.js changed after `sw.js` was bumped, so an installed app would
+>     have kept the old copies. `workhive-shell-v578`.
+>   - The seed again: an empty `hives.intent` opens hive.html's first-visit dialog for every supervisor (the a11y walk
+>     measured the dialog holding focus); a private feedback row is unreadable to its own author by policy (declared); the
+>     fleet seeder wrote an inventory type no page writes (`receive`; the page writes `add`), PM schedules with no account
+>     and no task, so their completions completed nothing; the data runner mapped a two-hive person to one hive.
+>   - "Pending approval" (inventory's new filter option) ruled to stay English in `i18n/inventory.json` - Filipino work
+>     is out of scope, and the family ratchet wants each option decided.
 
 ---
 
