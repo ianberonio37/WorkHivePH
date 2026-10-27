@@ -397,6 +397,11 @@
            verified live in T34), and sellers were meeting 'Draft: Pending Review' right after copy
            promised immediacy. The promise now matches the enforced flow. -->
       Post a listing and WorkHive reviews it first. It shows as "Pending Review" until it goes live to buyers. <span data-i="ps_next_hold">The credits below cover the hold.</span></p>
+    <!-- ★WHAT A FINISHED ONE LOOKS LIKE (T2 SE vicarious, 2026-10-27): a new seller met "0 Listings · 0 Sales" and the review
+         rules, and nothing showing what a listing a buyer acts on contains. One line, there from first paint. -->
+    <p class="ps-example" style="margin:0.5rem 0 0;font-size:0.75rem;opacity:0.8;line-height:1.5;">
+      <strong>A finished listing reads like this:</strong> SKF 6205-2RS deep-groove bearing, new, box of 10 · ₱1,850 ·
+      Valenzuela, pick-up or courier · a clear photo of the part number.</p>
     <div id="credit-wallet" style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
         <span class="ic ic-secure" aria-hidden="true"></span>
@@ -3630,7 +3635,10 @@
         }
       }
       try { window._whSellerMsgDraft && window._whSellerMsgDraft.clear(); } catch (_) { void _; }
-      showToast(raw ? 'Messenger handle saved.' : 'Messenger handle cleared.', 'success');
+      // what the handle does for buyers (T2 SE): marketplace.html's listing detail and the seller profile draw a
+      // "Message on Messenger" button whenever messenger_username is set
+      showToast(raw ? 'Messenger handle saved: a Message on Messenger button now shows on your listings and seller profile.'
+                    : 'Messenger handle cleared: the Message on Messenger button no longer shows on your listings.', 'success');
     } catch (_err) {
       showToast(whWriteError(_err, _t('Save failed. Try again.', 'Hindi na-save. Subukan muli.')), 'error');
     } finally {

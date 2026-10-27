@@ -741975,8 +741975,8 @@
     },
     {
       "id": "BRH530",
-      "status": "fixing",
-      "pct": 45,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AG",
       "title": "a page never seen signed in on production after a deploy - engineering design · signed in on production - supervisor",
       "pages": [
@@ -742035,7 +742035,13 @@
         "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
       },
-      "basis": "[2026-10-26] [2026-10-26] fixing 45. BRH-AG engineering-design.html WALKED ON PRODUCTION signed in as the bench supervisor (Playwright MCP, 1280 + 390): loads, but the service worker answers 503 for html2pdf + Mermaid ('mermaid is not defined') - its catch-all fetch obeys the CSP sent with sw.js, which names no CDN. Fixed in sw.js v576 (cross-origin requests left to the browser unless WORKER_REACHABLE; gate sw-proxy-within-csp, teeth on 27733934); proven under production headers locally (release 0/8 library loads, fixed 4/4). Ships with the next frontend push."
+      "basis": "[2026-10-26] [2026-10-26] fixing 45. BRH-AG engineering-design.html WALKED ON PRODUCTION signed in as the bench supervisor (Playwright MCP, 1280 + 390): loads, but the service worker answers 503 for html2pdf + Mermaid ('mermaid is not defined') - its catch-all fetch obeys the CSP sent with sw.js, which names no CDN. Fixed in sw.js v576 (cross-origin requests left to the browser unless WORKER_REACHABLE; gate sw-proxy-within-csp, teeth on 27733934); proven under production headers locally (release 0/8 library loads, fixed 4/4). Ships with the next frontend push. · [2026-10-27] [2026-10-27] LOCKING pct -> 60. Seen signed in on PRODUCTION after the M1 push (production serves workhive-shell-v578, which carries v576's fix): tools/post_deploy_smoke.mjs --tier=app as the bench supervisor, 2026-10-27T08:37:45.755Z - engineering-design.html 200, 1859 chars, 99 controls, run under the service worker (controlled: true), 7 library loads from other hosts all answered, 0 of them through the worker, 0 console errors. The smoke now fails any cross-origin script, stylesheet or font that fails or answers >= 400 (BRH-AG's class: the worker had answered 503 for html2pdf and Mermaid and the page still read clean). Roster 26/26 under the worker, 159 library loads, none failed. Gates prod-signed-in-pages + sw-proxy-within-csp.",
+      "artifacts": {
+        "gates": [
+          "prod-signed-in-pages",
+          "sw-proxy-within-csp"
+        ]
+      }
     },
     {
       "id": "BRH531",
@@ -742871,8 +742877,8 @@
     },
     {
       "id": "BRH543",
-      "status": "fixing",
-      "pct": 45,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AG",
       "title": "a page never seen signed in on production after a deploy - resume · signed in on production - supervisor",
       "pages": [
@@ -742931,7 +742937,13 @@
         "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
       },
-      "basis": "[2026-10-26] [2026-10-26] fixing 45. BRH-AG resume.html WALKED ON PRODUCTION signed in as the bench supervisor (Playwright MCP, 1280 + 390): loads, but the service worker answers 503 for html2pdf - its catch-all fetch obeys the CSP sent with sw.js, which names no CDN. Fixed in sw.js v576 (cross-origin requests left to the browser unless WORKER_REACHABLE; gate sw-proxy-within-csp, teeth on 27733934); proven under production headers locally (release 0/8 library loads, fixed 4/4). Ships with the next frontend push."
+      "basis": "[2026-10-26] [2026-10-26] fixing 45. BRH-AG resume.html WALKED ON PRODUCTION signed in as the bench supervisor (Playwright MCP, 1280 + 390): loads, but the service worker answers 503 for html2pdf - its catch-all fetch obeys the CSP sent with sw.js, which names no CDN. Fixed in sw.js v576 (cross-origin requests left to the browser unless WORKER_REACHABLE; gate sw-proxy-within-csp, teeth on 27733934); proven under production headers locally (release 0/8 library loads, fixed 4/4). Ships with the next frontend push. · [2026-10-27] [2026-10-27] LOCKING pct -> 60. Seen signed in on PRODUCTION after the M1 push (production serves workhive-shell-v578, which carries v576's fix): tools/post_deploy_smoke.mjs --tier=app as the bench supervisor, 2026-10-27T08:37:45.755Z - resume.html 200, 1969 chars, 109 controls, run under the service worker (controlled: true), 7 library loads from other hosts all answered, 0 of them through the worker, 0 console errors. The smoke now fails any cross-origin script, stylesheet or font that fails or answers >= 400 (BRH-AG's class: the worker had answered 503 for html2pdf and Mermaid and the page still read clean). Roster 26/26 under the worker, 159 library loads, none failed. Gates prod-signed-in-pages + sw-proxy-within-csp.",
+      "artifacts": {
+        "gates": [
+          "prod-signed-in-pages",
+          "sw-proxy-within-csp"
+        ]
+      }
     },
     {
       "id": "BRH544",
@@ -743004,8 +743016,8 @@
     },
     {
       "id": "BRH545",
-      "status": "fixing",
-      "pct": 45,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AG",
       "title": "a page never seen signed in on production after a deploy - skillmatrix · signed in on production - supervisor",
       "pages": [
@@ -743064,7 +743076,13 @@
         "fix": "the post-deploy smoke opens the page on production as the bench hive's supervisor after every deploy - its own UI drawn, not thin, not signed out, no page error - and the deploy's runbook entry records the result",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
       },
-      "basis": "[2026-10-26] [2026-10-26] fixing 45. BRH-AG skillmatrix.html WALKED ON PRODUCTION signed in as the bench supervisor (Playwright MCP, 1280 + 390): loads, but the service worker answers 503 for Chart.js - its catch-all fetch obeys the CSP sent with sw.js, which names no CDN. Fixed in sw.js v576 (cross-origin requests left to the browser unless WORKER_REACHABLE; gate sw-proxy-within-csp, teeth on 27733934); proven under production headers locally (release 0/8 library loads, fixed 4/4). Ships with the next frontend push."
+      "basis": "[2026-10-26] [2026-10-26] fixing 45. BRH-AG skillmatrix.html WALKED ON PRODUCTION signed in as the bench supervisor (Playwright MCP, 1280 + 390): loads, but the service worker answers 503 for Chart.js - its catch-all fetch obeys the CSP sent with sw.js, which names no CDN. Fixed in sw.js v576 (cross-origin requests left to the browser unless WORKER_REACHABLE; gate sw-proxy-within-csp, teeth on 27733934); proven under production headers locally (release 0/8 library loads, fixed 4/4). Ships with the next frontend push. · [2026-10-27] [2026-10-27] LOCKING pct -> 60. Seen signed in on PRODUCTION after the M1 push (production serves workhive-shell-v578, which carries v576's fix): tools/post_deploy_smoke.mjs --tier=app as the bench supervisor, 2026-10-27T08:37:45.755Z - skillmatrix.html 200, 750 chars, 80 controls, run under the service worker (controlled: true), 7 library loads from other hosts all answered, 0 of them through the worker, 0 console errors. The smoke now fails any cross-origin script, stylesheet or font that fails or answers >= 400 (BRH-AG's class: the worker had answered 503 for html2pdf and Mermaid and the page still read clean). Roster 26/26 under the worker, 159 library loads, none failed. Gates prod-signed-in-pages + sw-proxy-within-csp.",
+      "artifacts": {
+        "gates": [
+          "prod-signed-in-pages",
+          "sw-proxy-within-csp"
+        ]
+      }
     },
     {
       "id": "BRH546",
@@ -1054735,8 +1054753,8 @@
     },
     {
       "id": "KA9",
-      "status": "fixing",
-      "pct": 85,
+      "status": "locking",
+      "pct": 90,
       "wave": "KA-R",
       "title": "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated  - learn/best-free-cmms-software-philippines/index.html · a person",
       "pages": [
@@ -1054794,7 +1054812,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: re-checked all eight vendors' own pricing pages: UpKeep $20->$24 and no free plan, Coast's maintenance plan $25 ($28 monthly), Limble dropped its free plan, eMaint no published price (quote, 3-user minimum), Maintenance Care a flat $250/month with unlimited users, Tractian $60 with a 5-user minimum, MaintainX and Fiix unchanged; free-plan caps named per vendor; FAQ + JSON-LD twin rewritten. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/best-free-cmms-software-philippines/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it."
+      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: re-checked all eight vendors' own pricing pages: UpKeep $20->$24 and no free plan, Coast's maintenance plan $25 ($28 monthly), Limble dropped its free plan, eMaint no published price (quote, 3-user minimum), Maintenance Care a flat $250/month with unlimited users, Tractian $60 with a 5-user minimum, MaintainX and Fiix unchanged; free-plan caps named per vendor; FAQ + JSON-LD twin rewritten. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/best-free-cmms-software-philippines/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it. · [2026-10-27] [2026-10-27] LOCKING->60. The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/best-free-cmms-software-philippines/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip. · [2026-10-27] [2026-10-27] LOCKING pct -> 90 (all five freshness surfaces now agree; the board locks it). The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/best-free-cmms-software-philippines/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA10",
@@ -1054922,8 +1054945,8 @@
     },
     {
       "id": "KA12",
-      "status": "fixing",
-      "pct": 85,
+      "status": "locking",
+      "pct": 90,
       "wave": "KA-R",
       "title": "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated  - learn/cmms-vs-excel-spreadsheet-maintenance/index.html · a person",
       "pages": [
@@ -1054981,7 +1055004,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: per-seat range $20-25 with vendors named; the import answer now names WorkHive's CMMS Integration CSV/Excel import (browser-parsed, file never uploaded); SMRP citation corrected 2.1.1 (that is OEE) -> 5.4.14 PM/PdM compliance. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/cmms-vs-excel-spreadsheet-maintenance/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it."
+      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: per-seat range $20-25 with vendors named; the import answer now names WorkHive's CMMS Integration CSV/Excel import (browser-parsed, file never uploaded); SMRP citation corrected 2.1.1 (that is OEE) -> 5.4.14 PM/PdM compliance. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/cmms-vs-excel-spreadsheet-maintenance/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it. · [2026-10-27] [2026-10-27] LOCKING->60. The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip. · [2026-10-27] [2026-10-27] LOCKING pct -> 90 (all five freshness surfaces now agree; the board locks it). The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA13",
@@ -1055357,8 +1055385,8 @@
     },
     {
       "id": "KA19",
-      "status": "fixing",
-      "pct": 85,
+      "status": "locking",
+      "pct": 90,
       "wave": "KA-R",
       "title": "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated  - learn/free-engineering-calculators-philippine-plants/inde... · a person",
       "pages": [
@@ -1055416,7 +1055444,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: the solar PV calculator's off-grid power-station planner (ENH-S, 22 Oct) described and verified against solar-planner.js (IEEE 1562/1013, PEC 2017 Art. 6.90, 12/24/48 V within 100 A). Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/free-engineering-calculators-philippine-plants/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it."
+      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: the solar PV calculator's off-grid power-station planner (ENH-S, 22 Oct) described and verified against solar-planner.js (IEEE 1562/1013, PEC 2017 Art. 6.90, 12/24/48 V within 100 A). Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/free-engineering-calculators-philippine-plants/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it. · [2026-10-27] [2026-10-27] LOCKING->60. The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip. · [2026-10-27] [2026-10-27] LOCKING pct -> 90 (all five freshness surfaces now agree; the board locks it). The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA20",
@@ -1055854,8 +1055887,8 @@
     },
     {
       "id": "KA27",
-      "status": "fixing",
-      "pct": 85,
+      "status": "locking",
+      "pct": 90,
       "wave": "KA-R",
       "title": "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated  - learn/maintenance-metrics-reliability-guide/index.html · a person",
       "pages": [
@@ -1055913,7 +1055946,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: SMRP citations corrected (5.4.14 PM/PdM compliance, 2.1.1 OEE); ISO 10816-3 -> ISO 20816-3:2022; the PM-compliance FAQ answer rendered raw <a href> markup to readers - now a real link, JSON-LD twin plain text. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/maintenance-metrics-reliability-guide/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it."
+      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: SMRP citations corrected (5.4.14 PM/PdM compliance, 2.1.1 OEE); ISO 10816-3 -> ISO 20816-3:2022; the PM-compliance FAQ answer rendered raw <a href> markup to readers - now a real link, JSON-LD twin plain text. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/maintenance-metrics-reliability-guide/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it. · [2026-10-27] [2026-10-27] LOCKING->60. The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/maintenance-metrics-reliability-guide/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip. · [2026-10-27] [2026-10-27] LOCKING pct -> 90 (all five freshness surfaces now agree; the board locks it). The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/maintenance-metrics-reliability-guide/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA28",
@@ -1056227,8 +1056265,8 @@
     },
     {
       "id": "KA33",
-      "status": "fixing",
-      "pct": 85,
+      "status": "locking",
+      "pct": 90,
       "wave": "KA-R",
       "title": "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated  - learn/ph-plant-compliance-guide/index.html · a person",
       "pages": [
@@ -1056286,7 +1056324,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: DO 198-18 -> DOLE DO 252-25 (Revised IRR of RA 11058, effective 16 May 2025: progressive fines, safety-officer stop-work); RA 11285 industrial bands per DOE DC2023-12-0037 (effective 11 Jan 2024: 50,000 / 1,000,000 / 8,000,000 kWh); sources updated. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/ph-plant-compliance-guide/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it."
+      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: DO 198-18 -> DOLE DO 252-25 (Revised IRR of RA 11058, effective 16 May 2025: progressive fines, safety-officer stop-work); RA 11285 industrial bands per DOE DC2023-12-0037 (effective 11 Jan 2024: 50,000 / 1,000,000 / 8,000,000 kWh); sources updated. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/ph-plant-compliance-guide/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it. · [2026-10-27] [2026-10-27] LOCKING->60. The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/ph-plant-compliance-guide/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip. · [2026-10-27] [2026-10-27] LOCKING pct -> 90 (all five freshness surfaces now agree; the board locks it). The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/ph-plant-compliance-guide/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA34",
@@ -1056786,8 +1056829,8 @@
     },
     {
       "id": "KA42",
-      "status": "fixing",
-      "pct": 85,
+      "status": "locking",
+      "pct": 90,
       "wave": "KA-R",
       "title": "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated  - learn/reduce-unplanned-downtime-guide/index.html · a person",
       "pages": [
@@ -1056845,7 +1056888,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: SMRP 5.4.14's three site-chosen on-time rules replace the single rule; ISO 10816-3 -> ISO 20816-3:2022. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/reduce-unplanned-downtime-guide/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it."
+      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: SMRP 5.4.14's three site-chosen on-time rules replace the single rule; ISO 10816-3 -> ISO 20816-3:2022. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/reduce-unplanned-downtime-guide/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it. · [2026-10-27] [2026-10-27] LOCKING->60. The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/reduce-unplanned-downtime-guide/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip. · [2026-10-27] [2026-10-27] LOCKING pct -> 90 (all five freshness surfaces now agree; the board locks it). The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/reduce-unplanned-downtime-guide/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA43",
@@ -1057221,8 +1057269,8 @@
     },
     {
       "id": "KA49",
-      "status": "fixing",
-      "pct": 85,
+      "status": "locking",
+      "pct": 90,
       "wave": "KA-R",
       "title": "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated  - learn/start-digital-maintenance-guide/index.html · a person",
       "pages": [
@@ -1057280,7 +1057328,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: asset-register step names the CMMS Integration spreadsheet import; handover step names Shift Brain and Report Sender; SMRP metric 5.4.14 with its formula; first body paragraph and the answer-first opener brought inside the extractability window. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/start-digital-maintenance-guide/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it."
+      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: asset-register step names the CMMS Integration spreadsheet import; handover step names Shift Brain and Report Sender; SMRP metric 5.4.14 with its formula; first body paragraph and the answer-first opener brought inside the extractability window. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/start-digital-maintenance-guide/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it. · [2026-10-27] [2026-10-27] LOCKING->60. The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/start-digital-maintenance-guide/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip. · [2026-10-27] [2026-10-27] LOCKING pct -> 90 (all five freshness surfaces now agree; the board locks it). The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/start-digital-maintenance-guide/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA50",
@@ -1057594,8 +1057647,8 @@
     },
     {
       "id": "KA55",
-      "status": "fixing",
-      "pct": 85,
+      "status": "locking",
+      "pct": 90,
       "wave": "KA-R",
       "title": "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated  - learn/what-is-workhive-complete-platform-guide/index.html · a person",
       "pages": [
@@ -1057653,7 +1057706,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: the marketplace's 10% WorkHive Credits hold named beside 'no platform fees' (4 places incl. FAQ + JSON-LD); the companion's grounding on the hive's documents, facts and standards with its 'Given with this answer' line; the voice claim corrected (the companion transcribes in English; the Voice Journal keeps the spoken language). Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/what-is-workhive-complete-platform-guide/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it."
+      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: the marketplace's 10% WorkHive Credits hold named beside 'no platform fees' (4 places incl. FAQ + JSON-LD); the companion's grounding on the hive's documents, facts and standards with its 'Given with this answer' line; the voice claim corrected (the companion transcribes in English; the Voice Journal keeps the spoken language). Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/what-is-workhive-complete-platform-guide/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it. · [2026-10-27] [2026-10-27] LOCKING->60. The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/what-is-workhive-complete-platform-guide/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip. · [2026-10-27] [2026-10-27] LOCKING pct -> 90 (all five freshness surfaces now agree; the board locks it). The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/what-is-workhive-complete-platform-guide/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA56",
@@ -1057719,8 +1057777,8 @@
     },
     {
       "id": "KA57",
-      "status": "fixing",
-      "pct": 85,
+      "status": "locking",
+      "pct": 90,
       "wave": "KA-R",
       "title": "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated  - learn/workhive-vs-maintainx-comparison/index.html · a person",
       "pages": [
@@ -1057778,12 +1057836,17 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: MaintainX pricing re-checked (unchanged) and its free plan's caps listed (2 repeating work orders, 2 with procedures, 1 month of advanced analytics; unlimited work orders and requesters); Premium $65 yearly / $75 monthly. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/workhive-vs-maintainx-comparison/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it."
+      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: MaintainX pricing re-checked (unchanged) and its free plan's caps listed (2 repeating work orders, 2 with procedures, 1 month of advanced analytics; unlimited work orders and requesters); Premium $65 yearly / $75 monthly. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/workhive-vs-maintainx-comparison/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it. · [2026-10-27] [2026-10-27] LOCKING->60. The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/workhive-vs-maintainx-comparison/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip. · [2026-10-27] [2026-10-27] LOCKING pct -> 90 (all five freshness surfaces now agree; the board locks it). The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/workhive-vs-maintainx-comparison/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA58",
-      "status": "fixing",
-      "pct": 85,
+      "status": "locking",
+      "pct": 90,
       "wave": "KA-R",
       "title": "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated  - learn/workhive-vs-upkeep-free-cmms-comparison/index.html · a person",
       "pages": [
@@ -1057841,7 +1057904,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: UpKeep Essential $20 -> $24, free plan gone (trial; view-only/requester/third-party users free); the 10-technician cost $2,400 -> $2,880; FAQ + JSON-LD twin rewritten. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/workhive-vs-upkeep-free-cmms-comparison/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it."
+      "basis": "[2026-10-27] [2026-10-27] FIXING pct -> 85. REFRESHED, content not date: UpKeep Essential $20 -> $24, free plan gone (trial; view-only/requester/third-party users free); the 10-technician cost $2,400 -> $2,880; FAQ + JSON-LD twin rewritten. Stamped with tools/refresh_public_page.py --stamp (first stamp judged against HEAD, so a date-only change would have been refused). WALKED through the Playwright MCP at phone-390 and desktop-1280 on the served page (127.0.0.1:5000/workhive/learn/workhive-vs-upkeep-free-cmms-comparison/): 200, JSON-LD dateModified 2026-10-27 = the visible Updated/Last-updated line(s) = sitemap.xml <lastmod> 2026-10-27, markdown twin index.html.md served and rebuilt, no horizontal scroll, no console error. freshness_trip.py: this unit's refresh trip is QUIET (refresh trips 10 -> 0); gates sitemap-promise, md-twins-current, extractability, structured-data-parity, dated-claim-freshness, design-detector-ratchet green. OPEN: the fifth surface - the IndexNow push - goes out after the deploy with `indexnow_submit.py --verify --submit --changed` (this URL's lastmod is newer than any receipt); the row locks when indexnow_receipts.json names it. · [2026-10-27] [2026-10-27] LOCKING->60. The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip. · [2026-10-27] [2026-10-27] LOCKING pct -> 90 (all five freshness surfaces now agree; the board locks it). The fifth surface, the one left OPEN: indexnow_receipts.json (written by tools/indexnow_submit.py --submit --changed, the M1 release's post-deploy step) names https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/ - last_submit_at 2026-10-27T03:15:48+00:00, mode changed, HTTP 200, 120 URLs. tools/freshness_trip.py --check: no push trip (the last push does not predate the newest sitemap change) and no refresh trip on this page. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA59",
@@ -1111340,8 +1111408,8 @@
     },
     {
       "id": "SE1",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - achievements · a first-time worker",
       "pages": [
@@ -1111396,12 +1111464,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on achievements as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. achievements.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (ACHK2: Per-domain badge grid + expand a domain) in 1 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": true}; desktop-1280: the job done on the page (ACHK2: Per-domain badge grid + expand a domain) in 1 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": true}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE2",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - achievements · a first-time worker",
       "pages": [
@@ -1111456,12 +1111530,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on achievements as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. achievements.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the first screen is a template of the finished thing (every badge named with what earns it / every calculator named with what it computes); desktop-1280: the first screen is a template of the finished thing (every badge named with what earns it / every calculator named with what it computes). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE3",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - achievements · a first-time worker",
       "pages": [
@@ -1111516,12 +1111596,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on achievements as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. achievements.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Every badge you earn here lands on your Resume automatically - employers see certified skills, not claims.\"; desktop-1280: told \"Every badge you earn here lands on your Resume automatically - employers see certified skills, not claims.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE4",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - achievements · a first-time worker",
       "pages": [
@@ -1111576,12 +1111662,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on achievements as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. achievements.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE5",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - alert hub · a first-time worker",
       "pages": [
@@ -1111636,12 +1111730,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on alert hub as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. alert-hub.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (ALFIRST: A worker filters the alert feed by the first kind it holds) in 1 interaction(s), verdict {\"R\": true, \"J\": true}; desktop-1280: the job done on the page (ALFIRST: A worker filters the alert feed by the first kind it holds) in 1 interaction(s), verdict {\"R\": true, \"J\": true}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE6",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - alert hub · a first-time worker",
       "pages": [
@@ -1111696,12 +1111796,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on alert hub as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. alert-hub.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the hive's own figures are on screen at first paint (19 non-zero figures) - a page whose first screen is the hive’s live state; desktop-1280: the hive's own figures are on screen at first paint (37 non-zero figures) - a page whose first screen is the hive’s live state. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE7",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - alert hub · a first-time worker",
       "pages": [
@@ -1111756,12 +1111862,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on alert hub as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. alert-hub.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Updated just now · Auto-refresh every minute\"; desktop-1280: told \"Updated just now · Auto-refresh every minute\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE8",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - alert hub · a first-time worker",
       "pages": [
@@ -1111816,12 +1111928,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on alert hub as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. alert-hub.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Reject today's AMC brief? The crew will not act on it.\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Reject today's AMC brief? The crew will not act on it.\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE9",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - analytics report · a first-time fleet-supervisor",
       "pages": [
@@ -1111876,12 +1111996,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on analytics report as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics-report.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (AR1: Compile the print-ready analytics report) in 1 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}; desktop-1280: the job done on the page (AR1: Compile the print-ready analytics report) in 1 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE10",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - analytics report · a first-time fleet-supervisor",
       "pages": [
@@ -1111936,12 +1112062,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on analytics report as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics-report.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the hive's own figures are on screen at first paint (4 non-zero figures) - a read page; desktop-1280: the hive's own figures are on screen at first paint (4 non-zero figures) - a read page. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE11",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - analytics report · a first-time fleet-supervisor",
       "pages": [
@@ -1111996,12 +1112128,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on analytics report as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics-report.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"4 of 12 scheduled\"; desktop-1280: told \"4 of 12 scheduled\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE12",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - analytics report · a first-time fleet-supervisor",
       "pages": [
@@ -1112056,12 +1112194,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on analytics report as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics-report.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE13",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - analytics · a first-time fleet-supervisor",
       "pages": [
@@ -1112118,12 +1112264,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on analytics as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (AN2: Change the analysis window (30d) → KPIs recompute) in 2 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}; desktop-1280: the job done on the page (AN2: Change the analysis window (30d) → KPIs recompute) in 2 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE14",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - analytics · a first-time fleet-supervisor",
       "pages": [
@@ -1112180,12 +1112332,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on analytics as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the hive's own figures are on screen at first paint (164 non-zero figures) - a read page; desktop-1280: the hive's own figures are on screen at first paint (164 non-zero figures) - a read page. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE15",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - analytics · a first-time fleet-supervisor",
       "pages": [
@@ -1112242,12 +1112400,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on analytics as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Updated 7h ago\"; desktop-1280: told \"Updated 7h ago\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE16",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - analytics · a first-time fleet-supervisor",
       "pages": [
@@ -1112304,12 +1112468,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on analytics as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. analytics.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE17",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - asset hub · a first-time worker",
       "pages": [
@@ -1112364,12 +1112536,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on asset hub as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. asset-hub.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (AH2: Open an asset 360 — true history rollup) in 1 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}; desktop-1280: the job done on the page (AH2: Open an asset 360 — true history rollup) in 1 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE18",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - asset hub · a first-time worker",
       "pages": [
@@ -1112424,12 +1112602,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on asset hub as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. asset-hub.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: a record of the hive's own is on screen at first paint (\"Seed: drive-end bearing\", read from the database); desktop-1280: a record of the hive's own is on screen at first paint (\"Seed: drive-end bearing\", read from the database). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE19",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - asset hub · a first-time worker",
       "pages": [
@@ -1112484,12 +1112668,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on asset hub as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. asset-hub.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Preventive Maintenance: Routine PM as scheduled\"; desktop-1280: told \"Live + daily snapshot · as of 15:16 PHT · Based on your asset records, risk scores, logbook, failure analysis & reliability analysis · Click any asset for its full 360 (timeline, neighbours, reliability)\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE20",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - asset hub · a first-time worker",
       "pages": [
@@ -1112544,12 +1112734,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on asset hub as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. asset-hub.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 3 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Reject this asset? It stays in the queue but will not appear in the approved lis\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 3 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Reject this asset? It stays in the queue but will not appear in the approved lis\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE21",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - assistant · a first-time worker",
       "pages": [
@@ -1112604,12 +1112802,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on assistant as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. assistant.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (AK1: Ask the AI assistant a question → grounded non-empty answer) in 2 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}; desktop-1280: the job done on the page (AK1: Ask the AI assistant a question → grounded non-empty answer) in 2 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE22",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - assistant · a first-time worker",
       "pages": [
@@ -1112664,12 +1112868,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on assistant as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. assistant.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the page shows an example before the first action: \"TRY ASKING Which of my assets breaks down most often, and what should I do? What should I \"; desktop-1280: the page shows an example before the first action: \"TRY ASKING Which of my assets breaks down most often, and what should I do? What should I \". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE23",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - assistant · a first-time worker",
       "pages": [
@@ -1112724,12 +1112934,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on assistant as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. assistant.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Baguio Textile Mills · Answers are grounded in this hive’s live data: open alerts, overdue PMs, parts stock and asset risk · recomputed per question · your logbook and project items only when you ask about them\"; desktop-1280: told \"Baguio Textile Mills · Answers are grounded in this hive’s live data: open alerts, overdue PMs, parts stock and asset risk · recomputed per question · your logbook and project items only when you ask about them\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE24",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - assistant · a first-time worker",
       "pages": [
@@ -1112784,12 +1113000,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on assistant as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. assistant.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE25",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - community · a first-time fleet-supervisor",
       "pages": [
@@ -1112844,12 +1113068,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on community as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. community.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (CM1: Post a message to the hive board) in 5 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}; desktop-1280: the job done on the page (CM1: Post a message to the hive board) in 5 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE26",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - community · a first-time fleet-supervisor",
       "pages": [
@@ -1112904,12 +1113134,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on community as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. community.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: a record of the hive's own is on screen at first paint (\"Saved 20% on lube oil by switching to Sh\", read from the database); desktop-1280: a record of the hive's own is on screen at first paint (\"Saved 20% on lube oil by switching to Sh\", read from the database). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE27",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - community · a first-time fleet-supervisor",
       "pages": [
@@ -1112964,12 +1113200,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on community as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. community.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"✓ +50 XP · First Hive Post! 🎉 Visible to your hive now.\"; desktop-1280: told \"✓ +50 XP · First Hive Post! 🎉 Visible to your hive now.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE28",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - community · a first-time fleet-supervisor",
       "pages": [
@@ -1113024,12 +1113266,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on community as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. community.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Make this post public? Workers in every other hive will be able to read it in th\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Make this post public? Workers in every other hive will be able to read it in th\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE29",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - dayplanner · a first-time fleet-supervisor",
       "pages": [
@@ -1113084,12 +1113334,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on dayplanner as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. dayplanner.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (DAY1: Schedule a new maintenance task onto the day plan) in 10 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}; desktop-1280: the job done on the page (DAY1: Schedule a new maintenance task onto the day plan) in 10 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE30",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - dayplanner · a first-time fleet-supervisor",
       "pages": [
@@ -1113144,12 +1113400,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on dayplanner as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. dayplanner.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the page shows an example before the first action: \"Tap + Schedule to add tasks. A planned slot reads like this: 08:00-09:00 · PM · change eng\"; desktop-1280: the page shows an example before the first action: \"Tap + Schedule to add tasks. A planned slot reads like this: 08:00-09:00 · PM · change eng\"; a record of the hive's own is on screen at first paint (\"Change engine oil and oil filter; check brakes, lights and t\", read from the database). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE31",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - dayplanner · a first-time fleet-supervisor",
       "pages": [
@@ -1113204,12 +1113466,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on dayplanner as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. dayplanner.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"K2-DP-1793087611463 lube loom saved → on your Oct 27 plan.\"; desktop-1280: told \"K2-DP-1793087625902 lube loom saved → on your Oct 27 plan.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE32",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - dayplanner · a first-time fleet-supervisor",
       "pages": [
@@ -1113264,12 +1113532,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on dayplanner as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. dayplanner.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Remove this scheduled item?\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Remove this scheduled item?\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE33",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - engineering design · a first-time solo-owner",
       "pages": [
@@ -1113324,12 +1113600,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on engineering design as a first-time solo-owner at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. engineering-design.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (solo-owner) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (ED1: Run Bearing Life (L10) → correct ISO 281 result) in 3 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}; desktop-1280: the job done on the page (ED1: Run Bearing Life (L10) → correct ISO 281 result) in 3 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE34",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - engineering design · a first-time solo-owner",
       "pages": [
@@ -1113384,12 +1113666,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on engineering design as a first-time solo-owner at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. engineering-design.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (solo-owner) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the first screen is a template of the finished thing (every badge named with what earns it / every calculator named with what it computes); desktop-1280: the first screen is a template of the finished thing (every badge named with what earns it / every calculator named with what it computes). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE35",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - engineering design · a first-time solo-owner",
       "pages": [
@@ -1113444,12 +1113732,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on engineering design as a first-time solo-owner at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. engineering-design.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (solo-owner) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Calculating. This can take up to about a minute - the report will be announced when it is ready.\"; desktop-1280: told \"Calculating. This can take up to about a minute - the report will be announced when it is ready.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE36",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - engineering design · a first-time solo-owner",
       "pages": [
@@ -1113504,12 +1113798,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on engineering design as a first-time solo-owner at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. engineering-design.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (solo-owner) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Delete this calculation?\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Delete this calculation?\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE37",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - hive · a first-time worker",
       "pages": [
@@ -1113564,12 +1113866,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on hive as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. hive.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (JOIN: A worker joins the hive with the code a supervisor handed over) in 4 interaction(s), verdict {\"J\": true, \"X\": true}; desktop-1280: the job done on the page (JOIN: A worker joins the hive with the code a supervisor handed over) in 4 interaction(s), verdict {\"J\": true, \"X\": true}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE38",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - hive · a first-time worker",
       "pages": [
@@ -1113624,12 +1113932,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on hive as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. hive.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the page shows an example before the first action: \"A hive in use reads like this: Line 2 Maintenance · 8 members · 3 jobs open today · Ana cl\"; desktop-1280: the page shows an example before the first action: \"A hive in use reads like this: Line 2 Maintenance · 8 members · 3 jobs open today · Ana cl\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE39",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - hive · a first-time worker",
       "pages": [
@@ -1113684,12 +1113998,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on hive as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. hive.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Your records are now visible to your team:\"; desktop-1280: told \"Your records are now visible to your team:\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE40",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - hive · a first-time worker",
       "pages": [
@@ -1113744,12 +1114064,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on hive as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. hive.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Dela Cruz Delivery Fleet, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 9 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Deactivate your account? Your name and email will be permanently anonymized and \"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 9 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Deactivate your account? Your name and email will be permanently anonymized and \"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE41",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - index · a first-time worker",
       "pages": [
@@ -1113804,12 +1114132,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on index as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. index.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (HM4: From home, reach My Open Jobs + All Tools, deep-link to a tool, and sign out cleanly) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": true}; desktop-1280: the job done on the page (HM4: From home, reach My Open Jobs + All Tools, deep-link to a tool, and sign out cleanly) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": true}. Gate self-efficacy-pages. · [2026-10-27] [2026-10-27] LOCKING pct -> 60 (re-measured). index.html (mastery): the count of acts now survives the journey's navigations (it lived on window, so HM4 - home, a tool, sign out - read 0): phone-390 1 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": true}; desktop-1280 1 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": true} (HM4: From home, reach My Open Jobs + All Tools, deep-link to a tool, and sign out cleanly). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE42",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - index · a first-time worker",
       "pages": [
@@ -1113864,12 +1114198,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on index as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. index.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the hive's own figures are on screen at first paint (2 non-zero figures) - a page whose first screen is the hive’s live state; desktop-1280: the hive's own figures are on screen at first paint (2 non-zero figures) - a page whose first screen is the hive’s live state. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE43",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - index · a first-time worker",
       "pages": [
@@ -1113924,12 +1114264,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on index as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. index.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"We make digital tools actually work in your plant.\"; desktop-1280: told \"We make digital tools actually work in your plant.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE44",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - index · a first-time worker",
       "pages": [
@@ -1113984,12 +1114330,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on index as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. index.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 8 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Enter the email on your account for a reset link. No email on file (most field w\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 8 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Enter the email on your account for a reset link. No email on file (most field w\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE45",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - integrations · a first-time solo-owner",
       "pages": [
@@ -1114044,12 +1114398,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on integrations as a first-time solo-owner at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. integrations.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (solo-owner) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (IN1: Import CMMS work-order history (CSV) for cold-start analytics) in 10 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}; desktop-1280: the job done on the page (IN1: Import CMMS work-order history (CSV) for cold-start analytics) in 10 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE46",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - integrations · a first-time solo-owner",
       "pages": [
@@ -1114104,12 +1114464,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on integrations as a first-time solo-owner at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. integrations.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (solo-owner) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the page shows an example before the first action: \"A work-order export reads like this: one row per job, e.g. WO-1042 · C-201 · 2026-03-14 · \"; desktop-1280: the page shows an example before the first action: \"A work-order export reads like this: one row per job, e.g. WO-1042 · C-201 · 2026-03-14 · \". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE47",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - integrations · a first-time solo-owner",
       "pages": [
@@ -1114164,12 +1114530,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on integrations as a first-time solo-owner at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. integrations.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (solo-owner) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Import complete: 2 work orders are in your Logbook, and they count toward Analytics (MTBF, MTTR) now.\"; desktop-1280: told \"Import complete: 2 work orders are in your Logbook, and they count toward Analytics (MTBF, MTTR) now.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE48",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - integrations · a first-time solo-owner",
       "pages": [
@@ -1114224,12 +1114596,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on integrations as a first-time solo-owner at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. integrations.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (solo-owner) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 3 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Remove everything this wizard just created? This deletes the vehicle, its PM sch\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 3 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Remove everything this wizard just created? This deletes the vehicle, its PM sch\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE49",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - inventory · a first-time worker",
       "pages": [
@@ -1114284,12 +1114664,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on inventory as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. inventory.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (INV1: Add a new spare part to inventory) in 12 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}; desktop-1280: the job done on the page (INV1: Add a new spare part to inventory) in 12 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE50",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - inventory · a first-time worker",
       "pages": [
@@ -1114344,12 +1114730,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on inventory as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. inventory.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: a record of the hive's own is on screen at first paint (\"Loctite 567 thread sealant\", read from the database); desktop-1280: a record of the hive's own is on screen at first paint (\"Secondary fuel filter\", read from the database). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE51",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - inventory · a first-time worker",
       "pages": [
@@ -1114404,12 +1114796,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on inventory as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. inventory.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"K2-PART-1793086776837 submitted for supervisor approval → once approved it counts toward stock levels, low-stock alerts & reorder suggestions.\"; desktop-1280: told \"K2-PART-1793086792923 submitted for supervisor approval → once approved it counts toward stock levels, low-stock alerts & reorder suggestions.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE52",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - inventory · a first-time worker",
       "pages": [
@@ -1114464,12 +1114862,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on inventory as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. inventory.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"${_uResv} ${_uUnit} of this part is staged for a predicted failure. Taking ${qty\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"${_uResv} ${_uUnit} of this part is staged for a predicted failure. Taking ${qty\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE53",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - logbook · a first-time worker",
       "pages": [
@@ -1114524,12 +1114930,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on logbook as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. logbook.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Manila Electronics Assembly, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (LOG1: Log a new repair/breakdown captured against the right machine) in 13 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}; desktop-1280: the job done on the page (LOG1: Log a new repair/breakdown captured against the right machine) in 13 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE54",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - logbook · a first-time worker",
       "pages": [
@@ -1114584,12 +1114996,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on logbook as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. logbook.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Manila Electronics Assembly, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the page shows an example before the first action: \"A finished entry reads like this: Compressor C-201 · Breakdown · bearing noise at the driv\"; desktop-1280: the page shows an example before the first action: \"A finished entry reads like this: Compressor C-201 · Breakdown · bearing noise at the driv\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE55",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - logbook · a first-time worker",
       "pages": [
@@ -1114644,12 +1115062,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on logbook as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. logbook.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Manila Electronics Assembly, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"✓ Logged: updated Analytics (MTBF/MTTR + failure freq) · risk score for M-001 (next scoring) · +20 XP\"; desktop-1280: told \"✓ Logged: updated Analytics (MTBF/MTTR + failure freq) · risk score for M-001 (next scoring) · +20 XP\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE56",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - logbook · a first-time worker",
       "pages": [
@@ -1114704,12 +1115128,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on logbook as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. logbook.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Manila Electronics Assembly, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 3 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Discard this offline save? It was never saved to the server, so it will be gone.\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 3 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Discard this offline save? It was never saved to the server, so it will be gone.\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE57",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - marketplace seller profile · a first-time buyer",
       "pages": [
@@ -1114764,12 +1115196,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on marketplace seller profile as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller-profile.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Lucena Pharmaceutical Mfg., an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (SP1: A buyer opens a seller's profile and sees who they are and every listing they have published) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}; desktop-1280: the job done on the page (SP1: A buyer opens a seller's profile and sees who they are and every listing they have published) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE58",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - marketplace seller profile · a first-time buyer",
       "pages": [
@@ -1114824,12 +1115262,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on marketplace seller profile as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller-profile.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Lucena Pharmaceutical Mfg., an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: a record of the hive's own is on screen at first paint (\"Permit-to-Work Refresher (1 day)\", read from the database); desktop-1280: a record of the hive's own is on screen at first paint (\"Permit-to-Work Refresher (1 day)\", read from the database). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE59",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - marketplace seller profile · a first-time buyer",
       "pages": [
@@ -1114884,12 +1115328,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on marketplace seller profile as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller-profile.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Lucena Pharmaceutical Mfg., an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"They get notified straight away.\"; desktop-1280: told \"They get notified straight away.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE60",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - marketplace seller profile · a first-time buyer",
       "pages": [
@@ -1114944,12 +1115394,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on marketplace seller profile as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller-profile.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Lucena Pharmaceutical Mfg., an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE61",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - marketplace seller · a first-time buyer",
       "pages": [
@@ -1115004,12 +1115462,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on marketplace seller as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (MS3: Save my Messenger handle so buyers can reach me directly (free contact)) in 3 interaction(s), verdict {\"R\": true, \"J\": null, \"T\": false, \"X\": null}; desktop-1280: the job done on the page (MS3: Save my Messenger handle so buyers can reach me directly (free contact)) in 3 interaction(s), verdict {\"R\": true, \"J\": null, \"T\": false, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE62",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - marketplace seller · a first-time buyer",
       "pages": [
@@ -1115064,12 +1115528,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on marketplace seller as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the page shows an example before the first action: \"A finished listing reads like this: SKF 6205-2RS deep-groove bearing, new, box of 10 · ₱1,\"; desktop-1280: the page shows an example before the first action: \"A finished listing reads like this: SKF 6205-2RS deep-groove bearing, new, box of 10 · ₱1,\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE63",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - marketplace seller · a first-time buyer",
       "pages": [
@@ -1115124,12 +1115594,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on marketplace seller as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Messenger handle saved: a Message on Messenger button now shows on your listings and seller profile.\"; desktop-1280: told \"Messenger handle saved: a Message on Messenger button now shows on your listings and seller profile.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE64",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - marketplace seller · a first-time buyer",
       "pages": [
@@ -1115184,12 +1115660,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on marketplace seller as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace-seller.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Delete \"${item.title}\"? This cannot be undone.\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Delete \"${item.title}\"? This cannot be undone.\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE65",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - marketplace · a first-time buyer",
       "pages": [
@@ -1115244,12 +1115728,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on marketplace as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (MK3: Save a listing to my watchlist + see it in My Saved) in 1 interaction(s), verdict {\"R\": null, \"J\": true, \"T\": true, \"X\": null}; desktop-1280: the job done on the page (MK3: Save a listing to my watchlist + see it in My Saved) in 1 interaction(s), verdict {\"R\": null, \"J\": true, \"T\": true, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE66",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - marketplace · a first-time buyer",
       "pages": [
@@ -1115304,12 +1115794,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on marketplace as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: a record of the hive's own is on screen at first paint (\"Set of Filter Cartridges (8 pcs)\", read from the database); desktop-1280: a record of the hive's own is on screen at first paint (\"Set of Filter Cartridges (8 pcs)\", read from the database). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE67",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - marketplace · a first-time buyer",
       "pages": [
@@ -1115364,12 +1115860,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on marketplace as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Saved to your watchlist: open Watchlist at the top to find it again.\"; desktop-1280: told \"Saved to your watchlist: open Watchlist at the top to find it again.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE68",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - marketplace · a first-time buyer",
       "pages": [
@@ -1115424,12 +1115926,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on marketplace as a first-time buyer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. marketplace.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (buyer) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 4 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Delete this saved search? This cannot be undone.\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 4 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Delete this saved search? This cannot be undone.\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE69",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - ph intelligence · a first-time fleet-supervisor",
       "pages": [
@@ -1115484,12 +1115994,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on ph intelligence as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. ph-intelligence.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (PI1: A supervisor opens PH intelligence and reads the report - or, below Stair 3, which stair unlocks it, where the hive stands and the next step) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": null}; desktop-1280: the job done on the page (PI1: A supervisor opens PH intelligence and reads the report - or, below Stair 3, which stair unlocks it, where the hive stands and the next step) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE70",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - ph intelligence · a first-time fleet-supervisor",
       "pages": [
@@ -1115544,12 +1116060,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on ph intelligence as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. ph-intelligence.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the hive's own figures are on screen at first paint (5 non-zero figures) - a read page; desktop-1280: the hive's own figures are on screen at first paint (5 non-zero figures) - a read page. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE71",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - ph intelligence · a first-time fleet-supervisor",
       "pages": [
@@ -1115604,12 +1116126,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on ph intelligence as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. ph-intelligence.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Updated when a report is generated · Based on your logbook history + anonymized segment benchmarks (N≥5 privacy guard)\"; desktop-1280: told \"Updated when a report is generated · Based on your logbook history + anonymized segment benchmarks (N≥5 privacy guard)\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE72",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - ph intelligence · a first-time fleet-supervisor",
       "pages": [
@@ -1115664,12 +1116192,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on ph intelligence as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. ph-intelligence.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE73",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - plant connections · a first-time machine-client",
       "pages": [
@@ -1115724,12 +1116260,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on plant connections as a first-time machine-client at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. plant-connections.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (machine-client) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (PC1: See CMMS integration health at a glance) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": null}; desktop-1280: the job done on the page (PC1: See CMMS integration health at a glance) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE74",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - plant connections · a first-time machine-client",
       "pages": [
@@ -1115784,12 +1116326,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on plant connections as a first-time machine-client at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. plant-connections.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (machine-client) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the hive's own figures are on screen at first paint (4 non-zero figures) - a read page; desktop-1280: the hive's own figures are on screen at first paint (4 non-zero figures) - a read page. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE75",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - plant connections · a first-time machine-client",
       "pages": [
@@ -1115844,12 +1116392,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on plant connections as a first-time machine-client at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. plant-connections.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (machine-client) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Topics then appear here on their own.\"; desktop-1280: told \"Topics then appear here on their own.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE76",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - plant connections · a first-time machine-client",
       "pages": [
@@ -1115904,12 +1116458,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on plant connections as a first-time machine-client at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. plant-connections.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (machine-client) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE77",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - pm scheduler · a first-time worker",
       "pages": [
@@ -1115964,12 +1116526,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on pm scheduler as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. pm-scheduler.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (PM3: Complete a PM task — findings logged + persisted) in 8 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}; desktop-1280: the job done on the page (PM3: Complete a PM task — findings logged + persisted) in 8 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": true}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE78",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - pm scheduler · a first-time worker",
       "pages": [
@@ -1116024,12 +1116592,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on pm scheduler as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. pm-scheduler.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: a record of the hive's own is on screen at first paint (\"2021 Toyota HiAce Commuter\", read from the database); desktop-1280: a record of the hive's own is on screen at first paint (\"2021 Toyota HiAce Commuter\", read from the database). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE79",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - pm scheduler · a first-time worker",
       "pages": [
@@ -1116084,12 +1116658,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on pm scheduler as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. pm-scheduler.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"✓ PM done → PM compliance recomputed on Hive + Analytics (SMRP). · +60 XP\"; desktop-1280: told \"✓ PM done → PM compliance recomputed on Hive + Analytics (SMRP). · +60 XP\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE80",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - pm scheduler · a first-time worker",
       "pages": [
@@ -1116144,12 +1116724,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on pm scheduler as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. pm-scheduler.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 3 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Auto-hail this asset’s PM work? When an item falls due, WorkHive files a service\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 3 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Auto-hail this asset’s PM work? When an item falls due, WorkHive files a service\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE81",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - project manager · a first-time fleet-supervisor",
       "pages": [
@@ -1116204,12 +1116792,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on project manager as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-manager.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (PMK1: Supervisor creates a project via the wizard) in 8 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}; desktop-1280: the job done on the page (PMK1: Supervisor creates a project via the wizard) in 8 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE82",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - project manager · a first-time fleet-supervisor",
       "pages": [
@@ -1116264,12 +1116858,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on project manager as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-manager.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: a record of the hive's own is on screen at first paint (\"Recurring Compressor Breakdown Bundle\", read from the database); desktop-1280: a record of the hive's own is on screen at first paint (\"Recurring Compressor Breakdown Bundle\", read from the database). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE83",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - project manager · a first-time fleet-supervisor",
       "pages": [
@@ -1116324,12 +1116924,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on project manager as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-manager.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"✓ Project SHD-2026-002 created (7 scope items) → shows in Project Report now · linkable to assets from Logbook & PM Scheduler\"; desktop-1280: told \"✓ Project SHD-2026-002 created (7 scope items) → shows in Project Report now · linkable to assets from Logbook & PM Scheduler\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE84",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - project manager · a first-time fleet-supervisor",
       "pages": [
@@ -1116384,12 +1116990,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on project manager as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-manager.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Baguio Textile Mills, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 8 destructive act(s) on the page, each behind its confirm sentence (e.g. \"No scope items checked. Create an empty project?\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 8 destructive act(s) on the page, each behind its confirm sentence (e.g. \"No scope items checked. Create an empty project?\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE85",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - project report · a first-time fleet-supervisor",
       "pages": [
@@ -1116444,12 +1117058,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on project report as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-report.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Lucena Pharmaceutical Mfg., an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (PRK1: Open a compiled project status report) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}; desktop-1280: the job done on the page (PRK1: Open a compiled project status report) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE86",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - project report · a first-time fleet-supervisor",
       "pages": [
@@ -1116504,12 +1117124,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on project report as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-report.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Lucena Pharmaceutical Mfg., an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: a record of the hive's own is on screen at first paint (\"Recurring Compressor Breakdown Bundle\", read from the database); desktop-1280: a record of the hive's own is on screen at first paint (\"Recurring Compressor Breakdown Bundle\", read from the database). Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE87",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - project report · a first-time fleet-supervisor",
       "pages": [
@@ -1116564,12 +1117190,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on project report as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-report.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Lucena Pharmaceutical Mfg., an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"7.0 Procurement + civil works Dennis Aquino pending 80 0 Nov 16, 2026\"; desktop-1280: told \"7.0 Procurement + civil works Dennis Aquino pending 80 0 Nov 16, 2026\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE88",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - project report · a first-time fleet-supervisor",
       "pages": [
@@ -1116624,12 +1117256,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on project report as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. project-report.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Lucena Pharmaceutical Mfg., an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE89",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - public feed · a first-timer",
       "pages": [
@@ -1116680,12 +1117320,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on public feed as a first-timer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. public-feed.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a signed-out visitor (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (PF1: A visitor reads what crews have made public - every post the feed may show, and no more) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}; desktop-1280: the job done on the page (PF1: A visitor reads what crews have made public - every post the feed may show, and no more) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE90",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - public feed · a first-timer",
       "pages": [
@@ -1116736,12 +1117382,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on public feed as a first-timer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. public-feed.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a signed-out visitor (Playwright Chromium; page views kept out of the ledger) - phone-390: the hive's own figures are on screen at first paint (15 non-zero figures) - a read page; desktop-1280: the hive's own figures are on screen at first paint (15 non-zero figures) - a read page. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE91",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - public feed · a first-timer",
       "pages": [
@@ -1116792,12 +1117444,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on public feed as a first-timer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. public-feed.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a signed-out visitor (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Signing in takes you to your hive's board: what you post there appears on your team's board only, never here, unless you share it.\"; desktop-1280: told \"Signing in takes you to your hive's board: what you post there appears on your team's board only, never here, unless you share it.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE92",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - public feed · a first-timer",
       "pages": [
@@ -1116848,12 +1117506,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on public feed as a first-timer at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. public-feed.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a signed-out visitor (Playwright Chromium; page views kept out of the ledger) - phone-390: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE93",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - report sender · a first-time fleet-supervisor",
       "pages": [
@@ -1116908,12 +1117574,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on report sender as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. report-sender.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Manila Electronics Assembly, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (RS2: A supervisor adds a report recipient and it is saved for the hive) in 6 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}; desktop-1280: the job done on the page (RS2: A supervisor adds a report recipient and it is saved for the hive) in 6 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE94",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - report sender · a first-time fleet-supervisor",
       "pages": [
@@ -1116968,12 +1117640,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on report sender as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. report-sender.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Manila Electronics Assembly, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the page shows an example before the first action: \"A sent report reads like this: PM Overdue and Failure Digest · to the plant manager · the \"; desktop-1280: the page shows an example before the first action: \"A sent report reads like this: PM Overdue and Failure Digest · to the plant manager · the \". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE95",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - report sender · a first-time fleet-supervisor",
       "pages": [
@@ -1117028,12 +1117706,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on report sender as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. report-sender.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Manila Electronics Assembly, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"QA RS2 Recipient added → in your recipient list now, and saved for future reports.\"; desktop-1280: told \"QA RS2 Recipient added → in your recipient list now, and saved for future reports.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE96",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - report sender · a first-time fleet-supervisor",
       "pages": [
@@ -1117088,12 +1117772,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on report sender as a first-time fleet-supervisor at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. report-sender.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time supervisor (fleet-supervisor) of Manila Electronics Assembly, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Send this report to ${_who}? This address is not a saved contact, and a sent rep\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Send this report to ${_who}? This address is not a saved contact, and a sent rep\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE97",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - resume · a first-time worker",
       "pages": [
@@ -1117148,12 +1117840,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on resume as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. resume.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (RESK3: Save resume to the cloud (owner-scoped resume_documents)) in 2 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}; desktop-1280: the job done on the page (RESK3: Save resume to the cloud (owner-scoped resume_documents)) in 2 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": true, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE98",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - resume · a first-time worker",
       "pages": [
@@ -1117208,12 +1117906,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on resume as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. resume.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the page shows an example before the first action: \"A finished work entry reads like this: Fleet Maintenance Technician · 2023 to present · ke\"; desktop-1280: the page shows an example before the first action: \"A finished work entry reads like this: Fleet Maintenance Technician · 2023 to present · ke\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE99",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - resume · a first-time worker",
       "pages": [
@@ -1117268,12 +1117972,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on resume as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. resume.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Your resume · your own words, plus anything you auto-fill from your logbook and skill badges · saved on this device and to your account · as of this page load\"; desktop-1280: told \"Your resume · your own words, plus anything you auto-fill from your logbook and skill badges · saved on this device and to your account · as of this page load\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE100",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - resume · a first-time worker",
       "pages": [
@@ -1117328,12 +1118038,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on resume as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. resume.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Tan Delivery Vans, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE101",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - shift brain · a first-time worker",
       "pages": [
@@ -1117388,12 +1118106,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on shift brain as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. shift-brain.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (SB1: A technician opens the shift brief and reads this shift's plan - or is told none is published yet) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": null}; desktop-1280: the job done on the page (SB1: A technician opens the shift brief and reads this shift's plan - or is told none is published yet) in 0 interaction(s), verdict {\"R\": true, \"J\": true, \"T\": null, \"X\": null}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE102",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - shift brain · a first-time worker",
       "pages": [
@@ -1117448,12 +1118172,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on shift brain as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. shift-brain.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the hive's own figures are on screen at first paint (12 non-zero figures) - a page whose first screen is the hive’s live state; desktop-1280: the hive's own figures are on screen at first paint (12 non-zero figures) - a page whose first screen is the hive’s live state. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE103",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - shift brain · a first-time worker",
       "pages": [
@@ -1117508,12 +1118238,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on shift brain as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. shift-brain.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Live · plan for this shift · loaded from storage, not regenerated just now · as of 15:31 PHT · Based on your shift plan · Top-risk + PMs-due + carry-forward + parts, composed by shift-planner-orchestrator\"; desktop-1280: told \"Live · plan for this shift · loaded from storage, not regenerated just now · as of 15:31 PHT · Based on your shift plan · Top-risk + PMs-due + carry-forward + parts, composed by shift-planner-orchestrator\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE104",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - shift brain · a first-time worker",
       "pages": [
@@ -1117568,12 +1118304,20 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on shift brain as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. shift-brain.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Publish this shift plan to your crew? They will see it and work from it, release\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 2 destructive act(s) on the page, each behind its confirm sentence (e.g. \"Publish this shift plan to your crew? They will see it and work from it, release\"); deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {
       "id": "SE105",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · mastery: a person who has never used this page completes its primary action without lea - skillmatrix · a first-time worker",
       "pages": [
@@ -1117628,12 +1118372,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the mastery source is proven on skillmatrix as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. skillmatrix.html (mastery): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the job done on the page (SKFIRST: A worker with no skill matrix picks a primary discipline and starts one) in 2 interaction(s), verdict {\"J\": true, \"X\": true}; desktop-1280: the job done on the page (SKFIRST: A worker with no skill matrix picks a primary discipline and starts one) in 2 interaction(s), verdict {\"J\": true, \"X\": true}. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE106",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · vicarious: before the first action the page shows what a finished one looks like - a temp - skillmatrix · a first-time worker",
       "pages": [
@@ -1117688,12 +1118438,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the vicarious source is proven on skillmatrix as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. skillmatrix.html (vicarious): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: the page shows an example before the first action: \"A filled-in matrix reads like this: Mechanical, target Level 5, now Level 3 · Electrical, \"; desktop-1280: the page shows an example before the first action: \"A filled-in matrix reads like this: Mechanical, target Level 5, now Level 3 · Electrical, \". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE107",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · verbal persuasion: the completed action is confirmed in words that name what was done and what it - skillmatrix · a first-time worker",
       "pages": [
@@ -1117748,12 +1118504,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the verbal persuasion source is proven on skillmatrix as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. skillmatrix.html (verbal persuasion): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: told \"Your growth path: pass a quiz → earn the skill badge → it lands on your Resume automatically.\"; desktop-1280: told \"Your growth path: pass a quiz → earn the skill badge → it lands on your Resume automatically.\". Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages"
+        ]
       }
     },
     {
       "id": "SE108",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "SE",
       "title": "self-efficacy · emotional state: the person can act without fear: the action can be undone or recovered, and it - skillmatrix · a first-time worker",
       "pages": [
@@ -1117808,6 +1118570,14 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the emotional state source is proven on skillmatrix as a first-time worker at both viewports, with a receipt"
+      },
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. skillmatrix.html (emotional state): measured by tools/prove_self_efficacy_pages.mjs as a first-time worker (worker) of Ramos Jeepney Line, an account made for the walk and removed after it (Playwright Chromium; page views kept out of the ledger) - phone-390: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live; desktop-1280: 0 destructive act(s) on the page, each behind its confirm sentence - the page destroys nothing; deletes stay recoverable (SL D3, gate deletes-are-recoverable) and recovery-path walks each control live. Gate self-efficacy-pages.",
+      "artifacts": {
+        "gates": [
+          "self-efficacy-pages",
+          "deletes-are-recoverable",
+          "recovery-path"
+        ]
       }
     },
     {

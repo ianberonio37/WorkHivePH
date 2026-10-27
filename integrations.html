@@ -410,6 +410,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <p data-i="p_importfile_173d" style="font-size:.75rem; font-weight:700; color:var(--gold);">Import File</p>
           </div>
           <p data-i="p_haveolddatainsapmaximooranyc_1d89" style="font-size:0.75rem; color:rgba(255,255,255,0.80); line-height:1.5;">Have old data in SAP, Maximo, or any CMMS? Export a CSV and upload it here. One upload brings your whole history into WorkHive.</p>
+          <!-- ★WHAT THE FILE LOOKS LIKE (T2 SE vicarious, 2026-10-27): the column map and the preview appear only after an upload,
+               so a first-timer met "export a CSV" with no picture of the rows it wants. One example row in the importer's own
+               fields (normalizeRow: external_id, machine, created_at, maintenance_type, problem, action, actual_hours, status). -->
+          <p class="int-example" style="margin-top:8px; font-size:0.75rem; color:rgba(255,255,255,0.80); line-height:1.5;"><strong>A work-order export reads like this:</strong>
+            one row per job, e.g. WO-1042 · C-201 · 2026-03-14 · Breakdown · bearing noise · replaced bearing 6205 · 1.5 h · Closed. The next step maps your column names to these.</p>
           <button onclick="switchTab('import')" style="margin-top:12px; width:100%; padding:8px; min-height:44px; background:rgba(247,162,27,0.12); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); font-size:0.75rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="starthere">Start here →</button>
         </div>
 
@@ -2495,7 +2500,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     const _label = { work_order:'work orders', asset:'assets', pm_schedule:'PM schedules', inventory:'inventory items' }[_entityType] || 'records';
-    showToast('Import complete! ' + whFmtNum(imported) + ' ' + _label + ' imported.');
+    // where they landed (T2 SE): work orders are written to the logbook, assets to asset_nodes, PM schedules to
+    // pm_assets + pm_scope_items, parts to inventory_items - each lands on the page that shows it
+    const _where = { work_order: 'in your Logbook, and they count toward Analytics (MTBF, MTTR)', asset: 'in your Asset Hub',
+                     pm_schedule: 'in your PM Scheduler', inventory: 'in your Inventory' }[_entityType] || 'in your hive';
+    showToast('Import complete: ' + whFmtNum(imported) + ' ' + _label + ' are ' + _where + ' now.');
     loadImportHistory();
   }
 

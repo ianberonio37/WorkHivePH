@@ -2083,7 +2083,9 @@ function renderDayplannerSummary() {
   } else if (todayCount === 0 && weekCount === 0) {
     tone = 'empty'; label = _t('No plan yet', 'Wala pang plano');
     // the views were named DILO / WILO / MILO / YILO here, while the tabs a person presses say Day, Week, Month, Year
-    sub  = _t('Tap + Schedule to add tasks. The Day, Week, Month and Year tabs show your plan at each scale.',
+    // ★SEE A PLANNED SLOT FIRST (T2 SE vicarious, 2026-10-27): at a phone width the open-items list is folded away and the
+    // empty plan said only "Tap + Schedule" - nothing on screen showed what a planned task looks like. One example slot.
+    sub  = _t('Tap + Schedule to add tasks. A planned slot reads like this: 08:00-09:00 · PM · change engine oil on Truck 3. The Day, Week, Month and Year tabs show your plan at each scale.',
               'Pindutin ang + Schedule para magdagdag ng item. Ang DILO / WILO / MILO / YILO na view ay sumisid sa araw / linggo / buwan / taon.');
   } else {
     tone = 'healthy'; label = _t('Day plan looks manageable', 'Kayang-kaya ang plano ng araw');

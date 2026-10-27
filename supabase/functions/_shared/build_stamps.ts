@@ -7,7 +7,7 @@ export const BUILD_STAMPS: Record<string, string> = {
   "agentic-rag-loop": "c1cd2bbd3f63",
   "ai-eval-runner": "247cd8a9622a",
   "ai-gateway": "b9eb86fb27be",
-  "ai-orchestrator": "42afb29860de",
+  "ai-orchestrator": "1673cf900a98",
   "amc-orchestrator": "2528a0f6b13c",
   "analytics-orchestrator": "1e98540902f0",
   "asset-brain-query": "7610c8460891",

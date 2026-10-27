@@ -155,6 +155,12 @@ def build_probe(gt: dict, owners: list[str], probe_row: dict, bind_row: str | No
     out = []
     for i, o in enumerate(owners):
         out.append(f"select embedding::text as q{i} from public.fault_knowledge where id = {lit(probe_row[o])} \\gset")
+        # R4's question vector: the hive row FARTHEST from this owner's row, so an own scope riding ivfflat (probes=1)
+        # scans a list that cannot hold the owner's rows. A nearby hive row left the OR-predicate mutant passing
+        # whenever the owner's fresh rows happened to sit in the probed list (2026-10-27).
+        out.append(f"select f.embedding::text as far{i} from public.fault_knowledge f where f.hive_id is not null "
+                   f"and f.embedding is not null order by f.embedding <=> (select embedding from public.fault_knowledge "
+                   f"where id = {lit(probe_row[o])}) desc limit 1 \\gset")
     for j, m in enumerate(gt["members"]):
         out.append(f"select embedding::text as h{j} from public.fault_knowledge where id = {lit(m['qrow'])} \\gset")
     out.append("BEGIN;")
@@ -201,19 +207,27 @@ def build_probe(gt: dict, owners: list[str], probe_row: dict, bind_row: str | No
             # single OR predicate then rode the ivfflat index (probes=1) and returned 1 of an owner's 3 rows. So the
             # own scope is also asked here through a prepared statement under force_generic_plan, with a question
             # vector that is NOT the owner's own row (a hive row), and must return every embedded row of theirs.
-            qv = ":'h0'" if gt["members"] else ":'q0'"
             out.append("SET LOCAL plan_cache_mode = force_generic_plan;")
+            # and the planner's worst case: on today's statistics the OR predicate ran an exact BitmapOr on the hive_id
+            # index, so the mutant returned every row and the self-test could not tell it from the fenced function.
+            # With no sequential or bitmap path, a scope the vector index CAN serve is served by it (probes=1); the
+            # real function's OFFSET 0 / MATERIALIZED fences stay exact either way (measured: 3 of 3 vs 0 of 3).
+            out.append("SET LOCAL enable_seqscan = off;")
+            out.append("SET LOCAL enable_bitmapscan = off;")
             out.append("PREPARE own_g(vector, uuid, integer, uuid) AS "
                        "SELECT id::text FROM public.search_fault_knowledge($1, $2, $3, $4);")
             out.append("PREPARE own_ga(vector, uuid, integer, uuid) AS "
                        "SELECT md5(summary) FROM public.search_all_knowledge($1, $2, $3, $4) WHERE source = 'fault';")
-            for o in owners:
+            for i, o in enumerate(owners):
+                qv = f":'far{i}'"
                 out.append(f"SELECT 'GB' || chr(31) || {lit(o)};")
                 out.append(f"EXECUTE own_g({qv}::vector, NULL, 1000, {lit(o)}::uuid);")
                 out.append(f"SELECT 'GAB' || chr(31) || {lit(o)};")
                 out.append(f"EXECUTE own_ga({qv}::vector, NULL, 1000, {lit(o)}::uuid);")
                 out.append("SELECT 'GE';")
             out.append("SET LOCAL plan_cache_mode = auto;")
+            out.append("SET LOCAL enable_seqscan = on;")
+            out.append("SET LOCAL enable_bitmapscan = on;")
         out.append("RESET ROLE;")
     out.append("ROLLBACK;")
     return "\n".join(out) + "\n"
@@ -347,7 +361,15 @@ def _function(src: str, name: str) -> tuple[list[str], str] | None:
     params = [re.split(r"[\s:?=]", p.strip(), maxsplit=1)[0]
               for p in src[m.end(): p_end - 1].split(",") if p.strip()]
     b = src.find("{", p_end)
-    b_end = _balanced(src, b, "{", "}") if b >= 0 else -1
+    if b < 0:
+        return None
+    # A top-level function closes at the first "}" in column 0. Counting braces read the "{" inside orchestrate's regex
+    # literal /^[\[{`]/ as code, never found the close, and failed R10 on correct code (2026-10-27) - skipping quotes
+    # would not help, the same character class holds a backtick. Nested functions keep the count.
+    line_start = src.rfind("\n", 0, m.start()) + 1
+    top_level = not src[line_start: m.start()].strip(" \t").replace("async", "").replace("export", "").strip()
+    close = src.find("\n}", b) if top_level else -1
+    b_end = close + 2 if close >= 0 else _balanced(src, b, "{", "}")
     return (params, src[b: b_end]) if b_end > 0 else None
 
 
@@ -509,7 +531,9 @@ def check_orchestrator_solo(oc: str, ss: str) -> list[str]:
             fails.append(f"R10 ai-orchestrator's solo search headers `{ident}` are not the request's own Authorization "
                          f"({'; '.join(built) or 'never built'}) - the search would run as someone the gate never verified")
         for a in re.finditer(rf"(?<![\w.]){re.escape(ident)}\s*=(?![=>])", oc):
-            if not _guarded_by(oc, a.start(), r"!\s*hive_id\b") or not _guarded_by(oc, a.start(), r"_serviceKey"):
+            # the service-caller test is isServiceRoleBearer() since f1450972 (`_isService`: the runtime key or the
+            # scheduler's internal secret) - the older inline compare named `_serviceKey`
+            if not _guarded_by(oc, a.start(), r"!\s*hive_id\b") or not _guarded_by(oc, a.start(), r"!\s*_isService\b|_serviceKey"):
                 fails.append(f"R10 ai-orchestrator builds `{ident}` outside the no-hive, non-service-role branch")
                 break
         trust = TRUST_CONST.findall(oc)
@@ -758,7 +782,7 @@ SOURCE_MUTANTS = [
      r"\{ \"Authorization\": req\.headers\.get\(\"Authorization\"\) \|\| \"\" \}",
      '{ "Authorization": String((body as any).authorization || "") }'),
     ("ai-orchestrator building the person's headers for a hive turn too", "R10", "orch",
-     r"if \(!hive_id && !\(_bearer && _serviceKey && _bearer === _serviceKey\)\) \{\n      _soloSearchHeaders",
+     r"if \(!hive_id && !_isService\) \{\n      _soloSearchHeaders",
      "if (true) {\n      _soloSearchHeaders"),
     ("ai-orchestrator relaying the gateway header unverified", "R10", "orch",
      r"const _soloViaGateway = await isTrustedGatewayForward\(req\);", "const _soloViaGateway = true;"),

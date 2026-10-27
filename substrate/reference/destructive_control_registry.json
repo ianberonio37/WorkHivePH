@@ -34,65 +34,65 @@
         "message_head": "Make this post public? Workers in every other hive will be able to read it in their Global feed."
       },
       {
-        "line": 3042,
+        "line": 3044,
         "message_head": "Copy this link:"
       }
     ],
     "dayplanner.html": [
       {
-        "line": 3147,
+        "line": 3149,
         "message_head": "Remove this scheduled item?"
       },
       {
-        "line": 3316,
+        "line": 3318,
         "message_head": "A link wants to add \""
       }
     ],
     "engineering-design.js": [
       {
-        "line": 29072,
+        "line": 29096,
         "message_head": "Delete this calculation?"
       },
       {
-        "line": 29225,
+        "line": 29250,
         "message_head": "Remove ${label} from the BOM?"
       }
     ],
     "hive.html": [
       {
-        "line": 3034,
+        "line": 3041,
         "message_head": "Deactivate your account? Your name and email will be permanently anonymized and you will lose"
       },
       {
-        "line": 3048,
+        "line": 3055,
         "message_head": "Your account has been deactivated and your personal data anonymized."
       },
       {
-        "line": 3192,
+        "line": 3199,
         "message_head": "${_coSups[0]}${_coSups.length > 1 ? ' and others' : ''} also supervise${_coSups.length > 1 ? '' : 's'} this hive, so it keeps a supervisor w"
       },
       {
-        "line": 3207,
+        "line": 3214,
         "message_head": "Leave this hive? You'll lose access to its board and can't post here anymore. Your past logbook entries stay in the hive's records."
       },
       {
-        "line": 3237,
+        "line": 3244,
         "message_head": "You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it ca"
       },
       {
-        "line": 3448,
+        "line": 3455,
         "message_head": "Rename this hive. Everyone in it will see the new name."
       },
       {
-        "line": 5130,
+        "line": 5137,
         "message_head": "Reset ${workerName}'s password? You'll get a one-time temporary password to give them. They should change it after signing in."
       },
       {
-        "line": 5157,
+        "line": 5164,
         "message_head": "Temporary password for ${workerName}:\\n\\n${data.temp_password}\\n\\nGive this to ${workerName} now; it won't be shown again. Ask them to chang"
       },
       {
-        "line": 6414,
+        "line": 6421,
         "message_head": "Reject \"${label}\" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing."
       }
     ],
@@ -132,15 +132,15 @@
     ],
     "integrations.html": [
       {
-        "line": 1518,
+        "line": 1523,
         "message_head": "Remove everything this wizard just created? This deletes the vehicle, its PM schedule"
       },
       {
-        "line": 3016,
+        "line": 3025,
         "message_head": "Revoke this API key? Any integrations using it will stop working."
       },
       {
-        "line": 3080,
+        "line": 3089,
         "message_head": "Undo this import? This will delete the ${entityType} records from external_sync and attempt to remove the corresponding logbook/asset/invent"
       }
     ],
@@ -156,15 +156,15 @@
     ],
     "logbook.html": [
       {
-        "line": 2370,
+        "line": 2377,
         "message_head": "Discard this offline save? It was never saved to the server, so it will be gone."
       },
       {
-        "line": 3139,
+        "line": 3146,
         "message_head": "Delete this entry? Any XP it earned is taken back. You can restore it from Recently deleted for at least 30 days."
       },
       {
-        "line": 3518,
+        "line": 3525,
         "message_head": "Remove this asset from the registry? It and its reliability history (Weibull fits, FMEA modes,"
       }
     ],
@@ -184,11 +184,11 @@
     ],
     "marketplace-seller.html": [
       {
-        "line": 2130,
+        "line": 2135,
         "message_head": "Delete \"${item.title}\"? This cannot be undone."
       },
       {
-        "line": 3246,
+        "line": 3251,
         "message_head": "Cancel this job? The client will be notified."
       }
     ],
@@ -198,15 +198,15 @@
         "message_head": "Delete this saved search? This cannot be undone."
       },
       {
-        "line": 4836,
+        "line": 4837,
         "message_head": "You already hailed this at the same address in the last few minutes, and providers are still being notified about it. Hail a second one?"
       },
       {
-        "line": 5475,
+        "line": 5476,
         "message_head": "What went wrong with this job?"
       },
       {
-        "line": 5504,
+        "line": 5505,
         "message_head": "Cancel this request?"
       }
     ],
@@ -304,11 +304,11 @@
     ],
     "report-sender.html": [
       {
-        "line": 1459,
+        "line": 1467,
         "message_head": "Send this report to ${_who}? This address is not a saved contact, and a sent report cannot be recalled."
       },
       {
-        "line": 1788,
+        "line": 1796,
         "message_head": "Remove ${_c && _c.name ? _c.name : 'this contact'} from your report recipients?"
       }
     ],

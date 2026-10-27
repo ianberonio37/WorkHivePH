@@ -465,6 +465,8 @@ Include only the agents relevant to the question. Use at least 1 and at most 4 a
 // the right word. Kept short deliberately: this prompt is paid for on every single call.
 // the header ai-gateway puts on a hive-less person's own records (buildSoloSnapshot, LM166/LM170)
 const SOLO_RECORDS_HEAD = "=== YOUR OWN RECORDS";
+// the header ai-gateway puts on the reference chunks it retrieved for THIS question (formatPersonaKnowledge, persona-knowledge.ts)
+const DOMAIN_KNOWLEDGE_HEAD = "DOMAIN KNOWLEDGE (";
 
 const SYNTH_SYSTEM = `You are a senior maintenance manager AI. Given agent results, write a clear, practical answer to the user's question.
 Be specific: name actual machines, workers, parts. Use bullet points for lists. Keep it under 200 words.
@@ -621,6 +623,22 @@ async function orchestrate(question: string, hiveId: string | null, workerName: 
     const end = memoryBlock.indexOf("\n\n", at);
     const solo = memoryBlock.slice(at, end === -1 ? undefined : end).trim();
     if (solo) successfulResults.push({ agent: "your_own_records", result: solo });
+  }
+
+  // ★A NEW HIVE'S BASIC QUESTION WAS DEFLECTED WITH THE ANSWER IN HAND (production flow 3, 2026-10-27). "In one sentence:
+  // what does MTBF measure?" from an empty hive: every specialist reads hive records, so all returned nothing and the
+  // branch below said "none of my sources returned anything" - while the gateway had already retrieved, for this very
+  // question, ISO 14224's definition of MTBF at 76% (persona_knowledge, above its 0.30 floor). That block is the reference
+  // the answer rests on, so it reaches synthesis as agent data, like a solo owner's records. Only when nothing else
+  // answered (with hive data the block already reaches synthesis inside the conversation memory), and never for a
+  // question that names an asset: that one is about a machine, and the branch below answers an unregistered code as
+  // "There is no asset C-201 registered in this hive" (LM113) - a reference chunk would have skipped that answer.
+  if (!successfulResults.length && memoryBlock && memoryBlock.includes(DOMAIN_KNOWLEDGE_HEAD)
+      && !mentionedAssetCodes(question).length) {
+    const at = memoryBlock.indexOf(DOMAIN_KNOWLEDGE_HEAD);
+    const end = memoryBlock.indexOf("\n\n", at);
+    const domain = memoryBlock.slice(at, end === -1 ? undefined : end).trim();
+    if (domain) successfulResults.push({ agent: "domain_knowledge", result: domain });
   }
 
   if (!successfulResults.length) {

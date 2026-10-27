@@ -2792,9 +2792,11 @@ function _isMinePost(p) {
     // returning member whose older posts aren't in the loaded page never gets a false "First Post! +50".
     const isFirstPost = (_myServerPostCount === 0) && (myPostIds.size === 0);
     const isSafety    = category === 'safety';
-    if      (isFirstPost && isSafety) showToast('+75 XP · First Post + Safety! 🎉🛡️');
-    else if (isFirstPost)             showToast('+50 XP · First Hive Post! 🎉');
-    else if (isSafety)                showToast('+25 XP · Safety Post! 🛡️');
+    // the XP branches say where the post went too (T2 SE): a first post's toast named only the reward, so the person a
+    // first post matters to most learned least about who now sees it
+    if      (isFirstPost && isSafety) showToast('+75 XP · First Post + Safety! 🎉🛡️ Visible to your hive now.');
+    else if (isFirstPost)             showToast('+50 XP · First Hive Post! 🎉 Visible to your hive now.');
+    else if (isSafety)                showToast('+25 XP · Safety Post! 🛡️ Visible to your hive now.');
     // NAMES THE EFFECT, like asset-hub's '→ feeds this asset's risk score'. The XP branches above
     // already tell a person what their post earned; the plain branch said only that it existed, so
     // whoever posts without an XP bonus learns least about where their words went.

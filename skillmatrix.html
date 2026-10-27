@@ -404,6 +404,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
       <!-- SL F1 (2026-10-16): the first-run state is the matrix's EMPTY state, and it never said so - it opened on the
            target levels. It now names what is empty and the one step that starts it. -->
       <p>No skill matrix yet. Pick your primary discipline to start one. It aims for Level 5, and every other discipline starts at Level 2. You can change any target later.</p>
+      <!-- ★SEE ONE FILLED IN (T2 SE vicarious, 2026-10-27): the first-run state described the matrix in words only; a first-timer
+           had no picture of what they were starting. One line in the matrix's own terms (a target beside a current level). -->
+      <p class="sm-example" style="font-size:0.75rem;opacity:0.85;margin:0.5rem 0 1rem;line-height:1.5;"><strong>A filled-in matrix reads like this:</strong>
+        Mechanical, target Level 5, now Level 3 · Electrical, target Level 2, now Level 2 · each badge you earn moves "now" toward the target.</p>
       <div class="primary-picker" id="primary-picker">
         <!-- injected by JS -->
       </div>
@@ -1042,7 +1046,8 @@ function showOnboarding() {
 
     _profile = { primary_skill: selectedPrimary, targets }; _smMarkTargetsSaved();
     document.getElementById('onboarding-section').style.display = 'none';
-    showToast('Profile saved! Welcome to Skill Matrix.', '🎯');
+    // what was started and where it shows (T2 SE: "Profile saved!" told the act, not that the matrix now exists)
+    showToast('Skill matrix started: your targets now show on this page, Level 5 for ' + selectedPrimary + ' and Level 2 for the rest.', '🎯');
     showMatrix();
   });
 }

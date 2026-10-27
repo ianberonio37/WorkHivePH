@@ -2184,7 +2184,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           .from('marketplace_watchlist')
           .insert([{ worker_name: WORKER_NAME, listing_id: listingId }]);
         if (error) throw error;
-        showToast('Saved to watchlist.', 'success');
+        // where it went and how to come back to it (T2 SE: "Saved to watchlist." told the act and not where to find it)
+        showToast('Saved to your watchlist: open Watchlist at the top to find it again.', 'success');
         if (typeof whUse === 'function') whUse(db, 'listing_watched');
       }
     } catch (_err) {

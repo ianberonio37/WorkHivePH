@@ -1013,7 +1013,7 @@ function dayplannerJourneys() {
         const recoverable = await h.exists('#m-required-error') || modal;
         await clickByText(h, 'saveScheduleItem');
         await page.waitForTimeout(2500);
-        const cnt = h.adminQuery(`select count(*) from schedule_items where title like '${tag}%' and worker_name='Bryan Garcia';`);
+        const cnt = h.adminQuery(`select count(*) from schedule_items where title like '${tag}%' and worker_name='${h.name || 'Bryan Garcia'}';`);
         const persisted = (typeof cnt === 'string') && parseInt(cnt, 10) > 0;
         h.adminQuery(`delete from schedule_items where title like '${tag}%';`);
         return { R: reach, J: modal && persisted, T: persisted, C: !!recoverable, X: persisted, evidence: { reach, modal, persisted, cnt }, findings: [] };
@@ -1331,7 +1331,7 @@ function communityJourneys() {
         // JS click — #btn-submit-post sits below the composer-sheet fold (Playwright click = "outside viewport")
         await h.evalIn(() => { const b = document.getElementById('btn-submit-post'); if (b) b.click(); });
         await page.waitForTimeout(2200);
-        const cnt = h.adminQuery(`select count(*) from community_posts where content like '%${nonce}%' and hive_id='${h.hive || HIVE}' and author_name='Bryan Garcia';`);
+        const cnt = h.adminQuery(`select count(*) from community_posts where content like '%${nonce}%' and hive_id='${h.hive || HIVE}' and author_name='${h.name || 'Bryan Garcia'}';`);
         const persisted = (typeof cnt === 'string') && parseInt(cnt, 10) > 0;
         h.adminQuery(`delete from community_posts where content like '%${nonce}%';`);
         return { R: reach, J: persisted, T: persisted, C: true, X: persisted, evidence: { nonce, persisted, cnt }, findings: [] };
@@ -2486,14 +2486,14 @@ function marketplaceJourneys() {
       drive: async (page, h) => {
         await reachMkt(h); await h.waitFor('.listing-card', 8000);
         const lid = await h.evalIn(() => { const b = document.querySelector('.heart-btn[data-listing]'); return b ? b.getAttribute('data-listing') : null; });
-        if (lid) h.adminQuery(`delete from marketplace_watchlist where worker_name='Bryan Garcia' and listing_id='${lid}';`);
+        if (lid) h.adminQuery(`delete from marketplace_watchlist where worker_name='${h.name || 'Bryan Garcia'}' and listing_id='${lid}';`);
         const clicked = await h.evalIn(() => { const b = document.querySelector('.heart-btn[data-listing]'); if (b) { b.click(); return true; } return false; });
         await page.waitForTimeout(1500);
-        const cnt = lid ? h.adminQuery(`select count(*) from marketplace_watchlist where worker_name='Bryan Garcia' and listing_id='${lid}';`) : '0';
+        const cnt = lid ? h.adminQuery(`select count(*) from marketplace_watchlist where worker_name='${h.name || 'Bryan Garcia'}' and listing_id='${lid}';`) : '0';
         const saved = (typeof cnt === 'string') && parseInt(cnt, 10) > 0;
         await h.evalIn(() => { try { window.openWatchlistSheet && window.openWatchlistSheet(); } catch (e) {} });
         const sheet = await h.waitFor('#sheet-watchlist, #watchlist-content, [id*="watchlist"]', 4000);
-        if (lid) h.adminQuery(`delete from marketplace_watchlist where worker_name='Bryan Garcia' and listing_id='${lid}';`);
+        if (lid) h.adminQuery(`delete from marketplace_watchlist where worker_name='${h.name || 'Bryan Garcia'}' and listing_id='${lid}';`);
         return { R: null, J: clicked && saved, T: saved, C: !!sheet, X: null, evidence: { lid, saved, sheet: !!sheet }, findings: [] };
       },
     },

@@ -226,7 +226,7 @@ def lit(s):
     return "'" + str(s).replace("'", "''") + "'"
 
 
-def claim(batch, only_source=None):
+def claim(batch, only_source=None, only_rows=None):
     """Claim up to `batch` due jobs. One statement, so two workers can never take the same row.
 
     THE LEASE IS LOAD-BEARING, and the self-test is what proved it. `FOR UPDATE SKIP LOCKED` only excludes
@@ -245,11 +245,15 @@ def claim(batch, only_source=None):
     # failure for an entry that was never really attempted, and it has been the written-only baseline
     # ever since. A test that mutates the queue it is testing must claim ONLY its own rows.
     source_filter = "and source_table = " + lit(only_source) if only_source else ""
+    # --rows: the jobs of named source rows only, wherever they sit in the queue (a fixture's 6 rows behind 17,744
+    # older jobs on a laptop whose relay had stopped - 2026-10-27)
+    row_filter = ("and row_id = any(array[" + ",".join(lit(r) for r in only_rows) + "])") if only_rows else ""
     sql = f"""
     with due as (
       select id from public.embedding_outbox
        where done_at is null
          {source_filter}
+         {row_filter}
          and next_attempt_at <= now()
          and (claimed_at is null or claimed_at < now() - interval '{LEASE_SECONDS} seconds')
        order by id
@@ -355,13 +359,14 @@ def main(argv):
     ap.add_argument("--batch", type=int, default=25)
     ap.add_argument("--max-attempts", type=int, default=MAX_ATTEMPTS)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--rows", default="", help="comma-separated source row ids: drain only their jobs")
     ap.add_argument("--selftest", action="store_true")
     a = ap.parse_args(argv)
     if a.selftest:
         return selftest()
 
     print(f"{BOLD}Embedding outbox relay{RST}")
-    jobs, err = claim(a.batch)
+    jobs, err = claim(a.batch, only_rows=[r.strip() for r in a.rows.split(",") if r.strip()] or None)
     if jobs is None:
         print(f"  {YEL}SKIP{RST} database unavailable ({err})")
         return 0

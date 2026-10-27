@@ -119,6 +119,20 @@ async function loadOne(ctx, url, settle, { authed }) {
   let status = 0, sw = '';
   page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text().slice(0, 160)); });
   page.on('pageerror', (e) => errs.push('PAGEERROR ' + String(e.message).slice(0, 160)));
+  // ★EVERY LIBRARY THE PAGE PULLS FROM ANOTHER HOST, ANSWERED (BRH-AG, 2026-10-27). The worker answered 503 for
+  // html2pdf and Mermaid on a returning visit (its fetch obeyed sw.js's own CSP, which named no CDN): the page loaded and
+  // its PDF export and diagrams were dead. A console error showed only when a page called the missing global at load,
+  // so the smoke read the page as clean. A script, stylesheet or font from another host that fails or answers >= 400 is
+  // a defect here, and each page says whether the worker served it (pages after the first run under the worker).
+  const libs = [];
+  const isLib = (u, t) => !u.startsWith(BASE) && /^https?:/.test(u) && ['script', 'stylesheet', 'font'].includes(t);
+  page.on('response', (r) => {
+    const q = r.request();
+    if (isLib(r.url(), q.resourceType())) libs.push({ url: r.url().slice(0, 120), status: r.status(), sw: r.fromServiceWorker() });
+  });
+  page.on('requestfailed', (q) => {
+    if (isLib(q.url(), q.resourceType())) libs.push({ url: q.url().slice(0, 120), status: 0, failed: (q.failure() || {}).errorText || 'failed' });
+  });
   try {
     const r = await page.goto(`${BASE}/${url}`, { waitUntil: 'domcontentloaded', timeout: 40000 });
     status = r ? r.status() : 0;
@@ -133,16 +147,19 @@ async function loadOne(ctx, url, settle, { authed }) {
       controls: document.querySelectorAll('button, a[href], input, select, textarea').length,
       signedOut: /sign in required|you need to be signed in|please sign in to/i.test(t),
       sw: swv,
+      controlled: !!(navigator.serviceWorker && navigator.serviceWorker.controller),
     };
-  }).catch(() => ({ chars: 0, controls: 0, signedOut: false, sw: '' }));
+  }).catch(() => ({ chars: 0, controls: 0, signedOut: false, sw: '', controlled: false }));
   sw = seen.sw;
   await page.close();
+  for (const l of libs.filter((x) => x.status === 0 || x.status >= 400)) errs.push(`LIB ${l.status || l.failed}${l.sw ? ' (from the worker)' : ''} ${l.url}`);
   const thin = seen.chars < THIN && seen.controls < 5;
   const httpBad = status && status >= 400;
   // signed-out only counts against an AUTHED page; a public page is anon by design
   const wrongSignedOut = authed && seen.signedOut;
   const ok = !errs.length && !thin && !httpBad && !wrongSignedOut;
-  return { url, status, chars: seen.chars, controls: seen.controls, sw,
+  return { url, status, chars: seen.chars, controls: seen.controls, sw, controlled: seen.controlled,
+    libs: libs.length, libs_from_worker: libs.filter((x) => x.sw).length,
     signedOut: seen.signedOut, thin, errors: errs, ok };
 }
 
