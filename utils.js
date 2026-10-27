@@ -6870,6 +6870,7 @@ if (typeof window !== 'undefined' && !window.WH_STATUS_ENUMS) {
 // grammar in whAuditLabel. Every <thing> it can write must be in WH_AUDIT_THINGS (the gate reads the attachments).
 const WH_AUDIT_ACTIONS = {
   // Membership and the hive itself
+  hive_created:                { icon: '+',  label: 'Created the hive', tone: 'pos' },
   member_joined:               { icon: '+',  label: 'Joined', tone: 'pos' },
   member_left:                 { icon: '↩',  label: 'Left hive' },
   member_leave_refused:        { icon: '⚠',  label: 'Tried to leave - membership kept', tone: 'sec' },

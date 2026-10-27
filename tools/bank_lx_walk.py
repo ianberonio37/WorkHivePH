@@ -280,6 +280,16 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
         if not writes:
             return "n/a", (f"offers this person no write at this width, so nothing they do here has a trail to leave "
                            f"({src[1][:120]})")
+        # ★A PERSON WITH NO HIVE HAS NO TRAIL ROW TO FIND BEFORE THEIR FIRST ACT (2026-10-28). The postgres witness counts
+        # rows naming them, which is zero for anybody who has not yet created or joined a hive - true of every first
+        # visit, so it failed the honest case for ever. Their trail is judged where it is decided: the page they were
+        # actually shown (community sends them to hive.html's Create / Join) must write its acts to the trail.
+        if ctx.get("noHive"):
+            s2 = ctx.get("trailSrcShown") or src
+            if s2[0] == "BAD":
+                return "FAIL", f"offers {', '.join(writes[:5])} on {ctx.get('shownPage')}; {s2[1]}"
+            return "ok", (f"offers {', '.join(writes[:5])} on {ctx.get('shownPage')}; this person holds no hive, so no trail "
+                          f"row can name them before their first act - the write path reaches the trail ({s2[1][:160]})")
         if src[0] == "BAD":
             return "FAIL", f"offers {', '.join(writes[:5]) or 'no visible write'}; {src[1]}"
         if not ctx.get("trailOk"):
@@ -465,6 +475,10 @@ def main() -> int:
                 ctx["trailPg"] = (f"postgres: {n} trail row(s) in this person's hive in 90 days, {actors} distinct actor(s), the newest "
                                   f"\"{latest}\" - readable later on audit-log.html by the hive's supervisor")
             else:
+                ctx["noHive"] = True
+                shown = (((vps.get("phone-390") or {}).get("healthy") or {}).get("url") or page)
+                ctx["shownPage"] = shown
+                ctx["trailSrcShown"] = tr.check_page(shown) if shown != page and (ROOT / shown).exists() else ctx["trailSrc"]
                 pg = psql("select count(*)||'|'||coalesce(max(to_char(created_at,'YYYY-MM-DD')),'') from hive_audit_log where actor = '%s'" % (cast or "").replace("'", "''"))
                 n, last = (pg[0].split("|") + ["", ""])[:2] if pg else ("0", "")
                 ctx["trailOk"] = int(n or 0) > 0

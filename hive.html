@@ -2744,6 +2744,11 @@ async function submitCreate() {
   saveHiveList([..._existing, { id: hive.id, name: hive.name, role: 'supervisor', code }]);
   HIVE_ID = hive.id; HIVE_NAME = hive.name;
   applyHiveRole('supervisor');   // creating a hive makes you its supervisor: paint must follow immediately
+  // ★WHO MADE THIS HIVE, AND WHEN, WAS IN NO TRAIL (2026-10-28, CX walk: a hive-less person is offered Create and Join).
+  // Joining writes member_joined, a rename hive_renamed, a leave member_left - creating the hive wrote nothing, so the
+  // audit log a supervisor reads began at its first join. Written once the creator is a member (the trail's RLS is an
+  // active member), named for the hive like member_joined.
+  writeAuditLog('hive_created', 'hives', hive.id, hive.name, {});
 
   document.getElementById('code-hive-name').textContent = hive.name || '';  // textContent is XSS-safe; escHtml would double-escape (P4-01 fix, matches board-hive-name at ~1854)
   document.getElementById('code-value').textContent = code;
