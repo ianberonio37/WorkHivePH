@@ -4,7 +4,7 @@
 // Order: fastest / most generous limits first, deeper fallbacks last.
 // Only permanently free tiers — no credits that expire.
 //
-// AI_ASSET_VERSION: 13
+// AI_ASSET_VERSION: 14
 // v12 (2026-10-09): no model or order change. Exports aiAnswered(): the chain's "{}" (every provider failed, or a
 // local walk asked for no model) is not an answer, so free-text callers stop printing "{}" as a reply or a summary.
 // v11 (2026-10-08, LM-O follow-up): no model or order change. Every SERVED call is reported to the request's model-call
@@ -33,6 +33,9 @@
 // general order tries every conversational model first, and the code_or_sql_generation profile still puts codestral
 // first. Nothing is removed - when everything else is down a code model's answer is still better than none.
 // AI_ASSET_VERSION history continues below.
+// v14 (2026-10-27, the M2 release gate's models_are_live): openrouter no longer serves
+// nvidia/nemotron-3-super-120b-a12b:free (404), so every call through that slot paid a round trip for nothing.
+// Removed, not replaced: the tier keeps gemma-4-31b, laguna-s-2.1, gemma-4-26b, nemotron-3-ultra and dots-3-note.
 // v13 (2026-10-26, OWN dependency lens): a provider that times out is dead for the rest of the call (a slow Google was
 // asked once per model - 75 s, the answer arriving after the request had failed); the walk has a 50 s budget and
 // degrades to the honest sentence; an unusable 200 is not re-asked. Each served call reports its record (LM-O).
@@ -160,7 +163,6 @@ const PROVIDER_CHAIN: ProviderEntry[] = [
 
   // ── Tier 5: OpenRouter — :free models, $0/token, 200 req/day ────────────────
   // Gemma 3/4 family supports vision via OpenAI-compatible image_url blocks.
-  { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "nvidia/nemotron-3-super-120b-a12b:free",    envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" } },
   { provider: "openrouter", baseUrl: "https://openrouter.ai/api/v1", model: "google/gemma-4-31b-it:free",                envKey: "OPENROUTER_API_KEY", extraHeaders: { "HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive" }, vision: true },
   // 2026-10-07: was nvidia/nemotron-3.5-lightning:free, which answers with its reasoning trace as the content and
   // took 96 s on a one-word reply. poolside/laguna-s-2.1:free answered "OK." in 3.8 s (code-leaning, text only).

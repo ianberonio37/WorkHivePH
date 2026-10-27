@@ -325,6 +325,12 @@ def _mcp_for(lens: str, title: str) -> str:
     if PERSONA_RE.match(lens.strip()) or ("→" in hay) or ("->" in hay):
         return "playwright-mcp + postgres-mcp"
     for m, rx in MCP_RES:
+        # ★A PAGE NAMED "INBOX" IS NOT MAIL (2026-10-27). The mail rule matched the SUBJECT - the learn article "plant
+        # alert inbox amc daily brief" - and sent five rows about freshness, IndexNow, browser Back, forced colours and a
+        # stranger's mastery to the mail catcher, where no walk could ever close them (SE259 sat open on a valid walk).
+        # The outbox is a lens's subject only when the LENS says so.
+        if m.startswith("mail-catcher") and not rx.search(lens):
+            continue
         if rx.search(hay):
             return m
     if DB_LENS.search(hay):

@@ -589,7 +589,13 @@ window.whFnError = async function (err, fallback) {
   var _sentence = function (v) {
     return (typeof v === 'string' && /\s/.test(v.trim()) && !/non-2xx/i.test(v)) ? v.trim() : '';
   };
-  var own = body && (_sentence(body.message) || _sentence(body.error)
+  // ★AND ONLY THE FUNCTION'S OWN BODY (2026-10-27). With the edge runtime down, the gateway in front of it answered
+  // 503 {"message": "name resolution failed"} and engineering-design, shift-brain and alert-hub showed a person exactly
+  // that. Every function refusal carries `error` (or ok:false) - 228 bodies lead with it, none with a bare message;
+  // a body without either is the gateway's or the platform's ({message}, {code: "BOOT_ERROR", message}), and its words
+  // are about our machinery, not the person's request. Those fall through to the status line below.
+  var fnBody = body && typeof body === 'object' && (body.error !== undefined || body.ok === false);
+  var own = fnBody && (_sentence(body.message) || _sentence(body.error)
     || (body.error && typeof body.error === 'object' ? _sentence(body.error.message) : ''));
   if (own) return own;
 

@@ -395,8 +395,8 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 1972,
-   "class_tokens": 116,
+   "harvested_tokens": 1976,
+   "class_tokens": 117,
    "bytes": 8300,
    "classes_in_sheet": 56,
    "non_utility_classes": [
@@ -439,6 +439,7 @@
     "related-group",
     "stage-label",
     "toc",
+    "tool-example",
     "wh-fb-actions",
     "wh-fb-body",
     "wh-fb-close",
@@ -557,5 +558,5 @@
    ]
   }
  },
- "generated": "2026-10-23T07:16:29.708Z"
+ "generated": "2026-10-27T10:20:33.665Z"
 }

@@ -1542,7 +1542,7 @@
         .in('risk_level', ['critical', 'high'])
         .order('risk_score', { ascending: false })
         .order('asset_name')   // MR4 tiebreaker: DISTINCT ON (hive_id, asset_name) is the view's key
-        .limit(20),   // cap-ok: rows only (risk feed)
+        .limit(20 + 1),   // more-said: by renderFeed (SL LB1: a 21st critical/high asset says the feed lists the 20 riskiest - a hive held 12 of 20 on 2026-10-27)
 
       // Canonical: inventory_items_truth. The view aliases min_qty as
       // reorder_point — the underlying table has no such column, so the
@@ -1647,6 +1647,10 @@
     // re-deriving one from risk_score with a locally-invented 0.85 cutoff (which could
     // disagree with v_risk_truth for the same asset).
     const _riskLevelByAsset = {};
+    if (riskRes.status === 'fulfilled' && (riskRes.value.data || []).length > 20) {
+      riskRes.value.data = riskRes.value.data.slice(0, 20);
+      _feedCaps.push({ kind: 'risk', said: 'the 20 highest-risk assets' });
+    }
     if (riskRes.status === 'fulfilled') {
       for (const r of (riskRes.value.data || [])) {
         if (r && r.asset_name) _riskLevelByAsset[String(r.asset_name).toLowerCase()] = r.risk_level;

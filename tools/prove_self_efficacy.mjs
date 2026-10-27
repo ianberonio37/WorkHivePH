@@ -15,6 +15,8 @@
 //   node tools/prove_self_efficacy.mjs --learn [--page learn/<slug>/index.html]
 //
 // Report: self_efficacy_report.json, read-merged by mode and page (a narrowed run never erases the others).
+import { removeWalkAccounts } from './lib/walk_accounts.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { chromium } from 'playwright';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
@@ -245,11 +247,13 @@ let bad = 0;
 const strangers = [];
 for (const [vp, size] of Object.entries(VIEWPORTS)) {
   const ctx = await b.newContext({ viewport: size, serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);   // SL LB3: a long list draws every row, so a page's text is the whole page
   // a stranger leaves no ledger trail of a measurement
   await ctx.route('**/rest/v1/analytics_events*', (r) => (r.request().method() === 'POST' ? r.fulfill({ status: 201, body: '' }) : r.continue()));
   let fresh = null;
   if (MODE === 'calc-mastery') {
     fresh = await b.newContext({ viewport: size, serviceWorkers: 'block' });
+    await fresh.addInitScript(ALL_ROWS_DRAWN);
     await fresh.route('**/rest/v1/analytics_events*', (r) => (r.request().method() === 'POST' ? r.fulfill({ status: 201, body: '' }) : r.continue()));
     strangers.push(await freshStranger(fresh));
   }
@@ -261,6 +265,8 @@ for (const [vp, size] of Object.entries(VIEWPORTS)) {
       if (fresh && fresh.__computed >= 25) {
         await fresh.close();
         fresh = await b.newContext({ viewport: size, serviceWorkers: 'block' });
+        await fresh.addInitScript(ALL_ROWS_DRAWN);
+    await fresh.addInitScript(ALL_ROWS_DRAWN);
         await fresh.route('**/rest/v1/analytics_events*', (r) => (r.request().method() === 'POST' ? r.fulfill({ status: 201, body: '' }) : r.continue()));
         strangers.push(await freshStranger(fresh));
       }
@@ -313,12 +319,9 @@ for (const [vp, size] of Object.entries(VIEWPORTS)) {
 await b.close();
 // the fixture is "removed after the walk": the stranger accounts this run made, and only those
 if (strangers.length) {
-  const names = strangers.map((u) => `'${u}'`).join(',');
-  const emails = strangers.map((u) => `'${u}@auth.workhiveph.com'`).join(',');
-  try {
-    execSync(`docker exec -i supabase_db_workhive psql -U postgres -d postgres -tA -c "delete from worker_profiles where username in (${names}); delete from auth.users where email in (${emails});"`, { encoding: 'utf8' });
-    console.log(`  removed ${strangers.length} stranger account(s): ${strangers.join(', ')}`);
-  } catch (e) { console.log(`  WARN could not remove the stranger accounts (${strangers.join(', ')}): ${String(e).slice(0, 120)}`); }
+  // the account leaves with everything its computations wrote (tools/lib/walk_accounts.mjs)
+  try { removeWalkAccounts(strangers); console.log(`  removed ${strangers.length} stranger account(s) and what they wrote: ${strangers.join(', ')}`); }
+  catch (e) { console.log(`  WARN could not remove the stranger accounts (${strangers.join(', ')}): ${String(e).slice(0, 120)}`); }
 }
 prev[MODE] = out;
 writeFileSync(REPORT, JSON.stringify(prev, null, 1) + '\n');

@@ -104,8 +104,7 @@ _CHAIN: list[_Provider] = [
     # v9: fills a slot Cerebras held. Mirrors the TS chain.
     _Provider("mistral", "https://api.mistral.ai/v1", "mistral-small-latest",  "MISTRAL_API_KEY"),
     # Tier 5: OpenRouter (200 req/day on :free models)
-    _Provider("openrouter", "https://openrouter.ai/api/v1", "nvidia/nemotron-3-super-120b-a12b:free",
-              "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
+    # (v14: nvidia/nemotron-3-super-120b-a12b:free removed - openrouter answers 404 for it; mirrors the TS chain)
     _Provider("openrouter", "https://openrouter.ai/api/v1", "google/gemma-4-31b-it:free",
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
     _Provider("openrouter", "https://openrouter.ai/api/v1", "google/gemma-4-26b-a4b-it:free",

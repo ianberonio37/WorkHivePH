@@ -13,6 +13,8 @@
 //
 //   node tools/prove_self_efficacy_pages.mjs [--page logbook.html]
 // Report: self_efficacy_pages_report.json, read-merged per page.
+import { removeWalkAccounts } from './lib/walk_accounts.mjs';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { chromium } from 'playwright';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
@@ -213,6 +215,7 @@ for (const page of pages) {
     const ctx = await b.newContext({ viewport: size, serviceWorkers: 'block' });
     await ctx.route('**/rest/v1/analytics_events*', (r) => (r.request().method() === 'POST' ? r.fulfill({ status: 201, body: '' }) : r.continue()));
     await ctx.addInitScript(TOLD);
+    await ctx.addInitScript(ALL_ROWS_DRAWN);   // SL LB3: a long list draws every row, so a page's text is the whole page
     let acted = 0;
     await ctx.exposeBinding('__whAct', () => { acted++; });
     let who = null, v;
@@ -281,13 +284,9 @@ for (const page of pages) {
 }
 await b.close();
 if (made.length) {
-  const names = made.map((u) => `'${u}'`).join(',');
-  try {
-    psql(`delete from hive_members where auth_uid in (select id from auth.users where email in (${made.map((u) => `'${u}@auth.workhiveph.com'`).join(',')}))`);
-    psql(`delete from worker_profiles where username in (${names})`);
-    psql(`delete from auth.users where email in (${made.map((u) => `'${u}@auth.workhiveph.com'`).join(',')})`);
-    console.log(`  removed ${made.length} first-timer account(s)`);
-  } catch (e) { console.log(`  WARN cleanup: ${String(e).slice(0, 160)} (accounts: ${made.join(', ')})`); }
+  // the account leaves with everything its journeys wrote (tools/lib/walk_accounts.mjs)
+  try { removeWalkAccounts(made); console.log(`  removed ${made.length} first-timer account(s) and what they wrote`); }
+  catch (e) { console.log(`  WARN cleanup: ${String(e).slice(0, 160)} (accounts: ${made.join(', ')})`); }
 }
 console.log(`${bad ? 'FAIL' : 'PASS'} self-efficacy pages - ${pages.length * 2 - bad}/${pages.length * 2} page-viewports (report: ${REPORT})`);
 process.exit(bad ? 1 : 0);

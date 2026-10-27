@@ -95,6 +95,27 @@ try {
   }, asset);
   v.read.errs = errs.length;
   console.log(`  answer pane -> ${v.read.text}`);
+
+  // ★AND THE GATEWAY'S WORDS ARE NOT THE FUNCTION'S (2026-10-27). With the edge runtime down, the gateway in front of it
+  // answers 503 {"message": "name resolution failed"} - three pages showed a person exactly that. Only a body the
+  // function itself sent (it carries `error`, or ok:false) may speak; this one must fall to the status line.
+  await page.unroute('**/functions/v1/asset-brain-query*');
+  await page.unroute('**/functions/v1/ai-gateway*');
+  for (const p of ['**/functions/v1/asset-brain-query*', '**/functions/v1/ai-gateway*']) {
+    await page.route(p, (r) => r.fulfill({
+      status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'name resolution failed' }),
+    }));
+  }
+  v.gateway = await page.evaluate(async (assetId) => {
+    const input = document.getElementById('ask-input');
+    if (!input || typeof askAssetBrain !== 'function') return { noInput: true };
+    input.value = 'What repairs has this asset had?';
+    await askAssetBrain(assetId);
+    await new Promise((r) => setTimeout(r, 4000));
+    const t = (document.getElementById('ask-answer')?.innerText || '').replace(/\s+/g, ' ').trim();
+    return { text: t.slice(0, 160), leaksGateway: /name resolution/i.test(t), said: t.length > 10 };
+  }, asset);
+  console.log(`  gateway 503 -> ${v.gateway.text}`);
 } catch (e) {
   v.error = String(e.message || e).slice(0, 170);
   console.log('probe error:', v.error);
@@ -103,8 +124,10 @@ try {
 }
 
 const r = v.read || {};
+const g = v.gateway || {};
 const pass = !v.error && !r.noFn && !r.noInput && r.hasHelper
-  && r.namesQuota && !r.leaksGeneric && r.errs === 0;
+  && r.namesQuota && !r.leaksGeneric && r.errs === 0
+  && !g.noInput && !g.leaksGateway && g.said;
 if (!pass && !v.error) {
   console.log('  The backend named the cause and when it clears. If the pane says "non-2xx" instead,');
   console.log('  the client threw that away and told a rate-limited worker to check their connection.');

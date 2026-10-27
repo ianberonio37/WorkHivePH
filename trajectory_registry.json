@@ -740666,7 +740666,7 @@
     {
       "id": "BRH511",
       "status": "fixing",
-      "pct": 30,
+      "pct": 45,
       "wave": "BRH-AC",
       "title": "the AI's reference corpus or its embeddings missing in production - index · industry_standards_chunks - oversight",
       "pages": [
@@ -740728,7 +740728,12 @@
         "fix": "the reference corpora loaded into production with their embeddings, a relay that drains the outbox on free infrastructure (a scheduled edge function), the backlog embedded, and a check that production's corpus matches what the AI expects",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
       },
-      "basis": "[2026-10-26] [2026-10-26] FIXING->30. industry_standards_chunks still 0/781 on production: the first load embedded 392 and wrote none (held every vector to the end - now written per batch and resumable), then the free daily allowance ran out. Finish with --only industry_standards_chunks --max 300 a day. Found on the way: no server path reads these chunks (voice-handler's _embedQuery returns null), so standards retrieval is dead locally too. Fix in production: EMBEDDING_PRIMARY=gemini + the dead VOYAGE_API_KEY unset; an unservable pin resolves to the environment's primary (embedding-chain.ts; embed-entry + ai-gateway redeployed); the outbox relay runs in the database (20261026000006/7, pg_cron -> embed-entry via private.wh_setting) and waits a provider outage out (20261026000011); tools/load_prod_corpus.py loads the corpus in production's space. Gate prod-corpus (asks production through the Management API; static teeth on 1045f447). Still owed before locking: the assistant answering a basic question on production through the Playwright MCP - blocked until ~2026-10-27 07:50 UTC because the load spent Gemini's free daily allowance (1,000 embeds/day, production shares the key)."
+      "basis": "[2026-10-26] [2026-10-26] FIXING->30. industry_standards_chunks still 0/781 on production: the first load embedded 392 and wrote none (held every vector to the end - now written per batch and resumable), then the free daily allowance ran out. Finish with --only industry_standards_chunks --max 300 a day. Found on the way: no server path reads these chunks (voice-handler's _embedQuery returns null), so standards retrieval is dead locally too. Fix in production: EMBEDDING_PRIMARY=gemini + the dead VOYAGE_API_KEY unset; an unservable pin resolves to the environment's primary (embedding-chain.ts; embed-entry + ai-gateway redeployed); the outbox relay runs in the database (20261026000006/7, pg_cron -> embed-entry via private.wh_setting) and waits a provider outage out (20261026000011); tools/load_prod_corpus.py loads the corpus in production's space. Gate prod-corpus (asks production through the Management API; static teeth on 1045f447). Still owed before locking: the assistant answering a basic question on production through the Playwright MCP - blocked until ~2026-10-27 07:50 UTC because the load spent Gemini's free daily allowance (1,000 embeds/day, production shares the key). · [2026-10-27] [2026-10-27] FIXING pct -> 45. Production holds 300 of the 781 standards chunks, all embedded in production's space, across 9 standards - today's budget (tools/load_prod_corpus.py --only industry_standards_chunks --max 300; 300 of Gemini's 1,000 daily embeds, production's real traffic keeps the rest). The earlier finding that no server path reads these chunks no longer holds: since BRH-AO the gateway's loadHiveKnowledge asks semantic_search_industry_standards on every signed-in assistant turn, so with 0 chunks every standards retrieval in production came back empty. 481 remain - two more days at 300. Gate prod-corpus.",
+      "artifacts": {
+        "gates": [
+          "prod-corpus"
+        ]
+      }
     },
     {
       "id": "BRH512",

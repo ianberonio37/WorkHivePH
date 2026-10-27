@@ -11174,6 +11174,16 @@
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "founder_outcomes": {
+      "defined_in": "20261027000007_founder_outcomes.sql",
+      "args": "p_days integer default 90",
+      "security_definer": false,
+      "comment": "Per page: uses in 7 Manila days (accounts and signed-out sessions apart); accounts that came back on a later day within 7 / 30 days of their first day in the window (complete follow-up only, cohort beside the count); repeat use = used on 2+ days within 7 days of the first use. SECURITY INVOKER: platform admin only through analytics_events RLS.",
+      "called_by_surfaces": [
+        "founder-console.html"
+      ],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -11246,7 +11256,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 142.0
+      "size_kb": 142.8
     },
     "analytics.html": {
       "tables_read": [
@@ -11369,7 +11379,7 @@
         "wh_trash"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 253.2
+      "size_kb": 253.5
     },
     "dayplanner.html": {
       "tables_read": [
@@ -11384,7 +11394,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 233.6
+      "size_kb": 233.9
     },
     "design-system.html": {
       "tables_read": [],
@@ -11417,10 +11427,11 @@
         "founder_maturity",
         "founder_mau",
         "founder_model_providers",
+        "founder_outcomes",
         "founder_scheduled_work"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 189.0
+      "size_kb": 196.4
     },
     "hive.html": {
       "tables_read": [
@@ -11476,7 +11487,7 @@
         "export-hive-data",
         "supervisor-reset-password"
       ],
-      "size_kb": 516.6
+      "size_kb": 517.2
     },
     "index.html": {
       "tables_read": [],
@@ -11514,7 +11525,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 238.2
+      "size_kb": 239.4
     },
     "inventory.html": {
       "tables_read": [
@@ -11592,7 +11603,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 519.7
+      "size_kb": 520.4
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -11678,7 +11689,7 @@
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 277.0
+      "size_kb": 277.8
     },
     "marketplace.html": {
       "tables_read": [
@@ -11733,7 +11744,7 @@
         "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 415.8
+      "size_kb": 416.0
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -11919,7 +11930,7 @@
         "send-report-email",
         "voice-report-intent"
       ],
-      "size_kb": 166.8
+      "size_kb": 167.6
     },
     "resume.html": {
       "tables_read": [
@@ -11939,7 +11950,7 @@
         "my_logbook_summary"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 196.9
+      "size_kb": 197.5
     },
     "shift-brain.html": {
       "tables_read": [
@@ -11969,7 +11980,7 @@
         "grade_skill_exam"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 116.3
+      "size_kb": 117.0
     },
     "status.html": {
       "tables_read": [],
@@ -12665,7 +12676,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 1018
+      "loc": 1035
     },
     "amc-orchestrator": {
       "tables_read": [
@@ -12913,7 +12924,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 385
+      "loc": 386
     },
     "fmea-populator": {
       "tables_read": [

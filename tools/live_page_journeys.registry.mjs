@@ -2128,8 +2128,14 @@ function projectManagerJourneys() {
         await page.waitForTimeout(600);
         await h.fill('#wiz-name', name);
         await h.evalIn(() => { const b = document.getElementById('wiz-create'); if (b) b.click(); });
-        await page.waitForTimeout(2500);
-        const cnt = h.adminQuery(`select count(*) from projects where name='${name}' and hive_id='${h.hive || K5HIVE}';`);
+        // the save is asked until it lands or 10 s pass: a fixed 2.5 s read "not saved" on a loaded host (2026-10-28,
+        // phone-390 while 28 functions bundled in Docker) where two re-runs saved in time
+        let cnt = '0';
+        for (let i = 0; i < 20; i++) {
+          await page.waitForTimeout(500);
+          cnt = h.adminQuery(`select count(*) from projects where name='${name}' and hive_id='${h.hive || K5HIVE}';`);
+          if ((typeof cnt === 'string') && parseInt(cnt, 10) > 0) break;
+        }
         const persisted = (typeof cnt === 'string') && parseInt(cnt, 10) > 0;
         h.adminQuery(`delete from project_items where project_id in (select id from projects where name='${name}');`);
         h.adminQuery(`delete from projects where name='${name}';`);

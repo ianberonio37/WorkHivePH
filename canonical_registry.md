@@ -7,7 +7,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 
 - Tables:        **183**
 - Views:         **69**
-- RPCs:          **395**
+- RPCs:          **396**
 - HTML surfaces: **60**
 - Edge fns:      **114**
 - Phantom tables (referenced in code, not in migrations): **0**
@@ -361,6 +361,7 @@ Re-built on every Mega Gate run by `tools/mine_canonical_registry.py`.
 | `founder_maturity` |  | yes | founder-console.html | — |
 | `founder_mau` | p_days integer DEFAULT 30 | no | founder-console.html, platform-actions.html | — |
 | `founder_model_providers` | p_days integer DEFAULT 1 | yes | founder-console.html | — |
+| `founder_outcomes` | p_days integer default 90 | no | founder-console.html | — |
 | `founder_page_heatmap` | p_days integer DEFAULT 7 | no | platform-actions.html | — |
 | `founder_scheduled_work` |  | yes | founder-console.html | — |
 | `generate_change_order_number` | p_project_id uuid | no | project-manager.html | — |

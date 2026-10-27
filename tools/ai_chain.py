@@ -112,7 +112,6 @@ PROVIDER_CHAIN = [
     {"provider": "mistral",  "base_url": "https://api.mistral.ai/v1",        "model": "mistral-small-latest",                       "env_key": "MISTRAL_API_KEY"},
 
     # ── Tier 5: OpenRouter — :free models, $0/token, 200 req/day ─────────────
-    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3-super-120b-a12b:free",    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "google/gemma-4-31b-it:free",                "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "google/gemma-4-26b-a4b-it:free",            "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "nvidia/nemotron-3-ultra-550b-a55b:free",    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},

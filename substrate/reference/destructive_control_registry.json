@@ -324,11 +324,11 @@
     ],
     "utils.js": [
       {
-        "line": 6798,
+        "line": 6804,
         "message_head": "Delete X?"
       },
       {
-        "line": 6801,
+        "line": 6807,
         "message_head": "Enter name"
       }
     ]
