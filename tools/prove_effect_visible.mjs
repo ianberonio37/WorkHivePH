@@ -33,8 +33,6 @@ const WORKER = 'Leandro Marquez';
 // The test hive this identity belongs to - needed by cases whose subject is hive-scoped rather
 // than marker-scoped (shift-brain re-composes an existing plan; there is no marker to match on).
 const HIVE = '084c113b-99c0-45c6-a8e8-b4b8349da46d';
-// The test identity's auth uid - owner-scoped tables key on this rather than on a name.
-const UID = 'bcb5a6e3-fb12-4238-bc1e-ffeb48f60d53';
 const args = process.argv.slice(2);
 const ONE = (() => { const i = args.indexOf('--page'); return i >= 0 ? args[i + 1] : null; })();
 
@@ -42,6 +40,10 @@ const psql = (sql) => execFileSync('docker', ['exec', '-i', 'supabase_db_workhiv
   '-U', 'postgres', '-d', 'postgres', '-t', '-A', '-c', sql],
   { encoding: 'utf8', timeout: 60000 }).trim();
 const esc = (s) => String(s).replace(/'/g, "''");
+// The test identity's auth uid - owner-scoped tables key on this rather than on a name. Looked up by e-mail: a
+// literal uuid named nobody once the clean reseed recreated the account (2026-10-28).
+const UID = psql(`SELECT id FROM auth.users WHERE email = 'leandromarquez@auth.workhiveph.com'`);
+if (!/^[0-9a-f-]{36}$/.test(UID)) throw new Error(`no account for ${WORKER} - reseed the walk accounts`);
 
 // One case: a field-capture write whose effect is a row the surface then shows.
 const CASES = [

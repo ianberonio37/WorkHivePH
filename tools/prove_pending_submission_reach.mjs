@@ -22,13 +22,15 @@ import { execFileSync } from 'node:child_process';
 
 const MARK = 'WH-T108B-PROBE';
 const HIVE = '084c113b-99c0-45c6-a8e8-b4b8349da46d';
-const SUP = { name: 'Leandro Marquez', uid: 'bcb5a6e3-fb12-4238-bc1e-ffeb48f60d53' };
 const WORKER = 'Bryan Garcia';
 
 const psql = (sql) => execFileSync('docker',
   ['exec', 'supabase_db_workhive', 'psql', '-U', 'postgres', '-d', 'postgres', '-t', '-A', '-c', sql],
   { encoding: 'utf8' }).trim();
 const psqlId = (sql) => psql(sql).split('\n')[0].trim();
+// the supervisor, by account (a literal uuid named nobody once the reseed recreated him, 2026-10-28)
+const SUP = { name: 'Leandro Marquez', uid: psql(`SELECT id FROM auth.users WHERE email = 'leandromarquez@auth.workhiveph.com'`) };
+if (!/^[0-9a-f-]{36}$/.test(SUP.uid)) throw new Error('no account for Leandro Marquez - reseed the walk accounts');
 
 const pushes = () => Number(psql(
   `SELECT count(*) FROM service_outbox WHERE consumer = 'notify-push' `
@@ -41,11 +43,18 @@ const pushes = () => Number(psql(
    can outlive its own damage is not an acceptable probe. So the restore is also asserted here, and
    run unconditionally at start and end: if a previous run died mid-flight, this one repairs it
    before measuring anything. */
+// ★THE SIGNATURE IS READ, NOT WRITTEN DOWN (2026-10-28). enqueue_user_push gained p_category, and a hard-coded
+// "(uuid[], text, text, text)" named no function: assertion 4 died on its first ALTER and the prover never ran to the
+// end. Read from the catalog under either name, so the next added argument cannot do it again.
+const PUSH_ARGS = psql(`SELECT pg_get_function_identity_arguments(p.oid) FROM pg_proc p JOIN pg_namespace n `
+  + `ON n.oid = p.pronamespace WHERE n.nspname = 'public' `
+  + `AND p.proname IN ('enqueue_user_push', 'enqueue_user_push_off') LIMIT 1`);
+if (!PUSH_ARGS) throw new Error('enqueue_user_push is missing from the database');
 function ensurePushHelper() {
   const off = psql(`SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace `
     + `WHERE n.nspname = 'public' AND p.proname = 'enqueue_user_push_off'`);
   if (off !== '0') {
-    psql(`ALTER FUNCTION public.enqueue_user_push_off(uuid[], text, text, text) RENAME TO enqueue_user_push`);
+    psql(`ALTER FUNCTION public.enqueue_user_push_off(${PUSH_ARGS}) RENAME TO enqueue_user_push`);
     console.log('  (repaired enqueue_user_push left renamed by an earlier interrupted run)');
   }
   return psql(`SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace `
@@ -109,7 +118,7 @@ try {
   console.log(`  20 rows at once    : ${added} push(es) ${v.bulkCoalesces ? '(coalesced)' : '(A STORM)'}`);
 
   // ── 4: a broken notifier must not cost someone their submission ───────────
-  psql(`ALTER FUNCTION public.enqueue_user_push(uuid[], text, text, text) RENAME TO enqueue_user_push_off`);
+  psql(`ALTER FUNCTION public.enqueue_user_push(${PUSH_ARGS}) RENAME TO enqueue_user_push_off`);
   let landed = false;
   try {
     psqlId(`INSERT INTO asset_nodes (hive_id, tag, name, status, worker_name, submitted_by)
@@ -118,7 +127,7 @@ try {
   } catch (_) {
     landed = false;
   } finally {
-    psql(`ALTER FUNCTION public.enqueue_user_push_off(uuid[], text, text, text) RENAME TO enqueue_user_push`);
+    psql(`ALTER FUNCTION public.enqueue_user_push_off(${PUSH_ARGS}) RENAME TO enqueue_user_push`);
   }
   v.neverBlocksTheWrite = landed;
   console.log(`  push helper broken : submission ${landed ? 'still landed (correct)' : 'WAS BLOCKED'}`);

@@ -41,8 +41,15 @@ import sys
 if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
     sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding="utf-8", errors="replace")
 
-UID_A = "bcb5a6e3-fb12-4238-bc1e-ffeb48f60d53"
-UID_B = "91e0d1eb-cd96-43ee-af5f-0ff2714b3923"
+# two real recipients, by account (literal uuids rotted when the reseed recreated the accounts, 2026-10-28)
+def _uid(email: str) -> str:
+    r = subprocess.run(["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres", "-tAc",
+                        f"select id from auth.users where email = '{email}'"], capture_output=True, text=True)
+    return (r.stdout or "").strip()
+
+
+UID_A = _uid("leandromarquez@auth.workhiveph.com")
+UID_B = _uid("bryangarcia@auth.workhiveph.com")
 
 # One transaction, rolled back at the end: nothing survives this gate.
 SQL = f"""

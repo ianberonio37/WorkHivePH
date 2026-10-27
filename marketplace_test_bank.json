@@ -7062,7 +7062,7 @@
       "path": "happy",
       "lane": "sql",
       "oracle": "db-truth",
-      "status": "banked",
+      "status": "owed",
       "layers": [
         "S9-knowledge",
         "S4-db"

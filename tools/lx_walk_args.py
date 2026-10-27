@@ -89,15 +89,17 @@ def cast_for(persona: str, vertical: str, ros: dict) -> dict | None:
         n, u, hid, _ = ros[others[0]]["worker"][0]
         return {"castName": n, "user": u, "hiveId": hid, "castRole": f"worker of {others[0]} (another hive)"}
     want = "supervisor" if persona in SUP_PERSONAS else "worker"
-    # a hive with no worker account is walked by its supervisor (Ramos Jeepney Line) - a supervisor reads everything a
-    # worker does. Never the other way (2026-10-28): Lucena's and Baguio's supervisors are platform admins, and the walk
-    # fell back to a WORKER for the fleet-supervisor persona - a supervisor's page judged as somebody who cannot see it.
-    pool = ros.get(vertical, {}).get(want) or (ros.get(vertical, {}).get("supervisor") if want == "worker" else None)
+    # ★A PERSONA IS WALKED AS ITS OWN ROLE, OR NOT AT ALL (2026-10-28). Lucena's and Baguio's supervisors are platform
+    # admins, and the walk fell back to a WORKER for the fleet-supervisor persona; Ramos Jeepney Line had no worker
+    # account, and the walk fell back to its SUPERVISOR for every worker-side persona - 447 rows banked as somebody who
+    # sees what a worker does not ("a supervisor reads everything a worker does" was the comment; a worker's page is
+    # gated differently, so it was never true). No fallback either way: a hive without the role gets a walk cast
+    # (test-data-seeder/seeders/walk_casts.py), and until then the cell has no cast.
+    pool = ros.get(vertical, {}).get(want)
     if not pool:
         return None
     n, u, hid, _ = pool[0]
-    role = want if ros.get(vertical, {}).get(want) else ("supervisor (the hive has no worker account)" if want == "worker" else "worker")
-    return {"castName": n, "user": u, "hiveId": hid, "castRole": f"{role} of {vertical}"}
+    return {"castName": n, "user": u, "hiveId": hid, "castRole": f"{want} of {vertical}"}
 
 
 def _lit(s: str) -> str:

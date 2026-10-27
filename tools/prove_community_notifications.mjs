@@ -31,8 +31,6 @@ import { readFileSync } from 'node:fs';
 
 const MARK = 'WH-T108-PROBE';
 const HIVE = '084c113b-99c0-45c6-a8e8-b4b8349da46d';
-const A = { name: 'Leandro Marquez', uid: 'bcb5a6e3-fb12-4238-bc1e-ffeb48f60d53' };  // asks / names
-const B = { name: 'Bryan Garcia',    uid: '91e0d1eb-cd96-43ee-af5f-0ff2714b3923' };  // answers / is named
 
 const psql = (sql) => execFileSync('docker',
   ['exec', 'supabase_db_workhive', 'psql', '-U', 'postgres', '-d', 'postgres', '-t', '-A', '-c', sql],
@@ -44,6 +42,16 @@ const psql = (sql) => execFileSync('docker',
    pushing, and the probe was one step from recording "the mention never notifies" against a
    product that works — the reading was real, the subject was wrong. Take the first line. */
 const psqlId = (sql) => psql(sql).split('\n')[0].trim();
+
+/* ★PEOPLE BY ACCOUNT, NOT BY A LITERAL ID (2026-10-28). A and B were literal uuids; the clean reseed recreated both
+   accounts, so the first INSERT broke its foreign key and the prover could not run at all. Resolved by e-mail. */
+const uidOf = (email) => {
+  const id = psql(`SELECT id FROM auth.users WHERE email = '${email}'`);
+  if (!/^[0-9a-f-]{36}$/.test(id)) throw new Error(`no account for ${email} - reseed the walk accounts`);
+  return id;
+};
+const A = { name: 'Leandro Marquez', uid: uidOf('leandromarquez@auth.workhiveph.com') };  // asks / names
+const B = { name: 'Bryan Garcia',    uid: uidOf('bryangarcia@auth.workhiveph.com') };     // answers / is named
 
 /* Run SQL as a real member: the RPCs are SECURITY DEFINER but guard on auth_worker_names(), so a
    probe that ran as postgres would prove the function works for a caller it must never trust. */

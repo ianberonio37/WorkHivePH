@@ -1900,6 +1900,15 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "probe-identities-resolve",
+        "script":  "tools/validate_probe_identities_resolve.py",
+        "args":    [],
+        "label":   "Probe identities resolve (2026-10-28, found from a GitGuardian alert): a probe or prover acts as a person it LOOKS UP, never as a literal account id. Eight bank probes and four provers named their worker, supervisor, outsider and project by literal uuids; the clean reseed recreated every one, so a supervisor's legitimate write read BLOCKED, change orders broke their foreign key, two provers could not run, and the same literal reached the public repo and was mailed to Ian as a leaked 'secret' (a dead test-account id - no credential). Flags a random uuid in a JWT sub, an auth_uid = filter, or a uid:/UID_* constant; a synthetic fixture id (six repeated digits) and an account the file creates are legal. Self-test: --self-test (8 cases).",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
         "id":      "sw-shell-membership",
         "script":  "tools/validate_sw_shell_membership.py",
         "args":    [],
