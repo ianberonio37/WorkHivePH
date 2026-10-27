@@ -5417,11 +5417,14 @@
       // Solo-worker mode falls back to pm_assets because the truth view is
       // hive-scoped only.
       HIVE_ID
-        ? db.from('v_pm_scope_items_truth')
+        // a page at a time (whReadPaged): the API answers at most 1,000 rows per request, so .limit(2000) counted at most
+        // 1,000 overdue items - the "2000 covers expected hive scale" it was written to promise was never true
+        ? whReadPaged((a, b) => db.from('v_pm_scope_items_truth')
             .select('pm_asset_id, asset_name, asset_tag, asset_criticality, is_overdue')
             .eq('hive_id', HIVE_ID)
             .eq('is_overdue', true)
-            .limit(2000) // limit-as-count-allow: overdue scope items only; 2000 covers expected hive scale. TODO: head-count if exceeded.
+            .order('id')
+            .range(a, b), 2000) // limit-as-count-allow: overdue scope items only; 2000 covers expected hive scale. TODO: head-count if exceeded.
         // canonical-allow: solo-mode fallback (truth views are hive-scoped only)
         : db.from('pm_assets')
             .select('id, asset_name, category')

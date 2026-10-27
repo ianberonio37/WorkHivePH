@@ -4347,6 +4347,32 @@ async function whInChunks(keys, build, opts) {
   for (var j = 0; j < got.length; j++) data = data.concat(Array.isArray(got[j]) ? got[j] : (got[j] ? [got[j]] : []));
   return { data: data, error: error, count: count };
 }
+
+// whReadPaged - a read that wants more rows than one response may carry (2026-10-28). The API answers at most 1,000 rows
+// per request (PostgREST max_rows - Supabase's default, and ours), whatever .limit() asks. So .limit(2000) quietly read
+// 1,000 and every ".limit(N + 1) - one row past the cap says more exist" probe past 1,000 could never fire: achievements
+// summed the first 1,000 of a worker's 1,982 XP events this week and showed "+20,120" for 39,760, with no "At least".
+// This asks the rows a page at a time with .range() until `want` rows are in hand or a short page says the data ended,
+// so a cap of 2,000 is 2,000 and its probe row arrives. The read MUST be in a total order (an order ending on a unique
+// column): pages of an unordered read can skip or repeat rows.
+//   const { data, error } = await whReadPaged((a, b) => db.from('v_inventory_items_truth').select(cols)
+//       .eq('hive_id', HIVE_ID).order('created_at').order('id').range(a, b), 2000);
+async function whReadPaged(build, want, opts) {
+  opts = opts || {};
+  var page = Math.max(1, opts.page || 1000);
+  var data = [], error = null, from = 0;
+  while (data.length < want) {
+    var to = Math.min(from + page, want) - 1, r;
+    try { r = await build(from, to); } catch (e) { error = e; break; }
+    if (r && r.error) { error = r.error; break; }
+    var rows = (r && Array.isArray(r.data)) ? r.data : [];
+    data = data.concat(rows);
+    if (rows.length < to - from + 1) break;   // a short page: the data ended here
+    from = to + 1;
+  }
+  return { data: data, error: error };
+}
+if (typeof window !== 'undefined') window.whReadPaged = whReadPaged;
 if (typeof window !== 'undefined') window.whInChunks = whInChunks;
 
 // whRenderRows - SL LB3 (2026-10-21): a list that grows renders only what is new. Measured with a thousand rows behind
@@ -8852,10 +8878,13 @@ function renderWorkerAvatar(workerName, topLevel, size) {
 async function loadWorkerTiers(db, workerNames) {
   if (!workerNames || !workerNames.length) return {};
   try {
+    // the bound the keys already imply, said where the network can see it (CX walk, 2026-10-28: the consumption lens read
+    // this as an unbounded read that grows with the hive): a name holds at most 12 achievement domains (ACHIEVEMENT_DEFS)
     const { data } = await whInChunks(workerNames.filter(Boolean), (part) => db
       .from('v_worker_achievements_truth')
       .select('worker_name, current_level')
-      .in('worker_name', part), { size: 50 });
+      .in('worker_name', part)
+      .limit(part.length * 12), { size: 50 });   // in-list[worker_name] (LB1): bounded by the names asked for, 12 domains each
     const map = {};
     for (const row of (data || [])) {
       if (!map[row.worker_name] || row.current_level > map[row.worker_name]) {

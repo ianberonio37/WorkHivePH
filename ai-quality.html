@@ -605,13 +605,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // actually has data. Throw on error so render()'s catch shows whListError + Retry.
       // (user_feedback dropped from the select — aggregate() reads thumbs from ai_reply_feedback,
       //  so requesting the legacy column only risked erroring the whole query if it's ever removed.)
-      const { data, error } = await db.from('ai_cost_log')
+      // paged (whReadPaged): the API's 1,000-row ceiling read 1,000 of these and its 2,001st probe never arrived
+      const { data, error } = await whReadPaged((a, b) => db.from('ai_cost_log')
         .select('fn, model, provider, prompt_tokens, output_tokens, total_tokens, cost_usd, latency_ms, status, schema_compliance, created_at')
         .eq('hive_id', HIVE_ID)
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(2000 + 1);   // more-said: by renderVerdict - the summary carries `capped` and every painted total discloses it (SL LB1: a 2,001st call is the probe)
+        .range(a, b), 2000 + 1);   // more-said: by renderVerdict - the summary carries `capped` and every painted total discloses it (SL LB1: a 2,001st call is the probe)
       if (error) throw error;
       return data || [];
     }
@@ -623,13 +624,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     // so the supervisor sees the whole team's ratings here.
     async function loadReplyFeedback() {
       const sinceIso = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
-      const { data, error } = await db.from('ai_reply_feedback')
+      const { data, error } = await whReadPaged((a, b) => db.from('ai_reply_feedback')
         .select('rating, agent, created_at')
         .eq('hive_id', HIVE_ID)
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(5000 + 1);   // more-said: by renderVerdict - the summary carries `capped` and every painted total discloses it (SL LB1: a 5,001st rating is the probe)
+        .range(a, b), 5000 + 1);   // more-said: by renderVerdict - the summary carries `capped` and every painted total discloses it (SL LB1: a 5,001st rating is the probe)
       if (error) throw error;   // surface via render()'s catch (whListError+Retry), not a fake empty
       return data || [];
     }

@@ -5005,11 +5005,14 @@ async function loadMembers() {
         .order('joined_at')
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(500),  // L2: hive members are bounded-by-nature (<= dozens); insurance cap, never truncates the member list · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more; limit-as-count-allow: stat-members counts this list
-      db.from('v_logbook_truth')
+      // a page at a time (whReadPaged): the API answers at most 1,000 rows per request, so .limit(2000 + 1) read 1,000 and
+      // its 2,001st - the row that says the tallies are a floor - could never arrive
+      whReadPaged((a, b) => db.from('v_logbook_truth')
         .select('worker_name')
         .eq('hive_id', HIVE_ID)
         .eq('status', 'Open')
-        .limit(2000 + 1)  // more-said: by loadMembers (SL LB1: a 2,001st open job marks every tally as a floor). Was limit-as-count-allow: feeds per-worker open-WO tallies via forEach, NOT a .length KPI; stat-members is sourced from the separate hive_members read. L2 insurance cap (open WOs bounded-by-nature)
+        .order('id')
+        .range(a, b), 2000 + 1)  // more-said: by loadMembers (SL LB1: a 2,001st open job marks every tally as a floor). Was limit-as-count-allow: feeds per-worker open-WO tallies via forEach, NOT a .length KPI; stat-members is sourced from the separate hive_members read. L2 insurance cap (open WOs bounded-by-nature)
     ]);
     if (membersRes.error) { membersErr = membersRes.error; console.error('loadMembers:', membersRes.error.message); }
     /* The OPEN-JOBS read was unchecked. supabase-js resolves with { data: null, error }, so a

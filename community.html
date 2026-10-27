@@ -1071,8 +1071,9 @@ async function _loadMyPostIds() {
   if (!_authUid || !HIVE_ID) return;
   try {
     // canonical-allow: ownership BY ACCOUNT - the truth view omits auth_uid on purpose (anon), so ids are asked of the base table
-    const { data, error } = await db.from('community_posts').select('id')
-      .eq('hive_id', HIVE_ID).or(_mineAuthorFilter()).limit(1000 + 1);   // more-said: by _loadMyPostIds (SL LB1: past 1,000 own posts the set is incomplete, so ownership stays decided by name)
+    // paged (whReadPaged): the API's 1,000-row ceiling kept the 1,001st post - the one that marks the set incomplete - away
+    const { data, error } = await whReadPaged((a, b) => db.from('community_posts').select('id')
+      .eq('hive_id', HIVE_ID).or(_mineAuthorFilter()).order('id').range(a, b), 1000 + 1);   // more-said: by _loadMyPostIds (SL LB1: past 1,000 own posts the set is incomplete, so ownership stays decided by name)
     if (error || !data) return;
     if (data.length > 1000) return;   // SL LB1: an incomplete set must not decide ownership
     data.forEach((r) => myPostIds.add(r.id));

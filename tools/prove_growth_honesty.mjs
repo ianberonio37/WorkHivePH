@@ -37,8 +37,13 @@ let bad = 0;
   const unbounded = [];
   let checked = 0;
   for (const file of (ONLY ? [ONLY] : ROSTER)) {
-    let src = '';
-    try { src = readFileSync(file, 'utf8'); } catch { continue; }
+    let raw = '';
+    try { raw = readFileSync(file, 'utf8'); } catch { continue; }
+    // ★A SEMICOLON IN A COMMENT ENDED THE STATEMENT (2026-10-28). "...auth_worker_names(); the client name filter..." sat
+    // between a read's .from() and its .limit(), and the chain stopped there - nine reads reported unbounded, eight of
+    // them bounded. The chain is followed on the source with its comments blanked to spaces (same offsets, same lines).
+    const src = raw.replace(/\/\*[\s\S]*?\*\//g, (c) => c.replace(/[^\n]/g, ' '))
+      .replace(/(^|[^:'"`\\])\/\/[^\n]*/g, (c, p) => p + ' '.repeat(c.length - p.length));
     // ★A BUILDER CHAIN ENDS AT ITS STATEMENT, NOT AT A BLANK LINE. The first run reported logbook.html
     // reading `logbook` unbounded over 3,820 rows - and that read carries `.limit(TEAM_PAGE)` four lines
     // further down, past a blank line the capture stopped at. Follow the chain to its semicolon, and
@@ -53,6 +58,9 @@ let bad = 0;
       if (varName) {
         const re = new RegExp('\\b' + varName + '\\s*=\\s*' + varName + '\\.[^;]{0,300};', 'g');
         for (const c of src.slice(from, from + 4000).matchAll(re)) chain += c[0];
+        // and the builder's later uses: `const _q = db.from(...)` finished as `return _q.or(...).maybeSingle()` is a lookup
+        const use = new RegExp('\\b' + varName + '\\s*\\.[^;]{0,400}', 'g');
+        for (const c of src.slice(semi > 0 ? semi + 1 : from, from + 2500).matchAll(use)) chain += c[0];
       }
       if (!/\.select\(/.test(chain)) continue;
       if (/head:\s*true/.test(chain)) continue;                 // a count is not a list

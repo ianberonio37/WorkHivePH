@@ -3462,12 +3462,14 @@
     let totalInquiries = 0;
     let pendingInquiries = 0;
     try {
-      const { data } = await db
+      // a page at a time (whReadPaged): the API answers at most 1,000 rows per request, so the per-listing tallies counted
+      // 1,000 of up to 5,000 and the 5,001st that says so never arrived
+      const { data } = await whReadPaged((a, b) => db
         .from('v_marketplace_inquiries_truth')
         .select('listing_id, status')
         .eq('to_me', true)
         .order('created_at', { ascending: false }).order('id')
-        .limit(5000 + 1);   // more-said: by loadAnalytics (SL LB1: per-listing counts say when they cover the latest 5,000; the totals are exact head counts) // L2: insurance cap on inquiry-tally egress; a seller's lifetime inquiries are bounded-by-nature well below this (server-side GROUP BY RPC is the scale fix if ever needed)
+        .range(a, b), 5000 + 1);   // more-said: by loadAnalytics (SL LB1: per-listing counts say when they cover the latest 5,000; the totals are exact head counts) // L2: insurance cap on inquiry-tally egress; a seller's lifetime inquiries are bounded-by-nature well below this (server-side GROUP BY RPC is the scale fix if ever needed)
       _tallyMore = (data || []).length > 5000;
       (data || []).slice(0, 5000).forEach(r => {
         if (r.listing_id) {

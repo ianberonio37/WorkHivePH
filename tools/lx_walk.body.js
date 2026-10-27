@@ -155,7 +155,9 @@ async (mcpPage) => {
     const bounded = BOUND_TXT.test(visText) || !!document.querySelector('.pagination, [class*="paginat"], [class*="load-more"], [id*="load-more"], [aria-label*="next page" i], [aria-label*="load more" i]');
     // RL - the page telling its reader a list is a slice: the walker's own BOUND_TXT plus the phrases
     // tools/prove_consumption_bound.py (SAYS) accepts, so the live reading and the static prover agree on the words
-    const SAYS_RX = /showing\s+(?:the\s+)?(?:first|most recent|latest|top)\b|first\s+\d+\s+of\b|most recent\s+\d+|newest\s+\d+|capped\s+at|up\s+to\s+\d+\s+(?:rows|items|entries)|only\s+the\s+(?:first|latest|most recent)|over (?:a|the) (?:slice|sample)|of the latest \d+/i;
+    // (+ "latest 30 events", "... are not listed here" and "at least <n>" - a figure said to be a floor, 2026-10-28: achievements' recent-activity head says exactly
+    // that - "latest 30 events; older events are not listed here" - and this read it as a cap shown as a total)
+    const SAYS_RX = /showing\s+(?:the\s+)?(?:first|most recent|latest|top)\b|first\s+\d+\s+of\b|most recent\s+\d+|newest\s+\d+|latest\s+\d+\s+(?:events|entries|items|rows|records)\b|(?:is|are)\s+not\s+listed\b|\bat\s+least\s+[+]?[\d,]+|capped\s+at|up\s+to\s+\d+\s+(?:rows|items|entries)|only\s+the\s+(?:first|latest|most recent)|over (?:a|the) (?:slice|sample)|of the latest \d+/i;
     const rlSaysM = visText.match(SAYS_RX) || visText.match(BOUND_TXT);
     const rlSays = rlSaysM ? rlSaysM[0].slice(0, 60) : (bounded ? 'a pagination / load-more control' : null);
     const nav = performance.getEntriesByType('navigation')[0] || {};
@@ -222,7 +224,7 @@ async (mcpPage) => {
     const C = { persona: cell.persona, page: cell.page, vertical: cell.vertical, cast: cell.castName, castRole: cell.castRole,
                 rows: cell.rows, path: cell.path, vps: [], problems: [] };
     for (const vp of P.viewports) {
-      const V = { viewport: vp.name, problems: [], held: [], stubbed: [], reads: [], http: [], console: [], pageErrors: [], rl: [] };
+      const V = { viewport: vp.name, problems: [], held: [], stubbed: [], reads: [], http: [], console: [], pageErrors: [], rl: [], scope: [] };
       let ctx = null;
       try {
         ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, isMobile: !!vp.mobile,
@@ -287,6 +289,19 @@ async (mcpPage) => {
                 const got = m ? (+m[2] - +m[1] + 1) : (/^\*\/(\d+|\*)$/.test(cr) ? 0 : null);
                 V.rl.push({ pg: curPage, t: tbl.slice(0, 60), lim: lim != null && lim !== '' ? +lim : null, off: +(url.searchParams.get('offset') || 0),
                   got, total: m && m[3] !== '*' ? +m[3] : null, single: /vnd\.pgrst\.object/.test(rq.headers()['accept'] || '') });
+                // ── I (a cube row's "this persona may, and may not"): WHICH HIVES' rows each read handed this person -
+                // the banker compares them with the cast's own hives and the reads that are public by design
+                const pgNow = curPage, tNow = tbl.slice(0, 60);
+                // what the read ASKED for (its hive / identity filters, decoded from the query string) and what came BACK
+                const q = decodeURIComponent(url.search.replace(/\+/g, ' '));   // a query string's + is a space ("Bryan+Garcia")
+                const pick = (col) => [...new Set([...q.matchAll(new RegExp(col + '(?:=|\\.)eq\\.("?)([^,)&"]+)\\1', 'g'))].map((x) => x[2]))].slice(0, 6);
+                const asked = { hive: pick('hive_id'), uid: pick('auth_uid'), name: pick('worker_name') };
+                r.json().then((b) => {
+                  const rows = Array.isArray(b) ? b : (b && typeof b === 'object' ? [b] : []);
+                  const withHive = rows.filter((x) => x && typeof x === 'object' && Object.prototype.hasOwnProperty.call(x, 'hive_id'));
+                  V.scope.push({ pg: pgNow, t: tNow, rows: rows.length, asked,
+                    hives: [...new Set(withHive.map((x) => (x.hive_id === null ? 'null' : String(x.hive_id))))].slice(0, 8) });
+                }).catch(() => {});
               }
             }
           } catch (e) { void e; }

@@ -7838,8 +7838,9 @@ const _PICKER_COLS = 'id, part_name, part_number, qty_on_hand, unit, bin_locatio
 async function loadInventoryForPicker() {
   if (HIVE_ID) {
     const [myRes, hiveRes] = await Promise.allSettled([
-      db.from('v_inventory_items_truth').select(_PICKER_COLS).or(_MINE()).limit(2000), // L2: parts picker; inventory bounded-by-nature · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
-      db.from('v_inventory_items_truth').select(_PICKER_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').limit(2000) // L2: parts picker; inventory bounded-by-nature · cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
+      // a page at a time (whReadPaged): the API answers at most 1,000 rows per request, so .limit(2000) picked from 1,000
+      whReadPaged((a, b) => db.from('v_inventory_items_truth').select(_PICKER_COLS).or(_MINE()).order('id').range(a, b), 2000), // L2: parts picker; inventory bounded-by-nature · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
+      whReadPaged((a, b) => db.from('v_inventory_items_truth').select(_PICKER_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('id').range(a, b), 2000) // L2: parts picker; inventory bounded-by-nature · cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
     ]);
     const seen = new Set();
     const merged = [];
@@ -7848,7 +7849,7 @@ async function loadInventoryForPicker() {
     }
     _inventoryItems = merged;
   } else {
-    const { data } = await db.from('v_inventory_items_truth').select(_PICKER_COLS).or(_MINE()).limit(2000); // L2: parts picker; inventory bounded-by-nature · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
+    const { data } = await whReadPaged((a, b) => db.from('v_inventory_items_truth').select(_PICKER_COLS).or(_MINE()).order('id').range(a, b), 2000); // L2: parts picker; inventory bounded-by-nature · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
     _inventoryItems = data || [];
   }
 }

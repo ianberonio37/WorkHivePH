@@ -41,7 +41,8 @@ BOUND = re.compile(r"\.limit\(\s*\d+|\.range\(\s*\d+\s*,|PAGE_SIZE|pageSize|LIMI
 # telling the reader the list is bounded: a phrase, a control, or a note beside the count
 SAYS = re.compile(r"(showing\s+(?:the\s+)?(?:first|most recent|latest|top)\b|first\s+\d+\s+of\b|"
                   r"most recent\s+\d+|load\s*more|show\s*more|see\s*all\b|view\s*all\b|"
-                  r"newest\s+\d+|capped\s+at|up\s+to\s+\d+\s+(?:rows|items|entries)|"
+                  r"newest\s+\d+|latest\s+\d+\s+(?:events|entries|items|rows|records)\b|(?:is|are)\s+not\s+listed\b|\bat\s+least\s+[+]?[\d,]+|"
+                  r"capped\s+at|up\s+to\s+\d+\s+(?:rows|items|entries)|"
                   r"only\s+the\s+(?:first|latest|most recent))", re.I)
 COMMENT = re.compile(r"<!--.*?-->", re.S)
 # the platform's own words for "this ceiling is insurance, not a display slice"

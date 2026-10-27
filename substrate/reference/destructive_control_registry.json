@@ -30,21 +30,21 @@
     ],
     "community.html": [
       {
-        "line": 2427,
+        "line": 2428,
         "message_head": "Make this post public? Workers in every other hive will be able to read it in their Global feed."
       },
       {
-        "line": 3044,
+        "line": 3045,
         "message_head": "Copy this link:"
       }
     ],
     "dayplanner.html": [
       {
-        "line": 3149,
+        "line": 3157,
         "message_head": "Remove this scheduled item?"
       },
       {
-        "line": 3318,
+        "line": 3326,
         "message_head": "A link wants to add \""
       }
     ],
@@ -84,15 +84,15 @@
         "message_head": "Rename this hive. Everyone in it will see the new name."
       },
       {
-        "line": 5137,
+        "line": 5140,
         "message_head": "Reset ${workerName}'s password? You'll get a one-time temporary password to give them. They should change it after signing in."
       },
       {
-        "line": 5164,
+        "line": 5167,
         "message_head": "Temporary password for ${workerName}:\\n\\n${data.temp_password}\\n\\nGive this to ${workerName} now; it won't be shown again. Ask them to chang"
       },
       {
-        "line": 6421,
+        "line": 6424,
         "message_head": "Reject \"${label}\" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing."
       }
     ],
@@ -256,15 +256,15 @@
     ],
     "pm-scheduler.html": [
       {
-        "line": 2388,
+        "line": 2389,
         "message_head": "Auto-hail this asset’s PM work? When an item falls due, WorkHive files a service request for you and providers nearby can accept it."
       },
       {
-        "line": 3155,
+        "line": 3156,
         "message_head": "\"${name}\" is already registered as an asset.\\n\\nOpen it to add more tasks instead?"
       },
       {
-        "line": 3426,
+        "line": 3427,
         "message_head": "Delete \"${currentAsset.asset_name}\"? Its ${_blast} go with it into Recently deleted, where you can restore them for at least 30 days."
       }
     ],
@@ -324,11 +324,11 @@
     ],
     "utils.js": [
       {
-        "line": 6804,
+        "line": 6830,
         "message_head": "Delete X?"
       },
       {
-        "line": 6807,
+        "line": 6833,
         "message_head": "Enter name"
       }
     ]

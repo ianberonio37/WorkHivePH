@@ -195,6 +195,7 @@
     .lb-card-main { flex: 1; min-width: 0; }
     .lb-card-title { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .lb-card-meta { font-size: 0.75rem; color: rgba(255,255,255,0.80); margin-top: 4px; font-weight: 400; }
+    .lb-card-problem { font-size: 0.75rem; color: rgba(255,255,255,0.80); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .lb-card-side { display: flex; align-items: center; gap: 4px; }
     .lb-caret { display: inline-block; transition: transform 150ms var(--wh-ease-out, ease-out); }
     .badge.lb-badge-done { background: rgba(74,222,128,0.15); color: var(--wh-green); border: 1px solid rgba(74,222,128,0.3); }
@@ -974,7 +975,9 @@ function fromDBRow(row) {
 async function loadSchedule() {
   _dpCloudReadFailed = false;   // a recovered read must clear the failure, or one glitch marks the page forever
   try {
-    const { data, error } = await db.from('schedule_items')
+    // a page at a time (whReadPaged): the API answers at most 1,000 rows per request, so the 1,001st row - the one
+    // that says older items are not loaded - could never arrive through .limit(1000 + 1)
+    const { data, error } = await whReadPaged((a, b) => db.from('schedule_items')
       .select('*')
       // BRP-A: mine = identity OR name (see _mineFilter). A name-only scope loses a renamed person
       // their whole planner; RLS (schedule_items_read keys on auth_uid) still bounds what comes back.
@@ -995,7 +998,7 @@ async function loadSchedule() {
       // making the common case worse. Timed work reads in order; untimed to-dos follow it.
       .order('start_time', { ascending: false, nullsFirst: true })
       .order('id', { ascending: false })   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(1000 + 1);   // more-said: by renderDayplannerSummary (SL LB1: newest first, so past 1,000 the planner keeps today and the future; the summary says older items are not loaded)
+      .range(a, b), 1000 + 1);   // more-said: by renderDayplannerSummary (SL LB1: newest first, so past 1,000 the planner keeps today and the future; the summary says older items are not loaded)
     if (error) throw error;
     _dpItemsMore = (data || []).length > 1000;
     // reversed, the newest-first page is the planner's own order again: date, then start time with untimed last, then id
@@ -1459,9 +1462,9 @@ async function loadLogbook() {
     // and kept the open ones in the browser, so an entry still open but older than the newest 1,000 was simply absent -
     // "No open items" while one waited (the busiest local worker holds 3,666). The database now returns only open
     // entries, and one past the cap says more exist.
-    const { data, error } = await db.from('v_logbook_truth').select(typeof whRowCols === 'function' ? whRowCols('v_logbook_truth') : '*').or(_mineFilter() || 'worker_name.eq."' + String(WORKER_NAME || '') + '"')
+    const { data, error } = await whReadPaged((a, b) => db.from('v_logbook_truth').select(typeof whRowCols === 'function' ? whRowCols('v_logbook_truth') : '*').or(_mineFilter() || 'worker_name.eq."' + String(WORKER_NAME || '') + '"')
       .not('status', 'in', '(Closed,Resolved)')
-      .order('date', { ascending: false }).order('id').limit(1000 + 1);   // more-said: by renderSidebar
+      .order('date', { ascending: false }).order('id').range(a, b), 1000 + 1);   // more-said: by renderSidebar (paged: the API's 1,000-row ceiling)
     if (error) throw error;
     // Show open items: not Closed/Resolved (the query already asked; kept as the page's own guard)
     logbookMore = (data || []).length > 1000;
@@ -1726,12 +1729,17 @@ function renderSidebar() {
     // until a tap opens it, and that tap selects the card, which re-renders it (its key carries isSelected) before
     // selectLogbookItem opens it. Traced at 390 with the CPU 4x slower, each "Show more" press parsed fifty cards' whole
     // markup, the hidden bodies included: 23-54 ms of the click, in the three slowest presses.
+    // ★BUT THE PROBLEM IS THE JOB'S NAME (2026-10-28). With it gone from every collapsed card, two open BE-001 jobs from
+    // the same day read "BE-001 Oct 27 • Mechanical" twice - the planner could not tell which one it was placing without
+    // opening each (DAY2 could not find its own job). One line of it rides the header; the badges and the button stay
+    // in the selected-only body.
     return `
     <div class="lb-card ${isSelected ? 'selected selected-pulse' : ''}${hasDone ? ' lb-card-done' : ''}" id="lbc-${item.id}" role="button" tabindex="0" aria-pressed="${isSelected ? 'true' : 'false'}" onclick="selectLogbookItem('${escJsAttr(item.id)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectLogbookItem('${escJsAttr(item.id)}');}">
       <div class="lb-card-header">
         <div class="lb-dot" style="background:${c.text}"></div>
         <div class="lb-card-main">
           <div class="lb-card-title">${escHtml(item.machine) || 'Unknown Machine'}</div>
+          ${item.problem ? `<div class="lb-card-problem">${escHtml(item.problem.length > 80 ? item.problem.substring(0, 80) + '…' : item.problem)}</div>` : ''}
           <div class="lb-card-meta">${item.date ? escHtml(whFmtDate(item.date, { year: false })) : ''} &bull; ${escHtml(item.category) || ''}</div>
         </div>
         <div class="lb-card-side">

@@ -314,6 +314,35 @@ def _block(src: str, pos: int) -> tuple[int, int]:
     return 0, len(src)
 
 
+def _paged_cap(src: str, pos: int) -> str | None:
+    """★A READ ASKED A PAGE AT A TIME IS STILL ONE CAPPED READ (2026-10-28). The API answers at most 1,000 rows per request,
+    so a read meant to hold more is written `whReadPaged((a, b) => db.from(...)....range(a, b), N)` (utils.js) - its cap
+    is N, the call's last argument, and its .range(a, b) is the paging, not a load-more list. Returns N's text, or None
+    when the statement at `pos` is not inside such a call."""
+    k = src.rfind("whReadPaged(", max(0, pos - 200), pos)
+    if k < 0:
+        return None
+    open_at = k + len("whReadPaged")
+    close = _close_paren(src, open_at)
+    if close <= pos:
+        return None
+    inner, depth, last, j = src[open_at + 1:close - 1], 0, -1, 0
+    while j < len(inner):                       # the last comma at depth 0, strings and template literals skipped
+        c = inner[j]
+        if c in "'\"`":
+            q, j = c, j + 1
+            while j < len(inner) and inner[j] != q:
+                j += 2 if inner[j] == "\\" else 1
+        elif c in "([{":
+            depth += 1
+        elif c in ")]}":
+            depth -= 1
+        elif c == "," and depth == 0:
+            last = j
+        j += 1
+    return inner[last + 1:].strip() if last >= 0 else None
+
+
 def _site(page: str, src: str, lines: list[str], name: str, is_rpc: bool, stmt: str, pos: int, end: int) -> dict | None:
     """One capped read: `stmt` is what it asks the database for, src[pos:end] the lines its disposition is read beside."""
     if SINGLE.search(stmt):
@@ -332,6 +361,10 @@ def _site(page: str, src: str, lines: list[str], name: str, is_rpc: bool, stmt: 
     rlit = re.search(r"\.range\(\s*(\d+)\s*,\s*(\d+)\s*\)", stmt)
     if not expr and rlit:
         expr, n = f"range({rlit.group(1)}, {rlit.group(2)})", int(rlit.group(2)) - int(rlit.group(1)) + 1
+    pcap = _paged_cap(src, pos) if rng and not rlit else None
+    if pcap:
+        num = re.match(r"^(\d+)", pcap)
+        expr, n, rng = pcap, (int(num.group(1)) if num else None), None
     if n is not None and n < 2 and "+" not in expr:
         return None
     line = src.count("\n", 0, pos) + 1

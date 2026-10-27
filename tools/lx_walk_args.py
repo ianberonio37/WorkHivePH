@@ -124,16 +124,29 @@ def arrival(page: str, vertical: str, cast: dict) -> str:
     return ""
 
 
-def open_rows() -> list[dict]:
+# the waves a walk cell answers: the layer-UX rows (lx) and, since 2026-10-27, the cube's (cx) - one walk of a page as one
+# persona answers every layer x pillar row of that cell (the LX batch rule the cube was seeded under, roadmap §CX)
+WALK_WAVES = ("LXP-", "LXC-", "CX-PROD", "CX-FND", "CX-PUB")
+
+
+def desc(t: dict) -> dict:
+    """A walk row's descriptor - page, layer, persona (and, for a cube row, its pillar). A cube A-pillar row is answered once
+    per (page, layer), so its persona is null and `cast` names who walks it."""
+    d = t.get("lx") or t.get("cx") or {}
+    if not d.get("persona") and d.get("cast"):
+        d = {**d, "persona": d["cast"]}
+    return d
+
+
+def open_rows(waves: tuple = WALK_WAVES) -> list[dict]:
     import live_walk_manifest as lm
     reg = {t["id"]: t for t in _rio.load_doc()["trajectories"]}
     out = []
     for r in lm.build()["rows"]:
-        if not str(r["wave"]).startswith(("LXP-", "LXC-")) or lm.row_closed(r):
+        if not str(r["wave"]).startswith(waves) or lm.row_closed(r):
             continue
         t = reg[r["id"]]
-        lx = t.get("lx") or {}
-        if lx.get("layer") not in BROWSER_LAYERS:
+        if desc(t).get("layer") not in BROWSER_LAYERS:
             continue
         out.append(t)
     return out
@@ -151,17 +164,18 @@ def main() -> int:
     ap.add_argument("--persona", default="")
     ap.add_argument("--page", default="")
     ap.add_argument("--layers", default="")
+    ap.add_argument("--wave", default="", help="only rows whose wave starts with this (e.g. CX-PROD)")
     ap.add_argument("--skip", default="", help="comma list of persona:page cells to leave out (walked already)")
     ap.add_argument("--rewalk", action="store_true", help="also re-walk rows walked red since their page last changed")
     a = ap.parse_args()
 
-    rows = open_rows()
+    rows = open_rows((a.wave,) if a.wave else WALK_WAVES)
     # ★A ROW ALREADY WALKED RED SINCE ITS PAGE LAST CHANGED IS NOT RE-WALKED (it would read the same): its receipt
     # names the finding, and the page has to change before another walk can say anything new. --rewalk overrides.
     if not a.rewalk:
         def _red_since_page(t):
             rp = ROOT / ".tmp" / "mcp_walks" / f"{t['id']}.json"
-            pg = ROOT / t["lx"]["page"]
+            pg = ROOT / desc(t)["page"]
             if not rp.exists() or not pg.exists() or rp.stat().st_mtime < pg.stat().st_mtime:
                 return False
             try:
@@ -175,22 +189,22 @@ def main() -> int:
             print(f"  ({len(held)} row(s) already walked red since their page last changed - not re-walked)")
     if a.layers:
         keep = set(a.layers.split(","))
-        rows = [t for t in rows if t["lx"]["layer"] in keep]
+        rows = [t for t in rows if desc(t)["layer"] in keep]
     cells: dict = defaultdict(list)
     for t in rows:
-        cells[(t["lx"]["persona"], t["lx"]["page"], (t.get("journey") or {}).get("vertical"))].append(t)
+        cells[(desc(t)["persona"], desc(t)["page"], (t.get("journey") or {}).get("vertical"))].append(t)
     skip = {s.strip() for s in a.skip.split(",") if s.strip()}
     # never-walked rows first: a cell whose rows all carry a receipt already (walked red, page since edited by someone
     # else) is a RE-walk, and re-walks wait until every row has had its first reading
     def _walked(t):
         return (ROOT / ".tmp" / "mcp_walks" / f"{t['id']}.json").exists()
-    keys = sorted(cells, key=lambda k: (all(_walked(t) for t in cells[k]), k[1], k[0], k[2] or ""))
+    keys = sorted(cells, key=lambda k: (all(_walked(t) for t in cells[k]), k[1] or "", k[0] or "", k[2] or ""))
     keys = [k for k in keys if (not a.persona or k[0] == a.persona) and (not a.page or k[1] == a.page)
             and f"{k[0]}:{k[1]}" not in skip]
     if a.list:
-        print(f"{len(rows)} open LX browser row(s) in {len(keys)} cell(s)")
+        print(f"{len(rows)} open walk row(s) in {len(keys)} cell(s)")
         for k in keys[:400]:
-            print(f"  {k[1]:32} {k[0]:16} {k[2] or '-':28} {','.join(sorted(t['lx']['layer'] for t in cells[k]))}")
+            print(f"  {k[1]:32} {k[0]:16} {k[2] or '-':28} {','.join(sorted(desc(t)['layer'] + (desc(t).get('pillar') or '') for t in cells[k]))}")
         return 0
 
     ros = roster()
@@ -211,7 +225,8 @@ def main() -> int:
         q = arrival(page, vertical or "", c)
         batch.append({"persona": persona, "page": page, "vertical": vertical, "path": path,
                       **({"arrive": {page: q}} if q else {}),
-                      "rows": [{"id": t["id"], "layer": t["lx"]["layer"]} for t in sorted(ts, key=lambda x: x["id"])],
+                      "rows": [{"id": t["id"], "layer": desc(t)["layer"], **({"pillar": desc(t)["pillar"]} if desc(t).get("pillar") else {})}
+                               for t in sorted(ts, key=lambda x: x["id"])],
                       **c, "pass": PASSWORD})
     args = {"batch": batch, "origin": "http://localhost:5000/workhive", "api": "http://127.0.0.1:54321",
             "modelFns": model_fns(),

@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 776acca2b97b30ed
+source_sha: 8c0fa4ccf53668cf
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1480) — the 'what's already gated' brain
+## gate · registered validators (1481) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -402,7 +402,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1082)
+### Platform (1083)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1215,6 +1215,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `reachable_capability` ⚡ [fail] — MK13 - reachable capability: a page that LISTS table T and shows a forward-looking empty state ("they will appear here") must have some client path that can INS
 - `reactivity-wiring` [fail] — Reactivity Wiring (Phase D anti-rot: every write surface with cross-page fan-out emits a cross-surface receipt [D1], and every high-blast surface has impact-pre
 - `read-battery` [fail] — Per-page P3 read-correctness + P7 empty-vs-error gate (LIVE headless Playwright, real Baguio supervisor). For 8 READ-heavy pages compares what the page RENDERS 
+- `read-ceiling` ⚡ [fail] — Read ceiling (2026-10-28, found by the first cube walk): no served page or script asks one response for more rows than the API sends (PostgREST max_rows 1,000).
 - `read-only-lane` [fail] — T53 (2026-08-28): a person who only READS is never forced to write. Not every account operates the plant - a manager, an owner, a client on a site visit signs i
 - `read_idempotency` [fail] — Read idempotency (the same ordered read twice, over two separate connections, returns the same bytes — with a proven-sensitive digest, not a vacuous match)
 - `readonly-p6-no-edit` ⚡ [fail] — Read-only P6 lock (static) — 11 pages VERIFIED to have no client edit surface (no .update/.upsert on a shared row) were scored P6=100 covered-by-nature (no conc

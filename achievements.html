@@ -995,7 +995,8 @@
     // the week's sum is the DEDICATED read (_weekXP), never a sum over this 30-row list - the first draft of this head summed
     // the list and printed +630 under a tile that said +18,390 (the exact contradiction the critique lens exists to end)
     const shown = showAll ? groups : groups.slice(0, 10);
-    const weekTotal = (typeof _weekXP === 'number') ? xpText(_weekXP) : '—';
+    // the same floor the summary tile says "At least" about: past 1,000 events this week the sum stopped short
+    const weekTotal = (typeof _weekXP === 'number') ? ((_weekXPCapped ? _t('at least', 'hindi bababa sa') + ' ' : '') + xpText(_weekXP)) : '—';
     const head = '<div class="activity-head">' + _t('Last 7 days', 'Nakaraang 7 araw') + ': <strong>' + weekTotal + '</strong> · ' + _t('latest', 'pinakabagong') + ' ' + _xpLog.length + ' ' + _t('events', 'kaganapan')
       // SL LB1: when the newest-30 read found more, the head says the older ones are not listed - not just "latest 30"
       + (_xpLogMore ? '; older events are not listed here' : '') + '</div>';
@@ -1391,10 +1392,13 @@
       // days, which the 30-cap would silently undercount. Dedicated week-window query.
       // Same removal as the read above, and this is the half that bit harder: "XP this week" is a SUM, so a
       // drifted display name did not show an empty list a person might question - it showed a confident 0.
-      db.from('achievement_xp_log')
+      // asked a page at a time (whReadPaged): the API answers at most 1,000 rows per request, so .limit(1000 + 1) read 1,000
+      // and its 1,001st never came - a worker with 1,982 XP events this week saw "+20,120" for 39,760, with no "At least"
+      whReadPaged((a, b) => db.from('achievement_xp_log')
         .select('xp_earned')
         .gte('earned_at', _weekAgoIso)
-        .limit(1000 + 1)   // more-said: by renderAchievementsSummary (SL LB1: a 1,001st row means the sum is a floor - "At least")
+        .order('id')
+        .range(a, b), 1000 + 1)   // more-said: by renderAchievementsSummary (SL LB1: a 1,001st row means the sum is a floor - "At least")
     ]);
 
     // BUGFIX: a query ERROR is NOT "no achievements". supabase-js returns {data:null,error}
@@ -1414,7 +1418,7 @@
     _achievements = achRes.data  || [];
     _xpLog        = (logRes.data || []).slice(0, 30);
     _xpLogMore    = (logRes.data || []).length > 30;   // SL LB1: older events exist beyond the newest 30
-    _weekXP       = weekRes.error ? null : (weekRes.data || []).reduce((s, r) => s + (Number(r.xp_earned) || 0), 0);
+    _weekXP       = weekRes.error ? null : (weekRes.data || []).slice(0, 1000).reduce((s, r) => s + (Number(r.xp_earned) || 0), 0);   // the probe row is not summed
     /* W3-AR (2026-09-09): this read is an AGGREGATE SOURCE, and a cap on one of those is a silently
        wrong number rather than a short list. The comment above the query already records that the
        30-row list undercounted a busy week, which is why this dedicated query exists - and then it

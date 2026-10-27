@@ -45,6 +45,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 os.chdir(ROOT)
 sys.path.insert(0, str(ROOT / "tools"))
+import registry_io as _rio  # noqa: E402 - the registry UNION: a cube (CX) row lives in trajectory_registry_cx.json
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 except Exception:
@@ -341,6 +342,86 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
     return "UNPROVEN", f"no judge for layer {layer}"
 
 
+# A cube row reads its layer's ask through one PILLAR (roadmap §CX). The layer's judge above reads the truth and wiring of
+# the page (F); most of what it reads is also what the person SEES (U) - crew words, a period and clock, a reachable
+# provenance line, a visible bound, a failure sentence, a marked machine card, a "slice" sentence, a page that loads
+# clean. Three readings the walk does not take yet are HELD, never banked and never written red: I (which hive's rows
+# reached this persona's page), A on a layer other than A (offline and on 429, layer by layer), and U on the trail (L),
+# whose evidence is in postgres where the person cannot see it. Held rows stay open for the instrument that answers them.
+PILLAR_LENS = {"U": "the person can tell", "F": "it is true and wired", "I": "this persona may, and may not",
+               "A": "at phone-390 and desktop-1280, offline and on 429"}
+HOLD = "HOLD"
+
+
+_PUBLIC: set | None = None
+
+
+def public_by_design() -> set:
+    """The tables and views every signed-in person may read across hives - tools/tenant_declarations.mjs, the one list
+    prove_tenant_refusal and the AU identity prover already share (a marketplace listing is another hive's by nature)."""
+    global _PUBLIC
+    if _PUBLIC is None:
+        r = subprocess.run(["node", "-e", "import('./tools/tenant_declarations.mjs').then((m) => console.log(JSON.stringify("
+                            "[...Object.keys(m.PUBLIC_BY_DESIGN), ...Object.keys(m.PUBLIC_VIEWS_BY_DESIGN || {})])))"],
+                           capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(ROOT), timeout=60)
+        try:
+            _PUBLIC = set(json.loads((r.stdout or "").strip() or "[]"))
+        except ValueError:
+            _PUBLIC = set()
+    return _PUBLIC
+
+
+def i_view(v: dict, page: str, ctx: dict, verdict: tuple[str, str]) -> tuple[str, str]:
+    """I - this persona may, and may not. The walk records which hives' rows each read handed the person (lx_walk.body.js
+    `scope`); a row from a hive they are not in, through a read that is not public by design, is the boundary failing."""
+    own = ctx.get("castHives")
+    scope = [s for s in v.get("scope") or [] if s.get("pg") == page]
+    if own is None or "scope" not in v or any("asked" not in s for s in scope):
+        return HOLD, "this walk did not record what each read asked for and which hives' rows came back"
+    uid, name = (ctx.get("castUid") or ""), (ctx.get("cast") or "").strip().lower()
+    pub = public_by_design()
+    foreign, named, public, rls = [], 0, 0, 0
+    for s in scope:
+        base = str(s.get("t") or "").split("?")[0]
+        if base in pub or base.replace("rpc/", "") in pub:
+            public += 1
+            continue
+        a = s.get("asked") or {}
+        bad = ([f"rows of {len(x)} other hive(s)" for x in [[h for h in s.get("hives") or [] if h != "null" and h not in own]] if x]
+               + [f"asked for hive {h[:8]}" for h in a.get("hive") or [] if h not in own]
+               + [f"asked for another account {u[:8]}" for u in a.get("uid") or [] if uid and u != uid]
+               + [f"asked for {n!r}" for n in a.get("name") or [] if name and n.replace("+", " ").strip().lower() != name])
+        if bad:
+            foreign.append(f"{base} ({', '.join(bad[:2])})")
+        elif a.get("hive") or a.get("uid") or a.get("name") or s.get("hives"):
+            named += 1
+        else:
+            rls += 1
+    if foreign:
+        return "FAIL", "this person's page asked for or received another's rows: " + "; ".join(foreign[:4])
+    v0, why = verdict
+    note = (f"{named} read(s) named this person's own hive or identity, {public} public by design, {rls} decided by "
+            f"row-level security alone - none asked for or returned another hive's rows" if scope else
+            "the page made no data read of its own")
+    return v0, note + "; " + why
+
+
+def pillar_view(pillar: str | None, layer: str, verdict: tuple[str, str], v: dict | None = None, page: str = "",
+                ctx: dict | None = None) -> tuple[str, str]:
+    lv, why = verdict
+    if not pillar or pillar == "F" or lv in ("FAIL", "UNPROVEN"):
+        return verdict                       # F is the layer's own verdict, and a failing layer fails every lens
+    if pillar == "U":
+        if layer == "L" and lv == "ok":
+            return HOLD, "the trail is written in postgres; nothing on this page has yet been read for showing this person that it was"
+        return lv, why
+    if pillar == "A":
+        return verdict if layer == "A" else (HOLD, f"the {layer} ask offline and on 429 is not read layer by layer yet")
+    if pillar == "I":
+        return i_view(v or {}, page, ctx or {}, verdict)
+    return verdict
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("batch")
@@ -351,9 +432,10 @@ def main() -> int:
     recs = json.load(io.open(f".tmp/w4_steps/{a.batch}.records.json", encoding="utf-8"))
     steps_all = json.load(io.open(f".tmp/w4_steps/{a.batch}.json", encoding="utf-8"))
     import prove_w4_layer_trail as tr
-    reg_rows = {t["id"]: t for t in json.load(io.open("trajectory_registry.json", encoding="utf-8"))["trajectories"]}
+    reg_rows = {t["id"]: t for t in _rio.load_doc()["trajectories"]}
     today = time.strftime("%Y-%m-%d")
     decided = []
+    held_by_pillar = []
     for cell in recs.get("cells") or []:
         key = cell["persona"] + ":" + cell["page"]
         page = cell["page"]
@@ -365,6 +447,13 @@ def main() -> int:
             r = psql("select m.hive_id from hive_members m where m.worker_name = '%s' and m.status = 'active' order by m.joined_at limit 1" % cast.replace("'", "''"))
             hive_id = r[0] if r else None
         ctx: dict = {}
+        # every hive the cast is an active member of (a multi-hive cast reads several); none for a hive-less person
+        ctx["castHives"] = set(psql("select m.hive_id from hive_members m where m.worker_name = '%s' and m.status = 'active'"
+                                    % (cast or "").replace("'", "''"))) if cast else set()
+        ctx["cast"] = cast or ""
+        _uid = psql("select w.auth_uid from worker_profiles w where w.display_name = '%s' and w.auth_uid is not null limit 1"
+                    % (cast or "").replace("'", "''")) if cast else []
+        ctx["castUid"] = _uid[0] if _uid else ""
         layers = {r["layer"] for r in cell["rows"]}
         if "L" in layers:
             v0, w0 = tr.check_page(page)
@@ -419,9 +508,14 @@ def main() -> int:
                 continue
             if rid in {x.strip() for x in a.hold.split(",") if x.strip()}:
                 continue                                  # held back for a closer look - neither banked nor reddened
+            pillar = (reg_rows.get(rid, {}).get("cx") or {}).get("pillar") or r.get("pillar")
             per = {}
             for vpn in ("phone-390", "desktop-1280"):
-                per[vpn] = judge(layer, cell["persona"], vps.get(vpn) or {}, page, ctx)
+                per[vpn] = pillar_view(pillar, layer, judge(layer, cell["persona"], vps.get(vpn) or {}, page, ctx),
+                                       vps.get(vpn) or {}, page, ctx)
+            if any(x[0] == HOLD for x in per.values()):
+                held_by_pillar.append((rid, layer, pillar, next(x[1] for x in per.values() if x[0] == HOLD)))
+                continue                                  # no instrument reads this lens yet - neither banked nor reddened
             verdicts = {x[0] for x in per.values()}
             holds = verdicts <= {"ok", "n/a"} and len(per) == 2
             decided.append((rid, layer, cell, per, holds, steps))
@@ -429,7 +523,9 @@ def main() -> int:
     banked, red = [], []
     for rid, layer, cell, per, holds, steps in decided:
         reading = " | ".join(f"{vp}: {v[0]} - {v[1]}" for vp, v in per.items())
-        note = (f"LX-{layer} on {cell['page']} walked {today} through the Playwright MCP (tools/lx_walk.js) as "
+        _pl = (reg_rows.get(rid, {}).get("cx") or {}).get("pillar")
+        head = f"CX {layer} read through {_pl} ({PILLAR_LENS.get(_pl, _pl)})" if _pl else f"LX-{layer}"
+        note = (f"{head} on {cell['page']} walked {today} through the Playwright MCP (tools/lx_walk.js) as "
                 f"{cell['cast']} ({cell.get('castRole')}) for the {cell['persona']} persona, through the wall and the row's route "
                 f"({' -> '.join(cell.get('path') or [])}), each viewport a fresh context at a TRUE size. {reading}")
         if not a.apply:
@@ -461,10 +557,13 @@ def main() -> int:
                 holds = False
                 reading += f" | the receipt could not be read back ({e})"
         (banked if holds else red).append((rid, layer, cell, per, note, reading))
+    if held_by_pillar:
+        print(f"  held {len(held_by_pillar)} row(s) whose lens no instrument reads yet: "
+              + ", ".join(sorted({f'{p}' + (f'/{ly}' if p != 'I' else '') for _, ly, p, _w in held_by_pillar})))
     if not a.apply:
         print("\n(dry run - pass --apply to record receipts and bank)")
         return 0
-    reg = json.load(io.open("trajectory_registry.json", encoding="utf-8"))
+    reg = _rio.load_doc()
     byid = {t["id"]: t for t in reg["trajectories"]}
     for rid, layer, cell, per, note, reading in banked:
         t = byid[rid]
@@ -490,10 +589,12 @@ def main() -> int:
         if prev and re.search(r"pct\s*(?:\d+\s*)?->\s*\d+", prev):
             t["basis"] += f" || [{today}] pct -> 25: walked, the first segment says what it found"
         t["status"], t["pct"] = "walked", 25
-    fd, tmp = tempfile.mkstemp(dir=str(ROOT), suffix=".tmp")
-    os.close(fd)
-    io.open(tmp, "w", encoding="utf-8", newline="\n").write(json.dumps(reg, ensure_ascii=False, indent=1) + "\n")
-    os.replace(tmp, "trajectory_registry.json")
+    # through the union, at the file's own indent: this wrote indent=1 over a file kept at 2 (the 2-million-line-diff
+    # class advance_trajectory records), and it wrote the main file only, so a cube row never reached its shard
+    with io.open("trajectory_registry.json", encoding="utf-8") as fh:
+        fh.readline()
+        second = fh.readline()
+    _rio.save_doc(reg, indent=max(1, len(second) - len(second.lstrip(" "))) if second.strip() else 2)
     print(f"banked {len(banked)} row(s), {len(red)} row(s) walked and left open with a red receipt")
     for rid, layer, cell, per, note, reading in red:
         print(f"  OPEN {rid:8} {layer:3} {cell['page'][:26]:26} {cell['persona'][:14]:14} {reading[:220]}")

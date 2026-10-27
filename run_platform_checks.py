@@ -1891,6 +1891,15 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "read-ceiling",
+        "script":  "tools/validate_read_ceiling.py",
+        "args":    [],
+        "label":   "Read ceiling (2026-10-28, found by the first cube walk): no served page or script asks one response for more rows than the API sends (PostgREST max_rows 1,000). .limit(2000) read 1,000 and every .limit(N + 1) probe past 1,000 never received its row - achievements showed +20,120 XP for 39,760 with no 'At least', and inventory would have dropped every part past the 1,000th. A larger read is asked a page at a time (utils.js whReadPaged). Comments blanked; RPC p_limit included. Self-test: --self-test (7 cases).",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
         "id":      "sw-shell-membership",
         "script":  "tools/validate_sw_shell_membership.py",
         "args":    [],

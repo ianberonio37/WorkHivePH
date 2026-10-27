@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-27T02:54:25.592268+00:00",
+  "timestamp": "2026-10-27T13:37:36.841126+00:00",
   "validators": {
     "anon-boundaries": "PASS",
     "companion-delivery": "PASS",
@@ -1375,6 +1375,11 @@
     "public-arrival": "PASS",
     "prod-headers": "SKIP",
     "tile-canonical": "PASS",
+    "self-efficacy-calc-vicarious": "PASS",
+    "self-efficacy-learn": "PASS",
+    "self-efficacy-calc-mastery": "SKIP",
+    "self-efficacy-pages": "SKIP",
+    "outcome-figures": "PASS",
     "calc-cta-crew-context": "SKIP",
     "calc-method-defaults-split": "SKIP",
     "prover-signin-guard": "SKIP",

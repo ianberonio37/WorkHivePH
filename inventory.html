@@ -2964,21 +2964,17 @@ async function initData() {
     // stock only (+ their own items, fetched separately below). RLS (inventory_items_read)
     // already scopes BOTH reads to active hive members, so this widens nothing cross-hive.
     // L2: a hive's inventory is bounded-by-nature (config list, not append-forever); insurance cap.
-    const _hiveItemsQ = db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').limit(2000)   // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit · cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more (the read's only cap: the 1000 here was overridden by a 2000 chained after the role ternary, and only the last cap is sent)
-        .eq('hive_id', HIVE_ID);
+    // ★2,000 WAS 1,000 (2026-10-28). The API answers at most 1,000 rows per request whatever .limit() asks, so every read
+    // here capped at 2,000 read 1,000 - a hive past 1,000 parts would have lost the rest from its list with no sign.
+    // Each is now asked a page at a time (whReadPaged), so the cap the comments promise is the cap that holds.
+    // a supervisor reads the whole approval queue, a worker the approved stock - one chain, the role choosing the statuses
+    const _hiveStatuses = HIVE_ROLE === 'supervisor' ? ['approved', 'pending', 'rejected'] : ['approved'];
     itemsFetches = Promise.all([
-      (HIVE_ROLE === 'supervisor'
-        ? _hiveItemsQ.in('status', ['approved', 'pending', 'rejected'])
-        : _hiveItemsQ.eq('status', 'approved')
-      // MR4 tiebreaker: the sort above is not total on its own. This was the ONE ordered read on the
-      // page without it, and the tell was the asymmetry - its sibling on the very next line, inside
-      // this same Promise.all, already had .order('id'). Measured cost: all 81 rows in
-      // v_inventory_items_truth share a SINGLE created_at value, so ordering by that column alone
-      // gives no deterministic order whatsoever - 81 rows tied on the sort key, sequence decided by
-      // the planner and free to differ on every read. A supervisor comparing two loads of the hive's
-      // spares would see the list reshuffle with nothing having changed.
-      ).order('created_at').order('id'),
-      db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').eq('hive_id', HIVE_ID).or(_MINE()).order('created_at').order('id').limit(2000)   // cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
+      // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit · cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
+      // MR4 tiebreaker: created_at alone is not total (all 81 local rows share one value, so the list reshuffled between
+      // loads with nothing changed); id makes it total, which paging needs as much as the person does
+      whReadPaged((a, b) => db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').eq('hive_id', HIVE_ID).in('status', _hiveStatuses).order('created_at').order('id').range(a, b), 2000),   // cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
+      whReadPaged((a, b) => db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').eq('hive_id', HIVE_ID).or(_MINE()).order('created_at').order('id').range(a, b), 2000)   // cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
     ]);
     // canonical-allow: inventory's asset picker writes back asset_nodes
     // (LS-migration upserts below) and needs the exact column set ASSET_COLS
@@ -2986,8 +2982,8 @@ async function initData() {
     // breaks the existing _buildAssetNodeMaps() consumer
     assetsFetches = Promise.all([
       // L2: a hive's asset register is bounded-by-nature (config list); insurance cap
-      db.from('asset_nodes').select(ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').order('id').limit(2000),   // cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
-      db.from('asset_nodes').select(ASSET_COLS).or(_MINE()).order('created_at').order('id').limit(2000)   // cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
+      whReadPaged((a, b) => db.from('asset_nodes').select(ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').order('id').range(a, b), 2000),   // cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
+      whReadPaged((a, b) => db.from('asset_nodes').select(ASSET_COLS).or(_MINE()).order('created_at').order('id').range(a, b), 2000)   // cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
     ]);
   } else {
     itemsFetches  = Promise.resolve([{ data: null }, { data: null }]);
@@ -2995,13 +2991,13 @@ async function initData() {
   }
 
   const [itemsRes, txnsRes, assetsRes, [hiveItemsRes, myItemsRes], [hiveAssetsRes, myAssetsRes]] = await Promise.all([
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
+    HIVE_ID ? Promise.resolve({ data: null }) : whReadPaged((a, b) => db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').or(_MINE()).order('created_at').order('id').range(a, b), 2000), // L2: solo inventory bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
     // Architect skill Query-First pattern: cap inventory_transactions to
     // the last 365 days, max 500 rows, newest-first. Workers very rarely
     // need older context. Detail modal slices per-item from this window.
     db.from('v_inventory_transactions_truth').select('*').or(_MINE()).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500 + 1),   // more-said: by openDetailModal (SL LB1: a 501st row means a part's history may be cut short)
     // canonical-allow: solo-mode asset list — same write-companion read as above, ASSET_COLS shape required
-    HIVE_ID ? Promise.resolve({ data: null }) : db.from('asset_nodes').select(ASSET_COLS).or(_MINE()).is('hive_id', null).order('created_at').order('id').limit(2000), // L2: solo asset register bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
+    HIVE_ID ? Promise.resolve({ data: null }) : whReadPaged((a, b) => db.from('asset_nodes').select(ASSET_COLS).or(_MINE()).is('hive_id', null).order('created_at').order('id').range(a, b), 2000), // L2: solo asset register bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
     itemsFetches,
     assetsFetches
   ]);
@@ -3050,7 +3046,7 @@ async function initData() {
     localStorage.removeItem(INV_KEY);
     localStorage.removeItem(TXN_KEY);
     const [ir, tr] = await Promise.all([
-      db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').or(_MINE()).order('created_at').order('id').limit(2000), // L2: solo inventory bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
+      whReadPaged((a, b) => db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').or(_MINE()).order('created_at').order('id').range(a, b), 2000), // L2: solo inventory bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
       // Same window/cap as the primary fetch above — keep the two paths consistent.
       db.from('v_inventory_transactions_truth').select('*').or(_MINE()).gte('created_at', new Date(Date.now() - 365*24*60*60*1000).toISOString()).order('created_at', { ascending: false }).order('id').limit(500 + 1)   // more-said: by openDetailModal (SL LB1: a 501st row means a part's history may be cut short)
     ]);
@@ -3106,8 +3102,8 @@ async function initData() {
     }
     localStorage.removeItem(ASSETS_KEY);
     // canonical-allow: post-upsert read-back to refresh the local cache after localStorage migration
-    const { data: migA } = await db.from('asset_nodes').select(ASSET_COLS)
-      .or(_MINE()).is('hive_id', null).order('created_at').order('id').limit(2000); // L2: solo asset register bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
+    const { data: migA } = await whReadPaged((a, b) => db.from('asset_nodes').select(ASSET_COLS)
+      .or(_MINE()).is('hive_id', null).order('created_at').order('id').range(a, b), 2000); // L2: solo asset register bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 2000 - sized live by list-caps-say-more
     _assets = migA || [];
   } else {
     _assets = mergedAssets;

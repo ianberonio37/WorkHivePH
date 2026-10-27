@@ -1,4 +1,33 @@
-# Production Deploy Runbook — M1 release (2026-10-27) ✅ DEPLOYED
+# Production Deploy Runbook — M2 release (2026-10-28) ✅ DEPLOYED · M1 (2026-10-27) ✅ DEPLOYED
+
+> **✅ M2 DEPLOYED 2026-10-28 — T2 complete (self-efficacy 282/282 + outcomes 87/87 banked).** Production serves
+> `workhive-shell-v579` from `ea3b25b8`.
+> - **Leg A — 1 migration:** `20261027000007_founder_outcomes` (use, return within 7 and 30 days, repeat use per page).
+>   Verified in production: SECURITY INVOKER, anon cannot EXECUTE, authenticated can.
+> - **Leg B — 29 functions:** `ai-orchestrator` first (a new hive's basic question had been deflected while the gateway
+>   held the answer - ISO 14224's MTBF definition at 76%; production flow 3 now answers it), then the 28 functions that
+>   bundle `_shared/ai-chain.ts` after openrouter stopped serving `nemotron-3-super-120b:free` (AI_ASSET_VERSION 14).
+>   `edge_remote_deps_lock.py --online` PASS; `verify_function_builds --target prod` 62/62.
+> - **Leg C — three gate runs.** Run 1 (70 min): 8 static + 1 data red, every one locally fixable - the new RPC unregistered
+>   (canonical registry, the rubric lens), an uncompiled public class, a stale ledger, two provers reading innerText
+>   without drawing every row, the retired model, the walk accounts' 598 orphaned rows (data + an LB1 cap), alert-hub's
+>   risk cap past half, and a probe asserting a data VOLUME. Run 2: 3 reds - a memory note written mid-run (substrate)
+>   and two live provers after Docker OOM-killed the edge runtime (2.35 GiB VM ceiling). Run 3: **886 PASS / 0 FAIL,
+>   data 61 / 0**, pushed `8d0153e2..ea3b25b8`. The DevOps skill now carries the pre-push checklist that would have
+>   caught run 1 locally.
+> - **Post-deploy smoke:** public 120/120 + app 26/26 clean (146/146; the app tier now also fails any library from
+>   another host that answers >= 400 - 159 loads, all clean, every page under the worker). Flows: **6/6 green** on the
+>   re-walk once the window cleared - the first walk's flow 5 had read one `BOOT_ERROR` from `analytics-orchestrator`
+>   10 s into its first request after the redeploy (health 200 on the tree's build moments later); /health readiness
+>   503s are now counted apart (`health_not_ready`).
+> - **IndexNow:** 17 changed URLs accepted (HTTP 200).
+> - **Still owed (not this release's code):** BRH509-513 - production holds 300 of 781 standards chunks (2 more days of
+>   the 300/day embed budget) and 33 knowledge rows in a space production cannot query (their requeue was declined -
+>   Ian's call); OWN62 needs a platform-admin walk of the founder console on production.
+
+---
+
+# M1 release (2026-10-27) ✅ DEPLOYED
 
 > **✅ DEPLOYED 2026-10-27.** Leg A (4 migrations) and Leg B (30 functions) earlier the same day; Leg C pushed
 > `7121ac8d..8d0153e2` through the pre-push release gate on its fifth run (the first, before the reseed, read 61 + 1

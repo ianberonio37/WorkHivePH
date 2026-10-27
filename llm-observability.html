@@ -294,13 +294,15 @@
     const since = new Date(Date.now() - win * 60 * 60 * 1000).toISOString();
 
     // Pull ai_cost_log rollup (the canonical observability table).
-    const { data: costLogs, error: e1 } = await supabase
+    // a page at a time (whReadPaged): the API answers at most 1,000 rows per request, so .limit(5000 + 1) read 1,000 and
+    // the 5,001st that makes #meta say "showing the latest 5,000" never arrived
+    const { data: costLogs, error: e1 } = await whReadPaged((a, b) => supabase
       .from('ai_cost_log')
       .select('fn, model, provider, prompt_tokens, output_tokens, latency_ms, status, schema_compliance, created_at, hive_id')
       .gte('created_at', since)
       .order('created_at', { ascending: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(5000 + 1);   // more-said: by load - #meta says "showing the latest 5,000" when a 5,001st call exists (SL LB1: a probe, so exactly 5,000 is not called a cap)
+      .range(a, b), 5000 + 1);   // more-said: by load - #meta says "showing the latest 5,000" when a 5,001st call exists (SL LB1: a probe, so exactly 5,000 is not called a cap)
 
     if (e1) {
       // the fourth state (2026-09-05): say it in plain words, with the way out

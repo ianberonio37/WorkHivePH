@@ -3305,11 +3305,15 @@
     try {
       const monthStart = new Date();
       monthStart.setUTCDate(1); monthStart.setUTCHours(0,0,0,0);
-      const { data } = await db.from('ai_cost_log')
+      // a SUM against a spending cap, read a page at a time: the API answers at most 1,000 rows per request, so
+      // .limit(10000) summed the first 1,000 and a busy hive's month read as less spend than it was (2026-10-28)
+      const _read = (a, b) => db.from('ai_cost_log')
         .select('cost_usd')
         .eq('hive_id', hiveId)
         .gte('created_at', monthStart.toISOString())
-        .limit(10000);
+        .order('id')
+        .range(a, b);
+      const { data } = (typeof whReadPaged === 'function') ? await whReadPaged(_read, 10000) : await _read(0, 9999);
       if (!Array.isArray(data)) return 0;
       return data.reduce((acc, r) => acc + (Number(r.cost_usd) || 0), 0);
     } catch (_) { return 0; }
