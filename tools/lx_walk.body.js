@@ -165,7 +165,7 @@ async (mcpPage) => {
     // L - the write controls this person is offered
     // a VERB that changes something, whole-word: a tab called "Reports" or "Logbook" is navigation, and "Close" /
     // "Cancel" dismiss a dialog - none of them is a change this person makes (2026-10-08, analytics-report x solo-owner)
-    const WRITE_RX = /^(save|submit|add|create|post|log|record|delete|remove|approve|reject|update|edit|send|upload|assign|complete|mark|confirm|publish|claim|join|request|book|order|buy|sell|rate|reply|comment|vote|flag|invite|accept|decline|apply|redeem|reserve|archive|restore|pin|follow|revoke|grant|upgrade|generate|new)\b(?!s\b)|^\+/i;
+    const WRITE_RX = /^(save|submit|add|create|post|log|record|delete|remove|approve|reject|update|edit|send|upload|assign|complete|mark|confirm|publish|claim|join|request|book|order|buy|sell|rate|reply|comment|vote|flag|invite|accept|decline|apply|redeem|reserve|archive|restore|pin|follow|revoke|grant|upgrade|generate|new)\b(?!s\b)|^\+\s*[a-z]/i;   // "+ Add", "+Schedule" - never "+60": a tappable figure is not a write (2026-10-28)
     const writes = [...document.querySelectorAll('button, [role=button], input[type=submit], a.btn, a[class*="button"]')]
       // a control the page declares LOCAL (data-wh-local: it changes only what is on screen - assistant's New Chat)
       // is not a write, whatever its label; the declaration sits beside the code it describes, for review

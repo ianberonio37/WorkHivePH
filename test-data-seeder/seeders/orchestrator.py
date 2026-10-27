@@ -34,6 +34,7 @@ from .embed_corpus import run_post_seed_embed
 from .probe_fixtures import seed_probe_fixtures
 from .fleets import seed_fleets
 from .analytics_history import seed_analytics_history
+from .walk_casts import seed_walk_casts
 
 
 # Fixed RNG seed so each full reseed produces the same volume of rows per hive.
@@ -195,6 +196,7 @@ def seed_everything(client, log) -> dict:
     bind_seeded_authors(client, log)
     seed_probe_fixtures(client, log)                 # the rows tools/psql_probes ground on (after authors are bound)
     seed_analytics_history(client, log)              # 90 days of visits and uses: the outcome figures' ledger (T2 OUT)
+    seed_walk_casts(client, log)                     # a non-admin supervisor in every hive whose only one is an admin (the cube's casts)
     run_history_tools(log)                           # fleets' operating life + five years of history in every hive
 
     log("=" * 50)

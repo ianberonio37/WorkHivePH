@@ -32,7 +32,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM community_posts x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, (SELECT count(*) FROM community_posts x WHERE x.hive_id = m.hive_id AND x.auth_uid = m.auth_uid) DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_community_posts TO authenticated;
 SELECT 'community_posts_fixture | ' || ((SELECT me FROM _fx_community_posts) IS NOT NULL AND (SELECT foreign_hive FROM _fx_community_posts) IS NOT NULL);
@@ -53,7 +53,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM community_reactions x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, (SELECT count(*) FROM community_reactions x WHERE x.hive_id = m.hive_id AND x.auth_uid = m.auth_uid) DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_community_reactions TO authenticated;
 SELECT 'community_reactions_fixture | ' || ((SELECT me FROM _fx_community_reactions) IS NOT NULL AND (SELECT foreign_hive FROM _fx_community_reactions) IS NOT NULL);
@@ -74,7 +74,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM community_replies x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, (SELECT count(*) FROM community_replies x WHERE x.hive_id = m.hive_id AND x.auth_uid = m.auth_uid) DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_community_replies TO authenticated;
 SELECT 'community_replies_fixture | ' || ((SELECT me FROM _fx_community_replies) IS NOT NULL AND (SELECT foreign_hive FROM _fx_community_replies) IS NOT NULL);
@@ -95,7 +95,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM community_xp x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, (SELECT count(*) FROM community_xp x WHERE x.hive_id = m.hive_id AND x.auth_uid = m.auth_uid) DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_community_xp TO authenticated;
 SELECT 'community_xp_fixture | ' || ((SELECT me FROM _fx_community_xp) IS NOT NULL AND (SELECT foreign_hive FROM _fx_community_xp) IS NOT NULL);
@@ -116,7 +116,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM hive_audit_log x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_hive_audit_log TO authenticated;
 SELECT 'hive_audit_log_fixture | ' || ((SELECT me FROM _fx_hive_audit_log) IS NOT NULL AND (SELECT foreign_hive FROM _fx_hive_audit_log) IS NOT NULL);
@@ -137,7 +137,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM hive_members x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, (SELECT count(*) FROM hive_members x WHERE x.hive_id = m.hive_id AND x.auth_uid = m.auth_uid) DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_hive_members TO authenticated;
 SELECT 'hive_members_fixture | ' || ((SELECT me FROM _fx_hive_members) IS NOT NULL AND (SELECT foreign_hive FROM _fx_hive_members) IS NOT NULL);

@@ -29,6 +29,7 @@ from seeders.projects import seed_projects
 from seeders.reset import reset_all
 from seeders.achievements import seed_achievements
 from seeders.analytics_history import seed_analytics_history
+from seeders.walk_casts import seed_walk_casts
 
 import subprocess
 import sys
@@ -463,6 +464,7 @@ def api_seed_module(module):
         "achievements":   lambda c, log: seed_achievements(c, log),
         # 90 days of visits and uses for the console's "Did they come back?" figures (T2 OUT, 2026-10-27)
         "analytics_history": lambda c, log: seed_analytics_history(c, log),
+        "walk_casts": lambda c, log: seed_walk_casts(c, log),
     }
 
     from seeders.dayplanner import seed_dayplanner

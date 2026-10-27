@@ -20,7 +20,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM ai_cost_log x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, (SELECT count(*) FROM ai_cost_log x WHERE x.hive_id = m.hive_id AND x.auth_uid = m.auth_uid) DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_ai_cost_log TO authenticated;
 SELECT 'ai_cost_log_fixture | ' || ((SELECT me FROM _fx_ai_cost_log) IS NOT NULL AND (SELECT foreign_hive FROM _fx_ai_cost_log) IS NOT NULL);
@@ -41,7 +41,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM ai_reply_feedback x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, (SELECT count(*) FROM ai_reply_feedback x WHERE x.hive_id = m.hive_id AND x.auth_uid = m.auth_uid) DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_ai_reply_feedback TO authenticated;
 SELECT 'ai_reply_feedback_fixture | ' || ((SELECT me FROM _fx_ai_reply_feedback) IS NOT NULL AND (SELECT foreign_hive FROM _fx_ai_reply_feedback) IS NOT NULL);

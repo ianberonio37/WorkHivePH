@@ -89,7 +89,10 @@ def cast_for(persona: str, vertical: str, ros: dict) -> dict | None:
         n, u, hid, _ = ros[others[0]]["worker"][0]
         return {"castName": n, "user": u, "hiveId": hid, "castRole": f"worker of {others[0]} (another hive)"}
     want = "supervisor" if persona in SUP_PERSONAS else "worker"
-    pool = ros.get(vertical, {}).get(want) or ros.get(vertical, {}).get("supervisor" if want == "worker" else "worker")
+    # a hive with no worker account is walked by its supervisor (Ramos Jeepney Line) - a supervisor reads everything a
+    # worker does. Never the other way (2026-10-28): Lucena's and Baguio's supervisors are platform admins, and the walk
+    # fell back to a WORKER for the fleet-supervisor persona - a supervisor's page judged as somebody who cannot see it.
+    pool = ros.get(vertical, {}).get(want) or (ros.get(vertical, {}).get("supervisor") if want == "worker" else None)
     if not pool:
         return None
     n, u, hid, _ = pool[0]
@@ -146,10 +149,18 @@ def open_rows(waves: tuple = WALK_WAVES) -> list[dict]:
         if not str(r["wave"]).startswith(waves) or lm.row_closed(r):
             continue
         t = reg[r["id"]]
-        if desc(t).get("layer") not in BROWSER_LAYERS:
+        d = desc(t)
+        if d.get("layer") not in BROWSER_LAYERS or held_lens(d):
             continue
         out.append(t)
     return out
+
+
+def held_lens(d: dict) -> bool:
+    """A cube lens no walk reading answers yet (bank_lx_walk.pillar_view HOLDs it): U on the trail (its evidence is in
+    postgres) and A off the A layer. Walking its cell again would read the same and hold it again."""
+    p, ly = d.get("pillar"), d.get("layer")
+    return (p == "U" and ly == "L") or (p == "A" and ly != "A")
 
 
 def model_fns() -> list[str]:

@@ -88,6 +88,10 @@ PRIVATE_ONLY = {
 # ★THE FIXTURE MUST BE A TENANT-BOUND PERSON (2026-10-14): ORDER BY supervisor picked Leandro Marquez, a marketplace
 # platform admin, whose policies (is_marketplace_admin()) legitimately read every hive's inquiries - so the probe
 # reported his admin view as a foreign-hive leak. A platform admin is not a member of exactly one tenant; excluded.
+def has_col(table: str, col: str) -> bool:
+    return psql(f"select 1 from information_schema.columns where table_schema = 'public' and table_name = '{table}' and column_name = '{col}'").strip() == "1"
+
+
 def recipe(page: str, tables: list[str]) -> str:
     slug = page.replace(".html", "")
     head = [
@@ -110,6 +114,12 @@ def recipe(page: str, tables: list[str]) -> str:
         hc = TENANT_COL.get(t, "hive_id")
         px = (" AND " + PRIVATE_ONLY[t].format(a="x.")) if t in PRIVATE_ONLY else ""
         pc = (" AND " + PRIVATE_ONLY[t].format(a="")) if t in PRIVATE_ONLY else ""
+        # ★THE CONTROL MUST HOLD FOR THE MEMBER THE PICK CHOOSES (2026-10-28). "own hive reads > 0" fails for a member who can
+        # see none of the hive's rows - an owner-only table (voice_journal_entries) shows each person their own - and the pick
+        # was "supervisor first" with no tiebreak, so a newly added supervisor with no entries of his own was chosen and three
+        # recipes failed on the fixture, not on isolation. Prefer a member who authored rows, then a stable order.
+        own = (f", (SELECT count(*) FROM {t} x WHERE x.{hc} = m.hive_id AND x.auth_uid = m.auth_uid) DESC"
+               if has_col(t, "auth_uid") else "")
         expects += [f"-- expect: {k}_fixture \\| t", f"-- expect: {k}_foreign_rows \\| 0", f"-- expect: {k}_own_rows_gt0 \\| t"]
         body.append(f"""
 CREATE TEMP TABLE _fx_{k} AS
@@ -122,7 +132,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM {t} x WHERE x.{hc} = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC{own}, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_{k} TO authenticated;
 SELECT '{k}_fixture | ' || ((SELECT me FROM _fx_{k}) IS NOT NULL AND (SELECT foreign_hive FROM _fx_{k}) IS NOT NULL);

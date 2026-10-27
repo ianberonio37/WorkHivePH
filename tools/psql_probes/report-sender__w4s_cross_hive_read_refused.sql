@@ -23,7 +23,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM automation_log x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_automation_log TO authenticated;
 SELECT 'automation_log_fixture | ' || ((SELECT me FROM _fx_automation_log) IS NOT NULL AND (SELECT foreign_hive FROM _fx_automation_log) IS NOT NULL);
@@ -44,7 +44,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM report_contacts x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_report_contacts TO authenticated;
 SELECT 'report_contacts_fixture | ' || ((SELECT me FROM _fx_report_contacts) IS NOT NULL AND (SELECT foreign_hive FROM _fx_report_contacts) IS NOT NULL);
@@ -65,7 +65,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM v_ai_reports_truth x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_ai_reports TO authenticated;
 SELECT 'ai_reports_fixture | ' || ((SELECT me FROM _fx_ai_reports) IS NOT NULL AND (SELECT foreign_hive FROM _fx_ai_reports) IS NOT NULL);

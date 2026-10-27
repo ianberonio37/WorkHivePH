@@ -17,7 +17,7 @@ WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = m.auth_uid)
   AND EXISTS (SELECT 1 FROM hive_benchmarks x WHERE x.hive_id = m.hive_id)
-ORDER BY (m.role = 'supervisor') DESC
+ORDER BY (m.role = 'supervisor') DESC, m.auth_uid
 LIMIT 1;
 GRANT SELECT ON _fx_hive_benchmarks TO authenticated;
 SELECT 'hive_benchmarks_fixture | ' || ((SELECT me FROM _fx_hive_benchmarks) IS NOT NULL AND (SELECT foreign_hive FROM _fx_hive_benchmarks) IS NOT NULL);
