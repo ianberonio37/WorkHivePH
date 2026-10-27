@@ -361,6 +361,14 @@ async (mcpPage) => {
             } catch (e) { return { error: String(e) }; }
           }, { name: cell.castName }).catch((e) => ({ error: String(e.message || e).slice(0, 80) }));
         }
+        const hasSession = () => page.evaluate(() => Object.keys(localStorage).some((k) => /^sb-.*-auth-token$/.test(k) && /access_token/.test(localStorage.getItem(k) || '') && !/expired\./.test(localStorage.getItem(k) || ''))).catch(() => false);
+        // ★A VISITOR IS WALKED SIGNED OUT (2026-10-28). The anon persona - 2,948 cube rows - had no path of its own: every
+        // cell went through the wall and signed in, so a visitor's page would have been judged as a member's (the same
+        // wrong-person reading as the worker rows walked as a supervisor). The context is fresh for each viewport, so no
+        // session exists; the visitor arrives straight on the route, and every hop must STILL hold no session.
+        const anon = cell.persona === 'anon';
+        let sess = anon;
+        if (!anon) {
         // ── arrive as the person: the wall, then the path ──
         await page.goto(`${P.origin}/index.html?signin=1&return=${first}`, { waitUntil: 'load', timeout: 45000 }).catch(() => {});
         await page.waitForSelector('#si-username', { state: 'visible', timeout: 45000 }).catch(() => {});
@@ -368,8 +376,7 @@ async (mcpPage) => {
         if (cell.persona === 'returner') V.returner = Object.assign(V.returner || {}, { wallShown });
         const w0 = await read();
         steps.push({ cell: cell.persona + ':' + cell.page, page: 'index.html', viewport: vp.name, chars: w0.chars, identityKept: true, note: 'the sign-in wall' });
-        const hasSession = () => page.evaluate(() => Object.keys(localStorage).some((k) => /^sb-.*-auth-token$/.test(k) && /access_token/.test(localStorage.getItem(k) || '') && !/expired\./.test(localStorage.getItem(k) || ''))).catch(() => false);
-        let sess = false;
+        }
         for (let attempt = 1; attempt <= 2 && !sess; attempt++) {
           if (attempt === 2) {
             V.problems.push('the first sign-in left no session; tried the wall once more');
@@ -384,7 +391,7 @@ async (mcpPage) => {
           for (let i = 0; i < 30 && !sess; i++) { sess = await hasSession(); if (!sess) await page.waitForTimeout(1000); }
         }
         if (!sess) { V.problems.push(`not signed in as ${cell.castName} - no session after the wall (tried twice); this viewport proves nothing`); throw new Error('signed out'); }
-        await page.waitForTimeout(1200);
+        if (!anon) await page.waitForTimeout(1200);
         // ★a page about ONE thing is opened on one thing (2026-10-09): the query its own inbound link composes
         // (?worker= from a marketplace seller link, ?project_id= from Project Manager's Print report), written by
         // lx_walk_args.arrival() from the database. Opened bare, both pages showed only "No ... specified".
@@ -407,7 +414,9 @@ async (mcpPage) => {
               r = await settle(200, 6);
             }
           }
-          steps.push({ cell: cell.persona + ':' + cell.page, page: p, viewport: vp.name, chars: r.chars, identityKept: !!r.worker && r.worker === cell.castName,
+          // a visitor's identity is KEPT when the hop still holds no session (a page that signed them in would be the finding)
+          const kept = anon ? !(await hasSession()) : (!!r.worker && r.worker === cell.castName);
+          steps.push({ cell: cell.persona + ':' + cell.page, page: p, viewport: vp.name, chars: r.chars, identityKept: kept,
             note: p === cell.page ? 'the row\'s own page, settled' + (arrive(p) ? ', opened as ' + p + arrive(p) : '') : 'a hop on the row\'s route' });
           if (p === cell.page) V.healthy = r;
         }

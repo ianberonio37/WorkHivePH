@@ -82,6 +82,8 @@ def roster() -> dict:
 def cast_for(persona: str, vertical: str, ros: dict) -> dict | None:
     if persona == "solo-owner":
         return {"castName": SOLO["name"], "user": SOLO["user"], "hiveId": None, "castRole": "solo (no hive)"}
+    if persona == "anon":                        # a visitor has no account: walked signed out (lx_walk.body.js)
+        return {"castName": "", "user": "", "hiveId": None, "castRole": "a visitor, signed out (no account)"}
     if persona == "adversary":
         others = sorted(h for h in ros if h != vertical and ros[h]["worker"])
         if not others:

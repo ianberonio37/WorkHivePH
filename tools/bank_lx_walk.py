@@ -133,7 +133,14 @@ def healthy_reads(v: dict, page: str) -> list[str]:
 def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str, str]:
     """('ok'|'n/a'|'FAIL'|'UNPROVEN', one sentence) for ONE viewport's reading."""
     h = v.get("healthy") or {}
-    if not h or not h.get("session"):
+    # a visitor is the one persona read SIGNED OUT (lx_walk.body.js): a session at the reading means the page signed them
+    # in, or the walk carried one over - either way it is not the visitor's page
+    if persona == "anon":
+        if not h:
+            return "UNPROVEN", "the page was not read at this viewport - " + "; ".join(v.get("problems") or [])[:160]
+        if h.get("session"):
+            return "UNPROVEN", "a session was present at the reading, so this is not a signed-out visitor's page"
+    elif not h or not h.get("session"):
         return "UNPROVEN", "not signed in at this viewport - " + "; ".join(v.get("problems") or [])[:160]
     if h.get("chars", 0) < 120 and layer not in ("A",):
         return "UNPROVEN", f"the page rendered {h.get('chars')} characters - nothing to read"
