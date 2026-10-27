@@ -743224,8 +743224,8 @@
     },
     {
       "id": "BRH548",
-      "status": "fixing",
-      "pct": 45,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AH",
       "title": "a critical path never walked on production after a deploy - assistant · flow 3 - supervisor",
       "pages": [
@@ -743284,7 +743284,12 @@
         "fix": "the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
       },
-      "basis": "[2026-10-26] [2026-10-26] FIXING->45. BRH-AH Tier-0 flow 3 (one AI action through ai-gateway) on production: ai-gateway answered in 12.8 s - with the no-sources deflection (Gemini's daily embed allowance spent; retrieval falls through to another space). The flow now runs by script after every deploy (post_deploy_smoke.mjs --tier=flows; flow 3 fails a deflection, flow 5 reads the logs through the Management API) and gate prod-tier0-flows holds the report. Locks after the re-walk once Gemini's allowance resets (~2026-10-27 07:50 UTC)."
+      "basis": "[2026-10-26] [2026-10-26] FIXING->45. BRH-AH Tier-0 flow 3 (one AI action through ai-gateway) on production: ai-gateway answered in 12.8 s - with the no-sources deflection (Gemini's daily embed allowance spent; retrieval falls through to another space). The flow now runs by script after every deploy (post_deploy_smoke.mjs --tier=flows; flow 3 fails a deflection, flow 5 reads the logs through the Management API) and gate prod-tier0-flows holds the report. Locks after the re-walk once Gemini's allowance resets (~2026-10-27 07:50 UTC). · [2026-10-27] [2026-10-27] LOCKING pct -> 60. Re-walked on PRODUCTION after M2 deployed ai-orchestrator (2026-10-27T09:02:43.881Z, post_deploy_smoke.mjs --tier=flows, bench supervisor): flow 3 answered in 15294 ms, not deflected - \"MTBF measures the mean calendar days between corrective failures of a system or component.\". With the quota reset it had STILL deflected at 08:15: the orchestrator's no-data branch ignored the DOMAIN KNOWLEDGE block the gateway had retrieved for the question (ISO 14224 at 76%); it now reaches synthesis as agent data (never for a question naming an asset). All six flows green. Gate prod-tier0-flows.",
+      "artifacts": {
+        "gates": [
+          "prod-tier0-flows"
+        ]
+      }
     },
     {
       "id": "BRH549",
@@ -743359,8 +743364,8 @@
     },
     {
       "id": "BRH550",
-      "status": "fixing",
-      "pct": 45,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AH",
       "title": "a critical path never walked on production after a deploy - index · flow 5 - oversight",
       "pages": [
@@ -743421,7 +743426,12 @@
         "fix": "the flow walked on production in the bench hive after every deploy, its writes undone, and its receipt in the deploy's runbook entry",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
       },
-      "basis": "[2026-10-26] [2026-10-26] FIXING->45. BRH-AH Tier-0 flow 5 (the logs over the run) on production: the scripted tier read the Management API logs over its run: 0 x 54000, 0 x 23505, 0 edge 5xx, 3 function 5xx - all embed-entry, the dead Voyage key (fixed: EMBEDDING_PRIMARY=gemini) and since ~07:50 UTC Gemini's spent daily allowance. The flow now runs by script after every deploy (post_deploy_smoke.mjs --tier=flows; flow 3 fails a deflection, flow 5 reads the logs through the Management API) and gate prod-tier0-flows holds the report. Locks after the re-walk once Gemini's allowance resets (~2026-10-27 07:50 UTC)."
+      "basis": "[2026-10-26] [2026-10-26] FIXING->45. BRH-AH Tier-0 flow 5 (the logs over the run) on production: the scripted tier read the Management API logs over its run: 0 x 54000, 0 x 23505, 0 edge 5xx, 3 function 5xx - all embed-entry, the dead Voyage key (fixed: EMBEDDING_PRIMARY=gemini) and since ~07:50 UTC Gemini's spent daily allowance. The flow now runs by script after every deploy (post_deploy_smoke.mjs --tier=flows; flow 3 fails a deflection, flow 5 reads the logs through the Management API) and gate prod-tier0-flows holds the report. Locks after the re-walk once Gemini's allowance resets (~2026-10-27 07:50 UTC). · [2026-10-27] [2026-10-27] LOCKING pct -> 60. Flow 5 re-walked on PRODUCTION after the quota reset and the M2 function deploy (2026-10-27T09:02:43.881Z): window 2026-10-27T08:45:48.537Z - 2026-10-27T09:02:39.421Z, counts {\"edge_5xx\": 0, \"fn_5xx\": 0, \"health_not_ready\": 2, \"pg_23505\": 0, \"pg_54000\": 0}. The two /health 503s are the webhook receivers' readiness (GCASH_INBOUND_SECRET / RESEND_WEBHOOK_SECRET unset - the owner's step), asked by verify_function_builds inside the window; flow 5 now counts them apart as health_not_ready instead of failing on them. Gate prod-tier0-flows.",
+      "artifacts": {
+        "gates": [
+          "prod-tier0-flows"
+        ]
+      }
     },
     {
       "id": "BRH551",

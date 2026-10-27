@@ -321,12 +321,18 @@ async function flowLogs(fromIso, toIso) {
     if (!r.ok) throw new Error(`logs ${r.status}: ${JSON.stringify(j).slice(0, 160)}`);
     return j.result || [];
   };
+  // ★A READINESS ANSWER IS NOT A FAILED REQUEST (M2, 2026-10-27). verify_function_builds --target prod asks every
+  // function's /health inside this window; the two webhook receivers answer 503 "degraded" because their inbound secrets
+  // are not set in production (registering those endpoints is the owner's step) - true, and not a request that failed.
+  // /health 5xx are counted apart as health_not_ready and reported; they do not fail the flow.
+  const NOT_HEALTH = "not endsWith(toString(log_attributes['request.url']), '/health')";
   try {
     const [counts] = await ask(`select
       countIf(source = 'postgres_logs' and (event_message like '%54000%' or event_message like '%statement timeout%' or event_message like '%stack depth%')) as pg_54000,
       countIf(source = 'postgres_logs' and (event_message like '%23505%' or event_message like '%duplicate key%')) as pg_23505,
-      countIf(source = 'edge_logs' and toInt32OrZero(toString(log_attributes['response.status_code'])) >= 500) as edge_5xx,
-      countIf(source = 'function_edge_logs' and toInt32OrZero(toString(log_attributes['response.status_code'])) >= 500) as fn_5xx
+      countIf(source = 'edge_logs' and toInt32OrZero(toString(log_attributes['response.status_code'])) >= 500 and ${NOT_HEALTH}) as edge_5xx,
+      countIf(source = 'function_edge_logs' and toInt32OrZero(toString(log_attributes['response.status_code'])) >= 500 and ${NOT_HEALTH}) as fn_5xx,
+      countIf(source = 'function_edge_logs' and toInt32OrZero(toString(log_attributes['response.status_code'])) >= 500 and not (${NOT_HEALTH})) as health_not_ready
       from logs`);
     const fives = await ask(`select timestamp, toString(log_attributes['response.status_code']) as status,
       substring(toString(log_attributes['request.url']), 1, 100) as url from logs

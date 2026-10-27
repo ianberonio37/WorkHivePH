@@ -66,7 +66,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 
 **BY PAGE CLASS** (rows · U/F/A/I): root 33760 · 11110/10589/7507/11784 · learn 7934 · 2581/2250/2160/2530 · calc 8946 · 2967/2418/2515/2809 · other 800 · 314/209/222/205 · no page (edge functions, shared components) 637
 
-**REGISTRY: 39151 trajectories · 37479 in scope · 1672 descoped (out of the denominator, each with its reason in the row's basis)** — `trajectory_registry.json` (updated 2026-10-27). **Completion is the CLOSED/OPEN line above — the MCP-deepwalk measure — and nothing else.** A row's own pct (specced 5 · walked 25 · fixed 60 · locked 100) is in-flight bookkeeping cited by its basis, not a completion figure; 19959 specced · 16071 locking · 1672 descoped · 1441 locked · 8 fixing.
+**REGISTRY: 39151 trajectories · 37479 in scope · 1672 descoped (out of the denominator, each with its reason in the row's basis)** — `trajectory_registry.json` (updated 2026-10-27). **Completion is the CLOSED/OPEN line above — the MCP-deepwalk measure — and nothing else.** A row's own pct (specced 5 · walked 25 · fixed 60 · locked 100) is in-flight bookkeeping cited by its basis, not a completion figure; 19959 specced · 16073 locking · 1672 descoped · 1441 locked · 6 fixing.
 
 **↳ CRITIC DEEPWALK (UI/UX extension): 25.5% · 25531 pending · 3938 critiqued · 8010 improving · 112343 receipted findings** — `UFAI_CRITIC_DEEPWALK_ROADMAP.md` / `critic_registry.json`; walk → critique → fix → gate, every trajectory, until 100%.
 
@@ -214,7 +214,7 @@ _Status SSOT: `trajectory_registry.json` · scoreboard below is GENERATED — ha
 | **BRH-Z** · Bug-hunt (H): deployments that outgrow the free plan's 10 GB of Deployment Storage - reproduced, fixed, gated (30%) | **BRH517:60%** · **BRH518:0%** |
 | **BRH-AF** · Bug-hunt (CI): a post-deploy check that cannot reach the signed-in product on production - reproduced, fixed, gated (60%) | **BRH519:60%** · **BRH520:60%** |
 | **BRH-AG** · Bug-hunt (CI): a page never seen signed in on production after a deploy - reproduced, fixed, gated (60%) | **BRH521:60%** · **BRH522:60%** · **BRH523:60%** · **BRH524:60%** · **BRH525:60%** · **BRH526:60%** · **BRH527:60%** · **BRH528:60%** · **BRH529:60%** · **BRH530:60%** · **BRH531:60%** · **BRH532:60%** · **BRH533:60%** · **BRH534:60%** · **BRH535:60%** · **BRH536:60%** · **BRH537:60%** · **BRH538:60%** · **BRH539:60%** · **BRH540:60%** · **BRH541:60%** · **BRH542:60%** · **BRH543:60%** · **BRH544:60%** · **BRH545:60%** · **BRH546:60%** |
-| **BRH-AH** · Bug-hunt (CI): a critical path never walked on production after a deploy - reproduced, fixed, gated (54%) | **BRH547:60%** · **BRH548:45%** · **BRH549:60%** · **BRH550:45%** · **BRH551:60%** |
+| **BRH-AH** · Bug-hunt (CI): a critical path never walked on production after a deploy - reproduced, fixed, gated (60%) | **BRH547:60%** · **BRH548:60%** · **BRH549:60%** · **BRH550:60%** · **BRH551:60%** |
 | **BRH-AI** · Bug-hunt (D): a breakdown cause the analytics cannot group: free text beside the form's list - reproduced, fixed, gated (60%) | **BRH552:60%** · **BRH553:60%** · **BRH554:60%** · **BRH555:60%** · **BRH556:60%** · **BRH557:60%** · **BRH558:60%** · **BRH559:60%** |
 | **BRH-AJ** · Bug-hunt (CI): an adoption census that credits a lookalike class - reproduced, fixed, gated (60%) | **BRH560:60%** · **BRH561:60%** · **BRH562:60%** · **BRH563:60%** |
 | **BRH-AK** · Bug-hunt (D): free credit the solvency check does not hold to its policy - reproduced, fixed, gated (60%) | **BRH564:60%** · **BRH565:60%** |
