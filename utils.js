@@ -7009,6 +7009,7 @@ const WH_AUDIT_THINGS = {
   service_request: 'service request',
   service_provider_profile: 'service provider profile',
   hive_setting: 'hive setting',
+  engineering_calculation: 'engineering calculation',   // 20261028000001: a saved calc is hive-read project evidence
 };
 
 // What ONE changed column means, by thing. A function receives the new value when the database recorded it (meta.to:
