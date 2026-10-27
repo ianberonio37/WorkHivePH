@@ -564,7 +564,7 @@
         <!-- WHAT A HIVE LOOKS LIKE ONCE PEOPLE ARE IN IT (2026-10-27, T2 SE vicarious). A first-timer with no hive
              saw two buttons and a promise; the only "example" on the screen was the join code's placeholder, which is
              the shape of one input, not a team at work. One static line in the board's own terms. -->
-        <p class="hv-example" style="margin:0 0 2rem; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.8);">
+        <p class="hv-example" data-wh-example style="margin:0 0 2rem; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.8);">
           <strong style="color:rgba(255,255,255,0.92);">A hive in use reads like this:</strong>
           Line 2 Maintenance · 8 members · 3 jobs open today · Ana closed "conveyor belt re-aligned" 20 minutes ago.
         </p>
@@ -1892,6 +1892,11 @@
         </div>
       </div>
 
+      <!-- ★THE DASHBOARD'S SOURCES FOLLOW THE DASHBOARD (2026-10-28, cube walk: hive.html as a person with no hive). The
+           "About this dashboard's data sources" line at the foot was un-keyed, and an un-keyed line keeps the Sources
+           area showing on its own - so a person shown only Create / Join read "Where these figures come from" under a
+           screen with no figures. It is keyed to this anchor: it shows exactly when the board does. -->
+      <span data-wh-source-anchor="board-data-sources" hidden></span>
     </div>
     <!-- ── END VIEW BOARD ── -->
 
@@ -1900,7 +1905,7 @@
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
-<details data-calm-disclosure="data-sources" style="margin:0;">
+<details data-calm-disclosure="data-sources" data-wh-source-key="board-data-sources" hidden style="margin:0;">
   <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.875rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
   <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.875rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>

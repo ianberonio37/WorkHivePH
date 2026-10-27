@@ -96,7 +96,12 @@ async (mcpPage) => {
     for (const rx of JARGON) { const m = text.match(rx); if (m) jargon.push(m[0].trim().slice(0, 40)); }
     // C - figures and their window
     const FIG = /(?<![\w/.-])\d[\d,]*(?:\.\d+)?(?![\w/.-])/g;
-    const figures = (text.match(FIG) || []).length;
+    // ★AN EXAMPLE'S NUMBERS ARE NOT DATA (2026-10-28, hive.html x solo-owner). The no-hive screen says "A hive in use
+    // reads like this: ... 8 members · 3 jobs open today ..." - an illustration, marked data-wh-example - and its four
+    // numbers made a page that shows this person no data read as one owing provenance for four figures.
+    const exampleFigs = [...root.querySelectorAll('[data-wh-example]')]
+      .filter((e) => shown(e)).reduce((s, e) => s + ((e.innerText || '').match(FIG) || []).length, 0);
+    const figures = Math.max(0, (text.match(FIG) || []).length - exampleFigs);
     const PERIOD = /\b(last|past|previous|this|next)\s+(7|14|30|60|90|\d{1,3})?\s*(day|days|week|weeks|month|months|year|years|hours|hrs)\b|\b(today|yesterday|this week|this month|this year|month[- ]to[- ]date|year[- ]to[- ]date|ytd|mtd)\b|\b(since|between|from)\s+\w+\s+\d{1,2}\b|\b(all[- ]time|lifetime|rolling\s+\d+)\b/i;
     const CLOCK = /\b(UTC|GMT|PHT|PST|Asia\/Manila|Manila time|local time|your time|server time|philippine (?:standard )?time|UTC[+\-]\d|GMT[+\-]\d)\b/i;
     const per = text.match(PERIOD), clk = text.match(CLOCK);
