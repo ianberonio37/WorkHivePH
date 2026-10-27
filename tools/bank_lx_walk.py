@@ -231,6 +231,15 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
         if unbound:
             return "FAIL", ("reads " + ", ".join(f"{x['t']} ({x['got']} rows)" for x in unbound[:4])
                             + " with no bound - each grows with the hive, and the page fetches all of it")
+        # a folded part of the page that holds the capped list AND its slice sentence shows no total at all (the walker's
+        # rl.folded: the sentence, and how many list rows the same unrendered part holds) - dayplanner's PM rail on a phone
+        folded = (h.get("rl") or {}).get("folded") or {}
+        if (binding and not says and folded.get("says") and folded.get("opener")
+                and (folded.get("rows") or 0) >= max(x["lim"] for x in binding)):
+            return "ok", (f"{len(reads)} read(s) on the page's own load; {', '.join(x['t'] for x in binding[:3])} came back "
+                          f"at its cap, and the list sits folded at {vw}px ({folded.get('at')}, {folded.get('rows')} rows, "
+                          f"opened by \"{folded['opener']}\") with its own slice sentence (\"{folded['says']}\") - nothing on "
+                          f"screen shows the cap as a total, and opening it says what it is a slice of")
         if binding and not says:
             return "FAIL", ("a cap shown as a total: " + ", ".join(f"{x['t']} came back FULL at its cap of {x['lim']}" for x in binding[:4])
                             + " and nothing on the page says the list is a slice")

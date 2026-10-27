@@ -20,6 +20,7 @@ import datetime as _dt
 import io
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -66,6 +67,96 @@ def _is_self_preference(after: str) -> bool:
     return bool(keys) and keys <= SELF_PREF_COLUMNS
 
 
+# ★A RECORD ONLY ITS OWNER CAN SEE OWES NO HIVE TRAIL (2026-10-28, CX dayplanner). The rule above is "a DOMAIN row a
+# colleague can see", but nothing measured the "can see": dayplanner writes only schedule_items, a person's own day
+# plan, whose every read policy is auth_uid = auth.uid() - no supervisor, no hive-mate. Who changed it is always its
+# owner, and copying a private plan into the supervisor-read hive trail would publish it. Measured from pg_policy, not
+# listed by hand: a policy that later admits hive-mates turns the obligation back on, and an unreadable database
+# counts the table as shared (the check fails closed).
+_OWNER_ONLY_QUAL = re.compile(r"^(?:selectauth\.uid(?:asuid)?isnotnulland)?auth_uid=(?:select)?auth\.uid(?:asuid)?$")
+_PRIVATE: dict[str, bool] = {}
+
+
+def owner_private(table: str) -> bool:
+    if table in _PRIVATE:
+        return _PRIVATE[table]
+    # RLS is not the only door: a view that runs as its owner, or a SECURITY DEFINER function a signed-in person may
+    # call that selects from the table, shows its rows past the policy - either one makes the table shared
+    sql = ("select ((select relrowsecurity from pg_class where oid = to_regclass('public.{t}'))"
+           " and not exists (select 1 from pg_depend d join pg_rewrite r on r.oid = d.objid join pg_class c on c.oid = r.ev_class"
+           "   where d.refobjid = to_regclass('public.{t}') and c.oid <> to_regclass('public.{t}') and c.relkind = 'v'"
+           "   and coalesce((select option_value from pg_options_to_table(c.reloptions) where option_name = 'security_invoker'), 'false') <> 'true')"
+           " and not exists (select 1 from pg_proc p where p.prosecdef and p.prorettype <> 'trigger'::regtype"
+           "   and (has_function_privilege('authenticated', p.oid, 'execute') or has_function_privilege('anon', p.oid, 'execute'))"
+           "   and p.prosrc ~* 'select[^;]*from\\s+(public\\.)?{t}\\M'))::text || chr(31) || "
+           "coalesce(string_agg(pg_get_expr(polqual, polrelid), chr(31)), '') from pg_policy "
+           "where polrelid = to_regclass('public.{t}') and polpermissive and polcmd in ('r', '*')").format(t=table)
+    try:
+        r = subprocess.run(["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres", "-tAc", sql],
+                           capture_output=True, text=True, timeout=30)
+        parts = (r.stdout or "").strip().split("\x1f")
+    except Exception:
+        parts = []
+    rls, quals = (parts[0] == "true") if parts else False, [q for q in parts[1:] if q.strip()]
+    _PRIVATE[table] = bool(rls and quals and all(_OWNER_ONLY_QUAL.match(re.sub(r"[()\s]", "", q).lower()) for q in quals))
+    return _PRIVATE[table]
+
+
+# ★THE DATABASE CAN WRITE THE TRAIL (2026-10-28, CX dayplanner). dayplanner closes a linked logbook entry with
+# .update({ status: 'Closed' }) and calls no trail function - because trg_logbook_close_audit (UPDATE OF status) does,
+# server-side, into hive_audit_log. A source read cannot see that, so the page read as "changes data, no trail". A write
+# counts as trailed by a trigger only when a row trigger on that table fires on that operation and inserts into
+# hive_audit_log, and - for an update - covers every key the page's payload sets (the trigger's own column list, or
+# its function body when it names no columns). A payload passed as a variable earns no trigger credit.
+_OP_BIT = {"insert": 4, "delete": 8, "update": 16}
+_TRIGGERS: dict[str, list] = {}
+
+
+def _audit_triggers(table: str) -> list:
+    if table not in _TRIGGERS:
+        # one JSON document: a function body carries newlines, which split a delimited row apart
+        sql = ("select coalesce(json_agg(json_build_object('n', t.tgname, 'ty', t.tgtype, 'src', p.prosrc, 'cols', "
+               "(select coalesce(json_agg(attname), '[]'::json) from pg_attribute where attrelid = t.tgrelid "
+               "and attnum = any(t.tgattr::int2[])))), '[]'::json) from pg_trigger t join pg_proc p on p.oid = t.tgfoid "
+               "where t.tgrelid = to_regclass('public.%s') and not t.tgisinternal and t.tgenabled <> 'D' "
+               "and p.prosrc ilike '%%hive_audit_log%%'" % table)
+        try:
+            r = subprocess.run(["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres",
+                                "-tAc", sql], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30)
+            rows = json.loads((r.stdout or "").strip() or "[]")
+        except Exception:
+            rows = []
+        _TRIGGERS[table] = [(x["n"], int(x["ty"]), list(x.get("cols") or []), x.get("src") or "") for x in rows]
+    return _TRIGGERS[table]
+
+
+def trigger_trail(table: str, op: str, after: str) -> str | None:
+    """The trigger that writes this write's trail, named - or None."""
+    op = op.lower()
+    need = [_OP_BIT["insert"], _OP_BIT["update"]] if op == "upsert" else [_OP_BIT.get(op, 0)]
+    keys = None
+    if op in ("update", "upsert"):
+        m = re.match(r"\s*\{([^{}]*)\}", after)
+        if not m:
+            return None                                 # the payload is a variable: its keys cannot be read here
+        keys = set(re.findall(r"([A-Za-z_][A-Za-z0-9_]*)\s*:", m.group(1)))
+        if not keys:
+            return None
+    for bit in need:
+        hit = None
+        # a trigger scoped to the columns this write sets names the trail most precisely, so it is tried first
+        for name, ty, cols, src in sorted(_audit_triggers(table), key=lambda x: not x[2]):
+            if not (ty & 1) or not (ty & bit):          # a ROW trigger that fires on this operation
+                continue
+            if bit == _OP_BIT["update"] and not (keys <= set(cols) if cols else all(k in src for k in keys)):
+                continue
+            hit = f"{name} ({'UPDATE OF ' + ','.join(cols) if cols and bit == 16 else op.upper()})"
+            break
+        if not hit:
+            return None
+    return hit
+
+
 def _domain_writes(src: str) -> list:
     code = _code_only(src)
     out = []
@@ -91,13 +182,29 @@ def check_page(page: str) -> tuple[str, str]:
     src = ct.page_source(page)
     if not src:
         return "n/a", f"{page} could not be read from disk"
-    writes = bool(_domain_writes(src))
+    ms = _domain_writes(src)
     trail = ct.TRAIL_CALL.search(src)
-    if not writes:
+    if not ms:
         return "n/a", f"{page} makes no user-visible write, so it owes no trail"
     if trail:
         return "ok", f"{page} records its changes in the audit trail (\"{trail.group(0)[:40]}\")"
-    return "BAD", f"{page} changes data but nothing in it or the scripts it loads writes to the audit trail"
+    private, by_db, untrailed = set(), [], []
+    for m in ms:
+        t = re.match(r"\.from\(\s*['\"]([a-z0-9_]+)", m.group(0), re.I).group(1)
+        if owner_private(t):
+            private.add(t)
+            continue
+        hit = trigger_trail(t, m.group(1), m.string[m.end():m.end() + 300])
+        (by_db.append(f"{t}: {hit}") if hit else untrailed.append(t))
+    if untrailed:
+        return "BAD", (f"{page} changes data ({', '.join(sorted(set(untrailed))[:4])}) but nothing in it, the scripts it "
+                       f"loads or a trigger on the table writes to the audit trail")
+    if by_db:
+        return "ok", (f"{page} calls no trail function, and the database writes its trail: "
+                      + "; ".join(sorted(set(by_db))[:3]) + " inserts into hive_audit_log"
+                      + (f"; {', '.join(sorted(private))} is private to its owner" if private else ""))
+    return "n/a", (f"{page} writes only rows no colleague can read ({', '.join(sorted(private))}: every read policy keys "
+                   f"on the row's own auth_uid) - who changed such a record is always its owner, so it owes no hive trail")
 
 
 def write_receipt(row: dict, verdict: str, witness: str) -> None:

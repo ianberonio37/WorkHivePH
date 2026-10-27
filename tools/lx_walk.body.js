@@ -160,6 +160,32 @@ async (mcpPage) => {
     const SAYS_RX = /showing\s+(?:the\s+)?(?:first|most recent|latest|top)\b|first\s+\d+\s+of\b|most recent\s+\d+|newest\s+\d+|latest\s+\d+\s+(?:events|entries|items|rows|records)\b|(?:is|are)\s+not\s+listed\b|\bat\s+least\s+[+]?[\d,]+|capped\s+at|up\s+to\s+\d+\s+(?:rows|items|entries)|only\s+the\s+(?:first|latest|most recent)|over (?:a|the) (?:slice|sample)|of the latest \d+/i;
     const rlSaysM = visText.match(SAYS_RX) || visText.match(BOUND_TXT);
     const rlSays = rlSaysM ? rlSaysM[0].slice(0, 60) : (bounded ? 'a pagination / load-more control' : null);
+    // ★A LIST FOLDED AWAY SHOWS NO TOTAL (2026-10-28, dayplanner x phone). The PM rail ("30 of 80 PMs ... Showing the 30
+    // most urgent of 80") lives in the open-items panel, which starts FOLDED on a phone: the list and its slice sentence
+    // are hidden together, so nothing on screen claims 30 is the total - and the walk read it as "a cap shown as a total".
+    // When no slice sentence is visible, find one inside a part of the page that is not rendered, and count the list rows
+    // that same folded part holds: the banker accepts it only when the hidden part carries the capped list with it.
+    let rlFolded = null;
+    if (!rlSays) {
+      const shown = (el) => !!el && el.getClientRects().length > 0;
+      const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      for (let n = tw.nextNode(); n && !rlFolded; n = tw.nextNode()) {
+        const p = n.parentElement;
+        // a script's or a template's text is never shown to anybody - it is not a sentence the page says
+        // the same two vocabularies the visible check reads ("Showing the 30 most urgent of 80" is BOUND_TXT's)
+        const t = n.textContent || '';
+        if (!p || p.closest('script, style, noscript, template') || shown(p) || !(SAYS_RX.test(t) || BOUND_TXT.test(t))) continue;
+        let fold = p;
+        while (fold.parentElement && fold.parentElement !== document.body && !shown(fold.parentElement)) fold = fold.parentElement;
+        // folded, not hidden: a control on screen OPENS it (aria-controls names it, and it says it is not expanded)
+        const opener = fold.id ? [...document.querySelectorAll('[aria-controls]')].find((b) => shown(b)
+          && b.getAttribute('aria-controls').split(/\s+/).includes(fold.id) && b.getAttribute('aria-expanded') === 'false') : null;
+        rlFolded = { says: (t.match(SAYS_RX) || t.match(BOUND_TXT) || [''])[0].slice(0, 60),
+                     rows: fold.querySelectorAll('li, tr, [role="listitem"], [class*="card"]').length,
+                     at: (fold.id ? '#' + fold.id : fold.tagName.toLowerCase()),
+                     opener: opener ? ((opener.getAttribute('aria-label') || opener.innerText || '').trim().slice(0, 40) || '#' + opener.id) : null };
+      }
+    }
     const nav = performance.getEntriesByType('navigation')[0] || {};
     const lt = window.__lxLongTasks || [];
     // L - the write controls this person is offered
@@ -203,7 +229,7 @@ async (mcpPage) => {
       c: { figures, period: per ? per[0].slice(0, 40) : instM ? instM[0].slice(0, 40) : null, clock: clk ? clk[0].slice(0, 30) : null,
         rolling: rollingM ? rollingM[0].slice(0, 70) : null, calendar: calM ? calM[0].slice(0, 30) : null },
       d,
-      rl: { says: rlSays },
+      rl: { says: rlSays, folded: rlFolded },
       lb: { dcl: Math.round(nav.domContentLoadedEventEnd || 0), load: Math.round(nav.loadEventEnd || 0),
         longTasks: { count: lt.length, total: Math.round(lt.reduce((s, x) => s + x, 0)), max: Math.round(Math.max(0, ...lt)) },
         nodes: document.getElementsByTagName('*').length, maxList: lists[0] || null, bounded },
