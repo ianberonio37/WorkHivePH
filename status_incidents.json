@@ -4,15 +4,24 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 1,
+ "open": 2,
  "resolved": 0,
  "incidents": [
   {
-   "id": "gate-status-incidents-derived",
+   "id": "gate-substrate-freshness",
    "source": "gate",
-   "title": "status-incidents-derived",
+   "title": "substrate-freshness",
    "severity": "major",
-   "started_at": "2026-10-27T01:21:10.154668+00:00",
+   "started_at": "2026-10-27T02:04:42.883747+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-psql-probe-suite",
+   "source": "gate",
+   "title": "psql-probe-suite",
+   "severity": "major",
+   "started_at": "2026-10-27T02:04:42.883747+00:00",
    "ended_at": null,
    "status": "open"
   }

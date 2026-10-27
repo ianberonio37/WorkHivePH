@@ -17,7 +17,12 @@ SELECT sr.id AS job_id, sr.client_auth_uid AS buyer_uid,
            AND hm2.auth_uid NOT IN (
              SELECT h3.auth_uid FROM hive_members h3
               WHERE h3.worker_name = sp.worker_name AND h3.auth_uid IS NOT NULL)
-         LIMIT 1) AS stranger_uid
+           -- not a member of the job's hive: service_requests_party_read lets the hive's active members read
+           -- its jobs, so an unordered pick that landed on a co-member read the job and failed (2026-10-27)
+           AND NOT EXISTS (SELECT 1 FROM hive_members h4 WHERE h4.auth_uid = hm2.auth_uid
+                            AND h4.hive_id = sr.hive_id AND h4.status = 'active')
+           AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins pa WHERE pa.auth_uid = hm2.auth_uid)
+         ORDER BY hm2.auth_uid LIMIT 1) AS stranger_uid
 FROM service_requests sr
 JOIN service_providers sp ON sp.id = sr.matched_provider_id
 WHERE sr.client_auth_uid IS NOT NULL
