@@ -2,7 +2,7 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-10-27T09:28:03Z",
+    "generated_at": "2026-10-27T11:50:45Z",
     "seam_count": 186,
     "by_kind": {
       "saas\u2192ai": 46,
@@ -1895,7 +1895,7 @@
       "caller": "utils.js",
       "callee": "embed-entry",
       "file": "utils.js",
-      "line": 5931,
+      "line": 5937,
       "evidence": "var url = (o.url || (typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : '')) + '/functions/v1/embed-entry';",
       "contract_test": "tools/contract_test_embed_entry_caller.py",
       "contract_note": "Pins the whEmbedEntry wire: verbatim JSON payload + apikey/Bearer headers, caller reads only ok/status (fire-and-forget), wh_embed_retry queue replays the same wire; callee must keep reading a JSON body."

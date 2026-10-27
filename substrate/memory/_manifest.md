@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1058-files
-source_sha: 95f07ed2e0b951eb
+source_sha: d652b0942edbef25
 last_verified: 2026-07-13
 supersedes: null
 ---
