@@ -5477,7 +5477,10 @@ function renderInputForm(calcType) {
         </div>
         <div>
           <div class="field-label">Diversity Factor</div>
-          <input aria-label="Diversity Factor" id="f-diversity" class="wh-input" type="number" value="0.85" min="0.50" max="1.00" step="0.01" />
+          <div class="input-group">
+            <input aria-label="Diversity Factor" id="f-diversity" class="wh-input" type="number" value="0.85" min="0.50" max="1.00" step="0.01" />
+            <span class="input-unit">ratio</span>
+          </div>
         </div>
       </div>
 
@@ -10187,7 +10190,8 @@ async function runCalculation() {
       body: { calc_type: _calcType, inputs }
     });   // AI-4: bounded by a client-side timeout
 
-    if (error || !data) throw new Error(error?.message || 'No response from calculation engine.');
+    if (error) throw error;   // keep its response: the engine's refusal sentence rides on it (edCalcError)
+    if (!data) throw new Error('No response from calculation engine.');
     if (data.error) throw new Error(data.error);
 
     _renderComputed(inputs, data);
@@ -10197,7 +10201,7 @@ async function runCalculation() {
 
   } catch (err) {
     showEmpty();
-    showToast(friendlyAiError(err), 5000);   // AI-8: friendly, non-leaking message
+    showToast(await edCalcError(err), 7000);   // AI-8: friendly, non-leaking - and the engine's own sentence when it sent one
     console.error(err);
   }
 }
@@ -10600,14 +10604,15 @@ async function edOpenSharedFromHash() {
   showLoading();
   try {
     const { data, error } = await invokeWithTimeout('engineering-calc-agent', { body: { calc_type: p.t, inputs } });
-    if (error || !data) throw new Error(error?.message || 'No response from calculation engine.');
+    if (error) throw error;
+    if (!data) throw new Error('No response from calculation engine.');
     if (data.error) throw new Error(data.error);
     _renderComputed(inputs, data);
     drop();
     showToast('Opened a shared ' + whCalcLabel(p.t) + ' calculation. The form keeps its own values: run yours, then Compare.', 8000);
   } catch (err) {
     showEmpty();
-    showToast(friendlyAiError(err), 5000);
+    showToast(await edCalcError(err), 7000);
     console.error(err);
   }
 }
@@ -10717,6 +10722,16 @@ function friendlyAiError(err) {
   if (m.includes('network') || m.includes('failed to fetch')) return 'Network issue: check your connection and try again.';
   if (m.includes('rate') || m.includes('429') || m.includes('quota')) return 'The engineering service is busy right now. Please try again in a moment.';
   return 'Could not generate the report right now. Please try again.';
+}
+
+// ★THE ENGINE SAID WHEN TO COME BACK, AND THE PAGE SAID "TRY AGAIN" (T2 SE walk, 2026-10-27). Past 30 calculations in
+// an hour the function answers 429 "AI call limit reached. Try again in about 40 minutes." - but these call sites
+// rethrew `new Error(error.message)`, and supabase-js's message for ANY non-2xx is "Edge Function returned a non-2xx
+// status code", so the sentence and its time were thrown away and the person was told to try again at once, which
+// could not work for most of an hour. The original error keeps its response (.context); whFnError (utils.js, the
+// shared unwrap) reads the function's own sentence from it, and this page's own mapping stays the fallback.
+async function edCalcError(err) {
+  return (err && err.context) ? whFnError(err, friendlyAiError(err)) : friendlyAiError(err);
 }
 
 // ─── Rotating loading messages: honest about the 2-stage pipeline (compute → AI narrative) ────
@@ -29155,7 +29170,7 @@ async function generateBomSowChecklist() {
       },
     });   // AI-4: bounded by a client-side timeout
 
-    if (error) throw new Error(error.message);
+    if (error) throw error;   // its response carries engineering-bom-sow's own refusal sentence (edCalcError)
     if (data?.error) throw new Error(data.error);
 
     _bomItems    = (data.bom_items    || []).map((item, i) => ({ ...item, item_no: i + 1 }));
@@ -29169,7 +29184,7 @@ async function generateBomSowChecklist() {
   } catch (err) {
     document.getElementById('bom-loading').classList.add('hidden');
     document.getElementById('bom-trigger').classList.remove('hidden');
-    showToast(friendlyAiError(err), 5000);   // AI-8: friendly, non-leaking message
+    showToast(await edCalcError(err), 7000);   // AI-8: friendly, non-leaking - and the function's own sentence when it sent one
     console.error(err);
   }
 }

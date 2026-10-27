@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1057-files
-source_sha: ae18143c65520be6
+source_sha: 5a9477d7c8fdf2d6
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -159,7 +159,7 @@ Entries (name · type · sha):
 - `feedback_a_refresh_is_a_reverification` · feedback · 0e21e056b5e416e3
 - `feedback_a_refresh_that_replaces_a_shared_block_deletes_its_neighbours` · feedback · 83078b16d4f4d83e
 - `feedback_a_refresher_that_anchors_on_its_own_write` · feedback · 80300168b06da1fe
-- `feedback_a_refusal_sentence_has_a_reader_and_a_cause` · feedback · 60ee8d7bcfd4ecdd
+- `feedback_a_refusal_sentence_has_a_reader_and_a_cause` · feedback · 78d92ad1893b4c88
 - `feedback_a_relative_ref_resolves_against_the_served_url` · feedback · 8deea1b0c06f92e9
 - `feedback_a_remembered_turn_needs_when_order_whose` · feedback · cd9cc2dddaa49627
 - `feedback_a_rename_became_a_revocation` · feedback · d7bbe36135ef2bed

@@ -13288,6 +13288,54 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # ★SEE IT DONE BEFORE YOU TRY IT (T2 SE, 2026-10-27). On all 60 calculator pages, signed out at 390 and 1280: the
+        # worked example (or the tool's one-line worked result) sits above the first input, or above the hand-off on the
+        # 57 content pages. Teeth: OEE without its one-line result read the example 1,700px below the first input.
+        "id":      "self-efficacy-calc-vicarious",
+        "script":  os.path.join("tools", "prove_self_efficacy.mjs"),
+        "args":    ["--calc-vicarious"],
+        "label":   "Self-efficacy, vicarious (T2 SE): on all 60 calculator pages a finished worked result stands before the first input (or the hand-off), at 390 and 1280",
+        "group":   "Data",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A STRANGER READS TO THE ANSWER AND REACHES THE TOOL (T2 SE, 2026-10-27). Each learn article, signed out at 390
+        # and 1280: the answer-first block within two screens, and every tool its main content links to reached - the tool,
+        # or a sign-in door whose return chain ENDS at it (community routes through joining a hive first).
+        "id":      "self-efficacy-learn",
+        "script":  os.path.join("tools", "prove_self_efficacy.mjs"),
+        "args":    ["--learn"],
+        "label":   "Self-efficacy, learn (T2 SE): every learn article answers within two screens and its tools are reached by a stranger, at 390 and 1280",
+        "group":   "Data",
+        "skip_if_fast": False,
+    },
+    {
+        # ★A STRANGER COMPUTES A RESULT UNAIDED (T2 SE, 2026-10-27). The 3 pages with their own tool, signed out (the
+        # empty state's named first step taken, a number of their own entered, only what APPEARED read as the result); the
+        # 57 content pages through their own hand-off as a FRESH account (Wave U: honest about a free sign-in): every field
+        # labelled and its unit stated, filled from the page's own guidance, computed, the result in units and exportable.
+        # The stranger accounts are removed after the walk.
+        "id":      "self-efficacy-calc-mastery",
+        "script":  os.path.join("tools", "prove_self_efficacy.mjs"),
+        "args":    ["--calc-mastery"],
+        "label":   "Self-efficacy, mastery (T2 SE): a stranger computes a result on every calculator unaided - inputs explained, units stated, the result readable and exportable",
+        "group":   "Data",
+        "skip_if_fast": True,
+    },
+    {
+        # ★THE 27 PAGES, MET BY SOMEONE WHO HAS NEVER USED THEM (T2 SE, 2026-10-27). For each page the row's cast is made
+        # fresh (an account added to the row's hive with the persona's role; hive.html's worker JOINS with the code) and
+        # runs the page's primary job from the journey registry at 390 and 1280: vicarious (the hive's records or an
+        # example on screen at first paint), mastery (the job done on the page, interactions counted), verbal (the act told
+        # in a sentence), emotional (every destructive act behind its confirm). The accounts are removed after the walk.
+        "id":      "self-efficacy-pages",
+        "script":  os.path.join("tools", "prove_self_efficacy_pages.mjs"),
+        "args":    [],
+        "label":   "Self-efficacy, production pages (T2 SE): a first-timer sees it done, does the job, is told, and can act without fear - on all 27 pages at 390 and 1280",
+        "group":   "Data",
+        "skip_if_fast": True,
+    },
+    {
         # ★DID THEY COME BACK, PROVED FROM THE LEDGER (T2 OUT85-87, 2026-10-27). The console's outcomes panel reads
         # founder_outcomes; this gate computes every figure again in Python from the RAW analytics_events rows (no SQL
         # shared with the RPC), opens the console's Platform tab as a platform admin and reads each [data-fig] span as

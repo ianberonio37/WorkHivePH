@@ -11,6 +11,7 @@ How it works
 MTBF = operating hours / number of failures. MTTR = total repair time / number of repairs. Availability = MTBF / (MTBF + MTTR). For the example: MTBF = 4000/5 = 800 h, MTTR = 40/5 = 8 h, Availability = 800/808 = 99.0%. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 Work out your own MTBF and MTTR
 Enter one asset over one period: how long it ran, how many times it failed and how long the repairs took in total. It works out MTBF, MTTR and availability, says whether repair time or failures cost you more, and lets you print it, save it, share it by link and set two scenarios side by side. It runs on this page: nothing you enter is sent anywhere, and no account is needed.
+Worked example: for a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total, MTBF = 800 h, MTTR = 8 h, Availability = 99 %, Failures = 5. [Every number is in the worked example below](#worked).
 I2: reserved block 
 Worked example (Reliability & Metrics)
 Inputs: a pump that ran 4,000 hours, failed 5 times, and took 40 hours of repair in total.
@@ -40,4 +41,4 @@ Where these figures come from
 Worked example computed when this page was built · the calculator works on your device from what you enter · no live data
  /wh-sources
 
-<!-- md-twin source-sha: f588a059229e4063 -->
+<!-- md-twin source-sha: 8688951e97ca147b -->

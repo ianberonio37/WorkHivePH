@@ -11,6 +11,7 @@ How it works
 OEE = Availability x Performance x Quality. Availability = run time / planned production time; Performance = (ideal cycle time x total count) / run time; Quality = good count / total count. For the example: 0.90 x 0.95 x 0.98 = 0.838, i.e. 83.8%. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 Work out your own OEE
 Enter one shift or one week from your records - planned time, stops and counts - or the three percentages if you already have them. It works out OEE and its three factors, says which loss is the biggest and what fixing it is worth, and lets you print it, save it, share it by link and set two scenarios side by side. It runs on this page: nothing you enter is sent anywhere, and no account is needed.
+Worked example: for a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles, OEE = 83.8 %, Availability = 90 %, Performance = 95 %, Quality = 98 %, TPM benchmark = 85 %. [Every number is in the worked example below](#worked).
 I2: reserved block 
 Worked example (Reliability & Metrics)
 Inputs: a bottling line available 90% of planned time, running at 95% of rated speed, producing 98% good bottles.
@@ -41,4 +42,4 @@ Where these figures come from
 Worked example computed when this page was built · the calculator works on your device from what you enter · no live data
  /wh-sources
 
-<!-- md-twin source-sha: dc1490c1526dd13d -->
+<!-- md-twin source-sha: 3dc1fdfc978b3c7e -->

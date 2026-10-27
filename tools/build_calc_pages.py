@@ -1014,9 +1014,16 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
     tool = data.get("tool")
     tool_html = ""
     if tool:
+        # ★SEE IT DONE BEFORE YOU TRY IT (T2 SE vicarious, 2026-10-27). With the tool placed before the worked example, a
+        # stranger met the inputs ~1,700px above any finished result. The worked example stays where it is; its answer is
+        # stated once more right above the first input, from the same rows, with the way down to every number.
+        done = ", ".join(f"{label} = {val}{(' ' + unit) if unit else ''}" for label, val, unit in rows)
+        glance = (f'      <p class="tool-example">Worked example: for {e(data["example_desc"])}, {e(done)}. '
+                  f'<a href="#worked">Every number is in the worked example below</a>.</p>\n') if rows else ""
         tool_html = (f'\n    <section aria-labelledby="{e(tool["id"])}">\n'
                      f'      <h2 id="{e(tool["id"])}">{e(tool["title"])}</h2>\n'
                      f'      <p>{e(tool["intro"])}</p>\n'
+                     f'{glance}'
                      f'      {tool["mount"]}\n'
                      f'      <script src="{e(tool["script"])}"></script>\n'
                      f'    </section>\n')
