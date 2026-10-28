@@ -7010,6 +7010,8 @@ const WH_AUDIT_THINGS = {
   service_provider_profile: 'service provider profile',
   hive_setting: 'hive setting',
   engineering_calculation: 'engineering calculation',   // 20261028000001: a saved calc is hive-read project evidence
+  progress_report: 'progress report',                   // 20261028000002: filing one, and raising a change order
+  change_order: 'change order',
 };
 
 // What ONE changed column means, by thing. A function receives the new value when the database recorded it (meta.to:
@@ -7034,6 +7036,16 @@ const WH_AUDIT_CHANGES = {
     owner_name: 'Reassigned project item',
     notes: 'Edited notes on project item',
     wbs_code: 'Changed WBS code of project item',
+    pct_complete: 'Updated progress on project item',
+  },
+  project: {
+    status: (v) => ({ planning: 'Moved project back to planning', active: 'Started project', on_hold: 'Put project on hold',
+                      complete: 'Marked project complete', cancelled: 'Cancelled project', archived: 'Archived project' }[v]
+                   || 'Changed project status'),
+    name: 'Renamed project',
+    owner_name: 'Reassigned project',
+    budget_php: 'Changed project budget',
+    meta: 'Edited lessons learned on project',
   },
   rcm_strategy: {
     decision: (v) => 'Set RCM decision' + ({ run_to_failure: ': run to failure', scheduled_on_condition: ': on-condition task',
@@ -7067,7 +7079,8 @@ const WH_AUDIT_CHANGES = {
 };
 const WH_AUDIT_COLUMN_WORDS = { owner_name: 'owner', wbs_code: 'WBS code', task_text: 'task', item_text: 'task',
   auth_token: 'credentials', endpoint_url: 'endpoint', sync_freq: 'sync schedule', display_name: 'name',
-  system_type: 'system', auth_method: 'sign-in method' };
+  system_type: 'system', auth_method: 'sign-in method',
+  pct_complete: 'progress', budget_php: 'budget', meta: 'lessons learned', predecessors: 'dependencies' };
 
 function _whAuditOwn(map, k) {
   return Object.prototype.hasOwnProperty.call(map, k) ? map[k] : null;

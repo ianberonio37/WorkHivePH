@@ -130,25 +130,88 @@ def _audit_triggers(table: str) -> list:
     return _TRIGGERS[table]
 
 
-def trigger_trail(table: str, op: str, after: str) -> str | None:
+def _object_keys(body: str) -> set:
+    """The top-level keys of an object literal's body: `a: 1` and shorthand `a`; a `...spread` is not a key."""
+    parts, depth, quote, cur, i = [], 0, None, "", 0
+    while i < len(body):                                # split at the commas that are not inside a nested value
+        ch = body[i]
+        if quote:
+            cur += ch
+            if ch == "\\" and i + 1 < len(body):
+                cur += body[i + 1]
+                i += 2
+                continue
+            if ch == quote:
+                quote = None
+        elif ch in "'\"`":
+            quote = ch
+            cur += ch
+        elif ch in "([{":
+            depth += 1
+            cur += ch
+        elif ch in ")]}":
+            depth -= 1
+            cur += ch
+        elif ch == "," and depth == 0:
+            parts.append(cur)
+            cur = ""
+        else:
+            cur += ch
+        i += 1
+    parts.append(cur)
+    keys = set()
+    for p in parts:
+        p = p.strip()
+        m = re.match(r"([A-Za-z_][A-Za-z0-9_]*)\s*:", p) or re.fullmatch(r"([A-Za-z_][A-Za-z0-9_]*)", p)
+        if m and not p.startswith("..."):
+            keys.add(m.group(1))
+    return keys
+
+
+def _literal_body(src: str, open_at: int) -> str | None:
+    """The text between the `{` at open_at and its matching `}`."""
+    depth = 0
+    for j in range(open_at, min(len(src), open_at + 4000)):
+        if src[j] == "{":
+            depth += 1
+        elif src[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return src[open_at + 1:j]
+    return None
+
+
+def trigger_trail(table: str, op: str, after: str, src: str = "", pos: int = 0) -> str | None:
     """The trigger that writes this write's trail, named - or None."""
     op = op.lower()
     need = [_OP_BIT["insert"], _OP_BIT["update"]] if op == "upsert" else [_OP_BIT.get(op, 0)]
     keys = None
     if op in ("update", "upsert"):
-        m = re.match(r"\s*\{([^{}]*)\}", after)
-        if not m:
+        body = _literal_body(after, after.find("{")) if after.lstrip().startswith("{") else None
+        if body is None:
             return None                                 # the payload is a variable: its keys cannot be read here
-        keys = set(re.findall(r"([A-Za-z_][A-Za-z0-9_]*)\s*:", m.group(1)))
+        keys = _object_keys(body)
+        # ★A SPREAD IS READ WHERE IT WAS BUILT (2026-10-28, project-manager): `.update({ ...payload, updated_at })`
+        # names one key; the payload is the `const payload = { ... }` just above it. The nearest preceding literal of
+        # that name, in the same source, supplies its keys. A spread built some other way (`const extra = done ?
+        # {...} : {}`) adds keys nobody can list here; the explicit keys still decide - a trigger they make fire
+        # records every column that changed, the spread's included.
+        for sp in re.findall(r"\.\.\.\s*([A-Za-z_][A-Za-z0-9_]*)", body):
+            defs = [d for d in re.finditer(r"\b(?:const|let|var)\s+" + sp + r"\s*=\s*\{", src[:pos])]
+            inner = _literal_body(src, defs[-1].end() - 1) if defs else None
+            if inner is not None:
+                keys |= _object_keys(inner)
         if not keys:
             return None
     for bit in need:
         hit = None
         # a trigger scoped to the columns this write sets names the trail most precisely, so it is tried first
-        for name, ty, cols, src in sorted(_audit_triggers(table), key=lambda x: not x[2]):
+        for name, ty, cols, src_fn in sorted(_audit_triggers(table), key=lambda x: not x[2]):
             if not (ty & 1) or not (ty & bit):          # a ROW trigger that fires on this operation
                 continue
-            if bit == _OP_BIT["update"] and not (keys <= set(cols) if cols else all(k in src for k in keys)):
+            # UPDATE OF a,b fires when ANY listed column is in the write's SET list (Postgres), so a column-scoped
+            # trigger covers the write when the two overlap; a trigger on every update must name the keys it records
+            if bit == _OP_BIT["update"] and not ((keys & set(cols)) if cols else all(k in src_fn for k in keys)):
                 continue
             hit = f"{name} ({'UPDATE OF ' + ','.join(cols) if cols and bit == 16 else op.upper()})"
             break
@@ -194,7 +257,7 @@ def check_page(page: str) -> tuple[str, str]:
         if owner_private(t):
             private.add(t)
             continue
-        hit = trigger_trail(t, m.group(1), m.string[m.end():m.end() + 300])
+        hit = trigger_trail(t, m.group(1), m.string[m.end():m.end() + 600], m.string, m.start())
         (by_db.append(f"{t}: {hit}") if hit else untrailed.append(t))
     if untrailed:
         return "BAD", (f"{page} changes data ({', '.join(sorted(set(untrailed))[:4])}) but nothing in it, the scripts it "
