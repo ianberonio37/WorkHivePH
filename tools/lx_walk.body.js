@@ -164,7 +164,7 @@ async (mcpPage) => {
     // tools/prove_consumption_bound.py (SAYS) accepts, so the live reading and the static prover agree on the words
     // (+ "latest 30 events", "... are not listed here" and "at least <n>" - a figure said to be a floor, 2026-10-28: achievements' recent-activity head says exactly
     // that - "latest 30 events; older events are not listed here" - and this read it as a cap shown as a total)
-    const SAYS_RX = /showing\s+(?:the\s+)?(?:first|most recent|latest|top)\b|first\s+\d+\s+of\b|most recent\s+\d+|newest\s+\d+|latest\s+\d+\s+(?:events|entries|items|rows|records)\b|(?:is|are)\s+not\s+listed\b|\bat\s+least\s+[+]?[\d,]+|capped\s+at|up\s+to\s+\d+\s+(?:rows|items|entries)|only\s+the\s+(?:first|latest|most recent)|over (?:a|the) (?:slice|sample)|of the latest \d+/i;
+    const SAYS_RX = /showing\s+(?:the\s+)?(?:first|most recent|latest|top)\b|first\s+\d+\s+of\b|most recent\s+\d+|newest\s+\d+|latest\s+\d+\s+(?:events|entries|items|rows|records)\b|(?:is|are)\s+not\s+listed\b|\bat\s+least\s+[+]?[\d,]+|capped\s+at|up\s+to\s+\d+\s+(?:rows|items|entries)|only\s+the\s+(?:first|latest|most recent)|over (?:a|the) (?:slice|sample)|of the latest \d+|\b\d+\s+(?:most recent|newest|latest)\s+of\s+[\d,]+/i;
     const rlSaysM = visText.match(SAYS_RX) || visText.match(BOUND_TXT);
     const rlSays = rlSaysM ? rlSaysM[0].slice(0, 60) : (bounded ? 'a pagination / load-more control' : null);
     // ★A LIST FOLDED AWAY SHOWS NO TOTAL (2026-10-28, dayplanner x phone). The PM rail ("30 of 80 PMs ... Showing the 30

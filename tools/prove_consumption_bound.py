@@ -43,7 +43,9 @@ SAYS = re.compile(r"(showing\s+(?:the\s+)?(?:first|most recent|latest|top)\b|fir
                   r"most recent\s+\d+|load\s*more|show\s*more|see\s*all\b|view\s*all\b|"
                   r"newest\s+\d+|latest\s+\d+\s+(?:events|entries|items|rows|records)\b|(?:is|are)\s+not\s+listed\b|\bat\s+least\s+[+]?[\d,]+|"
                   r"capped\s+at|up\s+to\s+\d+\s+(?:rows|items|entries)|"
-                  r"only\s+the\s+(?:first|latest|most recent))", re.I)
+                  r"only\s+the\s+(?:first|latest|most recent)|"
+                  # "the 5 most recent of 64" - the number before the phrase (report-sender's history, 2026-10-28)
+                  r"\b\d+\s+(?:most recent|newest|latest)\s+of\s+[\d,]+)", re.I)
 COMMENT = re.compile(r"<!--.*?-->", re.S)
 # the platform's own words for "this ceiling is insurance, not a display slice"
 INSURANCE = re.compile(r"insurance cap|cap-ok|bounded-by-nature|bounded by nature|never truncates|"

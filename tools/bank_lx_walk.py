@@ -150,6 +150,13 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
         txt = f"{ca.get('crewCount')} crew word(s) ({', '.join((ca.get('crew') or [])[:8])})"
         if ca.get("jargon"):
             return "FAIL", txt + f", and developer words leak into the page: {', '.join(ca['jargon'])}"
+        # ★A ONE-SENTENCE STATE CANNOT CARRY FOUR CREW WORDS (2026-10-28, project-report as a hive with no projects:
+        # "No projects in this hive yet. Create one in the Project Manager and its report will build here."). The density
+        # rule is for a page with content; an empty, choice or refusal state under 600 characters is judged on what it
+        # must never do - leak a developer's words - and passes when it does not.
+        if (ca.get("crewCount") or 0) < 4 and (h.get("chars") or 0) < 600:
+            return "ok", (txt + f" on a {h.get('chars')}-character state screen (empty, choice or refusal) - too short to "
+                          "owe four crew words, and no developer word leaks")
         if (ca.get("crewCount") or 0) < 4:
             return "FAIL", txt + " - fewer than four of the crew's own words"
         return "ok", txt + ", no developer word leaking" + (" (the accessibility-tree text)" if persona == "assistive-tech" else "")
