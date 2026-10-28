@@ -90,7 +90,7 @@ def cast_for(persona: str, vertical: str, ros: dict) -> dict | None:
         if not others:
             return None
         n, u, hid, _ = ros[others[0]]["worker"][0]
-        return {"castName": n, "user": u, "hiveId": hid, "castRole": f"worker of {others[0]} (another hive)"}
+        return {"castName": n, "user": u, "hiveId": hid, "castHive": others[0], "castRole": f"worker of {others[0]} (another hive)"}
     want = "supervisor" if persona in SUP_PERSONAS else "worker"
     # ★A PERSONA IS WALKED AS ITS OWN ROLE, OR NOT AT ALL (2026-10-28). Lucena's and Baguio's supervisors are platform
     # admins, and the walk fell back to a WORKER for the fleet-supervisor persona; Ramos Jeepney Line had no worker
@@ -102,7 +102,8 @@ def cast_for(persona: str, vertical: str, ros: dict) -> dict | None:
     if not pool:
         return None
     n, u, hid, _ = pool[0]
-    return {"castName": n, "user": u, "hiveId": hid, "castRole": f"{want} of {vertical}"}
+    # castHive: the hive's NAME as a person reads it on the page - the S/U reading asks whether the page names it
+    return {"castName": n, "user": u, "hiveId": hid, "castHive": vertical, "castRole": f"{want} of {vertical}"}
 
 
 def _lit(s: str) -> str:
@@ -155,17 +156,26 @@ def open_rows(waves: tuple = WALK_WAVES) -> list[dict]:
             continue
         t = reg[r["id"]]
         d = desc(t)
-        if d.get("layer") not in BROWSER_LAYERS or held_lens(d):
+        browser = d.get("layer") in BROWSER_LAYERS or (d.get("pillar") == "U" and d.get("layer") in U_ONLY_LAYERS)
+        if not browser or held_lens(d):
             continue
         out.append(t)
     return out
 
 
+# ★THE CONTRACT LAYERS' U PILLAR IS A PAGE READING (2026-10-28). S, AU and H close F and I on their library provers
+# (tenant refusal, the identity replay, the served headers); "the person can TELL" is what the page says - whose rows
+# these are or that they were withheld (S), that a session is ending (AU, the platform's own idle prompt), that the
+# network went away (H, the offline banner) - so only their U rows join the walk.
+U_ONLY_LAYERS = ("S", "AU", "H")
+
+
 def held_lens(d: dict) -> bool:
-    """A cube lens no walk reading answers yet (bank_lx_walk.pillar_view HOLDs it): U on the trail (its evidence is in
-    postgres) and A off the A layer. Walking its cell again would read the same and hold it again."""
+    """A cube lens no walk reading answers yet (bank_lx_walk.pillar_view HOLDs it): A off the A layer. Walking its cell
+    again would read the same and hold it again. (U on the trail joined the walk 2026-10-28: the page is read for who
+    did what.)"""
     p, ly = d.get("pillar"), d.get("layer")
-    return (p == "U" and ly == "L") or (p == "A" and ly != "A")
+    return p == "A" and ly != "A"
 
 
 def ensure_shift_plans(batch: list) -> None:

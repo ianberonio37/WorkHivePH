@@ -50,7 +50,10 @@ async (mcpPage) => {
   const stubBody = (v) => Object.assign({ ok: true, data: Object.assign(fill(v), { actions: [], items: [], cited: [] }) }, fill(v));
 
   // the readings that run INSIDE the page
-  const READ = (persona) => {
+  const READ = (arg) => {
+    // the persona, and (since 2026-10-28) the cast's hive as a person reads its name - the S/U reading asks if the page says it
+    const persona = arg && typeof arg === 'object' ? arg.persona : arg;
+    const hiveName = arg && typeof arg === 'object' ? String(arg.hive || '') : '';
     const at = persona === 'assistive-tech';
     const hiddenUp = (el) => { for (let n = el; n && n.nodeType === 1; n = n.parentElement) { if (n.getAttribute('aria-hidden') === 'true' || n.hasAttribute('inert')) return true; } return false; };
     const shown = (el) => { try { return typeof el.checkVisibility === 'function' ? el.checkVisibility({ visibilityProperty: true, opacityProperty: true, contentVisibilityAuto: true }) : el.offsetParent !== null; } catch (e) { return true; } };
@@ -198,12 +201,16 @@ async (mcpPage) => {
     // L - the write controls this person is offered
     // a VERB that changes something, whole-word: a tab called "Reports" or "Logbook" is navigation, and "Close" /
     // "Cancel" dismiss a dialog - none of them is a change this person makes (2026-10-08, analytics-report x solo-owner)
-    const WRITE_RX = /^(save|submit|add|create|post|log|record|delete|remove|approve|reject|update|edit|send|upload|assign|complete|mark|confirm|publish|claim|join|request|book|order|buy|sell|rate|reply|comment|vote|flag|invite|accept|decline|apply|redeem|reserve|archive|restore|pin|follow|revoke|grant|upgrade|generate|new)\b(?!s\b)|^\+\s*[a-z]/i;   // "+ Add", "+Schedule" - never "+60": a tappable figure is not a write (2026-10-28)
+    // (+ seen / unsee / snooze / handled / acknowledge / dismiss / resolve / register, 2026-10-28: alert-hub's triage controls
+    // change hive state under the actor's name and read as "no write")
+    const WRITE_RX = /^(save|submit|add|create|post|log|record|delete|remove|approve|reject|update|edit|send|upload|assign|complete|mark|confirm|publish|claim|join|request|book|order|buy|sell|rate|reply|comment|vote|flag|invite|accept|decline|apply|redeem|reserve|archive|restore|pin|follow|revoke|grant|upgrade|generate|new|seen|unsee|snooze|handled|acknowledge|dismiss|resolve|register)\b(?!s\b)|^\+\s*[a-z]/i;   // "+ Add", "+Schedule" - never "+60": a tappable figure is not a write (2026-10-28)
     const writes = [...document.querySelectorAll('button, [role=button], input[type=submit], a.btn, a[class*="button"]')]
       // a control the page declares LOCAL (data-wh-local: it changes only what is on screen - assistant's New Chat)
       // is not a write, whatever its label; the declaration sits beside the code it describes, for review
       .filter((b) => shown(b) && !hiddenUp(b) && !b.disabled && b.getAttribute('data-wh-local') !== 'true')
       .map((b) => (b.innerText || b.value || b.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim())
+      // a label led by a symbol ("👁 Seen", "💾 Save", "✓ Handled") is judged on its first WORD; "+" stays, it is the "+ Add" form
+      .map((t) => t.replace(/^[^\p{L}\p{N}+]+/u, ''))
       .filter((t) => t && t.length < 40 && WRITE_RX.test(t));
     // AV - machine output and its honesty marks
     const MODEL_TXT = /\bAI\b|insight|predicted|prediction|forecast|recommend|risk score|anomaly|suggested|generated|summary by|assistant/i;
@@ -312,8 +319,27 @@ async (mcpPage) => {
       dupIds: Object.entries(idCount).filter(([, n]) => n > 1).map(([k, n]) => `${k} x${n}`).slice(0, 6),
       stuck: stuckEl ? describeEl(stuckEl) : null,
       escape: [...new Set(escapes)].slice(0, 3).concat(hubFab && shown(hubFab) ? ['the nav hub'] : []) };
+    // U on the contract layers (2026-10-28) - what the PERSON can tell, read from the settled page. S: whose rows these are
+    // (the hive named, or "your ...") or that something was withheld; L: who did what, on the records or one tap away.
+    // (AU's idle prompt and H's offline banner are induced after the healthy read.)
+    const SCOPE_YOURS = /\byour (?:own )?(?:hive|team|crew|plant|site|records?|logbook|log|entries|assets?|machines?|jobs?|tasks?|projects?|listings?|shop|schedule|profile|skills?|history|account|resume|day|shift|plan|alerts?|parts?|stock|inventory|reports?|growth|xp|achievements?|badges?)\b/i;
+    const REFUSE_RX = /not visible to you|no access|don.?t have access|do not have access|not a member|no longer a member|supervisors? only|only (?:a |the |your )?supervisors?|sign in to|ask (?:its|your|the) (?:manager|supervisor|owner)|belongs to (?:another|a hive)|isn.?t yours|not yours|join (?:a|your) hive|you need a hive|without a hive|no hive yet|create (?:a|your) hive/i;
+    // who did what: "logged by X" / "X logged" / a record's meta line "Ben Ocampo · 2h ago"
+    // the "<verb> by <Name>" form in any case ("Seen by Rosa dela Cruz" leads with a capital), the name forms case-exact
+    const ATTR_BY_RX = /\b(?:logged|added|edited|updated|closed|created|completed|assigned|approved|signed off|reported|posted|recorded|scheduled|resolved|submitted|changed|removed|requested|accepted|rejected|handled|snoozed|seen|acknowledged|hidden|dismissed|marked)\s+by\s+(?:you\b|[A-Z][\w.'-]+)/i;
+    const ATTR_RX = /\b(?:You|[A-Z][a-z]+\s+(?:(?:dela|de|del)\s+)?[A-Z][a-z]+)\s+(?:logged|added|edited|updated|closed|created|completed|posted|recorded|approved|changed|requested|replied|reacted)\b|\b[A-Z][a-z]+\s+(?:(?:dela|de|del)\s+)?[A-Z][a-z]+\s*[·•|—–-]\s*[^·•|\n]{0,30}?\b(?:\d+\s*(?:m|h|d|min|mins|hr|hrs|hours?|days?)\s+ago|ago|today|yesterday|just now|\d{1,2}:\d{2}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2})/;
+    // a control whose NAME is about who-did-what (its label, not a card's whole text - an entry card that mentions a fault
+    // history is not a history control); logbook's "Team Feed" is where each entry carries the name of who logged it
+    const HIST_RX = /^(?:view |see |open |show )?(?:the |this |team |hive )?(?:history|activity(?: log)?|audit(?: log| trail)?|change log|timeline|team feed|who changed)\b/i;
+    const histEl = [...document.querySelectorAll('a[href], button, [role=button], [role=tab], summary')].find((e) => shown(e) && !hiddenUp(e)
+      && (/audit-log\.html/.test(e.getAttribute('href') || '')
+        || [e.getAttribute('aria-label') || '', e.innerText || ''].some((s) => HIST_RX.test(s.replace(/^[^\p{L}\p{N}]+/u, '').trim()))));
+    const u = { hiveNamed: !!(hiveName && visText.toLowerCase().includes(hiveName.toLowerCase())) ? hiveName : null,
+      yours: (ownText.match(SCOPE_YOURS) || [null])[0], refusal: (visText.match(REFUSE_RX) || [null])[0],
+      attrib: (visText.match(ATTR_BY_RX) || visText.match(ATTR_RX) || [null])[0],
+      history: histEl ? (histEl.innerText || histEl.getAttribute('aria-label') || histEl.getAttribute('href') || '').replace(/\s+/g, ' ').trim().slice(0, 40) : null };
     return {
-      f,
+      f, u,
       url: location.pathname.split('/').pop(), chars: visText.length, ownChars: ownText.length, region: root === document.body ? 'body' : 'main', atChars: at ? text.length : null,
       worker: localStorage.getItem('wh_last_worker'),
       session: Object.keys(localStorage).some((k) => /^sb-.*-auth-token$/.test(k) && /access_token/.test(localStorage.getItem(k) || '')),
@@ -428,7 +454,7 @@ async (mcpPage) => {
         page.on('requestfailed', (rq) => {
           try { const u = rq.url(); if (/127\.0\.0\.1:54321|localhost:5000/.test(u)) V.http.push({ mode, pg: curPage, st: 0, u: u.replace(/^https?:\/\/[^/]+/, '').slice(0, 120), m: rq.method(), fail: (rq.failure() || {}).errorText }); } catch (e) { void e; }
         });
-        const read = async () => page.evaluate(READ, cell.persona).catch((e) => ({ error: String(e.message || e).slice(0, 120), chars: 0 }));
+        const read = async () => page.evaluate(READ, { persona: cell.persona, hive: cell.castHive || '' }).catch((e) => ({ error: String(e.message || e).slice(0, 120), chars: 0 }));
         const settle = async (min = 300, tries = 8) => {
           let r = await read(); let prev = -1;
           for (let i = 0; i < tries && (r.chars < min || r.chars !== prev); i++) { prev = r.chars; await page.waitForTimeout(1200); r = await read(); }
@@ -510,6 +536,29 @@ async (mcpPage) => {
         }
         curPage = cell.page;
         if (!V.healthy) { await page.goto(`${P.origin}/${cell.page}${arrive(cell.page)}`, { waitUntil: 'load', timeout: 60000 }).catch(() => {}); V.healthy = await settle(300, 10); }
+        // ── L, who did what ONE TAP AWAY (2026-10-28). A register's first screen is its list; who added, changed or
+        // completed a record is on the record (asset-hub's detail timeline: "PM completed by ..."). When the settled page
+        // names nobody and offers no history control, open the FIRST record the way a person does - one tap - read it,
+        // and come back. Writes are held by the route above, so opening a record changes nothing.
+        if (cell.rows.some((r) => r.pillar === 'U' && r.layer === 'L') && V.healthy && V.healthy.u && !V.healthy.u.attrib && !V.healthy.u.history) {
+          const opened = await page.evaluate(() => {
+            const sel = '[data-entry-id], [data-node-id], .asset-card, .entry-card, [role=button][aria-label^="Open"], [onclick*="openDetail"], [onclick*="openModal"], [onclick*="openEntry"]';
+            const el = [...document.querySelectorAll(sel)].find((x) => x.getClientRects().length && !x.closest('[aria-hidden="true"], [inert]'));
+            if (!el) return null;
+            const label = (el.getAttribute('aria-label') || el.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+            el.click();
+            return label || '(a record)';
+          }).catch(() => null);
+          if (opened) {
+            await page.waitForTimeout(2500);
+            const r2 = await read();
+            V.oneTap = { opened, attrib: (r2.u || {}).attrib || null, history: (r2.u || {}).history || null };
+            await page.goto(`${P.origin}/${cell.page}${arrive(cell.page)}`, { waitUntil: 'load', timeout: 60000 }).catch(() => {});
+            await settle(300, 6);
+          } else {
+            V.oneTap = { opened: null };
+          }
+        }
         // ── AV: the model answers confidently WRONG; does the page say it is a machine's answer? ──
         if (layers.has('AV')) {
           mode = 'wrong';
@@ -539,6 +588,58 @@ async (mcpPage) => {
           for (let i = 0; i < 16; i++) { await page.waitForTimeout(1000); late = await read(); if (late.chars >= Math.max(200, (V.healthy.chars || 0) * 0.6) && !late.a.busy) break; }
           V.slow = { early: { chars: early.chars, busy: early.a.busy, loadingWords: early.a.loadingWords }, late: { chars: late.chars, busy: late.a.busy || !!late.a.loadingWords }, healthyChars: V.healthy.chars };
           mode = 'healthy';
+        }
+        // the layers whose U ("the person can tell") rows this cell answers - only those pay for an induction below
+        const uLayers = new Set(cell.rows.filter((r) => r.pillar === 'U').map((r) => r.layer));
+        // ── AU, what the PERSON is told (2026-10-28): the platform's own idle path - session-timeout.js's documented
+        // WH_IDLE_TIMEOUT_OVERRIDE hook, set before the script runs, on a SECOND tab of this signed-in context so the main
+        // reading above was never raced by a prompt. The reading is the one tools/prove_lxp_au_session_identity.mjs takes:
+        // is the ending announced (a role), named, and given focus. The hard clear stays at an hour, so nothing signs out.
+        if (uLayers.has('AU') && !anon) {
+          const p2 = await ctx.newPage();
+          try {
+            await p2.addInitScript(() => { window.WH_IDLE_TIMEOUT_OVERRIDE = { idle: 1500, hard: 3600000, check: 400 }; });
+            await p2.goto(`${P.origin}/${cell.page}${arrive(cell.page)}`, { waitUntil: 'load', timeout: 60000 }).catch(() => {});
+            let idle = null;
+            for (let i = 0; i < 20 && !(idle && idle.prompt); i++) {
+              await p2.waitForTimeout(700);
+              idle = await p2.evaluate(() => {
+                const ov = [...document.querySelectorAll('[role=alertdialog], [role=dialog], [role=alert], [aria-live]')]
+                  .find((e) => e.getClientRects().length && /still (?:here|there|working)|are you still|sign(?:ed)? (?:you )?out|session|inactive|idle/i.test(e.innerText || ''));
+                if (!ov) return { prompt: false };
+                const lb = ov.getAttribute('aria-labelledby');
+                const name = (ov.getAttribute('aria-label') || (lb ? lb.split(/\s+/).map((id) => (document.getElementById(id) || {}).textContent || '').join(' ') : '')).replace(/\s+/g, ' ').trim();
+                return { prompt: true, role: ov.getAttribute('role'), live: ov.getAttribute('aria-live'), name: name.slice(0, 80),
+                         focusIn: ov.contains(document.activeElement), text: (ov.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 160) };
+              }).catch(() => null);
+            }
+            V.idle = idle || { prompt: false };
+          } finally { await p2.close().catch(() => {}); }
+        }
+        // ── H, what the PERSON is told (2026-10-28): the network goes away under the open page, then comes back. Walk
+        // contexts block service workers, so this reads the platform's own signal (offline-banner.js, the hub's connection
+        // pill) and counts only what APPEARED - a page whose copy already says "works offline" is not thereby telling anyone.
+        if (uLayers.has('H')) {
+          const OFF = "you are offline|you'?re offline|\\boffline\\b|no connection|not connected|no internet|lost connection|connection lost|saved copy|reconnecting";
+          const offRead = () => page.evaluate((src) => {
+            const t = document.body.innerText || '';
+            const live = [...document.querySelectorAll('[aria-live], [role=status], [role=alert]')]
+              .filter((e) => e.getClientRects().length && new RegExp(src, 'i').test(e.innerText || '')).map((e) => (e.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 90));
+            const all = t.match(new RegExp(src, 'gi')) || [];
+            return { n: all.length, live, sample: (t.match(new RegExp('[^.\\n]{0,40}(?:' + src + ')[^.\\n]{0,40}', 'i')) || [null])[0] };
+          }, OFF).catch(() => ({ n: 0, live: [], sample: null }));
+          const before = await offRead();
+          await ctx.setOffline(true).catch(() => {});
+          let after = before;
+          for (let i = 0; i < 10; i++) { await page.waitForTimeout(600); after = await offRead(); if (after.n > before.n || after.live.length > before.live.length) break; }
+          await ctx.setOffline(false).catch(() => {});
+          let back = null;
+          for (let i = 0; i < 8 && !back; i++) {
+            await page.waitForTimeout(600);
+            back = await page.evaluate(() => ((document.body.innerText || '').match(/back online|you'?re (?:back )?online|reconnected|connection (?:is )?(?:back|restored)|online again/i) || [null])[0]).catch(() => null);
+          }
+          V.offline = { said: (after.n > before.n || after.live.length > before.live.length) ? (after.live.find((x) => !before.live.includes(x)) || after.sample) : null,
+                        announced: after.live.length > before.live.length, back };
         }
       } catch (err) {
         if (String(err.message || err) !== 'signed out') V.problems.push('the walk threw: ' + String(err.message || err).split('\n')[0].slice(0, 140));

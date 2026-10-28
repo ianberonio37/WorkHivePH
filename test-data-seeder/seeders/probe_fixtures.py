@@ -68,8 +68,21 @@ def seed_probe_fixtures(client, log) -> dict:
                                           "skills": [{"name": "Preventive maintenance", "level": "Advanced"}]}}])
         put("report_contacts", [{"hive_id": hive_id, "name": f"Seed contact {n + 1}",
                                  "email": f"seed.contact{n + 1}@example.test", "label": "Plant manager"}])
-        put("alert_dismissals", [{"hive_id": hive_id, "alert_key": f"seed:pm-overdue:{n + 1}", "action": "handled",
-                                  "actor": name}])
+        # ★A DISMISSAL KEYED TO AN ALERT THAT EXISTS (2026-10-28). The fixture used "seed:pm-overdue:N", a key no alert ever
+        # carries, so no hive's feed ever had a hidden or a seen alert, and "who hid it" was on no page for a walk to read.
+        # alert-hub keys a PM alert 'pm:' + pm_asset_id for an OVERDUE asset (v_pm_scope_items_truth.is_overdue): one is
+        # marked handled (hidden for the hive, under the author's name) and one seen (kept, dimmed, under the name). A fleet
+        # hive has no overdue PM, so its keys come from the newest failure-signature alerts the feed lists
+        # ('pattern:' + machine + ':' + rule_id-or-title, the 20 newest of v_alert_truth).
+        od = (client.table("v_pm_scope_items_truth").select("pm_asset_id").eq("hive_id", hive_id).eq("is_overdue", True)
+              .order("pm_asset_id").limit(200).execute().data or [])
+        sig = (client.table("v_alert_truth").select("machine, rule_id, title").eq("hive_id", hive_id)
+               .eq("alert_kind", "signature").order("detected_at", desc=True).order("alert_id").limit(20).execute().data or [])
+        alert_keys = list(dict.fromkeys(["pm:" + k for k in sorted({r["pm_asset_id"] for r in od if r.get("pm_asset_id")})]
+                                        + [f"pattern:{s.get('machine') or ''}:{s.get('rule_id') or s.get('title') or ''}"
+                                           for s in sig]))[:2]
+        put("alert_dismissals", [{"hive_id": hive_id, "alert_key": k, "action": act, "actor": name}
+                                 for k, act in zip(alert_keys, ("handled", "acknowledged"))])
         put("analytics_snapshots", [{"hive_id": hive_id, "phase": "descriptive", "period_days": 30,
                                      "payload": {"seed": True, "mtbf_hours": None, "note": "sample snapshot"},
                                      "computed_by": name}])

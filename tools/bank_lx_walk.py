@@ -58,10 +58,17 @@ GATES = {"CA": ["w4-layer-ca"], "C": ["w4-layer-clock", "clock-and-trail"],
          "A": ["w4-layer-availability", "cc_failure_injection"], "D": ["w4-layer-provenance", "source-chip-truth"],
          "RL": ["consumption-bound"],
          # the gate the LXP F rows already name: it re-reads the render contract and reddens on a revert
-         "F": ["render-contract"]}
+         "F": ["render-contract"],
+         # the contract layers' U rows (2026-10-28): the layer's own W4 gate beside the prover of the behaviour the page
+         # speaks about - the refusal, the session-ending prompt, the offline banner
+         "S": ["w4-layer-entitlement", "tenant-refusal"], "AU": ["w4-layer-session", "lxp-au-session-identity"],
+         "H": ["w4-layer-headers", "offline-resilience"]}
 # the instrument the LEDGER asks of each layer's lens (live_walk_manifest._mcp_for), written into the receipt
 INSTRUMENT = {"CA": "playwright-mcp", "LB": "playwright-mcp", "AV": "playwright-mcp", "CI": "playwright-mcp",
               "F": "playwright-mcp",
+              # U on S and AU: the page read in the browser, the cast and its hive resolved in postgres; U on H is the
+              # page alone (the served headers closed on F)
+              "S": "playwright-mcp + postgres-mcp", "AU": "playwright-mcp + postgres-mcp", "H": "playwright-mcp",
               "C": "playwright-mcp + postgres-mcp", "L": "playwright-mcp + postgres-mcp",
               "A": "playwright-mcp + postgres-mcp", "D": "playwright-mcp + postgres-mcp",
               "RL": "playwright-mcp + postgres-mcp"}
@@ -304,8 +311,22 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
         src = ctx.get("trailSrc") or ("?", "")
         trail = ctx.get("trailPg") or ""
         if not writes:
-            return "n/a", (f"offers this person no write at this width, so nothing they do here has a trail to leave "
-                           f"({src[1][:120]})")
+            # ★"NO WRITE ON THE FIRST SCREEN" IS NOT "THIS PAGE WRITES NOTHING" (2026-10-28). The visible-control reading
+            # closed 268 production rows as n/a - logbook's Save Entry sits behind its wizard's first step, alert-hub's
+            # triage controls are led by a symbol - so whether who-did-what is recorded hung on where the write was drawn.
+            # The page's writes are read from its source (prove_w4_layer_trail.check_page): writes that reach the trail are
+            # the F answer; writes that do not are a FAIL; only a page whose source writes nothing is n/a.
+            if src[0] == "BAD":
+                return "FAIL", f"no write on this person's first screen, and the page's own writes do not reach the trail: {src[1]}"
+            if src[0] == "ok":
+                return "ok", (f"no write on this person's first screen at this width; the page's own writes (behind its flow) "
+                              f"reach the trail - {src[1][:160]}")
+            return "n/a", (f"offers this person no write at this width, and the page's source writes nothing that would "
+                           f"leave a trail ({src[1][:120]})")
+        # a control that LOOKS like a write on a page whose source stores nothing a colleague could read (analytics-report's
+        # "Generate Report" compiles a document in the browser) leaves no act for a trail to name
+        if src[0] == "n/a" and not ctx.get("noHive"):
+            return "n/a", f"offers {', '.join(writes[:5])}, but the page stores nothing a trail would owe ({src[1][:140]})"
         # ★A PERSON WITH NO HIVE HAS NO TRAIL ROW TO FIND BEFORE THEIR FIRST ACT (2026-10-28). The postgres witness counts
         # rows naming them, which is zero for anybody who has not yet created or joined a hive - true of every first
         # visit, so it failed the honest case for ever. Their trail is judged where it is decided: the page they were
@@ -408,6 +429,43 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
             return "FAIL", txt + " - " + "; ".join(bad)
         return "ok", (txt + " - nothing past the viewport, no target under 24px, every control named, one h1, a main "
                       "landmark" + (", a skip link that lands" if f.get("skip") else "") + ", no duplicate id, nothing stuck")
+    # ★THE CONTRACT LAYERS' U PILLAR (2026-10-28). Only these rows of S, AU and H are walked (lx_walk_args.U_ONLY_LAYERS);
+    # their F and I pillars close on the library provers. Each judge reads what the PERSON is told, never the database.
+    if layer == "S":
+        u = h.get("u")
+        if u is None:
+            return "UNPROVEN", "this walk took no reading of what the page says about whose rows it shows"
+        said = ([f"names the hive \"{u['hiveNamed']}\""] if u.get("hiveNamed") else []) + \
+               ([f"says \"{u['yours']}\""] if u.get("yours") else []) + \
+               ([f"says what it withholds (\"{u['refusal']}\")"] if u.get("refusal") else [])
+        if said:
+            return "ok", "the person can tell whose rows these are: the page " + " and ".join(said[:2])
+        return "FAIL", ("nothing on the page says whose rows it shows - no hive named, no \"your ...\" - or that anything "
+                        "was withheld")
+    if layer == "AU":
+        if persona == "anon":
+            return "n/a", "a visitor holds no session, so there is none to end"
+        idle = v.get("idle")
+        if idle is None:
+            return "UNPROVEN", "this walk did not induce the idle path"
+        if not idle.get("prompt"):
+            return "FAIL", ("with the session about to end (the platform's own idle path, shortened by its documented test "
+                            "hook) the page said nothing")
+        miss = ([] if (idle.get("role") in ("alertdialog", "dialog", "alert") or idle.get("live")) else ["not announced (no role, no aria-live)"]) \
+            + ([] if idle.get("name") else ["not named"]) + ([] if idle.get("focusIn") else ["focus stayed behind it"])
+        txt = (f"the session-ending prompt \"{(idle.get('text') or '')[:90]}\" - role {idle.get('role')}, named "
+               f"\"{idle.get('name')}\", focus {'moved to it' if idle.get('focusIn') else 'left behind'}")
+        return ("FAIL", txt + " - " + "; ".join(miss)) if miss else ("ok", txt)
+    if layer == "H":
+        off = v.get("offline")
+        if off is None:
+            return "UNPROVEN", "this walk did not take the network away"
+        if off.get("said"):
+            return "ok", (f"with the network gone the open page said \"{str(off['said'])[:90]}\""
+                          + (" in a live region" if off.get("announced") else "")
+                          + (f", and on its return \"{off['back']}\"" if off.get("back") else ""))
+        return "FAIL", ("the network went away under the open page and nothing on it said so - what it shows reads as "
+                        "live")
     return "UNPROVEN", f"no judge for layer {layer}"
 
 
@@ -478,11 +536,30 @@ def i_view(v: dict, page: str, ctx: dict, verdict: tuple[str, str]) -> tuple[str
 def pillar_view(pillar: str | None, layer: str, verdict: tuple[str, str], v: dict | None = None, page: str = "",
                 ctx: dict | None = None) -> tuple[str, str]:
     lv, why = verdict
+    # S, AU and H are walked for their U rows only: their F and I close on the contract provers, never on a page reading
+    if layer in ("S", "AU", "H") and pillar != "U":
+        return HOLD, f"the {layer} ask through {pillar} is answered by its contract prover, not by this walk"
     if not pillar or pillar == "F" or lv in ("FAIL", "UNPROVEN"):
         return verdict                       # F is the layer's own verdict, and a failing layer fails every lens
     if pillar == "U":
+        # ★U ON THE TRAIL IS WHO DID WHAT, AS THE PERSON SEES IT (2026-10-28 - it was HELD: "the trail is written in postgres").
+        # The trail being kept is L's F verdict; U asks whether this page tells the person: a name on the record ("logged by
+        # Ben Ocampo", "Ben Ocampo · 2h ago"), or a history one tap away.
         if layer == "L" and lv == "ok":
-            return HOLD, "the trail is written in postgres; nothing on this page has yet been read for showing this person that it was"
+            u = ((v or {}).get("healthy") or {}).get("u")
+            if u is None:
+                return HOLD, "this walk took no reading of who-did-what on the page - re-walk with the current lx_walk.body.js"
+            if u.get("attrib"):
+                return "ok", f"the page says who did what (\"{u['attrib'][:70]}\"); " + why
+            if u.get("history"):
+                return "ok", f"who did what is one tap away (\"{u['history']}\"); " + why
+            ot = (v or {}).get("oneTap") or {}
+            if ot.get("attrib") or ot.get("history"):
+                return "ok", (f"who did what is one tap away: opening \"{ot.get('opened')}\" shows "
+                              f"\"{(ot.get('attrib') or ot.get('history'))[:70]}\"; " + why)
+            return "FAIL", ("the page writes and the trail is kept, but nothing on it tells this person who did what - no "
+                            "name on its records, no history to open"
+                            + (f", and opening \"{ot['opened']}\" named nobody" if ot.get("opened") else "") + "; " + why)
         return lv, why
     if pillar == "A":
         return verdict if layer == "A" else (HOLD, f"the {layer} ask offline and on 429 is not read layer by layer yet")

@@ -151,7 +151,7 @@
     .alert.seen .alert-msg { opacity: 0.65; }
     .alert-seen-badge {
       font-size: .75rem; font-weight: 700;
-      padding: .15rem .5rem; border-radius: 999px; flex-shrink: 0;
+      padding: .15rem .5rem; border-radius: 999px; flex-shrink: 0; max-width: 100%;   /* it carries a name now: never wider than its row */
       background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.80);
       border: 1px solid rgba(255,255,255,0.14);
     }
@@ -442,6 +442,8 @@
          aria-labels. -->
     <h2 data-i="ah_alerts" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Alerts</h2>
     <p id="feed-legend" style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0 0 12px; max-width:70ch; line-height:1.5;"></p>
+    <!-- who hid what: the legend promises "under your name", so the names are said (renderFeed fills it from alert_dismissals) -->
+    <p id="feed-hidden-note" hidden style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin:-4px 0 12px; max-width:70ch; line-height:1.5;"></p>
     <div id="sev-focus-bar" style="display:none; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; padding:12px 16px; border-radius:12px; border:1px solid rgba(248,113,113,0.30); background:rgba(248,113,113,0.08);">
       <span id="sev-focus-text" style="font-size:0.8rem; color:var(--text);"></span>
       <button id="sev-focus-clear" type="button" style="margin-left:auto; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid rgba(255,255,255,0.18); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Show all alerts</button>
@@ -683,7 +685,8 @@
   // failing while the fix looked correct. Declared bare; `undefined` is falsy, which is the wanted default.
   var _ahSessionDead;
   let _dismissals = {};         // Arc Y Y3: { alert_key: action } active dismissals (handled/snoozed = hidden)
-  let _seen = {};               // Arc Y Y3: { alert_key: true } acknowledged alerts (kept in feed, dimmed)
+  let _seen = {};               // Arc Y Y3: { alert_key: name | true } acknowledged alerts (kept in feed, dimmed)
+  let _hiddenBy = [];           // the live handled/snoozed rows behind the hidden alerts: who hid each, and when
   // Arc Y Y3 (Arc X A3 pattern): the active filter persists in the URL (?kind=)
   // so a refresh, an in-app Back, or a shared deep-link restores the same view.
   let _activeKind = (() => {
@@ -1355,7 +1358,7 @@
         // ★"5 SIGNALS" WAS THE CAP (SL LB1, 2026-10-21): the panel shows the five strongest, and its pill printed the
         // list's length - a hive with 8 fused anomalies read "5 signals". The same read now counts them all.
         const { data, count: _anTotal } = await db.from('v_anomaly_truth')
-          .select('id, machine, composite_score, severity, source_count, top_reasons, status, computed_at', { count: 'exact' })
+          .select('id, machine, composite_score, severity, source_count, top_reasons, status, computed_at, acknowledged_by, acknowledged_at, resolved_by, resolved_at', { count: 'exact' })
           .eq('hive_id', HIVE_ID)
           .order('composite_score', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -1426,6 +1429,12 @@
         ? `<button class="amc-btn amc-btn-approve" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="resolve" data-help="anomaly_resolved" type="button" style="font-size:0.8rem; padding:6px 12px;" data-i="resolve">Resolve</button>`
         : '';
       const severityHelpKey = `severity_${r.severity}`;
+      // ★WHO ACKNOWLEDGED OR RESOLVED IT, AND WHEN (2026-10-28, the cube's U-on-trail walk). Both writes stamp the
+      // supervisor's name and the time (acknowledged_by/_at, resolved_by/_at), and the card said "status acknowledged"
+      // - so the crew could see that someone had acted on a machine's anomaly, never who.
+      const _by = r.status === 'resolved' ? r.resolved_by : (r.status === 'acknowledged' ? r.acknowledged_by : null);
+      const _at = r.status === 'resolved' ? r.resolved_at : (r.status === 'acknowledged' ? r.acknowledged_at : null);
+      const _who = _by ? ` by ${e(_by)}${_at && typeof whFmtDate === 'function' ? ', ' + e(whFmtDate(_at, { time: true })) : ''}` : '';
       return `
         <div class="alert-card" style="margin-bottom:8px; border-left:3px solid ${sev.color};">
           <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
@@ -1433,7 +1442,7 @@
             <span class="alert-tag" data-help="${e(severityHelpKey)}" tabindex="0" style="background:${sev.bg}; color:${sev.color}; border:1px solid ${sev.border};">${e(sev.label)} · ${e(String(r.composite_score))}/100</span>
           </div>
           <div style="font-size:0.8rem; color:rgba(255,255,255,0.83); margin-top:6px;">${reasonStr}</div>
-          <div style="font-size: 0.75rem; color:rgba(255,255,255,0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}</div>
+          <div style="font-size: 0.75rem; color:rgba(255,255,255,0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}${_who}</div>
           ${(ackBtn || resBtn) ? `<div style="margin-top:8px; display:flex; gap:6px;">${ackBtn}${resBtn}</div>` : ''}
         </div>
       `;
@@ -1922,6 +1931,7 @@
     // snooze_until passes; 'acknowledged' is kept (marked seen, not hidden).
     _dismissals = {};
     _seen = {};
+    _hiddenBy = [];
     try {
       // canonical-allow: alert_dismissals is UI-interaction state (per-hive alert
       // handled/snoozed/acknowledged dispositions), read directly to hide/show alerts.
@@ -1935,7 +1945,7 @@
       for (let j = 0; j < _dzKeys.length; j += 100) {
         // canonical-allow: alert_dismissals is UI-interaction state (each alert's handled/snoozed disposition), not a KPI
         _dzReads.push(db.from('alert_dismissals')
-          .select('alert_key, action, snooze_until')
+          .select('alert_key, action, snooze_until, actor, created_at')
           .eq('hive_id', HIVE_ID)
           .in('alert_key', _dzKeys.slice(j, j + 100))
           .limit(100));   // in-list[hive_id, alert_key] (LB1): bounded by the keys asked for, one row each
@@ -1945,10 +1955,21 @@
       const nowMs = Date.now();
       for (const d of (dz || [])) {
         // 'acknowledged' (seen) is kept in the feed but dimmed — NOT a hide.
-        if (d.action === 'acknowledged') { _seen[d.alert_key] = true; continue; }
+        // ★WHO SAW IT, NOT ONLY THAT IT WAS SEEN (2026-10-28, the cube's U-on-trail walk). The toast promises "your whole
+        // hive sees it as seen, under your name" and the row carried the actor - but the badge said "Seen" and nothing
+        // read the name back, so a colleague could not tell who had looked. The map holds the name (true if it has none).
+        if (d.action === 'acknowledged') { _seen[d.alert_key] = d.actor || true; continue; }
         const live = d.action === 'handled'
           || (d.action === 'snoozed' && d.snooze_until && new Date(d.snooze_until).getTime() > nowMs);
-        if (live) _dismissals[d.alert_key] = d.action;
+        // the name is taken from the UNFILTERED list now - once hidden, the alert is gone from _alerts. ★NOT through
+        // _alertName(): this loop runs inside the EARLY `await loadAll()` (above its const _ALERT_KIND_WORDS), so that
+        // call threw in the temporal dead zone, the empty catch below swallowed it, and every row after the first was
+        // skipped - one handled alert hid and the seen ones never dimmed (measured as Rosa dela Cruz, 2026-10-28).
+        if (live) {
+          _dismissals[d.alert_key] = d.action;
+          const _al = all.find((x) => x && x.dedupeKey === d.alert_key);
+          _hiddenBy.push(Object.assign({}, d, { name: _al ? String(_al.title || '').replace(/\s+/g, ' ').trim() || null : null }));
+        }
       }
     } catch (e) { /* empty-catch-allow: dismissals are an enhancement — a fetch failure just shows all alerts */ }
 
@@ -2070,6 +2091,8 @@
     const snoozeUntil = (action === 'snoozed' && snoozeDays > 0)
       ? new Date(Date.now() + snoozeDays * 86400000).toISOString() : null;
     _dismissals[key] = action;
+    const prevHidden = _hiddenBy;
+    _hiddenBy = _hiddenBy.filter(d => d.alert_key !== key).concat([{ alert_key: key, action, actor: WORKER_NAME, snooze_until: snoozeUntil, created_at: new Date().toISOString(), name: _alertName(key, prev) }]);
     _alerts = _alerts.filter(a => a.dedupeKey !== key);   // handled + snoozed both leave the feed
     renderFeed();
     renderAlertSummary();   // keep the KPI cards' counts honest after a removal
@@ -2101,6 +2124,7 @@
                 .delete().eq('hive_id', HIVE_ID).eq('alert_key', key);
               if (undoErr) throw undoErr;
               delete _dismissals[key];
+              _hiddenBy = _hiddenBy.filter(d => d.alert_key !== key);
               _alerts = prev;
               renderFeed(); renderAlertSummary();
               writeAuditLog('alert_dismissal_undone', 'alert', key, _alertName(key, prev), { undid: action });
@@ -2115,6 +2139,7 @@
     } catch (e) {
       console.error('alert-hub dismiss failed:', e);
       delete _dismissals[key];
+      _hiddenBy = prevHidden;
       _alerts = prev;                                   // roll back the optimistic removal
       renderFeed(); renderAlertSummary();
       showToast(_t('Could not save, alert restored', 'Hindi na-save, ibinalik ang alert'));
@@ -2134,8 +2159,8 @@
     // offline the alert read as acknowledged while nothing was recorded. Refuse before the toggle.
     if (typeof whRequireOnline === 'function'
         && !whRequireOnline('Marking this alert seen', (m) => showToast(m))) return;
-    const wasSeen = !!_seen[key];
-    if (wasSeen) delete _seen[key]; else _seen[key] = true;
+    const wasSeen = _seen[key];   // the name it was seen under (or true), so a failed write puts back exactly that
+    if (wasSeen) delete _seen[key]; else _seen[key] = WORKER_NAME || true;
     renderFeed();
     try {
       if (wasSeen) {
@@ -2174,7 +2199,7 @@
       }
     } catch (e) {
       console.error('alert-hub mark-seen failed:', e);
-      if (wasSeen) _seen[key] = true; else delete _seen[key];   // roll back the optimistic toggle
+      if (wasSeen) _seen[key] = wasSeen; else delete _seen[key];   // roll back the optimistic toggle
       renderFeed();
       showToast(_t('Could not save, restored', 'Hindi na-save, ibinalik'));
     }
@@ -2441,6 +2466,25 @@
       _legend.textContent = _t('Seen keeps the alert and dims it for your hive · Snooze 7d hides it for a week · Handled removes it for everyone, under your name.',
                                'Ang Nakita ay nananatili pero kumukupas para sa hive mo · Ang Snooze 7d ay nagtatago nito nang isang linggo · Ang Handled ay nag-aalis nito para sa lahat, nakapangalan sa iyo.');
     }
+    // ★WHO HID WHAT (2026-10-28, the cube's U-on-trail walk). "Handled removes it for everyone, under your name" - and
+    // the name was recorded and never read back, so an alert vanished from the whole crew's feed with no way to tell who
+    // had taken it out. One line says it: who handled or snoozed each hidden alert, and when.
+    const _hn = document.getElementById('feed-hidden-note');
+    if (_hn) {
+      const _fmtDay = (iso) => (iso && typeof whFmtDate === 'function') ? whFmtDate(iso) : '';
+      const _parts = _hiddenBy.slice(0, 3).map((d) => {
+        const nm = d.name || _t('an alert', 'isang alerto');
+        const who = d.actor || _t('a member', 'isang miyembro');
+        return d.action === 'snoozed'
+          ? _t(`${nm} snoozed by ${who} until ${_fmtDay(d.snooze_until)}`, `${nm} na-snooze ni ${who} hanggang ${_fmtDay(d.snooze_until)}`)
+          : _t(`${nm} handled by ${who}${d.created_at ? ', ' + _fmtDay(d.created_at) : ''}`, `${nm} naasikaso ni ${who}${d.created_at ? ', ' + _fmtDay(d.created_at) : ''}`);
+      });
+      const _more = _hiddenBy.length - _parts.length;
+      _hn.textContent = _hiddenBy.length
+        ? _t(`Hidden from this feed: `, `Nakatago sa feed na ito: `) + _parts.join('; ') + (_more > 0 ? _t(`; and ${_more} more`, `; at ${_more} pa`) : '') + '.'
+        : '';
+      _hn.hidden = !_hiddenBy.length;
+    }
     const feed   = document.getElementById('feed');
     const empty  = document.getElementById('empty');
     const lmWrap = document.getElementById('alert-load-more-wrap');
@@ -2539,13 +2583,14 @@
       // other label is sentence case and bilingual. The severity words are the ones hive.html uses.
       const icon = ({ risk: '🔴', pm: '⚠️', stock: '📦', pattern: '🧬', system: '⚙️' })[a.kind] || '•';
       const isSeen = !!(a.dedupeKey && _seen[a.dedupeKey]);
+      const seenBy = isSeen && typeof _seen[a.dedupeKey] === 'string' ? _seen[a.dedupeKey] : '';
       return `<div class="alert kind-${e(a.kind)} sev-${e(sev)}${isSeen ? ' seen' : ''}" data-alert-key="${e(a.dedupeKey || '')}">
         <div class="alert-icon">${e(icon)}</div>
         <div class="alert-body">
           <div class="alert-head">
             <span class="alert-tag ${e(tagClass)}">${e(SEV_WORDS[sev] ? SEV_WORDS[sev]() : sev)}</span>
             <h3 class="alert-title" style="display:inline;margin:0;font-size:inherit;" title="${e(a.title)}" translate="no">${e(a.title)}</h3>
-            ${isSeen ? '<span class="alert-seen-badge" data-i="ah_seen">Seen</span>' : ''}
+            ${isSeen ? (seenBy ? `<span class="alert-seen-badge">${e(_t('Seen by', 'Nakita ni'))} ${e(seenBy)}</span>` : '<span class="alert-seen-badge" data-i="ah_seen">Seen</span>') : ''}
             <span class="alert-time">${e(fmtRelative(a.time))}</span>
           </div>
           <div class="alert-msg">${(a.aiHead && String(a.msg || '').startsWith(a.aiHead))
@@ -2570,7 +2615,7 @@
       sig: JSON.stringify([_activeKind, _sevFocus]),
       // the key is the alert's data plus what its row shows from outside it: its name (a tag that repeats takes its lead
       // phrase), its relative time and its seen state - cheaper than building every row's HTML on each press
-      key: (a) => JSON.stringify(a) + '|' + _alertName(a) + '|' + fmtRelative(a.time) + '|' + !!(a.dedupeKey && _seen[a.dedupeKey]),
+      key: (a) => JSON.stringify(a) + '|' + _alertName(a) + '|' + fmtRelative(a.time) + '|' + String((a.dedupeKey && _seen[a.dedupeKey]) || ''),
       long: true,
     });
     // SL LB1: once the feed's loaded alerts are all on screen, say which sources hold more than it lists

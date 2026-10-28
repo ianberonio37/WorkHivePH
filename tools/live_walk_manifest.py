@@ -706,6 +706,15 @@ def build() -> dict:
         # the chrome-devtools + postgres walk - a title's keywords must not re-route either
         if _meta_1014(r):
             want = _meta_1014(r).get("instrument") or want
+        # ★"THE PERSON CAN TELL" IS A PAGE READING (2026-10-28). The cube reads each sub-layer ask through a pillar, and
+        # the U pillar's words are about what a PERSON is told. The lens keywords routed U on S and AU to postgres-mcp and
+        # U on H to raw-http - instruments that can show a read was refused or a header was served, never what the page
+        # SAID about it - so those 700 rows were closable by nothing that answers them. A U lens gains the browser: the
+        # page is read, and a postgres half stays where the lens had one.
+        # DISCLOSED: this re-routes rows that were all OPEN when it landed (H/U 269, S/U 242, AU/U 189 in CX-PROD); no
+        # closed row's want changes, because every other U row already wanted a browser.
+        if lens.startswith("the person can tell") and not want.startswith("playwright"):
+            want = ("playwright-mcp + " + want) if want.strip().endswith("-mcp") else "playwright-mcp"
         basis = (r.get("basis") or "")
         # did this row's own evidence come from the instrument its lens demands?
         tag = want.split()[0].replace("-mcp", "").replace("-connector", "")

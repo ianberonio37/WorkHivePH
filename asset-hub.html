@@ -672,6 +672,10 @@
           <a data-i="p_faulthistory_a1dc" id="detail-logbook-link" href="#" aria-label="Read this asset's fault history in the Logbook"
             style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:700;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.2);">🔧 Fault history</a>
         </div>
+        <!-- ★WHO PUT THIS MACHINE ON THE REGISTER (2026-10-28, the cube's U-on-trail walk). The pending list says "by" whoever
+             submitted an asset; once approved, neither the submitter nor the approver was shown anywhere, so a worker
+             opening a truck with no logged history could not tell who had added it. Filled by loadDetailHeader. -->
+        <p id="detail-provenance" hidden style="margin:0.6rem 0 0;font-size:0.8rem;line-height:1.5;color:var(--muted);"></p>
       </div>
 
       <div class="stats-grid">
@@ -1282,7 +1286,7 @@
       if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('asset-list'), 5, 'your assets');
       // Narrow select per performance skill, hive-scoped per multitenant skill.
       const { data, error } = await scopeNodes(db.from('asset_nodes')
-        .select('id, tag, name, level, criticality, location, iso_class, parent_id, pm_asset_id, legacy_asset_id, external_ids, vehicle_meta, created_at'))  // AH17/F18: external_ids was omitted here while loadDetailExternalIds reads node.external_ids,
+        .select('id, tag, name, level, criticality, location, iso_class, parent_id, pm_asset_id, legacy_asset_id, external_ids, vehicle_meta, created_at, submitted_by, worker_name, approved_by, approved_at'))  // AH17/F18: external_ids was omitted here while loadDetailExternalIds reads node.external_ids,
         // so `keys.length` was always 0 and #ext-card hid itself on every asset — a card that could
         // never render. Selecting it is the whole fix on the read side.
         // vehicle_meta (2026-09-02): the 360's Vehicle card renders from it.
@@ -2228,6 +2232,19 @@
           locEl.style.display = 'none';
         }
       }
+      // who added the machine to the register and who approved it - the register's own act, said on the record
+      const provEl = document.getElementById('detail-provenance');
+      if (provEl) {
+        const by = node.submitted_by || node.worker_name || '';
+        const on = (iso) => (iso && typeof whFmtDate === 'function') ? ' on ' + whFmtDate(iso) : '';
+        let said = '';
+        if (by && node.approved_by && node.approved_by === by) said = 'Added and approved by ' + by + on(node.approved_at || node.created_at) + '.';
+        else if (by && node.approved_by) said = 'Added by ' + by + on(node.created_at) + ', approved by ' + node.approved_by + on(node.approved_at) + '.';
+        else if (by) said = 'Added by ' + by + on(node.created_at) + '.';
+        else if (node.approved_by) said = 'Approved by ' + node.approved_by + on(node.approved_at) + '.';
+        provEl.textContent = said;
+        provEl.hidden = !said;
+      }
 
       // VEHICLE SEED (2026-09-02): the Vehicle card — vehicle_meta rendered as labeled pills
       // (same visual grammar as External systems). Hidden for every non-vehicle asset.
@@ -2724,7 +2741,7 @@
       const queries = [];
       queries.push(
         scopeHive(db.from('v_logbook_truth')
-          .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at'))
+          .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at, worker_name'))
           .eq('asset_node_id', node.id)
           .order('created_at', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -2765,10 +2782,14 @@
         // so for any asset without a legacy id the logbook rows fell into the else branch and
         // rendered as "PM completed by unknown". Key purely on the query index.
         if (idx === 0) {
+          // ★WHO LOGGED IT, as the PM rows below already say who completed them (2026-10-28, the cube's U-on-trail walk):
+          // the machine's history listed its faults with no name, so the person asking "who saw this last time?" at the
+          // asset had to leave it for the logbook to find out
           rows.forEach(r => events.push({
             kind: 'logbook',
             when: r.created_at,
-            summary: (r.maintenance_type || 'Entry') + ': ' + (r.problem || '(no description)'),
+            summary: (r.maintenance_type || 'Entry') + ': ' + (r.problem || '(no description)')
+                     + (r.worker_name ? ' - logged by ' + r.worker_name : ''),
             status: r.status,
           }));
         } else {

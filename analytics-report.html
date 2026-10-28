@@ -775,6 +775,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="ar-status" id="ar-empty" data-i="ar_empty" role="status">
         Press Generate Report to compile the latest analytics into a print-ready document.
       </div>
+      <!-- ★WHOSE RECORDS, SAID BEFORE THE REPORT IS BUILT (2026-10-28, the cube's U-on-S walk): the page named no hive until
+           a report existed - "your hive" lived only inside the closed help - so a supervisor of two hives could not tell
+           which one the report would compile. Filled from the seated hive; the generated cover says it again. -->
+      <p id="ar-scope" hidden style="margin:12px auto 0; max-width:640px; font-size:0.875rem; line-height:1.5; color:rgba(255,255,255,0.85); text-align:center;"></p>
       <!-- ★WHAT A FINISHED ONE HOLDS (T2 SE vicarious, 2026-10-27): before anything was generated the page offered a period, an
            audience and a button, and nothing of what the document would be. The outline names the report's own numbered
            sections; generation replaces this mount, so the outline leaves with the line above it. -->
@@ -870,6 +874,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       } catch (_) { /* non-fatal */ /* empty-catch-allow: best-effort silent swallow */ }
       return _hiveName;
     }
+    // the report's subject, named on the page before one is generated (the #ar-scope line above the outline)
+    _hiveSeated.then(function () { return HIVE_ID ? loadHiveName() : ''; }).then(function (n) {
+      var el = document.getElementById('ar-scope');
+      if (el && n) { el.textContent = (typeof _t === 'function' ? _t('A report here is built from the records of ', 'Ang report dito ay mula sa mga record ng ') : 'A report here is built from the records of ') + n + '.'; el.hidden = false; }
+    }).catch(function () { /* empty-catch-allow: the line is a courtesy; the generated cover names the hive regardless */ });
 
     // Expose toolbar handlers on window so onclick can find them
     window.setPeriod = function(days){
