@@ -523,16 +523,49 @@
   function getQuickTools(n) {
     // Phase B: hidden tools never appear in the Recent quick row.
     // Phase D: also filter by current role mode so the recent row matches the All Tools grid.
+    // ★"RECENT" MEANS OPENED (Ian, 2026-10-28: "the nav hub is still crappy and sloppy"). With no click history the
+    // row showed the registry's first four tools under the word Recent, and it always offered the page you were on -
+    // Logbook three times on the logbook hub. Only tools this person has opened, never the current page; with none,
+    // the row is not drawn (the grid below holds every tool).
     var mode = getMode();
-    var visible = TOOLS.filter(function(t){ return isVisibleInMode(t, mode); });
+    var cur = (typeof current !== 'undefined') ? current : null;
+    var visible = TOOLS.filter(function(t){ return isVisibleInMode(t, mode) && t !== cur; });
     try {
       var c = JSON.parse(localStorage.getItem(CLICK_KEY) || '{}');
-      return visible.slice()
+      return visible.filter(function (t) { return (c[t.href] || 0) > 0; })
         .sort(function(a, b) { return (c[b.href] || 0) - (c[a.href] || 0); })
         .slice(0, n);
     } catch (_) {
-      return visible.slice(0, n);
+      return [];
     }
+  }
+
+  // The Recent row and the tool grid, drawn once here for both the first build and a mode change (the two copies of
+  // this markup had already drifted apart once). Home has no section of its own: it opens the first one, instead of
+  // standing alone in a row under a heading of its own.
+  function quickTilesHTML() {
+    return getQuickTools(4).map(function (t) {
+      return '<a href="' + t.href + '" class="wh-hub-quick-tile" title="' + t.label + '">' +
+             '<span class="wh-hub-quick-icon">' + t.icon + '</span>' +
+             '<span class="wh-hub-quick-label">' + t.label + '</span></a>';
+    }).join('');
+  }
+
+  function toolTilesHTML(visible) {
+    var first = (visible.find(function (t) { return t.section; }) || {}).section || null;
+    var last = null;
+    return visible.reduce(function (acc, t) {
+      var sec = t.section || first;
+      if (sec && sec !== last) {
+        last = sec;
+        acc += '<p class="wh-hub-section-label wh-hub-section-break">' + sec + '</p>';
+      }
+      var isCurrent = t === current;
+      return acc + '<a href="' + t.href + '" class="wh-hub-tile' + (isCurrent ? ' active' : '') + (t.accent ? ' accent' : '') +
+             '"' + (isCurrent ? ' aria-current="page"' : '') + '>' +
+             '<span class="wh-hub-tile-icon">' + t.icon + '</span>' +
+             '<span class="wh-hub-tile-label">' + t.label + '</span></a>';
+    }, '');
   }
 
   // ─── Current Page Detection ───────────────────────────────────────────────────
@@ -760,32 +793,9 @@
        only render when the section actually has at least one visible tool. */
     const _mode = getMode();
     const VISIBLE_TOOLS = TOOLS.filter(t => isVisibleInMode(t, _mode));
-    let _lastSection = null;
-    const tilesHTML = VISIBLE_TOOLS.reduce((acc, t) => {
-      // Insert section header when section changes (skip null = Home)
-      if (t.section && t.section !== _lastSection) {
-        _lastSection = t.section;
-        acc += `<p class="wh-hub-section-label wh-hub-section-break">${t.section}</p>`;
-      }
-      const isCurrent = t === current;
-      acc += `<a href="${t.href}" class="wh-hub-tile${isCurrent ? ' active' : ''}${t.accent ? ' accent' : ''}" ${isCurrent ? 'aria-current="page"' : ''}>
-        <span class="wh-hub-tile-icon">${t.icon}</span>
-        <span class="wh-hub-tile-label">${t.label}</span>
-        ${isCurrent ? '<span class="wh-hub-tile-dot"></span>' : ''}
-      </a>`;
-      return acc;
-    }, '');
-
-    /* Quick access row — top 4 by recent usage */
-    const quickTools = getQuickTools(4);
-    const quickHTML = quickTools.map(t => {
-      const isCurrent = t === current;
-      const shortLabel = t.label.length > 8 ? t.label.split(' ')[0] : t.label;
-      return `<a href="${t.href}" class="wh-hub-quick-tile${isCurrent ? ' active' : ''}" ${isCurrent ? 'aria-current="page"' : ''} title="${t.label}">
-        <span class="wh-hub-quick-icon">${t.icon}</span>
-        <span class="wh-hub-quick-label">${shortLabel}</span>
-      </a>`;
-    }).join('');
+    const tilesHTML = toolTilesHTML(VISIBLE_TOOLS);
+    /* Quick access row - the tools this person has opened most (none yet: the row is not drawn) */
+    const quickHTML = quickTilesHTML();
 
     wrapper.innerHTML = `
       <style>
@@ -802,38 +812,71 @@
         }
 
         /* ── FAB ── */
+        /* ★THE FAB IS A HONEYCOMB CELL CARRYING THE WORKHIVE MARK (Ian, 2026-10-28: "the nav hub icon shape should also be
+           a shape of the honeycomb hexagon ... and the icon should also use the WorkHive logo"). The button stays a 56px
+           square box - the tap target, the drag handle and the anchor every placement rule measures - and the hexagon is
+           DRAWN inside it as SVG rather than clipped out of it, so its shadow (drop-shadow) and its focus ring follow the
+           six sides instead of being cut off by a clip-path. The mark is the logo's honeycomb: three outlined cells, two
+           amber and one cyan, stroke only with round joins (the brand guidelines' icon rule: 2px stroke, never fill). */
         #wh-hub-fab {
           width: 56px;
           height: 56px;
-          border-radius: 16px;
-          background: linear-gradient(135deg, var(--wh-navy, #162032), var(--wh-navy-mid, #1F2E45));
-          border: 1.5px solid rgba(247,162,27,0.35);
+          padding: 0;
+          background: none;
+          border: 0;
+          border-radius: 0;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 0 rgba(247,162,27,0.2);
-          transition: transform 0.18s ease-out, box-shadow 0.2s ease, border-color 0.18s ease;
+          transition: transform 0.16s cubic-bezier(0.23, 1, 0.32, 1);
           position: relative;
           user-select: none;
+          -webkit-user-select: none;
+          /* the FAB is dragged: the gesture is ours from the first touch, so the browser never starts a pan or a
+             scroll under the finger before the drag takes over (Ian, 2026-10-28: dragging felt stuck) */
+          touch-action: none;
+          -webkit-tap-highlight-color: transparent;
         }
-        #wh-hub-fab:hover {
-          transform: scale(1.1);
-          border-color: rgba(247,162,27,0.6);
-          box-shadow: 0 6px 28px rgba(0,0,0,0.45), 0 0 0 4px rgba(247,162,27,0.08);
+        #wh-hub-fab svg { display: block; overflow: visible; }
+        #wh-hub-fab .wh-hex {
+          fill: url(#wh-hub-hex-fill);
+          stroke: rgba(247,162,27,0.55); stroke-width: 1.5; stroke-linejoin: round;
+          filter: drop-shadow(0 4px 10px rgba(0,0,0,0.45));
+          transition: stroke 0.18s ease, filter 0.2s ease;
         }
-        #wh-hub-fab:active {
-          transform: scale(0.93);
-          transition: transform 0.1s ease;
+        #wh-hub-fab .wh-cell { fill: none; stroke-width: 2; stroke-linejoin: round; }
+        #wh-hub-fab .wh-cell.amber { stroke: var(--wh-orange, #F7A21B); }
+        #wh-hub-fab .wh-cell.cyan  { stroke: var(--wh-blue, #29B6D9); }
+        #wh-hub-fab .wh-close { stroke: var(--wh-orange, #F7A21B); stroke-width: 2.2; stroke-linecap: round; }
+        /* closed: the mark; open: a close cross where the mark was (a second tap closes) - a quick crossfade */
+        #wh-hub-fab .wh-mark, #wh-hub-fab .wh-close { transition: opacity 0.12s ease, transform 0.16s cubic-bezier(0.23, 1, 0.32, 1); transform-origin: 28px 28px; }
+        #wh-hub-fab .wh-close { opacity: 0; transform: scale(0.8); }
+        #wh-hub-fab.open .wh-mark { opacity: 0; transform: scale(0.8); }
+        #wh-hub-fab.open .wh-close { opacity: 1; transform: none; }
+        /* a hover effect only where there is a hover - on a phone the tap left the button scaled up */
+        @media (hover: hover) and (pointer: fine) {
+          #wh-hub-fab:hover .wh-hex { stroke: rgba(247,162,27,0.85); }
         }
-        #wh-hub-fab.open {
-          border-color: var(--wh-orange, #F7A21B);
-          box-shadow: 0 6px 28px rgba(0,0,0,0.45), 0 0 0 4px rgba(247,162,27,0.12);
+        #wh-hub-fab:active { transform: scale(0.96); }
+        /* the focus ring is the cell's own edge, thickened - it follows the hexagon, not the square box around it */
+        #wh-hub #wh-hub-fab:focus-visible { outline: none; }
+        #wh-hub-fab:focus-visible .wh-hex { stroke: #fff; stroke-width: 3; }
+        /* held and moving: it lifts, and nothing about its position is animated - it follows the finger exactly */
+        #wh-hub.wh-hub-dragging #wh-hub-fab { transform: scale(1.06); cursor: grabbing; }
+        #wh-hub.wh-hub-dragging #wh-hub-fab .wh-hex {
+          stroke: rgba(247,162,27,0.9);
+          filter: drop-shadow(0 12px 18px rgba(0,0,0,0.55));
         }
-        /* The icon is the .ic emoji now, not an SVG, so the old svg rotate-to-X never ran: the OPEN hub kept the same
-           glyph and nothing on the button said a second tap would close it (critique, 2026-10-13). Open, it shows the
-           close glyph of the platform's functional set (✓ ✕ ▾ ←, themeable text - Ian's emoji-only decision, 2026-07-22). */
-        #wh-hub-fab.open .ic-apps::before { content: "✕"; font-weight: 400; }
+        /* let go: it settles to the nearest edge instead of jumping there - by transform only (FLIP: the final position
+           is laid out at once, and the FAB slides from where it was let go), never by animating left/right/bottom,
+           which would re-lay the whole hub every frame of the settle */
+        #wh-hub.wh-hub-snapping { transition: transform 0.22s cubic-bezier(0.23, 1, 0.32, 1); }
+        @media (prefers-reduced-motion: reduce) {
+          #wh-hub.wh-hub-snapping { transition: none; }
+          #wh-hub.wh-hub-dragging #wh-hub-fab, #wh-hub-fab:active { transform: none; }
+        }
+        #wh-hub-fab.open .wh-hex { stroke: var(--wh-orange, #F7A21B); stroke-width: 2; }
 
         /* ── Current page badge on FAB ── */
         #wh-hub-current-label {
@@ -860,7 +903,7 @@
            your tools" without opening the hub; the tile pill says exactly where. */
         #wh-hub-fab-dot {
           position: absolute;
-          top: -3px; right: -3px;
+          top: 4px; right: 3px;   /* on the hexagon's upper-right edge: the square box's corner is empty space now */
           width: 13px; height: 13px;
           border-radius: 50%;
           background: var(--wh-orange, #F7A21B);
@@ -898,9 +941,15 @@
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 20px;
           box-shadow: 0 24px 64px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.03);
-          padding: 16px;
+          padding: 0;
+          /* a column: the scrolling body above, the action foot below it - the foot is never ON TOP of a tool (a sticky
+             foot covered the rows scrolling under it, and the walk's overlap lens read every one as occluded) */
+          display: flex;
+          flex-direction: column;
           opacity: 0;
-          transform: translateY(10px) scale(0.96);
+          transform: translateY(8px) scale(0.97);
+          /* it grows out of the FAB, not out of its own middle (placePanel sets the corner on the FAB's side) */
+          transform-origin: bottom right;
           pointer-events: none;
           /* A11Y — WCAG 2.2 SC 2.4.11 Focus Not Obscured / rubric Q2 "no phantom focus stop"
              (live-MCP keyboard walk, 2026-07-23). opacity:0 + pointer-events:none hides the CLOSED
@@ -912,19 +961,33 @@
              removes the subtree from the tab order AND the a11y tree; the 0.2s delay lets the fade-out
              finish first so the open/close animation is unchanged. */
           visibility: hidden;
-          transition: opacity 0.2s ease, transform 0.2s ease-out, visibility 0s linear 0.2s;
+          /* opened tens of times a day: short, and a strong ease-out so it is there the moment the eye arrives */
+          transition: opacity 0.16s cubic-bezier(0.23, 1, 0.32, 1), transform 0.16s cubic-bezier(0.23, 1, 0.32, 1),
+                      visibility 0s linear 0.16s;
           /* FAB-CONSOLIDATION: the panel now carries the header pill + Companion/Feedback
              row at the TOP, so on short viewports it must never clip them off-screen (the
              panel grows upward from the FAB). Cap to the viewport and scroll the whole
              panel — the header/action row are then always reachable at scrollTop 0. */
           max-height: var(--wh-panel-max-h, calc(100dvh - 100px));
+          overflow: hidden;
+        }
+        /* ONE scroller - the body. The tool grid used to be a 260px scroller of its own inside a panel that itself
+           barely scrolled, so a swipe on the upper half moved nothing and a swipe on the grid moved a small box: "a
+           feeling of getting stuck". Everything but the action foot scrolls here, as one surface. */
+        #wh-hub-body {
+          flex: 1 1 auto;
+          min-height: 0;
           overflow-y: auto;
           overscroll-behavior: contain;
+          padding: 16px 16px 14px;
           scrollbar-width: thin;
           scrollbar-color: rgba(247,162,27,0.2) transparent;
         }
-        #wh-hub-panel::-webkit-scrollbar { width: 4px; }
-        #wh-hub-panel::-webkit-scrollbar-thumb { background: rgba(247,162,27,0.2); border-radius: 2px; }
+        #wh-hub-body::-webkit-scrollbar { width: 4px; }
+        #wh-hub-body::-webkit-scrollbar-thumb { background: rgba(247,162,27,0.2); border-radius: 2px; }
+        @media (prefers-reduced-motion: reduce) {
+          #wh-hub-panel { transform: none; transition: opacity 0.12s linear, visibility 0s linear 0.12s; }
+        }
         /* ★THE PANEL FLIPS BELOW A FAB THAT HAS NO ROOM ABOVE IT (Ian, 2026-10-26, §BRH.11 AN: "when you put it at
            the top, all of it is being swallowed at the top ... iOS does not adjust"). Anchored by its bottom, the panel
            always grew UPWARD from the FAB; a FAB dragged to the top opened a panel whose body sat above the viewport
@@ -950,13 +1013,15 @@
         }
 
         /* ── Panel header ── */
-        #wh-hub-panel-header {
+        /* The header used to say "WORKHIVE" - an eyebrow over nothing, on the product's own chrome. It now holds only
+           the connectivity pill, and only while there is something to say (offline, slow, writes waiting): a healthy
+           connection draws no header at all (paintConnPill toggles .has-pill). */
+        #wh-hub-panel-header { display: none; }
+        #wh-hub-panel-header.has-pill {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          margin-bottom: 12px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          justify-content: flex-end;
+          margin-bottom: 10px;
         }
         /* W45939 audit: 11px is under the platform's 12px floor, and NO WALK COULD SEE IT. Every design
            walk this wave measures the page at rest, where this panel is visibility:hidden, so its text
@@ -979,59 +1044,51 @@
           letter-spacing: 0.04em;
         }
 
-        /* ── Section labels ── */
+        /* ── Section headings ── a group's name, read as a heading: sentence weight, not an all-caps eyebrow, and the
+           space above it (not a rule line) is what separates one group from the next */
         .wh-hub-section-label {
-          /* 0.1em was over DESIGN.md's 0.04em ceiling for an all-caps label; these ARE short group
-             headings (two words), so the caps stay and only the tracking comes down. */
-          font-size: 12px; font-weight: 600; letter-spacing: 0.04em;
-          text-transform: uppercase; color: rgba(255,255,255,0.6); /* WCAG AA contrast over dark bg */
+          font-size: 0.75rem; font-weight: 700; letter-spacing: 0;   /* DESIGN.md label step */
+          color: rgba(255,255,255,0.78);
           margin: 0 0 8px;
         }
         /* Section breaks inside the all-tools grid span all columns */
         .wh-hub-section-break {
           grid-column: 1 / -1;
-          margin-top: 14px;
-          padding-top: 12px;
-          border-top: 1px solid rgba(255,255,255,0.05);
+          margin: 18px 0 2px;
         }
         .wh-hub-section-break:first-child,
         #wh-hub-tiles > .wh-hub-section-break:first-child {
-          margin-top: 0; padding-top: 0; border-top: none;
+          margin-top: 2px;
         }
         .wh-hub-section-break.hidden { display: none !important; }
 
         /* ── Quick access row (4 icon + short label tiles) ── */
-        #wh-hub-quick { margin-bottom: 4px; }
+        #wh-hub-quick { margin: 4px 0 0; }
+        #wh-hub-quick[hidden] { display: none; }
         #wh-hub-quick-row {
           display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
         }
         .wh-hub-quick-tile {
           display: flex; flex-direction: column;
           align-items: center; justify-content: center;
-          gap: 5px; padding: 10px 4px; border-radius: 12px;
+          gap: 4px; padding: 8px 4px; border-radius: 12px;
           background: rgba(255,255,255,0.05);
           border: 1px solid rgba(255,255,255,0.08);
-          text-decoration: none; cursor: pointer; min-height: 54px;
-          transition: background 0.15s ease, border-color 0.15s ease, transform 0.18s ease-out;
+          text-decoration: none; cursor: pointer; min-height: 56px;
+          transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s cubic-bezier(0.23, 1, 0.32, 1);
         }
-        .wh-hub-quick-tile:hover {
-          background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.18);
-          transform: translateY(-5px) scale(1.06);
+        @media (hover: hover) and (pointer: fine) {
+          .wh-hub-quick-tile:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.18); }
         }
-        .wh-hub-quick-tile:active { transform: scale(0.9); transition: transform 0.08s ease; }
-        .wh-hub-quick-tile.active {
-          background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35);
-        }
-        .wh-hub-quick-tile.active .wh-hub-quick-icon { color: var(--wh-orange, #F7A21B); }
+        .wh-hub-quick-tile:active { transform: scale(0.97); }
         .wh-hub-quick-icon { color: rgba(255,255,255,0.7); display:flex; }
+        /* the whole name, on up to two lines: "Day Planner" was cut to "Day" */
         .wh-hub-quick-label {
-          font-size: 12px; color: rgba(255,255,255,0.72); font-weight: 500; /* WCAG AA: 0.6 measured 4.32:1 (<4.5), 0.72 clears it */
+          font-size: 12px; color: rgba(255,255,255,0.78); font-weight: 500;
           text-align: center; line-height: 1.2; font-family: var(--wh-font, 'Poppins', sans-serif);
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+          overflow-wrap: break-word;
         }
-        .wh-hub-quick-tile.active .wh-hub-quick-label { color: var(--wh-orange, #F7A21B); }
-
-        /* ── Divider ── */
-        .wh-hub-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 10px 0 6px; }
 
         /* ── All Tools toggle ── */
         #wh-hub-all-toggle {
@@ -1050,13 +1107,13 @@
 
         /* ── Search bar ── */
         #wh-hub-search-wrap {
-          position: relative; margin-bottom: 10px;
+          position: relative; margin-bottom: 8px;
         }
         #wh-hub-search {
           width: 100%; background: rgba(255,255,255,0.06);
-          border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-          padding: 8px 32px 8px 32px;
-          min-height: 44px;
+          border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+          padding: 8px 64px 8px 14px;
+          min-height: 46px;
           font-size: 16px; /* exact 16px — iOS Safari auto-zooms on any input < 16px */
           color: rgba(255,255,255,0.85);
           font-family: var(--wh-font, 'Poppins', sans-serif); outline: none;
@@ -1066,55 +1123,53 @@
         #wh-hub-search:focus {
           border-color: rgba(247,162,27,0.5); background: rgba(255,255,255,0.09);
         }
-        #wh-hub-search-icon {
-          position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-          color: rgba(255,255,255,0.6); pointer-events: none; display: flex;
-        }
+        /* a keyboard shortcut is offered only where there is a keyboard: "Ctrl K" on a phone named a key it lacks */
         #wh-hub-search-kbd {
           position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
           background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
           border-radius: 4px; padding: 1px 5px; font-size: 12px; color: rgba(255,255,255,0.75); /* C2 AA: 0.6=4.41:1 on the chip bg */
-          font-family: monospace; pointer-events: none;
+          font-family: var(--wh-font, 'Poppins', sans-serif); font-weight: 600; pointer-events: none;
+          display: none;
         }
+        @media (hover: hover) and (pointer: fine) { #wh-hub-search-kbd { display: inline-block; } }
         #wh-hub-no-results {
-          text-align: center; padding: 16px 0; font-size: 11px; color: rgba(255,255,255,0.3);
+          text-align: center; padding: 16px 0; font-size: 0.875rem; color: rgba(255,255,255,0.72);
           display: none;
         }
 
-        /* ── All Tools grid — 4 columns, always visible ── */
+        /* ── All Tools grid ── part of the panel's own scroll: no second scroller inside it */
+        /* two columns of rows - icon, then the tool's whole name - at every width: a 3-across grid of 12px captions
+           wrapped "PM Scheduler" and "Voice Journal" and left Day Planner and Shift Brain alone on their rows */
         #wh-hub-tiles {
-          display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
-          max-height: 260px; overflow-y: auto; scrollbar-width: thin;
-          scrollbar-color: rgba(247,162,27,0.2) transparent;
-          margin-top: 6px;
+          display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px;
+          margin-top: 2px;
         }
-        #wh-hub-tiles::-webkit-scrollbar { width: 4px; }
-        #wh-hub-tiles::-webkit-scrollbar-thumb { background: rgba(247,162,27,0.2); border-radius: 2px; }
         .wh-hub-tile.hidden { display: none; }
 
         /* ── Tile ── */
         .wh-hub-tile {
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           align-items: center;
-          gap: 6px;
-          padding: 12px 8px 10px;
+          gap: 10px;
+          padding: 8px 10px;
+          min-height: 48px;
           border-radius: 12px;
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.06);
           text-decoration: none;
           cursor: pointer;
-          transition: background 0.15s ease, border-color 0.15s ease, transform 0.18s ease-out;
+          /* no hover lift: a tile is pressed tens of times a day, and a jump on every pass of the pointer is noise */
+          transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s cubic-bezier(0.23, 1, 0.32, 1);
           position: relative;
+          -webkit-tap-highlight-color: transparent;
         }
-        .wh-hub-tile:hover {
-          background: rgba(255,255,255,0.09);
-          border-color: rgba(255,255,255,0.16);
-          transform: translateY(-5px) scale(1.03);
+        @media (hover: hover) and (pointer: fine) {
+          .wh-hub-tile:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.16); }
         }
-        .wh-hub-tile:active {
-          transform: scale(0.93);
-          transition: transform 0.08s ease;
+        .wh-hub-tile:active { transform: scale(0.97); }
+        @media (prefers-reduced-motion: reduce) {
+          .wh-hub-tile:active, .wh-hub-quick-tile:active, .wh-hub-assist-btn:active { transform: none; }
         }
 
         /* Active / current page tile */
@@ -1142,26 +1197,19 @@
           display: flex;
           align-items: center;
           justify-content: center;
+          flex: none;
+          font-size: 18px;
         }
         .wh-hub-tile-label {
-          font-size: 12px;
+          font-size: 0.875rem;   /* DESIGN.md body step: a tool's name is read, not a caption */
           font-weight: 600;
-          color: rgba(255,255,255,0.72); /* C2 WCAG AA: 0.5 measured 4.32:1 (<4.5) on the panel; 0.72 clears it */
-          text-align: center;
-          letter-spacing: 0.02em;
-          line-height: 1.2;
+          color: rgba(255,255,255,0.82); /* C2 WCAG AA: 0.5 measured 4.32:1 (<4.5) on the panel; 0.72 cleared it */
+          text-align: left;
+          line-height: 1.25;
+          min-width: 0;
+          overflow-wrap: break-word;
         }
 
-        /* Current-page dot */
-        .wh-hub-tile-dot {
-          position: absolute;
-          top: 6px;
-          right: 6px;
-          width: 5px;
-          height: 5px;
-          border-radius: 50%;
-          background: var(--wh-orange, #F7A21B);
-        }
 
         /* ── Role mode switcher (Phase D) ── */
         #wh-hub-mode {
@@ -1178,11 +1226,13 @@
            sweep:platform-wide:interactive-min-height-rule). 44px = gloved-hand minimum,
            all viewports, no exceptions. Any new interactive control opts in via this class. */
         .wh-tappable { min-height: 44px; min-width: 44px; }
+        /* sized to its word, not to a quarter of the row: "Supervisor" and "Engineer" were squeezed into the same
+           width as "All" and ran into the panel's edge at 390 */
         .wh-hub-mode-btn {
-          flex: 1;
+          flex: 1 1 auto;
           min-height: 44px;
           min-width: 44px;   /* the platform's tap floor at every viewport (C31: measured 37x44 at 320) */
-          padding: 6px 4px;
+          padding: 6px 8px;
           background: transparent;
           border: none;
           border-radius: 7px;
@@ -1199,12 +1249,11 @@
           gap: 4px;
           white-space: nowrap;
         }
-        .wh-hub-mode-btn:hover { color: rgba(255,255,255,0.7); }
+        @media (hover: hover) and (pointer: fine) { .wh-hub-mode-btn:hover { color: rgba(255,255,255,0.85); } }
         .wh-hub-mode-btn.active {
           background: rgba(247,162,27,0.15);
           color: var(--wh-orange, #F7A21B);
         }
-        .wh-hub-mode-icon { font-size: 11px; line-height: 1; }
 
         /* ── FAB-CONSOLIDATION (2026-07-20): connectivity status pill in the header ──
            Ian: "make the feedback, companion, and online widget be put in the nav-hub…
@@ -1267,53 +1316,63 @@
         #wh-hub-conn-detail .help { margin-top: 6px; color: var(--wh-text-muted, rgba(255,255,255,0.5)); font-size: 12px; line-height: 1.4; }
 
         /* ── FAB-CONSOLIDATION: Assistant action row (Companion + Feedback) — token-built ── */
-        #wh-hub-assist-row {
-          display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--wh-space-2, 8px); margin: 0 0 var(--wh-space-3, 12px);
+        /* ★THE ACTIONS SIT AT THE THUMB, NOT ABOVE THE TOOLS (Ian, 2026-10-28). Search, Companion, Feedback and Install
+           were three loud buttons and a second search-shaped box at the TOP, pushing the tools - what the hub is for -
+           below the fold. They are now one quiet row at the panel's bottom edge, which on a phone is the edge next to the
+           FAB and the thumb. The foot is the column's last box, BELOW the scrolling body - never laid over it - so the
+           tools scroll above it and no tool is ever under it, at any scroll position. */
+        #wh-hub-foot {
+          flex: none;
+          padding: 10px 16px 12px;
+          background: var(--wh-navy, #162032);
+          border-top: 1px solid rgba(255,255,255,0.08);
         }
-        /* two columns again once the app is installed and the Install control has gone */
-        #wh-hub-assist-row.wh-hub-assist-row--2 { grid-template-columns: 1fr 1fr; }
+        #wh-hub-assist-row {
+          display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 0;
+        }
+        /* three across once the app is installed and the Install control has gone */
+        #wh-hub-assist-row.wh-hub-assist-row--installed { grid-template-columns: repeat(3, 1fr); }
         /* §BRH.11 AM (Ian, 2026-10-26): the install control lives here, visible at rest on every host - it never waits for
            beforeinstallprompt (iOS never fires it); the guide below it says how, per platform, with the icon that lands */
-        #wh-hub-install {
-          background: rgba(var(--wh-orange-rgb, 247,162,27),0.1); border-color: rgba(var(--wh-orange-rgb, 247,162,27),0.28); color: var(--wh-orange, #F7A21B);
-        }
-        #wh-hub-install:hover { background: rgba(var(--wh-orange-rgb, 247,162,27),0.18); border-color: rgba(var(--wh-orange-rgb, 247,162,27),0.45); }
         #wh-hub-install[hidden] { display: none; }
+        /* the guide opens inside the pinned foot, above the row that opened it, and scrolls on its own if long */
         #wh-hub-install-guide {
-          margin: 0 0 var(--wh-space-3, 12px); padding: 12px 14px; border-radius: var(--wh-radius, 12px);
+          margin: 0 0 10px; padding: 12px 14px; border-radius: var(--wh-radius, 12px);
           background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
           color: rgba(255,255,255,0.86); font-size: 12px; line-height: 1.55;
+          max-height: 40vh; overflow-y: auto; overscroll-behavior: contain;
         }
         #wh-hub-install-guide[hidden] { display: none; }
         #wh-hub-install-guide strong { color: #fff; }
         #wh-hub-install-guide ol { margin: 6px 0 0 18px; padding: 0; }
         #wh-hub-install-guide li { margin: 2px 0; }
         #wh-hub-install-guide img { float: right; width: 48px; height: 48px; border-radius: var(--wh-radius, 12px); margin: 0 0 8px 10px; }
+        /* one shape and one colour for all four: the row was cyan, amber, amber - three accents saying nothing */
         .wh-hub-assist-btn {
-          display: flex; align-items: center; justify-content: center; gap: var(--wh-space-2, 8px);
-          min-height: 48px; padding: 10px 12px; border-radius: var(--wh-radius, 12px);
-          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-          color: rgba(255,255,255,0.9); font-family: var(--wh-font, 'Poppins', sans-serif);
-          font-size: 12px; font-weight: 600; cursor: pointer;
-          transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease-out;
+          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+          min-height: 56px; padding: 8px 4px; border-radius: var(--wh-radius, 12px);
+          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09);
+          color: rgba(255,255,255,0.88); font-family: var(--wh-font, 'Poppins', sans-serif);
+          font-size: 12px; font-weight: 600; line-height: 1.15; text-align: center; cursor: pointer;
+          transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s cubic-bezier(0.23, 1, 0.32, 1);
+          -webkit-tap-highlight-color: transparent;
         }
-        .wh-hub-assist-btn:hover  { transform: translateY(-2px); }
-        .wh-hub-assist-btn:active { transform: scale(0.96); }
-        .wh-hub-assist-btn .ic { font-size: 16px; }
-        #wh-hub-open-companion {
-          background: rgba(var(--wh-blue-rgb, 41,182,217),0.1); border-color: rgba(var(--wh-blue-rgb, 41,182,217),0.28); color: var(--wh-blue, #29B6D9);
+        @media (hover: hover) and (pointer: fine) {
+          .wh-hub-assist-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.18); }
         }
-        #wh-hub-open-companion:hover { background: rgba(var(--wh-blue-rgb, 41,182,217),0.18); border-color: rgba(var(--wh-blue-rgb, 41,182,217),0.45); }
-        #wh-hub-open-feedback {
-          background: rgba(var(--wh-orange-rgb, 247,162,27),0.1); border-color: rgba(var(--wh-orange-rgb, 247,162,27),0.28); color: var(--wh-orange, #F7A21B);
-        }
-        #wh-hub-open-feedback:hover { background: rgba(var(--wh-orange-rgb, 247,162,27),0.18); border-color: rgba(var(--wh-orange-rgb, 247,162,27),0.45); }
+        .wh-hub-assist-btn:active { transform: scale(0.97); }
+        .wh-hub-assist-btn[aria-expanded="true"] { background: rgba(247,162,27,0.12); border-color: rgba(247,162,27,0.35); color: var(--wh-orange, #F7A21B); }
+        .wh-hub-assist-btn .ic { font-size: 18px; line-height: 1; }
 
         /* ── Mobile ── */
         @media (max-width: 480px) {
           #wh-hub { bottom: max(16px, env(safe-area-inset-bottom)); right: 16px; }
           #wh-hub-panel { width: calc(100vw - 32px); }
-          #wh-hub-tiles { grid-template-columns: repeat(3, 1fr); }
+        }
+        /* text selection and focus carry the brand, not the browser's default blue */
+        #wh-hub ::selection { background: rgba(247,162,27,0.35); color: #fff; }
+        #wh-hub a:focus-visible, #wh-hub button:focus-visible, #wh-hub input:focus-visible {
+          outline: 2px solid var(--wh-orange, #F7A21B); outline-offset: 2px;
         }
       </style>
 
@@ -1324,14 +1383,30 @@
            the visible label; the Community unread-count updater reads that label from the button itself, so the two cannot disagree. -->
       <button id="wh-hub-fab" aria-label="${current.label} - ${_tt('open navigation hub', 'buksan ang nabigasyon')}" aria-expanded="false">
         <span id="wh-hub-current-label">${current.label}</span>
-        <!-- Navigation hub: a compass (.ic-apps in wh-icons.css); shows the close glyph while the hub is open -->
-        <span class="ic ic-apps" aria-hidden="true"></span>
+        <!-- A honeycomb cell carrying the WorkHive mark (the logo's lattice: amber, cyan, amber); the close cross while
+             the hub is open (Ian, 2026-10-28) -->
+        <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="wh-hub-hex-fill" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#1F2E45"/>
+              <stop offset="1" stop-color="#162032"/>
+            </linearGradient>
+          </defs>
+          <polygon class="wh-hex" points="28,1.5 50.95,14.75 50.95,41.25 28,54.5 5.05,41.25 5.05,14.75"/>
+          <g class="wh-mark">
+            <polygon class="wh-cell amber" points="21.33,15.43 27.22,18.83 27.22,25.62 21.33,29.03 15.44,25.62 15.44,18.82"/>
+            <polygon class="wh-cell cyan" points="34.67,15.43 40.56,18.83 40.56,25.62 34.67,29.03 28.78,25.62 28.78,18.82"/>
+            <polygon class="wh-cell amber" points="28,26.97 33.89,30.38 33.89,37.17 28,40.57 22.11,37.17 22.11,30.37"/>
+          </g>
+          <path class="wh-close" d="M22.5 22.5 L33.5 33.5 M33.5 22.5 L22.5 33.5" fill="none"/>
+        </svg>
       </button>
 
       <!-- Panel -->
       <div id="wh-hub-panel" role="dialog" aria-label="${_tt('Navigation hub', 'Nabigasyon')}">
+        <!-- the one scroller: everything but the action foot -->
+        <div id="wh-hub-body">
         <div id="wh-hub-panel-header">
-          <span>WorkHive</span>
           <!-- FAB-CONSOLIDATION: live connectivity status pill (was the corner .wh-conn-chip) -->
           <button type="button" id="wh-hub-conn-pill" data-state="online" style="display:none;" aria-label="${_tt('Connection status', 'Katayuan ng koneksyon')}" title="${_tt('Connection status', 'Katayuan ng koneksyon')}">
             <span id="wh-hub-conn-dot" aria-hidden="true"></span>
@@ -1348,43 +1423,11 @@
           <div class="help">${_tt('Pending writes save to this device and send automatically when the connection returns. You can keep working offline.', 'Ang mga naka-pila ay naka-save sa device na ito at awtomatikong ipapadala pagbalik ng koneksyon. Puwede kang magpatuloy offline.')}</div>
         </div>
 
-        <!-- FAB-CONSOLIDATION: Assistant actions — Companion + Feedback (consolidated from the corner FABs) -->
-        <div id="wh-hub-assist-row">
-          <button type="button" id="wh-hub-open-companion" class="wh-hub-assist-btn" aria-label="${_tt('Open companion', 'Buksan ang katulong')}">
-            <span class="ic ic-ai" aria-hidden="true"></span>
-            <span>${_tt('Companion', 'Katulong')}</span>
-          </button>
-          <button type="button" id="wh-hub-open-feedback" class="wh-hub-assist-btn" aria-label="${_tt('Send feedback', 'Magpadala ng feedback')}">
-            <span aria-hidden="true">💬</span>
-            <span>${_tt('Feedback', 'Feedback')}</span>
-          </button>
-          <!-- §BRH.11 AM (Ian, 2026-10-26: "users should have something icon where they can just click or tap to easily
-               install it and visible right away"): visible at rest on every host; the native prompt where there is one,
-               the per-platform guide everywhere else; hidden once installed -->
-          <button type="button" id="wh-hub-install" class="wh-hub-assist-btn" aria-label="${_tt('Install WorkHive on this device', 'I-install ang WorkHive sa device na ito')}" aria-expanded="false" aria-controls="wh-hub-install-guide">
-            <span class="ic ic-phone" aria-hidden="true"></span>
-            <span>${_tt('Install', 'I-install')}</span>
-          </button>
-        </div>
-        <div id="wh-hub-install-guide" role="region" aria-label="${_tt('How to install WorkHive', 'Paano i-install ang WorkHive')}" hidden></div>
-
-        <!-- Phase E.3c: Global Search trigger — opens Cmd+K overlay on mobile too -->
-        <button type="button" id="wh-hub-global-search" style="display:flex; align-items:center; gap:8px; width:100%; min-height:44px; padding:10px 12px; margin:0 0 8px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:10px; color:var(--wh-orange, #F7A21B); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; text-align:left;" aria-label="${_tt('Open global search', 'Buksan ang global search')}">
-          <span class="ic ic-search" aria-hidden="true"></span>
-          <span style="flex:1;">${_tt('Search assets, jobs, parts, PMs', 'Maghanap ng assets, trabaho, parts, PM')}</span>
-          <!-- C6 (confusion ledger, 2026-09-14): the ⌘K badge was HERE, but Ctrl/⌘-K focuses the tools-FILTER
-               input below (see the keydown handler), not this global-search launcher - a wrong shortcut badge that
-               made the two search-shaped controls look like twins. The badge now lives only on the filter input it
-               actually drives; this launcher opens the global overlay on click (aria-label says so). -->
-        </button>
-
-        <!-- Search bar -->
+        <!-- Filter: the first thing in the panel, because finding a tool is what the hub is for -->
         <div id="wh-hub-search-wrap">
-          <span id="wh-hub-search-icon">
-            <!-- C6 (confusion ledger, 2026-09-14): a FILTER icon (was ic-search, identical to the global-search
-                 launcher above). This control FILTERS the tiles below; it does not search the hive. -->
-            <span class="ic ic-filter" aria-hidden="true"></span>
-          </span>
+          <!-- C6 (confusion ledger, 2026-09-14) kept this field apart from the record search by its icon; the icon it got
+               was a "▾" caret, which made a text field read as a dropdown (2026-10-28). The record search is now a button
+               in the action row, so the field needs no icon at all: its own words, "Filter tools", say what it does. -->
           <input id="wh-hub-search" type="search" placeholder="${_tt('Filter tools…', 'I-filter ang tools…')}" autocomplete="off" aria-label="${_tt('Filter tools', 'I-filter ang tools')}">
           <span id="wh-hub-search-kbd">Ctrl K</span>
         </div>
@@ -1395,29 +1438,52 @@
             var active = m.id === getMode() ? ' active' : '';
             return '<button type="button" class="wh-hub-mode-btn' + active +
                    '" data-mode="' + m.id + '" role="tab" aria-selected="' + (active ? 'true' : 'false') + '">' +
-                   '<span class="wh-hub-mode-icon">' + m.icon + '</span>' + m.label + '</button>';
+                   m.label + '</button>';
           }).join('')}
         </div>
 
-        <!-- Recent row -->
-        <div id="wh-hub-quick">
+        <!-- Recent row: only tools this person has opened (none yet: not drawn) -->
+        <div id="wh-hub-quick"${quickHTML ? '' : ' hidden'}>
           <p class="wh-hub-section-label">${_tt('Recent', 'Kamakailan')}</p>
           <div id="wh-hub-quick-row">${quickHTML}</div>
         </div>
 
-        <div class="wh-hub-divider"></div>
-
-        <!-- All Tools — 4-col grid, always visible, scrollable -->
-        <p class="wh-hub-section-label" id="wh-hub-tiles-label">${_tt('All Tools', 'Lahat ng Tools')}</p>
         <div id="wh-hub-no-results">${_tt('No tools match your search.', 'Walang tool na tumugma sa paghahanap.')}</div>
-        <!-- W45939 audit: this was role="region" with NO accessible name, so a screen reader listed an
-             unnamed landmark inside the hub - worse than no role at all, because it adds an entry to the
-             landmark list that says nothing. It was the only named-role element in this file without a
-             name; every sibling here carries a bilingual one. LABELLEDBY rather than a fresh aria-label:
-             the grid already has a visible heading directly above it, so pointing at that text keeps the
-             spoken name identical to the seen one and keeps it translated by the same _tt call, instead
-             of a second string that can drift out of step with it. -->
-        <div id="wh-hub-tiles" role="region" aria-labelledby="wh-hub-tiles-label">${tilesHTML}</div>
+        <!-- W45939 audit: this region needs a name, or a screen reader lists an unnamed landmark. Its visible
+             "All Tools" heading is gone (each group below has its own heading), so the name is the region's own
+             aria-label, translated by the same _tt call. -->
+        <div id="wh-hub-tiles" role="region" aria-label="${_tt('All tools', 'Lahat ng tools')}">${tilesHTML}</div>
+        </div>
+
+        <!-- The actions, at the panel's bottom edge (the thumb's edge): record search, companion, feedback,
+             install. The install guide opens here, above the row that opened it. -->
+        <div id="wh-hub-foot">
+          <div id="wh-hub-install-guide" role="region" aria-label="${_tt('How to install WorkHive', 'Paano i-install ang WorkHive')}" hidden></div>
+          <div id="wh-hub-assist-row">
+            <!-- Phase E.3c: Global Search trigger - opens the search overlay on mobile too. C6 (confusion ledger,
+                 2026-09-14): it carries no shortcut badge (Ctrl/Cmd-K drives the tools FILTER at the top), and it is a
+                 button in the action row, not a second search-shaped box beside the filter. -->
+            <button type="button" id="wh-hub-global-search" class="wh-hub-assist-btn" aria-label="${_tt('Search records: assets, jobs, parts, PMs', 'Hanapin ang records: assets, trabaho, parts, PM')}">
+              <span class="ic ic-search" aria-hidden="true"></span>
+              <span>${_tt('Search', 'Hanapin')}</span>
+            </button>
+            <button type="button" id="wh-hub-open-companion" class="wh-hub-assist-btn" aria-label="${_tt('Companion: open the assistant', 'Katulong: buksan ang assistant')}">
+              <span class="ic ic-ai" aria-hidden="true"></span>
+              <span>${_tt('Companion', 'Katulong')}</span>
+            </button>
+            <button type="button" id="wh-hub-open-feedback" class="wh-hub-assist-btn" aria-label="${_tt('Feedback: send a note to the WorkHive team', 'Feedback: magpadala ng mensahe sa WorkHive')}">
+              <span class="ic ic-message" aria-hidden="true"></span>
+              <span>${_tt('Feedback', 'Feedback')}</span>
+            </button>
+            <!-- §BRH.11 AM (Ian, 2026-10-26: "users should have something icon where they can just click or tap to
+                 easily install it and visible right away"): visible at rest on every host; the native prompt where there
+                 is one, the per-platform guide everywhere else; hidden once installed -->
+            <button type="button" id="wh-hub-install" class="wh-hub-assist-btn" aria-label="${_tt('Install WorkHive on this device', 'I-install ang WorkHive sa device na ito')}" aria-expanded="false" aria-controls="wh-hub-install-guide">
+              <span class="ic ic-phone" aria-hidden="true"></span>
+              <span>${_tt('Install', 'I-install')}</span>
+            </button>
+          </div>
+        </div>
       </div>
     `;
 
@@ -1533,6 +1599,9 @@
       // pill on the hive & community boards. The detail rows below still populate for when it shows.
       var healthy = s.online && (s.backendOk !== false) && !s.slow && !((s.depth || 0) > 0);
       pill.style.display = healthy ? 'none' : '';
+      // the panel's header exists only to carry this pill: a healthy link draws no header at all
+      var head = document.getElementById('wh-hub-panel-header');
+      if (head) head.classList.toggle('has-pill', !healthy);
       pill.setAttribute('data-state', s.stateKey || 'online');
       var lbl = document.getElementById('wh-hub-conn-label'); if (lbl) lbl.textContent = s.label || 'Online';
       var badge = document.getElementById('wh-hub-conn-badge');
@@ -1805,37 +1874,64 @@
     const fab   = document.getElementById('wh-hub-fab');   // gid-allow: rendered by this file's own hub template (buildWidget)
     const panel = document.getElementById('wh-hub-panel');
     if (!hub || !fab || !panel) return;
-    const r = fab.getBoundingClientRect();
-    // the panel's edge sits 12px off the FAB (the 68px anchor less the 56px FAB) and keeps 8px from the screen edge
-    const above = r.top - 12 - safeInset('top') - 8;
-    const below = window.innerHeight - r.bottom - 12 - safeInset('bottom') - 8;
+    // the hub's own box, not the FAB's: the FAB is scaled while it is pressed or lifted for a drag, and a scaled box
+    // put the panel 2px off its edge after a drop (the hub box is the FAB's unscaled 56px square)
+    const r = hub.getBoundingClientRect();
+    // the panel's edge sits 12px off the FAB (the 68px anchor less the 56px FAB) and keeps 16px from the screen edge
+    // (8px read as touching the top of the phone)
+    const above = r.top - 12 - safeInset('top') - 16;
+    const below = window.innerHeight - r.bottom - 12 - safeInset('bottom') - 16;
     panel.style.maxHeight = '';                       // measure the natural height, not the last cap
     const need = panel.offsetHeight;
     const goBelow = need > above && below > above;    // flip only when the top cannot hold it and the bottom holds more
     hub.classList.toggle('wh-panel-below', goBelow);
     const room = Math.max(120, goBelow ? below : above);
     if (need > room) panel.style.maxHeight = room + 'px';   // scroll inside the room rather than leave the screen
+    // ★AND SIDEWAYS, WHEREVER THE FAB IS - EVEN MID-DRAG (Ian, 2026-10-28: "when it's open and you drag it anywhere the
+    // display should also adapt"). The panel was pinned to the FAB's right or left edge by the side it had SNAPPED to,
+    // so a FAB held mid-screen carried a 358px panel half off the phone. It now lines up with the FAB on the half of the
+    // screen the FAB is in, and is held 8px inside the screen; it grows out of the FAB's corner.
+    const vw = document.documentElement.clientWidth || window.innerWidth;
+    const pw = panel.offsetWidth;
+    const onRight = (r.left + r.width / 2) >= vw / 2;
+    const left = Math.max(8, Math.min(onRight ? r.right - pw : r.left, vw - 8 - pw));
+    panel.style.left = Math.round(left - hub.getBoundingClientRect().left) + 'px';
+    panel.style.right = 'auto';
+    panel.style.transformOrigin = (goBelow ? 'top ' : 'bottom ') + (onRight ? 'right' : 'left');
   }
 
   function makeDraggable() {
     const fab = document.getElementById('wh-hub-fab');
     let dragging = false;
     let didDrag  = false;
+    let slop = 4;
+    let follow = 0;   // the frame the opened panel is next re-placed in, while the FAB moves
     let startX, startY, startBottom, startLeft, startRight;
+    // a fixed element's right is measured from the scrollport, which the reserved scrollbar gutter narrows (T184):
+    // the page's own width, not the window's, or the FAB jumps by the gutter the moment it is picked up
+    const pageW = function () { return document.documentElement.clientWidth || window.innerWidth; };
+    const placeSoon = function () {
+      if (!isOpen || follow) return;
+      follow = requestAnimationFrame(function () { follow = 0; placePanel(); });
+    };
 
     function onStart(e) {
       const touch = e.touches ? e.touches[0] : e;
       dragging = true; didDrag = false;
+      // a finger wobbles more than a mouse: under 8px it is still a tap, and the hub opens (a 4px wobble used to
+      // become a "drag" that went nowhere, and the tap that should have opened the hub did nothing)
+      slop = e.touches ? 8 : 4;
       startX = touch.clientX; startY = touch.clientY;
       const hub  = document.getElementById('wh-hub');
       const rect = hub.getBoundingClientRect();
       startBottom = window.innerHeight - rect.bottom;
       startLeft   = rect.left;
-      startRight  = window.innerWidth - rect.right;
+      startRight  = pageW() - rect.right;
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup',   onEnd);
       document.addEventListener('touchmove', onMove, { passive: false });
       document.addEventListener('touchend',  onEnd);
+      document.addEventListener('touchcancel', onEnd);
     }
 
     function onMove(e) {
@@ -1844,13 +1940,17 @@
       const touch = e.touches ? e.touches[0] : e;
       const dx = touch.clientX - startX;
       const dy = touch.clientY - startY;
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) didDrag = true;
+      const hub = document.getElementById('wh-hub');
+      if (!didDrag && (Math.abs(dx) > slop || Math.abs(dy) > slop)) {
+        didDrag = true;
+        hub.classList.add('wh-hub-dragging');
+      }
       if (!didDrag) return;
-      const hub    = document.getElementById('wh-hub');
       const newBot = clampBottom(startBottom - dy);
       if (snapSide === 'right') hub.style.right = Math.max(0, startRight - dx) + 'px';
       else                      hub.style.left  = Math.max(0, startLeft  + dx) + 'px';
       hub.style.bottom = newBot + 'px';
+      placeSoon();   // an open panel follows the FAB and re-fits - above or below, left or right - as it moves
     }
 
     function onEnd() {
@@ -1858,13 +1958,31 @@
       document.removeEventListener('mouseup',   onEnd);
       document.removeEventListener('touchmove', onMove);
       document.removeEventListener('touchend',  onEnd);
+      document.removeEventListener('touchcancel', onEnd);
+      if (follow) { cancelAnimationFrame(follow); follow = 0; }
       if (!didDrag) { dragging = false; return; }
       dragging = false;
       const hub  = document.getElementById('wh-hub');
+      hub.classList.remove('wh-hub-dragging');
       const rect = hub.getBoundingClientRect();
-      const side = (rect.left + rect.width / 2) < (window.innerWidth / 2) ? 'left' : 'right';
-      applyPosition(side, window.innerHeight - rect.bottom);
-      savePosition(side, window.innerHeight - rect.bottom);
+      const vw = pageW();
+      const side = (rect.left + rect.width / 2) < (vw / 2) ? 'left' : 'right';
+      const bottom = clampBottom(window.innerHeight - rect.bottom);
+      savePosition(side, bottom);
+      // ★LET GO, AND IT SETTLES (Ian, 2026-10-28). It used to jump to the edge. FLIP: lay the FAB out at its final
+      // place at once (and the open panel with it, measured there), then start it translated back to where the finger
+      // let go and let the transform run out - one composited slide, the panel riding along inside the hub.
+      applyPosition(side, bottom);
+      if (isOpen) placePanel();
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const to = hub.getBoundingClientRect();
+      const dx = rect.left - to.left, dy = rect.top - to.top;
+      if (!dx && !dy) return;
+      hub.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+      hub.getBoundingClientRect();          // commit the start of the slide before it runs
+      hub.classList.add('wh-hub-snapping');
+      hub.style.transform = '';
+      setTimeout(function () { hub.classList.remove('wh-hub-snapping'); }, 260);
     }
 
     fab.addEventListener('mousedown',  onStart);
@@ -1940,7 +2058,7 @@
       b.hidden = true;
       if (g) g.hidden = true;
       const row = document.getElementById('wh-hub-assist-row');
-      if (row) row.classList.add('wh-hub-assist-row--2');
+      if (row) row.classList.add('wh-hub-assist-row--installed');
     };
     if (installState().standalone) { hide(); return; }
     window.addEventListener('appinstalled', hide);
@@ -2154,39 +2272,18 @@
       var mode = getMode();
       var visible = TOOLS.filter(function(t) { return isVisibleInMode(t, mode); });
 
-      // Recent row
+      // Recent row (not drawn when this person has opened nothing in this view yet)
       var quickRow = document.getElementById('wh-hub-quick-row');
       if (quickRow) {
-        var quickTools = getQuickTools(4);
-        quickRow.innerHTML = quickTools.map(function(t) {
-          var isCurrent = t === current;
-          var shortLabel = t.label.length > 8 ? t.label.split(' ')[0] : t.label;
-          return '<a href="' + t.href + '" class="wh-hub-quick-tile' + (isCurrent ? ' active' : '') +
-                 '" ' + (isCurrent ? 'aria-current="page"' : '') + ' title="' + t.label + '">' +
-                 '<span class="wh-hub-quick-icon">' + t.icon + '</span>' +
-                 '<span class="wh-hub-quick-label">' + shortLabel + '</span></a>';
-        }).join('');
+        quickRow.innerHTML = quickTilesHTML();
+        var quickWrap = document.getElementById('wh-hub-quick');
+        if (quickWrap) quickWrap.hidden = !quickRow.innerHTML;
       }
 
       // All Tools grid
       var tilesEl = document.getElementById('wh-hub-tiles');
-      if (tilesEl) {
-        var lastSec = null;
-        var html = visible.reduce(function(acc, t) {
-          if (t.section && t.section !== lastSec) {
-            lastSec = t.section;
-            acc += '<p class="wh-hub-section-label wh-hub-section-break">' + t.section + '</p>';
-          }
-          var isCurrent = t === current;
-          acc += '<a href="' + t.href + '" class="wh-hub-tile' + (isCurrent ? ' active' : '') +
-                 (t.accent ? ' accent' : '') + '" ' + (isCurrent ? 'aria-current="page"' : '') + '>' +
-                 '<span class="wh-hub-tile-icon">' + t.icon + '</span>' +
-                 '<span class="wh-hub-tile-label">' + t.label + '</span>' +
-                 (isCurrent ? '<span class="wh-hub-tile-dot"></span>' : '') + '</a>';
-          return acc;
-        }, '');
-        tilesEl.innerHTML = html;
-      }
+      if (tilesEl) tilesEl.innerHTML = toolTilesHTML(visible);
+      if (isOpen) placePanel();   // the grid's height changed with the view: re-fit the panel to its room
 
       // Empty state — if mode filter eliminates everything visible (rare)
       if (noResults) noResults.style.display = visible.length ? 'none' : 'block';
@@ -2245,8 +2342,6 @@
       // Also hide Recent row when searching (search shows all matches in the grid)
       const quickSection = document.getElementById('wh-hub-quick');
       if (quickSection) quickSection.style.display = query ? 'none' : '';
-      const divider = document.querySelector('.wh-hub-divider');
-      if (divider) divider.style.display = query ? 'none' : '';
     }
 
     /* Track clicks on any tile (quick or all-tools) to update recents */

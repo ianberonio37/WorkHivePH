@@ -95,7 +95,9 @@ async function openAndMeasure(page, expectedPage) {
     const f = fab.getBoundingClientRect();
     const cs = getComputedStyle(panel);
     const open = panel.classList.contains('open') && cs.visibility === 'visible' && parseFloat(cs.opacity) > 0.9;
-    const first = panel.firstElementChild;
+    // the first child the panel actually DRAWS (2026-10-28): its first element is the connectivity header, which is
+    // display:none while the link is healthy - a 0x0 box at (0,0) that hit-tested the page behind and failed every case
+    const first = Array.from(panel.children).find((c) => { const b = c.getBoundingClientRect(); return b.width > 0 && b.height > 0; });
     const fr = first ? first.getBoundingClientRect() : r;
     const px = Math.round(fr.left + fr.width / 2), py = Math.round(fr.top + Math.min(fr.height / 2, 20));
     const hit = document.elementFromPoint(px, py);

@@ -200,7 +200,14 @@ async (page) => {
     hub.controls_exercised++;
   }
   await ensureHub();
-  hub.quick = await vis('#wh-hub-quick'); if (hub.quick.shown) hub.controls_exercised++;
+  // ★RECENT IS WHAT THIS PERSON OPENED (nav-hub, 2026-10-28). The row used to be drawn for everybody - the registry's
+  // first four tools, labelled Recent, to a person who had opened none - and this walk counted "shown" as exercised.
+  // It is now drawn only from the person's own opens, never the page they are on. So the group is proven both ways:
+  // not drawn while the history is empty, and holding a destination this walk reached through the hub once it has one
+  // (checked on the onward hops below; the page being visited is never its own Recent, so the proof lands one hop on).
+  hub.quick = await vis('#wh-hub-quick');
+  hub.historyAtHost = await page.evaluate(() => { try { return Object.keys(JSON.parse(localStorage.getItem('wh-tool-clicks') || '{}')).length; } catch (e) { return -1; } });
+  if (hub.quick.shown && hub.historyAtHost === 0) out.problems.push('the hub draws a Recent row for a person who has opened no tool yet');
   hub.quickTiles = await page.evaluate(() => [...document.querySelectorAll('#wh-hub-quick .wh-hub-quick-tile')].filter((t) => t.checkVisibility && t.checkVisibility()).map((t) => (t.getAttribute('title') || '').slice(0, 20)));
   hub.openCompanion = await vis('#wh-hub-open-companion');
   if (hub.openCompanion.shown) {
@@ -271,10 +278,15 @@ async (page) => {
     while (rr.chars < 900 && k < 3) { await page.waitForTimeout(4000); rr = await read(); k++; }
     const fit = await A(`${target} at rest`);
     await page.click('#wh-hub-fab', { timeout: 8000 }).catch(() => {}); await page.waitForTimeout(600);
+    const recentHere = await page.evaluate(() => [...document.querySelectorAll('#wh-hub-quick .wh-hub-quick-tile')].filter((t) => t.checkVisibility && t.checkVisibility()).map((t) => t.getAttribute('href') || ''));
+    if (i > 0 && recentHere.some((h) => h.includes(stops[i - 1]))) hub.quickProven = true;
     const hubHere = await A(`${target}: hub open`);
     await page.keyboard.press('Escape'); await page.waitForTimeout(300);
     out.steps.push({ page: target, chars: rr.chars, identityKept: rr.worker === (P.castName || 'Romeo Beltran'), lang: rr.lang, skeletons: rr.skeletons, onward: stops.slice(i + 1, i + 2), seen: `arrived by the hub's tile; hub opened here: ${hubHere.findings} finding(s)`, fit, hubFindings: hubHere.findings });
   }
+  // Recent, judged once the onward hops have given this person a history
+  if (hub.quickProven || (hub.quick.shown && hub.historyAtHost > 0) || (stops.filter((s) => s).length < 2 && hub.historyAtHost === 0 && !hub.quick.shown)) hub.controls_exercised++;
+  else out.problems.push(`the Recent row never held a tool this walk opened through the hub (${stops.length} onward hop(s))`);
   out.records = records;
   out.summary = { records: records.length, withFindings: records.filter((x) => x.findings > 0).length, vw: W, lang: LANG, controls_exercised: hub.controls_exercised };
   // ★THE MCP'S VM CANNOT import() (ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING, 2026-09-14), so the steps are
