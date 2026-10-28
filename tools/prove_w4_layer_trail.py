@@ -73,7 +73,9 @@ def _is_self_preference(after: str) -> bool:
 # owner, and copying a private plan into the supervisor-read hive trail would publish it. Measured from pg_policy, not
 # listed by hand: a policy that later admits hive-mates turns the obligation back on, and an unreadable database
 # counts the table as shared (the check fails closed).
-_OWNER_ONLY_QUAL = re.compile(r"^(?:selectauth\.uid(?:asuid)?isnotnulland)?auth_uid=(?:select)?auth\.uid(?:asuid)?$")
+# either operand order: resume_documents writes `auth.uid() = auth_uid`, schedule_items `auth_uid = auth.uid()`
+_OWNER_ONLY_QUAL = re.compile(r"^(?:selectauth\.uid(?:asuid)?isnotnulland)?"
+                              r"(?:auth_uid=(?:select)?auth\.uid(?:asuid)?|(?:select)?auth\.uid(?:asuid)?=auth_uid)$")
 _PRIVATE: dict[str, bool] = {}
 
 

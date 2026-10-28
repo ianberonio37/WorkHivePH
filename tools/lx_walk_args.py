@@ -167,6 +167,46 @@ def held_lens(d: dict) -> bool:
     return (p == "U" and ly == "L") or (p == "A" and ly != "A")
 
 
+def ensure_shift_plans(batch: list) -> None:
+    """★SHIFT-BRAIN IS WALKED ON A PLAN, NOT ON ITS LOADING SCREEN (2026-10-28). The page composes the current shift's
+    plan on first open through shift-planner-orchestrator - a model function, which every walk answers with a stub - so
+    the walk only ever read "Building your briefing: step 2 of 3" and judged that screen's figures and provenance.
+    A person sees the plan within seconds, and the page does not regenerate a plan that is already fresh for the window.
+    So before a batch walks shift-brain, each of its hives gets the current window's plan from the REAL orchestrator
+    (one model call per hive per eight-hour window, server-side with the local service key, never printed); a hive that
+    already has one is left alone."""
+    import datetime as _dt
+    import urllib.request
+    # every hive the cast belongs to, not only the row's: a two-hive person (Ben Ocampo: Dela Cruz and Tan) opens on
+    # whichever hive the page restores, and the first walk read Dela Cruz's loading screen with Tan's plan made
+    hives = set()
+    for c in batch:
+        if c.get("page") != "shift-brain.html" or not c.get("castName"):
+            continue
+        hives |= set(psql(f"select hive_id from hive_members where worker_name = {_lit(c['castName'])} and status = 'active'"))
+    hives = sorted(h for h in hives if h)
+    if not hives:
+        return
+    pht = _dt.datetime.utcnow() + _dt.timedelta(hours=8)
+    window = "06-14" if 6 <= pht.hour < 14 else ("14-22" if 14 <= pht.hour < 22 else "22-06")
+    day = (pht - _dt.timedelta(days=1) if window == "22-06" and pht.hour < 6 else pht).strftime("%Y-%m-%d")
+    key = subprocess.run(["docker", "exec", "supabase_edge_runtime_workhive", "printenv", "SUPABASE_SERVICE_ROLE_KEY"],
+                         capture_output=True, text=True).stdout.strip()
+    for hid in hives:
+        have = psql(f"select count(*) from shift_plans where hive_id = {_lit(hid)} and shift_window = {_lit(window)} "
+                    f"and shift_date = {_lit(day)}")
+        if have and have[0] != "0":
+            continue
+        req = urllib.request.Request("http://127.0.0.1:54321/functions/v1/shift-planner-orchestrator",
+                                     data=json.dumps({"shift_window": window, "hive_id": hid}).encode(),
+                                     headers={"Authorization": "Bearer " + key, "Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                print(f"  shift plan for {hid[:8]} {window} {day}: HTTP {r.status}")
+        except Exception as e:
+            print(f"  shift plan for {hid[:8]} {window} {day}: not made ({str(e)[:80]}) - its rows will read the loading screen")
+
+
 def model_fns() -> list[str]:
     from seed_expansion_wave4 import LM_MODEL_FNS
     return sorted(LM_MODEL_FNS | {"ai-gateway", "analytics-orchestrator", "equipment-label-ocr"})
@@ -243,6 +283,7 @@ def main() -> int:
                       "rows": [{"id": t["id"], "layer": desc(t)["layer"], **({"pillar": desc(t)["pillar"]} if desc(t).get("pillar") else {})}
                                for t in sorted(ts, key=lambda x: x["id"])],
                       **c, "pass": PASSWORD})
+    ensure_shift_plans(batch)
     args = {"batch": batch, "origin": "http://localhost:5000/workhive", "api": "http://127.0.0.1:54321",
             "modelFns": model_fns(),
             "viewports": [{"name": "phone-390", "width": 390, "height": 844, "mobile": True},
