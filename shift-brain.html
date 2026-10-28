@@ -1536,7 +1536,15 @@
       // BRH-H/E (2026-10-15): the seat BEFORE the no-hive gate. Awaited only inside validateHiveMembership, this check
       // raced it: walked with the stored hive wiped, the hive was seated and the board revealed - under "Shift Brain
       // needs a hive" and "No active hive", because getUser() above had answered before the seat did.
+      // ★THE SEAT IS A READ, AND A SLOW ONE SAID NOTHING (2026-10-28, cube walk: shift-brain as a person with no hive, its
+      // reads 8 s late). The board is revealed at parse time, so until the seat answered it sat there unfilled with no
+      // sign of working - and for somebody with no hive, the "needs a hive" answer came only after it. Say it is checking.
+      const _seatBox = document.getElementById('sb-verdict');
+      _setShiftVerdict(_t('Checking your hive…', 'Tinitingnan ang iyong hive…'),
+                       _t('Finding the hive this shift board belongs to.', 'Hinahanap ang hive ng shift board na ito.'));
+      if (_seatBox) _seatBox.setAttribute('aria-busy', 'true');
       await _hiveSeated;
+      if (_seatBox) _seatBox.removeAttribute('aria-busy');
       if (!HIVE_ID) {
         document.getElementById('hive-gate').style.display = 'flex';
         _setShiftVerdict('No active hive', 'Join or activate a hive to see shift readiness.');
