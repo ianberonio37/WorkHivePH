@@ -129,7 +129,9 @@ async (mcpPage) => {
     const ptxt = reach.map((c) => c.text).join(' | ');
     const d = { chips: chips.length, loose: loose.length, reachable: reach.length,
       announced: reach.filter((c) => c.role === 'status' || c.live).length,
-      saysSource: /based on|source|\bfrom (your|the|this|its|their|our|each|every)\b|drawn from|computed from|read from|pulled from/i.test(ptxt),
+      // (+ "a snapshot / summary / tally / digest OF your ..." - 2026-10-28, ph-intelligence: "the daily snapshot of your
+      // hive's records" names its source as plainly as "from your hive's records", and read as saying nothing)
+      saysSource: /based on|source|\bfrom (your|the|this|its|their|our|each|every)\b|drawn from|computed from|read from|pulled from|\b(snapshot|summary|tally|digest) of (your|the|this|its|their|our)\b/i.test(ptxt),
       // + calculated / on demand (2026-10-09): engineering-design's "Calculated on demand" says the figures are made at
       // the moment the person runs them - that is their recency, as much as "refreshed" or "as of"
       saysRecency: /updated|refreshed|recomputed|recompute|computed|calculated|on demand|generated|synced|as of|live|\bago\b|just now|moments ago|cached|saved copy|snapshot|today/i.test(ptxt),
