@@ -44,6 +44,13 @@ const ASKED = (() => { const i = process.argv.indexOf('--as'); return i >= 0 ? p
 // most seeded members and not for the solo owner (Jun Salvador signs in as junvanowner) or the fleet accounts -
 // record_mcp_walk.py's header names the same trap. `--email <local part or address>` states the login outright.
 const ASK_EMAIL = (() => { const i = process.argv.indexOf('--email'); return i >= 0 ? process.argv[i + 1] : null; })();
+// ★`--email` QUALIFIES `--as`, IT DOES NOT REPLACE IT (2026-10-28). Asked alone, it fell through to the default actor
+// and the run wrote the plain member's reading over tenant_refusal_report.json - three "persona" runs that were all
+// Wilfredo Malabanan, each reporting PASS. A flag that is silently ignored is refused instead.
+if (ASK_EMAIL && !process.argv.includes('--as')) {
+  console.log('FAIL tenant-refusal - --email needs --as "<display name>" (the name is the actor; the email is his login)');
+  process.exit(1);
+}
 const ADMIN_MODE = process.argv.includes('--as-admin');
 // --teeth drops the by-design exemptions: the run MUST fail, proving the gate can still see a cross-hive read.
 const TEETH = process.argv.includes('--teeth');

@@ -670,7 +670,10 @@ async function loadAndRender(projectId) {
     // answer" it sent the reader to wait for something that will never load (2026-10-06, project-report x adversary).
     const _malformed = _code === '22P02' || /invalid input syntax/i.test(_msg);
     const _expired  = typeof whIsAuthFailure === 'function' ? whIsAuthFailure(_e) : _status === '401';
-    const _back = ' <a href="project-manager.html" style="color: var(--accent);">Back to Project Manager</a>';
+    // the way back is the one action this screen offers, so it is a target, not a word in the sentence: on its own line at
+    // 44px, the shape the choose-a-project state above already gives "Go to Project Manager" (2026-10-28 - the cube's F walk
+    // measured it 154x20 as a solo owner, under the 24px floor)
+    const _back = '<br><a href="project-manager.html" style="color: var(--accent); display:inline-flex; align-items:center; min-height:44px;">Back to Project Manager</a>';
     let _title, _body;
     if (_expired) {
       _title = 'Sign in again';

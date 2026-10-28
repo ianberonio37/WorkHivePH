@@ -56,9 +56,12 @@ GATES = {"CA": ["w4-layer-ca"], "C": ["w4-layer-clock", "clock-and-trail"],
          "LB": ["w4-layer-loadbearing", "growth-honesty"], "AV": ["w4-layer-model-honesty", "ai-render-provenance"],
          "CI": ["w4-layer-regression", "release-safety"], "L": ["w4-layer-trail", "audit-trail-coverage"],
          "A": ["w4-layer-availability", "cc_failure_injection"], "D": ["w4-layer-provenance", "source-chip-truth"],
-         "RL": ["consumption-bound"]}
+         "RL": ["consumption-bound"],
+         # the gate the LXP F rows already name: it re-reads the render contract and reddens on a revert
+         "F": ["render-contract"]}
 # the instrument the LEDGER asks of each layer's lens (live_walk_manifest._mcp_for), written into the receipt
 INSTRUMENT = {"CA": "playwright-mcp", "LB": "playwright-mcp", "AV": "playwright-mcp", "CI": "playwright-mcp",
+              "F": "playwright-mcp",
               "C": "playwright-mcp + postgres-mcp", "L": "playwright-mcp + postgres-mcp",
               "A": "playwright-mcp + postgres-mcp", "D": "playwright-mcp + postgres-mcp",
               "RL": "playwright-mcp + postgres-mcp"}
@@ -372,6 +375,39 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
         why = ([] if down_ok else ["with its reads refused it never says the read failed" + (" (a standing refresh control is not an answer)" if dn.get("retry") else "")]) + \
               ([] if slow_ok else ["with its reads late it shows no working sign, or never recovers"])
         return "FAIL", txt + " - " + "; ".join(why)
+    if layer == "F":
+        # ★THE RENDER CONTRACT, READ BY THE WALK ITSELF (2026-10-28) - the checks the LXP F rows were judged on by hand
+        # (2026-10-06): nothing reaches past the viewport outside a scroll container, no target under 24px (WCAG 2.5.8,
+        # the inline-link exception honoured), every control named, one exposed h1, a main landmark, a skip link that
+        # lands, no duplicate id, nothing left busy once the page settled, and a way off the page.
+        f = h.get("f")
+        if not f:
+            return "UNPROVEN", "this walk took no render-contract reading - re-walk with the current lx_walk.body.js"
+        bad = []
+        if f.get("overflow"):
+            bad.append(f"content reaches past the {f.get('vw')}px viewport outside any scroll container ({'; '.join(f['overflow'][:2])})")
+        if f.get("smallCount"):
+            bad.append(f"{f['smallCount']} target(s) under 24px ({'; '.join(f['small'][:3])})")
+        if f.get("unnamedCount"):
+            bad.append(f"{f['unnamedCount']} control(s) with no accessible name ({', '.join(f['unnamed'][:4])})")
+        if f.get("h1") != 1:
+            bad.append(f"{f.get('h1')} exposed h1 (one names the page)")
+        if not f.get("main"):
+            bad.append("no main landmark")
+        if f.get("skip") and not f.get("skipTarget"):
+            bad.append(f"a skip link to {f['skip']}, which does not exist")
+        if f.get("dupIds"):
+            bad.append(f"duplicate id(s) {', '.join(f['dupIds'][:4])}")
+        if f.get("stuck"):
+            bad.append(f"{f['stuck']} still busy after the page settled")
+        if not f.get("escape"):
+            bad.append("no way off the page - no back, home or close control, no link elsewhere, no nav hub")
+        txt = (f"render contract at {f.get('vw')}px: {f.get('controls')} control(s), h1 \"{f.get('h1Text')}\", "
+               f"escape via {', '.join((f.get('escape') or [])[:2]) or 'nothing'}")
+        if bad:
+            return "FAIL", txt + " - " + "; ".join(bad)
+        return "ok", (txt + " - nothing past the viewport, no target under 24px, every control named, one h1, a main "
+                      "landmark" + (", a skip link that lands" if f.get("skip") else "") + ", no duplicate id, nothing stuck")
     return "UNPROVEN", f"no judge for layer {layer}"
 
 

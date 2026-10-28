@@ -74,6 +74,13 @@ const AU_PAGES = (() => {
       // the LXC floor rows (kind "layer-floor", 2026-10-06) ask the same AU sentence, so their pages are subjects too
       if ((lx.kind === 'layer-ux' || lx.kind === 'layer-floor') && lx.layer === 'AU' && lx.page) seen.add(lx.page);
     }
+    // ★AND THE CUBE'S AU PAGES (2026-10-28). The cube asks the same sentence of every production page and keeps its rows
+    // in trajectory_registry_cx.json, which a read of the main file never sees - so seller-profile and public-feed were
+    // subjects of the AU layer whose reads this sweep had never measured.
+    try {
+      const cx = JSON.parse(readFileSync('trajectory_registry_cx.json', 'utf8'));
+      for (const t of cx.trajectories || []) if ((t.cx || {}).layer === 'AU' && (t.cx || {}).page) seen.add(t.cx.page);
+    } catch (e) { /* no shard yet - the main file's pages stand */ }
     return [...seen].sort();
   } catch (e) { return []; }
 })();
@@ -113,6 +120,10 @@ const OWNABLE = {
   // SL AU4 (20261014000004): ai_cost_log's read keeps a person's OWN rows (auth_uid = auth.uid()) beside the
   // supervisor/admin clause - a dismissed member still seeing what THEY asked is their record, not the hive's
   ai_cost_log: `auth_uid = '${MY_UID}'`,
+  // ai_reply_feedback_read is the same shape - (auth.uid() = auth_uid) OR an active SUPERVISOR of the row's hive. Asked
+  // as a supervisor (2026-10-28), the one Manila row he kept after the kick was the thumbs-up he gave himself; the
+  // hive arm went quiet and his own arm did not, which is the rating staying his, not the hive staying open
+  ai_reply_feedback: `auth_uid = '${MY_UID}'`,
 };
 // graded by their own contract in the identity spine above; never graded twice by the sweep
 const CORE_RELATIONS = new Set(['hive_members', 'v_worker_truth', 'logbook', 'pm_assets']);
@@ -171,6 +182,171 @@ const readAll = async (hive, token) => {
   for (const rel of IDENTITY) out[rel.name] = (await count(rel.q(hive), token)).n;
   return out;
 };
+
+// ── SOLO: the person with NO seat (--solo) ───────────────────────────────────────────────────────────────────
+// ★A SOLO OWNER HAS NO MEMBERSHIP TO REVOKE, SO HIS IDENTITY CHANGES ARE THE OTHER TWO (2026-10-28). The replay
+// below starts from an active seat and takes it away; the cube asks the same AU sentence AS a solo owner on every
+// production page, and a worker's dismissal is not his reading. What CAN change for him is gaining a seat (the role
+// change from "solo" to "member") and losing it again, and his session ending. So, with ONE token minted while he
+// holds no seat:
+//   S1 no seat      his own hive-less rows answer (the positive control) and the busiest hive answers NOTHING
+//   S2 seat given   a worker seat in that hive, and the SAME token must now read it - entitlement follows the
+//                   CURRENT seat when it is gained, not only when it is lost - while his own hive-less rows stay
+//                   exactly his (joining a hive must neither absorb them nor drop them)
+//   S3 seat kicked  the hive goes quiet again; hive_members keeps exactly his own row, so a page can say why
+//   S4 signed out   a global sign-out, after which the session must not RENEW (the refresh grant is refused) and
+//                   whatever the unexpired access token still reads is his alone, for a window its own exp states
+//   S5 restored     the granted seat is deleted and verified gone - he leaves with no seat, as he came
+// A worker-role seat fires nothing beside itself (trg_hivemember_achievement_xp acts on a SUPERVISOR seat only), so the
+// seat row is the probe's whole footprint, and the finally below takes it back out.
+if (process.argv.includes('--solo')) {
+  const NAME = 'Jun Salvador';
+  const LOGIN = 'junvanowner@auth.workhiveph.com';      // the login is not the name (tools/seed_solo_personas.py)
+  const UID = psql(`select id::text from auth.users where lower(email) = lower('${LOGIN}') limit 1`);
+  const SEATS0 = psql(`select count(*) from hive_members where auth_uid::text = '${UID}'`);
+  const H = psql('select h.id::text from hives h order by (select count(*) from logbook l where l.hive_id = h.id) desc limit 1');
+  const H_NAME = psql(`select name from hives where id = '${H}'`);
+  const byDesign = (rel) => !!(PUBLIC_BY_DESIGN[rel] || PUBLIC_VIEWS_BY_DESIGN[rel]);
+  // his own records: the hive-less logbook he keeps as a solo owner, and every PERSON-keyed relation the AU pages read
+  const OWN = [['logbook (hive-less)', `logbook?select=id&auth_uid=eq.${UID}&hive_id=is.null`]]
+    .concat(SWEEP_RELATIONS.filter((r) => REL_KEY[r] === 'auth_uid').map((r) => [r, `${r}?select=auth_uid&auth_uid=eq.${UID}`]));
+  // a hive's relations, by the key each is scoped by: hive_id, or the hive's own `id` (v_hives_truth IS the hive row)
+  const HIVE_RELS = SWEEP_RELATIONS.filter((r) => ['hive_id', 'id'].includes(REL_KEY[r]) && !CORE_RELATIONS.has(r) && !byDesign(r));
+  // ★A PUBLIC PAGE'S READS ARE ASKED A DIFFERENT QUESTION: not "did it go quiet" (it never should) but "did the seat
+  // change what it shows". Each is counted whole at every step, so gaining and losing a seat is visible if it moves them.
+  const PUB_RELS = SWEEP_RELATIONS.filter(byDesign);
+  const own = async (tok) => { let n = 0; for (const [, q] of OWN) n += Math.max(0, (await count(q, tok)).n); return n; };
+  const pub = async (tok) => { const o = {}; for (const r of PUB_RELS) o[r] = (await count(`${r}?select=*`, tok)).n; return o; };
+  const hive = async (tok) => {
+    const id = await readAll(H, tok);
+    const sw = {};
+    for (const r of HIVE_RELS) sw[r] = (await count(`${r}?select=${REL_KEY[r]}&${REL_KEY[r]}=eq.${H}`, tok)).n;
+    return { id, sw, total: Object.values(id).reduce((a, b) => a + b, 0) + Object.values(sw).reduce((a, b) => a + b, 0) };
+  };
+  const S = { subject: NAME, hive_granted: H_NAME, public: {} };
+  let seat = '';
+  if (!UID || SEATS0 !== '0') {
+    problems.push(`S0: the solo subject ${NAME} (${LOGIN}) must exist and hold NO seat (found uid '${UID}', seats ${SEATS0}) - `
+      + 'reseed with tools/seed_solo_personas.py rather than measuring a solo owner who is not one');
+  } else {
+    try {
+      const aj = await (await fetch(`${EDGE}/auth/v1/token?grant_type=password`, {
+        method: 'POST', headers: { apikey: ANON, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: LOGIN, password: PASSWORD }),
+      })).json().catch(() => ({}));
+      const tok = aj.access_token || '';
+      if (!tok) throw new Error('could not mint a token for the solo subject - start/reseed the stack');
+      // S1
+      S.own_no_seat = await own(tok);
+      S.public.no_seat = await pub(tok);
+      const h1 = await hive(tok);
+      S.hive_no_seat = h1.total;
+      note('S1 no seat', `${NAME}'s own rows ${S.own_no_seat} · ${H_NAME}'s rows ${h1.total} (${Object.entries(h1.id).map(([k, v]) => `${k}=${v}`).join(' · ')})`);
+      if (S.own_no_seat === 0) problems.push('S1: the solo owner read none of his own rows - the probe is blind (positive control)');
+      if (TEETH ? h1.total === 0 : h1.total > 0) {
+        problems.push(`S1: holding NO seat, the token read ${h1.total} row(s) of ${H_NAME}${TEETH ? ' (--teeth: demanded > 0 to prove this check can fail)' : ''}`);
+      }
+      // S2
+      seat = psql(`insert into hive_members (hive_id, worker_name, role, status, auth_uid) values ('${H}', '${NAME}', 'worker', 'active', '${UID}') returning id::text`).split(String.fromCharCode(10))[0].trim();
+      if (!/^[0-9a-f-]{36}$/.test(seat)) throw new Error(`could not grant the seat (psql answered '${seat.slice(0, 80)}')`);
+      S.own_with_seat = await own(tok);
+      S.public.with_seat = await pub(tok);
+      const h2 = await hive(tok);
+      S.hive_with_seat = h2.total;
+      S.identity_with_seat = h2.id;
+      note('S2 seat given', `same token, worker seat in ${H_NAME}: ${Object.entries(h2.id).map(([k, v]) => `${k}=${v}`).join(' · ')} · own rows ${S.own_with_seat}`);
+      if (!(h2.id['logbook (the hive\'s own work)'] > 0 && h2.id['v_worker_truth'] > 0)) {
+        problems.push(`S2: a seat was GRANTED and the same token still could not read ${H_NAME} (logbook ${h2.id['logbook (the hive\'s own work)']}, `
+          + `v_worker_truth ${h2.id.v_worker_truth}) - entitlement is not following the CURRENT seat when it is gained`);
+      }
+      if (S.own_with_seat !== S.own_no_seat) {
+        problems.push(`S2: joining a hive changed the solo owner's OWN rows ${S.own_no_seat} -> ${S.own_with_seat}; they are his, not the hive's`);
+      }
+      // S3
+      psql(`update hive_members set status = 'kicked' where id = '${seat}'`);
+      S.own_kicked = await own(tok);
+      S.public.kicked = await pub(tok);
+      const h3 = await hive(tok);
+      S.identity_kicked = h3.id;
+      const leaked = Object.entries(h3.id).filter(([k, v]) => (k === 'hive_members' ? v !== 1 : v > 0))
+        .concat(Object.entries(h3.sw).filter(([, v]) => v > 0));
+      S.hive_kicked = h3.total - (h3.id.hive_members === 1 ? 1 : 0);
+      note('S3 seat kicked', `${Object.entries(h3.id).map(([k, v]) => `${k}=${v}`).join(' · ')} · ${HIVE_RELS.length} more relation(s) of the hive: `
+        + `${Object.values(h3.sw).reduce((a, b) => a + b, 0)} row(s) · own rows ${S.own_kicked}`);
+      if (leaked.length) {
+        problems.push(`S3: kicked, the same token still read ${leaked.map(([k, v]) => `${k}=${v}`).join(', ')} of ${H_NAME} `
+          + '(hive_members must answer exactly his own row; every other relation must answer none)');
+      }
+      if (S.own_kicked !== S.own_no_seat) problems.push(`S3: losing the seat changed his OWN rows ${S.own_no_seat} -> ${S.own_kicked}`);
+      // S4
+      const lo = await fetch(`${EDGE}/auth/v1/logout?scope=global`, { method: 'POST', headers: { apikey: ANON, Authorization: 'Bearer ' + tok } });
+      S.logout_status = lo.status;
+      const rf = await fetch(`${EDGE}/auth/v1/token?grant_type=refresh_token`, {
+        method: 'POST', headers: { apikey: ANON, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: aj.refresh_token }),
+      });
+      S.refresh_status = rf.status;
+      S.own_signed_out = await own(tok);
+      const h4 = await hive(tok);
+      S.hive_signed_out = h4.total - (h4.id.hive_members === 1 ? 1 : 0);
+      let exp = 0;
+      try { exp = JSON.parse(Buffer.from(tok.split('.')[1], 'base64url').toString('utf8')).exp || 0; } catch (e) { /* unreadable */ }
+      S.access_token_left_s = exp ? Math.max(0, exp - Math.floor(Date.now() / 1000)) : null;
+      note('S4 signed out', `logout ${S.logout_status} · refresh after it ${S.refresh_status} · the unexpired token still reads `
+        + `${S.own_signed_out} of his own row(s) and ${S.hive_signed_out} of ${H_NAME}'s, for ${S.access_token_left_s}s more (its exp)`);
+      if (S.logout_status >= 300) problems.push(`S4: the global sign-out answered ${S.logout_status} - the session was not ended`);
+      if (S.refresh_status < 400) problems.push(`S4: after a global sign-out the refresh grant was ACCEPTED (${S.refresh_status}) - the session renewed itself`);
+      if (S.hive_signed_out > 0) problems.push(`S4: after sign-out the token still read ${S.hive_signed_out} row(s) of ${H_NAME}`);
+      // S4b - what the page falls back to once the session is gone: the publishable key ALONE, which is also every
+      // signed-out visitor's request. It must vouch for nobody - none of his rows, none of the hive's.
+      S.own_as_visitor = await own(null);
+      S.public.visitor = await pub(null);
+      const moved = PUB_RELS.filter((r) => !(S.public.no_seat[r] === S.public.kicked[r]));
+      const seatAdds = PUB_RELS.filter((r) => S.public.with_seat[r] !== S.public.no_seat[r]);
+      note('S public', `${PUB_RELS.length} public-by-design relation(s): ${PUB_RELS.map((r) => `${r} ${S.public.visitor[r]}/`
+        + `${S.public.no_seat[r]}/${S.public.with_seat[r]}/${S.public.kicked[r]}`).join(' · ')} (visitor/no seat/seat/kicked)`);
+      // the seat may legitimately ADD (a member reads his own hive's posts); losing it must give every one back exactly
+      S.public_seat_adds = seatAdds;
+      if (moved.length) {
+        problems.push(`S public: after the seat was lost, ${moved.map((r) => `${r} ${S.public.no_seat[r]} -> ${S.public.kicked[r]}`).join(', ')} `
+          + '- a public read did not return to what the seatless person saw');
+      }
+      const h5 = await hive(null);
+      S.hive_as_visitor = h5.total;
+      note('S4b visitor', `the publishable key alone (the signed-out request): ${S.own_as_visitor} of his own row(s), `
+        + `${S.hive_as_visitor} of ${H_NAME}'s`);
+      if (S.own_as_visitor > 0 || S.hive_as_visitor > 0) {
+        problems.push(`S4b: a request with no session read ${S.own_as_visitor} of ${NAME}'s own row(s) and ${S.hive_as_visitor} of `
+          + `${H_NAME}'s - a visitor's request vouched for somebody`);
+      }
+    } catch (e) {
+      if (!problems.length) problems.push(`the solo run threw: ${String(e).slice(0, 160)}`);
+    } finally {
+      if (seat && /^[0-9a-f-]{36}$/.test(seat)) psql(`delete from hive_members where id = '${seat}'`);
+      const back = psql(`select count(*) from hive_members where auth_uid::text = '${UID}'`);
+      note('S5 restored', back === SEATS0 ? `the granted seat is gone - ${NAME} holds ${back} seat(s), as he came (verified by re-read)` : 'RESTORATION FAILED');
+      if (back !== SEATS0) problems.push(`S5: ${NAME} holds ${back} seat(s) after the run, not ${SEATS0} - delete hive_members row ${seat} by hand`);
+    }
+  }
+  const REPORT = { tool: 'tools/prove_lxp_au_identity_after_change.mjs --solo', subject: NAME, role_asked: 'solo', role_before: 'solo',
+    hive: H_NAME, hive_id: H, au_pages: AU_PAGES, own_relations: OWN.map(([k]) => k), hive_relations: HIVE_RELS,
+    solo: S, steps, problems, pass: problems.length === 0 };
+  if (TEETH) console.log('  report       (not written - --teeth verdicts are a counterfactual, not evidence)');
+  else {
+    writeFileSync('au_identity_after_change_report.solo.json.tmp', JSON.stringify(REPORT, null, 1) + String.fromCharCode(10));
+    renameSync('au_identity_after_change_report.solo.json.tmp', 'au_identity_after_change_report.solo.json');
+    console.log('  report       au_identity_after_change_report.solo.json');
+  }
+  if (problems.length) {
+    console.log('\n  FINDINGS:');
+    for (const p of problems) console.log(`    - ${p}`);
+    console.log(`\nFAIL lxp-au-identity-after-change --solo - identity did NOT stay honest (${problems.length})`);
+  } else {
+    console.log('\nPASS lxp-au-identity-after-change --solo - a seatless token read nothing of the hive, gained it with a seat, '
+      + 'lost it with the kick, kept his own rows throughout, could not renew after sign-out, and the seat was taken back');
+  }
+  process.exit(problems.length ? 1 : 0);
+}
 
 // ── the subject's row, captured BEFORE any write ─────────────────────────────────────────────────────────────
 const ROW = psql(`select m.id::text || '|' || m.hive_id::text || '|' || m.role || '|' || m.status || '|' || h.name

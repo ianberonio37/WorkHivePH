@@ -227,7 +227,93 @@ async (mcpPage) => {
     const EMPTY_RX = /\bno [a-z ]{2,30} yet\b|nothing (here|to show|yet)|\b0 (results|items|entries|records)\b|is empty|no data/i;
     const busy = !!document.querySelector('[aria-busy="true"]') || [...document.querySelectorAll('[class*="spinner"], [class*="skeleton"], [class*="loading"], .loader')].some(shown);
     const LOADING_RX = /\b(loading|please wait|fetching|getting your|one moment|checking|computing|calculating|preparing|syncing|refreshing|crunching|gathering|working on)\b|…\s*$|\.\.\.\s*$/i;
+    // F - the page's RENDER CONTRACT: the shapes, the states and the escapes it promises (2026-10-28). The LXP F rows were
+    // read by hand through the chrome-devtools MCP (2026-10-06); the cube asks the same sentence of every production
+    // cell, so the walk takes the same reading itself and every cell is judged on one set of checks. Sizes are LAYOUT
+    // sizes (offsetWidth/Height): a transform:scale on chrome shrinks the rect of a real 44px control.
+    // in the accessibility tree: no aria-hidden/inert above it, and RENDERED - an ancestor's display:none removes the whole
+    // subtree (assistant.html keeps one h1 per screen and shows one screen; reading the h1's OWN display counted both,
+    // 2026-10-28). checkVisibility() walks the ancestors and still counts a clipped sr-only node, which IS exposed.
+    const exposed = (el) => { if (hiddenUp(el)) return false; try { return typeof el.checkVisibility === 'function' ? el.checkVisibility({ visibilityProperty: true }) : el.getClientRects().length > 0; } catch (e) { return true; } };
+    const INTER = 'a[href], button, input:not([type=hidden]), select, textarea, summary, [role=button], [role=link], [role=tab], [role=menuitem], [role=checkbox], [role=switch], [tabindex]:not([tabindex="-1"])';
+    const inter = [...document.querySelectorAll(INTER)].filter((e) => e instanceof HTMLElement && shown(e) && exposed(e) && !e.disabled);
+    const nameOf = (e) => ((e.getAttribute('aria-label') || '').trim()
+      || (e.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean).map((id) => (document.getElementById(id) || {}).textContent || '').join(' ').trim()
+      || (e.labels && e.labels.length ? [...e.labels].map((l) => l.textContent).join(' ').trim() : '')
+      || (e.innerText || '').trim() || (e.getAttribute('title') || '').trim()
+      || [...e.querySelectorAll('img[alt], svg[aria-label]')].map((i) => i.alt || i.getAttribute('aria-label')).join(' ').trim()
+      || (/^(submit|button|reset)$/i.test(e.type || '') ? (e.value || '').trim() : '')
+      || (e.getAttribute('placeholder') || '').trim());
+    const tag = (e) => e.tagName.toLowerCase() + (e.id ? '#' + e.id : '');
+    // ★WHERE A TAP LANDS, BY THE RULES tools/prove_viewport_overflow.mjs ALREADY HOLDS - one rule, not two (2026-10-28).
+    // The first cut measured each number's text box and failed achievements on its "+20" figures (22x15) - which answer
+    // a 48px area through utils.js's empty positioned ::after, as WCAG 2.5.8 counts it. So, as that prover does: only an
+    // ACTIONABLE element is a target (a tabindex region is read, not tapped), a positioned generated pseudo box widens it,
+    // a checkbox's target is its label, and a link inside prose is the inline exception.
+    const ACT_ROLE = /^(button|link|tab|switch|checkbox|radio|menuitem|menuitemcheckbox|menuitemradio|option|combobox|slider|spinbutton)$/;
+    const actionable = (e) => (e.tagName === 'A' ? e.hasAttribute('href') : /^(BUTTON|INPUT|SELECT|TEXTAREA|SUMMARY)$/.test(e.tagName)
+      || ACT_ROLE.test((e.getAttribute('role') || '').toLowerCase()) || e.hasAttribute('onclick'));
+    const hitRect = (e) => {
+      const r = e.getBoundingClientRect();
+      let L = r.left, T = r.top, Rt = r.right, B = r.bottom;
+      try {
+        const st = getComputedStyle(e);
+        if (st.position !== 'static') {
+          const bl = parseFloat(st.borderLeftWidth) || 0, bt = parseFloat(st.borderTopWidth) || 0;
+          const br = parseFloat(st.borderRightWidth) || 0, bb = parseFloat(st.borderBottomWidth) || 0;
+          for (const pe of ['::before', '::after']) {
+            const ps = getComputedStyle(e, pe);
+            if (!ps || ps.content === 'none' || ps.content === 'normal' || ps.position !== 'absolute'
+              || ps.display === 'none' || ps.pointerEvents === 'none' || ps.visibility === 'hidden') continue;
+            const t = parseFloat(ps.top), l = parseFloat(ps.left), rr = parseFloat(ps.right), b = parseFloat(ps.bottom);
+            if ([t, l, rr, b].some((x) => !isFinite(x))) continue;
+            L = Math.min(L, r.left + bl + l); T = Math.min(T, r.top + bt + t);
+            Rt = Math.max(Rt, r.right - br - rr); B = Math.max(B, r.bottom - bb - b);
+          }
+        }
+      } catch (_) { /* the element's own box stands */ }
+      if (/^(checkbox|radio)$/i.test(e.type || '')) {
+        const lab = e.closest('label') || (e.id ? document.querySelector('label[for="' + CSS.escape(e.id) + '"]') : null);
+        if (lab && shown(lab)) { const q = lab.getBoundingClientRect(); L = Math.min(L, q.left); T = Math.min(T, q.top); Rt = Math.max(Rt, q.right); B = Math.max(B, q.bottom); }
+      }
+      return [Math.round(Rt - L), Math.round(B - T)];
+    };
+    const inProse = (e) => { if (e.tagName !== 'A') return false; const par = e.closest('p,li,small,figcaption,td'); return !!par && (par.textContent || '').trim().length > (e.textContent || '').trim().length + 12; };
+    // a link inside a clipped sr-only region (index's crawlable tool-catalog mirror, 2026-10-28) is reached by keyboard and
+    // by crawlers, never by a pointer - 2.5.8 is about pointer targets, so the ANCESTOR's clip counts too, not only its own
+    const small = inter.filter((e) => actionable(e) && !inProse(e) && !srOnlyNear(e)).map((e) => [e, ...hitRect(e)])
+      .filter(([, w, h]) => w >= 8 && h >= 8 && (w < 24 || h < 24))   // under 8px is collapsed or visually hidden, not a target
+      .map(([e, w, h]) => `${tag(e)} "${nameOf(e).slice(0, 24)}" ${w}x${h}`);
+    const unnamed = inter.filter((e) => actionable(e) && !nameOf(e)).map(tag);
+    const vw0 = innerWidth, docW = document.documentElement.scrollWidth;
+    const inScroll = (el) => { for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) { const ox = getComputedStyle(n).overflowX; if (ox !== 'visible') return true; } return false; };
+    const overflow = docW > vw0 + 1 ? [...document.querySelectorAll('body *')].filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.right > vw0 + 1 && shown(e) && !inScroll(e) && !e.closest('table, svg, pre, [role=toolbar]'); })
+      .slice(0, 3).map((e) => `${tag(e)} reaches ${Math.round(e.getBoundingClientRect().right)}px`) : [];
+    const h1s = [...document.querySelectorAll('h1, [role=heading][aria-level="1"]')].filter(exposed);
+    const mainEl = document.querySelector('main, [role=main]');
+    const skip = [...document.querySelectorAll('a[href^="#"]')].find((a) => /skip/i.test((a.textContent || '') + ' ' + (a.getAttribute('aria-label') || '')));
+    const idCount = {};
+    document.querySelectorAll('[id]').forEach((e) => { if (e.id) idCount[e.id] = (idCount[e.id] || 0) + 1; });
+    // busy is a claim only where a person can see it: a display:none region marked aria-busy is not "stuck" on screen
+    const stuckEl = [...document.querySelectorAll('[aria-busy="true"], [class*="spinner"], [class*="skeleton"], .loader')].find((e) => shown(e) && exposed(e) && e.getClientRects().length > 0);
+    const describeEl = (e) => { const up = e.parentElement && e.parentElement.closest('[id]'); const cls = (typeof e.className === 'string' ? e.className.trim().split(/\s+/)[0] : '') || '';
+      return tag(e) + (cls ? '.' + cls : '') + (e.getAttribute('aria-busy') === 'true' ? '[aria-busy]' : '') + (up ? ' in #' + up.id : ''); };
+    // an ESCAPE is a way off this page that a person can see: a back / home / close control, a link to another page, or
+    // the shared nav hub
+    const ESC_RX = /\b(back|home|close|cancel|exit|done|dashboard|menu)\b/i;
+    const escapes = [...document.querySelectorAll('a[href], button, [role=button]')].filter((e) => shown(e) && exposed(e)
+      && (ESC_RX.test(nameOf(e)) || (e.tagName === 'A' && /(\.html|\/)(\?|#|$)/.test(e.getAttribute('href') || '') && !/^#/.test(e.getAttribute('href') || ''))))
+      .map((e) => nameOf(e).slice(0, 30));
+    const hubFab = document.getElementById('wh-hub-fab');
+    const f = { controls: inter.length, small: small.slice(0, 8), smallCount: small.length, unnamed: unnamed.slice(0, 8),
+      unnamedCount: unnamed.length, overflow, docW, vw: vw0, h1: h1s.length, h1Text: h1s[0] ? (h1s[0].innerText || h1s[0].textContent || '').replace(/\s+/g, ' ').trim().slice(0, 60) : null,
+      main: !!mainEl && exposed(mainEl), skip: skip ? skip.getAttribute('href') : null,
+      skipTarget: skip ? !!document.getElementById(decodeURIComponent(skip.getAttribute('href').slice(1))) : null,
+      dupIds: Object.entries(idCount).filter(([, n]) => n > 1).map(([k, n]) => `${k} x${n}`).slice(0, 6),
+      stuck: stuckEl ? describeEl(stuckEl) : null,
+      escape: [...new Set(escapes)].slice(0, 3).concat(hubFab && shown(hubFab) ? ['the nav hub'] : []) };
     return {
+      f,
       url: location.pathname.split('/').pop(), chars: visText.length, ownChars: ownText.length, region: root === document.body ? 'body' : 'main', atChars: at ? text.length : null,
       worker: localStorage.getItem('wh_last_worker'),
       session: Object.keys(localStorage).some((k) => /^sb-.*-auth-token$/.test(k) && /access_token/.test(localStorage.getItem(k) || '')),

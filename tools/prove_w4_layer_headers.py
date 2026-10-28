@@ -37,7 +37,10 @@ GREEN, RED, RST = "\033[92m", "\033[91m", "\033[0m"
 
 
 def h_rows() -> list[dict]:
-    reg = json.loads(REGISTRY.read_text(encoding="utf-8"))
+    # through the registry UNION: the cube's rows live in trajectory_registry_cx.json, which a read of the main file
+    # alone never sees (tools/registry_io.py)
+    import registry_io as _rio
+    reg = _rio.load_doc()
     # ★THE LXP-H ROWS ASK THE IDENTICAL QUESTION OF THE IDENTICAL INSTRUMENT (2026-10-05). 120 LAYER-UX x PERSONA
     # rows carry the same lens - "the platform must serve this page correctly from the edge" - and sat in the
     # re-walk queue wanting a raw-http reading, while this prover was already taking exactly that reading for the
@@ -56,6 +59,13 @@ def h_rows() -> list[dict]:
         if w4.get("kind") == "layer" and w4.get("layer") == "H":
             out.append(t)
         elif lx.get("kind") in LX_KINDS and lx.get("layer") == "H" and lx.get("page"):
+            out.append(t)
+        # ★THE CUBE'S H ROWS, ON THE PILLARS A HEADER READING ANSWERS (2026-10-28). F ("it is true and wired") is the
+        # headers holding; I ("this persona may, and may not") is the same reading's persona half - no header rule
+        # depends on who asks, so every persona receives it. U ("the person can tell") asks what a PERSON sees when the
+        # edge serves wrong, which no header reading shows: those rows are left for an instrument that reads the page.
+        elif (t.get("cx") or {}).get("layer") == "H" and (t.get("cx") or {}).get("page") \
+                and (t.get("cx") or {}).get("pillar") in ("F", "I"):
             out.append(t)
     return out
 
@@ -84,8 +94,8 @@ def _first_root_page(row: dict) -> str | None:
     that is not index/hive/a continuation - the last of the route's own-page segment. Simplest robust pick:
     the page whose short name appears in the title, else the last non-continuation page."""
     import re
-    # an lx row states its own surface; nothing to infer
-    lx_page = (row.get("lx") or {}).get("page")
+    # an lx or cube row states its own surface; nothing to infer
+    lx_page = (row.get("lx") or {}).get("page") or (row.get("cx") or {}).get("page")
     if lx_page:
         return lx_page
     title = row.get("title") or ""
@@ -177,7 +187,7 @@ def main() -> int:
             if page not in page_cache:
                 page_cache[page] = check_page(page)
             ok, issues, witness = page_cache[page]
-            persona = (row.get("lx") or {}).get("persona")
+            persona = (row.get("lx") or {}).get("persona") or (row.get("cx") or {}).get("persona")
             if persona:
                 # the persona half of an LX row: one reading speaks for this person only if no rule is conditional
                 if cond:

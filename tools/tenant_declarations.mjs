@@ -54,6 +54,15 @@ export const BLIND_BY_DESIGN = {
   // note goes to the operator and nobody else, its author included. The control read 'n/a' until the seed's probe
   // fixture put a private row in the member's hive; BLIND on that row is the policy working.
   platform_feedback: 'private until published: only is_public rows, a platform admin and grafana_reader read it - the author included, nobody reads a private note back',
+  // ★DECLARED 2026-10-28, read from the policies: mkt_orders_read and mkt_inq_read are (buyer_auth_uid = auth.uid() OR
+  // listing_is_mine(listing_id) OR is_marketplace_admin()) - a PARTY test, never a hive test. The default actor's hive
+  // holds no order, so the control read n/a and the question went unasked; asked as a member of Manila, whose hive
+  // holds one order and one inquiry between OTHER people, the control came back BLIND. A colleague's purchase is his
+  // and the seller's, not the hive's: seeing none of it is the policy working. Their truth views inherit it (invoker).
+  marketplace_orders: 'party-scoped (mkt_orders_read: buyer OR seller OR marketplace admin) - a hive member who is neither party reads none of the hive\'s orders',
+  marketplace_inquiries: 'party-scoped (mkt_inq_read: buyer OR seller OR marketplace admin) - same shape as orders',
+  v_marketplace_orders_truth: 'invoker view over marketplace_orders - inherits the party test',
+  v_marketplace_inquiries_truth: 'invoker view over marketplace_inquiries - inherits the party test',
   // ★DECLARED 2026-09-28, AND THE DECLARATION IS ALSO A FINDING. wh_traces carries two policies:
   // wh_traces_grafana_slo_read (grafana_reader) and wh_traces_hive_read (SELECT, authenticated,
   // USING hive_id = (request.jwt.claims ->> 'hive_id')::uuid). That second one reads the hive from

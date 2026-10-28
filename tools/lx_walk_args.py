@@ -48,7 +48,8 @@ PASSWORD = "test1234"
 SOLO = {"user": "junvanowner", "name": "Jun Salvador"}
 # RL joined 2026-10-12: tools/prove_consumption_bound.py reads a page's SOURCE, and on four pages it could not resolve
 # the cap's table (a shared script, an aliased read) - so the walk reads each request's limit and returned rows live
-BROWSER_LAYERS = ("CA", "C", "LB", "AV", "CI", "L", "A", "D", "RL")
+# + F (2026-10-28): the render contract - the walk now takes the reading the LXP F rows were judged on (lx_walk.body.js `f`)
+BROWSER_LAYERS = ("CA", "C", "LB", "AV", "CI", "L", "A", "D", "RL", "F")
 SUP_PERSONAS = ("supervisor", "fleet-supervisor", "oversight")
 OUT = ROOT / ".tmp" / "lx_args.json"
 

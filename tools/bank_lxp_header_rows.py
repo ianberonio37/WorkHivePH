@@ -33,17 +33,26 @@ def main():
     ap.add_argument("--apply", action="store_true")
     a = ap.parse_args()
 
-    reg = json.load(open(REGISTRY, encoding="utf-8"))
+    # through the registry UNION (tools/registry_io.py): the cube's rows live in trajectory_registry_cx.json
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    import registry_io as _rio
+    reg = _rio.load_doc()
     # *the LXC floor rows (kind "layer-floor", 2026-10-06) carry the identical H sentence on the identical `lx` block;
     # the prover reads both kinds since 2026-10-08, so the banker must too - a want must carry its reader
     rows = [t for t in reg["trajectories"]
             if (t.get("lx") or {}).get("kind") in ("layer-ux", "layer-floor")
             and (t.get("lx") or {}).get("layer") == "H"
             and t.get("status") != "descoped"]
+    # ★AND THE CUBE'S H ROWS ON THE PILLARS A HEADER READING ANSWERS (2026-10-28): F (the headers hold) and I (no rule
+    # depends on who asks, so the reading is this persona's). U - what a person can tell - is no header's to answer.
+    rows += [t for t in reg["trajectories"]
+             if (t.get("cx") or {}).get("layer") == "H" and (t.get("cx") or {}).get("pillar") in ("F", "I")
+             and t.get("status") != "descoped"]
 
     banked, skipped = [], []
     for t in rows:
-        page = (t.get("lx") or {}).get("page")
+        page = (t.get("lx") or {}).get("page") or (t.get("cx") or {}).get("page")
+        persona = (t.get("lx") or {}).get("persona") or (t.get("cx") or {}).get("persona")
         rp = os.path.join(WALKS, t["id"] + ".json")
         if not os.path.exists(rp):
             skipped.append((t["id"], page, "no receipt on disk"))
@@ -79,8 +88,8 @@ def main():
                  # only when the receipt's witness carries the prover's own check that no header rule is conditional
                  (" AS {0}: the receipt above checked vercel.json for any rule conditioned on a cookie, header or "
                   "query (has/missing) and found none, so nothing this person sends can change the served headers."
-                  .format((t.get("lx") or {}).get("persona"))
-                  if "has/missing" in witness and (t.get("lx") or {}).get("persona") else ""))
+                  .format(persona)
+                  if "has/missing" in witness and persona else ""))
 
         prev = t.get("basis") or ""
         if "prove_w4_layer_headers.py" not in prev:
@@ -104,12 +113,13 @@ def main():
     if not a.apply:
         print("\n(dry run - pass --apply to write)")
         return 0
-    tmp = REGISTRY + ".tmp"
-    with io.open(tmp, "w", encoding="utf-8", newline="\n") as f:
-        json.dump(reg, f, ensure_ascii=False, indent=1)
-        f.write("\n")
-    os.replace(tmp, REGISTRY)          # atomic: open(w) truncates before the write
-    print("\nWROTE {0} row(s) to trajectory_registry.json".format(len(banked)))
+    # through the union, at the main file's own indent: a cube row lives in its shard, and a rewrite of the main file
+    # alone (at indent=1 over a file kept at 2) never reaches it - the bank_lx_walk lesson
+    with io.open(REGISTRY, encoding="utf-8") as fh:
+        fh.readline()
+        second = fh.readline()
+    _rio.save_doc(reg, indent=max(1, len(second) - len(second.lstrip(" "))) if second.strip() else 2)
+    print("\nWROTE {0} row(s) through the registry union".format(len(banked)))
     return 0
 
 

@@ -98,10 +98,17 @@ def evidence(rep):
 # other persona is a plain member of a hive, which is what the default report measures. A row whose persona has no
 # green report stays OPEN and says so - it is never banked on another person's reading.
 def persona_report_kind(persona):
-    if persona in ("supervisor", "fleet-supervisor"):
+    # oversight is cast as a supervisor too (tools/lx_walk_args.py SUP_PERSONAS), so it reads as one
+    if persona in ("supervisor", "fleet-supervisor", "oversight"):
         return "supervisor"
     if persona == "solo-owner":
         return "solo"
+    # *A VISITOR HAS NO ACCOUNT, SO HIS READING IS THE ANON HALF (2026-10-28). Every report asks each relation a second
+    # time with only the publishable key - exactly the request a signed-out visitor makes - and records `anon_sees`.
+    # So an anon row is banked from that half of the default report, and its basis quotes what ANON saw; quoting the
+    # member's figures for a person who never signed in would describe somebody else.
+    if persona == "anon":
+        return "anon"
     return "member"
 
 
@@ -134,28 +141,45 @@ def main():
         print("REFUSED - the default report is not green; a failing sweep cannot bank a row")
         return 1
 
-    reg = json.load(open(REGISTRY, encoding="utf-8"))
+    # through the registry UNION (tools/registry_io.py): the cube's rows live in trajectory_registry_cx.json
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    import registry_io as _rio
+    reg = _rio.load_doc()
     rows = reg["trajectories"]
     byid = {r["id"]: r for r in rows}
     man = json.load(open(MANIFEST, encoding="utf-8"))
+
+    # ★AND THE CUBE'S S ROWS ON THE PILLARS A REFUSAL READING ANSWERS (2026-10-28). F ("it is true and wired") is the
+    # refusal holding on the page's own relations; I ("this persona may, and may not") is the same reading's two
+    # halves - the foreign rows refused AND the actor's own still visible (the control). U - what the person can TELL
+    # when refused - is no database reading's to answer, and an S row on the A pillar is held off its layer.
+    def is_cube_s(r):
+        cx = (byid.get(r["id"]) or {}).get("cx") or {}
+        return cx.get("layer") == "S" and cx.get("pillar") in ("F", "I")
     targets = [r for r in man["rows"]
                if not (r["kind"] == "live" and r["gated"])
-               and r["mcp"] == "postgres-mcp" and r["lens"].startswith(LENS)]
+               and r["mcp"] == "postgres-mcp" and (r["lens"].startswith(LENS) or is_cube_s(r))]
 
     src_cache, banked, skipped, fresh = {}, [], [], []
     for t in targets:
         row = byid[t["id"]]
-        page = (row.get("lx") or {}).get("page") or t["surface"]
-        persona = (row.get("lx") or {}).get("persona") or row.get("persona") or "any"
+        lx, cx = row.get("lx") or {}, row.get("cx") or {}
+        # a cube row names its own page; the manifest's `surface` is the route's start (index.html), not the page
+        page = lx.get("page") or cx.get("page") or t["surface"]
+        persona = lx.get("persona") or cx.get("persona") or row.get("persona") or "any"
         pk = persona_report_kind(persona)
-        if pk not in reports:
+        rk = "member" if pk == "anon" else pk          # the anon half lives in the default report
+        if rk not in reports:
             skipped.append((t["id"], page, ["no green report as a {0} ({1})".format(pk, persona)]))
             continue
         if page not in src_cache:
             src_cache[page] = page_source(page)
         reads = sorted(set(READ_RE.findall(src_cache[page])))
-        rep, ALL, rep_file = max(reports[pk], key=lambda x: sum(1 for r in reads if r in x[1]))
+        rep, ALL, rep_file = max(reports[rk], key=lambda x: sum(1 for r in reads if r in x[1]))
         hit = [r for r in reads if r in ALL]
+        if pk == "anon":
+            # only a relation the visitor's request was actually measured on can speak for him
+            hit = [r for r in hit if "anon_sees" in ALL[r]]
         if not hit:
             skipped.append((t["id"], page, reads[:4]))
             continue
@@ -165,6 +189,16 @@ def main():
         quotes = []
         for r in hit[:4]:
             v = ALL[r]
+            if pk == "anon":
+                # the visitor's own figures only: what existed, and what a request with no session was handed
+                if v["_kind"] == "person":
+                    held = "a stranger's {0} row(s) existed".format(v["other_person_rows"])
+                else:
+                    held = "{0} foreign row(s) existed".format(v["foreign_rows"])
+                quotes.append("{0} ({1}, the signed-out request was handed {2}{3})".format(
+                    r, held, v["anon_sees"],
+                    " - exactly the public subset, {0}".format(v["subset"]["says"]) if v["_kind"] == "subset" else ""))
+                continue
             if v["_kind"] == "subset":
                 sb = v["subset"]
                 quotes.append("{0} (public-by-design, so the boundary is the PUBLISHED SUBSET: of {1} foreign "
@@ -201,8 +235,12 @@ def main():
                  tot["write_tested"] - tot["write_bad"], tot["write_tested"], tot["na"], tot["write_control"],
                  {"supervisor": "a SUPERVISOR, whose policy arms are wider than a worker's",
                   "solo": "a SOLO OWNER, so every hive is foreign to him",
-                  "member": "a plain member"}[pk],
-                 ("THE ROW'S PERSONA IS {0}, AND THIS IS THAT PERSONA'S OWN READING ({1}). ".format(persona, rep_file)
+                  "member": "a plain member",
+                  "anon": "a plain member"}[pk],
+                 ("THE ROW'S PERSONA IS anon - a visitor with no account - AND THE QUOTED FIGURES ARE THE SIGNED-OUT "
+                  "HALF OF THIS RUN ({0}): each relation asked again with only the publishable key, which is the "
+                  "request a visitor makes. ".format(rep_file) if pk == "anon" else
+                  "THE ROW'S PERSONA IS {0}, AND THIS IS THAT PERSONA'S OWN READING ({1}). ".format(persona, rep_file)
                   if pk != "member" else ("THE ROW'S PERSONA IS {0}: a plain member of a hive, which is what this "
                                           "reading measures ({1}). ".format(persona, rep_file)
                                           if persona not in ("any", "") else "")))
@@ -237,12 +275,13 @@ def main():
     if not a.apply:
         print("\n(dry run - pass --apply to write)")
         return 0
-    tmp = REGISTRY + ".tmp"
-    with io.open(tmp, "w", encoding="utf-8", newline="\n") as f:
-        json.dump(reg, f, ensure_ascii=False, indent=1)
-        f.write("\n")
-    os.replace(tmp, REGISTRY)          # atomic: open(w) truncates before the write
-    print("\nWROTE {0} row(s) to trajectory_registry.json".format(len(banked)))
+    # through the union, at the main file's own indent: a cube row lives in its shard, and a rewrite of the main file
+    # alone never reaches it (registry_io.save_doc is atomic per file)
+    with io.open(REGISTRY, encoding="utf-8") as fh:
+        fh.readline()
+        second = fh.readline()
+    _rio.save_doc(reg, indent=max(1, len(second) - len(second.lstrip(" "))) if second.strip() else 2)
+    print("\nWROTE {0} row(s) through the registry union".format(len(banked)))
     return 0
 
 

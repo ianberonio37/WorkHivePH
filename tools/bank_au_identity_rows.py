@@ -38,6 +38,9 @@ REGISTRY = os.path.join(ROOT, "trajectory_registry.json")
 MANIFEST = os.path.join(ROOT, "live_walk_manifest.json")
 LENS = "The platform must keep this page's identity honest"
 GATE_ID = "lxp-au-identity-after-change"       # as registered in run_platform_checks.py
+SOLO_GATE_ID = "lxp-au-identity-solo"           # the same prover with --solo, registered beside it
+# the identity spine the --solo run reads on the granted hive (prove_lxp_au_identity_after_change IDENTITY)
+SOLO_CORE = {"hive_members", "v_worker_truth", "logbook", "pm_assets"}
 READ_RE = re.compile(r"""\.from\(\s*['"]([a-z0-9_]+)['"]""")
 SCRIPT_RE = re.compile(r'''<script[^>]*src="(?!http)([^"]+\.js)"''')
 EVIDENCE = ("ok", "own-records-retained", "public-by-design")
@@ -91,6 +94,9 @@ def main():
             print("skipped {0} - not green; a failing run cannot bank a row".format(os.path.basename(path)))
             continue
         reports.append(r)
+    # the --solo reading (a person with NO seat) answers different rows with a different shape, so it is kept apart
+    solo_rep = next((r for r in reports if r.get("role_before") == "solo"), None)
+    reports = [r for r in reports if r.get("role_before") != "solo"]
     if not reports:
         print("REFUSED - no green report on disk")
         return 1
@@ -131,9 +137,20 @@ def main():
         groups.setdefault(group_of(r), []).append(r)
     built = {g: build(rs) for g, rs in groups.items()}
 
-    reg = json.load(open(REGISTRY, encoding="utf-8"))
+    # through the registry UNION (tools/registry_io.py): the cube's rows live in trajectory_registry_cx.json
+    sys.path.insert(0, os.path.join(ROOT, "tools"))
+    import registry_io as _rio
+    reg = _rio.load_doc()
     byid = {r["id"]: r for r in reg["trajectories"]}
     man = json.load(open(MANIFEST, encoding="utf-8"))
+
+    # ★AND THE CUBE'S AU ROWS ON THE PILLARS THIS READING ANSWERS (2026-10-28). F ("it is true and wired") is the stale
+    # token going quiet on the page's own relations; I ("this persona may, and may not") is the same run's role half -
+    # one PATCH accepted as a supervisor and refused once demoted. U - what the person can TELL when dismissed - is a
+    # page's sentence, which no database reading shows.
+    def is_cube_au(r):
+        cx = (byid.get(r["id"]) or {}).get("cx") or {}
+        return cx.get("layer") == "AU" and cx.get("pillar") in ("F", "I")
     # *TWO KINDS OF TARGET, because this lens asks for TWO EYES and a row can have exactly one.
     #   (1) OPEN rows - no live+gated evidence at all.
     #   (2) rows already CLOSED on the BROWSER half but carrying `needs_mcp_rewalk` with `mcp_used: false`:
@@ -143,16 +160,92 @@ def main():
     #       APPENDED to the existing basis, never substituted: the browser reading is not superseded by this one,
     #       it is completed by it.
     targets = [r for r in man["rows"]
-               if r["mcp"] == "postgres-mcp" and r["lens"].startswith(LENS)
+               if r["mcp"] == "postgres-mcp" and (r["lens"].startswith(LENS) or is_cube_au(r))
                and (not (r["kind"] == "live" and r["gated"]) or r.get("needs_mcp_rewalk"))]
 
     src_cache, banked, skipped, fresh = {}, [], [], []
 
     for t in targets:
         row = byid[t["id"]]
-        page = (row.get("lx") or {}).get("page") or t["surface"]
-        persona = (row.get("lx") or {}).get("persona") or row.get("persona") or "any"
-        grp = "supervisor" if persona in ("supervisor", "fleet-supervisor") else "worker"
+        lx, cx = row.get("lx") or {}, row.get("cx") or {}
+        # a cube row names its own page; the manifest's `surface` is the route's start, not the page
+        page = lx.get("page") or cx.get("page") or t["surface"]
+        persona = lx.get("persona") or cx.get("persona") or row.get("persona") or "any"
+        # *A PERSON WITH NO MEMBERSHIP HAS NONE TO REVOKE. The worker/supervisor reading replays a token across a KICK and
+        # a role change; a signed-out visitor holds no token and a solo owner holds no hive seat, so that dismissal is not
+        # theirs. Their rows bank from the --solo reading instead (a seat GAINED then lost, a global sign-out, and the
+        # publishable key alone), and only where the page reads a relation that reading measured.
+        if persona in ("anon", "solo-owner"):
+            if not solo_rep:
+                skipped.append((t["id"], page, ["no green --solo report (persona {0} holds no seat)".format(persona)]))
+                continue
+            if page not in src_cache:
+                src_cache[page] = page_source(page)
+            reads = sorted(set(READ_RE.findall(src_cache[page])))
+            S = solo_rep["solo"]
+            pub_counts = S.get("public") or {}
+            public = set((pub_counts.get("visitor") or {}).keys())
+            measured = set(solo_rep.get("hive_relations") or []) | SOLO_CORE | public | {
+                n.split(" ")[0] for n in solo_rep.get("own_relations") or []}
+            hit = [r for r in reads if r in measured]
+            if not hit:
+                skipped.append((t["id"], page, ["reads none of the --solo reading's relations"]))
+                continue
+            # a public read is asked whether the seat CHANGED what it shows, so its four counts are quoted as they are
+            pub_hit = [r for r in hit if r in public]
+            pub_said = ("ITS PUBLIC-BY-DESIGN READS, each counted whole at every step (visitor / no seat / seat / "
+                        "kicked): {0} - the seat may add a member's own hive's rows, and losing it gave every one "
+                        "back exactly. ".format("; ".join(
+                            "{0} {1}/{2}/{3}/{4}".format(r, pub_counts["visitor"][r], pub_counts["no_seat"][r],
+                                                         pub_counts["with_seat"][r], pub_counts["kicked"][r])
+                            for r in pub_hit))) if pub_hit else ""
+            if persona == "solo-owner":
+                said = ("ONE token was minted for {0} while he held no seat. S1 no seat: his own hive-less rows answered "
+                        "{1} (the positive control) and {2}, the busiest hive, answered {3}. S2 seat given: a worker seat "
+                        "there, and the SAME token read the hive (v_worker_truth {4}, logbook {5}) - entitlement follows "
+                        "the CURRENT seat when it is gained, not only when it is lost - while his own rows stayed {6}. "
+                        "S3 kicked: the hive went quiet ({7} row(s) beyond hive_members' one row of his own) and his own "
+                        "rows stayed {8}. S4 a global sign-out ({9}): the refresh grant was refused ({10}), so the session "
+                        "cannot renew, and the still-unexpired access token read {11} of his own row(s) and {12} of the "
+                        "hive's for the {13}s its own exp allows. S5: the granted seat was deleted and the deletion "
+                        "VERIFIED by re-read. THE ROW'S PERSONA IS solo-owner, AND THIS IS A SOLO OWNER'S OWN READING. ").format(
+                            solo_rep["subject"], S["own_no_seat"], solo_rep["hive"], S["hive_no_seat"],
+                            S["identity_with_seat"].get("v_worker_truth"),
+                            S["identity_with_seat"].get("logbook (the hive's own work)"), S["own_with_seat"],
+                            S["hive_kicked"], S["own_kicked"], S["logout_status"], S["refresh_status"],
+                            S["own_signed_out"], S["hive_signed_out"], S["access_token_left_s"])
+            else:
+                said = ("THE ROW'S PERSONA IS anon - a visitor with no account, which is also exactly what a person IS "
+                        "once a session ends. So the reading is the end of one: {0} was signed out globally ({1}), the "
+                        "refresh grant was then refused ({2}) so the session cannot renew, and the request every visitor "
+                        "makes - the publishable key ALONE, which is what the page falls back to - read {3} of his own "
+                        "row(s) and {4} of {5}'s. A visitor's request vouches for nobody. ").format(
+                            solo_rep["subject"], S["logout_status"], S["refresh_status"], S["own_as_visitor"],
+                            S["hive_as_visitor"], solo_rep["hive"])
+            basis = (
+                "[{0}] pct -> 60. WALKED with the registered prover tools/prove_lxp_au_identity_after_change.mjs "
+                "--solo (gate `{1}`) - the postgres half of this row's instrument, named in live_walk_manifest's "
+                "MARKERS, speaking PostgREST as the person with a real minted token, never as the owner connection "
+                "(which carries rolbypassrls and so can never show a read going quiet). {2}{5}MEASURED AGAINST {3}'s "
+                "OWN RELATIONS: {4}. `--solo --teeth` demands that a seatless token read the hive, and the run then FAILS."
+            ).format(date.today().isoformat(), SOLO_GATE_ID, said, page, ", ".join(hit[:6]), pub_said)
+            prev = row.get("basis") or ""
+            # *the --solo reading is its own claim: a row banked earlier from it is refreshed in place, never left quoting
+            # an older run's figures beside a newer gate
+            if "--solo (gate" in prev:
+                row["basis"] = basis + prev[prev.find(" || "):] if " || " in prev else basis
+            elif "prove_lxp_au_identity_after_change.mjs" not in prev:
+                row["basis"] = (basis + " || " + prev) if prev else basis
+                fresh.append(t["id"])
+            if row.get("status") in ("specced", "fixing"):
+                row["status"] = "locking"
+            row["pct"] = max(int(row.get("pct") or 0), 60)
+            gates = row.setdefault("artifacts", {}).setdefault("gates", [])
+            if SOLO_GATE_ID not in gates:
+                gates.append(SOLO_GATE_ID)
+            banked.append((t["id"], page, len(hit)))
+            continue
+        grp = "supervisor" if persona in ("supervisor", "fleet-supervisor", "oversight") else "worker"
         if grp not in built:
             skipped.append((t["id"], page, ["no green report from a {0} subject (persona {1})".format(grp, persona)]))
             continue
@@ -235,12 +328,13 @@ def main():
     if not a.apply:
         print("\n(dry run - pass --apply to write)")
         return 0
-    tmp = REGISTRY + ".tmp"
-    with io.open(tmp, "w", encoding="utf-8", newline="\n") as f:
-        json.dump(reg, f, ensure_ascii=False, indent=1)
-        f.write("\n")
-    os.replace(tmp, REGISTRY)          # atomic: open(w) truncates before the write
-    print("\nWROTE {0} row(s) to trajectory_registry.json".format(len(banked)))
+    # through the union, at the main file's own indent: a cube row lives in its shard, and a rewrite of the main file
+    # alone never reaches it (registry_io.save_doc is atomic per file)
+    with io.open(REGISTRY, encoding="utf-8") as fh:
+        fh.readline()
+        second = fh.readline()
+    _rio.save_doc(reg, indent=max(1, len(second) - len(second.lstrip(" "))) if second.strip() else 2)
+    print("\nWROTE {0} row(s) through the registry union".format(len(banked)))
     return 0
 
 

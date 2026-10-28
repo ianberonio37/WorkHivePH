@@ -13457,6 +13457,19 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # ★THE SAME SENTENCE ASKED OF A PERSON WITH NO SEAT (2026-10-28). The cube asks the AU layer as a solo owner on
+        # every production page, and a worker's dismissal is not his reading. `--solo` mints one token for Jun Salvador
+        # while he holds no seat, grants a worker seat (the token must now read the hive), kicks it (the hive goes quiet,
+        # his own hive-less rows stay his), signs him out globally (the refresh grant must be refused) and deletes the
+        # seat with the deletion VERIFIED. `--solo --teeth` demands a seatless read of the hive and must FAIL.
+        "id":      "lxp-au-identity-solo",
+        "script":  os.path.join("tools", "prove_lxp_au_identity_after_change.mjs"),
+        "args":    ["--solo"],
+        "label":   "Identity with no seat (a solo owner's token reads a hive only while he holds a seat there, keeps his own rows, and cannot renew after sign-out)",
+        "group":   "Security",
+        "skip_if_fast": False,
+    },
+    {
         # ★A PLATFORM ADMIN IS AN ACCOUNT, NEVER A NAME A PERSON CAN CHOOSE (2026-10-08, found by the LXC-S reading as
         # the solo owner). is_platform_admin() matched an editable worker_profiles.display_name and
         # is_marketplace_admin() matched names from hive_members, which anyone can found a hive and write - so one
