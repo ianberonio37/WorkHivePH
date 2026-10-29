@@ -322,7 +322,8 @@ async (mcpPage) => {
     // U on the contract layers (2026-10-28) - what the PERSON can tell, read from the settled page. S: whose rows these are
     // (the hive named, or "your ...") or that something was withheld; L: who did what, on the records or one tap away.
     // (AU's idle prompt and H's offline banner are induced after the healthy read.)
-    const SCOPE_YOURS = /\byour (?:own )?(?:hive|team|crew|plant|site|records?|logbook|log|entries|assets?|machines?|jobs?|tasks?|projects?|listings?|shop|schedule|profile|skills?|history|account|resume|day|shift|plan|alerts?|parts?|stock|inventory|reports?|growth|xp|achievements?|badges?)\b/i;
+    // ("your first asset" / "your next job" say whose as plainly as "your asset" - one adjective may sit between, 2026-10-28)
+    const SCOPE_YOURS = /\byour (?:own |first |next |new |latest )?(?:hive|team|crew|plant|site|records?|logbook|log|entries|assets?|machines?|jobs?|tasks?|projects?|listings?|shop|schedule|profile|skills?|history|account|resume|day|shift|plan|alerts?|parts?|stock|inventory|reports?|growth|xp|achievements?|badges?)\b/i;
     const REFUSE_RX = /not visible to you|no access|don.?t have access|do not have access|not a member|no longer a member|supervisors? only|only (?:a |the |your )?supervisors?|sign in to|ask (?:its|your|the) (?:manager|supervisor|owner)|belongs to (?:another|a hive)|isn.?t yours|not yours|join (?:a|your) hive|you need a hive|without a hive|no hive yet|create (?:a|your) hive/i;
     // who did what: "logged by X" / "X logged" / a record's meta line "Ben Ocampo · 2h ago"
     // the "<verb> by <Name>" form in any case ("Seen by Rosa dela Cruz" leads with a capital), the name forms case-exact
@@ -334,7 +335,10 @@ async (mcpPage) => {
     const histEl = [...document.querySelectorAll('a[href], button, [role=button], [role=tab], summary')].find((e) => shown(e) && !hiddenUp(e)
       && (/audit-log\.html/.test(e.getAttribute('href') || '')
         || [e.getAttribute('aria-label') || '', e.innerText || ''].some((s) => HIST_RX.test(s.replace(/^[^\p{L}\p{N}]+/u, '').trim()))));
+    // a page whose rows are PUBLISHED says so - "public profile", "what every member sees": that IS whose rows they are
+    const PUBLIC_RX = /\bpublic (?:profile|listing|feed|page|post|board)s?\b|what (?:every|any) (?:signed-in )?(?:WorkHive )?(?:member|visitor|buyer)s? (?:sees?|can see)|visible to (?:every|all|any)(?:one| members?| visitors?)/i;
     const u = { hiveNamed: !!(hiveName && visText.toLowerCase().includes(hiveName.toLowerCase())) ? hiveName : null,
+      publicSaid: (visText.match(PUBLIC_RX) || [null])[0],
       yours: (ownText.match(SCOPE_YOURS) || [null])[0], refusal: (visText.match(REFUSE_RX) || [null])[0],
       attrib: (visText.match(ATTR_BY_RX) || visText.match(ATTR_RX) || [null])[0],
       history: histEl ? (histEl.innerText || histEl.getAttribute('aria-label') || histEl.getAttribute('href') || '').replace(/\s+/g, ' ').trim().slice(0, 40) : null };

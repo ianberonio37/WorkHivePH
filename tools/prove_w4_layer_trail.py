@@ -77,6 +77,26 @@ def _is_self_preference(after: str) -> bool:
 _OWNER_ONLY_QUAL = re.compile(r"^(?:selectauth\.uid(?:asuid)?isnotnulland)?"
                               r"(?:auth_uid=(?:select)?auth\.uid(?:asuid)?|(?:select)?auth\.uid(?:asuid)?=auth_uid)$")
 _PRIVATE: dict[str, bool] = {}
+_HIVE_KEY: dict[str, bool] = {}
+
+
+# ★A ROW THAT BELONGS TO NO HIVE HAS NO HIVE TRAIL TO LAND IN (2026-10-28, CX index.html). The landing writes the new
+# person's own worker_profiles row at sign-up and a visitor's early_access_emails row - neither carries a hive_id, and
+# the trail is hive_audit_log, keyed by hive. Before this the page read "changes data, no trail" (the L walk's
+# first-screen n/a had hidden it for every persona). Measured from the schema; an unreadable database counts the
+# table as hive-keyed, so the check fails closed and keeps owing the trail.
+def has_hive_key(table: str) -> bool:
+    if table not in _HIVE_KEY:
+        try:
+            r = subprocess.run(["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres", "-tAc",
+                                "select count(*) from information_schema.columns where table_schema = 'public' "
+                                f"and table_name = '{table}' and column_name = 'hive_id'"],
+                               capture_output=True, text=True, timeout=30)
+            out = (r.stdout or "").strip()
+            _HIVE_KEY[table] = out != "0" if out.isdigit() else True
+        except Exception:
+            _HIVE_KEY[table] = True
+    return _HIVE_KEY[table]
 
 
 def owner_private(table: str) -> bool:
@@ -253,11 +273,14 @@ def check_page(page: str) -> tuple[str, str]:
         return "n/a", f"{page} makes no user-visible write, so it owes no trail"
     if trail:
         return "ok", f"{page} records its changes in the audit trail (\"{trail.group(0)[:40]}\")"
-    private, by_db, untrailed = set(), [], []
+    private, hiveless, by_db, untrailed = set(), set(), [], []
     for m in ms:
         t = re.match(r"\.from\(\s*['\"]([a-z0-9_]+)", m.group(0), re.I).group(1)
         if owner_private(t):
             private.add(t)
+            continue
+        if not has_hive_key(t):
+            hiveless.add(t)
             continue
         hit = trigger_trail(t, m.group(1), m.string[m.end():m.end() + 600], m.string, m.start())
         (by_db.append(f"{t}: {hit}") if hit else untrailed.append(t))
@@ -268,8 +291,12 @@ def check_page(page: str) -> tuple[str, str]:
         return "ok", (f"{page} calls no trail function, and the database writes its trail: "
                       + "; ".join(sorted(set(by_db))[:3]) + " inserts into hive_audit_log"
                       + (f"; {', '.join(sorted(private))} is private to its owner" if private else ""))
+    if hiveless and not private:
+        return "n/a", (f"{page} writes only rows that belong to no hive ({', '.join(sorted(hiveless))}: no hive_id) - "
+                       f"the trail is the HIVE's (hive_audit_log is keyed by hive), so such a write has no trail to land in")
     return "n/a", (f"{page} writes only rows no colleague can read ({', '.join(sorted(private))}: every read policy keys "
-                   f"on the row's own auth_uid) - who changed such a record is always its owner, so it owes no hive trail")
+                   f"on the row's own auth_uid) - who changed such a record is always its owner, so it owes no hive trail"
+                   + (f"; and {', '.join(sorted(hiveless))} belong to no hive" if hiveless else ""))
 
 
 def write_receipt(row: dict, verdict: str, witness: str) -> None:

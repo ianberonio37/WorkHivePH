@@ -437,7 +437,8 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
             return "UNPROVEN", "this walk took no reading of what the page says about whose rows it shows"
         said = ([f"names the hive \"{u['hiveNamed']}\""] if u.get("hiveNamed") else []) + \
                ([f"says \"{u['yours']}\""] if u.get("yours") else []) + \
-               ([f"says what it withholds (\"{u['refusal']}\")"] if u.get("refusal") else [])
+               ([f"says what it withholds (\"{u['refusal']}\")"] if u.get("refusal") else []) + \
+               ([f"says its rows are published (\"{u['publicSaid']}\")"] if u.get("publicSaid") else [])
         if said:
             return "ok", "the person can tell whose rows these are: the page " + " and ".join(said[:2])
         return "FAIL", ("nothing on the page says whose rows it shows - no hive named, no \"your ...\" - or that anything "
@@ -554,6 +555,9 @@ def pillar_view(pillar: str | None, layer: str, verdict: tuple[str, str], v: dic
             if u.get("history"):
                 return "ok", f"who did what is one tap away (\"{u['history']}\"); " + why
             ot = (v or {}).get("oneTap") or {}
+            # a page holding NO record yet (the solo owner's empty register) has had nothing done on it to attribute
+            if "opened" in ot and ot.get("opened") is None:
+                return "n/a", ("the page holds no record yet - nothing has been done on it for it to say who did; " + why)
             if ot.get("attrib") or ot.get("history"):
                 return "ok", (f"who did what is one tap away: opening \"{ot.get('opened')}\" shows "
                               f"\"{(ot.get('attrib') or ot.get('history'))[:70]}\"; " + why)

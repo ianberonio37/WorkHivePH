@@ -260,6 +260,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      and the CMMS / Plant-IoT switch head the page now; the worker gate keeps the title and removes the switch, which only
      a supervisor can use. The "Phase 2 - Cold Start Solver" pill that sat over it was an internal program name. -->
 <h1 id="it-page-title" data-i="pctitle" style="max-width:900px; margin:0 auto 0.5rem; font-size:1.5rem; font-weight:800; line-height:1.2;">Connections</h1>
+<!-- ★WHOSE CONNECTIONS (2026-10-28, the cube's U-on-S walk): connections belong to a hive, and the page said "Connections"
+     and nothing more - the hive appeared only inside the CSV export - so a supervisor could not tell from the page whose
+     systems these were. Filled from the hive the account seats, never the device's cached name. -->
+<p id="it-scope" hidden style="max-width:900px; margin:0 auto 1rem; font-size:0.875rem; line-height:1.5; color:rgba(255,255,255,0.80);"></p>
 <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface
      (both connect external systems, same supervisor audience). One nav entry; this
      tab bar switches CMMS ↔ Plant/IoT. Both pages kept on disk (reachable via tabs). -->
@@ -994,6 +998,16 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!session) { whSignInWall(); return; }
     } catch (_) { /* empty-catch-allow: when the session cannot even be asked, the page's own reads say what failed */ }
     const _seat = await _hiveSeated;   // BRH-H: the hive (and the role it brings) as the account holds them, before the gates below
+    // the hive these connections belong to, said under the heading (#it-scope)
+    try {
+      let _hn = (_seat && _seat.name) || '';
+      if (!_hn && HIVE_ID) {
+        const _hr = await db.from('v_hives_truth').select('name').eq('id', HIVE_ID).maybeSingle();
+        _hn = (_hr && _hr.data && _hr.data.name) || '';
+      }
+      const _sc = document.getElementById('it-scope');
+      if (_sc && _hn) { _sc.textContent = _hn + '’s connections to outside systems: what sends its records in, and what they are sent to.'; _sc.hidden = false; }
+    } catch (_) { /* empty-catch-allow: the line is a courtesy; the CSV export and the connections themselves still name the hive */ }
     // CMMS-INTEGRATIONS PDDA I2/A3 role gate: this is a supervisor/IT console —
     // managing connections exposes endpoint URLs, plaintext bearer tokens, and API-key
     // generation. RLS (integration_configs_supervisor_all) now blocks a worker's

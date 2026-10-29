@@ -2581,7 +2581,10 @@ function openDetailModal(id) {
           ${statusBadge(st)}
           ${approvalBadge(item)}
         </div>
-        <p class="text-base text-white/85 font-medium mb-4">${escHtml(item.part_name)}</p>
+        <p class="text-base text-white/85 font-medium ${item.worker_name ? 'mb-1' : 'mb-4'}">${escHtml(item.part_name)}</p>
+        ${item.worker_name /* who put this part on the hive's shelf (2026-10-28, the cube's U-on-trail walk): the row carried the name and the page never said it */
+          ? `<p class="text-xs text-white/80 mb-4">${escHtml(_t('Added by', 'Idinagdag ni'))} ${escHtml(item.worker_name === WORKER_NAME ? _t('you', 'ikaw') : item.worker_name)}${item.created_at ? ' ' + escHtml(_t('on', 'noong')) + ' ' + escHtml(formatDate(item.created_at)) : ''}</p>`
+          : ''}
       </div>
       ${invPhotoImg(item, 'Inventory item photo', 'class="photo-thumb flex-shrink-0"')}
     </div>
@@ -2647,7 +2650,7 @@ function openDetailModal(id) {
                 <span class="text-xs text-white/80 flex-shrink-0">${formatDate(t.created_at)}</span>
               </div>
               ${t.note ? `<p class="text-xs text-white/80 mt-0.5">${escHtml(t.note)}</p>` : ''}
-              <p class="text-xs text-white/80 mt-0.5">Stock after: ${t.qty_after} ${escHtml(item.unit || 'pcs')}</p>
+              <p class="text-xs text-white/80 mt-0.5">Stock after: ${t.qty_after} ${escHtml(item.unit || 'pcs')}${t.worker_name ? ' · ' + escHtml(_t('by', 'ni')) + ' ' + escHtml(t.worker_name === WORKER_NAME ? _t('you', 'ikaw') : t.worker_name) : ''}</p>
             </div>
           </div>`).join('')
       }
