@@ -3924,12 +3924,37 @@ if (typeof window !== 'undefined') window.whCapRows = whCapRows;
   window.__whFreshHooked = true;
   var origFetch = window.fetch;
   var t = null;
-  window.fetch = function () {
+  /* ★RETRY-AFTER IS AN INSTRUCTION (2026-10-28, the cube's A walk answered every read 429). A rate-limited platform was
+     sent MORE requests by its own pages: the hive board's one dashboard RPC was refused, so each of its loaders fell back
+     to its own queries - the fan-out the RPC exists to collapse, aimed at a server that had just said "wait 5 s". One
+     place honours it for every page: after a 429, a READ (GET/HEAD) to the same service inside its Retry-After is
+     answered here with that same 429, never sent. Keyed by service - REST as a whole, each edge function on its own - so
+     one throttled function never blocks the data reads. Writes always go out: a write is never failed on a guess. */
+  var backoff = {};
+  var serviceOf = function (url) {
+    if (/\/rest\/v1\//.test(url)) return 'rest';
+    var m = url.match(/\/functions\/v1\/([^/?#]+)/);
+    return m ? 'fn:' + m[1] : null;
+  };
+  window.fetch = function (input, init) {
+    var url0 = '';
+    try { url0 = String(input && input.url || input || ''); } catch (_) { /* empty-catch-allow: an unreadable input is sent as it is */ }
+    var svc = serviceOf(url0);
+    var method = String((init && init.method) || (input && input.method) || 'GET').toUpperCase();
+    if (svc && (method === 'GET' || method === 'HEAD') && backoff[svc] && Date.now() < backoff[svc] && typeof Response === 'function') {
+      var wait = Math.max(1, Math.ceil((backoff[svc] - Date.now()) / 1000));
+      return Promise.resolve(new Response(JSON.stringify({ message: 'Too many requests - WorkHive is waiting ' + wait + ' s before asking again' }),
+        { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': String(wait) } }));
+    }
     var p = origFetch.apply(this, arguments);
     try {
-      var url = String(arguments[0] && arguments[0].url || arguments[0] || '');
+      var url = url0;
       if (/\/rest\/v1\/|\/functions\/v1\/|supabase/.test(url)) {
         p.then(function (res) {
+          if (res && res.status === 429 && svc) {
+            var ra = parseInt((res.headers && res.headers.get('retry-after')) || '5', 10);
+            backoff[svc] = Date.now() + Math.min(60, (isFinite(ra) && ra > 0) ? ra : 5) * 1000;
+          }
           if (res && res.ok) {
             window.__whLastReadAt = Date.now();   // SL C3: the moment the page's figures were last read, for the print stamp
             clearTimeout(t);
@@ -8305,7 +8330,21 @@ function _whAnnounceName(was, now) {
     }
   } catch (_) { /* empty-catch-allow: a repaint must never break the identity restore it reports */ }
 }
-async function restoreIdentityFromSession(db) {
+/* ★ONE LOOKUP PER LOAD, NOT ONE PER CALLER (2026-10-28, measured by the cube's A walk). The page, the nav hub and the
+   companion each restore the identity as they start, so every page sent the identical v_worker_truth request four times
+   within a second - on a healthy load, and four times again into a rate limit. Calls that arrive while a lookup is still
+   in flight share it; and since the four arrive one after another (each settling before the next), an answer is reused
+   for 5 s for the SAME signed-in user - the session is still asked every time (it is local), so a sign-in, a sign-out
+   or another account never reads the answer given before. */
+var _whIdentityInflight = null;
+var _whIdLast = null;   // { uid, name, at } - the last answer, for the same session user only
+function restoreIdentityFromSession(db) {
+  if (_whIdentityInflight) return _whIdentityInflight;
+  _whIdentityInflight = _restoreIdentityFromSessionOnce(db);
+  _whIdentityInflight.then(function () { _whIdentityInflight = null; }, function () { _whIdentityInflight = null; });
+  return _whIdentityInflight;
+}
+async function _restoreIdentityFromSessionOnce(db) {
   const cached = localStorage.getItem('wh_last_worker')
                || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ localStorage.getItem('wh_worker_name')
                || localStorage.getItem('workerName') || '';
@@ -8358,12 +8397,24 @@ async function restoreIdentityFromSession(db) {
        All rows for one auth_uid carry the SAME worker_name (the name is the person, the fan-out is the
        membership), so any row is correct; ordering makes the choice deterministic rather than
        whichever the planner returns first ([[feedback_resolving_live_is_not_enough_be_deterministic]]). */
-    const { data: _rows } = await db.from('v_worker_truth')
+    if (_whIdLast && _whIdLast.uid === session.user.id && Date.now() - _whIdLast.at < 5000) {
+      // a refused lookup is remembered too: the next caller keeps the cache instead of asking a server that said wait
+      return _whIdLast.failed ? cached : _whIdLast.name;
+    }
+    const { data: _rows, error: _rowsErr } = await db.from('v_worker_truth')
       .select('worker_name').eq('auth_uid', session.user.id)
       .order('worker_name', { ascending: true }).limit(1);
+    /* ★COULD NOT ASK IS NOT "NO HIVE" (2026-10-28, the cube's A walk: every data read answered 429). A refused or failed
+       membership read - 429, 503, a timeout - left `_rows` undefined, and the code below read that as the ZERO-ROW answer
+       of a solo owner: it went on to ask worker_profiles who this person is, once for every caller of this function on
+       the page (four, on every page), so a rate-limited platform was sent four more requests by the very load it had
+       just refused. An error is "could not verify", the third state the session branch above already keeps: the cache
+       stands, and the next load asks again. */
+    if (_rowsErr) { _whIdLast = { uid: session.user.id, failed: true, at: Date.now() }; return cached; }
     const profile = (_rows && _rows[0]) || null;
     if (profile?.worker_name) {
       if (cached !== profile.worker_name) { localStorage.setItem('wh_last_worker', profile.worker_name); _whAnnounceName(cached, profile.worker_name); }
+      _whIdLast = { uid: session.user.id, name: profile.worker_name, at: Date.now() };
       return profile.worker_name;
     }
     /* ★A PERSON WITH NO HIVE HAD NO IDENTITY, SO THE PRODUCT TOLD A SIGNED-IN PERSON TO SIGN IN.
@@ -8410,6 +8461,7 @@ async function restoreIdentityFromSession(db) {
     const _name = _soloName || _meta.worker_name || _meta.full_name || _meta.name || '';
     if (_name) {
       if (cached !== _name) { localStorage.setItem('wh_last_worker', _name); _whAnnounceName(cached, _name); }
+      _whIdLast = { uid: session.user.id, name: _name, at: Date.now() };
       return _name;
     }
     return cached;  // authed, no membership, no profile, no metadata — keep the cache as a best-effort label

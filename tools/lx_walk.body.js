@@ -397,6 +397,9 @@ async (mcpPage) => {
             return route.fulfill({ status: 200, contentType: 'application/json', headers: cors(rq), body: JSON.stringify(stubBody(mode === 'wrong' ? WRONG_TXT : NEUTRAL_TXT)) });
           }
           if (mode === 'down') return route.fulfill({ status: 503, contentType: 'application/json', headers: cors(rq), body: '{"error":"Service unavailable (the walk refused this call)"}' });
+          // 'r429' (A off the A layer, 2026-10-28): the service is up and says "too many requests, wait 5 s"
+          if (mode === 'base') (V.baseReqs = V.baseReqs || []).push({ k: rq.method() + ' ' + rq.url(), t: Date.now() });
+          if (mode === 'r429') { (V.r429reqs = V.r429reqs || []).push({ k: rq.method() + ' ' + rq.url(), t: Date.now() }); return route.fulfill({ status: 429, contentType: 'application/json', headers: Object.assign(cors(rq), { 'retry-after': '5' }), body: '{"error":"Too many requests (the walk rate-limited this call)"}' }); }
           if (mode === 'slow') await new Promise((r) => setTimeout(r, 8000));
           return route.fallback();
         });
@@ -408,6 +411,8 @@ async (mcpPage) => {
             && (!isRpc || MUTATING_RPC.test(tbl.replace(/^rpc\//, '')));
           if (write) { V.held.push(rq.method() + ' ' + tbl); return route.fulfill({ status: 201, contentType: 'application/json', headers: cors(rq), body: '[]' }); }
           if (mode === 'down') return route.fulfill({ status: 503, contentType: 'application/json', headers: cors(rq), body: '{"message":"Service unavailable (the walk refused this read)"}' });
+          if (mode === 'base') (V.baseReqs = V.baseReqs || []).push({ k: rq.method() + ' ' + rq.url(), t: Date.now() });
+          if (mode === 'r429') { (V.r429reqs = V.r429reqs || []).push({ k: rq.method() + ' ' + rq.url(), t: Date.now() }); return route.fulfill({ status: 429, contentType: 'application/json', headers: Object.assign(cors(rq), { 'retry-after': '5' }), body: '{"message":"Too many requests (the walk rate-limited this read)"}' }); }
           if (mode === 'slow') await new Promise((r) => setTimeout(r, 8000));
           return route.fallback();
         });
@@ -644,6 +649,46 @@ async (mcpPage) => {
           }
           V.offline = { said: (after.n > before.n || after.live.length > before.live.length) ? (after.live.find((x) => !before.live.includes(x)) || after.sample) : null,
                         announced: after.live.length > before.live.length, back };
+        }
+        // ── A off the A layer (2026-10-28): "the <layer> ask, offline and on 429". Every data read answers 429 with a
+        // Retry-After, the page is reloaded and read once it says something or stops working, then held a few seconds more
+        // so a retry loop shows itself in the call count; then a normal load, and the network taken away under it.
+        const aLayers = new Set(cell.rows.filter((r) => r.pillar === 'A' && r.layer !== 'A').map((r) => r.layer));
+        if (aLayers.size) {
+          // ★A BASELINE FIRST (2026-10-28): a page may send one request several times on an ORDINARY load (the identity
+          // lookup goes out four times from shared chrome on every page) - a retry is only what 429 ADDS to that
+          mode = 'base';
+          await page.reload({ waitUntil: 'load', timeout: 60000 }).catch(() => {});
+          await page.waitForTimeout(10000);
+          mode = 'r429';
+          const mark = V.reads.length;
+          const t429 = Date.now();
+          await page.reload({ waitUntil: 'load', timeout: 60000 }).catch(() => {});
+          let r = await read();
+          for (let i = 0; i < 10 && !(r.a && (r.a.saysFailure || (!r.a.busy && i >= 4))); i++) { await page.waitForTimeout(1000); r = await read(); }
+          const rest = 10000 - (Date.now() - t429);
+          if (rest > 0) await page.waitForTimeout(rest);
+          const calls = V.reads.slice(mark).filter((x) => x.mode === 'r429');
+          const per = {};
+          for (const x of calls) per[x.u] = (per[x.u] || 0) + 1;
+          const worst = Object.entries(per).sort((a, b) => b[1] - a[1])[0] || null;
+          // ★NOT BACKING OFF IS THE SAME REQUEST SENT MORE OFTEN UNDER 429 THAN ON AN ORDINARY LOAD - not several different
+          // reads of one table, and not a duplicate the page always makes: identical method+URL, counted in two equal 10 s
+          // windows, the refused one minus the baseline
+          const n429 = {}, nBase = {};
+          for (const q of V.r429reqs || []) n429[q.k] = (n429[q.k] || 0) + 1;
+          for (const q of V.baseReqs || []) nBase[q.k] = (nBase[q.k] || 0) + 1;
+          let fast = 0, fastK = null;
+          for (const [k, n] of Object.entries(n429)) { const extra = n - (nBase[k] || 0); if (extra > fast) { fast = extra; fastK = k; } }
+          V.r429 = { read: r, calls: calls.length, endpoints: Object.keys(per).length, maxPerEndpoint: worst ? worst[1] : 0, worst: worst ? worst[0] : null,
+                     fastRepeats: fast, fastReq: fastK ? fastK.replace(/^(\w+ )https?:\/\/[^/]+/, '$1').slice(0, 140) : null };
+          mode = 'healthy';
+          await page.reload({ waitUntil: 'load', timeout: 60000 }).catch(() => {});
+          await settle(300, 6);
+          await ctx.setOffline(true).catch(() => {});
+          await page.waitForTimeout(2500);
+          V.aOff = await read();
+          await ctx.setOffline(false).catch(() => {});
         }
       } catch (err) {
         if (String(err.message || err) !== 'signed out') V.problems.push('the walk threw: ' + String(err.message || err).split('\n')[0].slice(0, 140));

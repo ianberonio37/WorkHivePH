@@ -156,7 +156,8 @@ def open_rows(waves: tuple = WALK_WAVES) -> list[dict]:
             continue
         t = reg[r["id"]]
         d = desc(t)
-        browser = d.get("layer") in BROWSER_LAYERS or (d.get("pillar") == "U" and d.get("layer") in U_ONLY_LAYERS)
+        browser = d.get("layer") in BROWSER_LAYERS or (d.get("pillar") == "U" and d.get("layer") in U_ONLY_LAYERS) \
+            or (d.get("pillar") == "A" and d.get("layer") == "S")
         if not browser or held_lens(d):
             continue
         out.append(t)
@@ -171,11 +172,12 @@ U_ONLY_LAYERS = ("S", "AU", "H")
 
 
 def held_lens(d: dict) -> bool:
-    """A cube lens no walk reading answers yet (bank_lx_walk.pillar_view HOLDs it): A off the A layer. Walking its cell
-    again would read the same and hold it again. (U on the trail joined the walk 2026-10-28: the page is read for who
-    did what.)"""
+    """A cube lens no walk reading answers yet (bank_lx_walk.pillar_view HOLDs it). None left on the layers the walk reads:
+    U on the trail joined 2026-10-28 (who did what, on the page), and A off the A layer the same day (the walk answers the
+    page's reads 429 and takes the network away - lx_walk.body.js `r429` / `aOff`). AU and H off the U pillar, and S off
+    U and A, are contract rows their library provers answer; open_rows never selects them."""
     p, ly = d.get("pillar"), d.get("layer")
-    return p == "A" and ly != "A"
+    return p == "A" and ly in ("AU", "H")
 
 
 def ensure_shift_plans(batch: list) -> None:

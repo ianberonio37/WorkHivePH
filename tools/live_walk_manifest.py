@@ -713,7 +713,10 @@ def build() -> dict:
         # page is read, and a postgres half stays where the lens had one.
         # DISCLOSED: this re-routes rows that were all OPEN when it landed (H/U 269, S/U 242, AU/U 189 in CX-PROD); no
         # closed row's want changes, because every other U row already wanted a browser.
-        if lens.startswith("the person can tell") and not want.startswith("playwright"):
+        # ...and the A pillar ("at phone-390 and desktop-1280, offline and on 429") is a page read under that weather - the
+        # same correction, for the same reason (2026-10-28; the 24 CX-PROD A rows off the A layer were all open)
+        if (lens.startswith("the person can tell") or lens.startswith("at phone-390 and desktop-1280")) \
+                and not want.startswith("playwright"):
             want = ("playwright-mcp + " + want) if want.strip().endswith("-mcp") else "playwright-mcp"
         basis = (r.get("basis") or "")
         # did this row's own evidence come from the instrument its lens demands?

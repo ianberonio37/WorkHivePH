@@ -534,12 +534,61 @@ def i_view(v: dict, page: str, ctx: dict, verdict: tuple[str, str]) -> tuple[str
     return v0, note + "; " + why
 
 
+def a_view(layer: str, verdict: tuple[str, str], v: dict, ctx: dict) -> tuple[str, str]:
+    """A off the A layer - "the <layer> ask, at phone-390 and desktop-1280, offline and on 429" (2026-10-28). The walk answered
+    every data read 429 with a Retry-After (lx_walk.body.js `r429`), counted the calls the page made while refused, and read
+    the page with the network gone after a normal load (`aOff`). Each layer is asked what IT promises under that weather."""
+    r = v.get("r429")
+    if not r:
+        return HOLD, "this walk did not rate-limit the page's reads"
+    rd = r.get("read") or {}
+    a, d, c = rd.get("a") or {}, rd.get("d") or {}, rd.get("c") or {}
+    told = a.get("saysFailure")
+    off = ((v.get("aOff") or {}).get("a") or {}).get("saysFailure")
+    base = (f"on 429 ({r.get('calls')} call(s) to {r.get('endpoints')} endpoint(s) while refused, at most "
+            f"{r.get('maxPerEndpoint')} to one)" + (f", the page said \"{told}\"" if told else ", the page said nothing about it")
+            + (f"; offline it said \"{off}\"" if off else ""))
+    # ★ON 429 THE WRONG MOVE IS TO ASK AGAIN (the client-retried-four-times lesson): the SAME request sent two or more times
+    # MORE in a 10 s refusal window than in an equal window of an ordinary load is a retry loop, whatever the layer. A
+    # duplicate the page always makes is not - the identity lookup goes out four times on every load, refused or not.
+    if r.get("fastRepeats") is None:
+        return HOLD, "this walk counted calls but not repeats of the same request - re-walk with the current lx_walk.body.js"
+    if (r.get("fastRepeats") or 0) >= 2:
+        return "FAIL", (f"on 429 (Retry-After 5 s) the page sent {r.get('fastReq')} {r.get('fastRepeats')} more times than an "
+                        f"ordinary load does - it retries instead of backing off; " + base)
+    if layer == "RL":
+        return "ok", "the bound holds under refusal: no retry storm - " + base
+    if layer == "S":
+        if a.get("fakeEmpty") and not told:
+            return "FAIL", (f"on 429 the page said \"{a['fakeEmpty']}\" - a refused read shown as an empty hive, which tells the "
+                            f"person nothing exists rather than that they could not see it; " + base)
+        return "ok", "a refused read is not shown as an empty hive - " + base
+    if layer == "D":
+        if (c.get("figures") or 0) >= 5 and d.get("saysRecency") and not told:
+            return "FAIL", (f"on 429 the page showed {c.get('figures')} figures under a fresh-looking source line and never said "
+                            f"its reads failed; " + base)
+        return "ok", "no figure is passed off as fresh while every read failed - " + base
+    if layer == "L":
+        lv, lwhy = verdict
+        if lv == "n/a":
+            return "n/a", "the page records nothing for a trail to owe, offline or not - " + lwhy[:120]
+        g = ctx.get("writeGuard")
+        if not g:
+            return "FAIL", ("the page writes and keeps a trail, but nothing in it refuses a write it cannot send or queues it "
+                            "with its author - offline, an act could vanish without a name; " + base)
+        return "ok", f"a write it cannot send is refused or queued with its author ({g}); " + base
+    return "UNPROVEN", f"no A reading for layer {layer}"
+
+
 def pillar_view(pillar: str | None, layer: str, verdict: tuple[str, str], v: dict | None = None, page: str = "",
                 ctx: dict | None = None) -> tuple[str, str]:
     lv, why = verdict
     # S, AU and H are walked for their U rows only: their F and I close on the contract provers, never on a page reading
-    if layer in ("S", "AU", "H") and pillar != "U":
+    if layer in ("S", "AU", "H") and pillar not in ("U", "A"):
         return HOLD, f"the {layer} ask through {pillar} is answered by its contract prover, not by this walk"
+    # the S judge above reads the U sentence; S under 429 is its own reading, not a consequence of that one
+    if pillar == "A" and layer == "S":
+        return a_view(layer, verdict, v or {}, ctx or {})
     if not pillar or pillar == "F" or lv in ("FAIL", "UNPROVEN"):
         return verdict                       # F is the layer's own verdict, and a failing layer fails every lens
     if pillar == "U":
@@ -566,7 +615,7 @@ def pillar_view(pillar: str | None, layer: str, verdict: tuple[str, str], v: dic
                             + (f", and opening \"{ot['opened']}\" named nobody" if ot.get("opened") else "") + "; " + why)
         return lv, why
     if pillar == "A":
-        return verdict if layer == "A" else (HOLD, f"the {layer} ask offline and on 429 is not read layer by layer yet")
+        return verdict if layer == "A" else a_view(layer, verdict, v or {}, ctx or {})
     if pillar == "I":
         return i_view(v or {}, page, ctx or {}, verdict)
     return verdict
@@ -608,6 +657,10 @@ def main() -> int:
         if "L" in layers:
             v0, w0 = tr.check_page(page)
             ctx["trailSrc"] = (v0, w0)
+            # L offline/429 (the A pillar): does the page refuse a write it cannot send, or queue it with its author?
+            _src = tr.ct.page_source(page) or ""
+            _g = re.search(r"whRequireOnline|_whInvQueue|whOfflineQueue|offline-queue\.js|\.enqueue\(", _src)
+            ctx["writeGuard"] = _g.group(0) if _g else None
             if hive_id:
                 pg = psql("select count(*)||'|'||count(distinct actor)||'|'||coalesce((select actor||' / '||action||' / '||coalesce(target_type,'-')||' / '||to_char(created_at,'YYYY-MM-DD HH24:MI') from hive_audit_log where hive_id='%s' order by created_at desc limit 1),'') from hive_audit_log where hive_id='%s' and created_at > now() - interval '90 days'" % (hive_id, hive_id))
                 n, actors, latest = (pg[0].split("|", 2) + ["", "", ""])[:3] if pg else ("0", "0", "")
