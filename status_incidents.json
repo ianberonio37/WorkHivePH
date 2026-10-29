@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 0,
+ "open": 8,
  "resolved": 1,
  "incidents": [
   {
@@ -15,6 +15,78 @@
    "started_at": "2026-10-28 21:03:36.632147+00",
    "ended_at": "2026-10-28 21:03:36.632147+00",
    "status": "resolved"
+  },
+  {
+   "id": "gate-membership-read-failure-distinct",
+   "source": "gate",
+   "title": "membership-read-failure-distinct",
+   "severity": "major",
+   "started_at": "2026-10-29T03:47:24.139595+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-destructive-proportional-confirm",
+   "source": "gate",
+   "title": "destructive-proportional-confirm",
+   "severity": "major",
+   "started_at": "2026-10-29T03:47:24.139595+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-in-list-chunked",
+   "source": "gate",
+   "title": "in-list-chunked",
+   "severity": "major",
+   "started_at": "2026-10-29T03:47:24.139595+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-change-trail",
+   "source": "gate",
+   "title": "change-trail",
+   "severity": "major",
+   "started_at": "2026-10-29T03:47:24.139595+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-ownership-by-account",
+   "source": "gate",
+   "title": "ownership-by-account",
+   "severity": "major",
+   "started_at": "2026-10-29T03:47:24.139595+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-event-listener-cleanup",
+   "source": "gate",
+   "title": "event-listener-cleanup",
+   "severity": "major",
+   "started_at": "2026-10-29T03:47:24.139595+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-component-purity",
+   "source": "gate",
+   "title": "component-purity",
+   "severity": "major",
+   "started_at": "2026-10-29T03:47:24.139595+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-psql-probe-suite",
+   "source": "gate",
+   "title": "psql-probe-suite",
+   "severity": "major",
+   "started_at": "2026-10-29T03:47:24.139595+00:00",
+   "ended_at": null,
+   "status": "open"
   }
  ]
 }

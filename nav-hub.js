@@ -1388,8 +1388,8 @@
         <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true" focusable="false">
           <defs>
             <linearGradient id="wh-hub-hex-fill" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#1F2E45"/>
-              <stop offset="1" stop-color="#162032"/>
+              <stop offset="0" style="stop-color: var(--wh-navy-mid, #1F2E45)"/>
+              <stop offset="1" style="stop-color: var(--wh-navy, #162032)"/>
             </linearGradient>
           </defs>
           <polygon class="wh-hex" points="28,1.5 50.95,14.75 50.95,41.25 28,54.5 5.05,41.25 5.05,14.75"/>

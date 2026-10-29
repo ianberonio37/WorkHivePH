@@ -1,6 +1,6 @@
 {
   "summary": {
-    "view_column_pairs": 325,
+    "view_column_pairs": 329,
     "at_risk": 0,
     "review": 9,
     "files_scanned": 355
@@ -361,6 +361,32 @@
     },
     {
       "view": "v_anomaly_truth",
+      "column": "acknowledged_at",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "acknowledged_by",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
       "column": "composite_score",
       "consumers": [
         {
@@ -388,6 +414,32 @@
     {
       "view": "v_anomaly_truth",
       "column": "machine",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "resolved_at",
+      "consumers": [
+        {
+          "file": "alert-hub.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_anomaly_truth",
+      "column": "resolved_by",
       "consumers": [
         {
           "file": "alert-hub.html",
@@ -1768,6 +1820,11 @@
         },
         {
           "file": "index.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "integrations.html",
           "shape": "direct",
           "smells": []
         },
@@ -3342,6 +3399,11 @@
       "view": "v_logbook_truth",
       "column": "worker_name",
       "consumers": [
+        {
+          "file": "asset-hub.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "hive.html",
           "shape": "direct",

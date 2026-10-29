@@ -2583,7 +2583,7 @@ function openDetailModal(id) {
         </div>
         <p class="text-base text-white/85 font-medium ${item.worker_name ? 'mb-1' : 'mb-4'}">${escHtml(item.part_name)}</p>
         ${item.worker_name /* who put this part on the hive's shelf (2026-10-28, the cube's U-on-trail walk): the row carried the name and the page never said it */
-          ? `<p class="text-xs text-white/80 mb-4">${escHtml(_t('Added by', 'Idinagdag ni'))} ${escHtml(item.worker_name === WORKER_NAME ? _t('you', 'ikaw') : item.worker_name)}${item.created_at ? ' ' + escHtml(_t('on', 'noong')) + ' ' + escHtml(formatDate(item.created_at)) : ''}</p>`
+          ? `<p class="text-xs text-white/80 mb-4">${escHtml(_t('Added by', 'Idinagdag ni'))} ${escHtml(_ownsItem(item) ? _t('you', 'ikaw') : item.worker_name)}${item.created_at ? ' ' + escHtml(_t('on', 'noong')) + ' ' + escHtml(formatDate(item.created_at)) : ''}</p>`
           : ''}
       </div>
       ${invPhotoImg(item, 'Inventory item photo', 'class="photo-thumb flex-shrink-0"')}
@@ -2650,7 +2650,7 @@ function openDetailModal(id) {
                 <span class="text-xs text-white/80 flex-shrink-0">${formatDate(t.created_at)}</span>
               </div>
               ${t.note ? `<p class="text-xs text-white/80 mt-0.5">${escHtml(t.note)}</p>` : ''}
-              <p class="text-xs text-white/80 mt-0.5">Stock after: ${t.qty_after} ${escHtml(item.unit || 'pcs')}${t.worker_name ? ' · ' + escHtml(_t('by', 'ni')) + ' ' + escHtml(t.worker_name === WORKER_NAME ? _t('you', 'ikaw') : t.worker_name) : ''}</p>
+              <p class="text-xs text-white/80 mt-0.5">Stock after: ${t.qty_after} ${escHtml(item.unit || 'pcs')}${t.worker_name ? ' · ' + escHtml(_t('by', 'ni')) + ' ' + escHtml(_ownsItem(t) ? _t('you', 'ikaw') : t.worker_name) : ''}</p>
             </div>
           </div>`).join('')
       }
@@ -2976,6 +2976,7 @@ async function initData() {
       // G1 (gate growth-honesty, 2026-09-06): bounded so this read cannot grow without limit · cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
       // MR4 tiebreaker: created_at alone is not total (all 81 local rows share one value, so the list reshuffled between
       // loads with nothing changed); id makes it total, which paging needs as much as the person does
+      // in-list-bounded: _hiveStatuses is one of two fixed lists the role picks above - three status words at most
       whReadPaged((a, b) => db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').eq('hive_id', HIVE_ID).in('status', _hiveStatuses).order('created_at').order('id').range(a, b), 2000),   // cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
       whReadPaged((a, b) => db.from('v_inventory_items_truth').select(typeof whRowCols === 'function' ? whRowCols('v_inventory_items_truth') : '*').eq('hive_id', HIVE_ID).or(_MINE()).order('created_at').order('id').range(a, b), 2000)   // cap-ok (LB1): its largest group (hive_id) is far under 2000 - sized live by list-caps-say-more
     ]);

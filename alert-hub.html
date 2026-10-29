@@ -1453,7 +1453,7 @@
 
     // Wire action buttons (delegation)
     list.querySelectorAll('[data-anomaly-id]').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', async () => {   // listener-cleanup-allow: bound to the buttons list.innerHTML rebuilt above (its row template outgrew the gate's lookback when it began naming who acknowledged)
         const id = btn.getAttribute('data-anomaly-id');
         const action = btn.getAttribute('data-action');
         const machine = btn.getAttribute('data-anomaly-machine') || '(unknown machine)';

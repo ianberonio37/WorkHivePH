@@ -52,9 +52,21 @@ DB = "supabase_db_workhive"
 
 # table -> (events, update-of columns or None for every column, thing, label)
 EXPECTED = {
-    "project_items":       ({"insert", "delete", "update"}, {"title", "status", "owner_name", "notes", "wbs_code"}, "project item", "title"),
+    # 20261028000002 (the cube walk of project-manager.html): a project's re-plan, re-budget and close, an item's progress
+    # and dates, a progress report and a raised change order were all read by the hive and recorded by nothing.
+    "project_items":       ({"insert", "delete", "update"}, {"title", "status", "owner_name", "notes", "wbs_code",
+                                                            "pct_complete", "planned_start", "planned_end", "predecessors",
+                                                            "estimated_hours", "actual_hours", "actual_start", "actual_end"},
+                            "project item", "title"),
     "project_links":       ({"insert"}, None, "project link", "label"),
-    "projects":            ({"insert"}, None, "project", "name"),
+    "projects":            ({"insert", "update"}, {"project_code", "name", "project_type", "status", "priority", "owner_name",
+                                                   "description", "start_date", "end_date", "budget_php", "meta", "closed_at"},
+                            "project", "name"),
+    "project_progress_logs": ({"insert"}, None, "progress report", "log_date"),
+    "project_change_orders": ({"insert"}, None, "change order", "co_number+title"),
+    # 20261028000001 (the cube walk of engineering-design.html): a saved calculation can be a project's evidence, and
+    # deleting one is a hard delete - both had no record of who or when
+    "engineering_calcs":   ({"insert", "delete", "update"}, None, "engineering calculation", "project_name"),
     "report_contacts":     ({"insert", "update", "delete"}, None, "report recipient", "name"),
     "integration_configs": ({"insert", "delete", "update"}, {"system_type", "label", "endpoint_url", "auth_method", "sync_freq", "auth_token"}, "integration setting", "label"),
     "api_keys":            ({"insert", "delete", "update"}, {"enabled", "label"}, "API key", "label"),

@@ -6,25 +6,25 @@
   "controls": {
     "alert-hub.html": [
       {
-        "line": 1155,
+        "line": 1158,
         "message_head": "Reject today's AMC brief? The crew will not act on it."
       },
       {
-        "line": 1158,
+        "line": 1161,
         "message_head": "Approve today's brief? The crew suggestions go out to your whole hive under your name."
       }
     ],
     "asset-hub.html": [
       {
-        "line": 1799,
+        "line": 1803,
         "message_head": "Reject this asset? It stays in the queue but will not appear in the approved list."
       },
       {
-        "line": 3458,
+        "line": 3479,
         "message_head": "Delete this FMEA failure mode? Linked RCM strategies will cascade."
       },
       {
-        "line": 3670,
+        "line": 3691,
         "message_head": "Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only)."
       }
     ],
@@ -60,39 +60,39 @@
     ],
     "hive.html": [
       {
-        "line": 3041,
+        "line": 3051,
         "message_head": "Deactivate your account? Your name and email will be permanently anonymized and you will lose"
       },
       {
-        "line": 3055,
+        "line": 3065,
         "message_head": "Your account has been deactivated and your personal data anonymized."
       },
       {
-        "line": 3199,
+        "line": 3209,
         "message_head": "${_coSups[0]}${_coSups.length > 1 ? ' and others' : ''} also supervise${_coSups.length > 1 ? '' : 's'} this hive, so it keeps a supervisor w"
       },
       {
-        "line": 3214,
+        "line": 3224,
         "message_head": "Leave this hive? You'll lose access to its board and can't post here anymore. Your past logbook entries stay in the hive's records."
       },
       {
-        "line": 3244,
+        "line": 3254,
         "message_head": "You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it ca"
       },
       {
-        "line": 3455,
+        "line": 3465,
         "message_head": "Rename this hive. Everyone in it will see the new name."
       },
       {
-        "line": 5140,
+        "line": 5150,
         "message_head": "Reset ${workerName}'s password? You'll get a one-time temporary password to give them. They should change it after signing in."
       },
       {
-        "line": 5167,
+        "line": 5177,
         "message_head": "Temporary password for ${workerName}:\\n\\n${data.temp_password}\\n\\nGive this to ${workerName} now; it won't be shown again. Ask them to chang"
       },
       {
-        "line": 6424,
+        "line": 6434,
         "message_head": "Reject \"${label}\" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing."
       }
     ],
@@ -132,15 +132,15 @@
     ],
     "integrations.html": [
       {
-        "line": 1523,
+        "line": 1537,
         "message_head": "Remove everything this wizard just created? This deletes the vehicle, its PM schedule"
       },
       {
-        "line": 3025,
+        "line": 3039,
         "message_head": "Revoke this API key? Any integrations using it will stop working."
       },
       {
-        "line": 3089,
+        "line": 3103,
         "message_head": "Undo this import? This will delete the ${entityType} records from external_sync and attempt to remove the corresponding logbook/asset/invent"
       }
     ],
@@ -150,7 +150,7 @@
         "message_head": "${_uResv} ${_uUnit} of this part is staged for a predicted failure. Taking ${qty} spends the"
       },
       {
-        "line": 2675,
+        "line": 2678,
         "message_head": "Remove \"${item.part_name}\" (${item.part_number}) from inventory? You can restore it from Recently deleted for at least 30 days."
       }
     ],
@@ -324,11 +324,11 @@
     ],
     "utils.js": [
       {
-        "line": 6830,
+        "line": 6855,
         "message_head": "Delete X?"
       },
       {
-        "line": 6833,
+        "line": 6858,
         "message_head": "Enter name"
       }
     ]

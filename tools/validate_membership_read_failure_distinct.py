@@ -135,6 +135,11 @@ def main():
     else:
         usrc = io.open(utils, encoding="utf-8").read()
         body = _fn_body_js(usrc, "restoreIdentityFromSession")
+        # 2026-10-29: the resolver became a wrapper that shares one in-flight lookup per load (a page asked the
+        # membership up to four times); the logic it guards lives in the function the wrapper calls. Follow the
+        # delegation by name - a wrapper that stopped delegating is checked as itself, and fails.
+        if body and "_restoreIdentityFromSessionOnce(" in _strip_comments_js(body):
+            body = _fn_body_js(usrc, "_restoreIdentityFromSessionOnce")
         if not body:
             failures.append(
                 "restoreIdentityFromSession not found in utils.js. It is the one function every gated "

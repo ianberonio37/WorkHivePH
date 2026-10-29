@@ -6,7 +6,7 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **325**
+- View/column pairs scanned: **329**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
 - Files scanned: **355**
@@ -61,9 +61,13 @@ re-deriving what the canonical view should expose:
 | `v_amc_truth` | `shift_date` | ✅ OK | 1 | direct |
 | `v_amc_truth` | `status` | ✅ OK | 2 | direct |
 | `v_amc_truth` | `summary` | ✅ OK | 1 | direct |
+| `v_anomaly_truth` | `acknowledged_at` | ✅ OK | 1 | direct |
+| `v_anomaly_truth` | `acknowledged_by` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `composite_score` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `computed_at` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `machine` | ✅ OK | 1 | direct |
+| `v_anomaly_truth` | `resolved_at` | ✅ OK | 1 | direct |
+| `v_anomaly_truth` | `resolved_by` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `severity` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `source_count` | ✅ OK | 1 | direct |
 | `v_anomaly_truth` | `status` | ✅ OK | 1 | direct |
@@ -137,7 +141,7 @@ re-deriving what the canonical view should expose:
 | `v_hives_truth` | `hive_members` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `intent` | ✅ OK | 1 | direct |
 | `v_hives_truth` | `invite_code` | ✅ OK | 1 | direct |
-| `v_hives_truth` | `name` | ✅ OK | 9 | direct |
+| `v_hives_truth` | `name` | ✅ OK | 10 | direct |
 | `v_hives_truth` | `preferred_persona` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `bin_location` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `category` | ✅ OK | 2 | direct |
@@ -184,7 +188,7 @@ re-deriving what the canonical view should expose:
 | `v_logbook_truth` | `readings_json` | ✅ OK | 3 | direct |
 | `v_logbook_truth` | `root_cause` | ✅ OK | 15 | direct |
 | `v_logbook_truth` | `status` | ✅ OK | 17 | direct |
-| `v_logbook_truth` | `worker_name` | ✅ OK | 6 | direct |
+| `v_logbook_truth` | `worker_name` | ✅ OK | 7 | direct |
 | `v_marketplace_inquiries_truth` | `buyer_contact` | ✅ OK | 1 | direct |
 | `v_marketplace_inquiries_truth` | `buyer_name` | ✅ OK | 1 | direct |
 | `v_marketplace_inquiries_truth` | `listing_id` | ✅ OK | 2 | direct |

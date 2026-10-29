@@ -724,5 +724,7 @@
   "20261027000004_grants_follow_the_callers.sql": "e2ef65c20c3db9b336e85b088d5252efce570342db6d983cdaa4c2717bc00ecb",
   "20261027000005_deleting_an_asset_keeps_one_pm_summary.sql": "2afce913cdc7a4b1abfb0aa802c7f8c76fcf361e8ced5da5e5bceaaf7615f5e2",
   "20261027000006_a_deal_cannot_be_re_filed.sql": "7b2630462b6a42b9a703c81920aee6627dd5ec80556a6fcd2f6e582d3ec548fb",
-  "20261027000007_founder_outcomes.sql": "74208c7096d10b118d3ea86c282091dc397167de4ea5359494dc317a6f192422"
+  "20261027000007_founder_outcomes.sql": "74208c7096d10b118d3ea86c282091dc397167de4ea5359494dc317a6f192422",
+  "20261028000001_an_engineering_calculation_leaves_a_trail.sql": "2bb2b583305366c04e671d89cfc8dc0eb33225ac40887cff3726ad251bbebf70",
+  "20261028000002_a_project_change_leaves_a_trail.sql": "bd522f18669aa657deb2e07a4e4e260f4adcb377e99b6583c688de5d5c3620e6"
 }

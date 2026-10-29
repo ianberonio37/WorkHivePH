@@ -207,11 +207,9 @@
     },
     {
       "page": "alert-hub.html",
-      "add": 9,
+      "add": 0,
       "remove": 0,
-      "add_raw": 11,
-      "rebuild_scoped": 2,
-      "risky": false
+      "allowed": true
     },
     {
       "page": "audit-log.html",
