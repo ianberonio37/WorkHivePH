@@ -20,6 +20,13 @@ FROM community_xp cx
 WHERE cx.xp_total > 0
   AND EXISTS (SELECT 1 FROM hive_members hm
                WHERE hm.hive_id = cx.hive_id AND hm.status = 'active' AND hm.auth_uid IS NOT NULL)
+  -- the RPC answers only for a person with a public post, a voice badge or a seller profile (its own WHERE): the fixture
+  -- must be someone it is defined for. The full hive (2026-10-29) made its busiest poster - every post hive-private - the
+  -- top XP holder, and the comparison read a by-design empty answer as a mismatch.
+  AND (EXISTS (SELECT 1 FROM community_posts p WHERE p.author_name = cx.worker_name AND p.hive_id = cx.hive_id
+                AND p.public AND p.deleted_at IS NULL)
+       OR EXISTS (SELECT 1 FROM skill_badges sb WHERE sb.worker_name = cx.worker_name AND sb.badge_key = 'voice_of_the_hive')
+       OR EXISTS (SELECT 1 FROM marketplace_sellers ms WHERE ms.worker_name = cx.worker_name AND ms.hive_id = cx.hive_id))
 ORDER BY cx.xp_total DESC LIMIT 1;
 
 SELECT 'ungated_call_refused | ' || NOT EXISTS (

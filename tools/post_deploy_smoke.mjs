@@ -37,6 +37,7 @@
  *   node tools/post_deploy_smoke.mjs
  *
  *   # scope to one tier while triaging: --tier=public | --tier=app | --tier=flows
+ *   # every page in one report, no flows: --tier=pages
  *   # sample learn articles instead of all (faster): --learn-sample=8
  *
  *   TIER 3 — FLOWS (BRH-AH, 2026-10-26): the runbook's Tier-0 critical paths, walked on production in the bench hive
@@ -63,6 +64,15 @@ const argv = process.argv.slice(2);
 const TIER = (argv.find((a) => a.startsWith('--tier=')) || '').split('=')[1] || 'all';
 const LEARN_SAMPLE = Number((argv.find((a) => a.startsWith('--learn-sample=')) || '').split('=')[1] || 0);
 const THIN = 400;                 // body shorter than this AND under 5 controls rendered nothing
+// ★A REHEARSAL MUST NOT OVERWRITE THE DEPLOY'S EVIDENCE (2026-10-29): two local rehearsals of the new layout reading wrote
+// post_deploy_smoke_report.json - the file BRH-AG reads as production's proof that every app page was seen signed in -
+// and the gate reddened on a local sign-in timeout. Production keeps the names the gates read; any other base writes
+// its own .local copies.
+const PROD = /^https:\/\/(www\.)?workhiveph\.com$/.test(BASE);
+const REPORT = PROD ? 'post_deploy_smoke_report.json' : 'post_deploy_smoke_report.local.json';
+const FLOWS_REPORT = PROD ? 'post_deploy_flows_report.json' : 'post_deploy_flows_report.local.json';
+const LAYOUT = !argv.includes('--no-layout');   // the 390 layout reading (readLayout) - on by default since 2026-10-29
+const ZERO_PILLS = 3;             // this many controls reading only "0" is a list spending its space on nothing
 const SETTLE_PUBLIC = 3500;       // public pages paint fast
 const SETTLE_APP = 7000;          // app pages fetch their own data first
 
@@ -151,16 +161,100 @@ async function loadOne(ctx, url, settle, { authed }) {
     };
   }).catch(() => ({ chars: 0, controls: 0, signedOut: false, sw: '', controlled: false }));
   sw = seen.sw;
+  const layout = LAYOUT ? await readLayout(page).catch((e) => ({ error: String(e).slice(0, 120) })) : null;
   await page.close();
   for (const l of libs.filter((x) => x.status === 0 || x.status >= 400)) errs.push(`LIB ${l.status || l.failed}${l.sw ? ' (from the worker)' : ''} ${l.url}`);
   const thin = seen.chars < THIN && seen.controls < 5;
   const httpBad = status && status >= 400;
   // signed-out only counts against an AUTHED page; a public page is anon by design
   const wrongSignedOut = authed && seen.signedOut;
+  const layoutBad = !!(layout && !layout.error && (layout.stuck.length || layout.zero >= ZERO_PILLS));
+  // `ok` stays the LOAD verdict the gates read (BRH-AG: every app page seen signed in); the layout reading has its own
+  // verdict, and the run fails on either
   const ok = !errs.length && !thin && !httpBad && !wrongSignedOut;
   return { url, status, chars: seen.chars, controls: seen.controls, sw, controlled: seen.controlled,
     libs: libs.length, libs_from_worker: libs.filter((x) => x.sw).length,
-    signedOut: seen.signedOut, thin, errors: errs, ok };
+    signedOut: seen.signedOut, thin, errors: errs, layout, layout_ok: !layoutBad, layoutBad, ok };
+}
+
+/* ★A PAGE THAT LOADS CLEAN CAN STILL BE UNUSABLE ON A PHONE (Ian, 2026-10-29: "I found some issues [on community], why
+ * is it it hasn't detected in our gates" - "you should do it to all public, production, founder pages"). This smoke read
+ * every page at 1280 for errors and libraries only, so production's community passed while a phone showed a guide
+ * button floating over posts and a feed of "0" pills. Every page is now also read at 390, scrolled end to end:
+ *   STUCK  a control or a line of text a floating control covers where no scrolling can clear it - under bottom-anchored
+ *          chrome at the page's end, under top-anchored chrome at its start (mid-page, a scroll moves it clear: not a
+ *          finding);
+ *   FIRST  what a floating control covers on the first screen (reported, not failed - a FAB over a card is a choice);
+ *   ZERO   controls that read nothing but a 0 (a reaction or a count with nothing in it) - ZERO_PILLS of them is a feed
+ *          spending its space on nothing.
+ * STUCK or ZERO fails the page. --no-layout skips the reading. */
+async function readLayout(page) {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(500);
+  return page.evaluate(async () => {
+    const vw = innerWidth, vh = innerHeight;
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const CTL = 'a[href],button,input,select,textarea,[role="button"]';
+    const chrome = () => [...document.querySelectorAll('body *')].filter((e) => {
+      const s = getComputedStyle(e);
+      if (s.position !== 'fixed' || s.display === 'none' || s.visibility === 'hidden' || +s.opacity === 0) return false;
+      const r = e.getBoundingClientRect();
+      if (r.width < 16 || r.height < 16 || r.bottom <= 0 || r.top >= vh || r.width * r.height > 0.25 * vw * vh) return false;
+      return e.matches(CTL) || !!e.querySelector(CTL);
+    }).filter((e, _i, all) => !all.some((o) => o !== e && o.contains(e)));   // the outermost floating control
+    const label = (el) => {
+      const t = (el.getAttribute('aria-label') || el.innerText || el.value || '').replace(/\s+/g, ' ').trim();
+      return `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''} "${t.slice(0, 40)}"`;
+    };
+    const ownText = (el) => [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim().length > 1);
+    const under = (c) => {
+      const r = c.getBoundingClientRect(), hit = new Map();
+      for (const fx of [0.25, 0.5, 0.75]) for (const fy of [0.25, 0.5, 0.75]) {
+        const x = r.left + r.width * fx, y = r.top + r.height * fy;
+        if (x < 0 || y < 0 || x >= vw || y >= vh) continue;
+        for (const el of document.elementsFromPoint(x, y)) {
+          if (c.contains(el) || el.contains(c) || el === document.body || el === document.documentElement) continue;
+          if (getComputedStyle(el).position === 'fixed') break;   // another floating layer: not page content
+          const hitEl = el.closest(CTL) || (ownText(el) ? el : null);
+          if (hitEl) { hit.set(hitEl, label(hitEl)); break; }
+        }
+      }
+      return hit;
+    };
+    const max = Math.max(0, document.documentElement.scrollHeight - vh);
+    const stuck = new Set(), first = new Set();
+    for (const [y, edge] of [[0, 'top'], [max, 'bottom']]) {
+      window.scrollTo(0, y);
+      await sleep(250);
+      for (const c of chrome()) {
+        const r = c.getBoundingClientRect();
+        const anchored = (r.top + r.bottom) / 2 > vh / 2 ? 'bottom' : 'top';
+        for (const what of under(c).values()) {
+          if (y === 0) first.add(`${label(c)} over ${what}`);
+          if (anchored === edge) stuck.add(`${label(c)} over ${what}`);
+        }
+      }
+    }
+    window.scrollTo(0, 0);
+    // ZERO counts a list's items, never a figure: pm-scheduler's "0 overdue" tile is information (a tappable figure,
+    // .wh-fig), while four reaction pills reading 0 on every post are a list spending its space on nothing. An item is an
+    // element whose parent holds three or more siblings of its own tag and class.
+    const isItem = (el) => {
+      for (let e = el.parentElement; e && e !== document.body; e = e.parentElement) {
+        const p = e.parentElement;
+        if (!p) break;
+        const twins = [...p.children].filter((s) => s.tagName === e.tagName && s.className === e.className).length;
+        if (twins >= 3 && e.getBoundingClientRect().height > 40) return true;
+      }
+      return false;
+    };
+    const zero = [...document.querySelectorAll('button,[role="button"]')].filter((b) => {
+      const r = b.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && !b.closest('.wh-fig,[data-fig]') && !b.matches('.wh-fig,[data-fig]')
+        && /^[^\p{L}\p{N}]{0,4}\s*0$/u.test((b.innerText || '').replace(/\s+/g, ' ').trim()) && isItem(b);
+    }).length;
+    return { stuck: [...stuck].slice(0, 6), first: [...first].slice(0, 6), zero };
+  });
 }
 
 const browser = await chromium.launch();
@@ -347,10 +441,13 @@ async function flowLogs(fromIso, toIso) {
 }
 
 const results = { base: BASE, at: new Date().toISOString(), tier1: [], tier2: [] };
+const layoutTag = (r) => (r.layout && !r.layout.error && (r.layout.stuck.length || r.layout.zero)
+  ? ` · LAYOUT${r.layout.stuck.length ? ' stuck ' + r.layout.stuck.length : ''}${r.layout.zero ? ' zero ' + r.layout.zero : ''}` : '');
+const layoutLines = (r) => { if (r.layoutBad) for (const s of r.layout.stuck.slice(0, 2)) log(`        STUCK ${s}`); };
 let bad = 0;
 try {
   // ── TIER 1: public (anon) ────────────────────────────────────────────────
-  if (TIER === 'all' || TIER === 'public') {
+  if (TIER === 'all' || TIER === 'public' || TIER === 'pages') {   // pages = public + app in one report, no flows
     // RECYCLE the context every RECYCLE_EVERY pages: one long-lived context accumulates memory and
     // Chrome dies mid-sweep on a small host (observed ~page 29 on an 8GB box — a healthy page then
     // read "browser has been closed"). A fresh context releases it so the full roster completes.
@@ -373,16 +470,17 @@ try {
         r = await loadOne(ctx, u, SETTLE_PUBLIC, { authed: false });
       }
       results.tier1.push(r);
-      if (!r.ok) bad++;
-      log(`  ${r.ok ? 'ok  ' : 'FAIL'} ${String(r.status).padStart(3)} ${(u || '/').padEnd(42)}`
+      if (!r.ok || r.layoutBad) bad++;
+      log(`  ${r.ok && !r.layoutBad ? 'ok  ' : 'FAIL'} ${String(r.status).padStart(3)} ${(u || '/').padEnd(42)}`
         + `${String(r.chars).padStart(6)}c ${String(r.controls).padStart(3)}ctl`
-        + (r.thin ? ' · THIN' : '') + (r.errors.length ? ` · ${r.errors.length} err` : ''));
+        + (r.thin ? ' · THIN' : '') + (r.errors.length ? ` · ${r.errors.length} err` : '') + layoutTag(r));
       for (const e of r.errors.slice(0, 2)) log(`        ${e}`);
+      layoutLines(r);
     }
     await ctx.close();
   }
   // ── TIER 2: app (authed) ─────────────────────────────────────────────────
-  if (TIER === 'all' || TIER === 'app') {
+  if (TIER === 'all' || TIER === 'app' || TIER === 'pages') {
     if (!EMAIL || !PASS) {
       log('\nTIER 2 — APP (authed): SKIPPED — set WH_SMOKE_EMAIL + WH_SMOKE_PASS (prod test account).');
     } else {
@@ -398,12 +496,13 @@ try {
         for (const name of APP_PAGES) {
           const r = await loadOne(ctx, `${name}.html`, SETTLE_APP, { authed: true });
           results.tier2.push(r);
-          if (!r.ok) bad++;
-          log(`  ${r.ok ? 'ok  ' : 'FAIL'} ${String(r.status).padStart(3)} ${(name + '.html').padEnd(30)}`
+          if (!r.ok || r.layoutBad) bad++;
+          log(`  ${r.ok && !r.layoutBad ? 'ok  ' : 'FAIL'} ${String(r.status).padStart(3)} ${(name + '.html').padEnd(30)}`
             + `${String(r.chars).padStart(6)}c ${String(r.controls).padStart(3)}ctl`
             + (r.signedOut ? ' · SIGNED-OUT(probe never got in — re-run)' : '')
-            + (r.thin ? ' · THIN' : '') + (r.errors.length ? ` · ${r.errors.length} err` : ''));
+            + (r.thin ? ' · THIN' : '') + (r.errors.length ? ` · ${r.errors.length} err` : '') + layoutTag(r));
           for (const e of r.errors.slice(0, 2)) log(`        ${e}`);
+          layoutLines(r);
         }
       }
       await ctx.close();
@@ -431,7 +530,7 @@ try {
       flows.push(await flowLogs(t0, new Date().toISOString()));
       const rep = { base: BASE, at: new Date().toISOString(), hive: signedIn.hive || null, flows,
         summary: { flows: flows.length, failed: flows.filter((f) => !f.ok).length } };
-      writeFileSync('post_deploy_flows_report.json', JSON.stringify(rep, null, 2));
+      writeFileSync(FLOWS_REPORT, JSON.stringify(rep, null, 2));
       log(`\nTIER 3 — FLOWS · in the bench hive, undone after`);
       for (const f of flows) {
         bad += f.ok ? 0 : 1;
@@ -461,10 +560,13 @@ if (EXPECT_SW) {
 if (TIER !== 'flows') {
   const total = results.tier1.length + results.tier2.length;
   const pageBad = [...results.tier1, ...results.tier2].filter((r) => !r.ok).length;
-  results.summary = { total, failed: pageBad, passed: total - pageBad };
-  writeFileSync('post_deploy_smoke_report.json', JSON.stringify(results, null, 2));
+  const layoutBad = [...results.tier1, ...results.tier2].filter((r) => r.layoutBad).length;
+  results.summary = { total, failed: pageBad, passed: total - pageBad, layout_failed: layoutBad };
+  writeFileSync(REPORT, JSON.stringify(results, null, 2));
   log(`\n${pageBad ? 'FAIL' : 'PASS'} — ${total - pageBad}/${total} page(s) load clean across the roster `
-    + `(report: post_deploy_smoke_report.json)`);
+    + `(report: ${REPORT})`);
+  if (LAYOUT) log(`${layoutBad ? 'FAIL' : 'PASS'} — ${total - layoutBad}/${total} page(s) read clean at 390 (nothing stuck under a `
+    + `floating control, no list of zero counts)`);
 }
-if (TIER === 'all' || TIER === 'flows') log(`(flows report: post_deploy_flows_report.json)`);
+if (TIER === 'all' || TIER === 'flows') log(`(flows report: ${FLOWS_REPORT})`);
 process.exit(bad ? 1 : 0);

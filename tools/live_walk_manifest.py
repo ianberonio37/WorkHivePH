@@ -156,11 +156,22 @@ MCP_FOR_KIND = [
     # anyway). The instrument that answers it is the browser re-fetching what the site serves: the page at both
     # viewports, its sitemap entry and its twin. DISCLOSED: added in the session that walks the first ten KA-R rows;
     # it routes by the lens's sentence only and grants no marker - the basis must still name the walk.
-    ("playwright-mcp", r"^R this page's five freshness surfaces agree"),   # the haystack is "<lens> <title>"
+    # ★FIXED 2026-10-29: this rule read "^R this page's ..." and never fired - the haystack is "<title before ' - '>
+    # <title>", which carries no lens letter. KA-R rows kept the generic want; its first token is the same browser, so
+    # no closed row changes.
+    ("playwright-mcp", r"^this page's five freshness surfaces agree"),
     # KA-B asks whether an INSTRUMENT tells the truth about itself (reads a live measure or says it cannot, regenerates on
     # the board, reaches the header and the nightly CI). The proof is running the instrument and reading its source and
     # report - a library run - never a database read (it fell through to postgres-mcp, which measures nothing here).
     ("library run (the instrument itself, its source and its report)", r"^B this instrument tells the truth about itself"),
+    # KA-S asks whether a URL was pushed to the index after its last change - a fact about what the DEPLOYED ORIGIN serves
+    # and what the IndexNow receipt names, neither of which is a page state or a database row. It fell through to the
+    # generic browser + postgres pair, which can read neither. The reading is a raw HTTP fetch of the deployed origin
+    # (no JS, what a crawler receives) beside the receipt's per-URL record (tools/bank_ka_rows.py). DISCLOSED: added in
+    # the session that banks the first KA-S rows (2026-10-29); it routes by the lens's sentence only and grants no
+    # marker - the basis must still name the deployed origin it fetched.
+    ("raw-http fetch (the deployed origin serving the URL, and the IndexNow receipt that names it)",
+     r"^this URL was pushed to the index \(an IndexNow receipt\)"),
     ("playwright-mcp + postgres-mcp",
      r"a public table anyone holding the public key can read|an object production holds that no migration creates|"
      r"a view that runs as its owner, past the reader's row policies|a SECURITY DEFINER function anyone may execute|"
@@ -702,6 +713,11 @@ def build() -> dict:
         # sentence would route it by keyword, and "budget" or "refuse" must not pick an LLM row's instrument
         if (r.get("lx") or {}).get("kind") == "llm":
             want = (r.get("lx") or {}).get("instrument") or want
+        # an HS row (the hive at thirty, 2026-10-29) declares its instrument too - a walk against a thirty-member hive with
+        # the effect read in the database; its lens words ("realtime", "AI budget") must not route it to an ops instrument.
+        # DISCLOSED: added in the change that seeds the wave; every HS row is open when it lands.
+        if (r.get("hs") or {}).get("kind") == "hive-scale":
+            want = (r.get("hs") or {}).get("instrument") or want
         # ...and so does every SL / ENH / OPC row (2026-10-14): a contract sub-layer names its batch prover, a walk row
         # the chrome-devtools + postgres walk - a title's keywords must not re-route either
         if _meta_1014(r):

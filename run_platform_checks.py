@@ -37,7 +37,7 @@ Deployment config + live endpoint coverage added 2026-04-29 (from analytics 500)
   validate_analytics_live.py — calls deployed analytics-orchestrator for all 4 phases
                                (skip_if_fast=True; catches what static checks miss)
 """
-import subprocess, sys, os, json, time, datetime
+import subprocess, sys, os, json, re, time, datetime
 import urllib.request
 
 PYTHON = sys.executable
@@ -73,7 +73,14 @@ AUTOFIX  = "--autofix" in sys.argv
 # platform_baseline.json from ~600 entries down to 1, and every other check would
 # then read as newly-missing on the next full sweep. A narrowed run therefore never
 # touches the baseline and writes its health to platform_health.only-<slug>.json.
-_KNOWN_FLAGS = {"--fast", "--gate-only", "--autofix", "--only"}
+_KNOWN_FLAGS = {"--fast", "--gate-only", "--autofix", "--only", "--rerun-failed"}
+# ★--rerun-failed: BETWEEN TWO FULL RUNS, ONLY WHAT FAILED AND WHAT THE FIX TOUCHED (Ian, 2026-10-29: "isn't it just the
+# affected, relevant, failed gates, for the succeeding run, then in the final run, we could run the entire again"). M3 took
+# four full release-gate runs of 75-85 minutes because `git push` was the only re-check. This reads the last full board
+# (platform_health.json): every gate that FAILED there, plus every gate whose script names a source file changed since
+# that board's commit (a hash-pinned report such as hub-panel-on-screen <- nav-hub.js is exactly this case). It is a
+# narrowed run - its own health file, the baseline untouched - and the final full run still proves the rest.
+RERUN = "--rerun-failed" in sys.argv
 
 
 def _parse_only(argv):
@@ -105,6 +112,60 @@ HEALTH_FILE   = "platform_health.json"
 if ONLY:
     _slug = "-".join(ONLY)[:60].replace("/", "-")
     HEALTH_FILE = f"platform_health.only-{_slug}.json"
+elif RERUN:
+    HEALTH_FILE = "platform_health.rerun-failed.json"
+
+
+def _head_sha() -> str:
+    try:
+        return subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, timeout=20).stdout.strip()
+    except Exception:
+        return ""
+
+
+# what a fix can touch that a gate reads; reports, baselines and ledgers the gates write themselves are not causes
+_SOURCE_EXT = (".html", ".js", ".mjs", ".py", ".sql", ".css", ".ts", ".toml", ".yml", ".yaml", ".sh")
+
+
+def _rerun_failed_ids(validators) -> tuple[list, list, list]:
+    """(ids to run, the failed ids, the changed source files) from the last FULL board and git."""
+    try:
+        with open("platform_health.json", encoding="utf-8") as fh:
+            prev = json.load(fh)
+    except Exception as e:
+        print(f"  --rerun-failed: no full board to read (platform_health.json: {e}) - run the full gate first")
+        return [], [], []
+    failed = [e["id"] for e in prev.get("validators", []) if e.get("status") == "FAIL"]
+    since, changed = prev.get("commit"), []
+    if since:
+        out = subprocess.run(["git", "diff", "--name-only", since], capture_output=True, text=True).stdout.split()
+        out += subprocess.run(["git", "ls-files", "--others", "--exclude-standard"], capture_output=True, text=True).stdout.split()
+        changed = sorted({c for c in out if c.endswith(_SOURCE_EXT)})
+    else:
+        print("  --rerun-failed: the board names no commit (written before 2026-10-29) - re-running its failures only")
+    # A gate is tied to a file when its script QUOTES the file's name ("nav-hub.js", 'inventory.html', /sw.js') - the way a
+    # gate reads a page or pins a report to it. A bare mention in a docstring does not count (that rule picked 273 gates
+    # for M3's four edited files; quoted, 225 - about 15 minutes of the full board's 74). The runner and the release
+    # gate are every gate's host, not something a gate reads.
+    names = {os.path.basename(c) for c in changed} - {"run_platform_checks.py", "release_gate.py"}
+    quoted = [re.compile(r"[\"'/]" + re.escape(n) + r"[\"']") for n in sorted(names)]
+    affected = []
+    for v in validators:
+        script = v.get("script") or ""
+        if not names or not os.path.exists(script):
+            continue
+        if script.replace("\\", "/") in changed:
+            affected.append(v["id"])
+            continue
+        try:
+            with open(script, encoding="utf-8", errors="replace") as fh:
+                src = fh.read()
+        except OSError:
+            continue
+        if any(q.search(src) for q in quoted):
+            affected.append(v["id"])
+    ids = list(dict.fromkeys(failed + affected))
+    return ids, failed, changed
 
 # ── Colour helpers (Windows-safe ANSI) ────────────────────────────────────────
 def green(s):  return f"\033[92m{s}\033[0m"
@@ -15181,6 +15242,15 @@ def main():
     results    = []
     group_seen = set()
 
+    if RERUN and not ONLY:
+        ids, failed, changed = _rerun_failed_ids(VALIDATORS)
+        print(f"\n  {cyan('RERUN-FAILED')}  {len(failed)} failed on the last full board + {len(ids) - len(failed)} tied to "
+              f"{len(changed)} source file(s) changed since it ({', '.join(changed[:6])}{' ...' if len(changed) > 6 else ''})")
+        if not ids:
+            print("  nothing failed and nothing it covers has changed - the final full run is the next step\n")
+            return 0
+        ONLY.extend(ids)
+
     if ONLY:
         # An id that matches nothing must FAIL loudly. Silently running zero checks
         # and printing "0 failed" is the same lie the unimplemented flag told.
@@ -15217,6 +15287,28 @@ def main():
         elapsed = r.get("elapsed", round(time.time() - t0, 1))
         print(f"  {status_icon(r['status'])}  {elapsed:4.1f}s")
         results.append((v, r))
+
+    # ── LOOP 1b: A RED IS RUN ONCE MORE BEFORE IT BLOCKS ─────────────────────
+    # ★A RED THAT PASSES ON ITS OWN WAS LOAD, NOT A DEFECT (Ian, 2026-10-29, M3). The third release-gate run blocked
+    # on two gates whose `docker exec` reads came back empty under the run's load; alone, both passed - and the block cost
+    # a whole new 78-minute run. Each failed gate now runs once more here. A second FAIL blocks as before; a pass is
+    # recorded as WARN "passed on retry", so the flaky gate stays visible on the board and is never silently green.
+    retried = []
+    fails_now = [i for i, (_, r) in enumerate(results) if r["status"] == "FAIL"]
+    if fails_now:
+        print(f"\n  {cyan('RETRY')}  {len(fails_now)} failed gate(s), once each")
+        print("  " + "-" * 68)
+    for i in fails_now:
+        v, r = results[i]
+        print(f"  {'RUN ':4s}  {v['label'][:52]:52s}", end="", flush=True)
+        r2 = run_validator(v)
+        if r2["status"] in ("PASS", "WARN"):
+            first = next((ln.strip() for ln in (r.get("output") or "").splitlines() if "FAIL" in ln),
+                         (r.get("output") or "").strip()[:160])
+            r2 = dict(r2, status="WARN", output=f"passed on retry - the first run FAILED: {first[:200]}\n" + (r2.get("output") or ""))
+            results[i] = (v, r2)
+            retried.append(v["id"])
+        print(f"  {status_icon(results[i][1]['status'])}  {'passed on retry' if v['id'] in retried else 'failed again'}")
 
     # ── LOOP 0: REGRESSION DETECTION ─────────────────────────────────────────
     regressions = detect_regressions(results, baseline)
@@ -15308,6 +15400,8 @@ def main():
 
     health = {
         "timestamp":    datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "commit":       _head_sha(),   # what --rerun-failed diffs against
+        "retried":      retried,       # failed once, passed when run again: WARN on the board, never hidden
         "mode":         "fast" if FAST else "full",
         "overall":      "FAIL" if (fail_count or regressions) else "WARN" if warn_count else "PASS",
         "summary":      {"pass": pass_count, "fail": fail_count, "warn": warn_count, "skip": skip_count},

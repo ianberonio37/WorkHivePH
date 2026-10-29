@@ -210,6 +210,85 @@ def refresh(slug: str, dry_run: bool, today: date | None = None) -> int:
     return 0
 
 
+# ★A PAGE THAT DECLARES NO DATE HAS NO FRESHNESS SURFACES TO AGREE (2026-10-29, KA-R). 60 of the 120 sitemap URLs - 59
+# calculator pages and feedback/ - carried no dateModified at all: the sitemap said 2026-08-05 (or 05-17), the
+# calculators' footer said "Last updated 2026-09-08" (a sweep's date), and the files' visible text last changed
+# 2026-10-19. sync_sitemap() skipped them (nodate) and freshness_trip's promise check needs both dates, so no gate saw
+# it. --declare-undated gives each one the date its READABLE TEXT last changed (git history, every date masked, so a
+# date-only commit never counts) - a fact read from the repository, never today's date - and writes it into the page's
+# JSON-LD, its visible "Last updated" line and the sitemap together.
+VISIBLE_TEXT_DATES = re.compile(
+    r"\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* \d{4}\b|"
+    r"\b(?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}\b")
+LD_NODE_RX = re.compile(r'("@type"\s*:\s*"(?:SoftwareApplication|CollectionPage|WebPage|Article|TechArticle|BlogPosting)"\s*,)'
+                        r'(\s*)')
+
+
+def readable_text(html: str) -> str:
+    """What a reader and a crawler read - the visible text and the JSON-LD - with every date masked."""
+    import html as _h
+    ld = " ".join(re.findall(r'(?is)<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>', html))
+    s = re.sub(r"(?is)<(script|style)\b.*?</\1>", " ", html)
+    s = re.sub(r"(?s)<!--.*?-->", " ", s)
+    s = _h.unescape(re.sub(r"<[^>]+>", " ", s)) + " " + ld
+    s = re.sub(r'"(?:dateModified|datePublished)"\s*:\s*"[^"]*"', "", s)
+    return re.sub(r"\s+", " ", VISIBLE_TEXT_DATES.sub("DATE", s)).strip()
+
+
+def text_changed_on(p: Path) -> date | None:
+    """The commit date of the newest commit whose readable text differs from its parent's (None without history)."""
+    rel = p.relative_to(ROOT).as_posix()
+    log = subprocess.run(["git", "log", "--format=%H %cs", "--", rel], cwd=ROOT, capture_output=True, text=True)
+    commits = [ln.split() for ln in log.stdout.splitlines() if ln.strip()]
+    prev_sha, prev_day = None, None
+    for sha, day in commits:                       # newest first
+        src = subprocess.run(["git", "show", f"{sha}:{rel}"], cwd=ROOT, capture_output=True).stdout.decode("utf-8", "replace")
+        h = hashlib.sha256(readable_text(src).encode()).hexdigest()
+        if prev_sha is not None and h != prev_sha:
+            return date.fromisoformat(prev_day)    # the newer commit changed the text
+        prev_sha, prev_day = h, day
+    return date.fromisoformat(prev_day) if prev_day else None   # the first commit wrote it
+
+
+def declare_undated(dry_run: bool) -> int:
+    import content_freshness_gate as cfg
+    src = SITEMAP.read_text(encoding="utf-8")
+    done, refused = [], []
+    for e in sitemap_entries(src):
+        p = ROOT / local_of(e["loc"])
+        if not p.exists():
+            continue
+        html = p.read_text(encoding="utf-8")
+        if cfg._date_of(html):
+            continue
+        cur = html.replace("\r\n", "\n")
+        head = _head_html(p)
+        if head is not None and readable_text(head) != readable_text(cur):
+            refused.append(f"{p.relative_to(ROOT).as_posix()}: its text changed since HEAD - commit the change first, so "
+                           "the date read from history is the date of that change")
+            continue
+        d = text_changed_on(p)
+        if not d:
+            refused.append(f"{p.relative_to(ROOT).as_posix()}: no git history to read a date from")
+            continue
+        new, n = LD_NODE_RX.subn(lambda m: f'{m.group(1)}{m.group(2)}"dateModified": "{d.isoformat()}",{m.group(2)}', cur, count=1)
+        if not n:
+            refused.append(f"{p.relative_to(ROOT).as_posix()}: no JSON-LD page node to carry dateModified")
+            continue
+        new = LAST_UPDATED_RX.sub(lambda m: f"{m.group(1)}{d.isoformat()}{m.group(3)}{human_date(d)}{m.group(5)}", new)
+        if not dry_run:
+            p.write_text(new, encoding="utf-8", newline="\n")
+        done.append((p.relative_to(ROOT).as_posix(), e["lastmod"], d.isoformat()))
+    for path, old, d in done:
+        print(f"  {'would declare' if dry_run else 'declared'} {path}: dateModified {d} (sitemap said {old})")
+    for r in refused:
+        print("  REFUSED " + r)
+    if done and not dry_run:
+        sync_sitemap(False)
+    print(f"{len(done)} page(s) {'would be' if dry_run else ''} declared, {len(refused)} refused")
+    return 1 if refused else 0
+
+
 def self_test() -> int:
     a = '<script type="application/ld+json">{"dateModified": "2026-08-05"}</script><p>Last updated <time datetime="2026-08-05">5 Aug 2026</time></p><p>OEE is 85%</p>'
     b = stamp_page(a, date(2026, 10, 26))
@@ -232,12 +311,16 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--stamp", action="store_true")
     ap.add_argument("--sync-sitemap", action="store_true")
+    ap.add_argument("--declare-undated", action="store_true",
+                    help="give each sitemap page that declares no date the date its readable text last changed")
     ap.add_argument("--self-test", action="store_true")
     a = ap.parse_args()
     if a.self_test:
         return self_test()
     if a.sync_sitemap:
         return sync_sitemap(dry_run=a.dry_run)
+    if a.declare_undated:
+        return declare_undated(dry_run=a.dry_run)
     if not a.slug:
         ap.print_help()
         return 2

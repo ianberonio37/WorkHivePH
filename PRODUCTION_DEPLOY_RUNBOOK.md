@@ -1,3 +1,84 @@
+# Release-gate cadence — one full run, then only what failed, then one final full run (standing, read before every milestone push)
+
+> Ian, 2026-10-29, during the M3 release: *"why is it our gate is so rigid that we know in the first run that fails,
+> and why we are re running whole entire gate, isn't it just the affected, relevant, failed gates, for the succeeding
+> run, then in the final run, we could run the entire again so that to ensure no fails?"* - then: *"you have to update
+> the deploy runbook so that you wont forget."*
+
+**Why this section exists.** M3 cost four full release-gate runs of 75-85 minutes each, because `git push` was the only
+way I re-checked, and the pre-push hook always runs the whole gate (~890 checks):
+- **Run 1:** 8 real reds.
+- **Run 2:** one red my own fix caused. nav-hub.js changed, and the hub-panel report is pinned to that file's hash.
+- **Run 3:** 2 reds that passed when run alone - `docker exec` reads came back empty under the run's load.
+- **Run 4:** the final run.
+
+Two full runs were needed; the other two were the wrong loop.
+
+**The cadence:**
+1. **Before the first push - only the gates the release touched.** List the files that changed, then run
+   `python run_platform_checks.py --only <ids>` for the gates that read them, plus `trajectory-registry` and
+   `live-walk-manifest`. Regenerate the derived files the DevOps PRE-PUSH checklist names, then
+   `tools/build_substrate.py` LAST, then `tools/derive_status_incidents.py`. Commit.
+2. **The push is the FIRST full run.** Never push again just to see what is still red.
+3. **If it blocks - fix, then re-check ONLY:**
+   - **the failed gates:** the `FAILURES` block of `.tmp/mega_gate_<stamp>.log`, or `platform_health.json`;
+   - **every gate tied to a file the fix touched,** above all a report pinned to a file's hash (`hub-panel-on-screen`
+     pins `nav-hub.js`: re-run `node tools/prove_hub_panel_on_screen.mjs` and `--engine webkit`);
+   - **any red that passes alone:** run it standalone. If it passes, it was load, not a defect - record it and fix its
+     instrument (the M3 solo prover now retries its restoration and says "unread" instead of "failed"). Never let it
+     cost another full run.
+
+   Then the substrate rebuild, the incidents derivation, and the commit.
+4. **The second push is the FINAL full run** - the one that proves nothing else broke. Two full runs per release, not
+   four.
+5. **Never edit a file the running gate reads.** That covers docs, memory notes, tools and the database. A note
+   written mid-run stales the substrate and reddens the run on your own housekeeping. Draft in the scratchpad until
+   the verdict is in.
+
+**Built 2026-10-29, so the cadence lives in the tools, not in my memory:**
+- **`python run_platform_checks.py --rerun-failed`** - step 3 in one command. It runs every gate that FAILED on the last
+  full board (`platform_health.json`, which now records its `commit`), plus every gate whose script QUOTES a source file
+  changed since that commit (`"nav-hub.js"`, `'inventory.html'`, `/sw.js'`). For M3's four edited files that is 225
+  gates and about 15 minutes, against the full board's 74. Its health goes to `platform_health.rerun-failed.json`; the
+  baseline is untouched.
+- **The end-of-run retry:** each failed gate runs once more before the board blocks. A pass is recorded as WARN
+  "passed on retry - the first run FAILED: ..." and listed in the board's `retried`, so the flaky gate stays visible
+  and its instrument gets fixed. A second FAIL blocks as before. Tested with a gate that fails once (WARN) and one that
+  always fails (FAIL, exit 1).
+- **The pre-push hook** (`.git/hooks/pre-push`, local to this machine) skips the gate when `.last-gate-pass` - written
+  by `release_gate.py` only on a PASS - names the exact commit being pushed and is under 24 hours old. A push retried
+  after a network failure no longer repeats an 80-minute run that already passed.
+
+---
+
+# M3 release (2026-10-29) ✅ DEPLOYED
+
+> **✅ M3 DEPLOYED 2026-10-29: T3 complete** (the cube on production pages, CX-PROD 9,082/9,082). Production serves
+> `workhive-shell-v580` from `b957a8e7`.
+> - **Leg A, 2 migrations:** `20261028000001` (a saved or deleted engineering calculation leaves a trail) and
+>   `20261028000002` (a project's re-plan, re-budget, status, progress, progress report and change order leave a trail).
+>   Dry run first; production's columns and `audit_shared_change` read before the push; verified after it - all five
+>   tables carry `trg_audit_shared_change`.
+> - **Leg B: none.** No function changed in the 24 commits.
+> - **Leg C, four gate runs** (the reason for the cadence section above):
+>   - Run 1: 8 reds, each fixed at its cause (inventory's "by you" by account; nav-hub's raw navy; alert-hub's
+>     rebuild-scoped bind past the lookback; the trail gate's expectations behind the 10-28 migrations; LXP199 not
+>     following the identity wrapper; a probe guarding a cap the founder console no longer has; a stale destructive
+>     roster).
+>   - Run 2: stopped once it reddened on hub-panel-on-screen - the nav-hub fix had moved the hash its report is pinned to.
+>   - Run 3: 2 load transients (an empty `docker exec` read); the solo prover now retries its restoration.
+>   - Run 4: **889 PASS / 0 FAIL, data 61 / 0**, pushed `ea3b25b8..b957a8e7`.
+> - **Post-deploy smoke:** public + app **146/146 clean**; flows **6/6** (`edge_5xx` 0, `fn_5xx` 0).
+> - **IndexNow:** 17 URLs accepted (HTTP 200). The receipt now keeps every URL's own last push (120 on record,
+>   rebuilt from the receipt's git history), so KA-S could bank 117 rows; mtbf, oee and solar-pv go at M4.
+> - **Owed by the owner:** the daily backup (`.github/workflows/backup.yml`, BRH515) is live on GitHub and fails each
+>   day, saying so, until the two repository secrets exist: `SUPABASE_DB_URL` (the session pooler string) and
+>   `BACKUP_PASSPHRASE` (20+ characters, kept outside the repository).
+> - **Still owed (not this release's code):** BRH509-513 (the corpus quota and the declined requeue), OWN62 (a
+>   platform-admin walk of the founder console), BRH445 (pg_net, a dashboard switch).
+
+---
+
 # Production Deploy Runbook — M2 release (2026-10-28) ✅ DEPLOYED · M1 (2026-10-27) ✅ DEPLOYED
 
 > **✅ M2 DEPLOYED 2026-10-28 — T2 complete (self-efficacy 282/282 + outcomes 87/87 banked).** Production serves

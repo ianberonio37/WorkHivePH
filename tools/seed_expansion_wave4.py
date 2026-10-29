@@ -773,9 +773,12 @@ def _lx_state(scoped: list[dict]) -> tuple[dict, set, list]:
     # ★AND THE THREE WAVES OF 2026-10-14 (SL sub-layers, ENH enhancements, OPC the operator console), for the same
     # reason a third time: SL alone puts 3,959 persona journeys onto 158 pages, and every one the LXP replay could see
     # would move a Gap-B cell and renumber the ids after it. Excluded BEFORE they were seeded, not after the gate reds.
+    # ★AND THE HIVE AT THIRTY (HS, 2026-10-29), a fourth time: its 486 rows put workers and supervisors onto 24 pages'
+    # lists, and the replay renamed LXP1548/1549's wave (LXP-RL -> LXP-LB) on rows nobody touched. Excluded the moment the
+    # gate said so - the "before seeding" rule above names the class; the next wave's author should add it first.
     scoped = [t for t in scoped if (t.get("lx") or {}).get("kind") not in ("layer-ux", "layer-floor", "llm")
               and (t.get("brh") or {}).get("kind") != "bug-hunt"
-              and not t.get("sl") and not t.get("enh") and not t.get("opc")]
+              and not t.get("sl") and not t.get("enh") and not t.get("opc") and not t.get("hs")]
     for t in scoped:
         # ★"REACHES" IS ANY APP PAGE ON THE JOURNEY, NOT ITS LAST ONE. _path() appends the platform's
         # own continuation until a journey spans four pages, so pages[-1] is where the route ENDS, not
@@ -2187,6 +2190,52 @@ def own_rows(existing: list[dict], replay: bool = False) -> list[dict]:
     return rows
 
 
+# ★THE HIVE AT ITS FULL SIZE (HS1..; Ian, 2026-10-29: "multiple tenants ... Role Based, with up to 30 hive members, how
+# they behave when they have a post, or lists of, concurrency"). One row per EMPTY cell of tools/hive_scale_census.py -
+# a member list x the seven list lenses, a member write x the two concurrency lenses, a hive feature x its head-count
+# lens. Each row is walked against a THIRTY-member hive (seeders/full_hive.py) at both viewports.
+HS_PREFIX = "HS"
+
+
+def hive_scale_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per empty cell of the hive-scale census. replay=True returns what was SEEDED, in id order."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("hs") or {}).get("kind") == "hive-scale"),
+                        key=lambda x: int(str(x["id"])[len(HS_PREFIX):] or 0))
+        hive_scale_rows.arithmetic = {}
+        return [{"wave": t["wave"], "hs": t["hs"]} for t in seeded]
+    import hive_scale_census as hc
+    c = hc.census()
+    have = {((x.get("hs") or {}).get("key"), (x.get("hs") or {}).get("unit"), (x.get("hs") or {}).get("page"))
+            for x in existing if (x.get("hs") or {}).get("kind") == "hive-scale"}
+    rows: list[dict] = []
+    for cell in c["cells"]:
+        if (cell["key"], cell["unit"], cell["page"]) in have:
+            continue
+        page, persona = cell["page"], cell["persona"]
+        pages, entry = _outcome_route(page, persona)
+        rows.append({
+            "wave": f"HS-{cell['key']}",
+            "title": f"{cell['lens']} - {cell['unit']} on {page} · {persona}",
+            "pages": list(pages), "layers": list(cell["layers"]), "ufai": list(cell["ufai"]), "persona": persona, "device": "any",
+            "entry": entry, "framing": "person",
+            "story": (f"{persona} in a hive of {hc.HIVE_SIZE} members meets {cell['unit']} on {page}: {cell['ask']}. MEASURED: "
+                      f"{cell['detail']}. Walked against a thirty-member hive at {' and '.join(LX_VIEWPORTS)}; where two members act, "
+                      f"two browser contexts, and the effect read in the database"),
+            "journey": {"archetype": f"HS:{persona}", "stage": "operate", "vertical": HIVES[len(cell["unit"]) % len(HIVES)],
+                        "pair": "", "language": "en", "moment": "present", "condition": "normal", "tier": "A",
+                        "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "hs": {"kind": "hive-scale", "key": cell["key"], "lens": cell["lens"], "unit": cell["unit"], "page": page,
+                   "ask": cell["ask"], "detail": cell["detail"], "page_class": cell["page_class"], "hive_size": hc.HIVE_SIZE,
+                   "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT,
+                   "closes": f"walked on {page} against a {hc.HIVE_SIZE}-member hive with a receipt, the fix landed, a gate holds it"},
+        })
+    hive_scale_rows.arithmetic = {"by_lens": Counter(r["hs"]["key"] + " " + r["hs"]["lens"] for r in rows),
+                                  "population": c["population"]}
+    return rows
+
+
 # ★THE OUTCOME WAVES (SE1.., OUT1.., JS1..; 2026-10-26) - Ian's model: the five lenses improve the person's self-efficacy and
 # the platform's system characteristics, which raise intention to use and satisfaction, which lead to usage. The population
 # is tools/trajectory_outcome_gaps.py (one place decides the size); the dependent variables join the registry as rows.
@@ -2380,6 +2429,8 @@ def main() -> int:
                     help="--add-cube: seed one page class (or the UX face) at a time")
     ap.add_argument("--add-own", action="store_true",
                     help="OWN (2026-10-26): one row per empty cell of the nine lenses in tools/own_lenses_census.py")
+    ap.add_argument("--add-hive-scale", action="store_true",
+                    help="HS (2026-10-29): one row per empty cell of tools/hive_scale_census.py - the hive at thirty members")
     ap.add_argument("--add-self-efficacy", action="store_true",
                     help="SE (2026-10-26): one row per (page, source of self-efficacy) - tools/trajectory_outcome_gaps.py")
     ap.add_argument("--add-outcomes", action="store_true",
@@ -2522,10 +2573,13 @@ def main() -> int:
         seed_missing()
         print("\n" + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
         return 0
-    if args.add_cube or args.add_own:
+    if args.add_cube or args.add_own or args.add_hive_scale:
         if args.add_cube:
             rows, label, prefix = cube_rows(existing, only_class=args.only_class), "CX cube", CX_PREFIX
             a = cube_rows.arithmetic
+        elif args.add_hive_scale:
+            rows, label, prefix = hive_scale_rows(existing), "HS hive at thirty", HS_PREFIX
+            a = hive_scale_rows.arithmetic
         else:
             rows, label, prefix = own_rows(existing), "OWN own-reading", OWN_PREFIX
             a = own_rows.arithmetic

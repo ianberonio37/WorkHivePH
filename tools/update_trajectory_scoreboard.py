@@ -125,6 +125,13 @@ try:
                        "JS": "Journey scenarios where they were thin: every stage degraded, the daily archetypes aged, the seller's side"})
 except Exception:
     pass
+# the hive at thirty members (HS, 2026-10-29) - one wave per lens, named from the census itself so a lens edit needs no edit here
+try:
+    import hive_scale_census as _hsc
+    WAVE_NAMES.update({f"HS-{k}": f"The hive at thirty: {lens}" for k, lens, *_r in _hsc.LIST_LENSES + _hsc.WRITE_LENSES})
+    WAVE_NAMES.update({f"HS-{v[0]}": f"The hive at thirty: {v[1]}" for v in _hsc.FEATURE_LENSES.values()})
+except Exception:
+    pass
 # SL / ENH / OPC = the three waves of 2026-10-14 (the sub-layers, the enhancements, the operator console), named from
 # their own tables in the SAME change that seeds them, or render() raises KeyError on the first new row.
 try:

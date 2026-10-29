@@ -115,6 +115,16 @@ def tier_of(r: dict, classes: dict, trip_units: set) -> tuple[int, str]:
     cx = r.get("cx") or {}
     if wave.startswith("BRH") or wave.startswith("BRP"):
         return 1, "a measured defect site (bug-hunt / bug-repro)"
+    hs = r.get("hs") or {}
+    if hs:
+        # the hive at thirty (HS, 2026-10-29): a cluttered list, a role's actions and a lost concurrent change are what a
+        # person in a full hive meets today on a production page (community's cards were all three) - T1; the other
+        # lenses join the lane's health (T4); a founder page reads across hives, so its rows wait with the founder cube
+        if hs.get("page_class") == "founder":
+            return 5, "the hive at thirty: a founder list"
+        if hs.get("key") in ("L1", "L2", "W1"):
+            return 1, f"the hive at thirty: {hs.get('lens')}"
+        return 4, f"the hive at thirty: {hs.get('lens')}"
     if own:
         lens = own.get("lens", "")
         if lens in DEFECT_LENSES:

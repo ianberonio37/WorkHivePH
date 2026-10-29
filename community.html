@@ -173,11 +173,51 @@
     .filter-chip.cat-marketplace.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.4); color: var(--wh-orange); }
 
     /* ── Post cards ── */
+    /* ★A WORKMATE'S POST WAS SPENDING ITS SPACE ON CHROME (Ian, 2026-10-29: "previous posts of my workmates has been
+       cluttered"). Measured at 390 as a supervisor: a two-line post was ~300px tall - the text column indented ~76px
+       behind an avatar-only gutter, the date dropping onto a line of its own beside two badges, four reactions each
+       showing "0", and a second row of four icon-only moderation buttons (pin, globe, flag, bin) spread across the card.
+       The card now: avatar and name in one header with the category and date on a meta line under the name; the text,
+       the reactions and the reply run the full width; a count shows only when there is one; and every action on the
+       post (edit, pin, share, flag, report, delete) is one "Post actions" menu that names each in words. The coloured
+       3px category edge went too - the category is already the badge. */
     .post-card {
+      position: relative;
       background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
       border: 1px solid rgba(255,255,255,0.07); border-radius: 12px;
-      border-left-width: 3px; transition: border-color 0.2s;
+      transition: border-color 0.2s;
     }
+    .post-head { display: flex; align-items: flex-start; gap: 10px; }
+    .post-who  { flex: 1 1 auto; min-width: 0; }
+    .post-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 2px;
+                 font-size: 0.75rem; color: rgba(255,255,255,0.80); }
+    .post-meta .cat-badge { padding: 2px 8px; font-size: 0.6875rem; }
+    .post-body { font-size: 0.875rem; line-height: 1.55; color: rgba(255,255,255,0.86); margin: 10px 0 8px;
+                 word-break: break-word; }
+    .post-foot { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    .post-foot .reaction-btn { padding: 4px 8px; min-width: 44px; justify-content: center; background: transparent;
+                               border-color: transparent; }
+    .post-foot .reaction-btn.active { background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.35); }
+    .post-foot .reaction-btn[onclick*="openThread"] { margin-left: auto; border-color: rgba(255,255,255,0.10); }
+    .rx-n:empty { display: none; }
+    .rx-n:not(:empty) ~ .rx-word { display: none; }
+    .post-menu-btn { flex: 0 0 auto; margin: -6px -8px 0 0; }
+    .post-menu-btn svg { width: 20px; height: 20px; }
+    .post-menu {
+      position: absolute; top: 48px; right: 8px; z-index: 30; min-width: 216px; padding: 6px;
+      background: var(--wh-navy-mid, #1F2E45); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.45); display: flex; flex-direction: column;
+    }
+    .post-menu[hidden] { display: none; }
+    .post-menu-item {
+      display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; width: 100%;
+      background: transparent; border: none; border-radius: 8px; text-align: left; cursor: pointer;
+      font: inherit; font-size: 0.875rem; color: rgba(255,255,255,0.88);
+    }
+    .post-menu-item:hover, .post-menu-item:focus-visible { background: rgba(255,255,255,0.08); outline: none; }
+    .post-menu-item[data-on="1"] { color: var(--wh-orange-text, #FDB94A); }
+    .post-menu-item.danger { color: var(--wh-red-text, #FCA5A5); margin-top: 4px;
+                             box-shadow: 0 -1px 0 rgba(255,255,255,0.08); border-radius: 0 0 8px 8px; }
     .post-card:hover { border-color: rgba(255,255,255,0.14); }
     /* ★DECLARED, AND NEVER CONNECTED (design lens motion, 2026-09-15). `new-entry` appeared exactly
        ONCE in this file - here - so the animation written for a new post arriving was never applied to
@@ -187,12 +227,7 @@
        starts SLOW at the instant the eye is looking for the new row), and 0.3s sat ON the 300ms ceiling
        rather than inside the 150-250ms band this kind of entrance is given. */
     .post-card.new-entry { animation: slideIn 240ms var(--wh-ease-out, cubic-bezier(0.23, 1, 0.32, 1)) both; }
-    .post-card.cat-general     { border-left-color: rgba(255,255,255,0.2); }
-    .post-card.cat-safety      { border-left-color: var(--wh-red); }
-    .post-card.cat-technical   { border-left-color: var(--wh-blue); }
-    .post-card.cat-announcement{ border-left-color: var(--wh-violet); }
-    .post-card.cat-marketplace { border-left-color: var(--wh-orange); }
-    .post-card.pinned          { border-left-color: var(--wh-orange); }
+    .post-card.pinned          { border-color: rgba(247,162,27,0.35); }
     @keyframes slideIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
 
     /* ── Category badges ── */
@@ -1827,14 +1862,61 @@ function _isMinePost(p) {
   // The WHOLE label is translated rather than assembled from translated pieces, because the plural rule
   // does not survive assembly: English inflects the noun (1 reaction / 2 reactions), Filipino does not.
   const _RX_FIL = { thumbs_up: 'Thumbs up', wrench: 'Wrench', fire: 'Apoy', eyes: 'Tiningnan' };
+  // A count is shown only when there is one: four "0" pills on every post was most of a quiet card. Every writer of a
+  // reaction or reply count goes through this, so a live change back to zero clears the figure instead of printing 0.
+  function _rxCount(n, capped) {
+    const v = Number(n) || 0;
+    return v > 0 ? String(v) + (capped ? '+' : '') : '';
+  }
   function _rxButton(p, _rx, emoji, label, icon) {
     const d = _rx[emoji] || { count: 0, mine: false };
     const n = d.count;
     const aria = _t(
       `${label}, ${n} ${n === 1 ? 'reaction' : 'reactions'}` + (d.mine ? ', you reacted' : ''),
       `${_RX_FIL[emoji] || label}, ${n} reaction` + (d.mine ? ', ikaw ay nag-react' : ''));
-    return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${escJsAttr(p.id)}', '${escJsAttr(p.hive_id)}', '${escJsAttr(emoji)}')" aria-label="${escHtml(aria)}" aria-pressed="${d.mine}">${icon} <span id="rxn-${emoji}-${escHtml(p.id)}">${d.count}</span></button>`;
+    return `<button class="reaction-btn${d.mine ? ' active' : ''}" onclick="toggleReaction('${escJsAttr(p.id)}', '${escJsAttr(p.hive_id)}', '${escJsAttr(emoji)}')" aria-label="${escHtml(aria)}" aria-pressed="${d.mine}">${icon}<span class="rx-n" id="rxn-${emoji}-${escHtml(p.id)}">${_rxCount(d.count)}</span></button>`;
   }
+
+  // ── The post's actions, in one menu that names each one ───────────────────────
+  // items: [{label, onclick, on?, danger?}] - the label IS the accessible name (it was each icon's aria-label), so a
+  // voice-control user says what they read and every probe that finds a control by its name still finds it.
+  const _MORE_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="1.9" fill="currentColor"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/><circle cx="19" cy="12" r="1.9" fill="currentColor"/></svg>';
+  function _postMenu(postId, items) {
+    if (!items.length) return '';
+    const mid = `pm-${escHtml(postId)}`;
+    return `<button type="button" class="btn-icon post-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="${mid}" aria-label="${escHtml(_t('Post actions', 'Mga aksyon sa post'))}" onclick="togglePostMenu('${escJsAttr(postId)}', this)">${_MORE_SVG}</button>
+      <div class="post-menu" id="${mid}" role="menu" hidden>${items.map(it =>
+        `<button type="button" role="menuitem" class="post-menu-item${it.danger ? ' danger' : ''}"${it.on !== undefined ? ` data-on="${it.on ? '1' : '0'}"` : ''} aria-label="${escHtml(it.label)}" onclick="closePostMenus(); ${it.onclick}"><span class="ic ${it.icon}" aria-hidden="true"></span><span>${escHtml(it.label)}</span></button>`).join('')}</div>`;
+  }
+  function closePostMenus(except) {
+    document.querySelectorAll('.post-menu:not([hidden])').forEach((m) => {
+      if (m === except) return;
+      m.hidden = true;
+      const b = document.querySelector(`[aria-controls="${m.id}"]`);
+      if (b) b.setAttribute('aria-expanded', 'false');
+    });
+  }
+  function togglePostMenu(postId, btn) {
+    const m = document.getElementById(`pm-${postId}`);
+    if (!m) return;
+    const opening = m.hidden;
+    closePostMenus(m);
+    m.hidden = !opening;
+    btn.setAttribute('aria-expanded', opening ? 'true' : 'false');
+    if (opening) m.querySelector('[role="menuitem"]')?.focus();
+  }
+  // a menu closes on Escape (focus back to its button), on a tap outside it, and when the feed scrolls it away
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const open = document.querySelector('.post-menu:not([hidden])');
+    if (!open) return;
+    const b = document.querySelector(`[aria-controls="${open.id}"]`);
+    closePostMenus();
+    b?.focus();
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.post-menu, .post-menu-btn')) closePostMenus();
+  });
 
   function renderFeed() {
     const el     = document.getElementById('feed-list');
@@ -1955,76 +2037,48 @@ function _isMinePost(p) {
     const publicBadge  = p.public  ? `<span class="cat-badge" style="background:rgba(34,197,94,0.12);color:var(--wh-green);">PUBLIC</span>` : '';
     const catBadge     = `<span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>`;
 
-    const modActions = HIVE_ROLE === 'supervisor' ? `
-      ${isMine ? `<button class="btn-icon" onclick="openEditor('${escJsAttr(p.id)}')" title="Edit post" aria-label="Edit my post">
-        <span class="ic ic-edit" aria-hidden="true"></span>
-      </button>` : ''}
-      <button class="btn-icon" data-on="${p.pinned ? '1' : '0'}" style="--on:var(--wh-orange,#F7A21B);--on-bg:rgba(247,162,27,0.14)" onclick="togglePin('${escJsAttr(p.id)}', ${escJsAttr(p.pinned)})" title="${escHtml(p.pinned ? _t('Unpin', 'Alisin sa pin') : _t('Pin', 'I-pin'))}" aria-label="${escHtml(p.pinned ? _t('Unpin post', 'Alisin sa pin ang post') : _t('Pin post', 'I-pin ang post'))}">
-        <span class="ic ic-pin" aria-hidden="true"></span>
-      </button>
-      <button class="btn-icon" data-on="${p.public ? '1' : '0'}" style="--on:#4ade80;--on-bg:rgba(74,222,128,0.12)" onclick="togglePublic('${escJsAttr(p.id)}', ${escJsAttr(p.public)})" title="${escHtml(p.public ? _t('Make private', 'Gawing pribado') : _t('Make public', 'Gawing pampubliko'))}" aria-label="${escHtml(p.public ? _t('Make post private', 'Gawing pribado ang post') : _t('Make post public', 'Gawing pampubliko ang post'))}">
-        <span class="ic ic-globe" aria-hidden="true"></span>
-      </button>
-      <button class="btn-icon" data-on="${p.flagged ? '1' : '0'}" style="--on:#f87171;--on-bg:rgba(248,113,113,0.12)" onclick="toggleFlag('${escJsAttr(p.id)}', ${escJsAttr(p.flagged)})" title="${escHtml(p.flagged ? _t('Unflag', 'Alisin ang flag') : _t('Flag', 'I-flag'))}" aria-label="${escHtml(p.flagged ? _t('Unflag post', 'Alisin ang flag sa post') : _t('Flag post', 'I-flag ang post'))}">
-        <span class="ic ic-flag" aria-hidden="true"></span>
-      </button>
-      <button class="btn-icon" onclick="deletePost('${escJsAttr(p.id)}')" title="${escHtml(_t('Delete post', 'Burahin ang post'))}" aria-label="${escHtml(_t('Delete post', 'Burahin ang post'))}" style="margin-left:22px">
-        <span class="ic ic-delete" aria-hidden="true"></span>
-      </button>` : (isMine ? `
-      <button class="btn-icon" onclick="openEditor('${escJsAttr(p.id)}')" title="Edit post" aria-label="Edit my post">
-        <span class="ic ic-edit" aria-hidden="true"></span>
-      </button>
-      <!-- THE SAME RULE THIS FILE ALREADY APPLIES TO THE OTHER DELETE (walked 2026-09-10, Z3 95%).
-           The moderator's delete a few lines above carries margin-left:22px precisely because it is
-           destructive and must not sit flush against the control beside it. The AUTHOR's delete - the
-           one every ordinary member meets on their own post - never got that separation, so it sat 4px
-           from "Edit my post": measured 44x44 with a 4px horizontal gap on all six instances, scrolled
-           into view and re-measured to be sure. Size was never the problem; the SPACING was, and the
-           two controls at risk of confusion are exactly "edit my post" and "delete my post".
-           Matched to the page's own precedent (22px) rather than a new value, so both destructive
-           controls on this surface now behave identically. Same shape as the paired-write family: a
-           safety rule applied to one side of a pair and not the other.
-           NOT changed: the 44x44 target itself, which already meets the floor. -->
-      <button class="btn-icon" onclick="deletePost('${escJsAttr(p.id)}')" title="${escHtml(_t('Delete post', 'Burahin ang post'))}" aria-label="${escHtml(_t('Delete my post', 'Burahin ang post ko'))}" style="margin-left:22px">
-        <span class="ic ic-delete" aria-hidden="true"></span>
-      </button>` : `
-      <button class="btn-icon" onclick="openReport('${escJsAttr(p.id)}')" title="Report this post to your supervisor" aria-label="Report this post">
-        <span class="ic ic-warning" aria-hidden="true"></span>
-      </button>`);
+    // Every action on the post, for this viewer, in the one menu. The destructive Delete is last and set apart (the Z3
+    // rule the two inline deletes kept with a 22px gap now holds as the menu's divider). A supervisor's own post adds
+    // Edit; a worker's own post gets Edit + Delete; anyone else's, Report.
+    const _id = escJsAttr(p.id);
+    const _items = HIVE_ROLE === 'supervisor' ? [
+      ...(isMine ? [{ label: _t('Edit my post', 'I-edit ang post ko'), icon: 'ic-edit', onclick: `openEditor('${_id}')` }] : []),
+      { label: p.pinned ? _t('Unpin post', 'Alisin sa pin ang post') : _t('Pin post', 'I-pin ang post'), icon: 'ic-pin', on: !!p.pinned,
+        onclick: `togglePin('${_id}', ${escJsAttr(p.pinned)})` },
+      { label: p.public ? _t('Make post private', 'Gawing pribado ang post') : _t('Make post public', 'Gawing pampubliko ang post'),
+        icon: 'ic-globe', on: !!p.public, onclick: `togglePublic('${_id}', ${escJsAttr(p.public)})` },
+      { label: p.flagged ? _t('Unflag post', 'Alisin ang flag sa post') : _t('Flag post', 'I-flag ang post'), icon: 'ic-flag', on: !!p.flagged,
+        onclick: `toggleFlag('${_id}', ${escJsAttr(p.flagged)})` },
+      { label: _t('Delete post', 'Burahin ang post'), icon: 'ic-delete', danger: true, onclick: `deletePost('${_id}')` },
+    ] : isMine ? [
+      { label: _t('Edit my post', 'I-edit ang post ko'), icon: 'ic-edit', onclick: `openEditor('${_id}')` },
+      { label: _t('Delete my post', 'Burahin ang post ko'), icon: 'ic-delete', danger: true, onclick: `deletePost('${_id}')` },
+    ] : [
+      { label: _t('Report this post', 'I-report ang post na ito'), icon: 'ic-warning', onclick: `openReport('${_id}')` },
+    ];
 
     // Read reaction data from reactionMap (populated before renderFeed is called)
     const _rx = reactionMap[p.id] || {};
 
     return `<div class="post-card ${catClass}${p.pinned ? ' pinned' : ''}" id="post-${escHtml(p.id)}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
-      <div style="display:flex; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+      <div class="post-head">
         <div style="flex-shrink:0;padding-bottom:${(_workerTiers[p.author_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(p.author_name, _workerTiers[p.author_name] || 0, 32)}</div>
-        <div style="flex:1 1 7rem; min-width:0;">
-          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
-            <button type="button" translate="no" class="author-link" style="font-size:0.8rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}')" aria-label="${escHtml(_t(`View ${p.author_name}'s member card`, `Tingnan ang member card ni ${p.author_name}`))}">${escHtml(p.author_name)}</button>
-            ${catBadge}${pinnedBadge}${flaggedBadge}${publicBadge}
-            <span style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
-          </div>
-          ${reportReasonLine}
-          <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.75rem; word-break:break-word;">${renderContentWithMentions(p.content, p.mentions)}</p>
-          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            ${_rxButton(p, _rx, 'thumbs_up','Thumbs up','👍')}
-            ${_rxButton(p, _rx, 'wrench','Wrench','🔧')}
-            ${_rxButton(p, _rx, 'fire','Fire','🔥')}
-            ${_rxButton(p, _rx, 'eyes','Eyes','👀')}
-            <button class="reaction-btn" style="margin-left:auto;" onclick="openThread('${escJsAttr(p.id)}')" aria-haspopup="dialog" aria-label="${escHtml(_t('Open thread and reply', 'Buksan ang thread at tumugon'))}" id="reply-btn-${escHtml(p.id)}">
-              <span class="ic ic-message" aria-hidden="true"></span>
-              <span id="reply-count-${escHtml(p.id)}">${replyCountMap[p.id] || 0}</span>
-            </button>
-            <!-- flex-wrap + justify-end: a supervisor looking at their OWN post gets FIVE icon
-                 buttons here (edit, pin, public, flag, delete) instead of four, and Delete also
-                 carries a deliberate 22px Z3 gap so a destructive control is never adjacent to a
-                 routine one. At the 320 floor that fifth button ran 15px off-screen — the delete
-                 confirm was unreachable on exactly the posts its owner is most likely to manage.
-                 Wrapping keeps the Z3 separation AND the control on screen; four-button rows are
-                 unaffected because they still fit on one line. -->
-            <div style="display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px; align-items:center;">${modActions}</div>
-          </div>
+        <div class="post-who">
+          <button type="button" translate="no" class="author-link" style="font-size:0.875rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}')" aria-label="${escHtml(_t(`View ${p.author_name}'s member card`, `Tingnan ang member card ni ${p.author_name}`))}">${escHtml(p.author_name)}</button>
+          <div class="post-meta">${catBadge}${pinnedBadge}${flaggedBadge}${publicBadge}<span>${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span></div>
         </div>
+        ${_postMenu(p.id, _items)}
+      </div>
+      ${reportReasonLine}
+      <p class="post-body">${renderContentWithMentions(p.content, p.mentions)}</p>
+      <div class="post-foot">
+        ${_rxButton(p, _rx, 'thumbs_up','Thumbs up','👍')}
+        ${_rxButton(p, _rx, 'wrench','Wrench','🔧')}
+        ${_rxButton(p, _rx, 'fire','Fire','🔥')}
+        ${_rxButton(p, _rx, 'eyes','Eyes','👀')}
+        <button class="reaction-btn" onclick="openThread('${escJsAttr(p.id)}')" aria-haspopup="dialog" aria-label="${escHtml(_t('Open thread and reply', 'Buksan ang thread at tumugon'))}" id="reply-btn-${escHtml(p.id)}">
+          <span class="ic ic-message" aria-hidden="true"></span><span class="rx-n" id="reply-count-${escHtml(p.id)}">${_rxCount(replyCountMap[p.id])}</span><span class="rx-word">${escHtml(_t('Reply', 'Sumagot'))}</span>
+        </button>
       </div>
     </div>`;
   }
@@ -2074,7 +2128,7 @@ function _isMinePost(p) {
         const rx  = reactionMap[pid]?.[emoji];
         const btn = span.closest('.reaction-btn');
         if (!rx) return;
-        span.textContent = rx.count + (window._rxCapped ? '+' : '');
+        span.textContent = _rxCount(rx.count, window._rxCapped);
         btn?.classList.toggle('active', rx.mine);
       });
     });
@@ -2103,7 +2157,7 @@ function _isMinePost(p) {
       if (!error) {
         btn.classList.remove('active');
         const n = Math.max(0, parseInt(countEl?.textContent, 10) - 1);
-        if (countEl) countEl.textContent = n;
+        if (countEl) countEl.textContent = _rxCount(n);
         if (reactionMap[postId]?.[emoji]) { reactionMap[postId][emoji].count = n; reactionMap[postId][emoji].mine = false; }
       } else {
         // T147 (2026-08-26): both branches were `if (!error) { paint }` with NO else, so a failed
@@ -2120,7 +2174,7 @@ function _isMinePost(p) {
         if (typeof whUse === 'function') whUse(db, 'reaction_added');
         btn?.classList.add('active');
         const n = parseInt(countEl?.textContent, 10) + 1;
-        if (countEl) countEl.textContent = n;
+        if (countEl) countEl.textContent = _rxCount(n);
         if (!reactionMap[postId]) reactionMap[postId] = {};
         if (!reactionMap[postId][emoji]) reactionMap[postId][emoji] = { count: 0, mine: false };
         reactionMap[postId][emoji].count = n; reactionMap[postId][emoji].mine = true;
@@ -2329,26 +2383,19 @@ function _isMinePost(p) {
     const initials = p.author_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     const _rx = reactionMap[p.id] || {};
     return `<div class="post-card ${catClass}" data-post-id="${escHtml(p.id)}" style="padding:1rem;">
-      <div style="display:flex; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+      <div class="post-head">
         <div style="flex-shrink:0;padding-bottom:${(_workerTiers[p.author_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(p.author_name, _workerTiers[p.author_name] || 0, 32)}</div>
-        <div style="flex:1 1 7rem; min-width:0;">
-          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
-            <button type="button" translate="no" class="author-link" style="font-size:0.8rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}','${escJsAttr(p.hive_id)}')" aria-label="${escHtml(_t(`View ${p.author_name}'s member card`, `Tingnan ang member card ni ${p.author_name}`))}">${escHtml(p.author_name)}</button>
-            <span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>
-            <span style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin-left:auto;">${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span>
-          </div>
-          <p style="font-size:0.85rem; line-height:1.55; color:rgba(255,255,255,0.82); margin:0 0 0.5rem; word-break:break-word;">${renderContentWithMentions(p.content, p.mentions)}</p>
-          <div style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin-bottom:0.5rem; display:flex; align-items:center; gap:4px;">
-            <span class="ic ic-globe" aria-hidden="true"></span>
-            From <strong style="color:rgba(255,255,255,0.80); margin-left:2px;">${escHtml(hiveName)}</strong>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            ${_rxButton(p, _rx, 'thumbs_up','Thumbs up','👍')}
-            ${_rxButton(p, _rx, 'wrench','Wrench','🔧')}
-            ${_rxButton(p, _rx, 'fire','Fire','🔥')}
-            ${_rxButton(p, _rx, 'eyes','Eyes','👀')}
-          </div>
+        <div class="post-who">
+          <button type="button" translate="no" class="author-link" style="font-size:0.875rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}','${escJsAttr(p.hive_id)}')" aria-label="${escHtml(_t(`View ${p.author_name}'s member card`, `Tingnan ang member card ni ${p.author_name}`))}">${escHtml(p.author_name)}</button>
+          <div class="post-meta"><span class="cat-badge ${catClass}">${escHtml(catLabel)}</span><span>${escHtml(_t('From', 'Mula sa'))} <strong style="font-weight:600;">${escHtml(hiveName)}</strong> · ${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span></div>
         </div>
+      </div>
+      <p class="post-body">${renderContentWithMentions(p.content, p.mentions)}</p>
+      <div class="post-foot">
+        ${_rxButton(p, _rx, 'thumbs_up','Thumbs up','👍')}
+        ${_rxButton(p, _rx, 'wrench','Wrench','🔧')}
+        ${_rxButton(p, _rx, 'fire','Fire','🔥')}
+        ${_rxButton(p, _rx, 'eyes','Eyes','👀')}
       </div>
     </div>`;
   }
@@ -3235,7 +3282,7 @@ function _isMinePost(p) {
     document.getElementById('reply-char-count').textContent = '0 / 1000';
     replyCountMap[replyingToPostId] = (replyCountMap[replyingToPostId] || 0) + 1;
     const rcEl = document.getElementById(`reply-count-${replyingToPostId}`);
-    if (rcEl) rcEl.textContent = replyCountMap[replyingToPostId];
+    if (rcEl) rcEl.textContent = _rxCount(replyCountMap[replyingToPostId]);
     // T108 (2026-08-26): T31's finding - the asker had no way to learn an answer arrived except by
     // coming back to look. Self-replies push nothing (the RPC checks that server-side).
     if (_newReply && _newReply.id) {
@@ -3413,7 +3460,7 @@ function _isMinePost(p) {
         // Update reply count badge if card is rendered
         replyCountMap[postId] = (replyCountMap[postId] || 0) + 1;
         const rcEl = document.getElementById(`reply-count-${postId}`);
-        if (rcEl) rcEl.textContent = replyCountMap[postId];
+        if (rcEl) rcEl.textContent = _rxCount(replyCountMap[postId]);
       })
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'community_reactions',
@@ -3429,7 +3476,7 @@ function _isMinePost(p) {
         if (isMine) slot.mine = true;
         const span = document.getElementById(`rxn-${r.emoji}-${r.post_id}`);
         if (span) {
-          span.textContent = slot.count;
+          span.textContent = _rxCount(slot.count);
           if (isMine) span.closest('.reaction-btn')?.classList.add('active');
         }
       })
@@ -3449,7 +3496,7 @@ function _isMinePost(p) {
         if (wasMine) slot.mine = false;
         const span = document.getElementById(`rxn-${o.emoji}-${o.post_id}`);
         if (span) {
-          span.textContent = slot.count;
+          span.textContent = _rxCount(slot.count);
           if (wasMine) span.closest('.reaction-btn')?.classList.remove('active');
         }
       })

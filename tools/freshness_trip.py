@@ -131,6 +131,14 @@ def sitemap_promise_trips(urls: list[dict], today: date) -> list[dict]:
     for u in urls:
         lm = _d(u["lastmod"])
         dm = _d(u["date_modified"])
+        # ★A PAGE THAT DECLARES NO DATE TRIPPED NOTHING (2026-10-29, KA-R): 60 of the 120 URLs - 59 calculators and
+        # feedback/ - had no dateModified, so this check (which needs both dates) was silent while their sitemap said
+        # 2026-08-05, their footer 2026-09-08 and their text had changed 2026-10-19. Silence is not agreement.
+        if u.get("exists", True) and not dm:
+            out.append({"kind": "sitemap-promise", "unit": u["path"], "detail": f"the page declares no dateModified, so the "
+                        f"crawler has only the sitemap's <lastmod> {lm or 'none'} and nothing on the page agrees or disagrees "
+                        f"(refresh_public_page.py --declare-undated)", "age_days": None, "grace_days": 0})
+            continue
         if dm and lm and dm != lm:
             out.append({"kind": "sitemap-promise", "unit": u["path"], "detail": f"<lastmod> {lm} but the page's own dateModified is {dm} - "
                         f"the sitemap tells the crawler one date and the page another (refresh_public_page.py --sync-sitemap)",
@@ -227,7 +235,11 @@ def board_trips(today: date, urls: list[dict]) -> list[dict]:
     rec = json.loads(_rd(INDEXNOW_RECEIPTS) or "{}") if INDEXNOW_RECEIPTS.exists() else {}
     last_push = _d(rec.get("last_submit_at") or rec.get("at"))
     newest_change = max((_d(u["lastmod"]) for u in urls if _d(u["lastmod"])), default=None)
-    if not last_push:
+    if rec.get("pushed"):
+        # ★PER URL, ONCE THE RECEIPT KEEPS ONE (2026-10-29, KA-S): each KA-S row asks whether ITS URL was pushed after
+        # ITS last change. One "last push" date answered that for no URL in particular.
+        out += push_trips(urls, rec["pushed"], today)
+    elif not last_push:
         out.append({"kind": "push", "unit": "indexnow", "detail": "no IndexNow receipt on disk - the index was never told about a deploy "
                     "(python tools/indexnow_submit.py --verify --submit --changed, the runbook's post-deploy step)", "age_days": None, "grace_days": 0})
     elif newest_change and last_push < newest_change:
@@ -242,6 +254,44 @@ def board_trips(today: date, urls: list[dict]) -> list[dict]:
     elif _age(sov_at, today) > SOV_WINDOW:
         out.append({"kind": "voice", "unit": "geo_sov_baseline.json", "detail": f"the share-of-voice sheet was last scored {sov_at} "
                     f"({_age(sov_at, today)} days) - the monthly run is overdue", "age_days": _age(sov_at, today), "grace_days": SOV_WINDOW})
+    return out
+
+
+def _committed_at(path: str) -> str | None:
+    """ISO time of the last commit touching the page; None when it has uncommitted changes (they postdate every push)."""
+    import subprocess
+    try:
+        dirty = subprocess.run(["git", "status", "--porcelain", "--", path], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+        if dirty:
+            return None
+        return subprocess.run(["git", "log", "-1", "--format=%cI", "--", path], cwd=ROOT, capture_output=True,
+                              text=True).stdout.strip() or None
+    except OSError:
+        return None
+
+
+def push_trips(urls: list[dict], pushed: dict, today: date) -> list[dict]:
+    """A URL never pushed, or pushed before its last change. <lastmod> carries no time, so a push on the change's own
+    day is quiet only when the page's last commit came before the push - never assumed."""
+    out = []
+    for u in urls:
+        p = pushed.get(u["loc"]) or {}
+        at = p.get("at") if isinstance(p, dict) else p
+        lm, pd = _d(u["lastmod"]), _d((at or "")[:10])
+        if not pd:
+            why = "was never pushed to IndexNow"
+        elif lm and pd < lm:
+            why = f"was last pushed {pd}, before its last change ({lm})"
+        elif lm and pd == lm:
+            c = _committed_at(u["path"])
+            why = None if (c and datetime.fromisoformat(c) <= datetime.fromisoformat(at)) else \
+                f"was pushed {at} on the day it changed, and its last commit ({c or 'uncommitted'}) is not before the push"
+        else:
+            why = None
+        if why:
+            out.append({"kind": "push", "unit": u["path"], "detail": f"{u['loc']} {why} - push it after the deploy "
+                        "(python tools/indexnow_submit.py --verify --submit --changed)",
+                        "age_days": _age(pd or lm, today), "grace_days": GRACE_DAYS})
     return out
 
 
@@ -331,6 +381,16 @@ def self_test() -> int:
             {"path": "tools/y/index.html", "lastmod": "2026-10-16", "changefreq": "yearly", "date_modified": "2026-10-16"}]
     t = sitemap_promise_trips(urls, today)
     ok = len(t) == 1 and t[0]["unit"] == "learn/x/index.html"                   # the disagreement trips; the agreeing one is clean
+    # a page that declares no date trips (it used to be silent)
+    ok = ok and [x["unit"] for x in sitemap_promise_trips([dict(urls[1], path="tools/z/index.html", date_modified=None)], today)] \
+        == ["tools/z/index.html"]
+    # per URL: never pushed and pushed-before-the-change trip; pushed the day after the change is quiet
+    pu = [{"loc": "https://w/a/", "path": "a/index.html", "lastmod": "2026-10-20"},
+          {"loc": "https://w/b/", "path": "b/index.html", "lastmod": "2026-10-20"},
+          {"loc": "https://w/c/", "path": "c/index.html", "lastmod": "2026-10-20"}]
+    got = {x["unit"] for x in push_trips(pu, {"https://w/b/": {"at": "2026-10-19T03:00:00+00:00"},
+                                              "https://w/c/": {"at": "2026-10-21T03:00:00+00:00"}}, today)}
+    ok = ok and got == {"a/index.html", "b/index.html"}
     ok = ok and PROMISE["monthly"] == 30 and "KEEP ABREAST" in header_line({"open": 1, "overdue": 0, "spine": {"within_ttl": 1, "total": 2},
                                                                               "refresh_queue": 0, "last_push": "never", "last_sov": "never",
                                                                               "scoreboard_at": "2026-09-06"})

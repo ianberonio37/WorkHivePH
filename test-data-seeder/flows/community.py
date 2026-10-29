@@ -149,6 +149,8 @@ def run(page, errors, warnings, log) -> dict:
             ).first
 
             if edit_btn.count():
+                # Edit lives in the post's "Post actions" menu since 2026-10-29 (the card declutter) - open it first
+                page.locator(f"[data-post-id='{post_id}'] .post-menu-btn").first.click()
                 edit_btn.click()
                 page.wait_for_timeout(500)
 
@@ -202,6 +204,7 @@ def run(page, errors, warnings, log) -> dict:
 
             if del_btn.count():
                 page.on("dialog", lambda d: d.accept())
+                page.locator(f"[data-post-id='{post_id}'] .post-menu-btn").first.click()   # Delete is in "Post actions"
                 del_btn.click()
                 page.wait_for_timeout(2000)
 

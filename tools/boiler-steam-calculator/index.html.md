@@ -35,4 +35,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 7545a665f07c474b -->
+<!-- md-twin source-sha: 709046d2eb1f7d5d -->

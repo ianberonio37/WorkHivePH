@@ -331,10 +331,13 @@ except Exception as _e:
 # named last whatever day it was seeded; the main-file waves replay over _MAIN_ROWS, the cube over the union.
 try:
     from seed_expansion_wave4 import (cube_rows as _cx_rows_fn, journey_condition_rows as _js_rows_fn, outcome_rows as _out_rows_fn,
-                                      own_rows as _own_rows_fn, self_efficacy_rows as _se_rows_fn)
+                                      own_rows as _own_rows_fn, self_efficacy_rows as _se_rows_fn,
+                                      hive_scale_rows as _hs_rows_fn)
     _reg_rows_1026 = _rio.load_doc()["trajectories"]
     for _set, _fn, _pfx, _src in (("_own", _own_rows_fn, "OWN", _MAIN_ROWS), ("_se", _se_rows_fn, "SE", _MAIN_ROWS),
                                   ("_out", _out_rows_fn, "OUT", _MAIN_ROWS), ("_js", _js_rows_fn, "JS", _MAIN_ROWS),
+                                  # the hive at thirty members (HS1.., 2026-10-29), registered in the change that seeds it
+                                  ("_hs", _hs_rows_fn, "HS", _MAIN_ROWS),
                                   ("_cx", _cx_rows_fn, "CX", _reg_rows_1026)):
         globals()[_set] = _fn(_src, replay=True)
         for _i, _r in enumerate(globals()[_set], start=1):

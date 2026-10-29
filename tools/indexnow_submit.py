@@ -117,21 +117,69 @@ def changed_since_receipt(src: str, last_submit_at: str | None) -> list[str]:
     return out
 
 
-def write_receipt(urls: list[str], code: int, mode: str) -> None:
-    from datetime import datetime, timezone
-    rec = {
-        "last_submit_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "count": len(urls),
-        "mode": mode,
-        "response": code,
-        "urls": urls,
-    }
+ACCEPTED = (200, 202)
+
+
+def _write(rec: dict) -> None:
     tmp = RECEIPTS + ".tmp"
     with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
         json.dump(rec, fh, indent=1)
         fh.write("\n")
     os.replace(tmp, RECEIPTS)
-    print(f"  receipt written: {os.path.basename(RECEIPTS)} ({len(urls)} URL(s), HTTP {code})")
+
+
+def write_receipt(urls: list[str], code: int, mode: str) -> None:
+    """The latest push at the top (what the trip and the header read), and `pushed`: each URL's own last accepted push.
+    ★A RECEIPT THAT KEEPS ONLY THE LATEST PUSH CANNOT PROVE A URL WAS EVER TOLD (2026-10-29, KA-S). M2's push (17 URLs)
+    overwrote M1's (120), so no file could show that a page outside the 17 had been pushed after its last change - the
+    claim each KA-S row makes. The per-URL map keeps it; a refused push records nothing in it."""
+    from datetime import datetime, timezone
+    at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    pushed = dict(read_receipt().get("pushed") or {})
+    if code in ACCEPTED:
+        for u in urls:
+            pushed[u] = {"at": at, "response": code, "mode": mode}
+    _write({"last_submit_at": at, "count": len(urls), "mode": mode, "response": code, "urls": urls,
+            "pushed": dict(sorted(pushed.items()))})
+    print(f"  receipt written: {os.path.basename(RECEIPTS)} ({len(urls)} URL(s), HTTP {code}; {len(pushed)} URL(s) on record)")
+
+
+def backfill_history() -> int:
+    """Rebuild `pushed` from every committed version of the receipt (git history, oldest first) - each one a push that
+    happened and was recorded at the time; only accepted pushes count and a URL keeps its newest. Idempotent."""
+    import subprocess
+    rel = os.path.relpath(RECEIPTS, WEB_ROOT).replace("\\", "/")
+    log = subprocess.run(["git", "log", "--reverse", "--format=%H", "--", rel], cwd=WEB_ROOT, capture_output=True, text=True)
+    pushed: dict = {}
+
+    def keep(u: str, v: dict) -> None:
+        if not pushed.get(u) or (v.get("at") or "") > (pushed[u].get("at") or ""):
+            pushed[u] = v
+
+    versions = 0
+    for sha in log.stdout.split():
+        show = subprocess.run(["git", "show", f"{sha}:{rel}"], cwd=WEB_ROOT, capture_output=True, text=True, encoding="utf-8")
+        try:
+            old = json.loads(show.stdout)
+        except ValueError:
+            continue
+        versions += 1
+        for u, v in (old.get("pushed") or {}).items():
+            keep(u, v)
+        if old.get("response") in ACCEPTED and old.get("last_submit_at"):
+            for u in old.get("urls") or []:
+                keep(u, {"at": old["last_submit_at"], "response": old["response"], "mode": old.get("mode"),
+                         "from": f"git {sha[:8]}"})
+    cur = read_receipt()
+    for u, v in (cur.get("pushed") or {}).items():
+        keep(u, v)
+    if cur.get("response") in ACCEPTED and cur.get("last_submit_at"):
+        for u in cur.get("urls") or []:
+            keep(u, {"at": cur["last_submit_at"], "response": cur["response"], "mode": cur.get("mode")})
+    cur["pushed"] = dict(sorted(pushed.items()))
+    _write(cur)
+    print(f"  backfilled from {versions} committed receipt(s) and the file on disk: {len(pushed)} URL(s) on record")
+    return 0
 
 
 def verify_key_live(key: str, key_location: str) -> bool:
@@ -196,7 +244,11 @@ def main() -> None:
     ap.add_argument("--url", action="append", default=[], help="submit specific URL(s) instead of the whole sitemap")
     ap.add_argument("--changed", action="store_true",
                     help="only sitemap URLs whose <lastmod> is newer than the last receipt (all if no receipt)")
+    ap.add_argument("--backfill-history", action="store_true",
+                    help="rebuild the per-URL push record from the receipt's git history (sends nothing)")
     args = ap.parse_args()
+    if args.backfill_history:
+        sys.exit(backfill_history())
 
     key, key_path, key_location = find_key_file()
     print(f"IndexNow key : {key}")

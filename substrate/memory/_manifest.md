@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1061-files
-source_sha: 0f8494bbca22c8f9
+source: memory-curated:1062-files
+source_sha: 54376bc2494532e6
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1061 durable topic files)
+## memory · curated auto-memory (1062 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=668 · project=303 · reference=90
+**By type:** feedback=669 · project=303 · reference=90
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -184,6 +184,7 @@ Entries (name · type · sha):
 - `feedback_a_skipped_gate_is_unrun_during_the_wave_that_breaks_it` · feedback · 0259465edc46e5b8
 - `feedback_a_skipped_partition_reads_as_a_covered_one` · feedback · 9e76bcb4ac3d26c9
 - `feedback_a_skipped_row_has_no_real_geometry` · feedback · e9e81f17aa49b804
+- `feedback_a_smoke_that_never_reads_a_phone` · feedback · 32825dcc62fb3a53
 - `feedback_a_step_that_depends_on_remembering_does_not_happen` · feedback · 4cbfa509baf12872
 - `feedback_a_stored_hive_is_a_cache_of_a_server_fact` · feedback · c1406043300a7eb7
 - `feedback_a_stored_role_is_a_cache_of_a_server_fact` · feedback · ea5bd458dda7a433
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_replacing_a_view_dropped_its_security_invoker` · feedback · bee71b83af529b46
 - `feedback_research_db_first_then_crawl` · feedback · 2025f82f6d50ea52
 - `feedback_research_sequence` · feedback · 55066f378f2742a0
-- `feedback_resolving_live_is_not_enough_be_deterministic` · feedback · 5a716b982dd8fe68
-- … +561 more (all included in the fingerprint)
+- … +562 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

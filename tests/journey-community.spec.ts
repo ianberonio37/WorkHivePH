@@ -197,6 +197,9 @@ test.describe('community.html — forum journey', () => {
       return;
     }
 
+    // the toggle lives in its post's "Post actions" menu since 2026-10-29 (the card declutter) - open it first
+    const card = whPage.locator('.post-card', { has: whPage.locator('button[onclick*="togglePublic"]') }).first();
+    await card.locator('.post-menu-btn').click();
     await toggleBtn.click();
     await whPage.waitForTimeout(500);
     // Should not crash — body still visible

@@ -113,6 +113,30 @@
       });
 
       bar.appendChild(a); bar.appendChild(x);
+
+      /* ★ON A PHONE THE GUIDE IS PART OF THE PAGE, NOT A FLOAT OVER IT (Ian, 2026-10-29: workmates' posts "cluttered").
+         Fixed at bottom-left, this chip has been moved four times - off the page FABs (V1), out of every modal's action
+         row, off hive's snooze tile, folded after 8 s - and every move was about CONTROLS. It still sat on what people
+         READ: the post-deploy smoke's new 390 reading found it over text no scroll could clear on hive, assistant,
+         community, dayplanner, voice-journal and audit-log, and Ian saw it as a box floating over his teammates' posts.
+         Below 768px it now closes the page's main content, in the page's flow - it scrolls with the page, covers
+         nothing, and needs none of the fold / stand-down / vacate machinery below, which stays for the floating desktop
+         chip. Same element, id, accessible name and dismiss, so every consumer that finds it still finds it.
+         ★AND AS THE PAGE'S LAST ELEMENT, because it ARRIVES LATE (after a fetch). Under the title it pushed the whole page
+         ~58px after the first paint (the CLS gate refused it); at the end of <main> it still moved the footer on a page
+         whose list had not loaded yet (alert-hub 0.08 -> 0.125, A/B against the floating chip). Appended last in <body>
+         there is nothing after it to move - an arrival there is no layout shift at all. */
+      var phone = !!(window.matchMedia && window.matchMedia('(max-width: 767px)').matches);
+      var host = phone ? document.body : null;
+      if (host) {
+        bar.style.cssText =
+          'position:static;display:flex;align-items:center;gap:4px;margin:24px 16px 96px;width:fit-content;max-width:calc(100% - 32px);' +
+          'border:1px solid rgba(247,162,27,0.35);border-radius:12px;padding:0 0 0 12px;background:transparent;' +
+          'font-weight:600;font-size:0.8rem;line-height:1.25;font-family:var(--wh-font, Poppins,system-ui,-apple-system,Segoe UI,Roboto,sans-serif);';
+        bar.setAttribute('data-wh-inline', '1');
+        host.appendChild(bar);
+        return;
+      }
       (document.body || document.documentElement).appendChild(bar);
 
       /* ★THE CHIP COVERED THE THIRD TILE'S NUMBER IN THE FIRST PHONE VIEWPORT (ledger C34, 2026-09-15, seen by the

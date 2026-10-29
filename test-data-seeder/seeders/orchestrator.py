@@ -1,5 +1,6 @@
 """Top-level orchestrator that runs all seeders in dependency order."""
 import random
+import subprocess
 
 from .catalogs import seed_catalogs
 from .hives_workers import seed_hives_and_workers
@@ -35,6 +36,7 @@ from .probe_fixtures import seed_probe_fixtures
 from .fleets import seed_fleets
 from .analytics_history import seed_analytics_history
 from .walk_casts import seed_walk_casts
+from .full_hive import seed_full_hive
 
 
 # Fixed RNG seed so each full reseed produces the same volume of rows per hive.
@@ -68,6 +70,27 @@ def rebind_platform_admins(client, log) -> None:
 # "a member with rows here" found no fixture (2026-10-27). A row with no worker_name stays unbound: that is a visitor.
 AUTHOR_BOUND_TABLES = ("worker_achievements", "ai_cost_log", "gateway_audit_log", "agent_memory",
                        "agent_episodic_memory", "client_errors")
+
+
+def date_seeded_xp(log) -> None:
+    """XP is earned when the work happens. The XP triggers stamp every row now(), so the seed's five years of logbook, PM
+    and community work became ~23,000 XP events earned THIS WEEK - a log no real hive has. It sat on a planner knife-edge:
+    the full hive's 752 fresh rows tipped achievements' 7-day read off idx_xp_log_earned (query-indexes, 2026-10-29). Each
+    seeded XP row is dated to the work that earned it, in one statement per source (local seed only)."""
+    sql = (
+        "update public.achievement_xp_log x set earned_at = l.date from public.logbook l "
+        "where x.source_action = 'logbook_submit' and x.source_id = l.id::text and x.earned_at > l.date;\n"
+        "update public.achievement_xp_log x set earned_at = c.completed_at from public.pm_completions c "
+        "where x.source_action = 'pm_complete' and x.source_id = c.id::text and c.completed_at is not null "
+        "and x.earned_at > c.completed_at;\n"
+        "update public.achievement_xp_log x set earned_at = p.created_at from public.community_posts p "
+        "where x.source_action = 'community_post' and x.source_id = p.id::text and x.earned_at > p.created_at;\n")
+    try:
+        r = subprocess.run(["docker", "exec", "-i", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres",
+                            "-v", "ON_ERROR_STOP=1", "-q"], input=sql, capture_output=True, text=True, timeout=300)
+        log("  XP dated to the work that earned it" if r.returncode == 0 else f"  WARN: XP not dated: {r.stderr.strip()[:160]}")
+    except Exception as e:  # never fail a seed over dating; say so
+        log(f"  WARN: XP not dated: {e}")
 
 
 def bind_seeded_authors(client, log) -> None:
@@ -197,6 +220,8 @@ def seed_everything(client, log) -> dict:
     seed_probe_fixtures(client, log)                 # the rows tools/psql_probes ground on (after authors are bound)
     seed_analytics_history(client, log)              # 90 days of visits and uses: the outcome figures' ledger (T2 OUT)
     seed_walk_casts(client, log)                     # a non-admin supervisor in every hive whose only one is an admin (the cube's casts)
+    seed_full_hive(client, log)                      # Wave HS: one hive at thirty members with a year of their work (own Random(30))
+    date_seeded_xp(log)                              # XP dated to the work that earned it (the triggers stamp now())
     run_history_tools(log)                           # fleets' operating life + five years of history in every hive
 
     log("=" * 50)

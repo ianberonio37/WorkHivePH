@@ -1632,6 +1632,10 @@ function _whShowNotice(id, msg, bottomPx) {
         if (!c || c === el) return;
         var cs = window.getComputedStyle(c);
         if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity || '1') === 0) return;
+        // only what is FIXED to the screen is furniture: on a phone the page guide is now the page's last element in its
+        // flow (learn-link.js, 2026-10-29), and measured as chrome it would lift this notice to its cap whenever the
+        // reader scrolled to it
+        if (cs.position !== 'fixed' && cs.position !== 'sticky') return;
         var r = c.getBoundingClientRect();
         if (r.height < 4 || r.bottom <= 0 || r.top >= window.innerHeight) return;
         var above = window.innerHeight - r.top;      // how far this element's TOP sits above the bottom
