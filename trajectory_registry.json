@@ -740941,8 +740941,8 @@
     },
     {
       "id": "BRH515",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "BRH-AE",
       "title": "a free-plan gap the platform covers with nothing - index · backups - oversight",
       "pages": [
@@ -741002,6 +741002,13 @@
         "repro": "read the free plan: Supabase Free keeps no daily backups and pauses a project after 7 days of low activity",
         "fix": "a free substitute that runs on its own: a scheduled dump of the database to storage the owner keeps (backups), and a scheduled request that keeps the project active (pausing) - each proven by its own run",
         "closes": "the reproduction is demonstrated FAILING on demand, the fix lands, and a registered gate reddens when the fix is reverted - not merely 'the page looks right now'"
+      },
+      "basis": "[2026-10-29] pct -> 60. Supabase Free keeps no daily backups, and nothing in the repository took one: no workflow dumped production, so a bad migration, a wrong delete or a lost project had no way back for any hive's rows. Reproduced on demand: free-plan-budget F6 reddens on the tree without .github/workflows/backup.yml (its mutant 'the backup workflow taken out'). Fix: .github/workflows/backup.yml runs tools/backup_dump.sh daily (02:41 UTC) - roles, schema and data the way Supabase documents (supabase db dump, CLI 2.90.0 pinned), packed and encrypted with gpg --symmetric AES256 under the BACKUP_PASSPHRASE secret before anything reaches the upload directory, decrypted back and every COPY block counted, then kept 30 days as the run's artifact (only the .gpg; the repository is public). Without both secrets (SUPABASE_DB_URL = the session pooler string, BACKUP_PASSPHRASE >= 20 characters) the run fails and says which is missing - a backup not taken is never green. Witness: the same script against the local database - 213 tables, 54 MB encrypted, first packet 0x8c (passphrase-encrypted session key), no COPY line / table definition / hive name readable, a wrong passphrase refused, the 23 critical tables' 35,233 rows each counted in the backup, and hives / logbook / inventory_items restored into a scratch schema row for row (count + md5). Gates: free-plan-budget F6 (19 mutants: the workflow or its schedule taken out, the passphrase not passed, the whole out-dir uploaded, the encryption or the read-back taken out, the dump written beside the upload) and backup-roundtrip (four teeth). Owed: the owner adds the two repository secrets; the first scheduled run on production is the row's last witness.",
+      "artifacts": {
+        "gates": [
+          "backup-roundtrip",
+          "free-plan-budget"
+        ]
       }
     },
     {

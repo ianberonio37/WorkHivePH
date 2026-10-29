@@ -599,6 +599,13 @@ def main() -> int:
                         "--check"], capture_output=True, text=True)
     gate_ids = set(re.findall(r'"id":\s*"([a-z0-9\-_]+)"', CHECKS_FILE.read_text(encoding="utf-8")))
     problems = check(reg, r.returncode == 0, matrix, gate_ids)
+    # The priority queue is computed from this registry alone, so it can always be drawn. Header parity cannot see a
+    # generator that fails: the fresh regeneration fails the same way and matches it. On 2026-10-29 the header read
+    # "PRIORITY QUEUE: unavailable ... (name 'date' is not defined)" while this gate stayed green.
+    head = (ROOT / "UFAI_TRAJECTORY_ROADMAP.md").read_text(encoding="utf-8")[:60000]
+    if "**PRIORITY QUEUE: unavailable" in head:
+        problems.append("the roadmap header's PRIORITY QUEUE could not be drawn - its generator failed (run "
+                        "tools/update_trajectory_scoreboard.py and read the reason it prints in the header)")
     # the T201-T500 catalog block in the roadmap is ALSO generated from this registry — hold it to a
     # fresh regeneration too, so neither generated surface (header scoreboard, expansion catalog) can
     # be hand-edited or left stale after a registry change.

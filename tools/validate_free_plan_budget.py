@@ -22,6 +22,10 @@ STATIC  F1 every operational table (OPERATIONAL) has a scheduled purge in a migr
            payload, or April's cadence (639 builds in 30 days) even at today's 20.5 MB.
         F5 Supabase Free pauses a project after 7 days of low activity, which takes every page down: a scheduled
            workflow (.github/workflows) asks production a REST question at least every KEEPALIVE_MAX_DAYS days.
+        F6 Supabase Free keeps no daily backups (BRH515): a scheduled workflow runs tools/backup_dump.sh at least daily
+           with both secrets (the database URL and the passphrase) and uploads only its .gpg file - the repository is
+           public; the script dumps into a working directory it removes, encrypts with a passphrase before anything
+           reaches its out-dir, and decrypts its own output back. tools/prove_backup_roundtrip.py runs it locally.
 LIVE    F2 each purge F1 found is a job the local database has active (cron.job, read-only); a function purge is a
            function the database holds with that delete, called by an active job; an audit table is still read by its
            audit view (if the view stops reading it, the exemption is stale and fails).
@@ -69,6 +73,9 @@ PHOTO_READS_BASELINE = 0   # BRH 9 AB: was 23 - fourteen of them writes that ret
 EVIDENCE = ROOT / "free_plan_evidence.json"
 WORKFLOWS = ROOT / ".github" / "workflows"
 KEEPALIVE_MAX_DAYS = 6  # Supabase Free pauses a project after 7 days of low activity
+BACKUP_SCRIPT = ROOT / "tools" / "backup_dump.sh"
+BACKUP_MAX_DAYS = 1     # a day's work is the most a restore may lose
+BACKUP_SECRETS = ("SUPABASE_DB_URL", "BACKUP_PASSPHRASE")
 STORE_SHARE = 0.10      # of the free allowance, for every build the project keeps
 CADENCE_DAYS = 90       # the recent cadence: pushes go out in batches at the owner's say (April pushed every commit)
 # a scheduled job's command in any quoting a migration uses: $$...$$, a tagged $cron$...$cron$, or '...'
@@ -243,6 +250,46 @@ def keepalive(workflows: dict[str, str] | None = None) -> list[str]:
     return []
 
 
+def backup(workflows: dict[str, str] | None = None, script: str | None = None) -> list[str]:
+    """F6: a scheduled workflow runs the backup script daily with both secrets and uploads only its encrypted file;
+    the script keeps the plaintext out of its out-dir, encrypts with a passphrase, and reads its own output back."""
+    files = workflows if workflows is not None else {p.name: p.read_text(encoding="utf-8", errors="replace")
+                                                     for p in sorted(WORKFLOWS.glob("*.y*ml"))}
+    text = script if script is not None else (BACKUP_SCRIPT.read_text(encoding="utf-8") if BACKUP_SCRIPT.exists() else "")
+    runs = {n: t for n, t in files.items() if "tools/backup_dump.sh" in t}
+    if not runs:
+        return ["F6 no workflow runs tools/backup_dump.sh - Supabase Free keeps no daily backups, so nothing could bring "
+                "production's rows back"]
+    issues = []
+    for name, t in runs.items():
+        gaps = [g for g in (cron_gap_days(c) for c in re.findall(r"cron:\s*['\"]([^'\"]+)['\"]", t)) if g is not None]
+        if not gaps or min(gaps) > BACKUP_MAX_DAYS:
+            issues.append(f"F6 {name} backs production up " + (f"every {min(gaps):g} days" if gaps else "on no schedule")
+                          + f" - over {BACKUP_MAX_DAYS}; a restore would lose more than a day's work")
+        for s in BACKUP_SECRETS:
+            if not re.search(r"\$\{\{\s*secrets\." + s + r"\s*\}\}", t):
+                issues.append(f"F6 {name} does not pass the {s} secret to the backup")
+        for m in re.finditer(r"upload-artifact@[^\n]*", t):
+            path = re.search(r"path:\s*(\S+)", t[m.end():])
+            if not path or not path.group(1).endswith(".gpg"):
+                issues.append(f"F6 {name} uploads {path.group(1) if path else 'an unnamed path'} - only the encrypted "
+                              ".gpg file may leave a public repository's run")
+    if not text:
+        return issues + ["F6 tools/backup_dump.sh is missing"]
+    if not re.search(r"gpg\b[^\n]*(?:\\\n[^\n]*)*--symmetric", text):
+        issues.append("F6 tools/backup_dump.sh no longer encrypts with a passphrase (gpg --symmetric) - the dump would "
+                      "upload readable")
+    for target in re.findall(r"db dump[^\n]*?-f\s+\"([^\"]+)\"", text):
+        if not target.startswith("$plain/"):
+            issues.append(f"F6 tools/backup_dump.sh writes the dump to {target} - plaintext belongs in $plain, which the "
+                          "run removes")
+    if not re.search(r"trap\s+'rm -rf \"\$plain\"'", text):
+        issues.append("F6 tools/backup_dump.sh no longer removes its plaintext working directory on exit")
+    if not re.search(r"--decrypt\s+\"\$enc\"", text):
+        issues.append("F6 tools/backup_dump.sh no longer decrypts its own output - an unreadable file would upload green")
+    return issues
+
+
 def check(migrations: dict[str, str] | None = None, pending: set | None = None, photo_reads: int | None = None,
           live: bool = True, payload: float | None = None, evidence: dict | None = None,
           state: dict | None = None, workflows: dict[str, str] | None = None) -> list[str]:
@@ -291,6 +338,7 @@ def check(migrations: dict[str, str] | None = None, pending: set | None = None, 
         issues.append(f"F4 {mb:.1f} MB a build x {builds} builds kept ({why}) = {mb * builds / 1024:.2f} GB - over "
                       f"{STORE_SHARE:.0%} of the free {allowance / 1024:.0f} GB of Deployment Storage")
     issues += keepalive(workflows)
+    issues += backup(workflows)
     return issues
 
 
@@ -330,6 +378,21 @@ def self_test() -> list[str]:
     slow = {n: re.sub(r"cron:\s*'23 3 \*/2 \* \*'", "cron: '23 3 */9 * *'", t) for n, t in flows.items()}
     if not any(i.startswith("F5") and "every 9 days" in i for i in check(live=False, payload=mb, workflows=slow)):
         fails.append("mutant 'a keep-alive every 9 days' was not caught")
+    sh = BACKUP_SCRIPT.read_text(encoding="utf-8")
+    f6 = {
+        "the backup workflow taken out": (({n: t for n, t in flows.items() if "backup_dump.sh" not in t}), None),
+        "the backup's schedule taken out": ({n: re.sub(r"cron:\s*'41 2 \* \* \*'", "", t) for n, t in flows.items()}, None),
+        "the passphrase secret not passed": ({n: t.replace("secrets.BACKUP_PASSPHRASE", "vars.BACKUP_PASSPHRASE")
+                                              for n, t in flows.items()}, None),
+        "the whole out-dir uploaded": ({n: t.replace("path: backup-out/*.tar.gz.gpg", "path: backup-out/")
+                                        for n, t in flows.items()}, None),
+        "the encryption taken out": (flows, sh.replace("--symmetric", "--store")),
+        "the dump written beside the upload": (flows, sh.replace('-f "$plain/data.sql"', '-f "$out/data.sql"')),
+        "the read-back taken out": (flows, sh.replace('--decrypt "$enc"', '--list-packets "$enc"')),
+    }
+    for what, (wf, script) in f6.items():
+        if not any(i.startswith("F6") for i in backup(wf, script)):
+            fails.append(f"mutant '{what}' was not caught")
     if cron_gap_days("0 6 * * 1,4") != 4.0 or cron_gap_days("0 6 * * 1-5") != 3.0:
         fails.append("cron_gap_days misreads a weekday list")
     st = live_state()
@@ -358,7 +421,7 @@ def self_test() -> list[str]:
 def main() -> int:
     if "--self-test" in sys.argv:
         fails = self_test()
-        print("SELF-TEST PASS (12 mutants caught; the clean run is green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
+        print("SELF-TEST PASS (19 mutants caught; the clean run is green)" if not fails else "SELF-TEST FAIL\n  " + "\n  ".join(fails))
         return 1 if fails else 0
     mb = payload_mb()
     issues = check(payload=mb)
@@ -371,7 +434,8 @@ def main() -> int:
     print(f"  PASS - {len(done)} of {len(OPERATIONAL)} operational tables purge on a schedule ({', '.join(done)}); "
           f"{len(PENDING_PURGE)} pending; {len(AUDIT_KEPT)} audit trail kept ({', '.join(AUDIT_KEPT)}); "
           f"photo-shipping reads {PHOTO_READS_BASELINE}; Vercel keeps "
-          f"{mb:.1f} MB x {builds} builds = {mb * builds / 1024:.2f} GB of the free 10 GB" if not issues
+          f"{mb:.1f} MB x {builds} builds = {mb * builds / 1024:.2f} GB of the free 10 GB; production is asked a question "
+          f"every <= {KEEPALIVE_MAX_DAYS} days and backed up, encrypted, every {BACKUP_MAX_DAYS} day" if not issues
           else f"  FAIL - {len(issues)} problem(s)")
     return 1 if issues else 0
 

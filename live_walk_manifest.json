@@ -93,8 +93,8 @@
  },
  "by_kind": {
   "live": 27277,
-  "prose": 55,
-  "none": 10134,
+  "prose": 56,
+  "none": 10133,
   "gate": 13
  },
  "open_by_family": {
@@ -242099,9 +242099,9 @@
   {
    "id": "BRH515",
    "wave": "BRH-AE",
-   "status": "specced",
-   "kind": "none",
-   "gated": false,
+   "status": "locking",
+   "kind": "prose",
+   "gated": true,
    "surface": "index.html",
    "lens": "a free-plan gap the platform covers with nothing",
    "family": "other",

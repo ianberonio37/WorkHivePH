@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1059-files
-source_sha: 65d6330dfa8b6473
+source: memory-curated:1061-files
+source_sha: 0f8494bbca22c8f9
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1059 durable topic files)
+## memory · curated auto-memory (1061 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=666 · project=303 · reference=90
+**By type:** feedback=668 · project=303 · reference=90
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -39,7 +39,7 @@ Entries (name · type · sha):
 - `feedback_a_ceiling_written_into_a_tools_docstring` · feedback · 98f30b6b69cc6e6e
 - `feedback_a_checkpoint_must_count_the_unit_of_work` · feedback · e42483f6615af752
 - `feedback_a_claim_must_name_what_it_rests_on` · feedback · 53b626884aebece2
-- `feedback_a_clean_reseed_is_the_gates_real_test` · feedback · 1552d31c297ec6f5
+- `feedback_a_clean_reseed_is_the_gates_real_test` · feedback · bf5b25e14ed59270
 - `feedback_a_click_that_changes_nothing_logs_as_ok` · feedback · bbb54b4a275f0fd9
 - `feedback_a_clone_metric_that_never_read_the_code` · feedback · ea97b606a37cab98
 - `feedback_a_closed_lane_can_still_be_static` · feedback · 0ddbabeb8541cd87
@@ -516,6 +516,6 @@ Entries (name · type · sha):
 - `feedback_research_db_first_then_crawl` · feedback · 2025f82f6d50ea52
 - `feedback_research_sequence` · feedback · 55066f378f2742a0
 - `feedback_resolving_live_is_not_enough_be_deterministic` · feedback · 5a716b982dd8fe68
-- … +559 more (all included in the fingerprint)
+- … +561 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

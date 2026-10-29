@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 8c0fa4ccf53668cf
+source_sha: 78a041c91d9dc2fe
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1481) — the 'what's already gated' brain
+## gate · registered validators (1484) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -402,7 +402,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1083)
+### Platform (1085)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -524,6 +524,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `availability-pages` [warn] — Availability across the page set - offline refusal, retry path, rate-limit legibility, induced and judged in one pass by the shared live-state runner. CITED BY 
 - `avatar-state` ⚡ [fail] — Avatar State Management (Phase 10: emotion tracking, animations)
 - `axe-live-authed` [fail] — Axe a11y WCAG 2.2 AA - every page the SL program walks (CI3, 2026-10-15: was the 9 Tier-1 write pages + 3), authed as the seeded supervisor, a public page signe
+- `backup-roundtrip` [fail] — Backup round trip (BRH 9 AE): the daily backup script, run against the local database, uploads only OpenPGP symmetric ciphertext with no dump text readable in i
 - `bank-marketplace-gate-selftest` ⚡ [fail] — Marketplace-Bank Conversion Guards (one oracle and one persona per conversion; a category name is a filing label, not the claim)
 - `bank-spec-results-selftest` ⚡ [fail] — Spec-Bank Harness Discrimination (a harness failure is left unmeasured, never filed as a defect against the page it never reached)
 - `benchmark-rollup-faithfulness` [fail] — Cross-hive benchmark rollup faithfulness (LIVE: every `network_benchmarks` cross-tenant rollup must == the EXACT aggregate of the current per-hive `hive_benchma
@@ -1164,6 +1165,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `printed-truncation-is-disclosed` [fail] — CF: a printed artifact that shortens free text must SAY so (T49, 2026-08-27). export-reads-its-own-set holds the ROW axis - a CSV must not inherit the render bu
 - `private-memory-isolation` [fail] — Private-memory isolation (LIVE: the per-worker AI-companion conversation tables [agent_memory/voice_journal_entries/dialog_state] must have OWNER-only SELECT po
 - `proactive-alerts` ⚡ [fail] — Proactive Alerts (Phase 5: KPI spikes, risk escalation, overdue PM)
+- `probe-identities-resolve` ⚡ [fail] — Probe identities resolve (2026-10-28, found from a GitGuardian alert): a probe or prover acts as a person it LOOKS UP, never as a literal account id. Eight bank
 - `prod-corpus` [fail] — BRH-AC (2026-10-26): production's AI corpus is the one the AI is built on, in one space, and kept fed. Asks production (Management API): persona_knowledge / ind
 - `prod-function-builds` [fail] — OWN AI failure-mode lens, stale deploy cache (2026-10-26): every edge function RUNNING in production is the tree's code (its /health `build` equals the tree's s
 - `prod-path-leak` ⚡ [fail] — Prod path leak (no committed /workhive/ resource paths — they 404 in production)
@@ -1544,7 +1546,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `calc-method-defaults-split` [fail] — Calculator method notes state the standard default and where to change it as two short sentences, and their markdown twins agree
 - `learn-provenance` ⚡ [fail] — Learn provenance (every article names its sources and says how fresh it is)
 
-### Security (36)
+### Security (37)
 - `admin-is-an-account` ⚡ [fail] — Admin is an account (renaming yourself or founding a hive under an admin's name grants nothing; the real admin stays one; a solo owner reads his own record)
 - `boundary-legible` [fail] — Boundary legible (a refusal is addressed to a person: nothing leaked, something to act on)
 - `credential-pointers` ⚡ [fail] — Credential pointers (no page tells a reader where a secret lives)
@@ -1559,6 +1561,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `hosting-reality` [fail] — Hosting reality (what the DEPLOYED origin hands a person: headers, links, arrivals, cacheable assets)
 - `leaving-honesty` [fail] — Leaving honesty (the export runs for a supervisor, is refused a worker, and nobody's work loses its author)
 - `lxp-au-identity-after-change` ⚡ [fail] — Identity after revocation (a still-valid token stops vouching the moment the membership ends; a role change changes what it may do)
+- `lxp-au-identity-solo` ⚡ [fail] — Identity with no seat (a solo owner's token reads a hive only while he holds a seat there, keeps his own rows, and cannot renew after sign-out)
 - `member-writes-by-row` ⚡ [fail] — No page changes a hive membership by display name: remove and supervisor hand-over target the row id (two members can share a name; 2026-10-14, hive.html kicked
 - `memory-identity` [fail] — AI memory WHOSE (live): anonymous recall/store of a person's durable memory is refused (401), a member cannot read or write under someone else's name (403), a m
 - `no-client-truncate` ⚡ [fail] — NO CLIENT TRUNCATE - RLS IS NEVER CONSULTED FOR TRUNCATE, so the grant is the only control. FOUND 2026-08-03 by the live-MCP flywheel, three steps from where it

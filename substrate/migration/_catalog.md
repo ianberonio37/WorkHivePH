@@ -1,17 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:726
-source_sha: 1ae741c4d2c9018c
+source: dir:supabase/migrations:728
+source_sha: 037ca6f5ec52bec5
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (726 migrations)
+## migration · catalog (728 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260804000047_the_platforms_money_position_was_world_readable` — policies:credit_treasury_read
-- `20260804000048_any_signed_in_user_could_list_who_the_admins_are` — policies:mkt_admins_read,mkt_admins_read_self
 - `20260804000049_one_person_toggling_one_reaction_minted_unbounded_xp` — fns:handle_community_reaction_xp · tables:community_reaction_xp_awards
 - `20260805000050_anyone_at_all_could_read_the_voice_transcripts` — policies:voice_queue_own_rows · tables:voice_response_queue
 - `20260805000051_an_anonymous_visitor_could_run_the_nightly_sweep` — (misc DDL/DML)
@@ -210,6 +208,8 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261027000005_deleting_an_asset_keeps_one_pm_summary` — fns:pm_knowledge_unlink_without_duplicate · triggers:trg_asset_node_delete_keeps_one_pm_summary
 - `20261027000006_a_deal_cannot_be_re_filed` — fns:guard_deal_listing_and_hive · triggers:trg_guard_inquiry_listing_and_hive,trg_guard_marketplace_order_status,trg_guard_order_listing_and_hive
 - `20261027000007_founder_outcomes` — fns:founder_outcomes
+- `20261028000001_an_engineering_calculation_leaves_a_trail` — triggers:trg_audit_shared_change
+- `20261028000002_a_project_change_leaves_a_trail` — triggers:trg_audit_shared_change
 
 (showing last 200)
 

@@ -1,0 +1,45 @@
+name: Back up the production database
+
+# BRH 9 AE (BRH515, 2026-10-29): Supabase's Free plan keeps no daily backups, so nothing could bring production's rows
+# back after a bad migration, a wrong delete or a lost project. Every day this dumps the database the way Supabase
+# documents (roles, schema, data), encrypts it with a passphrase, decrypts it again to check every table came back, and
+# keeps the encrypted file as this run's artifact for 30 days. The repository is public, so only the encrypted file is
+# ever uploaded. Both values are repository secrets the owner sets once:
+#   SUPABASE_DB_URL     the session pooler connection string from the project's Connect panel (IPv4 - the runner has
+#                       no IPv6 route to the direct connection)
+#   BACKUP_PASSPHRASE   20 characters or more, kept somewhere other than this repository
+# Until both exist the run fails and says so - a backup that was not taken is never green. The script is
+# tools/backup_dump.sh (its header says how to restore); tools/prove_backup_roundtrip.py runs it against the local
+# database. Held by run_platform_checks' free-plan-budget (F6).
+
+on:
+  schedule:
+    - cron: '41 2 * * *'   # 02:41 UTC daily - 10:41 in Manila, after the night's purges
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools/backup_dump.sh
+          sparse-checkout-cone-mode: false
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.90.0
+      - name: Dump, encrypt, and read it back
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: bash tools/backup_dump.sh backup-out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: workhive-db-${{ github.run_id }}
+          path: backup-out/*.tar.gz.gpg
+          if-no-files-found: error
+          retention-days: 30

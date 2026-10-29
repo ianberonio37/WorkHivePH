@@ -7173,7 +7173,8 @@
       "defined_in": "20260520000019_v_hives_truth.sql",
       "read_by_surfaces": [
         "analytics-report.html",
-        "hive.html"
+        "hive.html",
+        "integrations.html"
       ],
       "read_by_edge_fns": [
         "ai-eval-runner",
@@ -11200,7 +11201,7 @@
         "my_service_provider_ids"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 97.1
+      "size_kb": 97.6
     },
     "agentic-rag-observability.html": {
       "tables_read": [
@@ -11219,7 +11220,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 60.7
+      "size_kb": 60.8
     },
     "alert-hub.html": {
       "tables_read": [
@@ -11247,7 +11248,7 @@
       "edge_fns_invoked": [
         "analytics-orchestrator"
       ],
-      "size_kb": 177.6
+      "size_kb": 182.2
     },
     "analytics-report.html": {
       "tables_read": [
@@ -11256,7 +11257,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 142.8
+      "size_kb": 143.9
     },
     "analytics.html": {
       "tables_read": [
@@ -11314,7 +11315,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 329.0
+      "size_kb": 330.8
     },
     "assistant.html": {
       "tables_read": [
@@ -11379,7 +11380,7 @@
         "wh_trash"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 253.5
+      "size_kb": 253.7
     },
     "dayplanner.html": {
       "tables_read": [
@@ -11394,7 +11395,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 233.9
+      "size_kb": 234.9
     },
     "design-system.html": {
       "tables_read": [],
@@ -11487,7 +11488,7 @@
         "export-hive-data",
         "supervisor-reset-password"
       ],
-      "size_kb": 517.2
+      "size_kb": 518.6
     },
     "index.html": {
       "tables_read": [],
@@ -11508,6 +11509,7 @@
         "pm_assets",
         "pm_scope_items",
         "v_external_sync_truth",
+        "v_hives_truth",
         "v_logbook_truth"
       ],
       "tables_written": [
@@ -11525,7 +11527,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 239.4
+      "size_kb": 240.5
     },
     "inventory.html": {
       "tables_read": [
@@ -11553,7 +11555,7 @@
         "inventory_restock"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 222.6
+      "size_kb": 223.4
     },
     "llm-observability.html": {
       "tables_read": [
@@ -11562,7 +11564,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 32.4
+      "size_kb": 32.7
     },
     "logbook.html": {
       "tables_read": [
@@ -11603,7 +11605,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 520.4
+      "size_kb": 520.6
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -11640,7 +11642,7 @@
         "marketplace_seller_reply_stats"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 87.2
+      "size_kb": 87.7
     },
     "marketplace-seller.html": {
       "tables_read": [
@@ -11689,7 +11691,7 @@
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 277.8
+      "size_kb": 278.1
     },
     "marketplace.html": {
       "tables_read": [
@@ -11841,7 +11843,7 @@
         "get_pm_ontime_delivery"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 214.3
+      "size_kb": 214.5
     },
     "project-manager.html": {
       "tables_read": [
@@ -11897,7 +11899,7 @@
       "edge_fns_invoked": [
         "project-orchestrator"
       ],
-      "size_kb": 92.0
+      "size_kb": 92.4
     },
     "promo-poster.html": {
       "tables_read": [],
@@ -11965,7 +11967,7 @@
         "analytics-orchestrator",
         "shift-planner-orchestrator"
       ],
-      "size_kb": 116.9
+      "size_kb": 117.6
     },
     "skillmatrix.html": {
       "tables_read": [
@@ -12172,7 +12174,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 874
+      "loc": 876
     },
     "_shared/asset-codes.ts": {
       "tables_read": [],
