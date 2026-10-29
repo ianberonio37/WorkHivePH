@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 8,
+ "open": 2,
  "resolved": 1,
  "incidents": [
   {
@@ -17,74 +17,20 @@
    "status": "resolved"
   },
   {
-   "id": "gate-membership-read-failure-distinct",
+   "id": "gate-w4-layer-entitlement",
    "source": "gate",
-   "title": "membership-read-failure-distinct",
+   "title": "w4-layer-entitlement",
    "severity": "major",
-   "started_at": "2026-10-29T03:47:24.139595+00:00",
+   "started_at": "2026-10-29T05:49:24.032441+00:00",
    "ended_at": null,
    "status": "open"
   },
   {
-   "id": "gate-destructive-proportional-confirm",
+   "id": "gate-lxp-au-identity-solo",
    "source": "gate",
-   "title": "destructive-proportional-confirm",
+   "title": "lxp-au-identity-solo",
    "severity": "major",
-   "started_at": "2026-10-29T03:47:24.139595+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-in-list-chunked",
-   "source": "gate",
-   "title": "in-list-chunked",
-   "severity": "major",
-   "started_at": "2026-10-29T03:47:24.139595+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-change-trail",
-   "source": "gate",
-   "title": "change-trail",
-   "severity": "major",
-   "started_at": "2026-10-29T03:47:24.139595+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-ownership-by-account",
-   "source": "gate",
-   "title": "ownership-by-account",
-   "severity": "major",
-   "started_at": "2026-10-29T03:47:24.139595+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-event-listener-cleanup",
-   "source": "gate",
-   "title": "event-listener-cleanup",
-   "severity": "major",
-   "started_at": "2026-10-29T03:47:24.139595+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-component-purity",
-   "source": "gate",
-   "title": "component-purity",
-   "severity": "major",
-   "started_at": "2026-10-29T03:47:24.139595+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-psql-probe-suite",
-   "source": "gate",
-   "title": "psql-probe-suite",
-   "severity": "major",
-   "started_at": "2026-10-29T03:47:24.139595+00:00",
+   "started_at": "2026-10-29T05:49:24.032441+00:00",
    "ended_at": null,
    "status": "open"
   }

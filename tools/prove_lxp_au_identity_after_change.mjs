@@ -60,6 +60,20 @@ const psql = (sql) => {
       { encoding: 'utf8' }).trim();
   } catch (e) { return ''; }
 };
+// ★A READ THAT NEVER CAME IS NOT A READING (2026-10-29, the M3 release gate). psql() answers '' when docker exec fails,
+// and under the gate's load one did: S5 printed "RESTORATION FAILED" for a seat its delete had already removed (the
+// database held none). A restoration is now retried until its re-read agrees, and an answer that never came is said
+// as unread - still a failure, because nothing was verified, but never mistaken for a seat left behind.
+const pause = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+const settle = (act, read, want, tries = 4) => {
+  let got = '';
+  for (let i = 0; i < tries && got !== want; i++) {
+    if (i) pause(1500);
+    act();
+    got = read();
+  }
+  return got;
+};
 
 // ── the subject relations, DERIVED not typed ────────────────────────────────────────────────────────────────
 // ★A HAND-TYPED LIST WOULD BE A CLAIM ABOUT COVERAGE. The pages carrying an AU row come from the registry, and
@@ -322,10 +336,14 @@ if (process.argv.includes('--solo')) {
     } catch (e) {
       if (!problems.length) problems.push(`the solo run threw: ${String(e).slice(0, 160)}`);
     } finally {
-      if (seat && /^[0-9a-f-]{36}$/.test(seat)) psql(`delete from hive_members where id = '${seat}'`);
-      const back = psql(`select count(*) from hive_members where auth_uid::text = '${UID}'`);
-      note('S5 restored', back === SEATS0 ? `the granted seat is gone - ${NAME} holds ${back} seat(s), as he came (verified by re-read)` : 'RESTORATION FAILED');
-      if (back !== SEATS0) problems.push(`S5: ${NAME} holds ${back} seat(s) after the run, not ${SEATS0} - delete hive_members row ${seat} by hand`);
+      const back = settle(() => { if (seat && /^[0-9a-f-]{36}$/.test(seat)) psql(`delete from hive_members where id = '${seat}'`); },
+        () => psql(`select count(*) from hive_members where auth_uid::text = '${UID}'`), SEATS0);
+      note('S5 restored', back === SEATS0 ? `the granted seat is gone - ${NAME} holds ${back} seat(s), as he came (verified by re-read)`
+        : back === '' ? 'COULD NOT VERIFY - the seat count never answered (4 tries)' : 'RESTORATION FAILED');
+      if (back !== SEATS0) {
+        problems.push(back === '' ? `S5: ${NAME}'s seat count could not be read after 4 tries - check hive_members row ${seat}`
+          : `S5: ${NAME} holds ${back} seat(s) after the run, not ${SEATS0} - delete hive_members row ${seat} by hand`);
+      }
     }
   }
   const REPORT = { tool: 'tools/prove_lxp_au_identity_after_change.mjs --solo', subject: NAME, role_asked: 'solo', role_before: 'solo',
@@ -362,11 +380,8 @@ console.log(`\nLXP-AU - identity after a revocation and a role change - subject 
 console.log('='.repeat(96));
 note('captured', `membership ${MID.slice(0, 8)} role=${ROLE0} status=${STATUS0} - this exact row is restored at the end`);
 
-const restore = () => {
-  psql(`update hive_members set role = '${ROLE0}', status = '${STATUS0}' where id = '${MID}'`);
-  const back = psql(`select role || '|' || status from hive_members where id = '${MID}'`);
-  return back === `${ROLE0}|${STATUS0}`;
-};
+const restore = () => settle(() => psql(`update hive_members set role = '${ROLE0}', status = '${STATUS0}' where id = '${MID}'`),
+  () => psql(`select role || '|' || status from hive_members where id = '${MID}'`), `${ROLE0}|${STATUS0}`) === `${ROLE0}|${STATUS0}`;
 
 let token = '';
 try {
