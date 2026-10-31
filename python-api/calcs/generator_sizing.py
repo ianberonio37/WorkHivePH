@@ -167,7 +167,14 @@ def calculate(inputs: dict) -> dict:
     gen_class    = str  (inputs.get("gen_class",       "G2"))
     backup_hrs   = float(inputs.get("fuel_backup_hrs", 24.0))
     load_factor  = float(inputs.get("load_factor_pct", 75.0)) / 100   # normal operating point
-    design_margin_pct = float(inputs.get("design_margin_pct", 20.0))   # gen sizing margin
+    # ★THE FORM'S SAFETY FACTOR AND APPLICATION (2026-10-31, ED-I1 Generator Sizing, census_calc_input_reach.py): the page
+    # sends safety_factor (1.25 = 25%) and application (Standby ESP / Prime PRP / Continuous COP); this used its own 20%
+    # margin and said nothing of the rating basis - the person's margin was never applied, and a kVA was given without
+    # saying which ISO 8528-1 rating it is. The margin is the form's now, and the result names its rating basis.
+    _sf = inputs.get("safety_factor")
+    design_margin_pct = float(inputs.get("design_margin_pct",
+                              round((float(_sf) - 1) * 100, 4) if _sf not in (None, "") and float(_sf) >= 1 else 20.0))
+    application = str(inputs.get("application") or "Standby (ESP)")
 
     # ── Derating factor ───────────────────────────────────────────────────────
     derate = _derate_factor(altitude_m, ambient_c)
@@ -259,6 +266,10 @@ def calculate(inputs: dict) -> dict:
         "required_kVA_governing":  round(required_kva_governing, 2),
         "installed_kVA_needed":    round(installed_kva_needed, 2),
         "recommended_kVA":         rec_kva,
+        "rating_basis":            application,
+        "rating_note":             (f"{rec_kva} kVA is the set's {application} rating (ISO 8528-1) - a manufacturer's "
+                                    "Standby figure for the same set is higher than its Prime or Continuous one, so "
+                                    "compare like with like."),
         "recommended_kW_08pf":     rec_kw_08,
 
         # Derating
@@ -297,6 +308,7 @@ def calculate(inputs: dict) -> dict:
         "inputs_used": {
             "gen_class":           gen_class,
             "design_margin_pct":   design_margin_pct,
+            "application":         application,
             "largest_motor_kw":    largest_motor_kw,
             "start_method":        start_method,
             "altitude_m":          altitude_m,

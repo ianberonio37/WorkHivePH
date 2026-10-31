@@ -648,6 +648,23 @@ VECTORS = [
         "custom": _check_generator_nfpa110,
     },
     {
+        # ★THE FORM'S SAFETY FACTOR AND APPLICATION (2026-10-31, ED-I1 Generator Sizing): the engine used its own 20% margin
+        # and gave a kVA without its ISO 8528-1 rating basis. Fails on that engine.
+        "module": "calcs.generator_sizing",
+        "calc_type": "Generator Sizing - the form's safety factor sets the margin and the result names its rating",
+        "standard": "ISO 8528-1 rating basis; required kVA = demand x safety factor, next standard size",
+        "inputs": {"phase_config": "3-Phase 4-Wire (400V)", "application": "Prime (PRP)", "motor_hp": 0, "start_method": "DOL",
+                   "overall_pf": 0.85, "safety_factor": 1.25,
+                   "loads": [{"load_type": "Lighting (General)", "quantity": 10, "watts_each": 40, "power_factor": 0.95},
+                             {"load_type": "Convenience Receptacles", "quantity": 6, "watts_each": 180, "power_factor": 1},
+                             {"load_type": "Air Conditioning (Unit)", "quantity": 2, "watts_each": 1500, "power_factor": 0.85}]},
+        "asserts": [
+            {"path": "inputs_used.design_margin_pct", "expected": 25.0, "tol": 0.001, "note": "the form's 1.25, not the engine's 20%"},
+            {"path": "recommended_kVA", "expected": 8, "tol": 0, "note": "demand 5.03 kVA x 1.25 = 6.29 -> next standard 8 kVA (6.25 at 20%)"},
+            {"path": "rating_basis", "expected": "Prime (PRP)", "tol": 0, "note": "the kVA is stated on the application chosen"},
+        ],
+    },
+    {
         "module": "calcs.transformer_sizing",
         "calc_type": "Transformer Sizing",
         "standard": "IEC 60909 / IEEE C57 — Isc = I_full_load / (Z%/100); rated kVA >= requirement",

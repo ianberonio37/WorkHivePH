@@ -1192491,8 +1192491,8 @@
     },
     {
       "id": "ED340",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Generator Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1192545,6 +1192545,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Generator Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-01] FOUND AND FIXED: the form sends safety_factor (1.25) and application (Standby ESP / Prime PRP / Continuous COP); python-api/calcs/generator_sizing.py used its own 20% margin and gave a kVA without saying which ISO 8528-1 rating it is. The margin is the form's now (1.25 -> 8 kVA where 20% gave 6.25 for the default schedule) and the result names its rating basis with a note to compare like with like; phase is recorded-only (the engine computes in kVA). Oracle vector 'Generator Sizing - the form's safety factor sets the margin and the result names its rating' fails on the old engine; walked through the served path (engineering-calc-agent). WALKED: Generator Sizing: every value its form sends now reaches its engine (tools/census_calc_input_reach.py), and in the page through the Playwright MCP. HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {

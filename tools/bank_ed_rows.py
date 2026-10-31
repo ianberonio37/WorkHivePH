@@ -148,6 +148,13 @@ I1_FIXED["UPS Sizing"] = (
     "form's backup, growth, efficiency and topology are read; phase is recorded-only (UPS kVA and Ah do not depend on it). "
     "Oracle vector 'UPS Sizing - the form's load schedule sizes the UPS' fails on the old engine on all six asserts; walked "
     "through the served path (engineering-calc-agent).")
+I1_FIXED["Generator Sizing"] = (
+    "FOUND AND FIXED: the form sends safety_factor (1.25) and application (Standby ESP / Prime PRP / Continuous COP); "
+    "python-api/calcs/generator_sizing.py used its own 20% margin and gave a kVA without saying which ISO 8528-1 rating it "
+    "is. The margin is the form's now (1.25 -> 8 kVA where 20% gave 6.25 for the default schedule) and the result names "
+    "its rating basis with a note to compare like with like; phase is recorded-only (the engine computes in kVA). Oracle "
+    "vector 'Generator Sizing - the form's safety factor sets the margin and the result names its rating' fails on the old "
+    "engine; walked through the served path (engineering-calc-agent).")
 for _calc in ("Bearing Life (L10)", "HVAC Cooling Load"):
     I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py "
                        "RECORDED names the label as the reason) - the value it sends is a reference printed on the report, "
