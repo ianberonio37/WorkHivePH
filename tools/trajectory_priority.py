@@ -115,6 +115,14 @@ def tier_of(r: dict, classes: dict, trip_units: set) -> tuple[int, str]:
     cx = r.get("cx") or {}
     if wave.startswith("BRH") or wave.startswith("BRP"):
         return 1, "a measured defect site (bug-hunt / bug-repro)"
+    ed = r.get("ed") or {}
+    if ed:
+        # engineering design, one calculator at a time (ED, 2026-10-31): a calculator whose Guide says it is not built yet,
+        # and the guide renderer's measured sites, are defects a person meets today (T1); every other calculator lens is
+        # the production page where the person works (T3)
+        if ed.get("key", "").startswith("GR") or (ed.get("key") == "G1" and "No guide available yet" in ed.get("detail", "")):
+            return 1, f"engineering design: {ed.get('lens')}"
+        return 3, f"engineering design: {ed.get('lens')}"
     hs = r.get("hs") or {}
     if hs:
         # the hive at thirty (HS, 2026-10-29): a cluttered list, a role's actions and a lost concurrent change are what a

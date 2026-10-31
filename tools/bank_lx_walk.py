@@ -617,6 +617,10 @@ def a_view(layer: str, verdict: tuple[str, str], v: dict, ctx: dict) -> tuple[st
                             f"person nothing exists rather than that they could not see it; " + base)
         return "ok", "a refused read is not shown as an empty hive - " + base
     if layer == "D":
+        # an article's own numbers are not reads: a page that asked for no data has no failed read to own up to (2026-10-31,
+        # learn/dole-iso-audit-trail - "51 figures under a fresh-looking source line" were prose)
+        if not own_reads(v, ctx.get("page") or ""):
+            return "n/a", "the page reads no data - the figures it shows are its own text, so no refused read can pass for fresh - " + base
         if (c.get("figures") or 0) >= 5 and d.get("saysRecency") and not told:
             return "FAIL", (f"on 429 the page showed {c.get('figures')} figures under a fresh-looking source line and never said "
                             f"its reads failed; " + base)

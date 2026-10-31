@@ -95,8 +95,18 @@ async (mcpPage) => {
     const CREW = ['preventive maintenance', 'work order', 'breakdown', 'downtime', 'spare part', 'spares', 'lockout', 'loto', 'permit', 'ptw', 'shift', 'handover', 'checklist', 'mtbf', 'mttr', 'oee', 'supervisor', 'technician', 'crew', 'hive', 'logbook', 'asset', 'machine', 'inspection', 'repair', 'fault', 'plant', 'maintenance', 'pm schedule', 'pm task', 'root cause', 'failure', 'safety', 'calibration', 'equipment', 'job', 'task', 'team', 'worker', 'report', 'alert', 'log', 'entry', 'record', 'schedule', 'part', 'tool', 'inventory', 'stock', 'restock', 'fix', 'work', 'workshop', 'factory', 'operator', 'foreman', 'engineer', 'manual', 'sop', 'procedure', 'compliance', 'incident', 'hazard', 'mechanical', 'electrical', 'instrumentation', 'skill', 'discipline', 'switchgear', 'facilities', 'production line', 'pump', 'motor', 'bearing', 'compressor', 'conveyor', 'boiler', 'generator', 'lubrication', 'vibration', 'welding', 'electrician', 'mechanic', 'certification'];
     const crew = CREW.filter(word);
     const JARGON = [/\bundefined\b/i, /\bNaN\b/, /\[object Object\]/, /(^|[^a-z])null([^a-z]|$)/i, /\bRLS\b/, /\bJWT\b/, /\bPostgREST\b/i, /\bsupabase\b/i, /\b(TypeError|ReferenceError|SyntaxError)\b/, /\bstack trace\b/i, /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i, /\{\{\s*\w+\s*\}\}/, /\$\{\w+\}/];
+    // ★A BIBLIOGRAPHY NAMES ITS PUBLISHERS (2026-10-31, learn/joining-and-growing-your-hive): "Supabase, Row Level Security
+    // documentation" in an article's Sources list is a citation, not a developer's word leaking into what the page says -
+    // the jargon check reads the page minus its source lists (a <cite>, .sources-list, or the list under a Sources heading)
+    const srcEls = [...root.querySelectorAll('cite, .sources-list, [data-wh-sources]')];
+    root.querySelectorAll('h2, h3').forEach((hd) => {
+      if (!/^(sources|references)$/i.test((hd.textContent || '').trim()) && !/^(sources|references)$/i.test(hd.id || '')) return;
+      const n = hd.nextElementSibling; if (n && /^(UL|OL)$/.test(n.tagName)) srcEls.push(n);
+    });
+    let jargonText = text;
+    for (const e of srcEls) { const t = (e.innerText || '').replace(/\s+/g, ' ').trim(); if (t) jargonText = jargonText.split(t).join(' '); }
     const jargon = [];
-    for (const rx of JARGON) { const m = text.match(rx); if (m) jargon.push(m[0].trim().slice(0, 40)); }
+    for (const rx of JARGON) { const m = jargonText.match(rx); if (m) jargon.push(m[0].trim().slice(0, 40)); }
     // C - figures and their window
     const FIG = /(?<![\w/.-])\d[\d,]*(?:\.\d+)?(?![\w/.-])/g;
     // ★AN EXAMPLE'S NUMBERS ARE NOT DATA (2026-10-28, hive.html x solo-owner). The no-hive screen says "A hive in use

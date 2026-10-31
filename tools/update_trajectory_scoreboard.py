@@ -132,6 +132,13 @@ try:
     WAVE_NAMES.update({f"HS-{v[0]}": f"The hive at thirty: {v[1]}" for v in _hsc.FEATURE_LENSES.values()})
 except Exception:
     pass
+# engineering design, one calculator at a time (ED, 2026-10-31) - named from the census, like HS
+try:
+    import engineering_design_census as _edc
+    WAVE_NAMES.update({f"ED-{k}": f"Engineering design: {lens}" for k, lens, *_r in _edc.CALC_LENSES})
+    WAVE_NAMES.update({f"ED-{k}": f"Engineering design, the guide renderer: {lens}" for k, lens in _edc.GR_LENSES.items()})
+except Exception:
+    pass
 # SL / ENH / OPC = the three waves of 2026-10-14 (the sub-layers, the enhancements, the operator console), named from
 # their own tables in the SAME change that seeds them, or render() raises KeyError on the first new row.
 try:

@@ -2236,6 +2236,53 @@ def hive_scale_rows(existing: list[dict], replay: bool = False) -> list[dict]:
     return rows
 
 
+# ★ENGINEERING DESIGN, ONE CALCULATOR AT A TIME (ED1..; Ian, 2026-10-31: "there are many flops in engineering design
+# calculator, in the guide ... just make appropriate number of trajectories for overall engineering design"). One row per
+# empty cell of tools/engineering_design_census.py - a built calculator x the five lenses every one owes (its guide, its
+# form, its report, its save/History round trip, its BOM/SOW), a drawn calculator x its drawing, and each measured site of
+# the guide renderer. Walked through the calculator inside engineering-design.html, never its search door.
+ED_PREFIX = "ED"
+
+
+def engineering_design_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per empty cell of the engineering-design census. replay=True returns what was SEEDED, in id order."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("ed") or {}).get("kind") == "engineering-design"),
+                        key=lambda x: int(str(x["id"])[len(ED_PREFIX):] or 0))
+        engineering_design_rows.arithmetic = {}
+        return [{"wave": t["wave"], "ed": t["ed"]} for t in seeded]
+    import engineering_design_census as ec
+    c = ec.census()
+    rows: list[dict] = []
+    for cell in c["cells"]:
+        page, persona, unit = cell["page"], cell["persona"], cell["unit"]
+        pages, entry = _outcome_route(page, persona)
+        # the route ENDS at the calculator: _path continues past engineering-design.html to analytics.html, and every
+        # consumer reads a row's target as its last page (trajectory_priority._target)
+        if page in pages:
+            pages = pages[:pages.index(page) + 1]
+        where = "the Guide tab's renderer" if unit.startswith("renderGuide:") else f"the {unit} calculator"
+        rows.append({
+            "wave": f"ED-{cell['key']}",
+            "title": f"{cell['lens']} - {unit} on {page} · {persona}",
+            "pages": list(pages), "layers": list(cell["layers"]), "ufai": list(cell["ufai"]), "persona": persona, "device": "any",
+            "entry": entry, "framing": "person",
+            "story": (f"{persona} opens {where} on {page}: {cell['ask']}. MEASURED: {cell['detail']}. Walked inside the app "
+                      f"(engineering-design.html?calc=), at {' and '.join(LX_VIEWPORTS)}, with the engine's own result read "
+                      f"beside what the page says"),
+            "journey": {"archetype": f"ED:{persona}", "stage": "operate", "vertical": HIVES[len(unit) % len(HIVES)],
+                        "pair": "", "language": "en", "moment": "present", "condition": "normal", "tier": "A",
+                        "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "ed": {"kind": "engineering-design", "key": cell["key"], "lens": cell["lens"], "unit": unit, "page": page,
+                   "ask": cell["ask"], "detail": cell["detail"], "viewports": list(LX_VIEWPORTS), "instrument": LX_INSTRUMENT,
+                   "closes": f"walked on {where} with a receipt, the fix landed, a gate holds it"},
+        })
+    engineering_design_rows.arithmetic = {"by_lens": Counter(r["ed"]["key"] + " " + r["ed"]["lens"] for r in rows),
+                                          "population": c["population"]}
+    return rows
+
+
 # ★THE OUTCOME WAVES (SE1.., OUT1.., JS1..; 2026-10-26) - Ian's model: the five lenses improve the person's self-efficacy and
 # the platform's system characteristics, which raise intention to use and satisfaction, which lead to usage. The population
 # is tools/trajectory_outcome_gaps.py (one place decides the size); the dependent variables join the registry as rows.
@@ -2431,6 +2478,8 @@ def main() -> int:
                     help="OWN (2026-10-26): one row per empty cell of the nine lenses in tools/own_lenses_census.py")
     ap.add_argument("--add-hive-scale", action="store_true",
                     help="HS (2026-10-29): one row per empty cell of tools/hive_scale_census.py - the hive at thirty members")
+    ap.add_argument("--add-engineering-design", action="store_true",
+                    help="ED (2026-10-31): one row per empty cell of tools/engineering_design_census.py - each calculator")
     ap.add_argument("--add-self-efficacy", action="store_true",
                     help="SE (2026-10-26): one row per (page, source of self-efficacy) - tools/trajectory_outcome_gaps.py")
     ap.add_argument("--add-outcomes", action="store_true",
@@ -2573,13 +2622,16 @@ def main() -> int:
         seed_missing()
         print("\n" + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
         return 0
-    if args.add_cube or args.add_own or args.add_hive_scale:
+    if args.add_cube or args.add_own or args.add_hive_scale or args.add_engineering_design:
         if args.add_cube:
             rows, label, prefix = cube_rows(existing, only_class=args.only_class), "CX cube", CX_PREFIX
             a = cube_rows.arithmetic
         elif args.add_hive_scale:
             rows, label, prefix = hive_scale_rows(existing), "HS hive at thirty", HS_PREFIX
             a = hive_scale_rows.arithmetic
+        elif args.add_engineering_design:
+            rows, label, prefix = engineering_design_rows(existing), "ED engineering design", ED_PREFIX
+            a = engineering_design_rows.arithmetic
         else:
             rows, label, prefix = own_rows(existing), "OWN own-reading", OWN_PREFIX
             a = own_rows.arithmetic

@@ -734,6 +734,11 @@ def build() -> dict:
         # DISCLOSED: added in the change that seeds the wave; every HS row is open when it lands.
         if (r.get("hs") or {}).get("kind") == "hive-scale":
             want = (r.get("hs") or {}).get("instrument") or want
+        # an ED row (engineering design, one calculator at a time, 2026-10-31) declares its instrument the same way - a walk
+        # of the calculator inside the app with the engine's result beside it; "report", "drawing" or "save" in its title
+        # must not route it elsewhere. DISCLOSED: added in the change that seeds the wave; every ED row is open when it lands.
+        if (r.get("ed") or {}).get("kind") == "engineering-design":
+            want = (r.get("ed") or {}).get("instrument") or want
         # ...and so does every SL / ENH / OPC row (2026-10-14): a contract sub-layer names its batch prover, a walk row
         # the chrome-devtools + postgres walk - a title's keywords must not re-route either
         if _meta_1014(r):
