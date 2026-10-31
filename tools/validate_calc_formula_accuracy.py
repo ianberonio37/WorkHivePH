@@ -1043,6 +1043,36 @@ VECTORS = [
         ],
     },
     {
+        # ★THE FORM'S OWN INPUTS (2026-10-31, ED-G1 Pump Sizing): the page sends pressure_head, fittings_allowance and
+        # fluid_density, and its diameter defaults to 0 = Auto. The engine read none of the three and refused the fourth.
+        # Each assert below fails on that engine (the auto case raised "Pipe diameter must be greater than 0 mm").
+        "module": "calcs.pump_tdh",
+        "calc_type": "Pump Sizing (TDH) - Auto diameter",
+        "standard": "continuity v = Q/A; the smallest standard size at or below 1.5 m/s (the engine's economical zone)",
+        "inputs": {"flow_rate": 300, "pipe_diameter": 0, "static_head": 15, "pipe_length": 60, "pipe_material": "PVC"},
+        "asserts": [
+            {"path": "pipe_nominal_mm", "expected": 80, "tol": 0,
+             "note": "Q = 0.005 m³/s: 50mm (ID 52.5) 2.31 m/s, 65mm (ID 62.7) 1.62 m/s - both over 1.5; 80mm (ID 77.9) 1.05 ✓"},
+        ],
+    },
+    {
+        "module": "calcs.pump_tdh",
+        "calc_type": "Pump Sizing (TDH) - the form's back-pressure, fittings and density",
+        "standard": "TDH = Hs + Hf(1 + fittings%) + Hv + Hp;  P_hyd = ρ·g·Q·TDH",
+        "inputs": {"flow_rate": 300, "pipe_diameter": 50, "static_head": 15, "pipe_length": 60, "pipe_material": "PVC",
+                   "pressure_head": 20, "fittings_allowance": 60, "fluid_density": 1025},
+        "asserts": [
+            {"path": "pressure_head", "expected": 20.0, "tol": 0.001,
+             "note": "the form's discharge back-pressure reaches the result (it was a hard-coded 0.0)"},
+            {"path": "minor_losses_m", "expected_expr": "friction_head_m * 0.6", "tol": 0.002,
+             "note": "fittings 60% of the Darcy friction head (the engine read only fittings_allowance_pct, always 20)"},
+            {"path": "TDH", "expected_expr": "15 + friction_head_m * 1.6 + velocity_head_m + 20", "tol": 0.02,
+             "note": "TDH = Hs 15 + Hf x 1.6 + Hv + Hp 20 - the back-pressure is in the head"},
+            {"path": "hydraulic_kw", "expected_expr": "1025 * 9.81 * 0.005 * TDH / 1000", "tol": 0.002,
+             "note": "P_hyd = ρ g Q TDH with the form's ρ = 1025 (seawater), not water's"},
+        ],
+    },
+    {
         "module": "calcs.heat_exchanger",
         "calc_type": "Heat Exchanger",
         "standard": "TEMA / Kern — LMTD = (ΔT1−ΔT2)/ln(ΔT1/ΔT2); F = Bowman 1-2 F(P,R), NOT a constant",
@@ -2002,7 +2032,14 @@ def _run_vector(vec, blind=False):
             out = mod.calculate(vec["inputs"])
             for a in vec["asserts"]:
                 actual = _get(out, a["path"])
-                expected = a["expected"]
+                # an expectation written as the standard's relation over the result's OTHER outputs (2026-10-31): a
+                # pump's TDH = Hs + Hf(1 + fittings) + Hv + Hp, where Hf comes from the Colebrook friction factor that
+                # another vector already pins - the relation is the oracle, the engine's own Hf is its input
+                if "expected_expr" in a:
+                    names = {k: v for k, v in out.items() if isinstance(v, (int, float)) and not isinstance(v, bool)}
+                    expected = round(float(eval(a["expected_expr"], {"__builtins__": {}}, names)), 6)
+                else:
+                    expected = a["expected"]
                 if blind:
                     expected = (expected + 1000) if isinstance(expected, (int, float)) else "__WRONG__"
                 ok = _close(actual, expected, a["tol"])

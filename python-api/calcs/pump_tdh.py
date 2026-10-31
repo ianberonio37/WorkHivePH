@@ -64,11 +64,13 @@ def _water_props(temp_c: float) -> tuple[float, float, float]:
         return 998.2, 1.002e-3, 2338.0
 
 
+def _nearest_nominal(nominal_mm: float) -> float:
+    return min(sorted(PIPE_ID_MM.keys()), key=lambda s: abs(s - nominal_mm))
+
+
 def _select_pipe_id(nominal_mm: float) -> float:
     """Return inside diameter for the nearest standard nominal pipe size."""
-    sizes = sorted(PIPE_ID_MM.keys())
-    nearest = min(sizes, key=lambda s: abs(s - nominal_mm))
-    return PIPE_ID_MM[nearest]
+    return PIPE_ID_MM[_nearest_nominal(nominal_mm)]
 
 
 def _friction_head(
@@ -103,9 +105,15 @@ def calculate(inputs: dict) -> dict:
     calcPumpSizingTDH() function so the frontend needs zero changes.
     """
     # ── Inputs ────────────────────────────────────────────────────────────────
+    # ★FOUR OF THE FORM'S INPUTS NEVER REACHED THE HEAD (2026-10-31, ED-G1 Pump Sizing, read against the guide). The page
+    # sends pressure_head, fittings_allowance and fluid_density, and its Pipe Diameter field defaults to 0 = "Auto". This
+    # read none of the first three (TDH left out the discharge back-pressure - a pump feeding a pressure vessel or an
+    # elevated tank came out short by exactly that head - the fittings % was always 20, seawater and glycol were sized as
+    # water) and refused the fourth, so the form's DEFAULT calculation was refused. Each is read now.
     flow_lpm      = float(inputs.get("flow_rate",       0) or inputs.get("flow_lpm", 0))
     static_head_m = float(inputs.get("static_head",     10))
-    pipe_dia_mm   = float(inputs.get("pipe_diameter",   50))
+    pipe_dia_mm   = float(inputs.get("pipe_diameter",   50) or 0)
+    pressure_head_m = max(0.0, float(inputs.get("pressure_head", 0) or 0))   # discharge back-pressure, m
     pipe_length_m = float(inputs.get("pipe_length",     50))
     pipe_mat      = str  (inputs.get("pipe_material",   "PVC"))
     temp_c        = float(inputs.get("fluid_temp_c",    25))
@@ -113,20 +121,30 @@ def calculate(inputs: dict) -> dict:
     pump_eff_pct  = float(inputs.get("pump_efficiency",  70))
     motor_eff_pct = float(inputs.get("motor_efficiency", 90))
     suction_head_m= float(inputs.get("suction_head",    0))    # negative = lift
-    fittings_pct  = float(inputs.get("fittings_allowance_pct", 20))  # % of friction head
+    _fa           = inputs.get("fittings_allowance", inputs.get("fittings_allowance_pct", 20))
+    fittings_pct  = float(20 if _fa in (None, "") else _fa)                     # % of friction head
     fluid_type    = str  (inputs.get("fluid_type",      "Water"))
 
     if flow_lpm <= 0:
         raise ValueError("Flow rate must be greater than 0 L/min.")
-    if pipe_dia_mm <= 0:
-        raise ValueError("Pipe diameter must be greater than 0 mm.")
 
     # ── Unit conversions ─────────────────────────────────────────────────────
     flow_m3s  = flow_lpm / 1000 / 60          # L/min → m3/s
     flow_m3hr = flow_lpm * 60 / 1000          # L/min → m3/hr
 
+    # Pipe Diameter 0 = Auto: the smallest standard size whose velocity is at or below 1.5 m/s - the top of this engine's
+    # own "Economical - optimal range" zone below
+    pipe_auto = pipe_dia_mm <= 0
+    if pipe_auto:
+        pipe_dia_mm = next((n for n in sorted(PIPE_ID_MM)
+                            if flow_m3s / (math.pi * (PIPE_ID_MM[n] / 2000) ** 2) <= 1.5), max(PIPE_ID_MM))
+
     # ── Water properties at operating temperature (iapws IAPWS-IF97) ─────────
     rho, mu, p_vapor = _water_props(temp_c)
+    # the form's density (seawater 1025, glycol 1040) - viscosity stays water's at the temperature, as in pipe_sizing
+    user_rho = float(inputs.get("fluid_density") or 0)
+    if user_rho > 0:
+        rho = user_rho
 
     # ── Pipe geometry ─────────────────────────────────────────────────────────
     pipe_id_m   = _select_pipe_id(pipe_dia_mm) / 1000   # mm → m
@@ -145,7 +163,7 @@ def calculate(inputs: dict) -> dict:
     h_velocity = velocity_ms ** 2 / (2 * 9.81)
 
     # ── Total Dynamic Head ────────────────────────────────────────────────────
-    TDH = static_head_m + h_friction_total + h_velocity
+    TDH = static_head_m + h_friction_total + h_velocity + pressure_head_m
 
     # ── NPSH available ────────────────────────────────────────────────────────
     # Atmospheric pressure at site elevation (barometric formula)
@@ -188,12 +206,12 @@ def calculate(inputs: dict) -> dict:
     for pct in range(0, 160, 10):
         q   = flow_m3s * pct / 100
         if q == 0:
-            system_curve.append({"Q_lpm": 0, "TDH_m": round(static_head_m, 2)})
+            system_curve.append({"Q_lpm": 0, "TDH_m": round(static_head_m + pressure_head_m, 2)})
             continue
         hf_i, v_i, _, _ = _friction_head(q, pipe_id_m, pipe_length_m, roughness_m, rho, mu)
         h_minor_i = hf_i * (fittings_pct / 100)
         h_vel_i   = v_i ** 2 / (2 * 9.81)
-        tdh_i     = static_head_m + hf_i + h_minor_i + h_vel_i
+        tdh_i     = static_head_m + hf_i + h_minor_i + h_vel_i + pressure_head_m
         system_curve.append({
             "Q_lpm": round(q * 1000 * 60, 1),
             "TDH_m": round(tdh_i, 2),
@@ -250,7 +268,9 @@ def calculate(inputs: dict) -> dict:
 
         # ── Legacy renderer aliases (frontend renderPumpReport) ───────────────
         "velocity_head":  round(h_velocity, 3),     # renderer uses no _m suffix
-        "pressure_head":  0.0,                       # back-pressure (user input, defaults 0)
+        "pressure_head":  round(pressure_head_m, 2), # back-pressure - the form's value (it was a hard-coded 0.0)
+        "pipe_nominal_mm": int(_nearest_nominal(pipe_dia_mm)),
+        "pipe_auto_selected": pipe_auto,
         "brake_kw":       round(shaft_kw, 3),        # brake/shaft power
         "motor_kw":       round(motor_kw, 3),        # motor input power
         "motor_hp":       round(motor_kw * 1.341, 1),# HP equivalent

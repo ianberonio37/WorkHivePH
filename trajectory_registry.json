@@ -1173004,8 +1173004,8 @@
     },
     {
       "id": "ED61",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Pump Sizing (TDH) on engineering-design.html · solo-owner",
       "pages": [
@@ -1173059,6 +1173059,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pump Sizing (TDH) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED: the guide described Hazen-Williams; python-api/calcs/pump_tdh.py is Darcy-Weisbach / Colebrook-White. Reading the two side by side found four ENGINE defects: the form's pressure_head never reached TDH (and the result carried a hard-coded 0.0), fittings_allowance was never read (always 20%), fluid_density was never read (seawater and glycol sized as water), and the form's default diameter 0 = Auto was refused, so the default calculation failed. All four fixed in the engine; two oracle vectors fail on the old engine; walked live in the page - Auto chose 80 mm and TDH carried the 20 m back-pressure. The guide is rewritten from the engine, and names the form's Fluid field. WALKED: Pump Sizing (TDH)'s Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-10-31T10:09:41Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

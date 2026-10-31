@@ -77,6 +77,13 @@ ENGINE_CHECKED["Pipe Sizing"] = (
     "Supply', 'Cold Water Supply', 'General Water', and the engine knew none of them, so five of seven services were sized "
     "on the General range (a domestic cold-water pipe up to 3.0 m/s against its 2.5 limit). SERVICE_ALIASES maps each; "
     "oracle vector 'Pipe Sizing (the form's service name)' in validate_calc_formula_accuracy.py fails on the old engine.")
+ENGINE_CHECKED["Pump Sizing (TDH)"] = (
+    "FOUND AND FIXED: the guide described Hazen-Williams; python-api/calcs/pump_tdh.py is Darcy-Weisbach / Colebrook-White. "
+    "Reading the two side by side found four ENGINE defects: the form's pressure_head never reached TDH (and the result "
+    "carried a hard-coded 0.0), fittings_allowance was never read (always 20%), fluid_density was never read (seawater and "
+    "glycol sized as water), and the form's default diameter 0 = Auto was refused, so the default calculation failed. All "
+    "four fixed in the engine; two oracle vectors fail on the old engine; walked live in the page - Auto chose 80 mm and "
+    "TDH carried the 20 m back-pressure. The guide is rewritten from the engine, and names the form's Fluid field.")
 GR_FIXED = {
     "GR1": "FOUND AND FIXED: every tip, note, standard and the subtitle were rgba(255,255,255,0.55) and the tips 12.5px - now "
            "0.80 (the page's measured Lc 79.8 value) at 14px, the formulas 14px.",
