@@ -241,7 +241,7 @@
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="source-line-1">
-<p data-i="p_communitysubmittedfeedbackpu_9181" class="wh-source-chip" style="font-size:.75rem;color:rgba(255,255,255,0.80);margin:0 0 16px;line-height:1.4;">Community-submitted feedback &middot; public items, sorted by votes then newest &middot; top 200 &middot; loaded when you open this page</p>
+<p data-i="p_communitysubmittedfeedbackpu_9181" class="wh-source-chip" role="status" aria-live="polite" style="font-size:.75rem;color:rgba(255,255,255,0.80);margin:0 0 16px;line-height:1.4;">Community-submitted feedback &middot; public items, sorted by votes then newest &middot; top 200 &middot; loaded when you open this page</p>
 </div>
 </div>
 </div>
@@ -467,5 +467,7 @@
      swaps nothing. The call is explicit, exactly as all 55 learn articles write it. -->
 <script data-wh-chrome-i18n>if (typeof whI18nApply === "function" && window.WH_LANG === "fil") whI18nApply(window.WH_FIL_PUBLIC || {});</script>
 <script defer src="../wh-feedback-fab.js"></script>
+<!-- the community's list is read live: with the network gone the page says so, as every app page does (public cube H, 2026-10-31) -->
+<script defer src="../offline-banner.js"></script>
 </body>
 </html>

@@ -204,9 +204,19 @@ const TAP = (target) => {
       via = 'disclosure row';
     }
     if (tag === 'a') {
+      const own = (el.textContent || '').trim().length + 12;
       const par = el.closest('p,li,small,figcaption,td');
-      if (par && (par.textContent || '').trim().length > (el.textContent || '').trim().length + 12) {
+      if (par && (par.textContent || '').trim().length > own) {
         skip('inline link within surrounding prose (WCAG 2.5.5 exception)'); continue;
+      }
+      // a sentence can live in a DIV (a learn callout "Part of the <a>guide</a>: ...", 2026-10-31) - the same rule as
+      // tools/lx_walk.body.js: an INLINE link whose nearest block DIV carries the rest of the sentence
+      if (!par && getComputedStyle(el).display === 'inline') {
+        let b = el.parentElement;
+        while (b && b !== document.body && getComputedStyle(b).display === 'inline') b = b.parentElement;
+        if (b && b !== document.body && b.tagName === 'DIV' && (b.textContent || '').trim().length > own) {
+          skip('inline link within a sentence held in a div (WCAG 2.5.5 exception)'); continue;
+        }
       }
     }
     out.checked++;
@@ -371,6 +381,16 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
           document.head.appendChild(st);
           mk('wh-teeth-tap-pseudo-satisfier', 'width:30px;height:30px;position:relative', 'div').setAttribute('role', 'button');
           mk('wh-teeth-tap-pseudo-violator', 'width:30px;height:30px;overflow:hidden', 'div').setAttribute('role', 'button');
+          // the div-sentence exemption (2026-10-31): an INLINE link inside a sentence a div holds is excused; the same
+          // link set inline-block in the same sentence is a target of its own and must still be caught
+          const sent = (id, disp) => {
+            const d = document.createElement('div');
+            d.innerHTML = 'Part of the <a id="' + id + '" href="#" style="display:' + disp + ';font-size:14px;line-height:17px">'
+              + 'guide</a>: the four-step rollout this article is one step of.';
+            document.body.appendChild(d);
+          };
+          sent('wh-teeth-tap-divsentence-satisfier', 'inline');
+          sent('wh-teeth-tap-divsentence-violator', 'inline-block');
           // COMPUTED, NOT ASSUMED -- see note 2 in .tmp/add_teeth_cj_ck.py.
           let clips = null;
           for (let a = document.getElementById('wh-teeth-of-violator').parentElement; a; a = a.parentElement) {
@@ -404,11 +424,14 @@ for (const p of (ONE ? [ONE.replace(/\.html$/, '')] : PAGES)) {
       tapSatisfierClean: !has(tp.small, 'wh-teeth-tap-satisfier'),
       tapPseudoCredited: !has(tp.small, 'wh-teeth-tap-pseudo-satisfier'),
       tapDecorationNotCredited: has(tp.small, 'wh-teeth-tap-pseudo-violator'),
+      tapDivSentenceExcused: !has(tp.small, 'wh-teeth-tap-divsentence-satisfier'),
+      tapDivSentenceBlockCaught: has(tp.small, 'wh-teeth-tap-divsentence-violator'),
       clippedAt: rec.teethExpect.bodyClipsX,
     };
     rec.teeth.ok = rec.teeth.overflowCaught && rec.teeth.overflowSatisfierClean
                 && rec.teeth.tapCaught && rec.teeth.tapSatisfierClean
-                && rec.teeth.tapPseudoCredited && rec.teeth.tapDecorationNotCredited;
+                && rec.teeth.tapPseudoCredited && rec.teeth.tapDecorationNotCredited
+                && rec.teeth.tapDivSentenceExcused && rec.teeth.tapDivSentenceBlockCaught;
     if (!rec.teeth.ok) { console.log('    BLUNT ' + rec.page + ': ' + JSON.stringify(rec.teeth)); process.exitCode = 1; }
     else console.log('    TEETH ok ' + rec.page + (rec.teeth.clippedAt ? ' (clipped at ' + rec.teeth.clippedAt + ')' : ''));
   }

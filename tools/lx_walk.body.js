@@ -134,10 +134,10 @@ async (mcpPage) => {
       announced: reach.filter((c) => c.role === 'status' || c.live).length,
       // (+ "a snapshot / summary / tally / digest OF your ..." - 2026-10-28, ph-intelligence: "the daily snapshot of your
       // hive's records" names its source as plainly as "from your hive's records", and read as saying nothing)
-      saysSource: /based on|source|\bfrom (your|the|this|its|their|our|each|every)\b|drawn from|computed from|read from|pulled from|\b(snapshot|summary|tally|digest) of (your|the|this|its|their|our)\b/i.test(ptxt),
+      saysSource: /based on|source|submitted\b|\bfrom (your|the|this|its|their|our|each|every)\b|drawn from|computed from|read from|pulled from|\b(snapshot|summary|tally|digest) of (your|the|this|its|their|our)\b/i.test(ptxt),
       // + calculated / on demand (2026-10-09): engineering-design's "Calculated on demand" says the figures are made at
       // the moment the person runs them - that is their recency, as much as "refreshed" or "as of"
-      saysRecency: /updated|refreshed|recomputed|recompute|computed|calculated|on demand|generated|synced|as of|live|\bago\b|just now|moments ago|cached|saved copy|snapshot|today/i.test(ptxt),
+      saysRecency: /updated|refreshed|loaded when|when you opened|recomputed|recompute|computed|calculated|on demand|generated|synced|as of|live|\bago\b|just now|moments ago|cached|saved copy|snapshot|today/i.test(ptxt),
       samples: reach.slice(0, 3).map((c) => c.text), hiddenButRendered: prov.filter((c) => c.visible && c.hidden).length,
       // the page's own "how this is computed" disclosures a person can open (renderSourceChip's methodology)
       method: [...document.querySelectorAll('details.wh-method, details[class*="method"], details[class*="how"]')].filter((e) => shown(e) && !hiddenUp(e)).length };
@@ -285,7 +285,20 @@ async (mcpPage) => {
       }
       return [Math.round(Rt - L), Math.round(B - T)];
     };
-    const inProse = (e) => { if (e.tagName !== 'A') return false; const par = e.closest('p,li,small,figcaption,td'); return !!par && (par.textContent || '').trim().length > (e.textContent || '').trim().length + 12; };
+    // ★A SENTENCE CAN LIVE IN A DIV (2026-10-31): a learn article's callout "Part of the <a>guide to starting digital
+    // maintenance</a>: the four-step rollout..." is a link inside a sentence, 17px at 1280 - the inline exception, though
+    // its container is no <p>. Same rule as tools/prove_viewport_overflow.mjs: an INLINE link whose nearest block DIV
+    // carries the rest of the sentence. A link set inline-block or block is a target of its own and stays measured.
+    const inProse = (e) => {
+      if (e.tagName !== 'A') return false;
+      const own = (e.textContent || '').trim().length + 12;
+      const par = e.closest('p,li,small,figcaption,td');
+      if (par) return (par.textContent || '').trim().length > own;
+      if (getComputedStyle(e).display !== 'inline') return false;
+      let b = e.parentElement;
+      while (b && b !== document.body && getComputedStyle(b).display === 'inline') b = b.parentElement;
+      return !!b && b !== document.body && b.tagName === 'DIV' && (b.textContent || '').trim().length > own;
+    };
     // a link inside a clipped sr-only region (index's crawlable tool-catalog mirror, 2026-10-28) is reached by keyboard and
     // by crawlers, never by a pointer - 2.5.8 is about pointer targets, so the ANCESTOR's clip counts too, not only its own
     const small = inter.filter((e) => actionable(e) && !inProse(e) && !srOnlyNear(e)).map((e) => [e, ...hitRect(e)])
@@ -336,7 +349,7 @@ async (mcpPage) => {
       && (/audit-log\.html/.test(e.getAttribute('href') || '')
         || [e.getAttribute('aria-label') || '', e.innerText || ''].some((s) => HIST_RX.test(s.replace(/^[^\p{L}\p{N}]+/u, '').trim()))));
     // a page whose rows are PUBLISHED says so - "public profile", "what every member sees": that IS whose rows they are
-    const PUBLIC_RX = /\bpublic (?:profile|listing|feed|page|post|board)s?\b|what (?:every|any) (?:signed-in )?(?:WorkHive )?(?:member|visitor|buyer)s? (?:sees?|can see)|visible to (?:every|all|any)(?:one| members?| visitors?)/i;
+    const PUBLIC_RX = /\bpublic (?:profile|listing|feed|page|post|board|item|request|idea)s?\b|what (?:every|any) (?:signed-in )?(?:WorkHive )?(?:member|visitor|buyer)s? (?:sees?|can see)|visible to (?:every|all|any)(?:one| members?| visitors?)/i;
     const u = { hiveNamed: !!(hiveName && visText.toLowerCase().includes(hiveName.toLowerCase())) ? hiveName : null,
       publicSaid: (visText.match(PUBLIC_RX) || [null])[0],
       yours: (ownText.match(SCOPE_YOURS) || [null])[0], refusal: (visText.match(REFUSE_RX) || [null])[0],
@@ -638,6 +651,10 @@ async (mcpPage) => {
             return { n: all.length, live, sample: (t.match(new RegExp('[^.\\n]{0,40}(?:' + src + ')[^.\\n]{0,40}', 'i')) || [null])[0] };
           }, OFF).catch(() => ({ n: 0, live: [], sample: null }));
           const before = await offRead();
+          // ★WHAT THE BROWSER SAYS WHILE THE WALK TAKES THE NETWORK AWAY IS NOT THE PAGE'S HEALTHY LOAD (2026-10-31, the
+          // first public cube batch): this phase ran as 'healthy', so a visitor's about/ and feedback/ read two
+          // ERR_INTERNET_DISCONNECTED lines as regressions (CI) and the failed calls as the page's own reads
+          mode = 'offline';
           await ctx.setOffline(true).catch(() => {});
           let after = before;
           for (let i = 0; i < 10; i++) { await page.waitForTimeout(600); after = await offRead(); if (after.n > before.n || after.live.length > before.live.length) break; }
@@ -649,6 +666,7 @@ async (mcpPage) => {
           }
           V.offline = { said: (after.n > before.n || after.live.length > before.live.length) ? (after.live.find((x) => !before.live.includes(x)) || after.sample) : null,
                         announced: after.live.length > before.live.length, back };
+          mode = 'healthy';
         }
         // ── A off the A layer (2026-10-28): "the <layer> ask, offline and on 429". Every data read answers 429 with a
         // Retry-After, the page is reloaded and read once it says something or stops working, then held a few seconds more
@@ -685,10 +703,12 @@ async (mcpPage) => {
           mode = 'healthy';
           await page.reload({ waitUntil: 'load', timeout: 60000 }).catch(() => {});
           await settle(300, 6);
+          mode = 'offline';   // the network taken away under a normal load - see the H phase above
           await ctx.setOffline(true).catch(() => {});
           await page.waitForTimeout(2500);
           V.aOff = await read();
           await ctx.setOffline(false).catch(() => {});
+          mode = 'healthy';
         }
       } catch (err) {
         if (String(err.message || err) !== 'signed out') V.problems.push('the walk threw: ' + String(err.message || err).split('\n')[0].slice(0, 140));

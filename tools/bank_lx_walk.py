@@ -77,6 +77,9 @@ INSTRUMENT = {"CA": "playwright-mcp", "LB": "playwright-mcp", "AV": "playwright-
 RL_BOUNDED_BY_NATURE = {"v_hives_truth", "hives", "hive_members", "worker_profiles", "v_worker_truth",
                         "v_hive_members_truth", "marketplace_platform_admins"}
 NOISE_RES = re.compile(r"Failed to load resource: the server responded with a status of (401|403|406|409|416)")
+# a developer's words in a sentence a person reads (the CA lens under 429): an unset value, a raw code or a database id
+DEV_WORDS = re.compile(r"\bundefined\b|\bNaN\b|\bnull\b|\[object |\bPGRST\d+|\b42501\b|\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-|"
+                       r"\bstack trace\b|\bexception\b|\bTypeError\b", re.I)
 
 
 def psql(sql: str) -> list[str]:
@@ -362,6 +365,11 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
                               + ("a reachable source line says where it came from" if d.get("reachable") and d.get("saysSource") else "")
                               + (" and " if (d.get("reachable") and d.get("saysSource")) and d.get("method") else "")
                               + (f"{d.get('method')} openable 'how this is computed' disclosure(s)" if d.get("method") else ""))
+            # ★AN ARTICLE ABOUT THE AI IS NOT THE AI'S OUTPUT (2026-10-31, learn/ai-quality-and-roi x anon). The CTA's
+            # "...behind every AI answer ... 30-day ROI" read as an unmarked reading. A page that called no model and read
+            # no data has no pipeline whose output it could show - those words were written by a person.
+            if calls == 0 and not own_reads(v, ctx.get("page") or ""):
+                return "n/a", f"no model call and no data read on this page - \"{leaf[:100]}\" is the page's authored copy about a feature, not machine output"
             return "FAIL", f"the pipeline output \"{leaf}\" sits in a card with no honesty mark and the page names no source or method for it: \"{hav['modelCard'][:140]}\""
         if calls == 0:
             return "n/a", "no model call and no machine output on this page for this person - no pipeline that could be wrong"
@@ -483,6 +491,13 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
         off = v.get("offline")
         if off is None:
             return "UNPROVEN", "this walk did not take the network away"
+        # ★A PUBLIC PAGE THAT READ NOTHING HAS NOTHING THAT READS AS LIVE (2026-10-31, the first public cube batch). The
+        # ask's premise is a page whose figures would go stale unannounced; about/ read no data at all, so with the
+        # network gone it shows exactly what it showed, and nothing on it claims to be current. A public page that DOES
+        # read (feedback/'s list) still owes the sentence.
+        if ctx.get("pageCls") == "public" and not own_reads(v, page) and not off.get("said"):
+            return "n/a", ("a public page that read no data: with the network gone it shows exactly what it showed, and "
+                           "nothing on it reads as live")
         if off.get("said"):
             return "ok", (f"with the network gone the open page said \"{str(off['said'])[:90]}\""
                           + (" in a live region" if off.get("announced") else "")
@@ -580,7 +595,23 @@ def a_view(layer: str, verdict: tuple[str, str], v: dict, ctx: dict) -> tuple[st
                         f"ordinary load does - it retries instead of backing off; " + base)
     if layer == "RL":
         return "ok", "the bound holds under refusal: no retry storm - " + base
+    # ★CA UNDER THE WEATHER: THE CREW'S WORDS IN THE FAILURE SENTENCE (2026-10-31, the public cube - CX-PROD had no CA row
+    # on the A pillar). A page that reads nothing says the same words offline and on 429; one that reads is judged on the
+    # sentence it shows when refused - a developer's word there (undefined, a raw code, a uuid) is the CA failure. A page
+    # that read and said nothing is the A layer's finding, not this one: held, never banked or reddened here.
+    if layer == "CA":
+        if not own_reads(v, ctx.get("page") or ""):
+            return "n/a", "the page reads no data, so a refused or lost network changes nothing it says - " + base
+        if told and DEV_WORDS.search(told):
+            return "FAIL", f"on 429 the page's failure sentence carries a developer's words (\"{told[:80]}\"); " + base
+        if told:
+            return "ok", f"on 429 the page says what happened in plain words (\"{told[:80]}\"); " + base
+        return HOLD, "on 429 the page said nothing - that silence is the A layer's reading, not the crew-words lens's"
     if layer == "S":
+        # a page that reads nothing cannot show a refused read as empty: "No hive yet? Join WorkHive" on a learn article's
+        # call-to-action is the same copy offline, on 429 and healthy (2026-10-31)
+        if not own_reads(v, ctx.get("page") or ""):
+            return "n/a", "the page reads no data, so no refused read can be shown as an empty one - " + base
         if a.get("fakeEmpty") and not told:
             return "FAIL", (f"on 429 the page said \"{a['fakeEmpty']}\" - a refused read shown as an empty hive, which tells the "
                             f"person nothing exists rather than that they could not see it; " + base)
@@ -671,6 +702,7 @@ def main() -> int:
             r = psql("select m.hive_id from hive_members m where m.worker_name = '%s' and m.status = 'active' order by m.joined_at limit 1" % cast.replace("'", "''"))
             hive_id = r[0] if r else None
         ctx: dict = {}
+        ctx["page"] = page   # a_view's CA reading asks what the page itself read
         # the page's class as the cube seeded it (public / founder / production) - the public S rule in judge reads it
         ctx["pageCls"] = next((c for c in (((reg_rows.get(r["id"]) or {}).get("cx") or {}).get("cls")
                                            for r in cell.get("rows") or []) if c), None)
@@ -764,7 +796,10 @@ def main() -> int:
                 f"{cell['cast']} ({cell.get('castRole')}) for the {cell['persona']} persona, through the wall and the row's route "
                 f"({' -> '.join(cell.get('path') or [])}), each viewport a fresh context at a TRUE size. {reading}")
         if not a.apply:
-            print(f"  {'HOLDS ' if holds else 'OPEN  '} {rid:8} {layer:3} {cell['page'][:26]:26} {cell['persona'][:14]:14} {reading[:230]}")
+            # an OPEN row leads with the viewport that failed - the phone's "ok" sentence otherwise fills the line
+            shown = reading if holds else " | ".join(f"{vp}: {v[0]} - {v[1]}" for vp, v in sorted(
+                per.items(), key=lambda kv: kv[1][0] in ("ok", "n/a")))
+            print(f"  {'HOLDS ' if holds else 'OPEN  '} {rid:8} {layer:3} {cell['page'][:26]:26} {cell['persona'][:14]:14} {shown[:230]}")
             continue
         sp = Path(tempfile.gettempdir()) / f"lx_steps_{rid}.json"
         io.open(sp, "w", encoding="utf-8", newline="\n").write(json.dumps(steps, ensure_ascii=False))

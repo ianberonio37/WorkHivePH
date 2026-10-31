@@ -153,6 +153,16 @@ const MEASURE = ({ id, floor }) => {
                         : 'inline link within surrounding prose (WCAG 2.5.5 exception)');
         continue;
       }
+      // a sentence can live in a DIV (2026-10-31) - one rule with tools/prove_viewport_overflow.mjs and
+      // tools/lx_walk.body.js (tools/probe_learn_touch_targets.mjs already counted DIV as a sentence's block)
+      if (!par && inlineFlow) {
+        let b = el.parentElement;
+        while (b && b !== document.body && getComputedStyle(b).display === 'inline') b = b.parentElement;
+        if (b && b !== document.body && b.tagName === 'DIV'
+            && (b.textContent || '').trim().length > (el.textContent || '').trim().length + 12) {
+          skip('inline link within a sentence held in a div (WCAG 2.5.5 exception)'); continue;
+        }
+      }
     }
     const w = Math.round((rect.width / scale) * 10) / 10;
     const h = Math.round((rect.height / scale) * 10) / 10;

@@ -12,12 +12,32 @@
   "stamped": "2026-10-27"
  },
  "feedback": {
-  "content_sha": "8c6ce11e80be4575",
+  "content_sha": "39ac18c6ad841b4e",
   "stamped": "2026-10-31"
  },
  "free-engineering-calculators-philippine-plants": {
   "content_sha": "f5ffd5d65a01c223",
   "stamped": "2026-10-27"
+ },
+ "learn/autonomous-shift-planning-philippine-plants": {
+  "content_sha": "8cc8c2827c79d1ec",
+  "stamped": "2026-10-31"
+ },
+ "learn/loto-procedures-dole-oshs-template": {
+  "content_sha": "1ec4581ac7460e56",
+  "stamped": "2026-10-31"
+ },
+ "learn/power-plant-reliability-metrics-philippines": {
+  "content_sha": "3ac28ba396460432",
+  "stamped": "2026-10-31"
+ },
+ "learn/print-ready-maintenance-analytics-report": {
+  "content_sha": "a892b23785e91b89",
+  "stamped": "2026-10-31"
+ },
+ "learn/ra-11285-energy-efficiency-plant-checklist": {
+  "content_sha": "7f183158cdd10bde",
+  "stamped": "2026-10-31"
  },
  "loto-procedures-dole-oshs-template": {
   "content_sha": "c9c3eaee3c0694ac",

@@ -82,7 +82,7 @@ STYLE = """  <style>
     .toc a { color: rgba(244,246,250,0.75); text-decoration: none; } .toc a:hover { color: var(--wh-orange,#F7A21B); }
     .answer-first { background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.30); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
     .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.78); }
-    .callout strong { color: var(--wh-blue-light,#5FCCE8); }
+    .callout strong { color: var(--wh-blue-light,#5FCCE8); } .callout a { display: inline-block; min-height: 24px; }
     .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: 0.05em; text-transform: uppercase; }
     .pill-orange { background: rgba(247,162,27,0.18); color: var(--wh-orange,#F7A21B); border: 1px solid rgba(247,162,27,0.35); }
     .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; margin-bottom: 12px; }
