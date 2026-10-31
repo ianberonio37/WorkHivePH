@@ -1042,6 +1042,89 @@ const GUIDES = {
     ],
   },
 
+  // ★THREE BUILT CALCULATORS HAD NO GUIDE (2026-10-31, rows ED-G1 for Transformer Sizing, Harmonic Distortion and Clean
+  // Agent Suppression). Their Guide tab said "No guide available yet ... check back after it is built" for calculators
+  // that were built and in use. Each guide below is written from its engine (python-api/calcs/<name>.py) - the same
+  // formulas, constants and limit tables - and names its fields exactly as the form labels them.
+  'Transformer Sizing': {
+    title: 'Transformer Sizing - Rating, Currents, Fault Level, Losses',
+    subtitle: 'Picks the standard transformer rating for the load plus spare capacity, then works out its full-load currents, the secondary fault current, losses, efficiency and voltage regulation.',
+    standards: ['IEC 60076-1:2011 - Power transformers, general','IEEE C57.12.00 - General requirements for liquid-immersed transformers','PEC 2017 Art. 4.50 - Transformers and transformer vaults','NEMA ST-20 - Dry-type transformers'],
+    formulas: [
+      'Required kVA = Load kVA x (1 + Spare % / 100)',
+      'Rated kVA = next standard size at or above Required kVA',
+      '  5, 10, 15, 25, 37.5, 50, 75, 100, 112.5, 150, 167, 200, 225, 250, 300, 333, 400, 500, 750, 1000, 1500, 2000, 2500, 3000 kVA',
+      'Installed kVA = Rated kVA x Number of Units',
+      '',
+      'I_primary = Rated kVA x 1000 / (√3 x V_primary)',
+      'I_secondary = Rated kVA x 1000 / (√3 x V_secondary)',
+      '  1-phase: the same without √3',
+      'I_sc (secondary) = I_secondary x 100 / Impedance %',
+      '',
+      'Core loss = Rated kVA x no-load %,  Copper loss = Rated kVA x load %',
+      '  typical IEC 60076-1 fractions by size: 0.25% / 1.50% at 50 kVA down to 0.10% / 0.90% above 2000 kVA',
+      'Loss at 75% load = Core loss + Copper loss x 0.75²',
+      'Efficiency = P_out / (P_out + Loss),  P_out = Rated kVA x PF',
+      '',
+      'Voltage regulation % = εr x PF + εx x sin φ',
+      '  εr = Copper loss / Rated kVA x 100,  εx = √(Impedance %² - εr²)',
+      'Loading % = Load kVA / Rated kVA x 100',
+    ],
+    fields: [
+      { name: 'Load (kVA)', tip: 'The load the transformer serves, in kVA. Use the demand kVA from the load schedule (see Load Estimation), not the sum of nameplates.' },
+      { name: 'Phases', tip: '3-Phase for plant and building distribution; 1-Phase for small pole-mounted units. Single-phase currents drop the √3 factor.' },
+      { name: 'Primary Voltage', tip: 'Incoming supply voltage in volts. 13,800 V is the common distribution primary; 34,500 V or 69,000 V for larger services.' },
+      { name: 'Secondary Voltage', tip: 'Utilisation voltage in volts: 400 V (or 380 V) for 3-phase plant loads, 230 V for single-phase.' },
+      { name: 'Impedance (%)', tip: 'Nameplate percent impedance. Typical 4 to 6% for distribution sizes. A lower impedance means a higher secondary fault current: check breaker interrupting ratings against it.' },
+      { name: 'Spare Capacity', tip: 'Headroom above the load, in percent. 25% gives the 125% sizing in the form note; raise it for planned expansion.' },
+      { name: 'Load Power Factor', tip: 'Power factor of the load, between 0 and 1. Used for efficiency and voltage regulation; 0.85 is a typical industrial mix.' },
+      { name: 'Number of Units', tip: 'Identical transformers installed. Each is sized for the full load; installed kVA is the rated kVA times the number of units.' },
+      { name: 'Winding Connection', tip: 'Delta-Star Dyn11 is the standard distribution connection: it gives a grounded neutral on the secondary and keeps triplen harmonics in the delta. Recorded on the report; it does not change the rating.' },
+    ],
+    notes: [
+      'The rating is the next standard size at or above the load plus spare capacity. It is never rounded down.',
+      'Losses are typical IEC 60076-1 fractions by size, not a test report. Use the supplier guaranteed losses for final efficiency figures.',
+      'The secondary fault current counts the transformer impedance only (an infinite source on the primary), so it is the upper bound for breaker selection.',
+      'Cooling is reported as ONAN (oil natural, air natural).',
+    ],
+  },
+
+  'Harmonic Distortion': {
+    title: 'Harmonic Distortion - THD, TDD and IEEE 519-2022 Limits',
+    subtitle: 'Checks the harmonic currents of a load against the IEEE 519-2022 limits at the point of common coupling (PCC), and gives the K-factor for transformer de-rating.',
+    standards: ['IEEE 519-2022 - Harmonic control in electric power systems (Table 2, current limits at the PCC)','IEC 61000-3-2:2018 - Harmonic current emissions, equipment up to 16 A per phase','IEC 61000-3-12 - Harmonic current emissions, equipment above 16 A per phase','IEEE C57.110 - Transformer capability with non-sinusoidal load currents (K-factor)'],
+    formulas: [
+      'I_h = I₁ x (% of I₁) / 100   for each harmonic order h',
+      'THD_I = √(Σ I_h²) / I₁ x 100%',
+      'TDD = √(Σ I_h²) / I_L x 100%',
+      'ISC/IL = I_SC / I_L',
+      '',
+      'TDD limit, IEEE 519-2022 Table 2, by ISC/IL:',
+      '  under 20: 5% · 20 to 50: 8% · 50 to 100: 12% · 100 to 1000: 15% · over 1000: 20%',
+      'Individual limit, % of I_L, for h < 11 · 11-16 · 17-22 · 23-34 · 35 and up:',
+      '  ISC/IL under 20:  4.0 · 2.0 · 1.5 · 0.6 · 0.3',
+      '  20 to 50:         7.0 · 3.5 · 2.5 · 1.0 · 0.5',
+      '  50 to 100:       10.0 · 4.5 · 4.0 · 1.5 · 0.7',
+      '  100 to 1000:     12.0 · 5.5 · 5.0 · 2.0 · 1.0',
+      '  over 1000:       15.0 · 7.0 · 6.0 · 2.5 · 1.4',
+      '',
+      'K-factor = 1 + Σ (I_h / I₁)² x h²',
+    ],
+    fields: [
+      { name: 'Fundamental Current (I₁)', tip: 'RMS current at 60 Hz drawn by the load, in amperes, from a power-quality analyser or the equipment datasheet.' },
+      { name: 'Max Demand Current (I_L)', tip: 'Maximum demand load current at the PCC, in amperes (IEEE 519: the average of the monthly peak demands). TDD is referred to this current, not to I₁. If 0, I₁ is used.' },
+      { name: 'System Voltage', tip: '230 V or 400 V at the PCC. Recorded on the report; the current limits used here are the IEEE 519 table for 120 V to 69 kV.' },
+      { name: 'Short-Circuit Current (I_SC)', tip: 'Available short-circuit current at the PCC, in amperes, from the utility or the Short Circuit calculator. It sets ISC/IL, which picks the limit row. If 0, the calculation assumes ISC/IL = 20, which uses the 20 to 50 row: enter the real value.' },
+      { name: 'Harmonic Components (% of I₁)', tip: 'Each harmonic current as a percent of I₁ for the 3rd, 5th, 7th, 11th and 13th orders, from an analyser or the equipment harmonic spectrum. Six-pulse drives are dominated by the 5th and 7th, twelve-pulse drives by the 11th and 13th, single-phase electronics by the 3rd.' },
+    ],
+    notes: [
+      'IEEE 519 limits TDD at the PCC, not THD: THD is relative to the present current and reads high at light load.',
+      'The result passes only when TDD and every individual harmonic are within their limits.',
+      'The limits apply at the point of common coupling with the utility, not at each machine terminal.',
+      'Choose a K-rated transformer (K-4, K-13, K-20) at or above the computed K-factor, or de-rate a standard one per IEEE C57.110.',
+    ],
+  },
+
   'Wire Sizing': {
     title: 'Wire Sizing: Ampacity Method (PEC Table 3.10.1)',
     subtitle: 'Selects the minimum conductor size that safely carries the design current based on PEC ampacity tables, with correction factors for conduit fill, ambient temperature, and motor loads.',
@@ -1648,6 +1731,44 @@ const GUIDES = {
       'A 20% safety factor is applied to the calculated airflow before fan selection: this accounts for construction tolerances and future door seal degradation.',
       'For buildings with elevator shafts adjacent to stairwells, add 0.056 m² leakage per elevator door level to the total leakage area.',
       'Pressurization fans must operate on emergency power (UPS or generator): they are part of the building fire safety system, not comfort HVAC.',
+    ],
+  },
+
+  // written from python-api/calcs/clean_agent_suppression.py (2026-10-31, row ED-G1) - see the note above Transformer Sizing
+  'Clean Agent Suppression': {
+    title: 'Clean Agent Suppression - Agent Mass and Cylinders (NFPA 2001)',
+    subtitle: 'Sizes the agent mass that floods an enclosed hazard to its design concentration, picks the cylinders, and checks the concentration against the NOAEL for occupied rooms.',
+    standards: ['NFPA 2001:2022 - Clean Agent Fire Extinguishing Systems','ISO 14520:2015 - Gaseous fire-extinguishing systems','NFPA 12 - Carbon dioxide extinguishing systems','Fire Code of the Philippines (RA 9514) and its IRR','DOLE OSHS Rule 1940'],
+    formulas: [
+      'V_adj = V x (1 - 2.2558e-5 x altitude)^5.2559',
+      'S = s1 + s2 x T   (specific vapour volume, m³/kg, at the design temperature)',
+      '  FK-5-1-12: 0.0664 + 0.0002738 T · FM-200: 0.1269 + 0.0005007 T',
+      '  Inergen: 0.6598 + 0.0024475 T · CO2: 0.5541 + 0.002031 T',
+      '',
+      'Halocarbons (FK-5-1-12, FM-200):',
+      '  W = (V_adj / S) x C / (100 - C)',
+      'Inert gases (Inergen, CO2):',
+      '  W = (V_adj / S) x 2.303 x log10[100 / (100 - C)]',
+      'W_design = W x Safety Factor',
+      '',
+      'Cylinders: of the standard sizes, the size and count with the least agent over W_design',
+      'Occupied room: C must not exceed the NOAEL',
+      '  FK-5-1-12 10% · FM-200 9% · Inergen 43% · CO2 5%',
+    ],
+    fields: [
+      { name: 'Clean Agent Type', tip: 'FK-5-1-12 (Novec 1230) and FM-200 are halocarbons; Inergen (IG-541) is an inert gas mixture. All three can protect occupied rooms at their default concentration. CO2 is for unoccupied spaces only: it is lethal at extinguishing concentration. The agent sets the vapour volume, the default concentration and the NOAEL.' },
+      { name: 'Hazard Volume', tip: 'Gross volume of the protected enclosure in m³: length x width x height, including any protected raised-floor or ceiling void. For several zones, enter the largest one.' },
+      { name: 'Number of Zones', tip: 'Zones served by the system. Recorded on the report; the agent quantity is for the volume entered, which is the worst-case zone.' },
+      { name: 'Design Temperature', tip: 'Lowest expected temperature in the protected room, in °C. A colder room needs more agent. 20 °C suits an air-conditioned room.' },
+      { name: 'Altitude', tip: 'Site elevation above sea level in metres. Thinner air at altitude needs less agent. Metro Manila is about 15 m; Baguio about 1,500 m.' },
+      { name: 'Design Concentration', tip: 'Agent concentration by volume, in %. Leave 0 for the default: FK-5-1-12 5.0%, FM-200 7.0%, Inergen 38%, CO2 34%. Use the concentration the system manufacturer lists for the fuel in the room.' },
+      { name: 'Safety Factor', tip: 'Multiplier on the calculated mass. 1.10 is the default; raise it for leakage or openings that cannot be closed.' },
+    ],
+    notes: [
+      'Halocarbons and inert gases use different quantity formulas: inert gases displace air, so their mass follows the logarithmic relation.',
+      'If the concentration is above the agent NOAEL, the result says EVACUATE before discharge: the room must be empty, with a pre-discharge alarm and time delay.',
+      'Discharge time is reported with the result: 10 s or less for halocarbons, 60 s or less for inert gases.',
+      'The room must hold the agent: an enclosure integrity (door fan) test confirms it before the system is accepted.',
     ],
   },
 
@@ -2553,10 +2674,32 @@ function renderGuide() {
     return;
   }
 
+  // ★THE GUIDE READ AS A FLOP ON A PHONE (2026-10-31, Ian: "there are many flops in engineering design calculator, in the
+  // guide"; rows ED327-ED329). Three faults, one renderer, all 52 guides:
+  //  - every tip, note, standard and the subtitle were rgba(255,255,255,0.55), the tips at 12.5px - under 14px is a size
+  //    failure and 0.55 is under the page's own measured floor (0.6 at 14px read APCA Lc 55; 0.80 reads Lc 79.8, the value
+  //    the static copy of this page already uses);
+  //  - the formulas were joined with <br> at line-height 2.1, so each of the 134 empty entries became a three-line hole;
+  //  - a formula longer than the card wrapped onto a line at the same indent as the next formula, so one formula read as
+  //    two. Each formula is now its own line with a hanging indent (its continuation sits under it, indented), an empty
+  //    entry is a small gap between groups, and a line the guide indents ("  I_solar: ...") keeps that indent.
+  const GUIDE_TEXT = 'rgba(255,255,255,0.80)';
+  // font-family:inherit - the page's `* { font-family: Poppins }` sets every element, so a line would not inherit .font-mono
+  const fLine = (text, sub, style) =>
+    `<div style="font-family:inherit;padding-left:${sub ? '3.5ch' : '2ch'};text-indent:-2ch;${style || ''}">${escHtml(text)}</div>`;
+  const formulaLine = (f) => {
+    // three guides (Expansion Tank, FCU Selection, Refrigerant Pipe) write each formula as { label, eq } - the old
+    // renderer passed the object to escHtml and printed "[object Object]" five times in each (found 2026-10-31)
+    if (f && typeof f === 'object') {
+      return fLine(f.label || '', false, 'color:rgba(255,255,255,0.85);') + (f.eq ? fLine(f.eq, true) : '');
+    }
+    if (!f || !String(f).trim()) return '<div aria-hidden="true" style="height:0.6rem;"></div>';
+    return fLine(String(f).trim(), /^\s+/.test(f));
+  };
   const formulaHtml = guide.formulas.length
     ? `<div class="card p-4 mb-5" style="background:rgba(22,32,50,0.5);">
-        <div class="text-xs font-mono" style="color:#FDB94A;line-height:2.1;">
-          ${guide.formulas.map(f => f ? escHtml(f) : '<br>').join('<br>')}
+        <div class="font-mono" style="font-size:0.875rem;color:#FDB94A;line-height:1.6;display:flex;flex-direction:column;gap:0.35rem;">
+          ${guide.formulas.map(formulaLine).join('')}
         </div>
        </div>` : '';
 
@@ -2565,27 +2708,27 @@ function renderGuide() {
        <div style="display:flex;flex-direction:column;gap:0.6rem;">
          ${guide.fields.map(f => `
            <div style="background:rgba(22,32,50,0.4);border-radius:0.6rem;padding:0.6rem 0.85rem;">
-             <div style="font-size:0.82rem;font-weight:600;color:#F7A21B;margin-bottom:0.15rem;">${escHtml(f.name)}</div>
-             <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);">${escHtml(f.tip)}</div>
+             <div style="font-size:0.875rem;font-weight:600;color:#F7A21B;margin-bottom:0.15rem;">${escHtml(f.name)}</div>
+             <div style="font-size:0.875rem;line-height:1.5;color:${GUIDE_TEXT};">${escHtml(f.tip)}</div>
            </div>`).join('')}
        </div>` : '';
 
   const notesHtml = guide.notes.length
     ? `<h3 class="font-semibold mt-5 mb-2">Important Notes</h3>
-       <ul class="text-sm space-y-1" style="color:rgba(255,255,255,0.55);">
-         ${guide.notes.map(n => `<li>• ${escHtml(n)}</li>`).join('')}
+       <ul class="text-sm space-y-1" style="color:${GUIDE_TEXT};list-style:disc;padding-left:1.25rem;">
+         ${guide.notes.map(n => `<li>${escHtml(n)}</li>`).join('')}
        </ul>` : '';
 
   const stdHtml = guide.standards.length
     ? `<h3 class="font-semibold mt-5 mb-2">Standards Applied</h3>
-       <ul class="text-sm space-y-1" style="color:rgba(255,255,255,0.55);">
-         ${guide.standards.map(s => `<li>• ${escHtml(s)}</li>`).join('')}
+       <ul class="text-sm space-y-1" style="color:${GUIDE_TEXT};list-style:disc;padding-left:1.25rem;">
+         ${guide.standards.map(s => `<li>${escHtml(s)}</li>`).join('')}
        </ul>` : '';
 
   el/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
     <h2 class="font-bold text-lg mb-1" style="color:#F7A21B;">${escHtml(guide.title)}</h2>
-    <p class="text-sm mb-4" style="color:rgba(255,255,255,0.55);">${escHtml(guide.subtitle)}</p>
-    <h3 class="font-semibold mb-2">Formula</h3>
+    <p class="text-sm mb-4" style="color:${GUIDE_TEXT};">${escHtml(guide.subtitle)}</p>
+    ${guide.formulas.length ? '<h3 class="font-semibold mb-2">Formula</h3>' : ''}
     ${formulaHtml}
     ${fieldsHtml}
     ${notesHtml}
@@ -2719,6 +2862,10 @@ function labelizeInputs() {
   const area = document.getElementById('input-form-area');
   if (!area) return;
   area.querySelectorAll('input, select, textarea').forEach(el => {
+    // ★A ROW IN A TABLE IS NOT THE FIELD ABOVE IT (2026-10-31, Harmonic Distortion): the walk back to the nearest
+    // .field-label left the five harmonic inputs all named "System Voltage (%)". An input that names itself - one row of a
+    // group, where no single label above is its name - says so with data-wh-own-label and keeps its aria-label.
+    if (el.hasAttribute('data-wh-own-label')) return;
     let label = null, node = el.closest('.input-group') || el;
     while (node && node !== area && !label) {
       let sib = node.previousElementSibling;
@@ -6188,7 +6335,7 @@ function renderInputForm(calcType) {
           </div>
         </div>
       </div>
-      <div style="font-size:0.78rem;color:#F7A21B;font-weight:600;margin-bottom:0.5rem;">Harmonic Components (% of I₁)</div>
+      <div class="field-label" style="font-size:0.78rem;color:#F7A21B;font-weight:600;margin-bottom:0.5rem;">Harmonic Components (% of I₁)</div>
       <div style="display:grid;grid-template-columns:auto 1fr 90px;gap:0.4rem;align-items:center;font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;padding:0 0.25rem;">
         <div>Order</div><div>Description</div><div style="text-align:center;">% of I₁</div>
       </div>
@@ -6203,7 +6350,7 @@ function renderInputForm(calcType) {
           <div style="font-weight:700;color:#F7A21B;font-size:0.8rem;min-width:36px;">${ord}</div>
           <div style="font-size:0.75rem;color:rgba(255,255,255,0.55);">${desc}</div>
           <div class="input-group" style="margin:0;">
-            <input id="${id}" aria-label="${desc}" class="wh-input" type="number" value="${def}" min="0" max="100" step="0.5" style="padding:0.5rem;text-align:center;" />
+            <input id="${id}" aria-label="${ord} harmonic, % of I₁" data-wh-own-label="1" class="wh-input" type="number" value="${def}" min="0" max="100" step="0.5" style="padding:0.5rem;text-align:center;" />
             <span class="input-unit">%</span>
           </div>
         </div>`).join('')}
@@ -6492,7 +6639,7 @@ function renderInputForm(calcType) {
         </div>
       </div>
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.5rem;">
-        Standards: NFPA 2001:2022, ISO 14520:2015. Agent mass: W = (V/S) × [C/(100−C)]. NOAEL concentration checked for occupied-space safety. BFP submission requires PRC-licensed Fire Protection Engineer signature.
+        Standards: NFPA 2001:2022, ISO 14520:2015. Agent mass: halocarbons W = (V/S) × [C/(100−C)]; inert gases (Inergen, CO2) W = (V/S) × 2.303·log10[100/(100−C)]. NOAEL concentration checked for occupied-space safety. BFP submission requires PRC-licensed Fire Protection Engineer signature.
       </div>
     `;
     setStep(4);
@@ -13705,10 +13852,14 @@ function buildCleanAgentSVG(inputs, results) {
 
   p.push(T(LX2+8, STRIP_Y+13, 'GENERAL NOTES', {a:'start', sz:7, c:CC, w:'700'}));
   [
-    `1. Agent mass: W = (V/S) × [C/(100-C)], C = ${cDesign}% v/v, SF = ${sf}× per NFPA 2001 §5.3.`,
+    // the agent's class decides the formula (2026-10-31): inert gases displace air - NFPA 2001 §5.4 log relation, as the
+    // engine computes it; this note and note 4 had said the halocarbon formula and "(halocarbon)" for every agent
+    (r.agent_class === 'inert_gas'
+      ? `1. Agent mass: W = (V/S) × 2.303·log10[100/(100-C)], C = ${cDesign}% v/v, SF = ${sf}× per NFPA 2001 §5.4.`
+      : `1. Agent mass: W = (V/S) × [C/(100-C)], C = ${cDesign}% v/v, SF = ${sf}× per NFPA 2001 §5.3.`),
     `2. Cylinder configuration: ${cylQty} × ${cylKg} kg = ${totalKg} kg ${agentLabel}. GWP = ${gwp}.`,
     `3. Room integrity test (door fan) required per NFPA 2001 Annex B / EN 15004 before acceptance.`,
-    `4. Discharge time: ${dischTime} (halocarbon), NFPA 2001 §5.3.4. Verify at commissioning.`,
+    `4. Discharge time: ${dischTime} (${r.agent_class === 'inert_gas' ? 'inert gas' : 'halocarbon'}), NFPA 2001. Verify at commissioning.`,
     `5. Annual inspection per NFPA 2001 §6; cylinder hydrostatic test every 12 years.`,
     `6. BFP permit required. Signed by PRC-licensed Fire Protection Engineer (RA 9514).`,
   ].forEach((note, i) => {

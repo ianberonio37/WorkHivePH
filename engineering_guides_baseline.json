@@ -1,0 +1,11 @@
+{
+ "updated": "2026-10-31",
+ "note": "guides whose fields match their form exactly - a guide on this list that fails again is a regression",
+ "passing": [
+  "Clean Agent Suppression",
+  "Harmonic Distortion",
+  "Pipe Sizing",
+  "Transformer Sizing",
+  "Ventilation / ACH"
+ ]
+}

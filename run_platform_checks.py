@@ -5314,6 +5314,13 @@ VALIDATORS = [
     {"id":"hive-scale-lists","script":"tools/prove_hive_scale_lists.mjs","args":[],
      "label":"Hive at thirty (HS L1/L2): each member list on the walked pages, read against a 30-member hive as a worker and a supervisor at phone-390 and desktop-1280 - every item says who and when, shows a count only when there is one, holds no line of unnamed controls, sits under nothing fixed and inside the screen; each action an item's menu offers is a write the database lets that person make, no permitted moderation action is missing, no supervisor action reaches a worker, and a relation a role must not read is neither drawn nor returned to it; teeth: --teeth flips an expectation and must FAIL",
      "group":"Platform","skip_if_fast":True},
+    # Wave ED (2026-10-31, Ian: "there are many flops in engineering design calculator, in the guide"): every built
+    # calculator's Guide tab, read at phone-390 and desktop-1280 against its own form. Three built calculators said "No guide
+    # available yet ... check back after it is built", three guides printed "[object Object]" for every formula, and on a
+    # phone the text was 12.5px at 55% white with three-line holes in the formulas. ~2 min, so board-only.
+    {"id":"engineering-guides","script":"tools/prove_engineering_guides.mjs","args":["--gate"],
+     "label":"Engineering design guides (ED G1/GR): every built calculator has a Guide; no guide text under 0.8 opacity or 14px, no hole in a formula block, every formula a hanging-indent line, nothing wider than 390 - on all 55 at both widths; a guide whose field names once matched its form exactly (engineering_guides_baseline.json) must still match. Teeth: --teeth plants a ghost field, faint and small text, a formula hole and a flat line, and must catch each",
+     "group":"Engineering Calculator","skip_if_fast":True},
     # Wave HS W1 (2026-10-30): two members change the same item at once. Each race is replayed in one rolled-back transaction
     # as the two people with the page's own write and guard; DB-only, ~1 min.
     {"id":"hive-scale-writes","script":"tools/prove_hive_scale_writes.mjs","args":[],

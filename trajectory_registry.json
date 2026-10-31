@@ -1173293,8 +1173293,8 @@
     },
     {
       "id": "ED91",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Transformer Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1173348,6 +1173348,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Transformer Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED: the Guide said 'No guide available yet ... check back after it is built' for a built calculator. Written from python-api/calcs/transformer_sizing.py: the STD_KVA ladder, the spare-capacity sizing, I = kVA x 1000 / (√3 V), Isc = I2 x 100 / Z%, the LOSS_TABLE fractions, the 0.75² copper loss at 75% load, and VR = εr·PF + εx·sinφ - each line the engine's own. WALKED: Transformer Sizing's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-10-31T09:35:06Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
@@ -1173765,8 +1173771,8 @@
     },
     {
       "id": "ED135",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Harmonic Distortion on engineering-design.html · solo-owner",
       "pages": [
@@ -1173820,6 +1173826,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Harmonic Distortion calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED: no guide for a built calculator. Written from python-api/calcs/harmonic_distortion.py: THD_I and TDD over Σ I_h², the IEEE 519-2022 TDD_LIMITS and the full INDIVIDUAL_LIMITS matrix (bands h<11, 11-16, 17-22, 23-34, 35+), K = 1 + Σ (I_h/I₁)² h², and the ISC/IL = 20 assumption the engine makes when I_SC is 0. The five harmonic inputs had all been named 'System Voltage (%)' by labelizeInputs - each now names its order (data-wh-own-label), and the group heading is the form's field label the guide names. WALKED: Harmonic Distortion's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-10-31T09:35:06Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
@@ -1174886,8 +1174898,8 @@
     },
     {
       "id": "ED249",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Clean Agent Suppression on engineering-design.html · solo-owner",
       "pages": [
@@ -1174941,6 +1174953,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Clean Agent Suppression calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED: no guide for a built calculator. Written from python-api/calcs/clean_agent_suppression.py: the altitude factor, S = s1 + s2·T per agent, the halocarbon C/(100-C) and the inert-gas 2.303·log10[100/(100-C)] relations, the default concentrations and the NOAEL table. The form note and the drawing's general notes had stated only the halocarbon formula and '(halocarbon)' for every agent - both now follow the agent class. WALKED: Clean Agent Suppression's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-10-31T09:35:06Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
@@ -1191642,8 +1191660,8 @@
     },
     {
       "id": "ED327",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-GR1",
       "title": "the guide's text is too faint to read - renderGuide:faint on engineering-design.html · solo-owner",
       "pages": [
@@ -1191696,12 +1191714,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Guide tab's renderer with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED: every tip, note, standard and the subtitle were rgba(255,255,255,0.55) and the tips 12.5px - now 0.80 (the page's measured Lc 79.8 value) at 14px, the formulas 14px. WALKED: the Guide renderer's the guide's text is too faint to read - held on all 55 calculators at phone-390 and desktop-1280, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-10-31T09:35:06Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
       "id": "ED328",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-GR2",
       "title": "an empty formula entry opens a hole - renderGuide:empty on engineering-design.html · solo-owner",
       "pages": [
@@ -1191754,12 +1191778,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Guide tab's renderer with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED: formulas were joined with <br> at line-height 2.1, so each of 134 empty entries opened a three-line hole - an empty entry is now a 0.6rem gap. Three guides (Expansion Tank, FCU Selection, Refrigerant Pipe) printed '[object Object]' for each of their five formulas - their {label, eq} entries now render. WALKED: the Guide renderer's an empty formula entry opens a hole - held on all 55 calculators at phone-390 and desktop-1280, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-10-31T09:35:06Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
       "id": "ED329",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-GR3",
       "title": "a wrapped formula reads as the next formula - renderGuide:wrap on engineering-design.html · solo-owner",
       "pages": [
@@ -1191812,6 +1191842,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Guide tab's renderer with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED: 398 formula lines wrap at 390 and the continuation sat at the same indent as the next formula - each formula is now its own line with a hanging indent, and an indented sub-line keeps its indent. WALKED: the Guide renderer's a wrapped formula reads as the next formula - held on all 55 calculators at phone-390 and desktop-1280, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-10-31T09:35:06Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     }
   ],
