@@ -203,10 +203,20 @@ def calculate(inputs: dict) -> dict:
 
     # Operating pressure at most remote sprinkler
     # Q = K × √P  →  P = (Q/K)²
-    p_remote_bar = (q_per_sprinkler_lpm / k_factor) ** 2
+    # ★THE FORM'S MINIMUM OPERATING PRESSURE WAS NEVER APPLIED (2026-10-31, ED-I1 Fire Sprinkler, census_calc_input_reach).
+    # The page sends operating_pressure ("Min. Operating Pressure at Remote Head"); this never read it, and when the density
+    # flow needed LESS than the minimum (a large-K head) it only flagged min_pressure_ok False and carried the low pressure
+    # into the total flow and the pump pressure - an under-sized fire pump. The remote head runs at the higher of the two
+    # pressures and discharges q = K·√P there (NFPA 13 hydraulic method), so flow and pressure both follow.
+    p_density_bar = (q_per_sprinkler_lpm / k_factor) ** 2
+    p_floor_bar   = max(MIN_RESIDUAL_BAR, float(inputs.get("operating_pressure", 0) or 0))
+    p_remote_bar  = max(p_density_bar, p_floor_bar)
+    pressure_governed_by = "minimum operating pressure" if p_remote_bar > p_density_bar else "design density"
+    q_density_lpm = q_per_sprinkler_lpm
+    q_per_sprinkler_lpm = k_factor * math.sqrt(p_remote_bar)       # ≥ the density flow
     p_remote_psi = p_remote_bar * 14.504
 
-    # Check minimum residual pressure
+    # Check minimum residual pressure (always met now - the head is run at the floor when density needs less)
     min_pressure_ok = p_remote_bar >= MIN_RESIDUAL_BAR
 
     # ── Total design flow ─────────────────────────────────────────────────────
@@ -277,6 +287,10 @@ def calculate(inputs: dict) -> dict:
         "n_sprinklers_design_area": n_sprinklers,
         "q_per_sprinkler_lpm":     round(q_per_sprinkler_lpm, 1),
         "p_remote_bar":            round(p_remote_bar, 3),
+        "p_density_bar":           round(p_density_bar, 3),
+        "p_min_operating_bar":     round(p_floor_bar, 3),
+        "pressure_governed_by":    pressure_governed_by,
+        "q_density_lpm":           round(q_density_lpm, 1),
         "p_remote_psi":            round(p_remote_psi, 2),
         "min_pressure_ok":         min_pressure_ok,
         "min_pressure_bar":        MIN_RESIDUAL_BAR,

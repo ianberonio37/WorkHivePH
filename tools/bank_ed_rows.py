@@ -112,6 +112,19 @@ I1_FIXED["Cooling Tower Sizing"] = (
     "TR x 3.517 x (1 + 1/COP), the form's temperatures, cycles and L/G are read, and cells share the duty. Oracle vector "
     "'Cooling Tower Sizing - the form's chiller source, temperatures and cells' fails on the old engine on all five "
     "asserts. Walked live: 200 TR at COP 5.5, 2 cells -> 831.3 kW (415.6 per cell).")
+I1_FIXED["Fire Sprinkler Hydraulic"] = (
+    "FOUND AND FIXED (fire safety): the form sends operating_pressure ('Min. Operating Pressure at Remote Head'); "
+    "python-api/calcs/fire_sprinkler.py never read it, and when the design density needed LESS pressure than the minimum "
+    "(a large-K head) it only flagged min_pressure_ok False and carried the low pressure into the total flow and the pump "
+    "pressure. The remote head now runs at max(P_density, P_min) and discharges q = K·√P there (NFPA 13 hydraulic method): "
+    "a K115 Ordinary-1 design went 1385.7 -> 1654.6 L/min. The Light Hazard oracle that had asserted the head RUNNING at "
+    "0.437 bar (below the engine's own 0.52 bar floor) now pins the density figures under their own names and the floor's "
+    "flow; a new vector fails on the old engine. The public tools/fire-sprinkler-calculator worked example moved 881.3 -> "
+    "923 L/min - patched in place (promoting staging would revert the live page's later fixes) and restamped.")
+for _calc in ("Bearing Life (L10)", "HVAC Cooling Load"):
+    I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py "
+                       "RECORDED names the label as the reason) - the value it sends is a reference printed on the report, "
+                       "and every value the result depends on is read by the engine.")
 GR_FIXED = {
     "GR1": "FOUND AND FIXED: every tip, note, standard and the subtitle were rgba(255,255,255,0.55) and the tips 12.5px - now "
            "0.80 (the page's measured Lc 79.8 value) at 14px, the formulas 14px.",

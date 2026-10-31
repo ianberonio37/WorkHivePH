@@ -1191941,8 +1191941,8 @@
     },
     {
       "id": "ED331",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Bearing Life (L10) on engineering-design.html · solo-owner",
       "pages": [
@@ -1191995,6 +1191995,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bearing Life (L10) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py RECORDED names the label as the reason) - the value it sends is a reference printed on the report, and every value the result depends on is read by the engine. WALKED: Bearing Life (L10): every value its form sends now reaches its engine (tools/census_calc_input_reach.py), and in the page through the Playwright MCP. HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {
@@ -1192412,8 +1192419,8 @@
     },
     {
       "id": "ED339",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Fire Sprinkler Hydraulic on engineering-design.html · solo-owner",
       "pages": [
@@ -1192466,6 +1192473,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Sprinkler Hydraulic calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED (fire safety): the form sends operating_pressure ('Min. Operating Pressure at Remote Head'); python-api/calcs/fire_sprinkler.py never read it, and when the design density needed LESS pressure than the minimum (a large-K head) it only flagged min_pressure_ok False and carried the low pressure into the total flow and the pump pressure. The remote head now runs at max(P_density, P_min) and discharges q = K·√P there (NFPA 13 hydraulic method): a K115 Ordinary-1 design went 1385.7 -> 1654.6 L/min. The Light Hazard oracle that had asserted the head RUNNING at 0.437 bar (below the engine's own 0.52 bar floor) now pins the density figures under their own names and the floor's flow; a new vector fails on the old engine. The public tools/fire-sprinkler-calculator worked example moved 881.3 -> 923 L/min - patched in place (promoting staging would revert the live page's later fixes) and restamped. WALKED: Fire Sprinkler Hydraulic: every value its form sends now reaches its engine (tools/census_calc_input_reach.py), and in the page through the Playwright MCP. HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {
@@ -1192586,8 +1192600,8 @@
     },
     {
       "id": "ED342",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - HVAC Cooling Load on engineering-design.html · solo-owner",
       "pages": [
@@ -1192640,6 +1192654,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the HVAC Cooling Load calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py RECORDED names the label as the reason) - the value it sends is a reference printed on the report, and every value the result depends on is read by the engine. WALKED: HVAC Cooling Load: every value its form sends now reaches its engine (tools/census_calc_input_reach.py), and in the page through the Playwright MCP. HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {

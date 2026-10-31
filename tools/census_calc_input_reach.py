@@ -132,7 +132,13 @@ def census() -> dict:
 BASELINE = ROOT / "calc_input_reach_baseline.json"
 # a value the engine deliberately does not compute with - it describes the job and is printed on the report. Each needs its
 # reason, and the form/guide must say "recorded on the report" for it (decided per key on the ED-I1 walk)
-RECORDED: dict[str, dict[str, str]] = {}
+RECORDED: dict[str, dict[str, str]] = {
+    "Bearing Life (L10)": {"bearing_no": "the form labels it 'Bearing Number (optional: for report reference)' - a catalog "
+                                         "number printed on the report; the life comes from C and P, which are read"},
+    "HVAC Cooling Load": {"building_type": "the form labels it 'Building Type (for permit documentation: also suggests Room "
+                                           "Function)' - it fills the report header and pre-selects Room Function on the "
+                                           "page; the load comes from Room Function's values, which are read"},
+}
 
 
 def _unread_pairs(c: dict) -> set[tuple[str, str]]:

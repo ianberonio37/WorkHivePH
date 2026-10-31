@@ -1199,14 +1199,39 @@ VECTORS = [
             # = 4.08 mm/min (derived from the STANDARD, NOT the engine table — the
             # prior 2.04 oracle was a change-detector that blessed an under-design bug,
             # fixed 2026-06-23 Arc Q).
-            {"path": "q_per_sprinkler_lpm", "expected": 52.9, "tol": 0.1,
+            # ★2026-10-31 (ED-I1 Fire Sprinkler): this vector asserted the remote head RUNNING at 0.437 bar - below the
+            # engine's own minimum operating pressure (0.52 bar = 7.5 psi; NFPA 13's floor is 7 psi / 0.5 bar). A sprinkler
+            # is never designed below its minimum: the head runs at the floor and discharges q = K·√P there. The density
+            # figures stay pinned under their own names; the governing pressure and flow are the floor's.
+            {"path": "q_density_lpm", "expected": 52.9, "tol": 0.1,
              "note": "NFPA 13 Light Hazard 0.10 gpm/ft² = 4.08 mm/min · (3.6²=12.96 m²) = 52.9 L/min"},
-            {"path": "p_remote_bar", "expected": 0.437, "tol": 0.003,
+            {"path": "p_density_bar", "expected": 0.437, "tol": 0.003,
              "note": "P = (Q/K)² = (52.88/80)² = 0.437 bar (inverse of NFPA Q=K√P)"},
+            {"path": "p_remote_bar", "expected": 0.52, "tol": 0.001,
+             "note": "0.437 < the 0.52 bar minimum: the remote head runs at the minimum"},
+            {"path": "q_per_sprinkler_lpm", "expected": 57.7, "tol": 0.1,
+             "note": "q = K·√P = 80·√0.52 = 57.69 L/min at the governing pressure"},
             {"path": "n_sprinklers_design_area", "expected": 11, "tol": 0,
              "note": "ceil(design_area/coverage) = ceil(139/12.96) = 11 heads"},
             {"path": "hose_stream_lpm", "expected": 379, "tol": 1,
              "note": "NFPA 13 Light Hazard hose allowance = 100 gpm × 3.785 = 379 L/min (independent of engine)"},
+        ],
+    },
+    {
+        # ★THE FORM'S MINIMUM OPERATING PRESSURE (2026-10-31, ED-I1): the page sends operating_pressure; the engine never
+        # read it and carried a K115 head's 0.41 bar density pressure into the totals. Fails on the old engine.
+        "module": "calcs.fire_sprinkler",
+        "calc_type": "Fire Sprinkler Hydraulic - the form's minimum operating pressure governs",
+        "standard": "NFPA 13 — remote head at max(P_density, P_min); q = K·√P; Q = n·q + hose",
+        "inputs": {"occupancy_hazard": "Ordinary Group 1", "design_area": 139, "density": 6.1, "coverage_per_head": 12.1,
+                   "hose_stream": 500, "k_factor": 115, "operating_pressure": 0.7, "pipe_length": 30,
+                   "pipe_material": "Black Steel"},
+        "asserts": [
+            {"path": "p_remote_bar", "expected": 0.7, "tol": 0.001,
+             "note": "density needs (6.1·12.1/115)² = 0.412 bar < the form's 0.7 bar minimum: the head runs at 0.7"},
+            {"path": "q_per_sprinkler_lpm", "expected": 96.2, "tol": 0.1, "note": "q = 115·√0.7 = 96.21 L/min"},
+            {"path": "q_total_lpm", "expected": 1654.6, "tol": 0.5,
+             "note": "ceil(139/12.1) = 12 heads x 96.21 + 500 hose = 1654.6 L/min (the old engine said 1385.7)"},
         ],
     },
     {

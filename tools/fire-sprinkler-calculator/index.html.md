@@ -6,7 +6,7 @@ Source: https://workhiveph.com/tools/fire-sprinkler-calculator/
 
 Fire Sprinkler Hydraulic Calculator
  G1+E3 
-**The Fire Sprinkler Hydraulic Calculator finds the design density, remote-area size, and required flow for a wet-pipe sprinkler system. Example: for an NFPA 13 wet-pipe sprinkler design at 3 m sprinkler spacing, to Ordinary Hazard Group 1, Hazard class = Ordinary Hazard Group 1, Design density = 6.12 mm/min, Remote area = 139 m², System flow = 881.3 L/min (per NFPA 13:2022, PNS NFPA 13 and BFP IRR RA 9514).**
+**The Fire Sprinkler Hydraulic Calculator finds the design density, remote-area size, and required flow for a wet-pipe sprinkler system. Example: for an NFPA 13 wet-pipe sprinkler design at 3 m sprinkler spacing, to Ordinary Hazard Group 1, Hazard class = Ordinary Hazard Group 1, Design density = 6.12 mm/min, Remote area = 139 m², System flow = 923 L/min (per NFPA 13:2022, PNS NFPA 13 and BFP IRR RA 9514).**
 How it works
 The calculator follows NFPA 13:2022, PNS NFPA 13 and BFP IRR RA 9514. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
@@ -16,7 +16,7 @@ ResultValue
 Hazard classOrdinary Hazard Group 1
 Design density6.12 mm/min
 Remote area139 m²
-System flow881.3 L/min
+System flow923 L/min
 Computed by WorkHive's calculation engine when this page was built; standard: NFPA 13:2022, PNS NFPA 13 and BFP IRR RA 9514.
 How to use this calculator
 Read the worked example. It uses an NFPA 13 wet-pipe sprinkler design at 3 m sprinkler spacing, to Ordinary Hazard Group 1 and shows every number in the method.
@@ -37,4 +37,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 7f7e9d3f7cef2da4 -->
+<!-- md-twin source-sha: 994a1af32f4e8464 -->
