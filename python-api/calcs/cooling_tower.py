@@ -116,6 +116,15 @@ def calculate(inputs: dict) -> dict:
     if heat_rejection_kw <= 0 and heat_rejection_tr > 0:
         heat_rejection_kw = heat_rejection_tr * 3.517
 
+    # ★THE FORM'S CHILLER NEVER REACHED THE TOWER (2026-10-31, ED-I1 Cooling Tower, tools/census_calc_input_reach.py). With
+    # Load Source "From Chiller" the page sends chiller_cap_tr and chiller_cop and q_rejection_kw 0; this read neither, fell
+    # through to the "safe default" and sized EVERY chiller-sourced tower for 100 kW. The condenser rejects the evaporator
+    # load plus the compressor work: Q_rej = Q_evap x (1 + 1/COP), Q_evap = TR x 3.517.
+    chiller_tr  = float(inputs.get("chiller_cap_tr", 0) or 0)
+    chiller_cop = float(inputs.get("chiller_cop", 4.5) or 4.5)
+    if heat_rejection_kw <= 0 and chiller_tr > 0 and chiller_cop > 0:
+        heat_rejection_kw = chiller_tr * 3.517 * (1 + 1 / chiller_cop)
+
     # If neither given, derive from cooling load (chiller heat rejection ≈ 1.25 × TR)
     if heat_rejection_kw <= 0:
         cooling_kw = float(inputs.get("cooling_kw", 0) or inputs.get("kW", 0))
@@ -129,14 +138,17 @@ def calculate(inputs: dict) -> dict:
     t_hot_in_c   = float(inputs.get("condenser_water_in_c")
                      or  inputs.get("inlet_temp_C")        # frontend key
                      or  inputs.get("ewt_c")               # alternative
+                     or  inputs.get("ewt")                 # the form's key (2026-10-31)
                      or  35.0)
     t_cold_out_c = float(inputs.get("condenser_water_out_c")
                      or  inputs.get("outlet_temp_C")       # frontend key
                      or  inputs.get("lwt_c")               # alternative
+                     or  inputs.get("lwt")                 # the form's key
                      or  29.5)
     wb_design_c  = float(inputs.get("design_wb_c")
                      or  inputs.get("wb_C")                # frontend key
                      or  inputs.get("wbt_c")               # alternative
+                     or  inputs.get("wbt")                 # the form's key
                      or  MANILA_DESIGN_WB)
     range_c      = t_hot_in_c - t_cold_out_c
     approach_c   = t_cold_out_c - wb_design_c
@@ -150,8 +162,9 @@ def calculate(inputs: dict) -> dict:
         t_cold_out_c = wb_design_c + approach_c
         range_c      = t_hot_in_c - t_cold_out_c
 
-    cycles_of_conc = float(inputs.get("cycles_of_concentration", 4.0))   # CoC
-    l_over_g       = float(inputs.get("l_over_g",                1.3))   # typical 1.0-1.5
+    cycles_of_conc = float(inputs.get("cycles_of_concentration", inputs.get("coc", 4.0)) or 4.0)   # CoC
+    l_over_g       = float(inputs.get("l_over_g", inputs.get("lg_ratio", 1.3)) or 1.3)            # typical 1.0-1.5
+    n_cells        = max(1, int(float(inputs.get("n_cells", 1) or 1)))   # cells share the duty
     fan_eff        = float(inputs.get("fan_efficiency_pct",       65)) / 100
     pump_head_m    = float(inputs.get("pump_head_m",              20.0))  # condenser pump TDH
     pump_eff       = float(inputs.get("pump_efficiency_pct",      70)) / 100
@@ -290,9 +303,9 @@ def calculate(inputs: dict) -> dict:
         "approach_check":    "PASS" if (t_cold_out_c - wb_design_c) >= 3.0 else "WARN - approach < 3°C",
         "lg_ratio":          l_over_g,
         "coc":               cycles_of_conc,
-        "n_cells":           1,
-        "q_cell_kw":         round(heat_rejection_kw, 2),
-        "q_cell_tr":         round(heat_rejection_tr, 2),
+        "n_cells":           n_cells,
+        "q_cell_kw":         round(heat_rejection_kw / n_cells, 2),
+        "q_cell_tr":         round(heat_rejection_tr / n_cells, 2),
         "q_rejection_kw":    round(heat_rejection_kw, 2),
         "q_rejection_tr":    round(heat_rejection_tr, 2),
         "q_w_lps":           round(flow_lps, 2),
@@ -300,10 +313,10 @@ def calculate(inputs: dict) -> dict:
         "q_w_GPM":           round(flow_gpm, 1),
         "fan_kw_total":      round(fan_kw_calc, 3),
         "fan_kw_std":        rec_fan_kw,
-        "fan_kw_per_cell":   round(fan_kw_calc, 3),
+        "fan_kw_per_cell":   round(fan_kw_calc / n_cells, 3),
         "fan_kw_per_100kw":  round(fan_kw_calc / max(heat_rejection_kw, 1) * 100, 3),
         "fan_flow_CMH":      round(air_vol_m3s * 3600, 0),
-        "fan_flow_CMH_cell": round(air_vol_m3s * 3600, 0),
+        "fan_flow_CMH_cell": round(air_vol_m3s * 3600 / n_cells, 0),
         "blowdown_lhr":      round(blowdown_lps * 3600, 1),
         "drift_lhr":         round(drift_lps * 3600, 2),
         "evap_lhr":          round(evap_lps * 3600, 1),

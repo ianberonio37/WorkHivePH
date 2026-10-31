@@ -18,38 +18,6 @@
    "leakage_allowance"
   ],
   [
-   "Cooling Tower Sizing",
-   "chiller_cap_tr"
-  ],
-  [
-   "Cooling Tower Sizing",
-   "chiller_cop"
-  ],
-  [
-   "Cooling Tower Sizing",
-   "coc"
-  ],
-  [
-   "Cooling Tower Sizing",
-   "ewt"
-  ],
-  [
-   "Cooling Tower Sizing",
-   "lg_ratio"
-  ],
-  [
-   "Cooling Tower Sizing",
-   "lwt"
-  ],
-  [
-   "Cooling Tower Sizing",
-   "n_cells"
-  ],
-  [
-   "Cooling Tower Sizing",
-   "wbt"
-  ],
-  [
    "Earthing / Grounding System",
    "system_voltage"
   ],

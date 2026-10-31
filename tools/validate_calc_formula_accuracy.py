@@ -1684,6 +1684,24 @@ VECTORS = [
         ],
     },
     {
+        # ★THE FORM'S CHILLER, TEMPERATURES AND CELLS (2026-10-31, ED-I1): with Load Source "From Chiller" the page sends
+        # chiller_cap_tr / chiller_cop and ewt / lwt / wbt / coc / lg_ratio / n_cells; the engine read none and sized every
+        # chiller-sourced tower for a 100 kW default at its own default temperatures. Every assert fails on that engine.
+        "module": "calcs.cooling_tower",
+        "calc_type": "Cooling Tower Sizing - the form's chiller source, temperatures and cells",
+        "standard": "ASHRAE — condenser rejection Q_rej = Q_evap·(1 + 1/COP); Range = EWT − LWT; Approach = LWT − WBT",
+        "inputs": {"load_source": "chiller", "q_rejection_kw": 0, "chiller_cap_tr": 200, "chiller_cop": 5.0,
+                   "ewt": 35, "lwt": 30, "wbt": 27, "coc": 5, "lg_ratio": 1.2, "n_cells": 2},
+        "asserts": [
+            {"path": "heat_rejection_kw", "expected": 844.08, "tol": 0.05,
+             "note": "200 TR x 3.517 = 703.4 kW evaporator; x (1 + 1/5) = 844.08 kW rejected - not the 100 kW default"},
+            {"path": "range_c", "expected": 5.0, "tol": 0.01, "note": "the form's EWT 35 − LWT 30"},
+            {"path": "approach_c", "expected": 3.0, "tol": 0.01, "note": "the form's LWT 30 − WBT 27"},
+            {"path": "cycles_of_concentration", "expected": 5.0, "tol": 0.001, "note": "the form's cycles (not the default 4)"},
+            {"path": "q_cell_kw", "expected": 422.04, "tol": 0.05, "note": "two cells share 844.08 kW"},
+        ],
+    },
+    {
         "module": "calcs.expansion_tank",
         "calc_type": "Expansion Tank Sizing",
         "standard": "ASHRAE Ch.12 / ASME VIII — precharge=static head; α=1−Pf/Pmax",

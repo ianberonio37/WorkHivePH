@@ -104,6 +104,14 @@ I1_FIXED["Short Circuit"] = (
     "names are read now; oracle vector 'Short Circuit - the form's transformer and breaker reach the verdict' fails on the "
     "old engine on all three asserts (25 / 11.16 kA / True). Walked live: 1000 kVA + 10 kA -> 22.03 kA, '10 kA installed vs "
     "22.034 kA required', 'the current 10 kA breaker is inadequate'.")
+I1_FIXED["Cooling Tower Sizing"] = (
+    "FOUND AND FIXED: with Load Source 'From Chiller (TR + COP)' the form sends chiller_cap_tr and chiller_cop with "
+    "q_rejection_kw 0; python-api/calcs/cooling_tower.py read neither and fell through to its 100 kW 'safe default', so "
+    "EVERY chiller-sourced tower was sized for 100 kW. It also read ewt_c/lwt_c/wbt_c, cycles_of_concentration and "
+    "l_over_g where the form sends ewt/lwt/wbt, coc and lg_ratio, and reported one cell whatever was chosen. Now Q_rej = "
+    "TR x 3.517 x (1 + 1/COP), the form's temperatures, cycles and L/G are read, and cells share the duty. Oracle vector "
+    "'Cooling Tower Sizing - the form's chiller source, temperatures and cells' fails on the old engine on all five "
+    "asserts. Walked live: 200 TR at COP 5.5, 2 cells -> 831.3 kW (415.6 per cell).")
 GR_FIXED = {
     "GR1": "FOUND AND FIXED: every tip, note, standard and the subtitle were rgba(255,255,255,0.55) and the tips 12.5px - now "
            "0.80 (the page's measured Lc 79.8 value) at 14px, the formulas 14px.",

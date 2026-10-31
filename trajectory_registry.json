@@ -1192173,8 +1192173,8 @@
     },
     {
       "id": "ED335",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Cooling Tower Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1192227,6 +1192227,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Cooling Tower Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED: with Load Source 'From Chiller (TR + COP)' the form sends chiller_cap_tr and chiller_cop with q_rejection_kw 0; python-api/calcs/cooling_tower.py read neither and fell through to its 100 kW 'safe default', so EVERY chiller-sourced tower was sized for 100 kW. It also read ewt_c/lwt_c/wbt_c, cycles_of_concentration and l_over_g where the form sends ewt/lwt/wbt, coc and lg_ratio, and reported one cell whatever was chosen. Now Q_rej = TR x 3.517 x (1 + 1/COP), the form's temperatures, cycles and L/G are read, and cells share the duty. Oracle vector 'Cooling Tower Sizing - the form's chiller source, temperatures and cells' fails on the old engine on all five asserts. Walked live: 200 TR at COP 5.5, 2 cells -> 831.3 kW (415.6 per cell). WALKED: Cooling Tower Sizing: every value its form sends now reaches its engine (tools/census_calc_input_reach.py), and in the page through the Playwright MCP. HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {
