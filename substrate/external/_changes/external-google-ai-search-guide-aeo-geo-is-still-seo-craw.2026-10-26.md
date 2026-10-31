@@ -41,3 +41,7 @@ The distilled facts moved. DECIDE: which lever (gate threshold, roadmap claim, r
 +
 +Sources: https://developers.google.com/search/docs/fundamentals/ai-optimization-guide, https://www.searchenginejournal.com/googles-new-ai-search-guide-calls-aeo-and-geo-still-seo/575026/
 ```
+
+## Decision (2026-10-31)
+
+No lever moves; the roadmap already moved with this source. MAXIMIZATION_ROADMAP line 119 records Google's 'AEO/GEO is still SEO' and line 83 keeps llms.txt as hygiene only, not a citation lever - the re-fetched guidance (no special AI files, no chunking, no AI-specific schema) says the same.

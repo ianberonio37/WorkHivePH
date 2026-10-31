@@ -654,7 +654,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whHeldUpload whHiveId whListError whMoreNote whQueryTimeout whRememberView whSourcesSync whStartupHive whStatUnknown whStatValue whUse">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtPeso whFreshnessFooter whHeldUpload whHiveId whListError whLoadFormerMembers whMemberSuffix whMoreNote whQueryTimeout whRememberView whSourcesSync whStartupHive whStatUnknown whStatValue whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -870,6 +870,13 @@
         ${_seller?.kyb_verified
           ? `<span class="badge-kyb"><span class="ic ic-check" aria-hidden="true"></span>${e(_t('ID Verified', 'ID na-verify'))}</span>`
           : `<span class="badge-unverified" title="${e(_t('WorkHive verifies seller IDs during review. There is nothing for you to submit.', 'Ang WorkHive ang nagve-verify ng ID ng seller habang nagre-review. Wala kang kailangang isumite.'))}">${e(_t('ID not verified yet', 'Hindi pa na-verify ang ID'))}</span>`}`;
+      // ★A SELLER COULD NOT SEE WHAT BUYERS SEE (Wave JS seller recast, 2026-10-31). The public profile opens only from a
+      // listing, so checking it meant finding your own listing in the marketplace and tapping your own name. Offered only
+      // for a seller row - without one the profile honestly says "Seller not found", and a link there would be a dead end.
+      document.getElementById('seller-public-link')?.remove();
+      if (_seller && _seller.worker_name) {
+        badgesEl.insertAdjacentHTML('afterend', `<a id="seller-public-link" href="marketplace-seller-profile.html?worker=${escHtml(encodeURIComponent(_seller.worker_name))}" style="font-size:0.75rem;color:var(--wh-steel-bright);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">How buyers see you →</a>`);
+      }
       // T98 (2026-08-25): tier progression was ILLEGIBLE — the chip named the tier but never
       // what advances it, so a seller could not plan toward Silver. The thresholds are per-hive
       // knobs (a hive can adjust them), so read the REAL values via service_knob rather than
@@ -1069,6 +1076,26 @@
   let _listingsTotal  = 0;
   let _listingsMore = false;   // SL LB1: the listings read found more than the 500 it loads
 
+  // the next 50 strictly older than the last one shown, in the list's own order (newest first, id breaking ties)
+  async function loadOlderInquiries(btn) {
+    const last = _inquiries[_inquiries.length - 1]; if (!last) return;
+    if (btn) { btn.disabled = true; btn.textContent = 'Loading older inquiries…'; }
+    const { data, error } = await db.from('v_marketplace_inquiries_truth')
+      .select('id,listing_id,buyer_name,buyer_contact,message,status,reply_text,replied_at,created_at,listing_title')
+      .eq('to_me', true)
+      .or(`created_at.lt."${last.created_at}",and(created_at.eq."${last.created_at}",id.gt."${last.id}")`)
+      .order('created_at', { ascending: false })
+      .order('id')
+      .limit(50 + 1);   // more-said: by renderInquiries (a 51st says older ones remain; the note says "Showing the N newest of M inquiries" from the exact count)
+    if (error) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Show older inquiries'; }
+      showToast(whReadError(error, 'your older inquiries'), 'error');
+      return;
+    }
+    _inquiries = _inquiries.concat((data || []).slice(0, 50));
+    renderInquiries();
+  }
+
   /* ── Load inquiries ─────────────────────────────────────────────────────── */
   async function loadInquiries() {
     showSkeletons();
@@ -1102,6 +1129,8 @@
         _inquiriesPendingTotal = Number(pendingCount || 0);
       } catch (_) { /* fall back to .length below */ /* empty-catch-allow: best-effort silent swallow */ }
     } catch (_e) { _readFailed.inquiries = true; _readFailErr.inquiries = _e; _inquiries = []; if (typeof showToast === 'function') showToast(_failCopy(_e, { en: 'your inquiries', fil: 'mga inquiry mo' }), 'error'); } // dim-10: surface load failure, don't disguise as "no inquiries"
+    // HS L5: a buyer who was a member of this hive and has left is said so (the hive's departed members, asked once)
+    if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
     renderInquiries();
     updateBadges();
     /* ★THE TILE THIS LOADER OWNS IS REFRESHED BY THIS LOADER (2026-10-06, found walking LXP218 with
@@ -1657,7 +1686,7 @@
       return `
         <div class="inquiry-item${isReplied ? ' replied' : ''}" data-id="${e(inq.id)}">
           <div class="inq-header">
-            <span class="inq-buyer">${e(inq.buyer_name)}</span>
+            <span class="inq-buyer">${e(inq.buyer_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(inq.buyer_name) : ''))}</span>
             <span class="inq-date">${e(timeAgo(inq.created_at))}</span>
           </div>
           <div class="inq-listing">Re: ${e(listingTitle)}</div>
@@ -1687,10 +1716,14 @@
     }).join('')
       // SL LB1: the 50 newest of the exact count the badge already holds
       + ((typeof _inquiriesTotal === 'number' && _inquiriesTotal > _inquiries.length)
-        ? '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:rgba(255,255,255,0.80);margin:0 0 0.5rem;">Showing the ' + _inquiries.length + ' newest of ' + _inquiriesTotal.toLocaleString('en-PH') + ' inquiries.</p>' : '');
+        ? '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:rgba(255,255,255,0.80);margin:0 0 0.5rem;">Showing the ' + _inquiries.length + ' newest of ' + _inquiriesTotal.toLocaleString('en-PH') + ' inquiries.</p>'
+          // HS L4 (2026-10-30, "a year of the hive", walked live): 166 questions, and an unanswered one older than the
+          // newest 50 could not be reached to reply to - the older ones are read on demand, 50 at a time
+          + '<button type="button" data-action="older-inquiries" style="width:100%;min-height:44px;border-radius:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:inherit;font-weight:600;">Show older inquiries</button>' : '');
 
     area.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => {
+        if (btn.dataset.action === 'older-inquiries') loadOlderInquiries(btn);
         if (btn.dataset.action === 'reply') handleReply(btn.dataset.id);
         if (btn.dataset.action === 'close') handleCloseInquiry(btn.dataset.id);
         // T170: reveal ONE buyer's contact, in place, on demand. Replacing the button with
@@ -2080,7 +2113,9 @@
         const { data: _cur } = await db.from('v_marketplace_listings_truth')
           .select('updated_at').eq('id', id).maybeSingle();
         if (_cur && _cur.updated_at && _cur.updated_at !== _stamp) {
-          showToast('Someone else saved this listing while you were editing it. Nothing of yours was lost, so reopen it to see their version, then make your change again.', 'error');
+          // only the listing's owner may edit it (the policy asks the account), so the save that came first was YOURS - from
+          // another tab or device. "Someone else" named a person who cannot exist (HS W1 race walk, 2026-10-30).
+          showToast('This listing was saved from another tab or device while you were editing it, so this change was not made. Reopen it to see that version, then make your change again.', 'error');
         } else {
           showToast('That listing could not be saved and is unchanged. Reload the page and try again.', 'error');
         }
@@ -2312,7 +2347,12 @@
         db.from('v_service_open_broadcasts').select('*').order('created_at', { ascending: false }).order('request_id').limit(30 + 1),   // more-said: by renderSvcConsole (SL LB1: a 31st open request is said, and the badge reads 30+)
         // SL LB1: the provider's OWN jobs, filtered in the query - they were filtered after the cap, so a person who also
         // hires services could see their provider jobs crowded out of the 60 newest
-        db.from('v_service_request_truth').select('*').in('matched_provider_id', _svcMyIds).in('status', SVC_ACTIVE.concat(SVC_FINISHED)).order('updated_at', { ascending: false }).order('id').limit(60 + 1)   // more-said: by renderSvcConsole   // in-list-bounded: the viewer's own service-provider profiles
+        // ★THE QUERY FILTER SILENTLY UNDID THE DISPUTED BUCKET (Wave JS seller recast, 2026-10-31, walked as Hector Salvador
+        // and Bryan Garcia at 390/1280 with a client's report on each). Moving the status filter into this query asked only
+        // for SVC_ACTIVE + SVC_FINISHED, so `disputed` and every SVC_CLOSED state stopped arriving at all - the buckets below
+        // stayed in the code and were always empty, and a provider's job vanished the moment the client reported a problem
+        // ("Services 0"). The query asks for every bucket the console renders.
+        db.from('v_service_request_truth').select('*').in('matched_provider_id', _svcMyIds).in('status', SVC_ACTIVE.concat(SVC_FINISHED, SVC_DISPUTED, SVC_CLOSED)).order('updated_at', { ascending: false }).order('id').limit(60 + 1)   // more-said: by renderSvcConsole   // in-list-bounded: the viewer's own service-provider profiles
       ]);
       /* ALL THREE, not just the first. Only provRes was checked, so a failure of the BROADCAST FEED
          or the JOBS read resolved with { data: null, error } and became an empty array -- the
@@ -2340,6 +2380,10 @@
          them, and until now the first they would know of a case against them is money leaving their
          wallet. Shown FIRST, above active work, because it is the most urgent thing on the page. */
       const disputed = mine.filter(j => SVC_DISPUTED.includes(j.status));
+      // The review's outcome, once there is one (Wave JS, 2026-10-31): adjudicate_service_dispute records it as a job event,
+      // and v_service_request_truth carries the latest as reviewed_at / review_note - so the card stops saying "WorkHive is
+      // reviewing it" about a case already decided.
+      disputed.forEach(j => { if (j.reviewed_at) j._review = { note: j.review_note, created_at: j.reviewed_at }; });
       const _closedAll = mine.filter(j => SVC_CLOSED.includes(j.status));
       const closed = _closedAll.slice(0, 8);
       closed._more = _closedAll.length > 8 || _jobsMore;   // SL LB1
@@ -2917,9 +2961,12 @@
           + 'border-left:3px solid var(--wh-red,#f87171);">'
           + '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>'
           + '<div style="font-size:0.75rem;opacity:0.85;margin:0.25rem 0 0.5rem;">'
-          + 'The client reported a problem with this job, so it has not settled. WorkHive is '
-          + 'reviewing it. If credits were applied to this job they may be returned to the client '
-          + 'as part of that review.'
+          + (j._review
+              ? 'The client reported a problem with this job. ' + e(j._review.note || 'WorkHive reviewed it.')
+                + ' (' + e(new Date(j._review.created_at).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric' })) + ')'
+              : 'The client reported a problem with this job, so it has not settled. WorkHive is '
+                + 'reviewing it. If credits were applied to this job they may be returned to the client '
+                + 'as part of that review.')
           + '</div>'
           + '<div style="font-size:0.75rem;opacity:0.8;margin-bottom:0.5rem;">'
           + e(j.address || 'Site not given')
@@ -2983,6 +3030,7 @@
           '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>' +
           '<div style="font-size:0.75rem;opacity:0.8;margin:0.25rem 0 0.5rem;">' + e(SVC_STATUS_LABEL[j.status] || j.status) +
           (j.client_worker_name ? ' · for ' + e(j.client_worker_name) : '') + '</div>' +
+          (j.reviewed_at ? '<div style="font-size:0.75rem;opacity:0.9;margin:0 0 0.5rem;">' + e(j.review_note || 'WorkHive reviewed this job.') + '</div>' : '') +
           (function () {
             /* T35: what the client actually paid, and - when it differs from the agreed figure -
                the reason they typed to explain it. The variance line is the point of this block:

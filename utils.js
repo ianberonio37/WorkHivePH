@@ -368,14 +368,25 @@ if (typeof window !== 'undefined') window.whToldIfFailure = whToldIfFailure;
               : ((b.retryAfter != null) ? b.retryAfter : null);
         if (v != null && isFinite(Number(v)) && Number(v) > 0) secs = Math.ceil(Number(v));
       } catch (_) { /* empty-catch-allow: a missing window is not an error, it is the old message */ }
+      /* ★WHAT THE LIMIT IS, WHEN THE SERVER SAID (Wave HS H4, 2026-10-30, walked with a hive of thirty's day spent). The
+         assistant said "The AI is at its limit right now. Try again in about 238 minutes." - true, but a person reads an
+         outage, not the hive's own daily budget, while the companion on every other page said "Daily AI limit reached for
+         this hive". The neutral line stays for a window the server did not name (the platform's global budget); when its
+         sentence says the limit is THIS HIVE's, the person is told that, and a wait past 90 minutes is said in hours. */
+      var _hive = /for this hive/i.test(m), _day = /daily/i.test(m);
+      var _what = _hive ? (_day ? "Your hive's AI budget for today is used up." : "Your hive has reached its AI limit for this hour.")
+                        : 'The AI is at its limit right now.';
       if (secs) {
-        var mins = Math.ceil(secs / 60);
+        var mins = Math.ceil(secs / 60), hrs = Math.round(secs / 3600);
+        var _when = secs < 90 ? secs + ' seconds' : mins < 90 ? mins + ' minutes' : hrs + (hrs === 1 ? ' hour' : ' hours');
         return (secs < 90)
-          ? T('The AI is at its limit right now. Try again in about ' + secs + ' seconds.',
+          ? T(_what + ' Try again in about ' + _when + '.',
               'Nasa limitasyon ang AI ngayon. Subukan muli pagkalipas ng humigit-kumulang ' + secs + ' segundo.')
-          : T('The AI is at its limit right now. Try again in about ' + mins + ' minutes.',
+          : T(_what + ' Try again in about ' + _when + '.',
               'Nasa limitasyon ang AI ngayon. Subukan muli pagkalipas ng humigit-kumulang ' + mins + ' minuto.');
       }
+      if (_hive) return T(_what + (_day ? ' It resets tomorrow.' : ' Try again in an hour.'),
+                          'Nasa limitasyon ang AI ngayon. Maghintay sandali at subukan muli.');
       // T39 attribution fix (2026-09-02): the exhausted window is usually the GLOBAL platform
       // budget (ai_global_budget), so "You have hit..." blamed the worker for platform demand —
       // the which-server-sentences class, mild form. Neutral is true in every case. The
@@ -405,7 +416,12 @@ if (typeof window !== 'undefined') window.whToldIfFailure = whToldIfFailure;
          what every case in the band shares, and keeps the one instruction that is true for all of them. */
       return T('The AI service could not answer just now. Please try again shortly.',
                'Hindi nakasagot ang AI service ngayon. Subukan muli mamaya.');
-    if (/network|failed to fetch|offline|connection|name resolution/i.test(m))
+    /* ★A DROPPED REQUEST WAS "SOMETHING WENT WRONG" (Wave JS, 2026-10-31, alert-hub on a 3G line that drops one request
+       in twelve). supabase-js wraps a request that never left as FunctionsFetchError "Failed to send a request to the Edge
+       Function", which matched nothing here, so alert-hub said "The live refresh did not run: Something went wrong. Please
+       try again." - no cause, on the one failure the person can do something about. The companion's own list has had this
+       phrase since W3-SC2; this shared one had not. A timeout is relabelled above and never reaches this branch. */
+    if (/network|failed to fetch|failed to send a request|load failed|offline|connection|name resolution/i.test(m))
       return T('Network problem: check your connection and try again.',
                'May problema sa koneksyon: suriin ang koneksyon at subukan muli.');
     /* The caller's fallback is their own EN sentence, so it is returned untranslated - a page
@@ -565,6 +581,20 @@ window.whStatValue = function (el, v) {
 // Async because reading the body is; callers are already inside async handlers.
 // Returns the function's OWN sentence when it sent one (it is more specific than anything a
 // generic mapper can produce), else the status-mapped taxonomy line.
+//
+// whFnSentence(body) is that rule on its own, for a caller that already holds the parsed body (the companion reads
+// the Response itself): the function's own sentence, or '' when the body carries none a person should read.
+// ★IT HAD BEEN COPIED, AND THE COPIES KEPT THE OLD READING (Wave JS, 2026-10-31). The companion's own
+// `body.error || body.message` answered a function outage with "dependency_down" and a crashed agent with the proxy's
+// JSON; analytics and analytics-report did the same in their own fetches. One rule, read from here.
+window.whFnSentence = function (body) {
+  var _sentence = function (v) {
+    return (typeof v === 'string' && /\s/.test(v.trim()) && !/non-2xx/i.test(v)) ? v.trim() : '';
+  };
+  if (!body || typeof body !== 'object' || (body.error === undefined && body.ok !== false)) return '';
+  return _sentence(body.message) || _sentence(body.error)
+    || (body.error && typeof body.error === 'object' ? _sentence(body.error.message) : '');
+};
 window.whFnError = async function (err, fallback) {
   var status = 0, body = null;
   try {
@@ -586,17 +616,12 @@ window.whFnError = async function (err, fallback) {
   // also sent "Too many password resets. Try again later." - and the envelope's sentence was never read at all (an
   // object is not a string, so it fell to the status line). The sentence wins wherever it is; a bare code
   // (no space in it) is not something to show a person, so it falls through to the status taxonomy.
-  var _sentence = function (v) {
-    return (typeof v === 'string' && /\s/.test(v.trim()) && !/non-2xx/i.test(v)) ? v.trim() : '';
-  };
   // ★AND ONLY THE FUNCTION'S OWN BODY (2026-10-27). With the edge runtime down, the gateway in front of it answered
   // 503 {"message": "name resolution failed"} and engineering-design, shift-brain and alert-hub showed a person exactly
   // that. Every function refusal carries `error` (or ok:false) - 228 bodies lead with it, none with a bare message;
   // a body without either is the gateway's or the platform's ({message}, {code: "BOOT_ERROR", message}), and its words
   // are about our machinery, not the person's request. Those fall through to the status line below.
-  var fnBody = body && typeof body === 'object' && (body.error !== undefined || body.ok === false);
-  var own = fnBody && (_sentence(body.message) || _sentence(body.error)
-    || (body.error && typeof body.error === 'object' ? _sentence(body.error.message) : ''));
+  var own = window.whFnSentence(body);
   if (own) return own;
 
   // No usable body: hand the STATUS to the taxonomy, since the message never carried it.
@@ -3875,6 +3900,107 @@ function whFreshnessFooter(_opts) {
 }
 if (typeof window !== 'undefined') window.whFreshnessFooter = whFreshnessFooter;
 
+/* whHoldPlace(listEl, idAttr, change) - a list redrawn while someone reads it keeps the row they were reading where it
+   was (HS L3, 2026-10-30, walked live). Five pages drew a live arrival by redrawing the list, and each moved the reader:
+   the browser's own scroll anchoring has nothing to hold once the rows are replaced, a row found again by its WORDS can
+   be a twin further down (audit-log: 701 px), and content-visibility rows above the screen first stand at an estimated
+   height and settle a frame later (one correction was 252 px off; the marketplace's read card went 1,174 px UP). So:
+   the row at the top of the reader's screen is found again by its id attribute, the list opts out of the browser's
+   anchoring so ONE hand moves the page, and the place is held each frame for a third of a second - letting go the
+   moment the reader scrolls. At the top of the list nothing is held: a new row simply appears. */
+function whHoldPlace(listEl, idAttr, change) {
+  if (!listEl || typeof change !== 'function') { if (typeof change === 'function') change(); return; }
+  listEl.style.overflowAnchor = 'none';
+  var sel = '[' + idAttr + ']';
+  var rows = function () { return Array.prototype.slice.call(listEl.querySelectorAll(sel)); };
+  var read = listEl.getBoundingClientRect().top < 0 ? rows().find(function (c) { return c.getBoundingClientRect().bottom > 0; }) : null;
+  var id = read ? read.getAttribute(idAttr) : null, top = read ? read.getBoundingClientRect().top : 0;
+  /* The hold lets go when the READER moves - their wheel, touch, key or pointer - never because the page's scroll moved on
+     its own: the browser's anchoring for sections above the list also moves it, and reading that as the reader's hand
+     let go of the place mid-refresh (alert-hub at 1280: held on one run, 297 px off on the next). */
+  var readerMoved = false, released = false;
+  var mark = function () { readerMoved = true; };
+  var evs = ['wheel', 'touchstart', 'keydown', 'pointerdown'];
+  var release = function () {
+    if (released) return; released = true;
+    evs.forEach(function (ev) { window.removeEventListener(ev, mark, { capture: true }); });
+  };
+  var place = function () {   // one correction; false once the reader has moved
+    if (readerMoved) { release(); return false; }
+    var same = rows().find(function (c) { return c.getAttribute(idAttr) === id; });
+    var moved = same ? same.getBoundingClientRect().top - top : 0;
+    if (moved) window.scrollBy(0, moved);
+    return true;
+  };
+  var settle = function (n) { if (place() && n > 0) requestAnimationFrame(function () { settle(n - 1); }); else release(); };
+  /* A change may be a whole refresh (alert-hub's minute: the brief and figures ABOVE the list redraw after the list, so a
+     hold that ended with the list's own redraw left the reader 349 px off at 1280). A change that returns a promise is
+     held through, and after, its settling. The reader moving at any point ends the hold. */
+  var r = change();
+  if (!id) return r;
+  evs.forEach(function (ev) { window.addEventListener(ev, mark, { passive: true, capture: true }); });
+  if (r && typeof r.then === 'function') {
+    var watching = true;
+    (function during() { if (!watching || released) return; if (place()) requestAnimationFrame(during); })();
+    // a refresh's tail outlives its promise (alert-hub's brief re-renders after loadAll resolves and grew above the feed
+    // 256 px later): the place is held for 6 s after it settles - a correction a frame, ended by the reader's own move
+    return r.then(function (v) { watching = false; settle(360); return v; }, function (e) { watching = false; settle(360); throw e; });
+  }
+  settle(20);
+  return r;
+}
+if (typeof window !== 'undefined') window.whHoldPlace = whHoldPlace;
+
+// ── whPresenceFit — a presence row of thirty stays one line and says how many (Wave HS H1, 2026-10-30) ──
+// Walked live with 29 members online: community's row showed 2 chips and hid 27 in a 5,000 px sideways scroll with its
+// scrollbar turned off, and nothing said anyone else was there. Called after a page draws its chips: the chips that fit
+// stay, the rest fold into one "+N more online" chip that opens the row to everyone ("Show fewer" folds it again), and
+// the row's accessible name carries the count. The row never grows taller on its own; it refits when the window does.
+function whPresenceFit(bar) {
+  try {
+    if (!bar) return;
+    if (!bar.__whPresenceResize) {   // one listener per row: a row that fits now may not after the window narrows
+      var t = null;
+      bar.__whPresenceResize = function () { clearTimeout(t); t = setTimeout(function () { whPresenceFit(bar); }, 150); };
+      window.addEventListener('resize', bar.__whPresenceResize, { passive: true });
+    }
+    var prev = bar.querySelector('.wh-presence-more');
+    if (prev) prev.parentNode.removeChild(prev);
+    var chips = [].slice.call(bar.querySelectorAll('.presence-chip')).filter(function (c) { return !/italic/.test(c.getAttribute('style') || ''); });
+    chips.forEach(function (c) { c.style.display = ''; });
+    var n = chips.length;
+    if (n) bar.setAttribute('aria-label', n + (n === 1 ? ' member' : ' members') + ' online');
+    var open = bar.getAttribute('data-wh-presence-open') === '1';
+    bar.style.flexWrap = open ? 'wrap' : 'nowrap';
+    bar.style.overflowX = open ? 'visible' : 'hidden';
+    var more = function (label, expanded) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'presence-chip wh-presence-more';
+      b.style.cssText = 'min-height:44px;cursor:pointer;font-weight:600;white-space:nowrap;flex-shrink:0;';
+      b.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      b.textContent = label;
+      b.onclick = function () { bar.setAttribute('data-wh-presence-open', expanded ? '0' : '1'); whPresenceFit(bar); };
+      bar.appendChild(b);
+      return b;
+    };
+    if (n < 2) return;
+    if (open) { more('Show fewer · ' + n + ' online', true); return; }
+    var edge = bar.getBoundingClientRect().right;
+    var fitsAll = chips[n - 1].getBoundingClientRect().right <= edge + 1;
+    if (fitsAll) return;
+    // room for the summary chip, measured from a real one
+    var probe = more('+' + n + ' more online', false), room = probe.getBoundingClientRect().width + 8;
+    probe.parentNode.removeChild(probe);
+    var fit = 0;
+    for (var i = 0; i < n; i++) { if (chips[i].getBoundingClientRect().right <= edge - room + 1) fit++; else break; }
+    fit = Math.max(1, fit);
+    for (var j = fit; j < n; j++) chips[j].style.display = 'none';
+    more('+' + (n - fit) + ' more online', false);
+  } catch (_) { /* empty-catch-allow: a presence row that cannot be measured stays as the page drew it */ }
+}
+if (typeof window !== 'undefined') window.whPresenceFit = whPresenceFit;
+
 // whCapRows — progressive disclosure for long tables (rubric A3, FAMILY roadmap F3).
 // A3 failed on 31/32 pages for the same reason: every long table renders ALL rows at
 // once (Miller/Hick: the reader pays for every row whether they need it or not). This
@@ -5188,6 +5314,43 @@ function whHiveMembershipLost(db, hiveId, workerName) {
 }
 if (typeof window !== 'undefined') window.whHiveMembershipLost = whHiveMembershipLost;
 
+/* ★AN ITEM OUTLIVES ITS AUTHOR'S MEMBERSHIP (HS L5, 2026-10-30, the hive at thirty). Thirty is not a fixed thirty: in
+   the full hive Rodel Ignacio was deactivated and his 19 logbook entries (4 still open), 9 PM completions and 6 stock
+   movements stayed on every list under his bare name - read exactly like a teammate on today's shift, someone a
+   supervisor would go and ask. The hive's membership rows say who has left (every member reads them -
+   hive_members_read_scoped); a page loads them once with whLoadFormerMembers and a list says "(former member)" after
+   the name with whMemberSuffix. A member who left and came back is active again, and is no one's former member. */
+var _whFormer = { hive: null, names: new Set(), p: null };
+function whLoadFormerMembers(db, hiveId) {
+  if (!db || !hiveId) return Promise.resolve(_whFormer.names);
+  if (_whFormer.hive === hiveId && _whFormer.p) return _whFormer.p;
+  _whFormer.hive = hiveId; _whFormer.names = new Set();
+  // canonical-allow: who has left the hive - a membership fact the lists name beside an author, not a metric
+  _whFormer.p = db.from('hive_members').select('worker_name, status').eq('hive_id', hiveId).neq('status', 'active')
+    .limit(500)   // L2: one hive's departed members, bounded-by-nature
+    .then(function (r) {
+      ((r && r.data) || []).forEach(function (m) { if (m && m.worker_name) _whFormer.names.add(String(m.worker_name)); });
+      return _whFormer.names;
+    }, function () { return _whFormer.names; });   // could not ask: names are shown as they are, never guessed
+  return _whFormer.p;
+}
+function whIsFormerMember(name) { return !!name && _whFormer.names.has(String(name)); }
+function whMemberSuffix(name) { return whIsFormerMember(name) ? ' (former member)' : ''; }
+// a line of free text that names people (an audit target: "Shared a trend... (by Rodel Ignacio)") - each departed
+// member it names is marked where the name stands, once
+function whMarkFormerIn(text) {
+  var out = String(text == null ? '' : text);
+  _whFormer.names.forEach(function (n) {
+    if (!n || out.indexOf(n) < 0) return;
+    out = out.split(n + ' (former member)').join('\u0000').split(n).join(n + ' (former member)').split('\u0000').join(n + ' (former member)');
+  });
+  return out;
+}
+if (typeof window !== 'undefined') {
+  window.whLoadFormerMembers = whLoadFormerMembers; window.whIsFormerMember = whIsFormerMember; window.whMemberSuffix = whMemberSuffix;
+  window.whMarkFormerIn = whMarkFormerIn;
+}
+
 // A refusal for a LIMIT - PostgREST's or a gateway's 429, a function's 429 (on .context), or a limit's own words. The one
 // test the read voice below and a page's own sentence share, so a page that words its failure itself can still tell a
 // limit (wait, then try again) from an outage without re-deriving it (SL RL2, 2026-10-22).
@@ -5825,16 +5988,18 @@ async function whEnsureHiveContext(db) {
 // each page reconciles once on load: ask the server what this hive is called, and if the cached
 // name disagrees, correct the cache and repaint anything showing it.
 //
-// ★ONE CHEAP READ, AND ONLY WHEN IT CAN HELP. It runs once per page load, only with a hive id and a
-// cached name present, and it is entirely best-effort: a page whose read fails keeps the cached
-// name, which is exactly what it would have shown anyway. It must never be the reason a page fails.
+// ★ONE CHEAP READ, AND ONLY WHEN IT CAN HELP. It runs once per page load, only with a hive id, and it
+// is entirely best-effort: a page whose read fails keeps the cached name, which is exactly what it
+// would have shown anyway. It must never be the reason a page fails.
+// ★A SEATED HIVE WITH NO NAME STORED IS ASKED TOO (Wave HS L3, 2026-10-30). This returned early when no name was
+// cached, so a device holding the hive id and no name printed "Hive: -" on project-report's cover - a document
+// that leaves the platform - and blanked the chrome chip. The name is the hive's server fact; it is read the same way.
 async function whReconcileHiveName(db) {
   try {
     var id = whHiveId();
     if (!id || typeof db !== 'object' || !db) return null;
     var cached = null;
-    try { cached = localStorage.getItem('wh_hive_name'); } catch (_) { return null; }
-    if (!cached) return null;
+    try { cached = localStorage.getItem('wh_hive_name') || ''; } catch (_) { return null; }
     // Canonical source, not the base table: v_hives_truth is the registered truth view for hive
     // identity, and reading `hives` directly is exactly the drift validate_canonical_sources
     // exists to catch. Verified live as the signed-in user - same id, same name.
@@ -6070,7 +6235,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
     function attempt() {
       tries++;
       try {
-        if (window._whSupabaseClient && localStorage.getItem('wh_hive_name')) {
+        if (window._whSupabaseClient && whHiveId()) {
           whReconcileHiveName(window._whSupabaseClient);
           return;
         }
@@ -6948,6 +7113,8 @@ const WH_AUDIT_ACTIONS = {
   reject_change_order:         { icon: '✗',  label: 'Rejected change order', tone: 'neg' },
   cancel_change_order:         { icon: '⊘',  label: 'Cancelled change order', tone: 'neg' },
   assign_project_role:         { icon: '→',  label: 'Assigned project role' },
+  // HS L5 (2026-10-30): a supervisor hands on an open job whose author has left the hive (logbook.html)
+  assign_departed_job:         { icon: '→',  label: "Assigned a departed member's open job" },
   remove_project_role:         { icon: '⊘',  label: 'Removed project role', tone: 'neg' },
   recover_project_role:        { icon: '↺',  label: 'Restored project role' },
   acknowledge_progress_log:    { icon: '✓',  label: 'Acknowledged progress report', tone: 'pos' },

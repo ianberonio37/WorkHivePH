@@ -35,7 +35,7 @@ const PAGES = (LIST || [...CI2.keys()].sort()).filter((f) => existsSync(f));
 const KIND = (f) => (/^learn\/.+\/index\.html$/.test(f) && f !== 'learn/index.html' ? 'article'
   : /^tools\/[^/]*calculator[^/]*\/index\.html$/.test(f) ? 'calculator' : 'directory');
 const MIN_WORDS = { article: 150, calculator: 150, directory: 30 };
-// the served path of a file - directory pages are served at /<dir> (vercel.json cleanUrls false, trailingSlash false)
+// the served path of a file - this walk asks for the file itself; vercel.json (trailingSlash true) serves a directory page at /<dir>/
 const served = (f) => `${SEEDER}/workhive/${f}`;
 
 // ★A WALK MUST END (2026-10-15): WebKit's web process died under a calculator page and every await on it hung - the

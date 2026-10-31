@@ -1,31 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:728
-source_sha: 037ca6f5ec52bec5
+source: dir:supabase/migrations:744
+source_sha: ba6220a071b6fe80
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (728 migrations)
+## migration · catalog (744 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260804000049_one_person_toggling_one_reaction_minted_unbounded_xp` — fns:handle_community_reaction_xp · tables:community_reaction_xp_awards
-- `20260805000050_anyone_at_all_could_read_the_voice_transcripts` — policies:voice_queue_own_rows · tables:voice_response_queue
-- `20260805000051_an_anonymous_visitor_could_run_the_nightly_sweep` — (misc DDL/DML)
-- `20260805000052_the_platforms_ai_spend_was_readable_by_strangers` — (misc DDL/DML)
-- `20260805000053_commission_took_credits_out_of_the_ledger_but_not_the_treasury` — fns:mint_settlement_commission
-- `20260805000054_a_commission_took_credits_the_provider_never_had` — fns:mint_settlement_commission
-- `20260805000055_three_settled_jobs_predate_the_payment_guard` — (misc DDL/DML)
-- `20260805000056_two_triggers_still_carried_the_service_role_key` — triggers:trg_embed_outbox_pm_completions,trg_embed_outbox_skill_badges
-- `20260806000057_voice_response_queue_grant_was_never_declared` — (misc DDL/DML)
-- `20260806000058_anchor_the_reaction_xp_award_ledger` — (misc DDL/DML)
-- `20260806000059_community_xp_was_a_total_with_no_ledger_so_it_could_not_reverse` — fns:handle_community_post_delete_xp,handle_community_post_visibility_xp,handle_community_post_xp,increment_community_xp,restore_community_post_xp,reverse_community_post_xp · triggers:trg_community_post_delete_xp,trg_community_post_visibility_xp · tables:community_post_xp_awards
-- `20260812000060_reply_xp_was_paid_with_no_ledger_and_no_way_back` — fns:handle_community_reply_xp,reverse_community_reply_xp · triggers:trg_community_reply_delete_xp · tables:community_reply_xp_awards
-- `20260820000061_logbook_xp_was_paid_with_no_way_back` — fns:trg_logbook_xp_reverse · triggers:trg_logbook_xp_reverse · tables:achievement_xp_log
-- `20260820000062_best_answer_never_recorded_who_chose_it` — fns:set_community_best_answer · tables:community_replies
-- `20260820000063_a_reported_author_could_clear_their_own_flag` — fns:tg_community_posts_moderation_fields · triggers:tg_community_posts_moderation_fields
-- `20260820000064_reporting_a_post_did_nothing_and_said_it_worked` — fns:report_community_post,tg_community_posts_moderation_fields
 - `20260820000065_two_functions_defined_the_seller_tier_differently` — fns:update_seller_tier
 - `20260820000066_the_low_stock_tile_counted_a_capped_array` — fns:get_hive_dashboard
 - `20260820000067_the_pm_overdue_tile_had_no_denominator` — fns:get_hive_dashboard
@@ -210,6 +194,22 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261027000007_founder_outcomes` — fns:founder_outcomes
 - `20261028000001_an_engineering_calculation_leaves_a_trail` — triggers:trg_audit_shared_change
 - `20261028000002_a_project_change_leaves_a_trail` — triggers:trg_audit_shared_change
+- `20261030000001_a_worker_could_publish_their_own_post` — fns:tg_community_posts_moderation_fields · triggers:tg_community_posts_moderation_fields
+- `20261030000002_a_worker_could_not_report_an_announcement` — fns:guard_community_announcement
+- `20261030000003_a_worker_could_rewrite_any_failure_mode` — fns:tg_rcm_fmea_modes_member_scope · triggers:tg_rcm_fmea_modes_member_scope
+- `20261030000004_a_project_team_can_read_its_roster` — policies:project_roles_project_member_read · fns:user_project_ids
+- `20261030000005_only_a_supervisor_writes_the_cmms_sync` — policies:external_sync_hive_rw,external_sync_member_read,external_sync_supervisor_write
+- `20261030000006_a_shift_of_thirty_is_not_one_seller` — fns:check_listing_rate,check_logbook_rate_limit
+- `20261030000007_a_shift_of_thirty_takes_every_unit` — fns:tg_inventory_txn_chain_qty_after
+- `20261030000008_a_hive_limit_is_not_yours` — fns:check_daily_row_cap
+- `20261030000009_a_shift_of_thirty_gets_thirty_codes` — fns:generate_change_order_number,generate_project_code · tables:code_counters
+- `20261030000010_the_voice_trail_is_the_supervisors` — policies:ai_audit_log_hive_insert,ai_audit_log_hive_select · fns:bind_ai_audit_log_actor · triggers:trg_bind_ai_audit_log_actor
+- `20261030000011_a_deleted_post_kept_its_achievement_xp` — fns:restore_community_post_xp,reverse_community_post_xp
+- `20261030000012_a_departed_members_open_job_can_be_closed` — policies:logbook_update_departed_open · fns:guard_departed_entry_takeover,trg_logbook_achievement_xp · triggers:trg_guard_departed_entry_takeover
+- `20261030000013_a_level_follows_its_xp` — fns:achievement_level_for_xp,worker_achievement_level_follows_xp · triggers:trg_worker_achievement_level_follows_xp · tables:worker_achievements
+- `20261030000014_ai_quality_totals_every_call` — fns:hive_ai_usage_30d
+- `20261030000015_project_rollups_every_item` — fns:project_rollups
+- `20261031000001_a_dispute_has_a_screen` — fns:adjudicate_service_dispute,admin_disputed_jobs,fanout_completion_push,raise_service_objection
 
 (showing last 200)
 

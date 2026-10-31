@@ -432,6 +432,28 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
     # ★THE CONTRACT LAYERS' U PILLAR (2026-10-28). Only these rows of S, AU and H are walked (lx_walk_args.U_ONLY_LAYERS);
     # their F and I pillars close on the library provers. Each judge reads what the PERSON is told, never the database.
     if layer == "S":
+        # ★A PUBLIC PAGE THAT READS NOBODY'S ROWS HAS NO TENANT BOUNDARY TO HOLD (2026-10-31, CX-PUB S). The refusal
+        # prover measures the relations a page reads, and a public page reads none - 593 rows sat open on "reads [] - none
+        # proven". The evidence is this walk's own list of the page's healthy-load requests: no relation outside the
+        # shared chrome and the published-by-design set, no RPC and no function, means nothing on the page belongs to a
+        # hive or a person, so there is nothing for a stranger to cross (n/a, the reads named). A public page that DOES
+        # read one is judged as any page is, and its F and I wait for the prover.
+        if ctx.get("pageCls") == "public":
+            if v.get("reads") is None:
+                return "UNPROVEN", "this walk recorded no list of the page's requests, so what the page read is unknown"
+            # every request the page made on its healthy load, whatever it answered: a tenant read REFUSED with a 401 is
+            # still a page asking for someone's rows, and healthy_reads (st < 400) would hide it
+            asked = sorted({x["u"].replace("/rest/v1/", "").replace("/functions/v1/", "fn:") for x in v.get("reads") or []
+                            if x.get("mode") == "healthy" and x.get("pg") == page
+                            and x["u"] not in ("/rest/v1/analytics_events",) and not x["u"].startswith("/functions/v1/login")})
+            ch, mine = chrome_tables(), page_tables(page)
+            tenant = [r for r in asked if not r.startswith("fn:") and (r not in ch or r in mine) and r not in public_by_design()]
+            fns = [r for r in asked if r.startswith("fn:")]
+            if not tenant and not fns:
+                shown = ", ".join(asked[:4]) if asked else "nothing"
+                return "n/a", (f"a public page: its healthy load asked the database for {shown} - no relation that "
+                               "belongs to a hive or a person (only the shared chrome's and the published-by-design ones) - "
+                               "so it shows nothing a person must be entitled to, and there is no boundary on it to cross")
         u = h.get("u")
         if u is None:
             return "UNPROVEN", "this walk took no reading of what the page says about whose rows it shows"
@@ -585,6 +607,9 @@ def pillar_view(pillar: str | None, layer: str, verdict: tuple[str, str], v: dic
     lv, why = verdict
     # S, AU and H are walked for their U rows only: their F and I close on the contract provers, never on a page reading
     if layer in ("S", "AU", "H") and pillar not in ("U", "A"):
+        # except a public page that read nobody's rows: the walk's own request list answers it (judge, layer S)
+        if layer == "S" and lv == "n/a" and (ctx or {}).get("pageCls") == "public":
+            return verdict
         return HOLD, f"the {layer} ask through {pillar} is answered by its contract prover, not by this walk"
     # the S judge above reads the U sentence; S under 429 is its own reading, not a consequence of that one
     if pillar == "A" and layer == "S":
@@ -646,6 +671,9 @@ def main() -> int:
             r = psql("select m.hive_id from hive_members m where m.worker_name = '%s' and m.status = 'active' order by m.joined_at limit 1" % cast.replace("'", "''"))
             hive_id = r[0] if r else None
         ctx: dict = {}
+        # the page's class as the cube seeded it (public / founder / production) - the public S rule in judge reads it
+        ctx["pageCls"] = next((c for c in (((reg_rows.get(r["id"]) or {}).get("cx") or {}).get("cls")
+                                           for r in cell.get("rows") or []) if c), None)
         # every hive the cast is an active member of (a multi-hive cast reads several); none for a hive-less person
         ctx["castHives"] = set(psql("select m.hive_id from hive_members m where m.worker_name = '%s' and m.status = 'active'"
                                     % (cast or "").replace("'", "''"))) if cast else set()

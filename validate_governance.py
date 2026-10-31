@@ -65,6 +65,34 @@ SENSITIVE_PATTERNS = [
 
 # ── Layer 1: Data ownership ───────────────────────────────────────────────────
 
+_JS_WORDS = {"try", "await", "const", "let", "var", "return", "db", "from", "insert", "upsert", "select", "map", "then",
+              "catch", "async", "function", "new", "null", "true", "false", "if", "else", "of", "in", "this"}
+
+
+def _owner_traced(lines, i, hops=2):
+    """★A BATCH IS OWNED WHERE ITS ROWS ARE BUILT, HOWEVER FAR ABOVE (2026-10-31). integrations' CMMS import inserts
+    `landWhatFits(lBatch, (rows) => db.from('logbook').insert(rows))` (Wave HS: the daily cap lands what fits), and the
+    rows' builder - `const toLogRow = r => ({ ... worker_name: WORKER_NAME ...})`, mapped into lBatch - sits ~60 lines up,
+    past the window, behind the comments explaining the import. Rather than widen the window again (a fixed window is
+    what documentation pushes the evidence out of), the identifiers on the insert's line are followed to their
+    assignments, up to two hops: a builder that names the owner tags the batch. A row built without one still fails."""
+    names = {n for n in re.findall(r"\b([A-Za-z_$][\w$]*)\b", lines[i]) if n not in _JS_WORDS}
+    seen = set()
+    for _ in range(hops):
+        nxt = set()
+        for name in names - seen:
+            seen.add(name)
+            for j in range(i - 1, max(-1, i - 250), -1):
+                m = re.search(r"(?:const|let|var)\s+" + re.escape(name) + r"\s*=(.*)", lines[j])
+                if m:
+                    if re.search(r"worker_name\s*:|WORKER_NAME", "\n".join(lines[j:j + 15])):
+                        return True
+                    nxt |= {n for n in re.findall(r"\b([A-Za-z_$][\w$]*)\b", m.group(1)) if n not in _JS_WORDS}
+                    break
+        names = nxt
+    return False
+
+
 def check_owner_tag(pages, tables):
     issues = []
     for page in pages:
@@ -90,7 +118,7 @@ def check_owner_tag(pages, tables):
             # is present), so it cannot create a false failure — a genuine orphan still has no
             # worker_name anywhere in the enclosing builder scope.
             window = "\n".join(lines[max(0, i - 45):min(len(lines), i + 10)])
-            if "worker_name" not in window and "WORKER_NAME" not in window:
+            if "worker_name" not in window and "WORKER_NAME" not in window and not _owner_traced(lines, i):
                 issues.append({"check": "owner_tag", "page": page, "table": table, "line": i + 1,
                                "reason": f"{page}:{i+1} insert/upsert into '{table}' has no worker_name in the enclosing ~55-line builder scope — orphaned data with no owner"})
     return issues

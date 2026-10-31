@@ -95,8 +95,15 @@ def check(src: str, var: str) -> list:
     if not re.search(rf"\b(?:let|var|const)\s+{v}\s*=\s*\d+", src):
         out.append(f"{var} is never declared with a starting cap - nothing bounds the first render")
 
+    # ★OR BY AN ALIAS OF IT (SL LB3, 88732d41): a search grows its matches by its own count, so the render slices by
+    # `const _count = _searching ? _lbSearchCount : _logbookDisplayCount` (inventory: `count = Math.min(... _invDisplayCount,
+    # INV_DRAWN_MAX)`). A name assigned FROM the display count is the display count at render time; the increment (part 2)
+    # stays pinned to the variable itself, so a list nothing can grow still fails.
+    names = [v] + [re.escape(a) for a in re.findall(rf"\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=[^;\n]*\b{v}\b[^;\n]*;", src)]
+    v_any = "(?:" + "|".join(names) + ")"
+
     # 1. the render slices by it
-    if not re.search(rf"\.slice\(\s*0\s*,\s*{v}\s*\)", src):
+    if not re.search(rf"\.slice\(\s*0\s*,\s*{v_any}\s*\)", src):
         out.append(f"no `.slice(0, {var})` - the list is not bounded by its own display count, so the "
                    f"DOM grows with the data")
 
@@ -105,7 +112,7 @@ def check(src: str, var: str) -> list:
         out.append(f"nothing ever increases {var} - the cap is a wall with no way past it")
 
     # 3. and the control is revealed exactly when more rows exist
-    if not re.search(rf"toggle\(\s*['\"]hidden['\"]\s*,\s*{v}\s*>=", src):
+    if not re.search(rf"toggle\(\s*['\"]hidden['\"]\s*,\s*{v_any}\s*>=", src):
         out.append(f"the load-more control is not toggled on `{var} >= <total>` - a capped list that "
                    f"does not reveal the rest reads as the whole set")
     return out

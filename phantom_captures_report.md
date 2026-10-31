@@ -7,9 +7,9 @@ as an HTML comment on the capture page.
 
 ## Summary
 
-- Capture fields discovered:  **272**
+- Capture fields discovered:  **277**
 - Framework names skipped:    **1** (submit, search, csrf, ...)
-- Alive (≥1 consumer):        **271** ✅
+- Alive (≥1 consumer):        **276** ✅
 - Phantom (0 consumers):      **0** ❌
 - Allowlisted (justified):    **0**
 

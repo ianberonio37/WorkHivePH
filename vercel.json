@@ -67,7 +67,25 @@
       ]
     },
     {
+      "source": "/(learn|tools)/:slug/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
       "source": "/(about|feedback|learn|privacy-policy|terms-of-service)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(about|feedback|learn|privacy-policy|terms-of-service)/",
       "headers": [
         {
           "key": "Cache-Control",
@@ -360,5 +378,5 @@
     }
   ],
   "cleanUrls": false,
-  "trailingSlash": false
+  "trailingSlash": true
 }

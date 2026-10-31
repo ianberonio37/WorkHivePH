@@ -2561,8 +2561,10 @@ happens to know maintenance, not a manual.`;
                 const b = await c.clone().json();
                 const v = (b && (b.retry_after_seconds != null ? b.retry_after_seconds
                         : (b.retryAfter != null ? b.retryAfter : b.retry_after)));
+                // HS H4 (2026-10-30): the server's words ride along for their SCOPE only ("... for this hive", "Daily
+                // ..."), so whAiError can say it is the hive's budget; the person still reads whAiError's own sentence
                 if (v != null && isFinite(Number(v)) && Number(v) > 0) {
-                  return { message: '429', retryAfter: Math.ceil(Number(v)) };
+                  return { message: '429 ' + String((b && b.error) || ''), retryAfter: Math.ceil(Number(v)) };
                 }
               }
             } catch (_) { /* empty-catch-allow: a body we cannot read is not an error, it is less detail */ }

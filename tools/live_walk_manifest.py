@@ -195,6 +195,11 @@ MCP_FOR_KIND = [
     # under throttling) are only measurable in a TRACE - so it names both browsers and closes under neither alone
     ("playwright-mcp + chrome-devtools-mcp", r"^Design lens audit:"),
     ("playwright-mcp", r"^Design lens "),
+    # KA-B's three PIPELINE rows (2026-10-30): "the trip in the nightly CI / on the board / on the roadmap header" ask
+    # whether a command's output reaches a job, a report and a generated line. No browser sees any of the three; the
+    # command that produces each one does (tools/prove_keep_abreast_board.py runs the CI step, the gate, the generator).
+    ("library sweep (batch lens - the MCP would be 400 calls for one answer)",
+     r"^this instrument tells the truth about itself.* - the trip (?:in|on) the "),
     ("playwright-mcp + postgres-mcp", r"^Lived start to end:"),
     ("playwright-mcp", r"^The whole nav-hub, every control"),
     ("invoke + PostgREST as the caller (never the owner connection)",
@@ -269,8 +274,11 @@ MCP_FOR_KIND = [
                                       r"must offer the way back|by mistake"),
     ("playwright-mcp + postgres-mcp", "journey|hand-off|the return path|chain|completes|clears the|arrives|converts|"
                                       r"walks|end-to-end|two-sided|lifecycle|onboard|sign-?up|invite|approval queue"),
-    ("postgres-mcp",                  "tenant|RLS|BOLA|BFLA|cross-hive|canonical|tile ==|ledger|truth|cap is not a total|"
-                                      "row count|integrity|orphan|constraint"),
+    # "truth" means a TRUTH VIEW (v_logbook_truth, "the truth VIEW drops..."), never the English word (2026-10-30): the bare
+    # word sent "this instrument tells the truth about itself" (the SEO scoreboard, KA354-366), "Numbers, units & rounding
+    # truth" and "Social share cards (OG) truth" to a database reading. Measured: 19 rerouted, no row's closed state moved.
+    ("postgres-mcp",                  r"tenant|RLS|BOLA|BFLA|cross-hive|canonical|tile ==|ledger|\btruth\s+view|_truth\b|"
+                                      r"cap is not a total|row count|integrity|orphan|constraint"),
     ("sentry-mcp",                    "crash|unhandled|exception|error tracking|stack trace|stacktrace|stack frame|regression signal"),   # 2026-09-07: a bare "stack" routed "promo STACKING abuse" (a hostile buyer, PostgREST's lens) to Sentry
     # ★A REFUSAL IS NOT AN OBSERVABILITY QUESTION (2026-09-07). Three rate-limiting rows - "you are
     # refused and not told when you may come back", "someone else in your hive spent the limit", "your
@@ -341,6 +349,14 @@ def _mcp_for(lens: str, title: str) -> str:
         # stranger's mastery to the mail catcher, where no walk could ever close them (SE259 sat open on a valid walk).
         # The outbox is a lens's subject only when the LENS says so.
         if m.startswith("mail-catcher") and not rx.search(lens):
+            continue
+        # ★...AND A PAGE NAMED "OBSERVABILITY" IS NOT A DASHBOARD (2026-10-30). The same mistake, one rule down: the
+        # grafana rule matched the SUBJECT - "render resolves - llm observability", "keyboard path - agentic rag
+        # observability", "_headers is prod-only - ...", and a worker's injury report titled "INCIDENT GATE" - and sent
+        # 45 rows to a dashboard that cannot see a render, a focus ring, a header or a companion's request. Three had
+        # read closed on that dashboard (P196, P265, P269) and reopen; BRH695 closes on its own walk. Measured before
+        # the change: 45 rerouted, nothing else moved.
+        if "grafana" in m and not rx.search(lens):
             continue
         if rx.search(hay):
             return m

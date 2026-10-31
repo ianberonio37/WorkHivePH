@@ -35,7 +35,12 @@ const ROSTER = [
 ];
 
 const SEMANTICS = function semantics(VIS_JS) {
-  const vis = (0, eval)(VIS_JS);
+  const laidOut = (0, eval)(VIS_JS);
+  // ★A LANDMARK OR HEADING BEHIND inert / aria-hidden IS NOT IN THE TREE (2026-10-30). The retired-page notice
+  // (utils.js whInertBehindRetiredOverlay) inerts the page behind it, so a screen reader hears ONE h1 - the notice's.
+  // Counting by layout alone read "2 visible h1 elements" on both observability pages: the old page's h1, laid out
+  // behind a 0.98-opaque overlay and removed from the accessibility tree, counted as if a person met it.
+  const vis = (e) => laidOut(e) && !e.closest('[inert], [aria-hidden="true"]');
   const out = { s1: [], a1: [], live: 0 };
   const mains = [...document.querySelectorAll('main, [role="main"]')].filter(vis);
   if (mains.length === 0) out.s1.push('no <main> landmark - a screen-reader user cannot skip the chrome');
@@ -57,6 +62,9 @@ const SEMANTICS = function semantics(VIS_JS) {
   out.live = regions.length;
   if (regions.length === 0) out.a1.push('no aria-live region exists at load - any message rendered later cannot be announced');
   for (const r of regions.slice(0, 40)) {
+    // a region inside a RETIRED page's inerted body is retired with it: the page returns at boot and never speaks
+    // there, and the notice's own region is what a person hears (data-wh-retired-inert is set only by utils.js)
+    if (r.closest('[data-wh-retired-inert]')) continue;
     const pol = r.getAttribute('aria-live') || (r.getAttribute('role') === 'alert' ? 'assertive' : 'polite');
     if (!['polite', 'assertive', 'off'].includes(pol)) out.a1.push(`aria-live="${pol}" is not a valid politeness`);
     if (r.getAttribute('aria-hidden') === 'true') out.a1.push(`a live region is aria-hidden - it will never be announced (${r.id || r.className || r.tagName})`);

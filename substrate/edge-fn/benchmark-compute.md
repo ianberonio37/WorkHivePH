@@ -2,7 +2,7 @@
 name: edge-fn-benchmark-compute
 type: edge-fn
 source: file:supabase/functions/benchmark-compute/index.ts
-source_sha: c2dc0d4a6f977e5e
+source_sha: 75cb98126b7c71fa
 last_verified: 2026-07-13
 supersedes: null
 ---

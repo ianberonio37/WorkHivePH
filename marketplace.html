@@ -1276,7 +1276,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      ============================== -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFnError whFreshnessFooter whGcashPasteWire whHeldUpload whI18nApply whMoreNote whQueryTimeout whReadError whSourcesSync whStartupHive whStatUnknown whStatValue whUse whWorker">
+<script data-wh-skew-heal="whAutoSaveDraft whCardSkeleton whFmtAgo whFmtDate whFmtPeso whFnError whFreshnessFooter whGcashPasteWire whHeldUpload whHoldPlace whI18nApply whMoreNote whQueryTimeout whReadError whSourcesSync whStartupHive whStatUnknown whStatValue whUse whWorker">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -2416,6 +2416,8 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
             ${item.location
               ? `<span class="cat-chip" style="display:inline-flex;align-items:center;gap:3px;"><span class="ic ic-location" aria-hidden="true"></span>${e(item.location)}</span>`
               : ''}
+            ${/* HS L1 (2026-10-30): how old the listing is - a two-month-old part may be gone, and the card said nothing */
+              item.created_at && typeof whFmtAgo === 'function' ? `<span class="cat-chip">${e(_t('listed', 'nakalista'))} ${e(whFmtAgo(item.created_at))}</span>` : ''}
             ${creditsBackChipHtml(item.price)}
           </div>
           <div class="card-footer">
@@ -2618,7 +2620,13 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       sub  = _t('Click any listing for details, or post your own from the + Post button.',
                 'I-tap ang kahit anong listing para sa detalye, o mag-post ng sarili mo sa + Post.');
     } else {
-      tone = 'healthy'; label = _t(`${total} listings · ${mine} of them yours`, `${total} listing · ${mine} ang sa iyo`);
+      // HS L4 (2026-10-30, "a year of the hive", walked live): `total` is the listings LOADED in this section (24 on the
+      // first page) and `mine` an exact count across every section, so a seller of 27 read "24 listings · 27 of them yours".
+      // The label states the section's exact count (the tab badge's head count) and says that "yours" spans all sections.
+      const _secTotal = (_counts && typeof _counts[section] === 'number') ? _counts[section] : null;
+      tone = 'healthy'; label = _secTotal != null
+        ? `${_secTotal} ${section} listing${_secTotal === 1 ? '' : 's'} live · ${mine} of yours across all sections`
+        : _t(`${total} listings · ${mine} of them yours`, `${total} listing · ${mine} ang sa iyo`);
       sub  = _t('Check inquiries on your listings via the seller inbox.',
                 'Tingnan ang mga tanong sa listing mo sa seller inbox.');
     }
@@ -2790,9 +2798,14 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
        renders through whRenderRows: the new page is appended, a card whose watch or compare state changed is redrawn alone,
        and only cards not bound yet are bound. A card shows its seller's tier and community trust, whether it is watched and
        whether it is picked to compare - each part of its key; the section and compare mode are the sig. */
-    whRenderRows(grid, _listings, cardHtml, { sig: JSON.stringify([_section, _compareMode]), long: true,
-      key: (item) => JSON.stringify(item) + '|' + _watchlist.has(item.id) + '|' + _compareSet.has(item.id) + '|'
-        + JSON.stringify(_sellerTiers[item.seller_name] == null ? null : _sellerTiers[item.seller_name]) + '|' + _communityTrustedSellers.has(item.seller_name) });
+    // HS L3 (2026-10-30, walked live at 390): a seller's new listing arrives on top and the grid is redrawn - the card
+    // being read went 1,174 px off the screen. The card at the top of the reader's screen is held by its data-id.
+    const _drawGrid = () => {
+      whRenderRows(grid, _listings, cardHtml, { sig: JSON.stringify([_section, _compareMode]), long: true,
+        key: (item) => JSON.stringify(item) + '|' + _watchlist.has(item.id) + '|' + _compareSet.has(item.id) + '|'
+          + JSON.stringify(_sellerTiers[item.seller_name] == null ? null : _sellerTiers[item.seller_name]) + '|' + _communityTrustedSellers.has(item.seller_name) });
+    };
+    if (typeof whHoldPlace === 'function') whHoldPlace(grid, 'data-id', _drawGrid); else _drawGrid();
 
     grid.querySelectorAll('.btn-view:not([data-wh-bound])').forEach(btn => {
       btn.setAttribute('data-wh-bound', '');
@@ -4399,6 +4412,9 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       const cats = catRes.data || [];
       const mine = (mineRes.data || []).slice(0, 20).filter(r => r.client_auth_uid === _authUid);
       mine._more = (mineRes.data || []).length > 20;   // SL LB1: read by renderClientServices
+      // A reviewed dispute's outcome (Wave JS, 2026-10-31): v_service_request_truth carries the review (adjudicate_service_dispute's
+      // job event) as reviewed_at / review_note, so the row says what was decided rather than "being reviewed".
+      mine.forEach(r => { if (r.reviewed_at) r._review = { note: r.review_note, created_at: r.reviewed_at }; });
       const badge = document.getElementById('count-services');
       // A badge must not assert a count from a read that failed — the stale-count class again.
       if (badge) {
@@ -4488,18 +4504,23 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         _svcPayTo[r.id] = { name: r.provider_name || '', contact: r.provider_contact || '' };
         html += '<div class="simple-card list-row" style="margin-bottom:0.6rem;">' +
           '<strong>' + e(r.catalog_name || r.custom_scope || 'Service request') + '</strong>' +
-          '<div style="font-size:0.75rem;opacity:0.85;margin:0.2rem 0 0.4rem;">' + e(SVC_CHIP[r.status] || r.status) +
+          // a reviewed dispute keeps status 'disputed' (the adjustment writes the ledger, not the job), so the chip follows the review
+          '<div style="font-size:0.75rem;opacity:0.85;margin:0.2rem 0 0.4rem;">' + e(r._review && r.status === 'disputed' ? 'Reviewed by WorkHive' : (SVC_CHIP[r.status] || r.status)) +
           (r.provider_name ? ' · ' + e(r.provider_name) + (r.provider_contact ? ' (' + e(r.provider_contact) + ')' : '') : '') +
           (r.mode === 'quote' && r.status === 'broadcasting' ? ' · ' + Number(r.pending_offers || 0) + ' quote' + (Number(r.pending_offers || 0) === 1 ? '' : 's') + ' in' : '') + '</div>' +
+          (r.status === 'disputed'
+            ? '<div style="font-size:0.75rem;margin:0.1rem 0 0.5rem;opacity:0.92;">' + (r._review
+                ? e(r._review.note || 'WorkHive reviewed it.')
+                : 'You reported a problem. WorkHive is reviewing it, and the job will not settle while it is.') + '</div>' : '') +
           (r.mode === 'quote' && r.status === 'broadcasting' && Number(r.pending_offers || 0) > 0
             ? '<div id="svc-quotes-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcShowQuotes(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="seequotes">See quotes</button>' : '') +
           (['en_route', 'on_site', 'in_progress'].includes(r.status)
             ? '<div id="svc-track-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcTrack(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="trackprovider">Track provider</button>' : '') +
           (r.status === 'completed'
-            ? '<div style="font-size:0.75rem;margin:0.1rem 0 0.5rem;opacity:0.92;">' + e(svcWindowNotice(r)) + '</div>' +
+            ? '<div style="font-size:0.75rem;margin:0.1rem 0 0.5rem;opacity:0.92;">' + e(r._review ? (r._review.note || 'WorkHive reviewed this job.') : svcWindowNotice(r)) + '</div>' +
               '<div id="svc-pay-' + e(r.id) + '" style="margin:0.3rem 0;"></div>' +
               '<button type="button" onclick="svcConfirmPay(\'' + e(r.id) + '\',' + Number(r.catalog_rate || r.budget || 0) + ')" style="' + _svcBtnC + 'margin-right:0.4rem;">Confirm payment &amp; release</button>' +
-              '<button type="button" onclick="svcRaiseObjection(\'' + e(r.id) + '\')" aria-label="Report a problem with ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="reportaproblem">Report a problem</button>' : '') +
+              (r._review ? '' : '<button type="button" onclick="svcRaiseObjection(\'' + e(r.id) + '\')" aria-label="Report a problem with ' + e(r.catalog_name || r.custom_scope || 'this service request') + '" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="reportaproblem">Report a problem</button>') : '') +
           (['completed', 'settled'].includes(r.status)
             ? '<div id="svc-rate-' + e(r.id) + '" style="margin:0.3rem 0;"></div><button type="button" onclick="svcRateProvider(\'' + e(r.id) + '\')" style="' + _svcGhostC + 'margin-right:0.4rem;" data-i="rateprovider">Rate provider</button>' : '') +
           (SVC_OPEN.slice(0, 5).includes(r.status)

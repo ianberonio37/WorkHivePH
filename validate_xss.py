@@ -799,6 +799,19 @@ def check_ilike_wildcard_escape():
             #       the idiom out by hand.
             helper_idiom = re.search(rf'{v}\s*=[^;]*whSafeSearchTerm\s*\(', context)
             safe_pattern = escape_idiom or strip_idiom or helper_idiom
+            # ...and a list DERIVED from a made-safe variable is as safe as it (`const safe = whSafeSearchTerm(raw);
+            # const words = safe.split(' ')...; for (const w of words)` - asset-hub's server search, Wave HS L4,
+            # 2026-10-30): one more hop, to the variable the list was split from, judged by the same three idioms
+            if not safe_pattern:
+                der = re.search(rf'\b{v}\s*=\s*([A-Za-z_$][\w$]*)\s*\.\s*(?:split|trim|toLowerCase)\s*\(', lines[assign_at])
+                if der:
+                    pv = re.escape(der.group(1))
+                    for j in range(assign_at, -1, -1):
+                        if re.search(rf'\b{pv}\s*=(?!=)', lines[j]):
+                            pctx = "\n".join(lines[j:assign_at + 1])
+                            safe_pattern = (re.search(rf'{pv}\s*=[^;]*whSafeSearchTerm\s*\(', pctx)
+                                            or re.search(rf'{pv}\s*=.*\.replace\s*\(\s*/%/.*\.replace\s*\(\s*/_/', pctx))
+                            break
             if not safe_pattern:
                 issues.append({
                     "check": "ilike_wildcard_escape",

@@ -2,7 +2,7 @@
 name: page-assistant
 type: page
 source: file:assistant.html
-source_sha: 489038152d725c5d
+source_sha: 805a974d8555f9f0
 last_verified: 2026-07-13
 supersedes: null
 ---

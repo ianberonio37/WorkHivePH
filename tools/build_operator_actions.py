@@ -86,6 +86,7 @@ POST = '''    // ── Started by the console once its own admin gate has passe
     wirePublishedSearch();
     wireVerifiedSearch();
     wireSvcTopups();
+    wireDisputes();
     wireFeedback();
     await refreshQueues();
     searchPublished();
@@ -115,15 +116,15 @@ def build() -> str:
                  "    const db = window.getDb();   // the console's own client (getDb returns the one already made)\n")
     body = _swap(body, "      const box = document.getElementById('toast');\n",
                  "      const box = document.getElementById('opc-toast') || document.getElementById('toast');\n")
-    body = _swap(body, "        const [mod, tops, gcash, fb, cp, usage, decided] = await Promise.all([\n"
+    body = _swap(body, "        const [mod, tops, gcash, fb, cp, usage, decided, disputes] = await Promise.all([\n"
                        "          fetchMktModeration(), fetchSvcTopups(), fetchGcashLeftovers(),\n"
                        "          wantFeedback ? fetchFeedback() : Promise.resolve(null),\n"
-                       "          fetchCreditPosition(), fetchUsage(), fetchDecisions()]);\n",
+                       "          fetchCreditPosition(), fetchUsage(), fetchDecisions(), fetchDisputes()]);\n",
                  "        // the usage card's figures are the console's Growth Pulse panel (OPC): no usage reads from here\n"
-                 "        const [mod, tops, gcash, fb, cp, decided] = await Promise.all([\n"
+                 "        const [mod, tops, gcash, fb, cp, decided, disputes] = await Promise.all([\n"
                  "          fetchMktModeration(), fetchSvcTopups(), fetchGcashLeftovers(),\n"
                  "          wantFeedback ? fetchFeedback() : Promise.resolve(null),\n"
-                 "          fetchCreditPosition(), fetchDecisions()]);\n")
+                 "          fetchCreditPosition(), fetchDecisions(), fetchDisputes()]);\n")
     body = _swap(body, "        renderUsage(usage);\n", "")
     a = body.index("    // The five founder rollups, read as ONE row of numbers.")
     end_usage = "      if (st) st.textContent = 'Updated ' + new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila' });\n    }\n"

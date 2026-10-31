@@ -109,6 +109,8 @@ Both positions are defensible, which is why this needs deciding rather than assu
 
 **What it means here.** Google's AI Overview and Bing Copilot specifically. Split from GEO because the surface mirrors the classic SERP rather than a chat corpus — which means classic ranking still feeds it, and the levers are different.
 
+**Re-fetched 2026-10-31, and it moves the premise:** the mirror is loosening fast. Only ~17–38% of pages an AI Overview cites now rank in the organic top 10 (down from 76% in mid-2025), and 47% of citations come from pages below position 5 `[external-how-chatgpt-google-ai-overviews-perplexity-sourc]`. Classic rank still feeds the surface, but it is no longer the gate: an answer-first, extractable page can be cited from page two. So this pillar's lever is the cited passage (a direct answer, a figure with its source, a table), not only the ranking.
+
 **Measured state.** Partial, and partial *by accident* rather than by design — the topical and schema work was done for other pillars and happens to serve this one. Nothing has ever been measured against AI Overviews specifically.
 
 **The four levers, reconciled to our evidence:**

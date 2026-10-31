@@ -2,7 +2,7 @@
 name: edge-fn-platform-scraper
 type: edge-fn
 source: file:supabase/functions/platform-scraper/index.ts
-source_sha: 9b4c990c987e3a27
+source_sha: be03b0b950dfa528
 last_verified: 2026-07-13
 supersedes: null
 ---

@@ -2,7 +2,7 @@
 name: table-rls-logbook
 type: table-rls
 source: db:pg_policies+pg_trigger:logbook
-source_sha: 2bc0714e63fa8716
+source_sha: eda5a0af424ba40f
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -19,8 +19,9 @@ Policies:
 - `logbook_hides_deleted` [SELECT · roles=public] USING=`((deleted_at IS NULL) OR ( SELECT wh_trash_scope() AS wh_trash_scope))` CHECK=`∅`
 - `logbook_read` [SELECT · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (((hive_id IS NOT NULL) AND (hive_id IN ( SELECT hm.hive_id FROM hive_mem` CHECK=`∅`
 - `logbook_update` [UPDATE · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (auth_uid = ( SELECT auth.uid() AS uid)))` CHECK=`∅`
+- `logbook_update_departed_open` [UPDATE · roles=authenticated] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_supervisor_hive_ids() AS user_supervisor_hive_i` CHECK=`(hive_id IN ( SELECT user_supervisor_hive_ids() AS user_supervisor_hive_ids))`
 
-Guard triggers: `tg_guard_approval`, `trg_bind_submitter_logbook`, `trg_logbook_text_caps`
+Guard triggers: `tg_guard_approval`, `trg_bind_submitter_logbook`, `trg_guard_departed_entry_takeover`, `trg_logbook_text_caps`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

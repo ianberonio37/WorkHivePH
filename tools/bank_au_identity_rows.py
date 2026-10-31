@@ -68,6 +68,13 @@ def phrase(rel, v):
     if v["verdict"] == "ok":
         return ("{0} ({1} row(s) readable while the membership was active, 0 on the SAME unexpired token once it "
                 "was kicked{2})".format(rel, v["active"], who))
+    if v["verdict"] == "role-withheld":
+        s = v.get("_sup") or {}
+        return ("{0} (withheld by ROLE: the hive holds {1} row(s) and this worker's token read 0 of them while the "
+                "membership was fully ACTIVE{2} - entitlement is re-derived from the current role, so a dismissal has "
+                "nothing here to withdraw; the revocation itself, on the same relation, read {3} -> 0 for a kicked "
+                "supervisor - {4} of {5})".format(rel, v.get("rows_in_hive"), who, s.get("active"), s.get("_by"),
+                                                  s.get("_hive")))
     if v["verdict"] == "own-records-retained":
         return ("{0} ({1} -> {2}, and all {2} are the subject's OWN rows{3} - a person keeps their record on the "
                 "way out, because a departure showing up as an ABSENCE is the opposite failure and just as bad)"
@@ -256,6 +263,21 @@ def main():
         hit = [r for r in reads if r in graded]
         core_hit = [r for r in reads if r in core]
         spine_hit = [r for r in reads if r in spine_rel]
+        # ★WITHHELD BY ROLE IS A READING, NOT A GAP (2026-10-31, CX-FND AU on audit-log.html: 13 rows open on
+        # "hive_audit_log=blind-while-active"). A worker persona on a supervisor's page reads its trail at 0 while fully
+        # ACTIVE, with the hive holding rows - entitlement re-derived from the current ROLE, measured on the persona's
+        # own token, which is the role half of this ask. The revocation half is the supervisor's reading of the SAME
+        # relation (rows -> 0 on a kicked token), quoted beside it and never in its place: a worker row is still never
+        # banked on a supervisor's reading alone, and a relation the hive holds no rows in proves nothing either way.
+        if grp == "worker" and "supervisor" in built:
+            sup_graded = built["supervisor"][2]
+            graded = dict(graded)
+            for r in reads:
+                v = sweep.get(r) or {}
+                if (r not in graded and v.get("verdict") == "blind-while-active" and (v.get("rows_in_hive") or 0) > 0
+                        and (sup_graded.get(r) or {}).get("verdict") == "ok"):
+                    graded[r] = dict(v, verdict="role-withheld", _sup=sup_graded[r])
+                    hit.append(r)
         if not hit and not spine_hit:
             why = []
             for r in reads:

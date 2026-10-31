@@ -6,11 +6,11 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 ## Summary
 
 - Calm-opted-in pages: **13**
-- Fully compliant pages (0 drift + 0 gap): **10** (76%)
+- Fully compliant pages (0 drift + 0 gap): **11** (84%)
 - Canonical reads (✅): **43**
 - Drift reads (⚠️ wrapper exists, page reads raw): **0**
-- Gap reads (❌ no wrapper exists yet): **5**
-- Allowed reads (legitimate raw): **42**
+- Gap reads (❌ no wrapper exists yet): **4**
+- Allowed reads (legitimate raw): **41**
 - Truth views in registry: **45**
 
 ## Per-page conformance
@@ -19,7 +19,7 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 |---|---:|---:|---:|---:|:---:|:---:|
 | `achievements.html` | 3 | 0 | 0 | 1 | ✓ | ✅ |
 | `agentic-rag-observability.html` | 0 | 0 | 0 | 1 | ✓ | ✅ |
-| `ai-quality.html` | 0 | 0 | 1 | 1 | ✓ | ❌ |
+| `ai-quality.html` | 0 | 0 | 0 | 0 | ✓ | ✅ |
 | `alert-hub.html` | 5 | 0 | 0 | 6 | ✓ | ✅ |
 | `analytics.html` | 0 | 0 | 1 | 0 | ✓ | ❌ |
 | `asset-hub.html` | 10 | 0 | 0 | 10 | ✓ | ✅ |
@@ -35,7 +35,6 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 | Raw table | Pages reading it | Suggested wrapper |
 |---|---:|---|
-| `ai_reply_feedback` | 1 | `v_ai_reply_feedback_truth` (suggested) |
 | `analytics_snapshots` | 1 | `v_analytics_snapshot_truth` (suggested) |
 | `rcm_fmea_modes` | 1 | `v_rcm_fmea_mode_truth` (suggested) |
 | `rcm_strategies` | 1 | `v_rcm_strategie_truth` (suggested) |
@@ -57,10 +56,8 @@ CANONICAL / DRIFT / GAP / ALLOWED. Run by `tools/audit_calm_dashboard_canonical.
 
 **Allowed raw** (1): `agentic_rag_traces`
 
-### `ai-quality.html` — ❌ not compliant
+### `ai-quality.html` — ✅ compliant
 
-**Gap** (1): `ai_reply_feedback`
-**Allowed raw** (1): `ai_cost_log`
 
 ### `alert-hub.html` — ✅ compliant
 

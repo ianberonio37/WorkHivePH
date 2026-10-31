@@ -1568,7 +1568,7 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
-        "id":      "taxonomy-speaks-filipino",
+        "id":      "taxonomy-speaks-filipino", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/validate_taxonomy_speaks_filipino.py",
         "args":    [],
         "label":   "T45: the shared FAILURE VOICE speaks Filipino (2026-08-27). Every page is bilingual through _t(en, fil) and the error taxonomy they all delegate to was NOT, so a worker running the FIL toggle got Filipino chrome and an ENGLISH sentence at the exact moment something failed and precision mattered most. Seventeen branches across whAiError, whReadError, whWriteError and whVoiceError now return through _t. ★DRIVEN IN THE PAGE, twice per branch, once under each WH_LANG — because a source grep for `_t(` only proves the CALL was written, not that the returned string changes. ★AND TWO BRANCHES MUST NOT TRANSLATE, asserted as SAME rather than skipped: the caller-supplied fallback (the PAGE's own English sentence to own) and whWriteError's deliberate-guard passthrough, which carries a policy refusal that took the trouble to explain itself ('Listing needs PHP50 credits held and you have 0 available') — rewriting someone else's explanation in another language is replacement, not translation. A gate that only checked 'everything differs' would call both of those defects. 14 branches: 12 must differ, 2 must not. ★The FIL copy is article-aware: callers pass the noun with its English article ('the activity log') because the EN sentences need it, and Filipino carries its own — the first draft read 'ang THE activity log' until the output was read rather than the diff. Register matched to lines already shipping ('Hindi ma-load ang activity log. Suriin ang koneksyon at subukan muli.'). Read-only.",
@@ -2709,7 +2709,7 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
-        "id":      "fil-parity",
+        "id":      "fil-parity", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/validate_fil_parity.py",
         "args":    [],
         "label":   "T45: fil-parity lint — T45's translation-parity gate (2026-08-26). Scans every _t('en','fil') call site for IDENTICAL en/fil arguments — the signature of a string that was ADDED to the EN branch without a Filipino translation (my 2026-08-25 error-taxonomy sweep created exactly this debt: new taxonomy strings landed EN-only inside _t() calls). Not every identical pair is debt: proper nouns, codes, and ALL-CAPS tokens ('OK', 'PM', 'QR') legitimately read the same in both languages — those are excluded by shape (short, or all caps/digits/punct). Everything else counts. Forward-only ratchet: the count may only fall. Baseline stored inline in fil_parity_baseline.json (created on first run with the measured count).",
@@ -3287,7 +3287,7 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
-        "id":      "flow-speaks-filipino",
+        "id":      "flow-speaks-filipino", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/prove_flow_speaks_filipino.mjs",
         "args":    ["--gate"],
         "report":  "flow_speaks_filipino_report.json",
@@ -3656,6 +3656,15 @@ VALIDATORS = [
         "severity": "fail",
     },
     {
+        "id":      "no-call-to-nothing",
+        "script":  "tools/validate_no_call_to_nothing.py",
+        "args":    [],
+        "label":   "A page calls a function nothing defines (2026-10-30, HS L3, walked live) - hive.html's live PM handler called showHiveToast(), a name no page and no script ever defined, so every teammate's PM completion threw ReferenceError inside the realtime callback and the 'completed PM' toast never appeared, from the commit that wrote the call until a person stood there when a teammate finished a PM. Reads every product page's inline scripts for a BARE call whose name is defined nowhere in the product (no function/const/let/var/assignment/parameter/window.X) and is not behind a typeof guard; names are collected from the raw text, calls from the code with strings, comments and regex literals removed. First run 308 false calls (a quote inside a regex literal swallowed definitions; an HTML comment naming <script> opened a block) -> 0 after the instrument fixes. Teeth: HEAD's hive.html fails on exactly showHiveToast.",
+        "group":   "Platform",
+        "skip_if_fast": False,
+        "severity": "fail",
+    },
+    {
         "id":      "accessor-load-order",
         "script":  "tools/validate_accessor_load_order.py",
         "args":    [],
@@ -3792,7 +3801,7 @@ VALIDATORS = [
         # UNTRANSLATED strings and may only fall, so a new string must be authored in the change that adds it,
         # which is the one moment whoever wrote the English still knows what it means. BLOCKING on purpose -
         # an advisory ratchet is how 269 strings accumulated. Teeth: --selftest.
-        "id":      "fil-dict-completeness",
+        "id":      "fil-dict-completeness", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/validate_fil_dict_completeness.py",
         "args":    ["--check"],
         "label":   "Filipino dictionary completeness — every authored string in every page dict has a Filipino value (an empty value renders English); forward-only ratchet",
@@ -3800,7 +3809,7 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
-        "id":      "i18n-coverage",
+        "id":      "i18n-coverage", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/validate_i18n_coverage.py",
         "args":    [],
         "label":   "i18n coverage — P11 EN/FIL adoption of the shared data-i/_t localization system (bug-hunt denominator v2, 2026-07-17). Counts i18n markers (data-i= + _t( + whT() per USER-FACING page and classifies adoption (covered>=25 / partial / thin / none); internal-admin/dev/utility surfaces exempt. Current: 31 user-facing pages, 25 i18n-adopted (81%), 6 gaps (resume.html=0 worst). The P5 lever-ladder fix is adopting the SHARED system on the gaps, not per-page translation. Heuristic v1 (marker COUNT is an adoption proxy, not exact translated/total %). ADVISORY / non-blocking (always exits 0), ratchets. Self-test: --selftest.",
@@ -5299,6 +5308,49 @@ VALIDATORS = [
     # page's identity honest when a session ends" - asked as the assistive-tech persona, which the program
     # had never asked on 12 of 13 layers. The idle prompt that signs a person out was invisible without
     # sight: role=null, no name, no aria-live, focus on BODY. Fixed in session-timeout.js; this holds it.
+    # Wave HS (2026-10-30, Ian: "how they behave when they have a post, or lists of ... up to 30 hive members"): each
+    # page's member lists read against the seeded thirty-member hive as a worker and a supervisor at 390 and 1280, and
+    # every action an item's menu offers replayed as that person against the database. ~3 min per page, so skipped on --fast.
+    {"id":"hive-scale-lists","script":"tools/prove_hive_scale_lists.mjs","args":[],
+     "label":"Hive at thirty (HS L1/L2): each member list on the walked pages, read against a 30-member hive as a worker and a supervisor at phone-390 and desktop-1280 - every item says who and when, shows a count only when there is one, holds no line of unnamed controls, sits under nothing fixed and inside the screen; each action an item's menu offers is a write the database lets that person make, no permitted moderation action is missing, no supervisor action reaches a worker, and a relation a role must not read is neither drawn nor returned to it; teeth: --teeth flips an expectation and must FAIL",
+     "group":"Platform","skip_if_fast":True},
+    # Wave HS W1 (2026-10-30): two members change the same item at once. Each race is replayed in one rolled-back transaction
+    # as the two people with the page's own write and guard; DB-only, ~1 min.
+    {"id":"hive-scale-writes","script":"tools/prove_hive_scale_writes.mjs","args":[],
+     "label":"Hive at thirty (HS W1): 31 two-member races replayed as the members with the page's own write - a guarded write (snapshot / still-pending / not-yet-approved) changes nothing for the second member and the first one's change survives; an append keeps both members' rows and refuses a repeat by the table's own key; a record one person owns refuses a teammate. Teeth: --teeth plants five unguarded writes and must FAIL",
+     "group":"Platform","skip_if_fast":False},
+    # ...and the BROWSER half (2026-10-30): the same 31 races walked by two people in two browsers (phone-390 against
+    # desktop-1280, then swapped), each through the page's own controls - the loser's screen must carry the page's sentence
+    # and the database must keep the winner's change. Walking them found six page defects (an inventory edit that silently
+    # overwrote a teammate's, a two-tab machine merge that duplicated, a logbook retry that deducted parts twice, and three
+    # sentences that named the wrong cause). ~45 min, so board-only.
+    # W2 (2026-10-30): a shift of thirty writes at once - every member signed in as themselves sends the page's write for 13
+    # units together, then one after another across a minute, through PostgREST (RLS, triggers and every rate limit decide
+    # as on a real shift). Found: the marketplace's daily listing limit was the whole HIVE's, so on a busy day every member
+    # was refused "Daily listing limit of 20 reached" (teeth reinstates it: 0/29 land). ~4 min.
+    {"id":"hive-scale-burst","script":"tools/prove_hive_scale_burst.mjs","args":[],
+     "label":"Hive at thirty (HS W2): 29 members write at once and one after another on 13 units - no honest write refused by a limit the rest of the hive spent, every row kept in order",
+     "group":"Platform","skip_if_fast":True},
+    # ...and its browser half: after a shift of 29 writes, two members open the row's page (phone-390, desktop-1280) and read
+    # from the screen where each item stands - every item the window holds, in the page's own order. Found: the project
+    # Daily log ordered same-day reports by a random uuid and silently cut a shift's reports at 30.
+    {"id":"hive-scale-shift","script":"tools/prove_hive_scale_shift.mjs","args":[],
+     "label":"Hive at thirty (HS W2, the browser half): after 29 members write, each page shows every item its window holds, in its own order, at 390 and 1280",
+     "group":"Platform","skip_if_fast":True},
+    # HS L4 (2026-10-30): a year of the hive - the list-cap gate run against a year laid into the thirty-member hive
+    # (tools/hs_year_layer.py) and removed after. On the seed it passed reads a plant outgrows in months; with the year laid
+    # it found 18. Mutates the hive while it runs (seed-only, triggers off), ~2 min, so board-only.
+    {"id":"hive-scale-year","script":os.path.join("tools", "prove_hive_scale_year.py"),"args":[],
+     "label":"Hive at thirty (HS L4): with a year of thirty members' work laid in, every capped list read pages, says more, or is proven never to bite",
+     "group":"Platform","skip_if_fast":True},
+    {"id":"hive-scale-races","script":"tools/prove_hive_scale_races.mjs","args":[],
+     "label":"Hive at thirty (HS W1, the browser half): 31 two-person races through the page - the member who lost is told in the page's own words, the other's change is kept, an append keeps both, an owner's record has no teammate control",
+     "group":"Platform","skip_if_fast":True},
+    # HS (2026-10-30): project-manager's link picker did `data = data.slice(...)` on a `const { data }` - a runtime TypeError
+    # only a hive past fifty logbook entries reaches, so every small hive and every gate passed. Static, ~1 s.
+    {"id":"const-not-reassigned","script":os.path.join("tools", "validate_const_not_reassigned.py"),"args":[],
+     "label":"A name destructured with const from an awaited read is never assigned again (the link picker threw 'Assignment to constant variable' once a hive held 51 logbook entries); self-test plants the shape",
+     "group":"Platform","skip_if_fast":False},
     {"id":"lxp-au-session-identity","script":"tools/prove_lxp_au_session_identity.mjs","args":[],
      "label":"LXP-AU x assistive-tech: the session-ending idle prompt is announced (role=alertdialog), named (aria-labelledby) and takes focus, measured live at phone-390 AND desktop-1280",
      "group":"Platform","skip_if_fast":False},
@@ -5445,7 +5497,7 @@ VALIDATORS = [
     {"id":"hive-restore-adoption","script":"tools/validate_hive_restore_adoption.py","args":[],
      "label":"Every page that scopes by the stored hive re-seats a missing one from the account: in its own start-up (whEnsureHiveContext) or through utils.js whHiveRecovery after load; utils.js carries all three parts, every reader loads it, and no page opts out without a restore of its own - Ian 2026-10-14, hive assets missing from the logbook",
      "group":"Platform","skip_if_fast":False},
-    {"id":"i18n-family-consistency","script":"validate_i18n_family_consistency.py","args":[],
+    {"id":"i18n-family-consistency", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries","script":"validate_i18n_family_consistency.py","args":[],
      "label":"i18n Family Consistency (no dropdown mixes translated and undecided options; identity = an authored 'stays English' ruling; forward-only ratchet)",
      "group":"Platform","report":"i18n_family_report.json","skip_if_fast":False},
     # Flywheel turns 21-25 (2026-05-21): 5 more bug-class L0 ratchets.
@@ -8408,6 +8460,35 @@ VALIDATORS = [
         "report":  "seo_scoreboard.json",
         "skip_if_fast": True,
         "severity": "warn",
+    },
+    {
+        # KA-R (2026-10-30): the five freshness surfaces of every URL production's sitemap lists, read from PRODUCTION - the
+        # JSON-LD dateModified, the visible "Last updated" <time> rendered at phone-390 and desktop-1280, the <lastmod>, the
+        # deployed markdown twin against the repository's, and an IndexNow push on or after the change. WARN: between
+        # releases production runs behind the repository (on 2026-10-30, the 60 calculators' 2026-10-19 dates waited on the
+        # next deploy). Teeth: --teeth moves one <lastmod> a day early and must read as disagreement.
+        "id":      "freshness-surfaces",
+        "script":  "tools/prove_freshness_surfaces.mjs",
+        "args":    [],
+        "label":   "Wave KA-R: every public page production serves carries one date on all five freshness surfaces (JSON-LD, the visible line at 390 and 1280, the sitemap, the markdown twin, the IndexNow push)",
+        "group":   "AI Validation",
+        "report":  "freshness_surfaces_report.json",
+        "skip_if_fast": True,
+        "severity": "warn",
+    },
+    {
+        # KA-B (2026-10-30): each keep-abreast instrument against a SECOND, independent live reading - the robots.txt, sitemap,
+        # sameAs and channels production serves, an independent HEAD of the deployed origin, the exact command the nightly CI
+        # job runs, and the header line against the report it is printed from. A component that typed its answer, or read the
+        # repo while production serves something else, disagrees here. Teeth: --teeth plants five contradictions, all caught.
+        "id":      "keep-abreast-board",
+        "script":  "tools/prove_keep_abreast_board.py",
+        "args":    [],
+        "label":   "Wave KA-B: the scoreboard, the trip and the sitemap's promise each agree with an independent live reading of production (13 instruments)",
+        "group":   "AI Validation",
+        "report":  "keep_abreast_board_report.json",
+        "skip_if_fast": True,
+        "severity": "fail",
     },
     {
         # Landing + Home-Dashboard Deep Arc gate (LANDING_DASHBOARD_DEEP_ARC.md) —
@@ -12197,7 +12278,7 @@ VALIDATORS = [
         # failure sentences, empty states and control labels that never went through _t() or data-i.
         # The first run measured 10 of 39 pages bilingual, 103 English-only failure sentences and 169
         # untagged controls on a Philippine platform.
-        "id":      "tagalog-first",
+        "id":      "tagalog-first", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  os.path.join("tools", "prove_tagalog_first.mjs"),
         "args":    [],
         "label":   "Tagalog-first persona (live en->fil walk of every root page + census of untranslated failure / empty / control strings)",
@@ -12570,7 +12651,7 @@ VALIDATORS = [
         # present while translation was exactly what was missing. This sets the language the way a person
         # sets it, loads the page twice, and checks the WORDS CHANGED - the one question decoration cannot
         # satisfy. Walks the live learn articles; the calculator half joins at promotion.
-        "id":      "public-bilingual",
+        "id":      "public-bilingual", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  os.path.join("tools", "prove_public_bilingual.mjs"),
         "args":    ["--kind", "learn", "--all"],
         "label":   "Public pages are bilingual in fact (a Filipino reader sees Filipino, not just data-i markup)",
@@ -12698,6 +12779,19 @@ VALIDATORS = [
         "group":   "AI Engineering",
         "skip_if_fast": True,
         "severity": "warn",
+    },
+    {
+        # BRH-AP (2026-10-30): the browser half, walked. Each of the 38 triggers that used to build a dead instruction is said
+        # to the companion at phone-390 and desktop-1280: no request may carry the instruction or context.platform_prompt, the
+        # reply must reach the screen, and the page actions that stayed (timer, push prompt, pin, ack style, erasure, buddy)
+        # must still happen. Teeth: --teeth serves voice-handler.js at 69268f24~1 and the instructions ride again.
+        "id":      "companion-steering-walk",
+        "script":  os.path.join("tools", "prove_companion_steering_walk.mjs"),
+        "args":    [],
+        "label":   "Companion steering, walked: the 38 triggers that built an instruction no server read now send none, still answer, and keep their page actions (phone-390 + desktop-1280)",
+        "group":   "AI Engineering",
+        "skip_if_fast": True,
+        "severity": "fail",
     },
     {
         # BRH-AO (2026-10-27): the voice companion built a 32 KB prompt in the browser from 31 reads every turn and sent it as
@@ -13749,7 +13843,7 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
-        "id":      "w4-nav-hub-390-fil",
+        "id":      "w4-nav-hub-390-fil", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/prove_w4_navhub.mjs",
         "args":    ["--axis", "phone-390 fil"],
         "label":   "Wave-4 nav-hub journeys, phone-390 Filipino: every hub control exercised as the row's own worker with wh_lang=fil, no control occluded at any step, focus returned on close, onward pages reached by the hub's own tiles",
@@ -13785,7 +13879,7 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
-        "id":      "w4-actions-390-fil",
+        "id":      "w4-actions-390-fil", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/prove_w4_actions.mjs",
         "args":    ["--axis", "phone-390 fil"],
         "label":   "Wave-4 action rows (rpc / edge / learn-cta), phone-390 Filipino: the same with wh_lang=fil",
@@ -13812,7 +13906,7 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
-        "id":      "w4-layer-ca-390-fil",
+        "id":      "w4-layer-ca-390-fil", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/prove_w4_layer_ca.mjs",
         "args":    ["--axis", "phone-390 fil"],
         "label":   "Wave-4 CA layer, phone-390 Filipino: on each row's subject page the platform's own Filipino vocabulary is rendered (wh_lang=fil), not merely stamped",
@@ -13820,7 +13914,7 @@ VALIDATORS = [
         "skip_if_fast": True,
     },
     {
-        "id":      "w4-confusions-390-fil",
+        "id":      "w4-confusions-390-fil", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/prove_w4_confusions.mjs",
         "args":    ["--axis", "phone-390 fil"],
         "label":   "Wave-4 confusion rows, phone-390 Filipino: each ledger confusion lived again with wh_lang=fil on its page as the row's worker along its path - the improvement holds in Filipino, identity kept, no overlap at any step",
@@ -14428,7 +14522,7 @@ VALIDATORS = [
         # IDENTICAL is wrapped, passes every "is it translated?" grep, and renders English to a Filipino reader
         # forever. I wrote one myself in the copy lens two hours before Impeccable's Assessment A caught it.
         # Forward-only, because some identical pairs are honest (a product name, a loan word the floor says).
-        "id":      "bilingual-t-arms",
+        "id":      "bilingual-t-arms", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/prove_bilingual_t_arms.py",
         "args":    ["--check"],
         "label":   "bilingual ratchet: no NEW _t(en, fil) call whose two arms are identical (a wrapped string that can never translate); floor in bilingual_t_arms_baseline.json",
@@ -14485,7 +14579,7 @@ VALIDATORS = [
         # row; Filipino expands and spills), WITH the interaction sweep (the states a journey passes through: sheet,
         # menu, modal, filter, hub, companion, focused input). The same record as `phone-fit`, on the axis the sloppiness
         # lives in. The public pages only - a signed-out walk of an app page measures the sign-in wall, not the page.
-        "id":      "phone-fit-320-fil",
+        "id":      "phone-fit-320-fil", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/prove_phone_fit.mjs",
         "args":    ["--width", "320", "--anon", "--lang", "fil", "--sweep", "--pages",
                     "index.html,learn/index.html,tools/oee-calculator/index.html,tools/mtbf-calculator/index.html,"
@@ -14636,7 +14730,7 @@ VALIDATORS = [
         # and a gate answered with noise stops being read. Exemptions are explicit and carry their reason
         # (browser-floor is ES5-only and inlines both languages; wh-persona holds LLM system prompts;
         # skill-content is a training corpus whose translation is a content program, not a wrapper).
-        "id":      "shared-component-i18n",
+        "id":      "shared-component-i18n", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/validate_shared_component_i18n.py",
         "args":    [],
         "label":   "Shared JS chrome speaks the platform's two languages (a component the pages around it translate, that does not - forward-only ratchet)",
@@ -14658,7 +14752,7 @@ VALIDATORS = [
         # property-only detector saw none of its five branches. Ratcheted, not zero-on-day-one: the census
         # is 653 literals across 25 pages (73 of them overwriting a stamped element), and a gate nobody
         # can pass gets switched off.
-        "id":      "rendered-i18n",
+        "id":      "rendered-i18n", "descoped": "Filipino is out of the trajectories (Ian, 2026-10-31) - this gate's only subject is Filipino output or the translation dictionaries",
         "script":  "tools/validate_rendered_i18n.py",
         "args":    ["--check"],
         "label":   "English prose written by JS onto pages that CLAIM to be bilingual - the stamp survives, the translation does not (forward-only ratchet)",
@@ -15274,6 +15368,12 @@ def main():
             continue
         if FAST and v.get("skip_if_fast"):
             results.append((v, {"status": "SKIP", "output": "--fast", "elapsed": 0}))
+            continue
+        # ★A DESCOPED AREA'S GATES DO NOT RUN (Ian, 2026-10-31: "we are descoping Filipino in our trajectories"). A gate
+        # whose only subject is descoped work cannot be cleared without doing that work, so it neither blocks a release
+        # nor spends an hour of walks on a board. It stays registered with its reason; deleting the line re-enables it.
+        if v.get("descoped"):
+            results.append((v, {"status": "SKIP", "output": "descoped: " + str(v["descoped"]), "elapsed": 0}))
             continue
 
         if v["group"] not in group_seen:

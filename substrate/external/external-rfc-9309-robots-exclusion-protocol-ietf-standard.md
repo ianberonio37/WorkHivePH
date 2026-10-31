@@ -3,8 +3,8 @@ name: external-rfc-9309-robots-exclusion-protocol-ietf-standard
 type: reference
 source: https://www.rfc-editor.org/rfc/rfc9309.html
 source_sha: 97e53ec45577713c
-fetched_at: 2026-08-05T03:49:53Z
-last_verified: 2026-08-05
+fetched_at: 2026-10-30T17:00:17Z
+last_verified: 2026-10-31
 ttl_days: 30
 distilled_by: night-crawler-v1
 supersedes: null

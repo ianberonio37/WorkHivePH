@@ -289,7 +289,7 @@ def distill(topic: str, urls: list[str], raw_markdown: str, verbose: bool = Fals
             strict: bool = False) -> tuple[str, str]:
     """raw markdown -> (distilled body, provider label). Free-tier chain."""
     from tools.lib.ai_chain import call_ai
-    raw = raw_markdown.strip()
+    raw = main_content(raw_markdown.strip())
     truncated = len(raw) > RAW_DISTILL_CHAR_CAP
     if truncated:
         raw = raw[:RAW_DISTILL_CHAR_CAP]
@@ -356,6 +356,28 @@ def _strip_stray_fences(body: str) -> str:
 # ── Tier 3b: distill quality guard (the Evaluator-Optimizer step) ──────────────
 _LOW_SIGNAL_RE = re.compile(
     r"\b(licen[sc]e[d]?|copyright|apache|mit licen|cc[ -]by|repository|table of contents)\b", re.I)
+
+
+def main_content(md: str) -> str:
+    """The article, not the site's chrome, before the distill cap is applied.
+    ★A DOCS PAGE OPENS WITH ITS NAVIGATION (KA-E re-fetch, 2026-10-31). Google's JavaScript SEO basics put its first
+    heading at char 28,118, behind a menu whose first 16,000 chars were 86% links - and the distiller, fed exactly the
+    first RAW_DISTILL_CHAR_CAP chars, saw only the menu and answered NO_DURABLE_CONTENT. Sixteen sources failed that way
+    in one refresh (Google Search Central, OpenAI's bot docs, Wikidata...), each fetched whole. Lines that are mostly
+    link syntax are dropped; headings and prose keep their order. A page that is nothing BUT links keeps its text, so the
+    quality guard still judges it as the nav page it is."""
+    keep = []
+    for line in md.splitlines():
+        s = line.strip()
+        if not s or s.startswith("#") or link_density(s) <= 0.6:
+            keep.append(line)
+    out = re.sub(r"\n{3,}", "\n\n", "\n".join(keep)).strip()
+    # ...AND SOME CHROME IS PROSE. A cookie-consent wall reads as sentences, not links: digitalsuccess.us put its article
+    # H1 at char 19,712 behind one. A page's first H1 is its title, so the article starts there - when real text follows.
+    h1 = re.search(r"^# \S.*$", out, re.M)
+    if h1 and h1.start() > 0 and len(out) - h1.start() >= 1500:
+        out = out[h1.start():]
+    return out if len(out) >= 400 else md
 
 
 def link_density(md: str) -> float:

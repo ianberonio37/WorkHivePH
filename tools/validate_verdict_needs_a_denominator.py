@@ -57,12 +57,14 @@ def main() -> int:
             fails.append(f"the floor is {n}, low enough that one tap still swings the verdict")
         if not re.search(r"thumbsTotal\s*<\s*MIN_RATINGS_FOR_VERDICT", src):
             fails.append("the floor is declared but never compared against the rating count")
-        if not re.search(r"TOO FEW RATINGS", src):
+        # case-blind, but anchored to the card's own TAG: the tags went sentence case on 2026-09-29 ('Too few ratings',
+        # 'Low trust', 'Healthy') - and a bare case-blind word would also match prose and the tone value 'healthy'
+        if not re.search(r"tag:\s*_t\(\s*'TOO FEW RATINGS'", src, re.I):
             fails.append("below the floor the card does not say the sample is too small, so the "
                          "reader cannot tell a withheld verdict from a missing one")
 
     # the verdict must still be reachable - a card that never judges is its own failure
-    if not re.search(r"'LOW TRUST'", src) or not re.search(r"'HEALTHY'", src):
+    if not re.search(r"_t\(\s*'LOW TRUST'", src, re.I) or not re.search(r"_t\(\s*'HEALTHY'", src, re.I):
         fails.append("the real verdicts are gone; suppressing bad news is not honesty either")
 
     # ★AND THE HEADLINE, which this gate did not cover and which is the louder claim (2026-08-28).

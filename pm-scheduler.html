@@ -498,6 +498,10 @@
     <input id="cat-filter" list="cat-filter-options" type="text" aria-label="Filter assets by category"
            class="wh-input mb-4" style="padding:0.625rem 1rem;" placeholder="All Categories" autocomplete="off" />
     <datalist id="cat-filter-options"></datalist>
+    <!-- HS L4 (2026-10-30, "a year of the hive"): a PM program of hundreds of machines paged 10 at a time with no way to
+         find one - the program is read to its end, so this finds any machine in it by name, tag or location. -->
+    <input id="pm-search" type="search" aria-label="Find a machine by name, tag or location" class="wh-input mb-4"
+           style="padding:0.625rem 1rem;" placeholder="Find a machine by name, tag or location" autocomplete="off" maxlength="100" />
 
     <!-- Asset list -->
     <div id="asset-list" class="flex flex-col gap-3"></div>
@@ -928,7 +932,7 @@
 <!-- ══ SCRIPTS ══ -->
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whCardSkeleton whFmtDate whFreshnessFooter whHiveContextNotice whListError whMoreNote whProgressStrip whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whTrash whUse">
+<script data-wh-skew-heal="whCardSkeleton whFmtDate whFold whFreshnessFooter whHiveContextNotice whListError whLoadFormerMembers whMemberSuffix whMoreNote whProgressStrip whRecentlyDeleted whRequireOnline whSourcesSync whStartupHive whTrash whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1592,6 +1596,8 @@ async function init() {
 
   // Category filter — datalist combobox: react to typed input AND option selection (input + change)
   ['input', 'change'].forEach(ev => document.getElementById('cat-filter').addEventListener(ev, () => { _pmDisplayCount = 10; renderDashboard(); _pmSyncUrl(); }));
+  { let _pmFindT = null;   // the find field waits for a pause in typing, then filters the loaded program
+    document.getElementById('pm-search').addEventListener('input', () => { clearTimeout(_pmFindT); _pmFindT = setTimeout(() => { _pmDisplayCount = 10; renderDashboard(); }, 200); }); }
   if (window.whAutoRememberFilters) whAutoRememberFilters('pm-filters', ['cat-filter']);   // G5a: remember the category filter cross-session
 
   // Plain-Read summary details toggle (shared — utils.js wireDetailToggle, STREAMLINE S10).
@@ -1605,6 +1611,8 @@ async function init() {
 // SUPABASE DATA LAYER
 // ─────────────────────────────────────
 async function loadData() {
+  // HS L5: a program's card names who set it up - one who has left the hive is said so (asked once, before the cards draw)
+  if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
   if (!HIVE_ID && !WORKER_NAME) return;
   _pmReadFailed = false;   // a recovered read must clear the failure, or one glitch marks the page forever
 
@@ -1621,12 +1629,15 @@ async function loadData() {
   // VEHICLE SEED VM9 (2026-09-02): a hive member's PERSONAL vehicle (hive_id NULL, theirs)
   // rides along in hive mode — the logbook two-home precedent (.or hive,null). RLS keeps other
   // members' personal assets out; the auth_uid clause keeps the intent explicit.
+  // ★EVERY TILE BELOW IS A COUNT OVER THESE ASSETS (Wave HS L4, "a year of the hive", 2026-10-30): OVERDUE, due soon and
+  // compliance are summed from them, so a program past the old 500 cap would undercount every one. A plant's PM program
+  // runs to hundreds of machines; the register is read a page at a time to its end.
   const assetsRes = await (HIVE_ID
-    ? db.from('pm_assets').select('*')
+    ? whReadPaged((a, b) => db.from('pm_assets').select('*')
         .or(`hive_id.eq.${HIVE_ID},and(hive_id.is.null,auth_uid.eq.${_authUid})`)
-        .order('created_at', { ascending: true }).order('id').limit(500)   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
-    : db.from('pm_assets').select('*').or(_MINE()).order('created_at', { ascending: true }).order('id').limit(500)   // cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
-  ); // L2: per-branch order+limit (server applies them by query-param, not chain position) so each read is row-bounded
+        .order('created_at', { ascending: true }).order('id').range(a, b), 20000)   // cap-ok[hive_id] (LB1 / HS L4: a hive's PM program, read to its end)
+    : whReadPaged((a, b) => db.from('pm_assets').select('*').or(_MINE()).order('created_at', { ascending: true }).order('id').range(a, b), 20000)   // cap-ok[auth_uid] (LB1 / HS L4: one person's own machines, read to their end)
+  ); // L2: per-branch order+range (server applies them by query-param, not chain position) so each read is row-bounded
 
   // The toast alone was not enough: it persisted, but so did "OVERDUE 0 · No overdue PMs · CLEAR" beside
   // it, on a plant whose own alert feed lists PMs 12-19 days overdue. A reader scanning hero tiles
@@ -1655,10 +1666,11 @@ async function loadData() {
   // assets are asked 100 at a time (whInChunks); each piece keeps the read's own order and cap, and the pieces are
   // sorted together before the newest 2,000 completions are kept.
   const [itemsRes, compRes] = await Promise.all([
-    whInChunks(assetIds, (part) => _homes(db.from('v_pm_scope_items_truth')
+    whInChunks(assetIds, (part) => whReadPaged((a, b) => _homes(db.from('v_pm_scope_items_truth')
       .select('id:scope_item_id, asset_id, hive_id, item_text, frequency, anchor_date, is_custom, frequency_days, last_completed_at, last_completed_by, next_due_date, days_until_due, is_overdue, is_due_soon, created_at, interval_km, interval_kind, next_due_km, current_km, km_until_due')
           // VEHICLE SEED: the meter half — the view ORs it into is_overdue/is_due_soon; these fields let the labels SAY it
-      .in('asset_id', part).order('created_at', { ascending: true }).order('id').limit(500))),   // cap-ok[hive_id] (LB1): a hive's PM scope items - bounded by its assets x tasks, sized live
+      // HS L4: 500 tasks per hundred machines is five a machine, and a PM program carries more - each piece read to its end
+      .in('asset_id', part).order('created_at', { ascending: true }).order('id').range(a, b)), 20000)),   // cap-ok[hive_id] (LB1 / HS L4: a hive's PM scope items - its machines x tasks, read to the end)
     // canonical-allow: detail view needs full completion history (the view only exposes last_completed_at)
     // L2: newest-first cap bounds completion-history egress; 2000 is generous for a hive's recent history (keyset "load older" is the scale fix if ever needed)
     // each piece a page at a time (whReadPaged): the API's 1,000-row ceiling read 1,000 of a piece's 2,001, so its probe never fired
@@ -2030,6 +2042,10 @@ function renderDashboard() {
   if (activeFilter === 'mine')     filtered = filtered.filter(a => _isMine(a));   // by the account (SL AU3), not the name
   else if (activeFilter !== 'all') filtered = filtered.filter(a => a.overall === activeFilter);
   if (catFilter)              filtered = filtered.filter(a => a.category === catFilter);
+  // HS L4: the find field - every word typed must appear in the machine's name, tag or location (case and accents folded)
+  const _fold = (v) => (typeof whFold === 'function' ? whFold(String(v || '')) : String(v || '').toLowerCase());
+  const _words = _fold((document.getElementById('pm-search') || {}).value || '').split(/\s+/).filter(Boolean);
+  if (_words.length) filtered = filtered.filter(a => { const hay = _fold([a.asset_name, a.tag_id, a.location].join(' ')); return _words.every(w => hay.includes(w)); });
 
   // Worst-first triage sort (PM PDDA U): overdue → due-soon → on-track → no-data, and within
   // a band the soonest / most-overdue next-due first — so the most urgent PM is always on top
@@ -2157,7 +2173,7 @@ function _pmRenderList() {
           ${critBadge(asset.criticality)}
           ${HIVE_ID && asset.worker_name ? (_isMine(asset)
             ? '<span class="text-xs font-semibold" style="color:var(--wh-orange);">yours</span>'
-            : `<span class="text-xs text-white/60">${escHtml(asset.worker_name)}</span>`) : ''}
+            : `<span class="text-xs text-white/60">${escHtml(asset.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(asset.worker_name) : ''))}</span>`) : ''}
           ${overdueItems > 0 ? `<span class="text-xs font-semibold" style="color: var(--wh-red-text);">${overdueItems} task${overdueItems > 1 ? 's' : ''} overdue</span>` : ''}
         </div>
 
@@ -2175,6 +2191,7 @@ function _pmRenderList() {
   }, { sig: 'pm-dashboard', long: true,
     // what the card is built from: the asset's own fields and, of its PM items, the status, due date and text it shows
     key: (a) => JSON.stringify([a.id, a.asset_name, a.tag_id, a.location, a.overall, a.category, a.criticality, a.worker_name,
+      typeof whMemberSuffix === 'function' ? whMemberSuffix(a.worker_name) : '',
       _isMine(a), (a.enrichedItems || []).map(i => [i.itemStatus, i.nextDue, i.item_text])]) });
 }
 
@@ -2187,6 +2204,12 @@ function openDetail(assetId) {
   _histDisplayCount = 5;
   showScreen('detail');
   renderDetail(currentAsset);
+  // HS L5: the history names who did each PM - one who has left the hive is said so once the hive's departed members
+  // are known (asked once a page; the history redraws when they arrive)
+  if (HIVE_ID && typeof whLoadFormerMembers === 'function') {
+    const _asset = currentAsset;
+    whLoadFormerMembers(db, HIVE_ID).then((names) => { if (names && names.size && currentAsset === _asset) _renderDetailHistory(_asset); });
+  }
 }
 
 function renderDetail(asset) {
@@ -2357,7 +2380,7 @@ function _renderDetailHistory(asset) {
             <p class="text-sm leading-snug truncate">${escHtml(itemTxt)}</p>
             <p class="text-xs text-white/80 mt-0.5">
               <span class="${statusCls} font-semibold">${c.status === 'done' ? 'Completed' : 'Deferred'}</span>
-              · ${escHtml(c.worker_name)} · ${formatDate(c.completed_at)}
+              · ${escHtml(c.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(c.worker_name) : ''))} · ${formatDate(c.completed_at)}
               ${c.notes ? `<br><span class="italic text-white/80">"${escHtml(c.notes)}"</span>` : ''}
             </p>
           </div>

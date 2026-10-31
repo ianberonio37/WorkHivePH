@@ -408,7 +408,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whIsAuthFailure whListSkeleton whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whFmtAgo whFmtDate whIsAuthFailure whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whSourcesSync whStartupHive whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -527,6 +527,9 @@ function getPhase(it) {
     try {
       const T = (typeof _t === 'function') ? _t : (en) => en;
       const e = (typeof escHtml === 'function') ? escHtml : (x) => String(x);
+      // HS L5: the chooser and the scope name owners - one who has left the hive is said so (asked once a page; the
+      // scope, drawn later, reads the same answer)
+      if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
       if (HIVE_ID) {
         // Read the TRUTH VIEW, not the raw table (canonical drift, 2026-09-10). This list is a
         // chooser: every row becomes a link a person will follow, so it must agree with every other
@@ -548,13 +551,15 @@ function getPhase(it) {
         box.textContent = T("Loading your hive's recent projects…", 'Nilo-load ang mga kamakailang project ng hive mo…');
         $('exec-summary').appendChild(box);
         const { data: recent, error: recentErr } = await db.from('v_project_truth')
-          .select('project_id, project_code, name, status, updated_at')
+          .select('project_id, project_code, name, status, updated_at, owner_name')
           .eq('hive_id', HIVE_ID)
-          .order('updated_at', { ascending: false }).order('project_id').limit(8);   // cap-ok: a short "recent" list, never a total; project_id breaks updated_at ties (paginated order totality)
+          .order('updated_at', { ascending: false }).order('project_id').limit(8 + 1);   // more-said (HS L4: a year put 41 projects in the hive - a 9th says the chooser holds the 8 newest, and the Project Manager the rest); project_id breaks updated_at ties (paginated order totality)
         box.removeAttribute('aria-busy');
         _chooserRead = !recentErr;
+        const _recentMore = (recent || []).length > 8;
+        if (recent && recent.length > 8) recent.length = 8;
         if (recent && recent.length) {
-          // ★THE CHOOSER BROKE AT 390 (critique W46013, 2026-10-13). Each link is inline-flex (for its 44px height), which
+          //★THE CHOOSER BROKE AT 390 (critique W46013, 2026-10-13). Each link is inline-flex (for its 44px height), which
           // made the name's text and the status <span> two flex ITEMS: the space between them collapsed ("Overhaul· active"),
           // and at 390 the status became its own column - "·" on one line, "active" on the next, beside the wrong half of
           // the name. One inner span keeps each link a single run of text that wraps as a sentence. The list is a set of
@@ -564,8 +569,13 @@ function getPhase(it) {
           box.style.cssText = 'font-style:normal;text-align:left;max-width:36rem;margin:0 auto;';
           box.innerHTML = '<p style="margin:0 0 .5rem;font-weight:600;">' + e(T("Or choose one of your hive's recent projects", 'Mga kamakailang project ng hive mo')) + '</p><ul style="list-style:none;padding:0;margin:0;">'
             + recent.map((r) => '<li><a href="project-report.html?project_id=' + encodeURIComponent(r.project_id) + '" style="color: var(--accent); display:inline-flex; align-items:center; min-height:44px;"><span>'
-              + e((r.project_code ? r.project_code + ' · ' : '') + (r.name || r.project_id)) + (r.status ? ' <span style="color:var(--muted);">· ' + e(String(r.status).replace(/_/g, ' ')) + '</span>' : '') + '</span></a></li>').join('')
+              + e((r.project_code ? r.project_code + ' · ' : '') + (r.name || r.project_id)) + (r.status ? ' <span style="color:var(--muted);">· ' + e(String(r.status).replace(/_/g, ' ')) + '</span>' : '')
+              // HS L1 (2026-10-30): whose project and when it last moved - a hive of thirty runs projects in parallel
+              + ((r.owner_name || r.updated_at) ? ' <span style="color:var(--muted);">· ' + e([r.owner_name ? r.owner_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(r.owner_name) : '') : '', r.updated_at && typeof whFmtAgo === 'function' ? T('updated ', 'na-update ') + whFmtAgo(r.updated_at) : ''].filter(Boolean).join(' · ')) + '</span>' : '')
+              + '</span></a></li>').join('')
             + '</ul>';
+          if (typeof whMoreNote === 'function') whMoreNote(box.querySelector('ul'), { shown: recent.length, more: _recentMore, noun: 'projects', order: 'most recently updated',
+            where: 'Every project is in the Project Manager, with its search.', href: 'project-manager.html', hrefLabel: 'Open the Project Manager', src: 'report-chooser' });
         } else if (recentErr) {
           /* ★A FAILED READ IS NOT AN EMPTY HIVE, AND THIS ONE ALSO PRESCRIBED AN ACTION (2026-10-06, found
              walking LXP226 with PostgREST stopped). The read's error was destructured away, so zero rows
@@ -767,6 +777,8 @@ async function loadAndRender(projectId) {
 
   // Cache for narrative function to use
   _projectCache = { project, items, links, logs };
+  // HS L5: the scope names each step's owner - one who has left the hive is said so (asked once a page)
+  if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
   renderCover(project);
   renderExecSummary(project, items, logs);
   renderScope(items);
@@ -1045,7 +1057,7 @@ function renderScope(items) {
           <tr class="${it.status === 'done' ? 'done' : ''}">
             <td class="nowrap"><code class="wbs-code">${e(it.wbs_code || '')}</code></td>
             <td>${e(it.title)}</td>
-            <td>${e(it.owner_name || '-')}</td>
+            <td>${e((it.owner_name || '-') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(it.owner_name) : ''))}</td>
             <td><span class="status-pill status-${it.status === 'done' ? 'complete' : it.status === 'blocked' ? 'cancelled' : 'planning'}">${e((it.status || '').replace('_', ' '))}</span></td>
             <td class="right">${it.estimated_hours ?? '-'}</td>
             <td class="right">${it.actual_hours ?? '-'}</td>

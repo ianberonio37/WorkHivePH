@@ -812,7 +812,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
 <!-- /wh-sources -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtAgo whIsAuthFailure whIsRateLimited whLimitWait whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whAiTrustRow whFmtAgo whFnError whIsAuthFailure whIsRateLimited whLimitWait whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1088,13 +1088,15 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // exactly that and I only caught it by reading the toast the page actually produced. The body
       // lives on err.context (the Response), which is where analytics-report.html's version gets the
       // sentence it renders verbatim. Read it, fall back to the mapper, then to a plain line.
+      // Wave JS (2026-10-31): this read `body.error || body.message`, so a body carrying a code AND a sentence
+      // ({error: "dependency_down", message: "..."}) toasted the code. whFnError reads the sentence wherever it is,
+      // never a bare code, and maps the status when there is none.
       let msg = '';
       try {
-        if (err && err.context && typeof err.context.json === 'function') {
-          const body = await err.context.json();
-          msg = (body && (body.error || body.message)) || '';
+        if (err && err.context && typeof whFnError === 'function') {
+          msg = await whFnError(err, _t('Recompute failed. Try again shortly.', 'Hindi natuloy ang recompute. Subukan muli mamaya.'));
         }
-      } catch (_) { /* empty-catch-allow: body may not be JSON — fall through to the mapper below */ }
+      } catch (_) { /* empty-catch-allow: an unreadable body falls through to the mapper below */ }
       showToast(_authGone
         ? 'Your session expired, so the recompute never reached the server. Sign in again, then retry.'
         : (msg || whAiError(err, _t('Recompute failed. Try again shortly.', 'Hindi natuloy ang recompute. Subukan muli mamaya.'))), 'error');
@@ -1253,8 +1255,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         : await fetch(`${SUPABASE_URL}/functions/v1/analytics-orchestrator`, _orchOpts);
       if (!res) throw new Error('The analysis took too long to come back. Nothing was changed - try running it again.');
       if (!res.ok) {
-        const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.error || errBody.message || `Server error ${res.status}`);
+        // Wave JS (2026-10-31): `errBody.error || errBody.message` put a bare code ahead of the sentence when a body
+        // carried both (see analytics-report's Generate); whFnError reads the sentence, never the code.
+        const _e = new Error(`Server error ${res.status}`); _e.context = res;
+        throw new Error(typeof whFnError === 'function' ? await whFnError(_e, `Server error ${res.status}`) : `Server error ${res.status}`);
       }
       const data = await res.json();
       if (data.error) throw new Error(data.error);

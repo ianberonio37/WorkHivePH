@@ -96,7 +96,9 @@ def audit(src: str) -> list:
                    "something that happened to them")
 
     # 4. the badge converges, and not while nobody is looking
-    if not re.search(r"setInterval\(\s*loadAll\s*,\s*\d+\s*\)", s):
+    # the minute's refresh may call loadAll through a helper (HS L3, 2026-10-30: whHoldPlace keeps the alert being read
+    # in place through it) - what must exist is a bounded interval that reloads, not one spelling of it
+    if not re.search(r"setInterval\(\s*(?:loadAll|\([^)]*\)\s*=>\s*(?:\{[^}]*\bloadAll\(\)[^}]*\}|loadAll\(\)))\s*,\s*\d+\s*\)", s):
         out.append("alert-hub.html: the periodic refresh is gone - a second tab's badge is now stale "
                    "until the person reloads, with nothing telling them so")
     if not re.search(r"visibilitychange", s) or not re.search(r"stopRefresh", s):
@@ -127,7 +129,7 @@ def selftest() -> int:
     cases.append(("the toast no longer naming the crew scope is caught",
                   src.replace("hidden for your whole hive", "done"), 1))
     cases.append(("dropping the periodic refresh is caught",
-                  src.replace("setInterval(loadAll, 60000)", "null"), 1))
+                  re.sub(r"setInterval\((?:loadAll|\(\) => \{[^}]*\}), 60000\)", "null", src), 1))
     cases.append(("a poll that never pauses is caught",
                   src.replace("visibilitychange", "_neverfires"), 1))
     bad = 0

@@ -51,6 +51,30 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
+# M4 release (2026-10-31) ⏳ IN PROGRESS
+
+> **M4 = T1 and T4 have nothing left to BUILD.** T4: Wave HS 486/486, Wave JS 41/41, KA-E 62/68 (+2 descoped, 4 open on
+> sources blocked by Cloudflare / an origin outage). What T1/T4 still owe needs this release (KA-S x3 IndexNow, KA-R x62,
+> OWN62), Ian's go (BRH509-513: one paid production assistant call; BRH445: a dashboard switch) or the full board
+> (locking -> locked).
+>
+> - **Leg A, 16 migrations** (production holds none past 20261028000002): 20261030000001-15 (Wave HS: role and tenant
+>   fixes, the year layer's caps, XP/achievement reversals, ai-quality totals and project rollups in the database) and
+>   20261031000001 (a dispute has a screen: admin_disputed_jobs, adjudicate_service_dispute, and v_service_request_truth
+>   gains reviewed_at / review_note). Production's v_service_request_truth read 2026-10-31: identical text to the
+>   definition the migration extends (36 columns, objection_deadline last), so nothing production-only is overwritten.
+>   Dry run first; every statement read.
+> - **Leg B, 10 functions**, no _shared change: ai-gateway (agentFailureBody - a failed specialist's raw proxy body no
+>   longer reaches a person), project-progress (per-person limiter), and the eight that applied the per-address ceiling to
+>   verified hive members (benchmark-compute, cmms-push-completion, cmms-sync, embed-entry, pf-calculator,
+>   platform-scraper, semantic-search, weibull-fitter). edge_remote_deps_lock --online PASS (4 modules, 0 changed).
+> - **Leg C**: every page of Waves HS and JS, utils.js (whFnSentence, the network phrase, hive presence fit, hold
+>   place), companion-launcher.js, operator-actions.js + founder-console (Disputed service jobs), sw v582.
+> - **IndexNow after the frontend push**: the changed URLs, and mtbf / oee / solar-pv (KA-S, owed since M3).
+> - **Post-deploy**: the comprehensive smoke; then walk KA-S, KA-R and OWN62 against production.
+
+---
+
 # M3 release (2026-10-29) ✅ DEPLOYED
 
 > **✅ M3 DEPLOYED 2026-10-29: T3 complete** (the cube on production pages, CX-PROD 9,082/9,082). Production serves

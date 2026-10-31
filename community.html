@@ -945,7 +945,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whMoreNote whQueryTimeout whReadError whRealtimeBackfill whRecentlyDeleted whReconcileHiveRole whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatValue whUse">
+<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whPresenceFit whQueryTimeout whReadError whRealtimeBackfill whRecentlyDeleted whReconcileHiveRole whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatValue whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1356,7 +1356,8 @@ function _isMinePost(p) {
         var card = tmp.firstChild;
         card.dataset.postId = el.dataset.postId;
         _carryArrival(el, card);
-        el.parentNode.replaceChild(card, el);
+        // a stub drawn into its card above the reader changes height there - the place they are reading is held
+        _keepPlace(() => el.parentNode.replaceChild(card, el));
       };
       renderIO   = { observe: _expandNow, unobserve: function () {}, disconnect: function () {} };
       collapseIO = { observe: function () {}, unobserve: function () {}, disconnect: function () {} };
@@ -1388,7 +1389,8 @@ function _isMinePost(p) {
            their observers had already been unhooked. Detached means the work is moot, so skip it. */
         if (!el.parentNode) return;
         _carryArrival(el, card);
-        el.parentNode.replaceChild(card, el);
+        // a stub drawn into its card above the reader changes height there - the place they are reading is held
+        _keepPlace(() => el.parentNode.replaceChild(card, el));
         collapseIO.observe(card);
         requestAnimationFrame(() => { heightCache[postId] = card.offsetHeight; });
       });
@@ -1439,6 +1441,21 @@ function _isMinePost(p) {
   // after that handler's own dedup check - so there is no inference needed about what is new. Not for the
   // reader's OWN post: the same handler already stays silent about those for the toast, and a worker who
   // just pressed Post does not need to be told which row is his.
+  /* ★A TEAMMATE'S POST MOVED WHAT YOU WERE READING (HS L3, 2026-10-30, walked live at 390). Joel was reading a post at the
+     top of his screen, halfway down the feed; Ana posted, her card was prepended above, and the post he was reading
+     jumped 218 px down the screen - the browser's own scroll anchoring did not hold the place in this feed. Any change
+     ABOVE what the reader is looking at now keeps the card at the top of their screen where it was; at the top of the
+     feed nothing is held, so a new post simply appears. */
+  function _keepPlace(change) {
+    const list = document.getElementById('feed-list');
+    const anchor = list ? [...list.children].find((c) => c.getBoundingClientRect().bottom > 0) : null;
+    const before = anchor ? anchor.getBoundingClientRect().top : 0;
+    change();
+    if (!anchor || !anchor.isConnected || list.getBoundingClientRect().top >= 0) return;
+    const moved = anchor.getBoundingClientRect().top - before;
+    if (moved) window.scrollBy(0, moved);
+  }
+
   function _prependPostCard(post, opts) {
     const el = document.getElementById('feed-list');
     if (!el) return;
@@ -1447,7 +1464,7 @@ function _isMinePost(p) {
     // .post-card.new-entry which a stub cannot match, and the stub is REPLACED by the rendered card
     // moments later - so a class here would be both inert and discarded. _carryArrival moves it.
     if (opts && opts.arrived) stub.dataset.arrived = '1';
-    el.prepend(stub);
+    _keepPlace(() => el.prepend(stub));
     renderIO.observe(stub);
   }
 
@@ -1498,8 +1515,22 @@ function _isMinePost(p) {
     Promise.resolve(loadLeaderboard()).catch(() => {});
   }
 
+  /* ★THE LEADERBOARD SAID "LIVE" AND STOOD STILL (HS L3, 2026-10-30, walked live at 390). Joel had the board open
+     under a chip reading "Live · updates automatically ... leaderboard"; Ronaldo posted a safety note, the post
+     reached Joel's feed, the table moved Ronaldo 185 -> 210 (third place) - and the board kept him fourth at 185 for as
+     long as Joel looked. XP moves only on what this page already hears live: a post (first post, safety), a reply, a
+     reaction (a post reaching three), a delete or a restore. Each of those now asks the board to read again, once,
+     after the burst settles - a shift of thirty posting at once is one read, not thirty. */
+  let _lbAgain = null;
+  function _leaderboardMoved() {
+    clearTimeout(_lbAgain);
+    _lbAgain = setTimeout(() => { Promise.resolve(loadLeaderboard()).catch(() => {}); }, 1500);
+  }
+
   // ── Leaderboard (top XP earners in this hive) ────────────────────────────────
   async function loadLeaderboard() {
+    // HS L5: a member who has left keeps the XP they earned and their place - the board says they have left
+    if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
     const el = document.getElementById('leaderboard-list');
     const { data, error, count: _lbTotal } = await db.from('community_xp')
       .select('worker_name, xp_total', { count: 'exact' })
@@ -1559,7 +1590,7 @@ function _isMinePost(p) {
         <div class="lb-rank ${rankClass}">${rankIcon}</div>
         <div style="flex-shrink:0;padding-bottom:${(lbTiers[row.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(row.worker_name, lbTiers[row.worker_name] || 0, 28)}</div>
         <div style="flex:1; min-width:0;">
-          <button type="button" translate="no" class="author-link" onclick="openPersonCard('${escJsAttr(row.worker_name)}')" aria-label="${escHtml(_t(`View ${row.worker_name}'s member card`, `Tingnan ang member card ni ${row.worker_name}`))}" style="font-size:0.8rem; font-weight:${isMine ? '700' : '500'}; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:${isMine ? 'var(--wh-orange)' : 'white'};">${escHtml(row.worker_name)}</button>
+          <button type="button" translate="no" class="author-link" onclick="openPersonCard('${escJsAttr(row.worker_name)}')" aria-label="${escHtml(_t(`View ${row.worker_name}'s member card`, `Tingnan ang member card ni ${row.worker_name}`))}" style="font-size:0.8rem; font-weight:${isMine ? '700' : '500'}; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:${isMine ? 'var(--wh-orange)' : 'white'};">${escHtml(row.worker_name)}</button>${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(row.worker_name) : '')}
         </div>
         <div style="font-size:0.75rem; font-weight:700; color:var(--wh-blue-text);">${Number.isFinite(Number(row.xp_total)) ? Number(row.xp_total) : 0} XP</div>
       </div>`;
@@ -1714,6 +1745,9 @@ function _isMinePost(p) {
   const _rtBackfill = (typeof whRealtimeBackfill === 'function') ? whRealtimeBackfill(refreshAfterDrop, { tag: 'community' }) : (typeof rtConn === 'function' ? rtConn() : undefined);
 
   async function loadPosts() {
+    // HS L5: each post names its author - the hive's departed members are asked once (beside the posts read below) so a
+    // post by someone who has left says "(former member)"
+    const _formerP = (HIVE_ID && typeof whLoadFormerMembers === 'function') ? whLoadFormerMembers(db, HIVE_ID) : null;
     // G1 (FF1) converge: the canonical skeleton renders the wait state once JS runs; the
     // static 3×90 placeholder divs stay in markup ONLY as the pre-JS first-paint reserve
     // (hidden-block CLS rule: reserve >= filled). One-time swap, then display-toggled as before.
@@ -1807,6 +1841,7 @@ function _isMinePost(p) {
     if (allIds.length) await Promise.all([loadReplyCounts(allIds), loadReactions(allIds)]);
     const postAuthors = [...new Set([...pinnedPosts, ...allPosts].map(p => p.author_name).filter(Boolean))];
     if (postAuthors.length) Object.assign(_workerTiers, await loadWorkerTiers(db, postAuthors));
+    if (_formerP) await _formerP;
     renderFeed();
     loadModQueue();
   }
@@ -1886,7 +1921,18 @@ function _isMinePost(p) {
     const mid = `pm-${escHtml(postId)}`;
     return `<button type="button" class="btn-icon post-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="${mid}" aria-label="${escHtml(_t('Post actions', 'Mga aksyon sa post'))}" onclick="togglePostMenu('${escJsAttr(postId)}', this)">${_MORE_SVG}</button>
       <div class="post-menu" id="${mid}" role="menu" hidden>${items.map(it =>
-        `<button type="button" role="menuitem" class="post-menu-item${it.danger ? ' danger' : ''}"${it.on !== undefined ? ` data-on="${it.on ? '1' : '0'}"` : ''} aria-label="${escHtml(it.label)}" onclick="closePostMenus(); ${it.onclick}"><span class="ic ${it.icon}" aria-hidden="true"></span><span>${escHtml(it.label)}</span></button>`).join('')}</div>`;
+        `<button type="button" role="menuitem" class="post-menu-item${it.danger ? ' danger' : ''}"${it.on !== undefined ? ` data-on="${it.on ? '1' : '0'}"` : ''} aria-label="${escHtml(it.label)}" data-act="${escHtml(it.act)}" data-args="${escHtml(JSON.stringify(it.args || []))}" onclick="closePostMenus(); _runPostAct(this)"><span class="ic ${it.icon}" aria-hidden="true"></span><span>${escHtml(it.label)}</span></button>`).join('')}</div>`;
+  }
+  // ★A MENU ITEM CARRIES ITS ACTION AS DATA (2026-10-30): each item was a pre-built handler string placed whole into
+  // onclick - safe as built (its ids went through escJsAttr) but not provably so where it landed, which
+  // handler-values-escaped refused. An item names its action and arguments; the button carries them as escaped data, and
+  // this one function calls the page's own handler with them.
+  function _runPostAct(btn) {
+    const fn = btn && window[btn.dataset.act];
+    if (typeof fn !== 'function') return;
+    let args = [];
+    try { args = JSON.parse(btn.dataset.args || '[]'); } catch (_) { return; }
+    fn(...args);
   }
   function closePostMenus(except) {
     document.querySelectorAll('.post-menu:not([hidden])').forEach((m) => {
@@ -2028,11 +2074,16 @@ function _isMinePost(p) {
     // audit meta) - judging a flag without its reason meant tabbing to the audit page first.
     const _supFlag = p.flagged && HIVE_ROLE === 'supervisor';   // the supervisor's view of a flagged post (both lines below)
     const _rr = (_supFlag && typeof _reportReasons !== 'undefined') ? _reportReasons[p.id] : null;
+    // HS L1 (2026-10-30): the reason is said in the words the reporter picked ("Unsafe or wrong information"), read off the
+    // report form's own options - the stored code ("unsafe") is not a sentence a supervisor should have to decode.
+    const _rrWords = _rr && _rr.reason
+      ? ((document.querySelector('#report-reason option[value="' + CSS.escape(_rr.reason) + '"]') || {}).textContent || _rr.reason)
+      : 'no reason picked';
     const reportReasonLine = _rr
-      ? `<p class="text-xs mt-1" style="color:var(--wh-orange);">&#9873; Reported: ${escHtml(_rr.reason || 'no reason picked')}${_rr.details ? ' - ' + escHtml(_rr.details) : ''}</p>`
+      ? `<p class="text-xs mt-1" style="color:var(--wh-orange);" data-wh-report-reason>&#9873; Reported: ${escHtml(_rrWords)}${_rr.details ? ' - ' + escHtml(_rr.details) : ''}</p>`
       // SL LB1: a flagged post whose reason was not among the reports read says so, rather than showing no reason
       : (_supFlag && _reportReasonsPartial)
-        ? '<p class="text-xs mt-1" style="color:var(--wh-orange);" data-wh-more-note role="note">&#9873; Reported - the reason was not loaded (more reports than this page reads). The Audit log has it.</p>'
+        ? '<p class="text-xs mt-1" style="color:var(--wh-orange);" data-wh-more-note data-wh-report-reason role="note">&#9873; Reported - the reason was not loaded (more reports than this page reads). The Audit log has it.</p>'
         : '';
     const publicBadge  = p.public  ? `<span class="cat-badge" style="background:rgba(34,197,94,0.12);color:var(--wh-green);">PUBLIC</span>` : '';
     const catBadge     = `<span class="cat-badge ${catClass}">${escHtml(catLabel)}</span>`;
@@ -2040,21 +2091,20 @@ function _isMinePost(p) {
     // Every action on the post, for this viewer, in the one menu. The destructive Delete is last and set apart (the Z3
     // rule the two inline deletes kept with a 22px gap now holds as the menu's divider). A supervisor's own post adds
     // Edit; a worker's own post gets Edit + Delete; anyone else's, Report.
-    const _id = escJsAttr(p.id);
     const _items = HIVE_ROLE === 'supervisor' ? [
-      ...(isMine ? [{ label: _t('Edit my post', 'I-edit ang post ko'), icon: 'ic-edit', onclick: `openEditor('${_id}')` }] : []),
+      ...(isMine ? [{ label: _t('Edit my post', 'I-edit ang post ko'), icon: 'ic-edit', act: 'openEditor', args: [p.id] }] : []),
       { label: p.pinned ? _t('Unpin post', 'Alisin sa pin ang post') : _t('Pin post', 'I-pin ang post'), icon: 'ic-pin', on: !!p.pinned,
-        onclick: `togglePin('${_id}', ${escJsAttr(p.pinned)})` },
+        act: 'togglePin', args: [p.id, !!p.pinned] },
       { label: p.public ? _t('Make post private', 'Gawing pribado ang post') : _t('Make post public', 'Gawing pampubliko ang post'),
-        icon: 'ic-globe', on: !!p.public, onclick: `togglePublic('${_id}', ${escJsAttr(p.public)})` },
+        icon: 'ic-globe', on: !!p.public, act: 'togglePublic', args: [p.id, !!p.public] },
       { label: p.flagged ? _t('Unflag post', 'Alisin ang flag sa post') : _t('Flag post', 'I-flag ang post'), icon: 'ic-flag', on: !!p.flagged,
-        onclick: `toggleFlag('${_id}', ${escJsAttr(p.flagged)})` },
-      { label: _t('Delete post', 'Burahin ang post'), icon: 'ic-delete', danger: true, onclick: `deletePost('${_id}')` },
+        act: 'toggleFlag', args: [p.id, !!p.flagged] },
+      { label: _t('Delete post', 'Burahin ang post'), icon: 'ic-delete', danger: true, act: 'deletePost', args: [p.id] },
     ] : isMine ? [
-      { label: _t('Edit my post', 'I-edit ang post ko'), icon: 'ic-edit', onclick: `openEditor('${_id}')` },
-      { label: _t('Delete my post', 'Burahin ang post ko'), icon: 'ic-delete', danger: true, onclick: `deletePost('${_id}')` },
+      { label: _t('Edit my post', 'I-edit ang post ko'), icon: 'ic-edit', act: 'openEditor', args: [p.id] },
+      { label: _t('Delete my post', 'Burahin ang post ko'), icon: 'ic-delete', danger: true, act: 'deletePost', args: [p.id] },
     ] : [
-      { label: _t('Report this post', 'I-report ang post na ito'), icon: 'ic-warning', onclick: `openReport('${_id}')` },
+      { label: _t('Report this post', 'I-report ang post na ito'), icon: 'ic-warning', act: 'openReport', args: [p.id] },
     ];
 
     // Read reaction data from reactionMap (populated before renderFeed is called)
@@ -2064,7 +2114,7 @@ function _isMinePost(p) {
       <div class="post-head">
         <div style="flex-shrink:0;padding-bottom:${(_workerTiers[p.author_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(p.author_name, _workerTiers[p.author_name] || 0, 32)}</div>
         <div class="post-who">
-          <button type="button" translate="no" class="author-link" style="font-size:0.875rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}')" aria-label="${escHtml(_t(`View ${p.author_name}'s member card`, `Tingnan ang member card ni ${p.author_name}`))}">${escHtml(p.author_name)}</button>
+          <button type="button" translate="no" class="author-link" style="font-size:0.875rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}')" aria-label="${escHtml(_t(`View ${p.author_name}'s member card`, `Tingnan ang member card ni ${p.author_name}`))}">${escHtml(p.author_name)}</button>${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(p.author_name) : '')}
           <div class="post-meta">${catBadge}${pinnedBadge}${flaggedBadge}${publicBadge}<span>${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span></div>
         </div>
         ${_postMenu(p.id, _items)}
@@ -2091,19 +2141,29 @@ function _isMinePost(p) {
     if (!postIds.length) return;
     // SL LB3 (2026-10-21): asked 100 posts at a time (whInChunks) - a thousand posts on screen made one in.() URL the
     // gateway refuses (414). A piece that could not be read leaves ITS posts' reactions as they were, never zeros.
-    let _rxFull = false;
     const _rxUnread = new Set();
+    // ★EACH PIECE IS READ TO ITS LAST PAGE (HS, 2026-10-30). The 500 cap was "never bites" at 15 reactions a post; a
+    // thirty-member hive put 491 reactions on its 100 newest posts, so one piece came within nine rows of being cut - and
+    // a cut piece showed "4+" where the truth was 6. A count is only a count when every row of it was read.
+    const RX_PAGE = 500;
     // canonical-allow: community_reactions is forum thread detail (per-post emoji reactions) — single-surface community data, not a cross-surface KPI/aggregate (the XP aggregate lives in community_xp via DB triggers), so no v_*_truth wrapper applies.
-    const { data } = await whInChunks(postIds, (part) => db.from('community_reactions')
-      .select('post_id, emoji, worker_name, auth_uid')
-      .in('hive_id', hiveIds)   // in-list-bounded: this hive, or the hives of one global page (20 posts)
-      .in('post_id', part).limit(500)   // cap-ok: reaction counts disclose '+' when a piece of this read is full
-      .then((r) => {
-        if (r.error) part.forEach(pid => _rxUnread.add(pid));
-        else if ((r.data || []).length >= 500) _rxFull = true;
-        return r;
-      }));
-    window._rxCapped = _rxFull;   // cap is not a total (2026-09-05)
+    const { data } = await whInChunks(postIds, async (part) => {
+      const rows = [];
+      for (let from = 0; ; from += RX_PAGE) {
+        const r = await db.from('community_reactions')
+          .select('post_id, emoji, worker_name, auth_uid')
+          .in('hive_id', hiveIds)   // in-list-bounded: this hive, or the hives of one global page (20 posts)
+          .in('post_id', part)
+          .order('id')
+          .range(from, from + RX_PAGE - 1);   // paged: loadReactions (each piece reads to its last page)
+        // a piece that could not be read to the end leaves its posts as they were - never a partial count shown as whole
+        if (r.error) { part.forEach(pid => _rxUnread.add(pid)); return { data: [], error: r.error }; }
+        rows.push(...(r.data || []));
+        if ((r.data || []).length < RX_PAGE) break;
+      }
+      return { data: rows, error: null };
+    });
+    window._rxCapped = false;   // every piece read whole or left unread above - no count is a cap any more
     if (_rxUnread.size >= postIds.length) return;
 
     // Initialise reactionMap entries for requested posts
@@ -2263,9 +2323,33 @@ function _isMinePost(p) {
     } catch (_) { /* empty-catch-allow: the reason line is context, never gates the queue */ }
   }
 
+  // the queue's posts by id: a flagged post read for the queue may not be in the loaded feed, and the moderation
+  // actions name it in the trail (HS L4)
+  let _modPosts = new Map();
   async function loadModQueue() {
     if (HIVE_ROLE !== 'supervisor') return;
-    const flagged = [...pinnedPosts, ...allPosts].filter(p => p.flagged);
+    // ★THE QUEUE WAS THE FLAGGED POSTS THE FEED HAPPENED TO HOLD (Wave HS L4, "a year of the hive", 2026-10-30, walked
+    // live). It filtered the loaded feed - its newest 20 - so with 401 posts the tab said 19 and the queue drew 3, and
+    // the other 16 waited behind ~20 Load More presses on another tab. The queue is the hive's flagged posts, asked of
+    // the server, newest first; the loaded feed is only the fallback when that read fails.
+    let flagged = [...pinnedPosts, ...allPosts].filter(p => p.flagged);
+    let _modMore = false, _modFromServer = false;
+    try {
+      const { data: fRows, error: fErr } = await db.from('v_community_posts_truth')
+        .select('id, hive_id, author_name, content, category, pinned, flagged, public, created_at, edited_at, mentions, deleted_at, updated_at')
+        .eq('hive_id', HIVE_ID).eq('flagged', true).is('deleted_at', null)
+        .order('created_at', { ascending: false }).order('id').limit(50 + 1);   // more-said: by loadModQueue (a 51st flagged post says the queue lists the 50 newest)
+      if (!fErr && Array.isArray(fRows)) {
+        _modMore = fRows.length > 50;
+        flagged = fRows.slice(0, 50);
+        _modFromServer = true;
+        _modPosts = new Map(flagged.map(p => [p.id, p]));
+        const _ids = flagged.map(p => p.id);
+        if (_ids.length) await Promise.all([loadReplyCounts(_ids), loadReactions(_ids)]);
+        const _authors = [...new Set(flagged.map(p => p.author_name).filter(Boolean))];
+        if (_authors.length && typeof loadWorkerTiers === 'function') Object.assign(_workerTiers, await loadWorkerTiers(db, _authors));
+      }
+    } catch (_) { /* empty-catch-allow: the queue falls back to the flagged posts in the loaded feed, and says how many exist */ }
     const _rrBefore = Object.keys(_reportReasons).length;
     await loadReportReasons(flagged.map(p => p.id).filter(id => !(id in _reportReasons)));
     // T24 S1 (2026-09-02): the MAIN feed renders BEFORE these reasons arrive (loadPosts calls
@@ -2304,10 +2388,12 @@ function _isMinePost(p) {
       return;
     }
     // When the queue is bigger than what is loaded, say both numbers rather than let the list imply it is all.
-    const partial = (flaggedTotal != null && flaggedTotal > flagged.length)
+    const partial = (!_modFromServer && flaggedTotal != null && flaggedTotal > flagged.length)
       ? `<p style="color:rgba(255,255,255,0.70); font-size:0.75rem; margin-bottom:8px;">Showing ${flagged.length} of ${flaggedTotal} flagged posts. Load more of the feed to see the rest.</p>`
       : '';
-    el.innerHTML = partial + [...pinnedPosts, ...allPosts].filter(p => p.flagged).map(p => renderPostCard(p)).join('');
+    el.innerHTML = partial + flagged.map(p => renderPostCard(p)).join('');
+    if (typeof whMoreNote === 'function') whMoreNote(el, { shown: flagged.length, more: _modFromServer && _modMore, noun: 'flagged posts', order: 'newest',
+      total: flaggedTotal != null ? flaggedTotal : undefined, where: 'Resolve these to reach the rest.', src: 'mod-queue' });
   }
 
   // ── D Phase 2: Global feed (public posts from all hives) ─────────────────────
@@ -2386,7 +2472,7 @@ function _isMinePost(p) {
       <div class="post-head">
         <div style="flex-shrink:0;padding-bottom:${(_workerTiers[p.author_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(p.author_name, _workerTiers[p.author_name] || 0, 32)}</div>
         <div class="post-who">
-          <button type="button" translate="no" class="author-link" style="font-size:0.875rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}','${escJsAttr(p.hive_id)}')" aria-label="${escHtml(_t(`View ${p.author_name}'s member card`, `Tingnan ang member card ni ${p.author_name}`))}">${escHtml(p.author_name)}</button>
+          <button type="button" translate="no" class="author-link" style="font-size:0.875rem;" onclick="openPersonCard('${escJsAttr(p.author_name)}','${escJsAttr(p.hive_id)}')" aria-label="${escHtml(_t(`View ${p.author_name}'s member card`, `Tingnan ang member card ni ${p.author_name}`))}">${escHtml(p.author_name)}</button>${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(p.author_name) : '')}
           <div class="post-meta"><span class="cat-badge ${catClass}">${escHtml(catLabel)}</span><span>${escHtml(_t('From', 'Mula sa'))} <strong style="font-weight:600;">${escHtml(hiveName)}</strong> · ${escHtml(timeAgo)}${p.edited_at ? ' · <span style="font-style:italic;">edited</span>' : ''}</span></div>
         </div>
       </div>
@@ -2420,7 +2506,7 @@ function _isMinePost(p) {
     // change that landed, and names the post (its opening words) so a supervisor can tell which one.
     if (!_changed || !_changed.length) { showToast(_POST_UNCHANGED('The pin'), 'error'); return; }
     const post = allPosts.find(p => p.id === postId) || pinnedPosts.find(p => p.id === postId);
-    await writeAuditLog(currentlyPinned ? 'unpin_post' : 'pin_post', postId, null, _postName(post));
+    await writeAuditLog(currentlyPinned ? 'unpin_post' : 'pin_post', postId, null, _postName(post || _modPosts.get(postId)));
     if (typeof whUse === 'function') whUse(db, currentlyPinned ? 'post_unpinned' : 'post_pinned');
     if (post) {
       post.pinned = !currentlyPinned;
@@ -2451,7 +2537,7 @@ function _isMinePost(p) {
     if (!_changed || !_changed.length) { showToast(_POST_UNCHANGED('The flag'), 'error'); return; }   // SL L2: see togglePin
     const pa = allPosts.find(p => p.id === postId);
     const pp = pinnedPosts.find(p => p.id === postId);
-    await writeAuditLog(currentlyFlagged ? 'unflag_post' : 'flag_post', postId, null, _postName(pa || pp));
+    await writeAuditLog(currentlyFlagged ? 'unflag_post' : 'flag_post', postId, null, _postName(pa || pp || _modPosts.get(postId)));
     if (typeof whUse === 'function') whUse(db, currentlyFlagged ? 'post_unflagged' : 'post_flagged');
     if (pa) pa.flagged = !currentlyFlagged;
     if (pp) pp.flagged = !currentlyFlagged;
@@ -2753,8 +2839,13 @@ function _isMinePost(p) {
         showToast('Cannot edit this post', 'error'); return;
       }
       const editedAt = new Date().toISOString();
+      // HS L2 (2026-10-30): sharing is the supervisor's decision, so only a supervisor's save carries `public`. A worker's
+      // isPublic is always false - sending it made fixing a typo take a post their supervisor had shared off the Global
+      // feed. The server now holds the same line (tg_community_posts_moderation_fields keeps OLD.public for members).
+      const _editPatch = { content, category, mentions, edited_at: editedAt };
+      if (HIVE_ROLE === 'supervisor') _editPatch.public = isPublic;
       let editQ = db.from('community_posts')
-        .update({ content, category, public: isPublic, mentions, edited_at: editedAt })
+        .update(_editPatch)
         .eq('id', editId).eq('hive_id', HIVE_ID).or(_mineAuthorFilter() || ('author_name.eq.' + JSON.stringify(String(WORKER_NAME || ''))));
       // Optimistic-concurrency guard: only overwrite the row still at the snapshot we loaded.
       // Catches a lost-update (this author's other session) OR a moderation action (a supervisor
@@ -2764,15 +2855,23 @@ function _isMinePost(p) {
       btn.disabled = false; btn.textContent = 'Save changes';
       if (editErr) { showToast(whWriteError(editErr, 'Nothing was saved - the post still reads as it did. Your edit is still in the box.'), 'error'); return; }
       if (!editRows || editRows.length === 0) {
-        // Conflict: the post changed since it was opened. Reload authoritative state, don't clobber.
-        showToast('This post changed since you opened it, reloading', 'error');
-        closeComposer();
+        // Conflict: the post changed since it was opened (a supervisor pinned or shared it, or this author saved it on
+        // another device). Don't clobber - and don't throw away what was typed either (HS W1, 2026-10-30: the composer
+        // closed and the edit was lost). The words stay in the box; the snapshot moves to the post as it is now, so a
+        // second Save is a choice made knowing it changed. Moderation fields are never in this payload, so a supervisor's
+        // pin or share survives that save regardless.
+        try {
+          const { data: _cur } = await db.from('v_community_posts_truth').select('updated_at').eq('id', editId).maybeSingle();
+          if (_cur && _cur.updated_at) _editSnapshot = _cur.updated_at;
+        } catch (_) { /* empty-catch-allow: the snapshot stays; a second Save meets the same guard and says so again */ }
+        showToast('This post changed while you were editing it. Your text is still here - Save again to keep your version.', 'error');
         loadPosts();
         return;
       }
       // Local cache + DOM
       post.content = content; post.category = category;
-      post.public = isPublic; post.edited_at = editedAt; post.mentions = mentions;
+      if (HIVE_ROLE === 'supervisor') post.public = isPublic;
+      post.edited_at = editedAt; post.mentions = mentions;
       post.updated_at = editRows[0].updated_at; // refresh snapshot source for a subsequent edit
       _updateRenderedCard(editId);
       closeComposer();
@@ -3098,6 +3197,8 @@ function _isMinePost(p) {
   });
 
   async function loadReplies(postId) {
+    // HS L5: each reply names its author - one who has left the hive is said so
+    if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
     // canonical-allow: community_replies is forum thread detail (the replies under one post) — single-surface community data, not a cross-surface KPI/aggregate, so no v_*_truth wrapper applies.
     // ★THE OLDEST 200 REPLIES (SL LB1, 2026-10-21): the thread read the first 200, so in a long thread the newest - the ones
     // a reader came for - were the ones cut. It reads the LATEST 200 (shown oldest-first below), keeps the best answer
@@ -3165,7 +3266,7 @@ function _isMinePost(p) {
           <div style="flex-shrink:0;">${renderWorkerAvatar(r.author_name, _workerTiers[r.author_name] || 0, 26)}</div>
           <div style="flex:1; min-width:0;">
             <div style="display:flex; align-items:center; gap:6px; margin-bottom:2px; flex-wrap:wrap;">
-              <button type="button" translate="no" class="author-link" style="font-size:0.75rem;" onclick="openPersonCard('${escJsAttr(r.author_name)}')" aria-label="${escHtml(_t(`View ${r.author_name}'s member card`, `Tingnan ang member card ni ${r.author_name}`))}">${escHtml(r.author_name)}</button>
+              <button type="button" translate="no" class="author-link" style="font-size:0.75rem;" onclick="openPersonCard('${escJsAttr(r.author_name)}')" aria-label="${escHtml(_t(`View ${r.author_name}'s member card`, `Tingnan ang member card ni ${r.author_name}`))}">${escHtml(r.author_name)}</button>${escHtml((typeof whMemberSuffix === 'function' ? whMemberSuffix(r.author_name) : ''))}
               ${badge}
               <span style="font-size:0.75rem; color:rgba(255,255,255,0.80);">${escHtml(formatTimeAgo(r.created_at))}</span>
             </div>
@@ -3358,6 +3459,7 @@ function _isMinePost(p) {
         <span>${escHtml(m.worker_name)}</span>
       </div>`;
     }).join('');
+    if (typeof whPresenceFit === 'function') whPresenceFit(bar);   // HS H1: thirty online stays one line and says how many
   }
 
   // ── Realtime: live feed ───────────────────────────────────────────────────────
@@ -3368,6 +3470,7 @@ function _isMinePost(p) {
         event: 'INSERT', schema: 'public', table: 'community_posts',
         filter: `hive_id=eq.${HIVE_ID}`
       }, (payload) => {
+        _leaderboardMoved();   // a post pays XP (first post, safety) - one's own included, so before the dedup
         if (_findPost(payload.new.id)) return; // dedup
         if (_isMinePost(payload.new)) myPostIds.add(payload.new.id);
         if (payload.new.pinned) pinnedPosts.unshift(payload.new);
@@ -3390,9 +3493,17 @@ function _isMinePost(p) {
         const ia = allPosts.findIndex(p => p.id === payload.new.id);
         const ip = pinnedPosts.findIndex(p => p.id === payload.new.id);
         const onScreen = ia !== -1 || ip !== -1;
+        /* ★A REPORT NEVER REACHED THE OPEN QUEUE (HS L3, 2026-10-30, walked live). Ernesto had the Mod Queue open (3);
+           Corazon reported Ronaldo's post, the post's flag reached this handler - and the queue and its badge kept 3
+           while the hive held 4, under a chip saying the page updates automatically. The queue is drawn from the posts
+           this page holds and its badge from a count, and neither was asked again. A post whose flag moved (raised, or
+           cleared by another supervisor) now re-reads both, after this handler has put the row in place. */
+        const _was = onScreen ? (ia !== -1 ? allPosts[ia] : pinnedPosts[ip]) : null;
+        if (HIVE_ROLE === 'supervisor' && (!_was || !!_was.flagged !== !!payload.new.flagged)) setTimeout(() => loadModQueue(), 0);
 
         // Soft-delete transition: remove from local state + DOM
         if (payload.new.deleted_at) {
+          _leaderboardMoved();   // a deleted post takes back the XP it paid
           if (onScreen) {
             myPostIds.delete(payload.new.id);
             allPosts    = allPosts.filter(p => p.id !== payload.new.id);
@@ -3403,12 +3514,32 @@ function _isMinePost(p) {
           return;
         }
 
-        // Restore transition: was off-screen, now visible — add it back
+        // A post this page does not hold: restored, or changed beyond the part of the feed loaded
         if (!onScreen) {
+          _leaderboardMoved();   // a restored post pays its XP again
           if (_isMinePost(payload.new)) myPostIds.add(payload.new.id);
-          if (payload.new.pinned) pinnedPosts.unshift(payload.new);
-          else                    allPosts.unshift(payload.new);
-          _prependPostCard(payload.new);
+          /* ★AN EDIT TO AN OLD POST JUMPED TO THE TOP OF EVERY OPEN FEED (HS L3, 2026-10-30, walked live). This branch
+             read "a post this page has not loaded" as "a post just restored" and put it on top - but the UPDATE carries
+             no old row to tell the two apart, and the commoner case is a teammate editing a post beyond the twenty
+             loaded. Joey edited a year-old announcement; it landed above everything on Ernesto's open feed as if new,
+             and Load more would have drawn it a second time. A post now lands in its own place in time: older than all
+             that is loaded, it waits for Load more to reach it; otherwise it goes in at its place, the reader's held. */
+          if (payload.new.pinned) {
+            pinnedPosts.unshift(payload.new);
+            _prependPostCard(payload.new);
+            return;
+          }
+          const at = allPosts.findIndex(p => p.created_at < payload.new.created_at);
+          if (at === -1 && _hasMorePosts) return;   // beyond the loaded part - Load more brings it in its place
+          const list = document.getElementById('feed-list');
+          const next = at === -1 ? null : list.querySelector(`[data-post-id="${allPosts[at].id}"]`);
+          allPosts.splice(at === -1 ? allPosts.length : at, 0, payload.new);
+          const stub = _makeStub(payload.new.id);
+          _keepPlace(() => (next ? list.insertBefore(stub, next) : list.appendChild(stub)));
+          renderIO.observe(stub);
+          // an older post has its own replies and reactions - read them, so its card does not claim none
+          Promise.all([loadReplyCounts([payload.new.id]), loadReactions([payload.new.id])])
+            .then(() => _updateRenderedCard(payload.new.id)).catch(() => {});
           return;
         }
 
@@ -3425,6 +3556,7 @@ function _isMinePost(p) {
       .on('postgres_changes', {
         event: 'DELETE', schema: 'public', table: 'community_posts'
       }, (payload) => {
+        if (_findPost(payload.old.id)) _leaderboardMoved();   // DELETE carries no hive filter - only this feed's posts
         allPosts    = allPosts.filter(p => p.id !== payload.old.id);
         pinnedPosts = pinnedPosts.filter(p => p.id !== payload.old.id);
         _removePostCard(payload.old.id);
@@ -3442,6 +3574,7 @@ function _isMinePost(p) {
         // through the canonical view (security_invoker: the post's own policy still decides what this reader sees)
         const { data, error } = await db.from('v_community_posts_truth').select('id').eq('id', id).eq('hive_id', HIVE_ID).is('deleted_at', null).maybeSingle();
         if (error || data) return;
+        _leaderboardMoved();   // the hidden post's XP was taken back
         myPostIds.delete(id);
         allPosts    = allPosts.filter(p => p.id !== id);
         pinnedPosts = pinnedPosts.filter(p => p.id !== id);
@@ -3453,20 +3586,28 @@ function _isMinePost(p) {
         filter: `hive_id=eq.${HIVE_ID}`
       }, (payload) => {
         const postId = payload.new.post_id;
-        // Only notify when someone else replies to YOUR post
-        if (!myPostIds.has(postId) || _isMineRow(payload.new, 'author_name')) return;
-        showToast(_t(`💬 ${payload.new.author_name} replied to your post`,
-          `💬 Sumagot si ${payload.new.author_name} sa post mo`));
-        // Update reply count badge if card is rendered
+        _leaderboardMoved();   // a reply pays its author XP - one's own included
+        if (_isMineRow(payload.new, 'author_name')) return;   // one's own reply is drawn by its own submit
+        /* ★A TEAMMATE'S REPLY NEVER REACHED THE OPEN THREAD (HS L3, 2026-10-30, walked live). This handler acted only
+           when the reply was to the reader's OWN post (a toast and its count). Ana, reading a thread with a reply
+           half-typed, never saw Corazon's reply arrive - the thread stayed at 6 with nothing saying it was stale - and
+           every other reader's card kept the old count. The count now follows on any card on screen, and a reply that
+           lands in the thread the reader has open is drawn there: replies run oldest-first, so it lands below, and the
+           draft (outside the list) and the reader's place are untouched. */
         replyCountMap[postId] = (replyCountMap[postId] || 0) + 1;
         const rcEl = document.getElementById(`reply-count-${postId}`);
         if (rcEl) rcEl.textContent = _rxCount(replyCountMap[postId]);
+        if (activeThreadId === postId) loadReplies(postId);
+        // the author is told even when the thread is closed
+        if (myPostIds.has(postId)) showToast(_t(`💬 ${payload.new.author_name} replied to your post`,
+          `💬 Sumagot si ${payload.new.author_name} sa post mo`));
       })
       .on('postgres_changes', {
         event: 'INSERT', schema: 'public', table: 'community_reactions',
         filter: `hive_id=eq.${HIVE_ID}`
       }, (payload) => {
         const r = payload.new;
+        _leaderboardMoved();   // a post's third reaction pays its author - on screen or not
         const slot = reactionMap[r.post_id]?.[r.emoji];
         if (!slot) return; // post not on screen
         const isMine = _isMineRow(r, 'worker_name');
@@ -3489,6 +3630,7 @@ function _isMinePost(p) {
         const o = payload.old || {};
         const slot = reactionMap[o.post_id]?.[o.emoji];
         if (!slot) return; // post not on screen, ignore (covers cross-hive noise)
+        _leaderboardMoved();   // an un-react below three takes the author's reaction XP back
         const wasMine = _isMineRow(o, 'worker_name');
         // Skip if optimistic UI already decremented this client's own un-react
         if (wasMine && !slot.mine) return;
@@ -3697,9 +3839,11 @@ function _isMinePost(p) {
     // member list reads it), and its worker_name is the hive's attribution name - the name a person
     // types after '@'.
     // canonical-allow: the @mention roster needs every co-member's hive name; v_worker_truth is profile-scoped by RLS and returns only the caller, so the membership table is the readable source (as on hive.html).
+    // HS H2 (2026-10-30): ACTIVE members only. A departed member was offered and highlighted as mentioned, while
+    // notify_post_mentions (rightly) notifies active members only - the author believed a person was told who was not.
     const { data } = await db.from('hive_members')
       .select('worker_name, role, auth_uid')
-      .eq('hive_id', HIVE_ID).neq('status', 'kicked').limit(500);   // cap-ok: member roster for @mention matching, not a painted count
+      .eq('hive_id', HIVE_ID).eq('status', 'active').limit(500);   // cap-ok: member roster for @mention matching, not a painted count
     _hiveMembers = (data || []).filter(m => m.worker_name && !_isMineRow(m, 'worker_name'));
   }
 
@@ -3789,8 +3933,15 @@ function _isMinePost(p) {
     if (!m) { _hideMentionDropdown(); return; }
     const query = m[1].toLowerCase();
     _mentionStartIdx = cursor - m[0].length;
+    // ★RANKED BY WHERE THE LETTERS FALL (Wave HS H2, 2026-10-30, walked live in a hive of thirty): the five offered were
+    // the first five in roster order that held the letters anywhere, so "@Ro" offered Jerome Navarro and Benjie Castro
+    // before Ronaldo Padilla, and "@An" offered Danilo Pascual first with Ana and Anna Reyes last. A name that starts with
+    // the letters comes first, then one with a word that does, then the rest; alphabetical within each.
+    const fq = whFold(query);
+    const rank = (hm) => { const n = whFold(hm.worker_name); return n.startsWith(fq) ? 0 : n.split(/\s+/).some(w => w.startsWith(fq)) ? 1 : 2; };
     _mentionResults = _hiveMembers
-      .filter(hm => whFold(hm.worker_name).includes(whFold(query)))   // T128: @Pena finds Pena
+      .filter(hm => whFold(hm.worker_name).includes(fq))   // T128: @Pena finds Pena
+      .sort((a, b) => rank(a) - rank(b) || a.worker_name.localeCompare(b.worker_name))
       .slice(0, 5);
     _mentionSelected = 0;
     _mentionActive = _mentionResults.length > 0;

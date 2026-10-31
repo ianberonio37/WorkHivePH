@@ -46,7 +46,7 @@ ROOT = Path(__file__).resolve().parent.parent
 NO_ANSWER_BASELINE = {
     "ai-quality.html": 1, "community.html": 3, "hive.html": 1, "index.html": 1, "integrations.html": 2,
     "marketplace-seller-profile.html": 2, "marketplace-seller.html": 2, "marketplace.html": 5, "ph-intelligence.html": 1,
-    "plant-connections.html": 1, "platform-actions.html": 1, "report-sender.html": 2, "resume.html": 2, "status.html": 1,
+    "plant-connections.html": 1, "platform-actions.html": 1, "report-sender.html": 1, "resume.html": 2, "status.html": 1,
 }
 
 # (page, regex that must match the code, what breaks without it)
@@ -164,6 +164,42 @@ def ratchet_problems(counts: dict[str, int]) -> list[str]:
     return bad
 
 
+# 4. CODE-FIRST READ (Wave JS, 2026-10-31, walked at 390/1280 with the functions down). A function answers {error: "<code>",
+# message: "<sentence>"} on some paths, and a read of `X.error || X.message` shows the code: analytics-report's Generate said
+# "Could not generate report: dependency_down", the companion on every page said "dependency_down" (twice in its own code),
+# and ai-gateway forwarded a crashed specialist's proxy JSON as the error ("Agent returned 502: {...}"). A body is read by
+# whFnSentence, whFnError's rule on its own. An ErrorEvent is not a body: its .error is the Error object, read first.
+CODE_FIRST = re.compile(r"\b(\w+)\??\.error\s*\|\|\s*\1\??\.message\b")
+CODE_FIRST_ALLOW = ("whLogError('uncaught-error'", "report('uncaught-error'")
+
+
+def code_first_reads(files: dict[str, str]) -> list[str]:
+    bad = []
+    for name, src in sorted(files.items()):
+        for line in _code(src).splitlines():
+            if CODE_FIRST.search(line) and not any(a in line for a in CODE_FIRST_ALLOW):
+                bad.append(f"{name}: reads a function's body code-first ({line.strip()[:90]}) - a body carrying a code AND a "
+                           "sentence shows the code; read it with whFnSentence(body)")
+    return bad
+
+
+def sentence_rule_problems(utils: str, gateway: str) -> list[str]:
+    bad, u, g = [], _code(utils), _code(gateway)
+    if not re.search(r"window\.whFnSentence\s*=\s*function", u):
+        bad.append("utils.js: whFnSentence is gone - the rule the companion and the pages read a function's body by")
+    if "window.whFnSentence(body)" not in _fn(u.replace("window.whFnError = async function", "async function whFnError"), "whFnError"):
+        bad.append("utils.js: whFnError no longer reads its body through whFnSentence - two copies of one rule drift apart")
+    if re.search(r"error:\s*`Agent returned", g) or "agentFailureBody(agentStatus, agentRespText)" not in g:
+        bad.append("ai-gateway: a specialist's non-2xx body is forwarded raw - a person reads the proxy's JSON "
+                   "(agentFailureBody passes on only the specialist's own refusal sentence)")
+    return bad
+
+
+def load_scripts() -> dict[str, str]:
+    return {Path(p).name: Path(p).read_text(encoding="utf-8") for p in glob.glob(str(ROOT / "*.js"))
+            if not re.search(r"backup|\.bak|\.min\.", Path(p).name)}
+
+
 def load_pages() -> dict[str, str]:
     return {Path(p).name: Path(p).read_text(encoding="utf-8") for p in glob.glob(str(ROOT / "*.html"))
             if not re.search(r"backup|\.bak", Path(p).name)}
@@ -173,7 +209,9 @@ def run() -> int:
     utils = (ROOT / "utils.js").read_text(encoding="utf-8")
     pages = load_pages()
     counts = no_answer_counts(pages)
-    bad = shared_problems(utils) + page_problems(pages) + ratchet_problems(counts)
+    gateway = (ROOT / "supabase" / "functions" / "ai-gateway" / "index.ts").read_text(encoding="utf-8")
+    bad = (shared_problems(utils) + page_problems(pages) + ratchet_problems(counts)
+           + code_first_reads({**pages, **load_scripts()}) + sentence_rule_problems(utils, gateway))
     lower = [f"{p} {n}<{NO_ANSWER_BASELINE[p]}" for p, n in counts.items() if n < NO_ANSWER_BASELINE.get(p, 0)]
     if bad:
         for b in bad:
@@ -182,7 +220,8 @@ def run() -> int:
         return 1
     print(f"PASS refusal-has-a-sentence - shared sentences speak to a visitor as a visitor and to a member as a member, the "
           f"notice signs in only a visitor, an unanswered admin check is 'could not check'; {len(ANCHORS)} page fixes hold; "
-          f"{sum(counts.values())} hard-coded no-answer sentence(s), none above baseline"
+          f"{sum(counts.values())} hard-coded no-answer sentence(s), none above baseline; every function body is read "
+          f"by its sentence (whFnSentence), never code-first, and ai-gateway forwards no raw specialist body"
           + (f" (lower the baseline: {', '.join(lower)})" if lower else ""))
     return 0
 
@@ -216,6 +255,20 @@ def self_test() -> int:
     expect("a new hard-coded no-answer sentence fails the ratchet", bool(ratchet_problems(no_answer_counts(mut))))
     mut = dict(pages); mut["index.html"] = mut["index.html"] + "<script>/* WorkHive did not answer */</script>"
     expect("the phrase in a comment does not count", not ratchet_problems(no_answer_counts(mut)))
+    scripts = load_scripts()
+    gw = (ROOT / "supabase" / "functions" / "ai-gateway" / "index.ts").read_text(encoding="utf-8")
+    expect("no page or script reads a body code-first", not code_first_reads({**pages, **scripts}))
+    expect("the sentence rule holds in utils and the gateway", not sentence_rule_problems(u, gw))
+    mut = dict(scripts); mut["companion-launcher.js"] += "\nconst said = body && (body.error || body.message);\n"
+    expect("the companion's old code-first read fails", any("companion-launcher.js" in b for b in code_first_reads(mut)))
+    mut = dict(pages); mut["analytics-report.html"] += "<script>throw new Error(errBody.error || errBody.message);</script>"
+    expect("a page's code-first read fails", any("analytics-report.html" in b for b in code_first_reads(mut)))
+    mut = dict(scripts); mut["x.js"] = "window.addEventListener('error', e => whLogError('uncaught-error', (e && (e.error || e.message)) || e));"
+    expect("an ErrorEvent read is not a body and does not count", not code_first_reads(mut))
+    expect("the gateway forwarding a raw specialist body fails", bool(sentence_rule_problems(u, gw.replace(
+        "agentFailureBody(agentStatus, agentRespText)", "{ error: `Agent returned ${agentStatus}: ${agentRespText.slice(0, 300)}` }"))))
+    expect("whFnError keeping its own copy of the rule fails", bool(sentence_rule_problems(u.replace(
+        "var own = window.whFnSentence(body);", "var own = body && (body.error || body.message);"), gw)))
     print("PASS self-test" if ok else "FAIL self-test")
     return 0 if ok else 1
 

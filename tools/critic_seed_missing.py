@@ -94,8 +94,12 @@ def prune_descoped(critic: dict, traj: dict) -> tuple[list[str], list[str]]:
     the head of its basis) is removed with its evidence; the findings stay in git history, and the trajectory keeps its
     own basis as the record. Every other descoped row keeps the rule above."""
     descoped = {t["id"] for t in traj.get("trajectories", []) if t.get("status") == "descoped"}
+    # ★...AND WHEN THE LANGUAGE ITSELF IS OUT, THE DECISION HAS BEEN MADE TOO (Ian, 2026-10-31: "we are descoping Filipino
+    # in our trajectories"). The 1,429 Filipino-language trajectories were critiqued before the descope; their findings
+    # are translation coverage, which nothing will improve while Filipino is out. Their descope reason carries the marker
+    # LANGUAGE DESCOPED at its head, and the critique goes with the row, as a deleted page's does.
     subject_gone = {t["id"] for t in traj.get("trajectories", []) if t.get("status") == "descoped"
-                    and "DELETED FROM THE PROJECT" in (t.get("basis") or "")[:200]}
+                    and any(k in (t.get("basis") or "")[:200] for k in ("DELETED FROM THE PROJECT", "LANGUAGE DESCOPED"))}
     keep, removed, held = [], [], []
     for r in critic.get("rows") or []:
         if r.get("id") in descoped:

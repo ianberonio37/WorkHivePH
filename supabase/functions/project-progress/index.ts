@@ -31,7 +31,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.110.0';
 import { getCorsHeaders } from '../_shared/cors.ts';
 import { resolveIdentity, resolveTenancy } from '../_shared/tenant-context.ts';
 // A5 (FULLSTACK_COMPONENT_LIBRARY Layer A): per-person rate limit on the browser path.
-import { checkSoloRateLimit, soloRateLimitKey, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
+import { checkSoloRateLimit, soloRateLimitedResponse } from "../_shared/rate-limit.ts";
 
 // Warm module-scope Supabase client. Reused across request invocations
 // in the same warm container. Per-request createClient calls below are
@@ -125,8 +125,14 @@ serveObserved("project-progress", async (req: Request) => {
       if (!tenancy.ok) return errJson(tenancy.message, tenancy.status, req);
     
       // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
-      const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-      const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
+      // ★A ROLLUP IS NOT AN AI CALL (Wave HS L4, "a year of the hive", 2026-10-30, walked live). This bucketed on the
+      // person's own key - the one their AI features spend, 30 an hour and 100 a day - though it calls no model: it is
+      // arithmetic over the project's rows. A supervisor of a busy hive opens projects, and an open project re-reads on
+      // every teammate's change, so the day's 100 went on rollups: every project then read "0% · 0/0 items done" and
+      // their logbook assist was refused for the rest of the day. It keeps its own allowance, per person. The IP ceiling
+      // guards against one address minting identities; here the account comes from a verified token and must be an
+      // active member of this hive, so it would only cap a plant's shift on one site connection.
+      const _rl = await checkSoloRateLimit(db, `${authUid}#project-progress`, 300, 3000, null);
       if (!_rl.allowed) return soloRateLimitedResponse(getCorsHeaders(req), _rl.retry_after_seconds, _rl.scope);
     }
   }

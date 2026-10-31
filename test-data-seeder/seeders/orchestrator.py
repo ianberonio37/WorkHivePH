@@ -93,6 +93,46 @@ def date_seeded_xp(log) -> None:
         log(f"  WARN: XP not dated: {e}")
 
 
+def attribute_seeded_trail(log) -> None:
+    """A trail names who did the work, when they did it. The project triggers bind the actor to the signed-in caller, and
+    the seeder writes with the service key - so every seeded project change read "the platform", stamped the day of the
+    seed, and the full hive's audit log said nobody made 40 of its 43 entries (Wave HS L1, 2026-10-30). Each seeded
+    project row's trail is given to the project's lead and dated to the change (local seed only; rows a member made
+    through the page already carry their name and are untouched)."""
+    sql = (
+        "update public.hive_audit_log a set actor = p.worker_name, created_at = p.created_at from public.projects p "
+        "where a.actor = 'the platform' and a.target_type = 'projects' and a.target_id = p.id::text "
+        "and p.worker_name is not null;\n"
+        "update public.hive_audit_log a set actor = p.worker_name, created_at = i.created_at "
+        "from public.project_items i join public.projects p on p.id = i.project_id "
+        "where a.actor = 'the platform' and a.target_type = 'project_items' and a.target_id = i.id::text "
+        "and p.worker_name is not null;\n"
+        # a failure mode's trail names the member who proposed it (created_by holds their name), dated when they did
+        "update public.hive_audit_log a set actor = m.created_by, created_at = m.created_at from public.rcm_fmea_modes m "
+        "where a.actor = 'the platform' and a.target_type = 'rcm_fmea_modes' and a.target_id = m.id::text "
+        "and m.created_by is not null;\n"
+        # a calculation's trail names its engineer; a change order's, who raised it; a progress report's, who filed it
+        "update public.hive_audit_log a set actor = c.worker_name, created_at = c.created_at from public.engineering_calcs c "
+        "where a.actor = 'the platform' and a.target_type = 'engineering_calcs' and a.target_id = c.id::text "
+        "and c.worker_name is not null;\n"
+        "update public.hive_audit_log a set actor = o.requested_by, created_at = o.created_at from public.project_change_orders o "
+        "where a.actor = 'the platform' and a.target_type = 'project_change_orders' and a.target_id = o.id::text;\n"
+        "update public.hive_audit_log a set actor = g.reported_by, created_at = g.created_at from public.project_progress_logs g "
+        "where a.actor = 'the platform' and a.target_type = 'project_progress_logs' and a.target_id = g.id::text;\n"
+        # a PM task has no author column: its trail names the PM program's owner, dated to the program's start
+        "update public.hive_audit_log a set actor = pa.worker_name, created_at = coalesce(s.anchor_date::timestamptz, a.created_at) "
+        "from public.pm_scope_items s join public.pm_assets pa on pa.id = s.asset_id "
+        "where a.actor = 'the platform' and a.target_type = 'pm_scope_items' and a.target_id = s.id::text "
+        "and pa.worker_name is not null;\n")
+    try:
+        r = subprocess.run(["docker", "exec", "-i", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres",
+                            "-v", "ON_ERROR_STOP=1", "-q"], input=sql, capture_output=True, text=True, timeout=300)
+        log("  project trail given to the members who made it" if r.returncode == 0
+            else f"  WARN: project trail not attributed: {r.stderr.strip()[:160]}")
+    except Exception as e:  # never fail a seed over attribution; say so
+        log(f"  WARN: project trail not attributed: {e}")
+
+
 def bind_seeded_authors(client, log) -> None:
     """Give each seeded row that names a person that person's account, by their profile name."""
     try:
@@ -222,6 +262,7 @@ def seed_everything(client, log) -> dict:
     seed_walk_casts(client, log)                     # a non-admin supervisor in every hive whose only one is an admin (the cube's casts)
     seed_full_hive(client, log)                      # Wave HS: one hive at thirty members with a year of their work (own Random(30))
     date_seeded_xp(log)                              # XP dated to the work that earned it (the triggers stamp now())
+    attribute_seeded_trail(log)                      # project trail names the member who made it, dated to it
     run_history_tools(log)                           # fleets' operating life + five years of history in every hive
 
     log("=" * 50)

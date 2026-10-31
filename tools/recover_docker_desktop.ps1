@@ -38,5 +38,10 @@ docker exec supabase_edge_runtime_workhive sh -c "ls '$FN/login'"
 & curl.exe -s -m 15 -o NUL -w "auth via kong %{http_code} in %{time_total}s`n" http://127.0.0.1:54321/auth/v1/health
 $key = (& supabase status -o env 2>$null | Select-String -Pattern '^ANON_KEY=' | ForEach-Object { $_.Line.Substring(9).Trim('"') } | Select-Object -First 1)
 if ($key) {
-  foreach ($n in 1, 2) { & curl.exe -s -m 60 -o NUL -w "login warm-up $n`: HTTP %{http_code} in %{time_total}s`n" -X POST http://127.0.0.1:54321/functions/v1/login -H "apikey: $key" -H "Authorization: Bearer $key" -H "Content-Type: application/json" -d '{"email":"christinedizon@auth.workhiveph.com","password":"test1234"}' }
+  # the body goes through a file: Windows PowerShell 5.1 strips the inner double quotes of a native argument, so an
+  # inline -d '{"email":...}' reached the function as {email:...} and every warm-up read 400 invalid_request (2026-10-30)
+  $body = Join-Path $env:TEMP 'wh_login_warmup.json'
+  Set-Content -Path $body -Encoding ascii -Value '{"email":"christinedizon@auth.workhiveph.com","password":"test1234"}'
+  foreach ($n in 1, 2) { & curl.exe -s -m 60 -o NUL -w "login warm-up $n`: HTTP %{http_code} in %{time_total}s`n" -X POST http://127.0.0.1:54321/functions/v1/login -H "apikey: $key" -H "Authorization: Bearer $key" -H "Content-Type: application/json" --data-binary "@$body" }
+  Remove-Item $body -ErrorAction SilentlyContinue
 } else { "no ANON_KEY from 'supabase status' - warm the login function by hand" }

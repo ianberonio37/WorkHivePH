@@ -271,6 +271,9 @@
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--card); border: 1px solid var(--border); border-radius: 999px;
     padding: 4px 12px 4px 8px; margin: 4px 4px 4px 0; font-size: 0.82rem;
+    /* HS L1/L5 (2026-10-30): a role pill carries a name, who assigned it and when ("Rodel Ignacio (former member) · by
+       Ernesto Villareal Oct 10") - on a phone it ran past the screen's edge. It wraps inside the screen instead. */
+    max-width: 100%; flex-wrap: wrap; overflow-wrap: anywhere;
   }
   .link-pill button { background: transparent; border: none; color: var(--muted); padding: 0 0 0 4px; font-size: 1.1rem; line-height: 1; cursor: pointer; }
   .link-type { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
@@ -799,18 +802,31 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <h3 data-i="linkexisting">Link existing work</h3>
     <div class="field">
       <label for="l-type" data-i="type">Type</label>
-      <select id="l-type" onchange="loadLinkOptions()" data-select-placeholder-allow="default 'asset' is the most common link target">
+      <select id="l-type" onchange="$('l-search').value = ''; loadLinkOptions()" data-select-placeholder-allow="default 'asset' is the most common link target">
         <option value="asset">Asset</option>
         <option value="logbook">Logbook entry</option>
         <option value="pm_completion">PM completion</option>
         <option value="inventory_item">Inventory item</option>
         <option value="engineering_calc">Engineering calc (BOM/SOW)</option>
+        <!-- HS L3 (2026-10-30): the database allows a marketplace link (project_links_link_type_check), and this page reads,
+             caps and labels the hive's listings for it - but the type was never offered here, so no listing could be
+             linked (and a walk read the empty picker as "the hive lists nothing", which was false: it lists 5). -->
+        <option value="marketplace_listing">Marketplace listing</option>
         <option data-i="p_contractorfreetext_ed3d" value="contractor">Contractor (free text)</option>
       </select>
     </div>
-    <div class="field" id="l-picker-wrap">
-      <label for="l-picker" data-i="pick">Pick</label>
-      <select id="l-picker"></select>
+    <!-- HS L4 (2026-10-30, "a year of the hive"): the picker offered the newest 50 entries and said "Older ones are not
+         offered here", so last year's breakdown could never be linked to the project that fixes it; machines and parts
+         were cut at 200 without a word. A search reads the whole hive. -->
+    <div id="l-picker-wrap">
+      <div class="field">
+        <label for="l-search">Find</label>
+        <input type="search" id="l-search" maxlength="100" autocomplete="off" oninput="_linkSearchSoon()" placeholder="Search by name, machine, problem or part number">
+      </div>
+      <div class="field">
+        <label for="l-picker" data-i="pick">Pick</label>
+        <select id="l-picker"></select>
+      </div>
     </div>
     <div class="field hidden" id="l-text-wrap">
       <label for="l-text" data-i="contractorname">Contractor / vendor name</label>
@@ -947,7 +963,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whMoreNote whReadError whRequireOnline whSourcesSync whStartupHive whTrash whUse">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whReadError whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whTrash whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1010,6 +1026,7 @@ let _detail     = null;                    // currently opened project
 let _items      = [];                      // scope items for opened project
 let _links      = [];                      // links for opened project
 let _logs       = [];                      // progress logs for opened project
+let _logsMore   = false;                   // the read found more than the 30 it shows (HS W2)
 let _progress   = null;                    // edge-fn rollup result
 let _roles      = [];                      // project_roles rows (Phase 5B)
 let _aiDraftedText  = null;               // PJ14: the exact text the AI produced, if any
@@ -1137,21 +1154,41 @@ async function loadHiveMembers() {
   // (active membership for THIS hive, ordered for the dropdown); v_worker_truth
   // is a worker-centric composite that doesn't expose the same ordering scope
   const { data, error } = await db.from('hive_members')
-    .select('worker_name').eq('hive_id', HIVE_ID).order('worker_name').order('id').limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the dropdown read) · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
+    .select('worker_name, status').eq('hive_id', HIVE_ID).order('worker_name').order('id').limit(500); // Arc L · L2: row cap (members/hive ≤ dozens; bounds the dropdown read) · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
   if (error) { console.warn(error.message); return; }
-  _members = (data || []).map(r => r.worker_name).filter(Boolean);
+  // HS (2026-10-30): the comment above promised "active membership" and the read never filtered it. A member who left keeps
+  // their name on the work they did - so the owner FILTER still offers them - but new work is not handed to them: the
+  // project, scope and role pickers (_members) offer active members only (the role guard refused it after it was offered).
+  const _everyone = (data || []).map(r => r.worker_name).filter(Boolean);
+  _members = (data || []).filter(r => r.status === 'active').map(r => r.worker_name).filter(Boolean);
   // Populate filter + form pickers
-  const ownerOpts = _members.map(m => `<option value="${e(m)}">${e(m)}</option>`).join('');
-  $('filter-owner').insertAdjacentHTML('beforeend', ownerOpts);
-  $('f-owner').insertAdjacentHTML('beforeend', ownerOpts);
-  $('s-owner').insertAdjacentHTML('beforeend', ownerOpts);
+  /* HS L3 (2026-10-30): the pickers were filled ONCE, when the page opened - a member who joined afterwards was never
+     offered, and one who left was still offered (and refused at the save). This runs again whenever a form with a member
+     picker opens (openModal below), so each picker is rebuilt from the roster as it is now; its placeholder and the
+     choice already made in it are kept. */
+  const _opts = (names) => names.map(m => `<option value="${e(m)}">${e(m)}</option>`).join('');
+  const _refill = (id, names) => {
+    const sel = $(id); if (!sel) return;
+    const keep = sel.value, first = sel.options[0] && !sel.options[0].value ? sel.options[0].outerHTML : '';
+    sel.innerHTML = first + _opts(names);   // xss-allow: names pass through e() in _opts
+    if (keep && [...sel.options].some((o) => o.value === keep)) sel.value = keep;
+  };
+  _refill('filter-owner', _everyone);
+  _refill('f-owner', _members);
+  _refill('s-owner', _members);
+  if ($('wiz-owner') && $('wiz-owner').options.length > 1) _refill('wiz-owner', _members);
 }
 
 /* ── Projects: list ────────────────────────────────────────── */
 async function loadProjects() {
+  // HS L5: a project card names its owner - one who has left the hive is said so (asked once a page)
+  if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
   // E2 consistent states: skeleton in the project card grid while it fetches so
   // #card-grid never flashes blank before project cards render (shared whListSkeleton).
-  if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('card-grid'), 4, 'your projects');
+  // HS L3 (2026-10-30): this loader is also the live channel's re-read - a skeleton over cards already drawn throws the
+  // reader out of the grid (audit-log and inventory did it on every poll and every teammate's change). Nothing drawn yet: skeleton.
+  const _gridEl = document.getElementById('card-grid');
+  if (_gridEl && !_gridEl.querySelector('.pcard') && typeof whListSkeleton === 'function') whListSkeleton(_gridEl, 4, 'your projects');
   const { data, error } = await db.from('projects')
     .select('id, project_code, name, project_type, status, priority, owner_name, start_date, end_date, created_at, updated_at')  /* PJ9: budget_php REMOVED. Mig 024. */
     .eq('hive_id', HIVE_ID).is('deleted_at', null).order('updated_at', { ascending: false }).order('id').limit(1000); // Arc L · L2: row cap (projects/hive ≤ low hundreds; newest-first so the active set is never truncated) · cap-ok (LB1): its largest group (hive_id) is far under 1000 - sized live by list-caps-say-more
@@ -1165,34 +1202,22 @@ async function loadProjects() {
   // Pull rollup from project_items in batch (one query, then group)
   const ids = _projects.map(p => p.id);
   if (ids.length) {
-    // SL LB3 (2026-10-21): the projects asked 100 at a time (whInChunks). A hive's projects (up to the 1,000 read above)
-    // went into one in.() list, and past ~200 ids the URL passes what the gateway accepts (414) - every card then read 0%
-    // with 0 items, and no project carried its late work. Each piece keeps this read's cap.
-    const { data: items } = await whInChunks(ids, (part) => db.from('v_project_items_truth')
-      .select('project_id, pct_complete, estimated_hours, status, planned_end').in('project_id', part).limit(500)); // Arc L · L2: row cap (rollup over a bounded .in(ids) batch from the prior projects query; insurance cap) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
+    // ★A CAP ON A SUM IS A WRONG NUMBER (Wave HS L4, "a year of the hive", 2026-10-30). Each card's %, done count and late
+    // steps were summed here from the scope items read 500 per hundred projects (SL LB3 chunked the ids so the URL stayed
+    // under the gateway's limit); past 500 items in a chunk - about fifty projects of ten steps, a year of a hive of thirty -
+    // a card read the share of its items that arrived and missed late work outside it. project_rollups sums every item of
+    // the hive where the items are (the reader's RLS slice, the same weights, the hive's today for "late").
+    const { data: roll, error: rollErr } = await db.rpc('project_rollups', { p_hive: HIVE_ID });
+    // a failed read is not 0% done: the cards would say so for every project, so the person is told the figures are missing
+    if (rollErr) { console.error('project rollups:', rollErr.message); showToast(whReadError(rollErr, "your projects' progress"), 'error'); }
     const rollup = {};
-    (items || []).forEach(it => {
-      if (!rollup[it.project_id]) rollup[it.project_id] = { sum: 0, w: 0, count: 0, done: 0, hours: 0, lateItems: 0 };
-      const w = it.estimated_hours || 1;
-      if (it.estimated_hours) rollup[it.project_id].hours += 1;   // basis is only 'hours' if hours exist
-      rollup[it.project_id].sum   += (it.pct_complete || 0) * w;
-      rollup[it.project_id].w     += w;
-      rollup[it.project_id].count += 1;
-      if (it.status === 'done') rollup[it.project_id].done += 1;
-      // ★THE ROLLUP COULD NOT SEE ITS OWN LATE WORK. The 'Past end date' tile counts PROJECTS whose
-      // own end_date has passed; nothing anywhere counted projects carrying overdue ITEMS. Measured:
-      // 'Compressor Replacement (FEL Stage Gates)' ends 2026-08-25, is active, and has SIX items already
-      // past their planned_end - so it presents as perfectly on track while six pieces of its work are
-      // late. planned_end was not even selected, which is why nothing downstream could have noticed.
-      if (it.planned_end && it.status !== 'done' && it.planned_end < _todayIso())
-        rollup[it.project_id].lateItems += 1;
-    });
+    (roll || []).forEach(r => { rollup[r.project_id] = r; });
     _projects.forEach(p => {
       const r = rollup[p.id];
-      p._pct = r ? Math.round(r.sum / Math.max(r.w, 1)) : 0;
-      p._items_total = r ? r.count : 0;
-      p._items_done  = r ? r.done : 0;
-      p._late_items  = r ? r.lateItems : 0;
+      p._pct = r && r.pct_exact != null ? Math.round(Number(r.pct_exact)) : 0;
+      p._items_total = r ? r.items_total : 0;
+      p._items_done  = r ? r.items_done : 0;
+      p._late_items  = r ? r.late_items : 0;
       // ★A BARE % OVER AN ITEM COUNT IMPLIED THE WRONG BASIS. This figure is an hours-WEIGHTED
       // average of each item's own pct_complete (weight = estimated_hours, defaulting to 1), but the
       // caption beneath it read 'N/M items done' - a different statistic entirely - so a reader
@@ -1200,7 +1225,7 @@ async function loadProjects() {
       // when one is a 2-hour task and the other a 200-hour overhaul. The basis is recorded here so
       // the caption can name it, and it names the FALLBACK honestly: with no estimated hours on any
       // item the weights collapse to 1 and it really is an equal-weight average.
-      p._pct_basis = r && r.hours ? 'weighted by planned hours' : 'equal weight per item';
+      p._pct_basis = r && r.hours_basis ? 'weighted by planned hours' : 'equal weight per item';
     });
     // Extension 1: the canonical maintenance-nature facet (reactive/preventive/project)
     // from v_project_truth — WAT: derived server-side, never re-computed on the client.
@@ -1220,7 +1245,7 @@ async function loadProjects() {
 // The card reads nothing from outside its project - the grid's key below is exactly the fields read here.
 function pcardHtml(p) {
   return `
-    <div class="pcard" onclick="openDetail('${escJsAttr(p.id)}')">
+    <div class="pcard" data-project-id="${escHtml(String(p.id))}" onclick="openDetail('${escJsAttr(p.id)}')">
       <div class="pcard-head">
         <span class="pcode">${e(p.project_code)}</span>
         <span class="ptype-pill ptype-${p.project_type}">${e(p.project_type)}</span>
@@ -1228,7 +1253,7 @@ function pcardHtml(p) {
       </div>
       <div class="pname">${e(p.name)}</div>
       <div class="pmeta">
-        <span>👤 ${e(p.owner_name || '-')}</span>
+        <span>👤 ${e((p.owner_name || '-') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(p.owner_name) : ''))}</span>
         ${p.end_date ? `<span>📅 ${e(fmtDate(p.end_date))}</span>` : ''}
         ${p._items_total ? `<span>📋 ${p._items_done}/${p._items_total}</span>` : ''}
       </div>
@@ -1454,9 +1479,27 @@ function renderList() {
     // card shows (pcardHtml reads nothing else), not the card's HTML: key 'html' built every card's markup on every
     // press just to compare it. The rollup fields (_pct, _items_*, _nature) are written onto the projects in place,
     // and a field key reads them on every render, so a card whose rollup arrives later still redraws
+    /* HS L3 (2026-10-30, walked live at 390): a teammate's new project arrives on top, every card shifts, the grid is
+       replaced and the browser has no card left to anchor on - the card being read moved 170 px. The card at the top of
+       the reader's screen is held by its project id, one hand only, through the content-visibility settle (as audit-log). */
+    grid.style.overflowAnchor = 'none';
+    const _readCard = grid.getBoundingClientRect().top < 0 ? [...grid.querySelectorAll('[data-project-id]')].find((c) => c.getBoundingClientRect().bottom > 0) : null;
+    const _readId = _readCard ? _readCard.getAttribute('data-project-id') : null, _readTop = _readCard ? _readCard.getBoundingClientRect().top : 0;
     whRenderRows(grid, visible, pcardHtml, { sig: 'pm-cards', long: true,
       key: (p) => [p.id, p.project_code, p.project_type, p._nature, p.name, p.owner_name, p.end_date,
                    p._items_done, p._items_total, p._pct, p.status].join('|') });
+    if (_readId) {
+      let _expectY = null;
+      const _hold = (n) => {
+        if (_expectY !== null && Math.abs(window.scrollY - _expectY) > 2) return;   // the reader moved - theirs now
+        const _same = [...grid.querySelectorAll('[data-project-id]')].find((c) => c.getAttribute('data-project-id') === _readId);
+        const _moved = _same ? _same.getBoundingClientRect().top - _readTop : 0;
+        if (_moved) window.scrollBy(0, _moved);
+        _expectY = window.scrollY;
+        if (n > 0) requestAnimationFrame(() => _hold(n - 1));
+      };
+      _hold(20);
+    }
     return;
   }
 
@@ -2238,6 +2281,9 @@ async function deleteProject() {
 
 /* ── Detail view ────────────────────────────────────────────── */
 async function openDetail(id) {
+  // HS L5: a step's owner who has left the hive is said so - the hive's departed members are asked once a page, and the
+  // scope list below is drawn after them
+  const _formerP = (HIVE_ID && typeof whLoadFormerMembers === 'function') ? whLoadFormerMembers(db, HIVE_ID) : null;
   _detailId = id;
   // PJ9: explicit columns, NOT select('*'). budget_php is revoked from `authenticated`, and a
   // select('*') against a column the caller cannot read fails outright — so a wildcard here would
@@ -2264,11 +2310,15 @@ async function openDetail(id) {
   const [itemsRes, linksRes, logsRes, progRes, rolesRes, coRes] = await Promise.all([
     db.from('v_project_items_truth').select('*').eq('project_id', id).order('sort_order').order('id').limit(500), // Arc L · L2: row cap (one project's scope items ≤ dozens; insurance cap) · cap-ok (LB1): its largest group (project_id) is far under 500 - sized live by list-caps-say-more
     db.from('project_links').select('*').eq('project_id', id).order('created_at').order('id').limit(500), // Arc L · L2: row cap (one project's links ≤ dozens; insurance cap) · cap-ok (LB1): its largest group (project_id) is far under 500 - sized live by list-caps-say-more
-    db.from('v_project_progress_truth').select('*').eq('project_id', id).order('log_date', { ascending: false }).order('id').limit(30),   // cap-ok (LB1): its largest group (project_id) is far under 30 - sized live by list-caps-say-more
+    // HS W2 (2026-10-30, tools/prove_hive_scale_shift.mjs): a shift's reports share one log_date, and `.order('id')` ordered
+    // them by a random uuid (walked: 28, 25, 19, 27, ...) - newest first means created_at within the day. And twenty-nine
+    // reports in a shift put one project past this cap, which cut the oldest without a word: the 31st row is the probe.
+    db.from('v_project_progress_truth').select('*').eq('project_id', id).order('log_date', { ascending: false }).order('created_at', { ascending: false }).order('id').limit(30 + 1),   // more-said: by renderProgress (a 31st row means older reports exist)
     fetchProgressRollup(id),
     db.from('project_roles').select('*').eq('project_id', id).order('assigned_at', { ascending: false }).order('id').limit(500), // Arc L · L2: row cap (one project's roles ≤ dozens; insurance cap) · cap-ok (LB1): its largest group (project_id) is far under 500 - sized live by list-caps-say-more
     db.from('project_change_orders').select('*').eq('project_id', id).order('created_at', { ascending: false }).order('id').limit(500), // Arc L · L2: row cap (one project's change orders ≤ dozens; insurance cap) · cap-ok (LB1): its largest group (project_id) is far under 500 - sized live by list-caps-say-more
   ]);
+  if (_formerP) await _formerP;
   /* A FAILED READ IS NOT AN EMPTY PROJECT. supabase-js resolves with { data: null, error } rather
      than throwing, so five unchecked `.data || []` would render this project as having no scope, no
      links, no progress history, NO TEAM and NO CHANGE ORDERS -- while the project header above still
@@ -2289,8 +2339,13 @@ async function openDetail(id) {
   }
   _items = itemsRes.data || [];
   _links = linksRes.data || [];
-  _logs  = logsRes.data || [];
-  _progress = progRes;
+  _logsMore = (logsRes.data || []).length > 30;
+  _logs  = (logsRes.data || []).slice(0, 30);
+  // ★THE FALLBACK RAN BEFORE THE ITEMS ARRIVED (Wave HS L4, 2026-10-30, walked live). The rollup is read beside the items,
+  // so when the edge function failed (a 429 on every open, that day) clientRollup summed _items before this project's
+  // were set: the first project opened read "0% · 0/0 items done" beside its 105 steps, and any later one read the
+  // PREVIOUS project's progress. Its result is marked, and computed again now that the items are this project's.
+  _progress = (progRes && progRes._fallback) ? await clientRollup(id) : progRes;
   _roles = rolesRes.data || [];
   _changeOrders = coRes.data || [];
   await refreshSuggestedLinks();
@@ -2463,10 +2518,20 @@ async function cycleScopeStatus(id, ev) {
              : it.status === 'in_progress' ? 'done'
              : 'pending';
   const pct = next === 'done' ? 100 : next === 'in_progress' ? Math.max(it.pct_complete || 0, 50) : 0;
+  // HS W1 (2026-10-30): move it only FROM the status this person saw. The next step is computed from the screen, so when
+  // a teammate marked the task done a moment earlier, this tap set it back to pending - silently undoing their work.
   const { data: _moved, error } = await db.from('project_items')
-    .update({ status: next, pct_complete: pct }).eq('id', id).select('id');
+    .update({ status: next, pct_complete: pct }).eq('id', id).eq('status', it.status).select('id');
   if (error) { showToast(whWriteError(error, 'The task status was not saved.'), 'error'); return; }
-  if (!_moved || !_moved.length) { showToast('The task status was NOT changed: this account is no longer a member of the hive that owns it, or the task is gone. Refreshed.', 'error'); await refreshDetail(); return; }
+  if (!_moved || !_moved.length) {
+    let _nowStatus = null;
+    try { const { data: _n } = await db.from('v_project_items_truth').select('status').eq('id', id).maybeSingle(); _nowStatus = _n && _n.status; } catch (_) { /* empty-catch-allow: the sentence below is still true */ }
+    showToast(_nowStatus && _nowStatus !== it.status
+      ? `Someone moved this task to "${String(_nowStatus).replace('_', ' ')}" while you were looking, so your change was not made. Refreshed - tap again if it should still move.`
+      : 'The task status was NOT changed: this account is no longer a member of the hive that owns it, or the task is gone. Refreshed.', 'error');
+    await refreshDetail();
+    return;
+  }
   if (typeof whUse === 'function') whUse(db, 'item_status_changed', { to: next });
   await refreshDetail();
 }
@@ -2492,10 +2557,10 @@ function renderScope() {
     const isCritical = _progress?.critical_path?.item_ids?.includes(it.id);
     const sCls = it.status === 'done' ? 'complete' : it.status === 'blocked' ? 'cancelled' : it.status === 'in_progress' ? 'active' : 'planning';
     return `
-      <tr class="${it.status === 'done' ? 'done' : ''} ${isCritical ? 'critical' : ''}">
+      <tr class="${it.status === 'done' ? 'done' : ''} ${isCritical ? 'critical' : ''}" data-item-id="${e(it.id)}">
         <td class="mono small">${e(it.wbs_code || '')}</td>
         <td>${e(it.title)}</td>
-        <td class="small">${e(it.owner_name || '-')}</td>
+        <td class="small">${e((it.owner_name || '-') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(it.owner_name) : ''))}</td>
         <td><button type="button" class="status-pill status-${sCls}" aria-label="${e(it.status.replace('_', ' '))}: change to ${it.status === 'pending' ? 'in progress' : it.status === 'in_progress' ? 'done' : 'pending'}" onclick="cycleScopeStatus('${escJsAttr(it.id)}', event)">${e(it.status.replace('_', ' '))}</button></td>
         <td><div class="progress" style="width:80px;"><div class="progress-bar ${progressColor(it.pct_complete)}" style="width:${it.pct_complete}%"></div></div></td>
         <td class="small">${e(fmtDate(it.planned_end))}</td>
@@ -2770,7 +2835,7 @@ function renderLinked() {
       <span class="row" style="gap: 8px;">
         <!-- D3 (2026-10-16): a removed link waits in Recently deleted for 30 days. -->
         <button class="btn small" type="button" aria-haspopup="dialog" aria-expanded="false" onclick="_pmRecentlyRemoved(this)" data-table="project_links" data-title="Recently removed links">Recently removed</button>
-        <button class="btn primary small" onclick="openModal('modal-link'); loadLinkOptions();" data-i="linkwork">+ Link work</button>
+        <button class="btn primary small" onclick="openModal('modal-link'); $('l-search').value = ''; loadLinkOptions();" data-i="linkwork">+ Link work</button>
       </span>
     </div>
     ${suggestionBanner}
@@ -2783,21 +2848,36 @@ async function loadLinkOptions() {
   $('l-text-wrap').classList.toggle('hidden', t !== 'contractor');
   $('l-picker-wrap').classList.toggle('hidden', t === 'contractor');
   if (t === 'contractor') return;
+  // HS L4 (2026-10-30): a search reads the whole hive (whSafeSearchTerm strips what would break the filter and keeps a
+  // typed % or _ literal); without one, each list offers its newest (or first by name) and reads one past its cap
+  const q = (typeof whSafeSearchTerm === 'function') ? whSafeSearchTerm(($('l-search') || {}).value || '') : '';
+  // by WORDS, each of which must appear: whSafeSearchTerm turns the comma a person types ("impeller, bronze" - as the
+  // part reads) into a space, and one pattern "%impeller bronze%" never matched "Impeller, bronze, CW-P-07B"
+  const words = q.split(' ').filter(Boolean).slice(0, 5).map((w) => '%' + w + '%');
+  const anyOf = (r, cols) => words.reduce((acc, w) => acc.or(cols.map((c) => `${c}.ilike.${w}`).join(',')), r);
+  const allIn = (r, col) => words.reduce((acc, w) => acc.ilike(col, w), r);
   const queries = {
-    asset:               () => db.from('asset_nodes').select('id, name').eq('hive_id', HIVE_ID).order('name').order('id').limit(200),   // cap-ok (LB1): its largest group (hive_id) is far under 200 - sized live by list-caps-say-more
-    logbook:             () => db.from('v_logbook_truth').select('id, machine, problem, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(50 + 1),   // more-said (SL LB1: one past 50 says older ones are not in the picker)
+    asset:               () => { let r = db.from('asset_nodes').select('id, name').eq('hive_id', HIVE_ID); if (q) r = anyOf(r, ['name', 'tag']); return r.order('name').order('id').limit(200 + 1); },   // more-said: by loadLinkOptions (SL LB1 / HS L4: one past 200 says more machines exist; the search finds them)
+    // + worker_name (HS L1, 2026-10-30): with thirty members the same fault is logged by many hands - who and when tell them apart
+    logbook:             () => { let r = db.from('v_logbook_truth').select('id, machine, problem, created_at, worker_name').eq('hive_id', HIVE_ID); if (q) r = anyOf(r, ['machine', 'problem']); return r.order('created_at', { ascending: false }).order('id').limit(50 + 1); },   // more-said: by loadLinkOptions (SL LB1: one past 50 says older ones are not in the picker; HS L4: the search reaches them)
     // canonical-allow: project link picker needs individual completion rows; v_pm_compliance_truth aggregates only
     // T189 (2026-08-28): +status. These rows are offered under a group heading that reads "PM
     // completions" and each was labelled with a bare date, so a SKIPPED PM was selectable as
     // project evidence of work performed. Milder than the asset timeline (a date is not the
     // sentence "completed by X"), but the heading supplies the claim the item omits.
-    pm_completion:       () => db.from('pm_completions').select('id, asset_id, completed_at, status').eq('hive_id', HIVE_ID).order('completed_at', { ascending: false }).order('id').limit(50 + 1),   // more-said (SL LB1: one past 50 says older ones are not in the picker)
-    inventory_item:      () => db.from('v_inventory_items_truth').select('id, part_name, part_number').eq('hive_id', HIVE_ID).order('part_name').order('id').limit(200),   // cap-ok (LB1): its largest group (hive_id) is far under 200 - sized live by list-caps-say-more
-    engineering_calc:    () => db.from('engineering_calcs').select('id, calc_type, project_name, created_at').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(30 + 1),   // more-said (SL LB1: one past 30 says older ones are not in the picker)
-    marketplace_listing: () => db.from('v_marketplace_listings_truth').select('id, title').eq('hive_id', HIVE_ID).order('created_at', { ascending: false }).order('id').limit(30 + 1),   // more-said (SL LB1: one past 30 says older ones are not in the picker)
+    // A search matches the PM's machine (the name the option shows): the inner join keeps only completions whose machine matches.
+    pm_completion:       () => { let r = db.from('pm_completions').select(q ? 'id, asset_id, completed_at, status, worker_name, pm_assets!inner(asset_name)' : 'id, asset_id, completed_at, status, worker_name, pm_assets(asset_name)').eq('hive_id', HIVE_ID); if (q) r = allIn(r, 'pm_assets.asset_name'); return r.order('completed_at', { ascending: false }).order('id').limit(50 + 1); },   // more-said: by loadLinkOptions (SL LB1: one past 50 says older ones are not in the picker; HS L4: the search reaches them)
+    inventory_item:      () => { let r = db.from('v_inventory_items_truth').select('id, part_name, part_number').eq('hive_id', HIVE_ID); if (q) r = anyOf(r, ['part_name', 'part_number']); return r.order('part_name').order('id').limit(200 + 1); },   // more-said: by loadLinkOptions (SL LB1 / HS L4: one past 200 says more parts exist; the search finds them)
+    engineering_calc:    () => { let r = db.from('engineering_calcs').select('id, calc_type, project_name, created_at, worker_name').eq('hive_id', HIVE_ID); if (q) r = anyOf(r, ['calc_type', 'project_name']); return r.order('created_at', { ascending: false }).order('id').limit(30 + 1); },   // more-said: by loadLinkOptions (SL LB1: one past 30 says older ones are not in the picker; HS L4: the search reaches them)
+    marketplace_listing: () => { let r = db.from('v_marketplace_listings_truth').select('id, title').eq('hive_id', HIVE_ID); if (q) r = allIn(r, 'title'); return r.order('created_at', { ascending: false }).order('id').limit(30 + 1); },   // more-said: by loadLinkOptions (SL LB1: one past 30 says older ones are not in the picker)
   };
   const fn = queries[t]; if (!fn) { $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = ''; return; }
-  const { data, error } = await fn();
+  // `let`, not `const`: the cap below trims `data` when a list runs one past it. As a const that line THREW ("Assignment
+  // to constant variable") the moment a hive held more than 50 logbook entries or PM completions - the picker never
+  // filled, so a hive past fifty could link no logbook entry or PM to a project (HS, a thirty-member hive, 2026-10-30).
+  const _seq = ++_linkSeq;
+  let { data, error } = await fn();
+  if (_seq !== _linkSeq) return;   // a later search or type change has already asked; its answer paints, not this one
   // T176: this put a raw Postgres sentence inside an <option>, where it reads as a SELECTABLE
   // choice — the person can highlight "Error: new row violates row-level security policy" as if
   // it were a record to link. A failed read is not an empty list and it is not a menu item, so it
@@ -2807,22 +2887,46 @@ async function loadLinkOptions() {
       `<option value="" disabled selected>${e(whReadError(error, 'the list of items to link'))}</option>`;
     return;
   }
+  // HS L1 (2026-10-30): an option says who did the work and when. In a hive of thirty the same fault is logged by many
+  // hands and the same PM is done every week, so "BRM-P-101: Seal leak" and "PM 10/3/2026" each stood for dozens of
+  // indistinguishable records - and the chosen label is SAVED as the link's name on the project. The PM option also
+  // names its machine, and every date is the platform's (FD1a), not the phone's locale.
+  const _d = (v) => (v && typeof whFmtDate === 'function') ? whFmtDate(v) : '';
+  // HS L5: a departed member's work is offered as theirs - "(former member)" - so a supervisor linking it knows who is
+  // no longer there to ask (the mark is not saved into the link's name, below)
+  const _by = (r) => [r.worker_name ? r.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(r.worker_name) : '') : '',
+    _d(r.created_at || r.completed_at)].filter(Boolean).join(', ');
   const labelFor = (r) => {
     if (t === 'asset' || t === 'marketplace_listing') return r.name || r.title || r.id;
-    if (t === 'inventory_item') return r.part_name || r.part_number || r.id;
-    if (t === 'logbook') return `${r.machine || '?'}: ${(r.problem || '').slice(0, 50)}`;
-    if (t === 'pm_completion') return `PM ${new Date(r.completed_at).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' })}`
+    if (t === 'inventory_item') return [r.part_name, r.part_number].filter(Boolean).join(' · ') || r.id;
+    if (t === 'logbook') return `${r.machine || '?'}: ${(r.problem || '').slice(0, 50)}` + (_by(r) ? ` (${_by(r)})` : '');
+    if (t === 'pm_completion') return `PM ${(r.pm_assets && r.pm_assets.asset_name) || ''}`.trim() + (_by(r) ? ` (${_by(r)})` : '')
       + (r.status === 'skipped' ? ' (skipped, not performed)' : '');
-    if (t === 'engineering_calc') return `${r.calc_type}: ${r.project_name || ''}`;
+    if (t === 'engineering_calc') return `${r.calc_type}: ${r.project_name || ''}` + (_by(r) ? ` (${_by(r)})` : '');
     return r.id;
   };
   // SL LB1: each list reads one past its cap; the picker offers the cap and says, under it, that older ones exist
   const _pkCap = { asset: 200, logbook: 50, pm_completion: 50, inventory_item: 200, engineering_calc: 30, marketplace_listing: 30 }[t] || 0;
   const _pkMore = _pkCap > 0 && (data || []).length > _pkCap;
   if (_pkMore) data = data.slice(0, _pkCap);
-  if (typeof whMoreNote === 'function') whMoreNote($('l-picker'), { shown: (data || []).length, more: _pkMore, noun: 'items', order: 'newest',
-    where: 'Older ones are not offered here.', src: 'link-picker' });
-  $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = (data || []).map(r => `<option value="${e(r.id)}">${e(labelFor(r))}</option>`).join('');
+  const _byName = t === 'asset' || t === 'inventory_item';
+  const _noun = { asset: 'machines', logbook: 'entries', pm_completion: 'PM completions', inventory_item: 'parts',
+    engineering_calc: 'calculations', marketplace_listing: 'listings' }[t] || 'items';
+  const _n = (data || []).length;
+  if (typeof whMoreNote === 'function') whMoreNote($('l-picker'), { shown: _n, more: _pkMore, noun: _noun, order: q ? '' : 'newest',
+    said: q ? `Showing the first ${_n} matching ${_noun}; there are more.` : (_byName ? `Showing the first ${_n} ${_noun} by name; there are more.` : null),
+    where: q ? 'Type more of the name to narrow it.' : 'Search above to find any other.', src: 'link-picker' });
+  // a search that matches nothing says so, and the line cannot be chosen as a record to link
+  $('l-picker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = (data || []).length
+    ? data.map(r => `<option value="${e(r.id)}">${e(labelFor(r))}</option>`).join('')
+    : `<option value="" disabled selected>${e(q ? 'Nothing matches “' + (($('l-search') || {}).value || '').trim() + '”.' : 'Nothing to link yet.')}</option>`;
+}
+
+// the search waits for a pause in typing, so each keystroke is not a read
+let _linkSearchTimer = null, _linkSeq = 0;
+function _linkSearchSoon() {
+  clearTimeout(_linkSearchTimer);
+  _linkSearchTimer = setTimeout(() => loadLinkOptions(), 300);
 }
 
 async function saveLink() {
@@ -2839,7 +2943,7 @@ async function saveLink() {
     $('l-text').value = '';
   } else {
     const sel = $('l-picker'); const id = sel.value; if (!id) { showToast('Pick something to link'); return; }
-    const label = sel.options[sel.selectedIndex].textContent;
+    const label = sel.options[sel.selectedIndex].textContent.replace(/ \(former member\)/g, '');
     payload = { project_id: _detailId, hive_id: HIVE_ID, link_type: t, link_id: id, label };
   }
   const { error } = await db.from('project_links').insert(payload);
@@ -2878,7 +2982,7 @@ function renderProgress() {
   const entries = _logs.map(l => `
     <div class="log-entry">
       <div class="log-entry-head">
-        <span><strong>${e(l.reported_by)}</strong> · ${e(l.log_date)} · ${l.pct_complete}% ${l.hours_worked ? '· ' + l.hours_worked + 'h' : ''}</span>
+        <span><strong>${e(l.reported_by + (typeof whMemberSuffix === 'function' ? whMemberSuffix(l.reported_by) : ''))}</strong> · ${e(l.log_date)} · ${l.pct_complete}% ${l.hours_worked ? '· ' + l.hours_worked + 'h' : ''}</span>
       </div>
       ${l.notes ? `<div class="log-entry-body">${e(l.notes).replace(/\n/g,'<br>')}</div>` : ''}
       ${l.blockers ? `<div class="log-entry-blockers">⚠ Blocker: ${e(l.blockers)}</div>` : ''}
@@ -2889,7 +2993,7 @@ function renderProgress() {
   `).join('');
   $('pane-progress')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="row" style="justify-content: space-between; margin-bottom: 12px;">
-      <div class="small" style="color: var(--muted);">${_logs.length} ${escHtml(_t('log entr(ies). Workers report; supervisors acknowledge.', 'log entry. Nag-uulat ang mga worker; kinikilala ng mga supervisor.'))}</div>
+      <div class="small" style="color: var(--muted);" ${_logsMore ? 'data-wh-more-note role="note"' : ''}>${_logsMore ? escHtml('The 30 newest progress reports - this project has older ones.') + ' ' : ''}${_logs.length} ${escHtml(_t('log entr(ies). Workers report; supervisors acknowledge.', 'log entry. Nag-uulat ang mga worker; kinikilala ng mga supervisor.'))}</div>
       <button class="btn primary small" onclick="openProgressLog()" data-i="logprogress">+ Log progress</button>
     </div>
     ${_logs.length ? entries : '<div class="empty">No progress logs yet.</div>'}
@@ -3105,8 +3209,8 @@ function renderRoles() {
     <div style="margin-bottom: 12px;">
       <h4 style="font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${e(ROLE_LABELS[role])}</h4>
       ${grouped[role].map(r => `
-        <span class="link-pill">
-          ${e(r.worker_name)}
+        <span class="link-pill" data-role-id="${e(r.id)}">
+          ${e(r.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(r.worker_name) : ''))}
           <!-- T27/T56 (2026-08-27): WHO put this person on the project. All 36 project_roles rows
                carry assigned_by and assigned_at; the pill rendered the name alone, so "who assigned
                me this?" - an accountability question on a shutdown job, and the one a demoted or
@@ -3133,8 +3237,9 @@ function renderRoles() {
     ${legacyOwnerHtml}
   `;
 }
-function openAddRole() {
+async function openAddRole() {
   if (!isSupervisor()) { showToast('Supervisors only.'); return; }
+  await loadHiveMembers();   // the roster as it is now - not as it was when the page opened (HS L3)
   // Populate worker dropdown
   $('r-worker')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<option value="">-</option>' +
     _members.map(m => `<option value="${e(m)}">${e(m)}</option>`).join('');
@@ -3166,6 +3271,16 @@ async function saveRole() {
     assigned_by: WORKER_NAME,
     notes: $('r-notes').value.trim() || null,
   }).select('worker_name, role');
+  // HS W1 (2026-10-30, walked by tools/prove_hive_scale_races.mjs): the unique (project, person, role) key refuses a second
+  // assignment - two supervisors giving the same person the same role at once. The shared sentence for that refusal told
+  // the second supervisor "Something here already uses that name or code ... change it to something different", advice
+  // for a form with nothing to change: the person already HOLDS the role, which is what they wanted.
+  if (error && String(error.code) === '23505') {
+    showToast(`${worker} already has the ${String(role).replace(/_/g, ' ')} role on this project - another supervisor assigned it while this form was open. Nothing more to do.`, 'success', 6000);
+    closeModal('modal-role');
+    await refreshDetail();
+    return;
+  }
   if (error) { showToast(whWriteError(error, 'The role was not saved.'), 'error'); return; }
   const _landed = _roleRow && _roleRow[0];
   if (_landed && _landed.worker_name !== worker) {
@@ -3214,7 +3329,7 @@ function renderChangeOrders() {
     const costLine = co.cost_impact_php ? `${co.cost_impact_php > 0 ? '+' : ''}${fmtPHP(co.cost_impact_php)}` : '-';
     const daysLine = co.schedule_impact_days ? `${co.schedule_impact_days > 0 ? '+' : ''}${co.schedule_impact_days}d` : '-';
     return `
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 10px;">
+      <div class="co-card" data-co-id="${e(co.id)}" style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 10px;">
         <div class="row" style="justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px;">
           <div>
             <span class="pcode">${e(co.co_number)}</span>
@@ -3223,7 +3338,7 @@ function renderChangeOrders() {
           <span class="status-pill status-${sCls}">${e(CO_STATUS_LABELS[co.status] || co.status)}</span>
         </div>
         <div class="small" style="color: var(--muted); margin-bottom: 6px;">
-          Raised by <strong>${e(co.requested_by)}</strong> · ${e(fmtDate(co.requested_at))}
+          Raised by <strong>${e(co.requested_by + (typeof whMemberSuffix === 'function' ? whMemberSuffix(co.requested_by) : ''))}</strong> · ${e(fmtDate(co.requested_at))}
           ${co.reason ? ` · reason: <em>${e(co.reason)}</em>` : ''}
         </div>
         <div style="font-size: 0.9rem; line-height: 1.55; margin-bottom: 8px;">${e(co.scope_change).replace(/\n/g, '<br>')}</div>
@@ -3524,6 +3639,17 @@ async function aiDraftLessons() {
   }
 }
 
+// ★THE LESSONS AS THE WRITER FOUND THEM (HS W1, 2026-10-30). The guard below read _detail.updated_at at SAVE time, and the
+// projects feed refreshes _detail while the pane is open - so another supervisor's lessons, saved meanwhile, reached _detail
+// first, the guard matched THEIR stamp, and this text replaced theirs without a word (the class inventory's part form had).
+// The stamp is taken when this person starts typing, from the version on their screen.
+let _lessonsStamp = null;
+document.addEventListener('input', (ev) => {
+  if (ev.target && ev.target.id === 'lessons-text' && _detail && !(_lessonsStamp && _lessonsStamp.id === _detail.id)) {
+    _lessonsStamp = { id: _detail.id, at: _detail.updated_at || null };
+  }
+});
+
 async function saveLessons() {
   // Online-only class: this page registers no offline write queue, so a write fired here
   // while offline reached a dead network with nothing said. whRequireOnline + its sentence
@@ -3547,14 +3673,16 @@ async function saveLessons() {
   // the snapshot; trg_projects_updated_at bumps updated_at on every write, so a stale write 0-rows.
   let q = db.from('projects')
     .update({ meta }).eq('id', _detail.id).eq('hive_id', HIVE_ID);
-  if (_detail.updated_at) q = q.eq('updated_at', _detail.updated_at);
+  const _lsAt = (_lessonsStamp && _lessonsStamp.id === _detail.id) ? _lessonsStamp.at : _detail.updated_at;
+  if (_lsAt) q = q.eq('updated_at', _lsAt);
   const { data, error } = await q.select('id, updated_at, meta');
   if (error) { showToast(whWriteError(error, 'Nothing was saved. Your changes are still on the form; try again.'), 'error'); return; }
   if (!data || data.length === 0) {
-    showToast('This project changed since you opened it, reloading.', 'error');
-    await openDetail(_detail.id);
+    showToast('Someone saved this project while you were writing, so your lessons were not saved. Copy your text, then reopen the project to see theirs.', 'error');
+    _lessonsStamp = null;
     return;
   }
+  _lessonsStamp = null;
   showToast('Lessons saved.', 'success');
   if (typeof whUse === 'function') whUse(db, 'lessons_saved');
   _detail.meta = data[0].meta || meta;
@@ -3665,6 +3793,7 @@ async function clientRollup(projectId) {
 
   return {
     project_id: projectId,
+    _fallback: true,   // read by refreshDetail: computed from _items, so it is computed again once THIS project's items are in
     rollup: {
       pct_complete: pctComplete,
       items_total: items.length,
@@ -3705,9 +3834,22 @@ async function refreshDetail() {
   const focusId = inDetail ? ae.id || null : null;
   const focusClick = inDetail && !ae.id ? ae.getAttribute('onclick') : null;
   const y = window.scrollY;
+  /* ★A TEAMMATE'S CHANGE ERASED WHAT THE READER WAS TYPING (HS L3, 2026-10-30). This rebuild redraws every pane, so a
+     supervisor writing the project's lessons learned lost the draft the moment a teammate added a task. What the reader
+     has typed (a field whose value differs from the one it was drawn with) is carried into the redrawn field, with its
+     caret; a field they had not touched takes the fresh value. */
+  const _typed = [...document.querySelectorAll('#detail-view textarea[id], #detail-view input[id]:not([type=checkbox]):not([type=radio]):not([type=file])')]
+    .filter((el) => el.value !== el.defaultValue)
+    .map((el) => ({ id: el.id, v: el.value, s: el.selectionStart, e: el.selectionEnd }));
   await openDetail(_detailId);
   if (_detailId == null) return;
   if (pane && pane !== 'overview' && $('detail-tabs').querySelector(`button[data-pane="${pane}"]`)) setActivePane(pane);
+  for (const t of _typed) {
+    const el = document.getElementById(t.id);
+    if (!el) continue;
+    el.value = t.v;
+    try { if (t.s != null) el.setSelectionRange(t.s, t.e); } catch (_) { /* empty-catch-allow: some inputs have no caret */ }
+  }
   window.scrollTo(0, y);
   let back = focusId ? document.getElementById(focusId) : null;
   if (!back && focusClick) back = [...document.querySelectorAll('#detail-view [onclick]')].find((el) => el.getAttribute('onclick') === focusClick) || null;
@@ -3724,6 +3866,13 @@ function subscribeRealtime() {
         () => { if (_detailId) refreshDetail(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'project_progress_logs', filter: `hive_id=eq.${HIVE_ID}` },
         () => { if (_detailId) refreshDetail(); })
+    /* ★HS L3 (2026-10-30): the page's chip says "updates automatically", and change orders and roles are published to
+       the live channel - but this page never listened to them, so a teammate's change order or a new role never reached
+       a project the reader had open. */
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'project_change_orders', filter: `hive_id=eq.${HIVE_ID}` },
+        () => { if (_detailId) refreshDetail(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'project_roles', filter: `hive_id=eq.${HIVE_ID}` },
+        () => { if (_detailId) refreshDetail(); })
     // SL AV3: a blocked live channel polls the same refresh (rtConn's fallback) and the page says it is not live
     .subscribe(rtConn(undefined, undefined, { name: 'projects', reload: () => { loadProjects(); if (_detailId) refreshDetail(); } }));
 }
@@ -3732,6 +3881,8 @@ window.addEventListener('beforeunload', () => { if (_rtChannel) db.removeChannel
 /* ── Modal helpers ─────────────────────────────────────────── */
 function openModal(id) {
   const m = $(id); if (!m) return;
+  // a form that hands work to a member reads the roster as it is now (HS L3) - its pickers refill in place
+  if (['modal-project', 'modal-scope', 'modal-wizard'].includes(id) && typeof loadHiveMembers === 'function') loadHiveMembers();
   m._returnFocus = document.activeElement;      // a11y: restore focus on close
   m.classList.add('open');
   const f = m.querySelector('input,select,textarea,button');  // focus-in on open

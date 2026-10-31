@@ -1,8 +1,11 @@
 -- report_one_record_no_selfclear: reporting writes a real record (mig ...064: report_community_post
 -- RPC flags under a DEFINER membership gate) and the reported AUTHOR cannot clear their own flag
 -- (mig ...063's cure lives in tg_community_posts_moderation_fields: a non-supervisor's UPDATE keeps
--- a raised flag raised). SUBJECT NOTE: run as postgres, RLS does not bind — the TRIGGER is what is
--- under test here, and it reads auth.uid() from request.jwt.claims regardless of role.
+-- a raised flag raised). SUBJECT NOTE: the author's write runs AS `authenticated`, the role every
+-- PostgREST request runs as. Since 2026-10-30 (mig ...20261030000001) the guard is SECURITY INVOKER and
+-- steps aside for a session that is not `authenticated` - a definer function acting for the platform -
+-- so a postgres session wearing the author's claims no longer models the author, and this probe said
+-- "self-clear defeated" only while that was accidentally true.
 -- expect: fixture_found \| t
 -- expect: author_selfclear_defeated \| t
 -- expect: report_rpc_flags \| t
@@ -26,7 +29,10 @@ BEGIN;
 UPDATE community_posts SET flagged = true WHERE id = (SELECT post_id FROM _rp);
 SELECT set_config('request.jwt.claims',
   json_build_object('sub', (SELECT author_uid FROM _rp)::text, 'role', 'authenticated')::text, true);
+GRANT SELECT ON _rp TO authenticated;
+SET LOCAL ROLE authenticated;
 UPDATE community_posts SET flagged = false WHERE id = (SELECT post_id FROM _rp);
+RESET ROLE;
 SELECT 'author_selfclear_defeated | ' ||
   (SELECT flagged FROM community_posts WHERE id = (SELECT post_id FROM _rp));
 ROLLBACK;

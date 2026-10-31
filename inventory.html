@@ -563,6 +563,10 @@
         </div>
         <div>
           <label class="wh-label"><span data-i="linktoassets">Link to Assets</span> <span class="text-white/80 font-normal normal-case" data-i="whichmachines">(which machines use this part?)</span></label>
+          <!-- HS L4 (2026-10-30, "a year of the hive"): 251 machines drawn as chips with no way to find one -->
+          <input id="asset-linker-find" type="search" class="wh-input mt-1" autocomplete="off" maxlength="100" oninput="_filterAssetLinker()"
+                 placeholder="Find a machine by tag or name" aria-label="Find a machine by tag or name" />
+          <p id="asset-linker-nomatch" class="text-xs text-white/80 mt-1 hidden" role="status"></p>
           <div id="asset-linker" class="flex flex-wrap gap-2 mt-1 rounded-xl p-3 min-h-[52px]"
                style="background:rgba(22,32,50,0.4); border:1px solid rgba(255,255,255,0.08);">
             <p data-i="p_noassetsregisteredregisteras_140d" id="asset-linker-empty" class="text-xs text-white/80 self-center">No assets registered. Register assets in the Logbook first.</p>
@@ -677,7 +681,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whHiveContextNotice whListError whListSkeleton whPhotoDrop whPhotoHydrate whPhotoSettle whProgressStrip whReadError whRecentlyDeleted whRequireOnline whRowCols whSearchList whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
+<script data-wh-skew-heal="whFmtDate whFold whHiveContextNotice whListError whListSkeleton whLoadFormerMembers whMemberSuffix whPhotoDrop whPhotoHydrate whPhotoSettle whProgressStrip whReadError whRecentlyDeleted whRequireOnline whRowCols whSearchList whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1419,6 +1423,7 @@ function renderParts() {
   // SL LB3 (2026-10-22): the query is folded once, not once per field per part, and a part's own fields once per part
   // (_invFolded) - a search over a thousand parts folded 8,000 strings a keystroke, inside a 280 ms task at phone speed
   const qf = query ? whFold(query) : '';
+  const _qWords = qf.split(/[\s,]+/).filter(Boolean);
   let filtered = items.filter(item => {
     if (catF    && item.category !== catF)             return false;
     const st = stockStatus(item);
@@ -1439,7 +1444,12 @@ function renderParts() {
     const linked = (item.linked_asset_node_ids || [])
       .map(uuid => _nodeIdToAssetId[uuid] || '')
       .join(' ').toLowerCase();
-    return !!linked && whFold(linked).includes(qf);
+    if (linked && whFold(linked).includes(qf)) return true;
+    // HS L4 (2026-10-30, "a year of the hive"): by WORDS too - "impeller bronze" never matched "Impeller, bronze, CW-P-07B",
+    // because the phrase was looked for whole and the part reads with a comma between its words
+    if (_qWords.length < 2) return false;
+    const hay = _invFolded(item).filter(Boolean).join(' ') + ' ' + (linked ? whFold(linked) : '');
+    return _qWords.every(w => hay.includes(w));
   });
 
   // Sort: out first, then a part whose quantity is unknown, then critical, low, ok, surplus last; alpha within each group.
@@ -1689,6 +1699,30 @@ function renderAssetLinker() {
       else                          { selectedAssetIds.add(id);    btn.classList.add('selected'); }
     });
   });
+  const _find = document.getElementById('asset-linker-find');
+  if (_find) _find.value = '';   // each opening of the form starts with every machine shown
+  _filterAssetLinker();
+}
+
+// the linker's find field: every word typed must appear in the chip's tag or name; a machine already chosen stays shown,
+// so the person always sees what this part is linked to
+function _filterAssetLinker() {
+  const inp = document.getElementById('asset-linker-find');
+  const fold = (v) => (typeof whFold === 'function' ? whFold(String(v || '')) : String(v || '').toLowerCase());
+  const raw = inp ? inp.value.trim() : '';
+  const words = fold(raw).split(/[\s,]+/).filter(Boolean);
+  let hits = 0;
+  document.querySelectorAll('#asset-linker .asset-tag').forEach(b => {
+    const show = !words.length || b.classList.contains('selected') || words.every(w => fold(b.textContent).includes(w));
+    b.style.display = show ? '' : 'none';
+    if (show && words.length && !b.classList.contains('selected')) hits++;
+  });
+  const nm = document.getElementById('asset-linker-nomatch');
+  if (nm) {
+    const none = words.length > 0 && hits === 0;
+    nm.textContent = none ? 'No machine matches “' + raw.slice(0, 60) + '”.' : '';
+    nm.classList.toggle('hidden', !none);
+  }
 }
 
 // ────────────────────────────────────────────
@@ -1780,9 +1814,40 @@ document.getElementById('f-photo-remove').addEventListener('click', (e) => {
 // ADD / EDIT PART MODAL
 // ────────────────────────────────────────────
 let editingItemId = null;
+// ★THE PART AS THIS FORM FOUND IT (HS W1, 2026-10-30, walked by tools/prove_hive_scale_races.mjs). The save read its guard's
+// snapshot - the row's updated_at and its count - from the LIVE cache, which the realtime feed refreshes. So when a second
+// supervisor saved the same part while this form was open, their change reached this cache first, the guard compared against
+// THEIR stamp and matched, and this form's stale values overwrote theirs with "Part updated." The count did the same
+// through inventory_adjust: a teammate's use moved the cache, and an untouched count field "changed" it straight back.
+// The snapshot is taken when the form opens, never when it saves.
+let _editOpened = null;
+
+/* ★THE LINKER OFFERED THE MACHINES READ WHEN THE PAGE OPENED (HS L3, 2026-10-30, walked live at 390). The live channel
+   here listens to parts only, so a machine a teammate registered while the page was open was never offered - reopening
+   the form still showed the 11 machines of the page's first read. The form reads the hive's machines when it opens (the
+   same two reads initData makes: the hive's approved machines and the person's own); the linker is redrawn with them,
+   the machines already ticked kept. */
+// the machine columns the page reads (aliased: asset_id = tag, type = iso_class) - shared by initData and the linker re-read
+const INV_ASSET_COLS = 'id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, created_at';
+async function _refreshAssetsForLinker() {
+  if (!HIVE_ID || !db) return;
+  try {
+    const [hiveRes, mineRes] = await Promise.all([
+      whReadPaged((a, b) => db.from('asset_nodes').select(INV_ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').order('id').range(a, b), 2000),   // cap-ok (LB1): as initData's read
+      whReadPaged((a, b) => db.from('asset_nodes').select(INV_ASSET_COLS).or(_MINE()).order('created_at').order('id').range(a, b), 2000)   // cap-ok (LB1): as initData's read
+    ]);
+    if (hiveRes.error || mineRes.error) return;   // a failed re-read keeps the machines already read
+    const byId = new Map();
+    [...(hiveRes.data || []), ...(mineRes.data || [])].forEach((r) => { if (r && !byId.has(r.id)) byId.set(r.id, r); });
+    _assets = [...byId.values()];
+    _buildAssetNodeMaps();
+    if (document.getElementById('part-modal').style.display === 'flex') renderAssetLinker();
+  } catch (_) { /* empty-catch-allow: the linker keeps the machines it has */ }
+}
 
 function openAddModal(prefillId) {
   editingItemId    = prefillId || null;
+  _editOpened      = null;
   selectedAssetIds = new Set();
   currentPhotoData = null;
   _invPhotoStored  = null;
@@ -1804,6 +1869,7 @@ function openAddModal(prefillId) {
   if (prefillId) {
     const item = loadInventory().find(i => i.id === prefillId);
     if (!item) return;
+    _editOpened = { id: item.id, updated_at: item.updated_at || null, qty: Number(item.qty_on_hand) || 0 };
     document.getElementById('part-modal-title').textContent = 'Edit Part';
     document.getElementById('f-part-number').value = item.part_number;
     document.getElementById('f-part-name').value   = item.part_name;
@@ -1841,6 +1907,7 @@ function openAddModal(prefillId) {
 
   renderAssetLinker();
   document.getElementById('part-modal').style.display = 'flex';
+  _refreshAssetsForLinker();   // the machines as they are now - redrawn in place when the read lands
   // T42: hardware Back closes this modal instead of leaving the page. Its ONE owner is whModalA11y,
   // wired at DOMContentLoaded above: it pushes the entry when the modal shows, Back closes it through
   // its Close button, and an X/Cancel/backdrop/save close gives the entry back. (A second stack,
@@ -1850,6 +1917,7 @@ function openAddModal(prefillId) {
 function closePartModal() {
   document.getElementById('part-modal').style.display = 'none';
   editingItemId    = null;
+  _editOpened      = null;
   selectedAssetIds = new Set();
   currentPhotoData = null;
   _invPhotoStored  = null;
@@ -1990,8 +2058,9 @@ async function submitPart() {
     // reconciliation break (restock/deduct write both in one transaction). A changed count now goes through
     // inventory_adjust (migration 20261008000012) FIRST: the ledger row and the balance in one transaction, refused if
     // the stock moved since this form opened. The rest of the part saves after it, without the count.
-    const _prevQty = Number(prev.qty_on_hand) || 0;
-    let _stamp = prev.updated_at;
+    const _opened = (_editOpened && _editOpened.id === editingItemId) ? _editOpened : null;
+    const _prevQty = _opened ? _opened.qty : (Number(prev.qty_on_hand) || 0);
+    let _stamp = _opened ? _opened.updated_at : prev.updated_at;
     if (qty !== _prevQty) {
       const { data: _adj, error: _adjErr } = await db.rpc('inventory_adjust', {
         p_item_id: editingItemId, p_expected_qty: _prevQty, p_new_qty: qty, p_note: 'Edited via part form',
@@ -2562,9 +2631,15 @@ function addTransaction(itemId, type, qtyChange, qtyAfter, note, jobRef, opts) {
 // ────────────────────────────────────────────
 // DETAIL MODAL
 // ────────────────────────────────────────────
+/* ★THE OPEN PART SAID 24 ON HAND WHILE THE SHELF HELD 23 (HS L3, 2026-10-30, walked live at 390). The live channel re-reads
+   the parts when a teammate uses or restocks one, and the list behind the detail was redrawn - but an OPEN part detail kept
+   the figure it was drawn with, so a supervisor about to press Use Stock read a count that was no longer true. The open
+   part is remembered here, and the live re-read redraws it (see subscribeInventoryRealtime). */
+let _openDetailId = null;
 function openDetailModal(id) {
   const item = loadInventory().find(i => i.id === id);
   if (!item) return;
+  _openDetailId = id;
   // _txns is now ordered newest-first (desc by created_at) so we slice
   // directly — no .reverse() needed. See the .order('created_at', desc)
   // change in the loadFromSupabase() fetch.
@@ -2583,7 +2658,7 @@ function openDetailModal(id) {
         </div>
         <p class="text-base text-white/85 font-medium ${item.worker_name ? 'mb-1' : 'mb-4'}">${escHtml(item.part_name)}</p>
         ${item.worker_name /* who put this part on the hive's shelf (2026-10-28, the cube's U-on-trail walk): the row carried the name and the page never said it */
-          ? `<p class="text-xs text-white/80 mb-4">${escHtml(_t('Added by', 'Idinagdag ni'))} ${escHtml(_ownsItem(item) ? _t('you', 'ikaw') : item.worker_name)}${item.created_at ? ' ' + escHtml(_t('on', 'noong')) + ' ' + escHtml(formatDate(item.created_at)) : ''}</p>`
+          ? `<p class="text-xs text-white/80 mb-4">${escHtml(_t('Added by', 'Idinagdag ni'))} ${escHtml(_ownsItem(item) ? _t('you', 'ikaw') : item.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(item.worker_name) : ''))}${item.created_at ? ' ' + escHtml(_t('on', 'noong')) + ' ' + escHtml(formatDate(item.created_at)) : ''}</p>`
           : ''}
       </div>
       ${invPhotoImg(item, 'Inventory item photo', 'class="photo-thumb flex-shrink-0"')}
@@ -2635,13 +2710,29 @@ function openDetailModal(id) {
 
     <div class="border-t border-white/[0.07] mt-5 pt-4">
       <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-3">${escHtml(_t('Transaction History (last 20)', 'Kasaysayan ng Transaksyon (huling 20)'))}</p>
-      ${(_txnsMore && txns.length < 20)
-        // SL LB1: the window is the newest 500 transactions across every part - past it, this part's history may be short
-        ? '<p class="text-xs text-white/80 mb-2" data-wh-more-note role="note">' + escHtml('Only your newest 500 transactions of the last year are loaded, so older ones for this part may be missing.') + '</p>'
-        : ''}
-      ${txns.length === 0
-        ? '<p class="text-xs text-white/80 text-center py-4">No transactions yet.</p>'
-        : txns.map(t => `
+      <div id="detail-history" data-item="${escHtml(String(item.id))}">${_itemHistoryHtml(item, txns, !!(_txnsMore && txns.length < 20))}</div>
+    </div>`;
+
+  if (typeof whPhotoHydrate === 'function') whPhotoHydrate(db, document.getElementById('detail-content'));
+  document.getElementById('detail-modal').style.display = 'flex';
+  if (HIVE_ID && item.hive_id) _loadItemHistory(item);
+}
+
+// HS L1 (2026-10-30, the hive at thirty): a hive part's history is EVERY member's movements of it. The page-wide read is
+// the viewer's own (`.or(_MINE())`, the newest 500 of a year), so a shared part's history showed only your issues and
+// restocks - 8 of its 220 moves for Joel Cruz - and its "Stock after" jumped wherever a teammate had moved stock. The
+// detail opens at once on what is loaded, then reads this part's own newest 20 across the hive.
+function _itemHistoryHtml(item, txns, partial, more) {
+  return (more
+      // the hive-wide read probes one row past its 20: this part has older movements than the ones shown
+      ? '<p class="text-xs text-white/80 mb-2" data-wh-more-note role="note">' + escHtml('Showing the ' + txns.length + ' newest movements of this part across the hive - it has older ones.') + '</p>'
+      : partial
+      // SL LB1: the window is the newest 500 transactions across every part - past it, this part's history may be short
+      ? '<p class="text-xs text-white/80 mb-2" data-wh-more-note role="note">' + escHtml('Only your newest 500 transactions of the last year are loaded, so older ones for this part may be missing.') + '</p>'
+      : '')
+    + (txns.length === 0
+      ? '<p class="text-xs text-white/80 text-center py-4">No transactions yet.</p>'
+      : txns.map(t => `
           <div class="txn-row flex items-start gap-3">
             <div class="mt-0.5 flex-shrink-0">${txnIcon(t.type)}</div>
             <div class="flex-1 min-w-0">
@@ -2650,17 +2741,78 @@ function openDetailModal(id) {
                 <span class="text-xs text-white/80 flex-shrink-0">${formatDate(t.created_at)}</span>
               </div>
               ${t.note ? `<p class="text-xs text-white/80 mt-0.5">${escHtml(t.note)}</p>` : ''}
-              <p class="text-xs text-white/80 mt-0.5">Stock after: ${t.qty_after} ${escHtml(item.unit || 'pcs')}${t.worker_name ? ' · ' + escHtml(_t('by', 'ni')) + ' ' + escHtml(_ownsItem(t) ? _t('you', 'ikaw') : t.worker_name) : ''}</p>
+              <p class="text-xs text-white/80 mt-0.5">Stock after: ${t.qty_after} ${escHtml(item.unit || 'pcs')}${t.worker_name ? ' · ' + escHtml(_t('by', 'ni')) + ' ' + escHtml(_ownsItem(t) ? _t('you', 'ikaw') : t.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(t.worker_name) : '')) : ''}</p>
             </div>
-          </div>`).join('')
-      }
-    </div>`;
-
-  if (typeof whPhotoHydrate === 'function') whPhotoHydrate(db, document.getElementById('detail-content'));
-  document.getElementById('detail-modal').style.display = 'flex';
+          </div>`).join(''));
 }
 
-function closeDetailModal() { document.getElementById('detail-modal').style.display = 'none'; }
+// a uuid that is a function of its text (SHA-256 laid out as a v4-shaped uuid) - the same input, from any tab or device, is
+// the same id, so an upsert of it is a merge rather than a copy
+async function _stableUuid(text) {
+  const h = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(text))));
+  h[6] = (h[6] & 0x0f) | 0x40; h[8] = (h[8] & 0x3f) | 0x80;
+  const x = Array.from(h.slice(0, 16), (b) => b.toString(16).padStart(2, '0')).join('');
+  return x.slice(0, 8) + '-' + x.slice(8, 12) + '-' + x.slice(12, 16) + '-' + x.slice(16, 20) + '-' + x.slice(20, 32);
+}
+
+async function _loadItemHistory(item) {
+  // HS L5: each movement names who made it - one who has left the hive is said so (asked once a page, beside this read)
+  const _formerP = (HIVE_ID && typeof whLoadFormerMembers === 'function') ? whLoadFormerMembers(db, HIVE_ID) : null;
+  const { data, error } = await db.from('v_inventory_transactions_truth').select('*')
+    .eq('item_id', item.id)
+    .order('created_at', { ascending: false })
+    .order('id')   // MR4 tiebreaker: the sort above is not total on its own
+    .limit(20 + 1);   // more-said: by _itemHistoryHtml (a 21st row means this part has older movements than the 20 shown)
+  // a failed read leaves the loaded window, which already says what it covers
+  if (error || !data) return;
+  if (_formerP) await _formerP;
+  const more = data.length > 20;
+  const rows = data.slice(0, 20);
+  const box = document.getElementById('detail-history');
+  if (!box || box.dataset.item !== String(item.id) || document.getElementById('detail-modal').style.display === 'none') return;
+  // a movement still waiting in the offline queue is not on the server yet - keep it, newest first. It keeps its id when it
+  // lands (addTransaction's id is the row's id), so "not among the rows read" is the test, bounded to the window read: an
+  // older local movement merely past the newest 20 is not pending and must not come back in.
+  const onServer = new Set(rows.map(t => String(t.id)));
+  const oldest = rows.length >= 20 ? new Date(rows[rows.length - 1].created_at).getTime() : -Infinity;
+  const pending = loadTransactions().filter(t => t.item_id === item.id && !onServer.has(String(t.id))
+    && new Date(t.created_at).getTime() >= oldest);
+  const merged = pending.concat(rows).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 20);
+  _hist = { item, rows: merged, more, last: rows[rows.length - 1] || null };
+  box.innerHTML = _itemHistoryHtml(item, merged, false, more) + (more ? _HIST_OLDER_BTN : '');
+}
+
+// ★"IT HAS OLDER ONES" LED NOWHERE (Wave HS L4, "a year of the hive", 2026-10-30, walked live): a part moved every week
+// for a year showed its 20 newest movements and said older ones existed, with no way to them. Older pages are read on
+// demand, 20 at a time, strictly after the last row shown in the list's own order (newest first, id breaking ties).
+let _hist = null;
+const _HIST_OLDER_BTN = '<button type="button" onclick="_loadOlderHistory(this)" class="w-full mt-2 rounded-xl text-sm font-semibold" '
+  + 'style="min-height:44px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:inherit;">Show older movements</button>';
+async function _loadOlderHistory(btn) {
+  const h = _hist; if (!h || !h.last) return;
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading older movements…'; }
+  const ts = h.last.created_at, lid = h.last.id;
+  const { data, error } = await db.from('v_inventory_transactions_truth').select('*')
+    .eq('item_id', h.item.id)
+    .or(`created_at.lt."${ts}",and(created_at.eq."${ts}",id.gt."${lid}")`)
+    .order('created_at', { ascending: false })
+    .order('id')   // MR4 tiebreaker, the same order as the first page
+    .limit(20 + 1);   // more-said: by _itemHistoryHtml (a 21st row says older movements remain)
+  const box = document.getElementById('detail-history');
+  if (_hist !== h || !box || box.dataset.item !== String(h.item.id)) return;   // the person moved on to another part
+  if (error || !data) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Show older movements'; }
+    showToast(whReadError(error, "this part's older movements"), 'error');
+    return;
+  }
+  const page = data.slice(0, 20);
+  h.rows = h.rows.concat(page);
+  h.more = data.length > 20;
+  h.last = page[page.length - 1] || h.last;
+  box.innerHTML = _itemHistoryHtml(h.item, h.rows, false, h.more) + (h.more ? _HIST_OLDER_BTN : '');
+}
+
+function closeDetailModal() { _openDetailId = null; document.getElementById('detail-modal').style.display = 'none'; }
 
 async function confirmDeleteItem(id) {
   // inventory_items IS the queued table for stock MOVES, but deleting the part record is destructive and
@@ -2916,11 +3068,21 @@ if (!document.getElementById('search-input').value) {
 // (realtime-engineer skill, Arc J). Connection guarded by utils.js rtConn() (settles once,
 // no silent freeze); channel removed on beforeunload.
 let invRealtimeChannel = null;
+// an open part detail is redrawn from the re-read parts and movements, its scroll kept (HS L3 - see openDetailModal)
+function _redrawOpenDetail() {
+  const m = document.getElementById('detail-modal');
+  if (!_openDetailId || !m || m.style.display === 'none') return;
+  const box = document.getElementById('detail-content');
+  const sc = box && box.closest('[class*="overflow-y"]');
+  const y = sc ? sc.scrollTop : 0;
+  openDetailModal(_openDetailId);
+  if (sc) sc.scrollTop = y;
+}
 function subscribeInventoryRealtime() {
   if (!HIVE_ID || invRealtimeChannel) return;
   const reload = (typeof debounce === 'function')
-    ? debounce(() => { initData().catch(e => console.warn('inv realtime reload:', e.message)); }, 600)
-    : () => { initData().catch(() => {}); };
+    ? debounce(() => { initData().then(_redrawOpenDetail).catch(e => console.warn('inv realtime reload:', e.message)); }, 600)
+    : () => { initData().then(_redrawOpenDetail).catch(() => {}); };
   invRealtimeChannel = db.channel('inventory-feed:' + HIVE_ID)
     .on('postgres_changes',
       { event: '*', schema: 'public', table: 'inventory_items', filter: 'hive_id=eq.' + HIVE_ID },
@@ -2948,7 +3110,14 @@ async function initData() {
   // E2 consistent states: show a skeleton while the fetch runs so the panel
   // never flashes blank (renderParts() at the end overwrites it with data or
   // the empty-state).
-  if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('parts-list'), 4, 'your parts');
+  /* ★A TEAMMATE'S RESTOCK THREW THE READER OUT OF THE LIST (HS L3, 2026-10-30, walked live at 390). This skeleton ran
+     on EVERY initData - and the live channel re-runs initData on any teammate's change to a part. Joel was halfway down
+     the parts list reading BRM-0009; a teammate restocked another part; the list became four placeholder rows, the page
+     collapsed (scroll 2637 -> 1625) and the part he was reading ended up 1,179 px down, off his screen. A skeleton is for
+     a list with nothing drawn yet; a list already drawn keeps its rows while it reads again, and the keyed redraw below
+     (whRenderRows) replaces only what changed. */
+  const _partsEl = document.getElementById('parts-list');
+  if (_partsEl && !_partsEl.querySelector('.part-card') && typeof whListSkeleton === 'function') whListSkeleton(_partsEl, 4, 'your parts');
   let lsItems = [], lsTxns = [], lsAssets = [];
   try { lsItems  = JSON.parse(localStorage.getItem(INV_KEY)    || '[]'); } catch (_) { lsItems  = []; }
   try { lsTxns   = JSON.parse(localStorage.getItem(TXN_KEY)    || '[]'); } catch (_) { lsTxns   = []; }
@@ -2958,7 +3127,7 @@ async function initData() {
   let itemsFetches, assetsFetches;
   // Phase 5c: assets table dropped; load asset_nodes with column aliases
   // so downstream picker code keeps reading a.asset_id and a.type.
-  const ASSET_COLS = 'id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, status, created_at';
+  const ASSET_COLS = INV_ASSET_COLS;   // one list, read here and by the part form's linker (_refreshAssetsForLinker)
   if (HIVE_ID) {
     // Hive-wide read. BUGFIX: a supervisor must get the FULL approval queue (approved +
     // pending + rejected) — the old approved-only filter meant other workers' pending
@@ -3087,11 +3256,17 @@ async function initData() {
   // Migrate assets from localStorage if Supabase is empty.
   // Phase 5c: writes go directly to asset_nodes with the canonical column
   // names. Local-only assets get the legacy text id as tag (the user-set
-  // human code) and a fresh uuid for id.
+  // human code).
+  // ★THE SAME LOCAL MACHINE IS THE SAME ROW (HS W1, 2026-10-30, walked by tools/prove_hive_scale_races.mjs). The id was a
+  // FRESH uuid each run, so two tabs (or a phone and a laptop holding the same old local list) that opened Inventory
+  // together each passed the "nothing in the database yet" test and each wrote its own copy of every machine - the upsert
+  // could never conflict on an id nobody had seen. The id is now a function of the account and the machine's tag, and a
+  // second merge of it adds nothing.
   if (mergedAssets.length === 0 && lsAssets.length > 0 && !_assetReadErr) {
     for (const a of lsAssets) {
+      const _stable = await _stableUuid('asset-merge:' + (_authUid || WORKER_NAME) + ':' + (a.asset_id || a.id)).catch(() => null);
       const payload = {
-        id:           (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString() + '-' + Math.random().toString(36).slice(2, 10)),
+        id:           _stable || ((typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString() + '-' + Math.random().toString(36).slice(2, 10))),
         tag:          a.asset_id || a.id,
         name:         a.name || a.asset_id || a.id,
         iso_class:    a.type || null,
@@ -3102,7 +3277,7 @@ async function initData() {
         status:       'approved',
         auth_uid:     _authUid || null,
       };
-      await db.from('asset_nodes').upsert(payload);
+      await db.from('asset_nodes').upsert(payload, { onConflict: 'id', ignoreDuplicates: true });
     }
     localStorage.removeItem(ASSETS_KEY);
     // canonical-allow: post-upsert read-back to refresh the local cache after localStorage migration

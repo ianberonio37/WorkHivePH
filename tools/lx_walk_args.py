@@ -157,7 +157,8 @@ def open_rows(waves: tuple = WALK_WAVES) -> list[dict]:
         t = reg[r["id"]]
         d = desc(t)
         browser = d.get("layer") in BROWSER_LAYERS or (d.get("pillar") == "U" and d.get("layer") in U_ONLY_LAYERS) \
-            or (d.get("pillar") == "A" and d.get("layer") == "S")
+            or (d.get("pillar") == "A" and d.get("layer") == "S") \
+            or (d.get("layer") == "S" and (t.get("cx") or {}).get("cls") == "public")   # PUBLIC_S, below
         if not browser or held_lens(d):
             continue
         out.append(t)
@@ -169,6 +170,10 @@ def open_rows(waves: tuple = WALK_WAVES) -> list[dict]:
 # these are or that they were withheld (S), that a session is ending (AU, the platform's own idle prompt), that the
 # network went away (H, the offline banner) - so only their U rows join the walk.
 U_ONLY_LAYERS = ("S", "AU", "H")
+# ★PUBLIC_S - A PUBLIC PAGE'S S ROWS JOIN THE WALK ON EVERY PILLAR (2026-10-31). The tenant-refusal prover measures a
+# refusal on the relations a page reads; a public page reads none, so 593 public S rows sat open with "reads [] - none
+# proven". What answers them is the walk's own list of the page's requests (bank_lx_walk.judge, layer S): a page that
+# asked for no relation a person must be entitled to has no boundary to hold. One that does is held for the prover.
 
 
 def held_lens(d: dict) -> bool:
@@ -260,7 +265,10 @@ def main() -> int:
         rows = [t for t in rows if desc(t)["layer"] in keep]
     cells: dict = defaultdict(list)
     for t in rows:
-        cells[(desc(t)["persona"], desc(t)["page"], (t.get("journey") or {}).get("vertical"))].append(t)
+        # a visitor is walked signed out, so the row's hive changes nothing about the reading - one cell per page, not one
+        # per hive the seeder happened to give its rows (about/ as anon was two identical walks, 2026-10-31)
+        persona = desc(t)["persona"]
+        cells[(persona, desc(t)["page"], None if persona == "anon" else (t.get("journey") or {}).get("vertical"))].append(t)
     skip = {s.strip() for s in a.skip.split(",") if s.strip()}
     # never-walked rows first: a cell whose rows all carry a receipt already (walked red, page since edited by someone
     # else) is a RE-walk, and re-walks wait until every row has had its first reading

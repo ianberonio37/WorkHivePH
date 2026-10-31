@@ -5,7 +5,7 @@ at the edge and locally alike.
 
 WHAT IT WALKS. Every page of the CA2/H2 roster, over HTTP against tools/serve_vercel_headers.py (the local substitute
 for the Vercel edge: vercel.json's own rules, every match in order, later keys winning), at EVERY path a person reaches
-it by: /x.html, and for a directory page /dir (the path the deploy serves with trailingSlash false) as well as
+it by: /x.html, and for a directory page the path the deploy serves it at (vercel.json trailingSlash) as well as
 /dir/index.html. Then every local asset the page loads - every script in its code closure (build_csp_profiles'
 reading: its HTML and every script it loads, transitively), every stylesheet and image its HTML names - and sw.js.
 
@@ -74,10 +74,22 @@ def contract_problem(cls: str, cc: str) -> str | None:
     return None
 
 
+def _trailing():
+    """vercel.json's trailingSlash - it decides the path a directory page is SERVED at."""
+    try:
+        return json.loads((Path(__file__).resolve().parent.parent / "vercel.json").read_text(encoding="utf-8")).get("trailingSlash")
+    except (OSError, ValueError):
+        return None
+
+
 def page_paths(page: str) -> list[str]:
+    # a directory page is served at /dir/ with trailingSlash true (2026-10-30: the canonicals, og:url, JSON-LD @id and
+    # the sitemap all name the slash form), at /dir with false, at both when unset
     if page.endswith("/index.html"):
         d = "/" + page[: -len("/index.html")]
-        return [d, d + "/index.html"]
+        t = _trailing()
+        served = [d + "/"] if t is True else [d] if t is False else [d, d + "/"]
+        return served + [d + "/index.html"]
     return ["/" + page]
 
 

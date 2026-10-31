@@ -23,9 +23,13 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const SRC = readFileSync('utils.js', 'utf8');
-const START = SRC.indexOf('window.whFnError = async function');
-if (START < 0) { console.log('FAIL fn-error-reads-the-sentence: window.whFnError not found in utils.js'); process.exit(1); }
-const END = SRC.indexOf('\n};', START);
+// ★THE RULE MOVED INTO whFnSentence (Wave JS, 2026-10-31) so the companion and the analytics fetches read it from one
+// place; whFnError calls it. Both are lifted together - whFnSentence directly precedes whFnError in utils.js.
+const FN_AT = SRC.indexOf('window.whFnError = async function');
+if (FN_AT < 0) { console.log('FAIL fn-error-reads-the-sentence: window.whFnError not found in utils.js'); process.exit(1); }
+const SENT_AT = SRC.indexOf('window.whFnSentence = function');
+const START = SENT_AT >= 0 && SENT_AT < FN_AT ? SENT_AT : FN_AT;
+const END = SRC.indexOf('\n};', FN_AT);
 if (END < 0) { console.log('FAIL fn-error-reads-the-sentence: could not find the end of whFnError'); process.exit(1); }
 const FN = SRC.slice(START, END + 3);
 
@@ -93,7 +97,8 @@ for (const r of live) {
 
 // TEETH: the pre-fix selection line, put back into the real function, must fail the cases it got wrong
 const OLD = 'var own = body && (body.error || body.message);\n  if (typeof own === \'string\' && own.trim() && !/non-2xx/i.test(own)) return own.trim();';
-const NEW_RE = /var _sentence = function[\s\S]*?if \(own\) return own;/;
+// the selection is whFnError's call into whFnSentence; reverting it puts the old one-line pick back in its place
+const NEW_RE = /var own = window\.whFnSentence\(body\);\s*if \(own\) return own;/;
 if (!NEW_RE.test(FN)) {
   failed++;
   console.log('  FAIL teeth: the sentence-selection block was not found, so the revert could not be staged');

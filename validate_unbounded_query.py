@@ -286,7 +286,9 @@ def main() -> int:
             # the next stretch of code is the same bound.
             # `let pmQ = db.from(...)` - the receiver (`db`, `supabase`, `this.db`) sits between the
             # equals sign and the `.from`, so the pattern has to allow for it
-            assign = re.search(r"(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:await\s+)?[A-Za-z_$][\w$.]*$",
+            # ...or WRAPPED in a scoping helper first: `const r = scopeNodes(db.from('asset_nodes')...)` (asset-hub's
+            # server-side lookups, Wave HS L4, 2026-10-30) - the variable is the same, and so is the bound applied to it
+            assign = re.search(r"(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:await\s+)?(?:[A-Za-z_$][\w$.]*\(\s*)*[A-Za-z_$][\w$.]*$",
                                code[max(0, m.start() - 120):m.start()])
             if assign and _var_bounded(code, m.end(), assign.group(1)):
                 continue

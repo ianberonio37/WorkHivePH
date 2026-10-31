@@ -55,6 +55,7 @@ const ONLY_MOMENT = argOf('--moment');
 // The moment filter above exists for exactly this reason and stopped one axis short: select by the
 // axis the FIX moved, whichever axis that is.
 const ONLY_COND = argOf('--condition');
+const ONLY_WAVE = argOf('--wave');   // default W3-JN; JS walks Wave JS's journeys with the same rails
 const LIMIT = Number(argOf('--limit') || 0);
 
 // ★AN UNREADABLE ANSWER IS NOT A ZERO. Under load this host's docker API returns 500 for a moment, and a
@@ -1423,7 +1424,9 @@ async function walk(browser, story) {
 // ── the stories to walk, built from the registry's own rows ───────────────────────────────────────
 function stories(cast) {
   const reg = JSON.parse(readFileSync('trajectory_registry.json', 'utf8'));
-  const rows = reg.trajectories.filter((t) => t.wave === 'W3-JN');
+  // --wave JS (2026-10-30): Wave JS's journeys (the degraded, aged and seller-recast walks) are rows of the same shape
+  // as W3-JN's - an archetype, a vertical, a condition or a moment - so they are walked by the same rails
+  const rows = reg.trajectories.filter((t) => t.wave === (ONLY_WAVE || 'W3-JN'));
   const out = [];
   for (const t of rows) {
     const j = t.journey || {};
@@ -1756,7 +1759,7 @@ for (const r of results) {
 }
 await browser.close();
 try { mkdirSync('.tmp', { recursive: true }); } catch (e) { void e; }
-const outFile = `.tmp/full_journeys${ONLY_ARCH ? '_' + ONLY_ARCH : ''}${ONLY_TIER ? '_tier' + ONLY_TIER : ''}`
+const outFile = `.tmp/full_journeys${ONLY_WAVE && ONLY_WAVE !== 'W3-JN' ? '_' + ONLY_WAVE : ''}${ONLY_ARCH ? '_' + ONLY_ARCH : ''}${ONLY_TIER ? '_tier' + ONLY_TIER : ''}`
   + `${ONLY_VERT ? '_' + ONLY_VERT.replace(/[^A-Za-z0-9]+/g, '') : ''}`
   + `${ONLY_MOMENT ? '_' + ONLY_MOMENT.replace(/[^A-Za-z0-9]+/g, '') : ''}`
   + `${ONLY_COND ? '_' + ONLY_COND.replace(/[^A-Za-z0-9]+/g, '') : ''}.json`;   // a one-vertical re-ask must not overwrite the whole run's results

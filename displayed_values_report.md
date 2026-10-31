@@ -7,9 +7,9 @@ each as contracted / uncontracted / raw / unknown.
 ## Summary
 
 - Pages scanned:           **33**
-- Display anchors found:   **126**
+- Display anchors found:   **127**
 - Contracted ✅:           **22** (anchor maps to a registered formula)
-- **Uncontracted ⚠️:**     **0** (domain-meaningful metric, no formula registered)
+- **Uncontracted ⚠️:**     **1** (domain-meaningful metric, no formula registered)
 - Raw (counts/dates):      **102** (no contract needed)
 - Unknown:                 **2** (couldn't classify from id alone)
 - Formula registry:        **24** entries
@@ -45,11 +45,20 @@ each as contracted / uncontracted / raw / unknown.
 | `alert-hub.html` | 7 | 1 | 0 | 5 | 1 |
 | `audit-log.html` | 0 | 0 | 0 | 0 | 0 |
 | `voice-journal.html` | 3 | 0 | 0 | 3 | 0 |
-| `founder-console.html` | 13 | 2 | 0 | 11 | 0 |
+| `founder-console.html` | 14 | 2 | 1 | 11 | 0 |
 | `index.html` | 1 | 0 | 0 | 1 | 0 |
 | `design-system.html` | 0 | 0 | 0 | 0 | 0 |
 | `llm-observability.html` | 2 | 1 | 0 | 0 | 1 |
 | `offline-fallback.html` | 0 | 0 | 0 | 0 | 0 |
 | `learn/index.html` | 1 | 0 | 0 | 1 | 0 |
 
+## Top uncontracted metric tokens (build formulas for these next)
+
+| Token | Pages displaying it |
+|---|---:|
+| `dispute` | 1 |
+
 ## Per-page punch list — uncontracted displays
+
+### `founder-console.html` (1 uncontracted)
+- `id="svc-disputes-count"` · token=`dispute`

@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://hzyvnjtisfgbksicrouu.supabase.co" />
   <script src="browser-floor.js"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whEnsureHiveContext whFmtAgo whFmtDate whFreshnessFooter whLevelWord whListError whListSkeleton whMoreNote whReadError whRequireOnline whSourcesSync whStartupHive whTraceIdOf whUse">
+<script data-wh-skew-heal="whAiTrustRow whEnsureHiveContext whFmtAgo whFmtDate whFreshnessFooter whHoldPlace whLevelWord whListError whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whReadError whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whTraceIdOf whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1141,6 +1141,39 @@
     // Cached state
     let _allNodes = [];
     let _assetListMore = false;   // SL LB1: the hive holds more approved assets than the 200 read
+    // HS L4 (2026-10-30, "a year of the hive", walked live): with 249 approved machines the search filtered only the 200
+    // read, and "V-601-Y175" (tag 230th) answered 'No assets match' under "Search to narrow the list". Once the register is
+    // capped, a search asks the server; these hold its answer for the term it was asked for.
+    let _searchNodes = null, _searchFor = '', _searchMore = false, _searchSeq = 0, _searchErr = '';
+    let _pendingCount = null, _rejectedCount = null, _pendingMore = false;   // exact queue counts (HS L4)
+    // a machine a search found past the register's cap is opened like any other: every by-id lookup asks here, which knows
+    // the register's 200 and each machine a server search returned (HS L4 - the timeline said "Node not found" for them)
+    const _nodeCache = new Map();
+    function _nodeById(id) { return _allNodes.find(n => n.id === id) || _nodeCache.get(id) || null; }
+    // ONE machine named by an id, a scanned QR tag or a linked tag/name: the register first, and past its cap the server -
+    // a tag scanned off a machine whose tag sorts 230th answered "No asset matches" (HS L4, 2026-10-30)
+    async function _resolveNode({ id, text }) {
+      if (id) { const hit = _nodeById(id); if (hit) return hit; }
+      const lower = String(text || '').trim().toLowerCase();
+      if (lower) {
+        const hit = _allNodes.find(n => String(n.tag || '').toLowerCase() === lower || String(n.name || '').toLowerCase() === lower);
+        if (hit) return hit;
+      }
+      if (!_assetListMore || (!id && !lower)) return null;
+      const exact = String(text || '').trim().replace(/[\\%_]/g, (c) => '\\' + c);   // ilike with no wildcard = case-insensitive equality
+      const one = (col, val) => {
+        const r = scopeNodes(db.from('asset_nodes').select(AH_NODE_COLS)).eq('status', 'approved');
+        return (col === 'id' ? r.eq('id', val) : r.ilike(col, val)).limit(1);   // cap-ok (LB1): one machine, by id, tag or name
+      };
+      try {
+        for (const [col, val] of (id ? [['id', id]] : [['tag', exact], ['name', exact]])) {
+          const { data } = await one(col, val);
+          if (data && data[0]) { _nodeCache.set(data[0].id, data[0]); return data[0]; }
+        }
+      } catch (_) { /* empty-catch-allow: an unanswered lookup falls to the caller's own "could not find" sentence */ }
+      return null;
+    }
+    const AH_NODE_COLS = 'id, tag, name, level, criticality, location, iso_class, parent_id, pm_asset_id, legacy_asset_id, external_ids, vehicle_meta, created_at, submitted_by, worker_name, approved_by, approved_at';
     // Under an injected 500 this page rendered 258 characters and said NOTHING about the failure - no
     // sentence, no dash, no retry - on the surface that carries P-F intervals, Weibull fits and FMEA.
     // A silent blank is indistinguishable from a plant with no assets registered. The read error was
@@ -1283,10 +1316,12 @@
     async function loadAssetNodes() {
       // E2 consistent states: skeleton in the asset list while it fetches so
       // #asset-list never flashes blank before cards render (shared whListSkeleton).
-      if (typeof whListSkeleton === 'function') whListSkeleton(document.getElementById('asset-list'), 5, 'your assets');
+      // HS L3: the register is re-read live now - a skeleton only over a register with nothing drawn yet
+      const _alEl = document.getElementById('asset-list');
+      if (_alEl && !_alEl.querySelector('.asset-card') && typeof whListSkeleton === 'function') whListSkeleton(_alEl, 5, 'your assets');
       // Narrow select per performance skill, hive-scoped per multitenant skill.
       const { data, error } = await scopeNodes(db.from('asset_nodes')
-        .select('id, tag, name, level, criticality, location, iso_class, parent_id, pm_asset_id, legacy_asset_id, external_ids, vehicle_meta, created_at, submitted_by, worker_name, approved_by, approved_at'))  // AH17/F18: external_ids was omitted here while loadDetailExternalIds reads node.external_ids,
+        .select(AH_NODE_COLS))  // AH17/F18: external_ids was omitted here while loadDetailExternalIds reads node.external_ids,
         // so `keys.length` was always 0 and #ext-card hid itself on every asset — a card that could
         // never render. Selecting it is the whole fix on the read side.
         // vehicle_meta (2026-09-02): the 360's Vehicle card renders from it.
@@ -1368,19 +1403,28 @@
     let _pendingNodes = [];
 
     async function loadPendingAssets() {
+      // HS L5: the queue names who submitted each machine - one who has left the hive is said so (asked once a page)
+      if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
       _pendingReadFailed = false;
       const card = document.getElementById('pending-assets-card');
       if (!card) return;
       // A supervisor reviews the hive's queue; anyone else sees only what they submitted themselves.
       // Scoped on auth_uid, not worker_name — the name is display text, the uid is the identity the
       // row was bound to on insert (bind_asset_nodes_submitter).
-      let q = scopeNodes(db.from('asset_nodes')
+      // HS L4 (2026-10-30, "a year of the hive", walked live): this read was capped at 50 and its length WAS the count -
+      // the card said "50 pending" and the summary "50 assets awaiting supervisor sign-off" with 52 waiting. The list
+      // keeps its cap and reads one past it; the counts are exact, asked the same way the list is scoped.
+      const _mine = (qb) => (HIVE_ROLE !== 'supervisor' ? qb.eq('auth_uid', _authUid) : qb);
+      let q = _mine(scopeNodes(db.from('asset_nodes')
         .select('id, tag, name, level, criticality, location, iso_class, status, submitted_by, created_at, rejection_reason'))
-        .in('status', ['pending', 'rejected']).limit(50);  // bound stated IN-CHAIN (the scope key moved inside scopeNodes, so the ratchet needs the limit here, and it is the read's only cap) · cap-ok (LB1): its largest group (the whole table) is far under 50 - sized live by list-caps-say-more
-      if (HIVE_ROLE !== 'supervisor') q = q.eq('auth_uid', _authUid);
-      const { data, error } = await q
-        .order('created_at', { ascending: false })
-        .order('id');   // MR4 tiebreaker: the sort above is not total on its own
+        .in('status', ['pending', 'rejected']).limit(50 + 1));  // bound stated IN-CHAIN (the scope key moved inside scopeNodes, so the ratchet needs the limit here, and it is the read's only cap) · more-said: by renderPendingAssets (a 51st submission says older ones wait below the 50)
+      const _countOf = (st) => _mine(scopeNodes(db.from('asset_nodes').select('id', { count: 'exact', head: true })).eq('status', st).limit(1));   // head:true returns no rows; the count is exact
+      const [{ data, error }, pc, rc] = await Promise.all([
+        q.order('created_at', { ascending: false }).order('id'),   // MR4 tiebreaker: the sort above is not total on its own
+        _countOf('pending'), _countOf('rejected'),
+      ]);
+      _pendingCount = pc.error ? null : (pc.count ?? null);
+      _rejectedCount = rc.error ? null : (rc.count ?? null);
       if (error) {
         // ★A FAILED APPROVALS READ USED TO PAINT GREEN (design lens critique, 2026-09-15). This branch
         // emptied the list and said nothing, so a fleet read that SUCCEEDED beside an approvals read that
@@ -1390,7 +1434,8 @@
         _pendingReadFailed = true;
         _pendingNodes = [];
       } else {
-        _pendingNodes = data || [];
+        _pendingMore = (data || []).length > 50;
+        _pendingNodes = (data || []).slice(0, 50);
       }
       renderPendingAssets();
       // Re-render the Plain-Read summary so the Pending card reflects supervisor view.
@@ -1442,7 +1487,7 @@
       const total = (_assetTotalCount != null) ? _assetTotalCount : _allNodes.length;
       const critical = (_assetCriticalCount != null) ? _assetCriticalCount
         : _allNodes.filter(n => String(n.criticality || '').toLowerCase() === 'critical').length;
-      const pending = (_pendingNodes || []).filter(n => n.status === 'pending').length;
+      const pending = _pendingCount != null ? _pendingCount : (_pendingNodes || []).filter(n => n.status === 'pending').length;
 
       const setCard = (name, hero, sub, tag, tone) => {
         const card = document.getElementById('ah-card-' + name);
@@ -1655,14 +1700,18 @@
       if (!card || !list) return;
       if (!_pendingNodes.length) { card.style.display = 'none'; return; }
       card.style.display = 'block';
-      const nPending  = _pendingNodes.filter(n => n.status === 'pending').length;
-      const nRejected = _pendingNodes.length - nPending;
+      const nPending  = _pendingCount != null ? _pendingCount : _pendingNodes.filter(n => n.status === 'pending').length;
+      const nRejected = _rejectedCount != null ? _rejectedCount : _pendingNodes.length - _pendingNodes.filter(n => n.status === 'pending').length;
       if (count) count.textContent = `${nPending} pending` + (nRejected ? ` · ${nRejected} rejected` : '');
+      if (typeof whMoreNote === 'function') whMoreNote(list, { shown: _pendingNodes.length, more: _pendingMore, noun: 'submissions',
+        total: (_pendingCount != null && _rejectedCount != null) ? _pendingCount + _rejectedCount : undefined,
+        where: 'Approve or reject these to reach the rest.', src: 'pending-assets' });
       list.innerHTML = _pendingNodes.map(n => {
         const statusPill = n.status === 'pending'
           ? '<span style="font-size:0.75rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(247,162,27,0.18); color:var(--wh-orange-text);">pending</span>'
           : '<span style="font-size:0.75rem; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(239,87,87,0.16); color:var(--wh-red-text);">rejected</span>';
-        const submittedBy = n.submitted_by ? `<span style="font-size:0.75rem; color:var(--muted);">by ${e(n.submitted_by)}</span>` : '';
+        // HS L5: a machine a member submitted and then left the hive waits in the queue - the row says they have left
+        const submittedBy = n.submitted_by ? `<span style="font-size:0.75rem; color:var(--muted);">by ${e(n.submitted_by + (typeof whMemberSuffix === 'function' ? whMemberSuffix(n.submitted_by) : ''))}</span>` : '';
         return `<div class="pending-row" style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:0.5rem; padding:8px 12px; display:flex; flex-direction:column; gap:5px;">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span style="font-weight:700; font-size:.85rem;">${e(n.tag || n.name || 'Untitled')}</span>
@@ -1760,7 +1809,7 @@
       // never reaches the database protects nothing.
       if (typeof whRequireOnline === 'function'
           && !whRequireOnline('Approving this asset', (m) => showToast(m))) { release(); return; }
-      const node = _allNodes.find(n => n.id === nodeId);
+      const node = _nodeById(nodeId);
       // P6-C1 optimistic lock (sibling of hive.html): only act on a STILL-pending row so a concurrent
       // approve/reject (e.g. a supervisor on hive.html's queue) cannot re-flip an already-resolved asset.
       const { data: updated, error } = await db.from('asset_nodes')
@@ -1804,7 +1853,7 @@
         'Reject this asset? It stays in the queue but will not appear in the approved list.',
         { okLabel: 'Reject', cancelLabel: 'Cancel', inputLabel: 'Reason (helps the submitter fix it)' });
       if (_reason === null || _reason === false) { release(); return; }   // cancelled
-      const node = _allNodes.find(n => n.id === nodeId);
+      const node = _nodeById(nodeId);
       // P6-C1 optimistic lock (sibling of hive.html): only reject a STILL-pending row (no re-flip race).
       const { data: updated, error } = await db.from('asset_nodes')
         .update({ status: 'rejected', approved_by: WORKER_NAME, approved_at: new Date().toISOString(),
@@ -1846,6 +1895,28 @@
       await loadPendingAssets();
     }
 
+    // HS L4: a register read past its cap is searched where every asset is - by words, each of which must appear in the
+    // tag, name, location or ISO class (whSafeSearchTerm keeps the filter parseable and a typed % literal)
+    async function searchAssetsServer(raw) {
+      const q = whFold(String(raw || '').trim());
+      if (!q || !_assetListMore) { _searchNodes = null; _searchFor = ''; _searchMore = false; return; }
+      const safe = (typeof whSafeSearchTerm === 'function') ? whSafeSearchTerm(raw) : '';
+      const words = safe.split(' ').filter(Boolean).slice(0, 5);
+      if (!words.length) return;
+      const seq = ++_searchSeq;
+      let r = scopeNodes(db.from('asset_nodes').select(AH_NODE_COLS)).eq('status', 'approved');
+      for (const w of words) r = r.or(['tag', 'name', 'location', 'iso_class'].map((c) => `${c}.ilike.%${w}%`).join(','));
+      const { data, error } = await r.order('tag', { ascending: true }).order('id').limit(200 + 1);   // more-said: by renderList (the capNote says "Showing the first 200 matching assets")
+      if (seq !== _searchSeq) return;   // a later term has already asked
+      if (error) { showToast(whReadError(error, 'the asset search'), 'error'); _searchErr = q; renderList(false); return; }
+      _searchErr = '';
+      (data || []).forEach((n) => _nodeCache.set(n.id, n));
+      _searchNodes = (data || []).slice(0, 200);
+      _searchMore = (data || []).length > 200;
+      _searchFor = q;
+      renderList(false);
+    }
+
     function renderList(reload) {
       const e = escHtml;
       const list = document.getElementById('asset-list');
@@ -1878,7 +1949,11 @@
         const r = _riskByAsset[(n.tag || '').toLowerCase()] || _riskByAsset[(n.name || '').toLowerCase()];
         return r && String(r.risk_level || '').toLowerCase();
       };
-      const filtered = _allNodes.filter(n => {
+      // a capped register's search draws from the server's answer for THIS term; until it arrives the list is not "no match"
+      const _serverAnswer = q && _assetListMore && _searchNodes && _searchFor === q;
+      const _serverFailed = q && _assetListMore && !_serverAnswer && _searchErr === q;
+      const _serverPending = q && _assetListMore && !_serverAnswer && !_serverFailed;
+      const filtered = (_serverAnswer ? _searchNodes : _allNodes).filter(n => {
         if (_riskOnly && !['critical', 'high'].includes(_bandOf(n))) return false;
         if (!q) return true;
         return whFold(n.tag).includes(q) || whFold(n.name).includes(q)
@@ -1904,7 +1979,10 @@
         list.innerHTML = '';
         empty.style.display = 'block';
         if (q) {
-          empty.textContent = 'No assets match "' + (q.slice(0, 60)) + '".';
+          empty.textContent = _serverPending
+            ? 'Searching all ' + (_assetTotalCount != null ? _assetTotalCount + ' ' : '') + 'assets…'
+            : _serverFailed ? 'The whole register could not be searched just now; none of the first ' + _allNodes.length + ' match "' + q.slice(0, 60) + '".'
+            : 'No assets match "' + (q.slice(0, 60)) + '".';
         } else {
           // AND THE JS COPY DROPPED THE 44px FLOOR THE AUTHORED MARKUP ALREADY HAD (2026-09-10,
           // walked as a solo owner with no hive). Lines 548-549 render these same two links with
@@ -1941,11 +2019,16 @@
       // the first customer big enough to hit it.
       const capNote = document.getElementById('asset-list-cap-note');
       if (capNote) {
-        const capped = _assetListMore || (_allNodes.length >= 200 && _assetTotalCount != null && _assetTotalCount > _allNodes.length);
+        // a search answered by the server covers the whole hive: the register's cap is not what the reader sees then,
+        // unless the matches themselves ran past it
+        const capped = _serverAnswer ? _searchMore
+          : !q && (_assetListMore || (_allNodes.length >= 200 && _assetTotalCount != null && _assetTotalCount > _allNodes.length));
         capNote.hidden = !capped;
         // SL LB1: the walk reads every "more" sentence by this mark
         if (capped) capNote.setAttribute('data-wh-more-note', ''); else capNote.removeAttribute('data-wh-more-note');
-        if (capped) {
+        if (capped && _serverAnswer) {
+          capNote.textContent = `Showing the first ${_searchNodes.length} matching assets; there are more. Type more to narrow it.`;
+        } else if (capped) {
           capNote.textContent = _t(`Showing the first ${_allNodes.length} assets of `, `Ipinapakita ang unang ${_allNodes.length} asset mula sa `)
             + `${(_assetTotalCount != null && _assetTotalCount > _allNodes.length) ? _assetTotalCount : 'more'}. Search to narrow the list.`;
         }
@@ -1959,7 +2042,8 @@
       // contradiction - the only thing telling them apart was a hover title, which a phone does not have. The criticality
       // chip now names itself. (This note lived inside the row's template as an HTML comment: one more node in every row,
       // kept and traced a thousand times over - SL LB3.)
-      whRenderRows(list, visible, n => `
+      // HS L3: a machine registered while someone reads the register lands without moving the card they read (whHoldPlace)
+      const _drawCards = () => whRenderRows(list, visible, n => `
         <div class="asset-card" data-node-id="${e(n.id)}">
           <div class="asset-card-main">
             <div class="asset-card-tag">${e(n.tag || n.name || 'Untitled')}</div>
@@ -1971,7 +2055,8 @@
             <span class="${critClass(n.criticality)}" title="Criticality (how important this asset is)">${e(_t('CRITICALITY ', 'KRITIKALIDAD '))}${e(typeof whLevelWord === 'function' ? whLevelWord(n.criticality || 'medium') : (n.criticality || 'medium'))}</span>
           </div>
         </div>
-      `, { sig: 'asset-list', key: (n) => JSON.stringify(n) + '|' + riskChip(n), long: true });   // the node's data and its risk chip (risk data arrives on its own)
+      `, { sig: 'asset-list', key: (n) => JSON.stringify(n) + '|' + riskChip(n), long: true });
+      if (typeof whHoldPlace === 'function') whHoldPlace(list, 'data-node-id', _drawCards); else _drawCards();   // the node's data and its risk chip (risk data arrives on its own)
 
       // Bind clicks
       // ★THE ASSET LIST COULD ONLY BE OPENED WITH A MOUSE (2026-10-06, asset-hub x any, layer F render contract). Every
@@ -2091,7 +2176,7 @@
       // viewed asset — the Asset Brain box grounds its own Q&A but the widget was blind.
       // PII-SAFE (piiSafe:true): equipment attributes only (tag/name/criticality/ISO class).
       try {
-        const _n = _allNodes.find(n => n.id === nodeId);
+        const _n = _nodeById(nodeId);
         if (_n && window.WHAssistant?.setContext) {
           const _tag = _n.tag || _n.name || 'asset';
           const _facts = [
@@ -2129,7 +2214,7 @@
 
     async function loadDetailHeader(nodeId) {
       const e = escHtml;
-      const node = _allNodes.find(n => n.id === nodeId);
+      const node = _nodeById(nodeId);
       if (!node) return;
 
       const tagEl  = document.getElementById('detail-tag');
@@ -2303,7 +2388,7 @@
 
       // Breadcrumb (parent chain). Single hop for now; deeper traversal in Phase 2b.
       if (crumbEl && node.parent_id) {
-        const parent = _allNodes.find(n => n.id === node.parent_id);
+        const parent = _nodeById(node.parent_id);
         if (parent) {
           crumbEl.textContent = (parent.tag || parent.name) + '  >  ' + (node.tag || node.name);
         } else {
@@ -2331,7 +2416,7 @@
       const lf = document.getElementById('stat-last-failure');
       // (stat-edges removed — the asset "edges" feature was cut in Arc Y Y5)
 
-      const _node = _allNodes.find(n => n.id === nodeId);
+      const _node = _nodeById(nodeId);
       const _pmLinked = !!(_node && _node.pm_asset_id);
 
       const _lbv = data?.lifetime_logbook_entries ?? 0;
@@ -2373,7 +2458,7 @@
 
     // ── Risk panel (Phase B.5: per-asset risk merged from predictive.html) ────
     async function loadDetailRisk(nodeId) {
-      const node = _allNodes.find(n => n.id === nodeId);
+      const node = _nodeById(nodeId);
       if (!node) return;
 
       // asset_risk_scores keys by asset_name (not node_id). The asset's tag and
@@ -2532,7 +2617,7 @@
 
     async function loadDetailStaging(nodeId) {
       _stagingRec = null;
-      const node = _allNodes.find(n => n.id === nodeId);
+      const node = _nodeById(nodeId);
       if (!node) return;
       const candidates = [node.tag, node.name].filter(Boolean);
       if (!candidates.length) return;
@@ -2730,9 +2815,16 @@
       const e = escHtml;
       const tl = document.getElementById('timeline-list');
       if (!tl) return;
-      tl.innerHTML = '<div class="tl-empty" style="color:var(--muted);">Loading timeline...</div>';
+      /* ★A TEAMMATE'S ENTRY WIPED THE TIMELINE BEING READ (HS L3, 2026-10-30, walked live at 390). The live channel calls
+         this loader when a teammate logs against the open machine, and it began by writing "Loading timeline..." over the
+         drawn list, then rebuilt every row - so the browser had no row left to hold, and the entry Joel was reading moved
+         98 px down the screen. The timeline already drawn for THIS machine stays while it reads again; only a different
+         machine (or an empty one) shows the loading line. The rebuild below keeps the row being read where it was. */
+      const _again = tl.dataset.node === nodeId && !!tl.querySelector('.tl-row');
+      if (!_again) tl.innerHTML = '<div class="tl-empty" style="color:var(--muted);">Loading timeline...</div>';
+      tl.dataset.node = nodeId;
 
-      const node = _allNodes.find(n => n.id === nodeId);
+      const node = _nodeById(nodeId);
       if (!node) { tl.innerHTML = '<div class="tl-empty">Node not found.</div>'; return; }
 
       // Pull recent logbook + pm_completions tied to this node.
@@ -2768,7 +2860,10 @@
         return;
       }
 
+      // HS L5: the history names who logged and who did each PM - one who has left the hive is said so (asked once a page)
+      const _formerP = (typeof HIVE_ID !== 'undefined' && HIVE_ID && typeof whLoadFormerMembers === 'function') ? whLoadFormerMembers(db, HIVE_ID) : null;
       const results = await Promise.allSettled(queries);
+      if (_formerP) await _formerP;
       const events = [];
       let _tlMore = false;   // SL LB1: a read found more than the 20 it keeps
 
@@ -2787,19 +2882,21 @@
           // asset had to leave it for the logbook to find out
           rows.forEach(r => events.push({
             kind: 'logbook',
+            key: 'logbook:' + r.id,
             when: r.created_at,
             summary: (r.maintenance_type || 'Entry') + ': ' + (r.problem || '(no description)')
-                     + (r.worker_name ? ' - logged by ' + r.worker_name : ''),
+                     + (r.worker_name ? ' - logged by ' + r.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(r.worker_name) : '') : ''),
             status: r.status,
           }));
         } else {
           rows.forEach(r => events.push({
             kind: 'pm',
+            key: 'pm:' + r.id,
             when: r.completed_at,
             // a skip stays on the timeline because it IS history worth seeing - the PM came due
             // and was deliberately not done - but it must not be narrated as service performed
             summary: (r.status === 'skipped' ? 'PM skipped (not performed) by ' : 'PM completed by ')
-                     + (r.worker_name || 'unknown'),
+                     + (r.worker_name || 'unknown') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(r.worker_name) : ''),
             status: r.status,
           }));
         }
@@ -2814,15 +2911,28 @@
         return;
       }
 
+      // the row at the top of the reader's screen, by its event's id - every row is rebuilt below, so it is found again by
+      // it (not by its words: a machine's history repeats them - "Trip on overload" - and a twin above would be found first)
+      const _keyOf = (row) => row.getAttribute('data-ev') || '';
+      tl.style.overflowAnchor = 'none';   // one hand holds the place - the browser's anchoring and this code must not both move it
+      const _readRow = tl.getBoundingClientRect().top < 0 ? [...tl.querySelectorAll('.tl-row')].find((r) => r.getBoundingClientRect().bottom > 0) : null;
+      const _readKey = _readRow ? _keyOf(_readRow) : null, _readTop = _readRow ? _readRow.getBoundingClientRect().top : 0;
       tl.innerHTML = top.map(ev => `
-        <div class="tl-row">
+        <div class="tl-row" data-ev="${e(ev.key || '')}">
           <div class="tl-when">${e(fmtRelative(ev.when))} &middot; ${e(ev.kind === 'pm' ? 'PM' : 'Logbook')}</div>
           <div class="tl-summary">${e(ev.summary)}</div>
         </div>
       `).join('');
+      if (_readKey) {
+        const _again2 = [...tl.querySelectorAll('.tl-row')].find((r) => _keyOf(r) === _readKey);
+        const _moved = _again2 ? _again2.getBoundingClientRect().top - _readTop : 0;
+        if (_moved) window.scrollBy(0, _moved);
+      }
       // SL LB1: the timeline is this asset's most recent events - say when older ones exist, and where they are
+      // HS L4: a year puts ~200 entries on one machine; "older ones are in the Logbook" now opens the hive's logbook searched for it
       if (typeof whMoreNote === 'function') whMoreNote(tl, { more: _tlMore || events.length > 30, src: 'asset-timeline',
-        said: 'Showing this asset\u2019s ' + top.length + ' most recent events. Older ones are in the Logbook and the PM Scheduler.' });
+        said: 'Showing this asset\u2019s ' + top.length + ' most recent events. Older ones are in the Logbook and the PM Scheduler.',
+        href: 'logbook.html?view=team&q=' + encodeURIComponent(node.tag || node.name || ''), hrefLabel: 'Search its history in the Logbook' });
     }
 
     // Arc Y Y5: loadDetailNeighbors() removed (edges feature CUT per fork#1, 2026-06-27).
@@ -3046,6 +3156,7 @@
     // ── Reliability Workbench: FMEA tab (Phase R.2) ────────────────────────────
     let _fmeaModes = [];
     let _strategiesByMode = {};   // Phase R.4: { fmea_mode_id: strategy_row }
+    let _strategyOpened = null;   // { modeId, id, updated_at } - the strategy as the editor opened on it (HS W1)
 
     function _rpnSeverityClass(rpn) {
       const n = Number(rpn) || 0;
@@ -3255,6 +3366,15 @@
           ? '<button data-i="approve" class="approve" data-action="approve" data-id="' + e(m.id) + '" data-mode-name="' + e(m.failure_mode || '') + '">Approve</button>'
           +   '<button class="delete"  data-action="delete"  data-id="' + e(m.id) + '" data-mode-name="' + e(m.failure_mode || '') + '" data-i="delete">Delete</button>'
           : '';
+        // HS L1 (2026-10-30): who put this failure mode on the record, and when - the row read created_by / approved_by
+        // and showed neither, so a supervisor asked to approve a mode could not tell whose judgement it was
+        const _when = (d) => (d && typeof whFmtDate === 'function') ? whFmtDate(d) : '';
+        const byLine = (m.created_by || m.approved_by)
+          ? '<div class="fmea-by" style="font-size:0.75rem; color:var(--muted); margin-top:2px;">'
+            + (m.created_by ? 'proposed by <span translate="no">' + e(m.created_by) + '</span>' + e((typeof whMemberSuffix === 'function' ? whMemberSuffix(m.created_by) : '')) + (m.created_at ? ' · ' + e(_when(m.created_at)) : '') : '')
+            + (m.approved_by && m.approved_at ? (m.created_by ? '; ' : '') + 'approved by <span translate="no">' + e(m.approved_by) + '</span> · ' + e(_when(m.approved_at)) : '')
+            + '</div>'
+          : '';
         const cause  = m.cause_text  ? '<div style="font-size:0.8rem; color:var(--muted);">cause: ' + e(m.cause_text)  + '</div>' : '';
         const effect = m.effect_text ? '<div style="font-size:0.8rem; color:rgba(255,255,255,0.83);">effect: ' + e(m.effect_text) + '</div>' : '';
 
@@ -3312,7 +3432,7 @@
         const apHtml = '<span class="fmea-ap fmea-ap-' + ap.level.toLowerCase() + '" title="' + e(ap.why) + '">AP ' + ap.level + '</span>';
 
         return ''
-          + '<div class="fmea-row">'
+          + '<div class="fmea-row" data-mode-id="' + e(m.id) + '">'
           +   '<div class="fmea-row-head">'
           +     apHtml
           +     '<span class="fmea-rpn ' + rpnClass + '">' + e(String(m.rpn ?? '?')) + '</span>'
@@ -3324,6 +3444,7 @@
           +     '<span class="fmea-source-pill ' + sourceClass + '">' + e((m.source === 'ai_logbook') ? 'from AI logbook scan' : (m.source || 'manual').replace(/_/g, ' ')) + '</span>'
           +     '<span class="fmea-source-pill ' + statusClass + '">' + statusLabel + '</span>'
           +   '</div>'
+          +   byLine
           +   grounding
           +   effect
           +   cause
@@ -3523,6 +3644,11 @@
       const mode = _fmeaModes.find(m => m.id === fmeaModeId);
       if (!mode) { showToast('FMEA mode not found.'); return; }
       _strategyFmeaModeId = fmeaModeId;
+      // the strategy AS THIS EDITOR FOUND IT (or that there was none) - the save is guarded against this, never against
+      // the live cache, which the rcm_strategies feed refreshes while the editor is open (HS W1, 2026-10-30: the same
+      // class inventory's part form had, where a teammate's save reached the cache first and was silently overwritten)
+      _strategyOpened = { modeId: fmeaModeId, id: (_strategiesByMode[fmeaModeId] || {}).id || null,
+                          updated_at: (_strategiesByMode[fmeaModeId] || {}).updated_at || null };
 
       const ctx = document.getElementById('rcm-fmea-context');
       if (ctx) ctx.textContent = (mode.failure_mode || '(unspecified)') + ': ' + (mode.function_text || 'function unset');
@@ -3634,13 +3760,22 @@
       };
 
       let error = null;
+      const _opened = (_strategyOpened && _strategyOpened.modeId === _strategyFmeaModeId) ? _strategyOpened : null;
+      if (existing && _opened && !_opened.id) {
+        // the editor opened on NO strategy, and one arrived while it was open: another supervisor decided first
+        if (saveBtn) saveBtn.disabled = false;
+        showToast('Another supervisor set a strategy for this failure mode while you were editing, so yours was not saved. Reloaded - check theirs, then edit it if it should change.');
+        if (_selectedNodeId) await loadDetailFmea(_selectedNodeId);
+        return;
+      }
       if (existing) {
         // Replace policy: update the existing row so we keep one strategy per FMEA mode.
         // Optimistic-concurrency guard: only overwrite the row still at the snapshot we loaded, so a
         // second engineer editing the SAME FMEA-mode strategy isn't silently clobbered (lost-update).
         let updQ = db.from('rcm_strategies')
           .update(payload).eq('id', existing.id).eq('hive_id', HIVE_ID);
-        if (existing.updated_at) updQ = updQ.eq('updated_at', existing.updated_at);
+        const _stampStr = (_opened && _opened.id === existing.id) ? _opened.updated_at : existing.updated_at;
+        if (_stampStr) updQ = updQ.eq('updated_at', _stampStr);
         const upd = await updQ.select('id');
         error = upd.error;
         if (!error && (!upd.data || upd.data.length === 0)) {
@@ -3715,7 +3850,7 @@
     // criticality, and the hive-membership check happens where the write lands. It is idempotent —
     // a second call returns the same id — and refuses a node in another hive with 42501.
     async function resolvePmAssetId(nodeId) {
-      const node = _allNodes.find(n => n.id === nodeId);
+      const node = _nodeById(nodeId);
       if (!node) return null;
       if (node.pm_asset_id) return node.pm_asset_id;
 
@@ -4071,7 +4206,7 @@
     async function _populatePfParameterSelect(nodeId) {
       const sel = document.getElementById('pf-parameter');
       if (!sel) return;
-      const node = _allNodes.find(n => n.id === nodeId);
+      const node = _nodeById(nodeId);
       const cat  = (node && node.iso_class) || null;
       const tmpl = await _ensurePfTemplates();
       // Prefer parameters for this asset's iso_class; fall back to all parameters.
@@ -4242,7 +4377,7 @@
     // writes, no edge-fn calls.
     async function generateReliabilityReport(nodeId) {
       if (!nodeId) { showToast('No asset selected.'); return; }
-      const node = _allNodes.find(n => n.id === nodeId);
+      const node = _nodeById(nodeId);
       if (!node) { showToast('Asset not found.'); return; }
 
       const btn = document.getElementById('reliability-report-btn');
@@ -4555,18 +4690,29 @@
       const list = document.getElementById('mk-list');
       if (!card || !list) return;
 
-      const node = _allNodes.find(n => n.id === nodeId);
-      if (!node || !node.iso_class) { card.style.display = 'none'; return; }
+      const node = _nodeById(nodeId);
+      if (!node) { card.style.display = 'none'; return; }
 
-      // Match listings by category ilike iso_class. Escape LIKE wildcards per security skill.
-      const safeClass = String(node.iso_class).replace(/%/g, '\\%').replace(/_/g, '\\_');
+      // ★A LISTING IS FILED BY WHAT THE THING IS, AN ASSET BY ITS DISCIPLINE (HS, 2026-10-30). This matched
+      // category ILIKE iso_class, and the two vocabularies never meet: listings are Pumps / Compressors / VFDs /
+      // Instrumentation..., assets are Mechanical / Electrical / Pneumatic... - so 83 of the platform's machines (every
+      // Mechanical and Electrical one) matched nothing, and a refinery's crude pump never saw a pump for sale. The kind
+      // is read from the machine's own name and tag; the discipline stays as one more category, for a listing filed so.
+      const _kindText = [node.name, node.tag, node.iso_class].filter(Boolean).join(' ');
+      const cats = new Set([
+        [/pump/i, 'Pumps'], [/compressor/i, 'Compressors'], [/motor|\bfan\b|drive|\bvfd/i, 'VFDs'],
+        [/generator|genset/i, 'Generators'], [/switchgear|breaker|\bmcc\b/i, 'Switchgear'], [/filter|strainer/i, 'Filters'],
+        [/transmitter|instrument|sensor|thermocouple|analy[sz]er/i, 'Instrumentation'],
+      ].filter(([rx]) => rx.test(_kindText)).map(([, c]) => c));
+      if (node.iso_class) cats.add(String(node.iso_class));
+      if (!cats.size) { card.style.display = 'none'; return; }
 
       const { data, error } = await db.from('v_marketplace_listings_truth')
-        .select('id, title, section, category, price, condition, location, seller_name, seller_verified, seller_kyb_verified, status')
+        .select('id, title, section, category, price, condition, location, seller_name, seller_verified, seller_kyb_verified, status, created_at')
         // ★'active' IS NOT A LISTING STATUS (SL LB1, 2026-10-21): marketplace_listings' CHECK allows draft / published /
         // sold / removed, so this card has matched nothing since it was built (80b0c44f) and never shown.
         .eq('status', 'published')
-        .ilike('category', '%' + safeClass + '%')
+        .in('category', [...cats])   // in-list-bounded: at most eight categories, from one machine
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
         .limit(8 + 1);   // more-said (SL LB1: a 9th listing says the marketplace holds more for this class)
@@ -4587,14 +4733,14 @@
             <div class="mk-title">
               <span class="mk-section-pill">${e(r.section || 'parts')}</span>${e(r.title || 'Untitled')}
             </div>
-            <div class="mk-meta">${e(r.seller_name || 'unknown seller')}${/* T70: the seller's checked identity, not the listing's drifting copy */ whIdVerified(null, r) ? ' &middot; verified' : ''}${r.location ? ' &middot; ' + e(r.location) : ''}${r.condition ? ' &middot; ' + e(r.condition) : ''}</div>
+            <div class="mk-meta">${e(r.seller_name || 'unknown seller')}${/* T70: the seller's checked identity, not the listing's drifting copy */ whIdVerified(null, r) ? ' &middot; verified' : ''}${r.location ? ' &middot; ' + e(r.location) : ''}${r.condition ? ' &middot; ' + e(r.condition) : ''}${/* HS L1: how old the listing is - an old one may be gone */ r.created_at && typeof whFmtAgo === 'function' ? ' &middot; listed ' + e(whFmtAgo(r.created_at)) : ''}</div>
           </a>
           <div class="mk-price">${r.price != null ? whFmtPeso(r.price) : ''}</div>
         </div>
       `).join('');
       // SL LB1: eight listings for this class; when the marketplace holds more, say so and open the search
-      if (typeof whMoreNote === 'function') whMoreNote(list, { shown: rows.length, more: _mkMore, noun: 'listings for this class',
-        order: 'newest', href: 'marketplace.html?q=' + encodeURIComponent(String(node.iso_class)), hrefLabel: 'Search the marketplace', src: 'v_marketplace_listings_truth' });
+      if (typeof whMoreNote === 'function') whMoreNote(list, { shown: rows.length, more: _mkMore, noun: 'listings for this machine',
+        order: 'newest', href: 'marketplace.html?q=' + encodeURIComponent([...cats][0]), hrefLabel: 'Search the marketplace', src: 'v_marketplace_listings_truth' });
     }
 
     // ── External IDs / CMMS surface ────────────────────────────────────────────
@@ -4605,7 +4751,7 @@
       const meta = document.getElementById('ext-sync-meta');
       if (!card || !list || !meta) return;
 
-      const node = _allNodes.find(n => n.id === nodeId);
+      const node = _nodeById(nodeId);
       const ext  = (node && node.external_ids) ? node.external_ids : {};
       const keys = Object.keys(ext).filter(k => ext[k]);
 
@@ -4696,7 +4842,7 @@
 
     function subscribeAsset(nodeId) {
       unsubscribeAsset();
-      const node = _allNodes.find(n => n.id === nodeId);
+      const node = _nodeById(nodeId);
       if (!node || !HIVE_ID) return;
 
       setLiveChip('connecting');
@@ -4851,7 +4997,7 @@
         // narration + rate counter survive the gateway's {answer}-only contract. Falls back
         // to the bespoke direct asset-brain-query tool if the gateway path is unavailable —
         // zero regression. (Persona-consistent + grounded either way.)
-        const node    = _allNodes.find(n => n.id === nodeId);
+        const node    = _nodeById(nodeId);
         const persona = (typeof window.getPersona === 'function') ? window.getPersona() : undefined;
         let answer, cited, narration, remaining;
         let traceId = null;   // set only when the GATEWAY's answer is the one shown; the direct tool returns no id
@@ -5005,6 +5151,11 @@
         try { db.removeChannel(_telemetryChannel); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
         _telemetryChannel = null;
       }
+      // HS L3: the register's own live channel (opened at init) is torn down here with the other two
+      if (window._whAhRegisterChannel) {
+        try { db.removeChannel(window._whAhRegisterChannel); } catch (_) { /* empty-catch-allow: best-effort silent swallow */ }
+        window._whAhRegisterChannel = null;
+      }
     });
 
     // ── Init ──────────────────────────────────────────────────────────────────
@@ -5092,14 +5243,35 @@
       }
 
       await loadAssetNodes();
+      /* ★THE REGISTER SAID "LIVE" AND NEVER HEARD A NEW MACHINE (HS L3, 2026-10-30, walked live at 390). The chip reads
+         "Live + daily snapshot", but the only live channel here is the open machine's own (its logbook, PMs, FMEA, risk);
+         a machine a supervisor registered - or approved - while the register was open never appeared, and coming back to
+         the tab did not read it either. asset_nodes is published to the live channel (hive.html already listens to it): the
+         register now listens too and reads itself again, once a burst settles, holding the card being read. */
+      if (HIVE_ID && !window._whAhRegisterChannel) {
+        let _regAgain = null;
+        window._whAhRegisterChannel = db.channel('asset-hub-register:' + HIVE_ID)
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'asset_nodes', filter: 'hive_id=eq.' + HIVE_ID }, () => {
+            clearTimeout(_regAgain);
+            _regAgain = setTimeout(() => { loadAssetNodes().catch(() => {}); }, 800);
+          })
+          // HS H3 (2026-10-30, walked with the live socket refused as a full plan refuses it): subscribed bare, this channel
+          // failed in silence under a chip still saying "Live"; through rtConn it reads the register on a poll and the page
+          // says live updates are off, as every other channel here does
+          .subscribe(typeof rtConn === 'function'
+            ? rtConn(undefined, 8000, { name: 'the asset register', reload: () => { loadAssetNodes().catch(() => {}); } })
+            : undefined);
+        // torn down on unload with the page's other channels (the beforeunload block above)
+      }
 
       // Deep-link via ?node_id= or ?tag= (index QR-scan sends a tag like "M-001";
       // the index Top-At-Risk tiles send the asset NAME — match either, case-insensitive)
       try {
         const params = new URLSearchParams(window.location.search);
         const initialNode = params.get('node_id');
-        if (initialNode && _allNodes.some(n => n.id === initialNode)) {
-          openDetail(initialNode);
+        const _initialHit = initialNode ? await _resolveNode({ id: initialNode }) : null;
+        if (_initialHit) {
+          openDetail(_initialHit.id);
         } else if (initialNode) {
           // AH1/AH18 (Asset Hub deepwalk, 2026-07-28): this branch had NO else at all, so an
           // inbound ?node_id= that did not resolve dropped the user into the full unfiltered
@@ -5132,9 +5304,7 @@
           const rawTag = (params.get('tag') || '').trim();
           const initialTag = rawTag.toLowerCase();
           if (initialTag) {
-            const hit = _allNodes.find(n =>
-              String(n.tag || '').toLowerCase() === initialTag ||
-              String(n.name || '').toLowerCase() === initialTag);
+            const hit = await _resolveNode({ text: rawTag });
             if (hit) openDetail(hit.id);
             else {
               // JOURNEY ARRIVAL FIDELITY (§12 JA1/JA2, live-MCP-found 2026-07-23): an inbound
@@ -5144,7 +5314,7 @@
               // the request in the search box so the list is SCOPED (and its empty state truthful),
               // and say plainly that we could not find it. Mirrors inventory.html's ?q= behaviour.
               const box = document.getElementById('asset-search');
-              if (box) { box.value = rawTag; renderList(false); }
+              if (box) { box.value = rawTag; renderList(false); searchAssetsServer(rawTag); }
               if (typeof showToast === 'function') showToast(_t('Could not find "', 'Hindi mahanap ang "') + rawTag + '": showing the closest matches');
             }
           }
@@ -5155,10 +5325,13 @@
       const search = document.getElementById('asset-search');
       if (search) {
         let timer = null;
+        let serverTimer = null;
         search.addEventListener('input', () => {
           clearTimeout(timer);
           _assetDisplayCount = 30;  // reset slice on search change
           timer = setTimeout(() => renderList(false), 180);
+          clearTimeout(serverTimer);
+          serverTimer = setTimeout(() => searchAssetsServer(search.value), 320);
         });
       }
       window.loadMoreAssets = () => { _assetDisplayCount += 30; renderList(false); };
@@ -5220,13 +5393,9 @@
           }
           window.WHQRScanner.open({
             title: 'Scan equipment tag',
-            onResult: (text) => {
-              // Match against tag first, fall back to name (case-insensitive)
-              const lower = text.toLowerCase();
-              const match = _allNodes.find(n =>
-                (n.tag && n.tag.toLowerCase() === lower) ||
-                (n.name && n.name.toLowerCase() === lower)
-              );
+            onResult: async (text) => {
+              // Match against tag first, fall back to name (case-insensitive) - past the register's cap, on the server
+              const match = await _resolveNode({ text });
               if (match) {
                 openDetail(match.id);
               } else {

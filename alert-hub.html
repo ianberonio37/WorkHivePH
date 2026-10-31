@@ -18,7 +18,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFnError whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whListError whListSkeleton whMoreNote whReadError whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whActionPlanHasContent whAiTrustRow whFmtAgo whFmtDate whFnError whFocusCapture whFocusRestore whFreshnessChip whHiveContextLost whHiveContextNotice whHoldPlace whListError whListSkeleton whMoreNote whReadError whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -742,7 +742,13 @@
   // can see the named-variable assignment cleanly.
   function startRefresh() {
     if (_refreshTimer) return;
-    _refreshTimer = setInterval(loadAll, 60000);
+    // HS L3: the minute's refresh redraws sections above the feed after the feed itself - the alert being read is held
+    // through the whole refresh, not only the feed's redraw (utils.js whHoldPlace accepts the refresh's promise)
+    _refreshTimer = setInterval(() => {
+      const _feed = document.getElementById('feed');
+      if (_feed && typeof whHoldPlace === 'function') whHoldPlace(_feed, 'data-alert-key', () => loadAll());
+      else loadAll();
+    }, 60000);
   }
   function stopRefresh() {
     if (!_refreshTimer) return;
@@ -1563,13 +1569,13 @@
       // shelf. It now asks only for the parts that ARE at risk (the same three flags whStockSeverity reads, plus a
       // count at or below zero), lowest stock first, so the cap can only ever drop the least urgent.
       db.from('v_inventory_items_truth')
-        .select('part_name, qty_on_hand, reorder_point, min_qty, is_low_stock, is_critical_low, is_out_of_stock, updated_at')
+        .select('id, part_name, qty_on_hand, reorder_point, min_qty, is_low_stock, is_critical_low, is_out_of_stock, updated_at')
         .eq('hive_id', HIVE_ID)
         .or('is_out_of_stock.eq.true,is_critical_low.eq.true,is_low_stock.eq.true,qty_on_hand.lte.0')
         .order('qty_on_hand', { ascending: true })
         .order('part_name')   // MR4 tiebreaker: the sort above is not total on its own
         .order('id')          // ...and neither is a name: two bins can hold a part of the same name at the same count
-        .limit(500),   // cap-ok: rows only (at-risk parts, most urgent first)
+        .limit(500 + 1),   // more-said: by renderFeed (HS L4: at-risk parts only, most urgent first - a 501st says the feed lists the 500 lowest-stocked; a year put 40 of 601 parts at risk)
 
       // Canonical (2026-06-09): frequency-aware overdue per SCOPE ITEM via
       // v_pm_scope_items_truth.is_overdue — the SAME source the Hive Board + PM
@@ -1720,7 +1726,8 @@
 
     // Low stock alerts
     if (invRes.status === 'fulfilled') {
-      const inv = invRes.value.data || [];
+      let inv = invRes.value.data || [];
+      if (inv.length > 500) { inv = inv.slice(0, 500); _feedCaps.push({ kind: 'stock', said: 'the 500 lowest-stocked parts at risk' }); }
       for (const i of inv) {
         const qty = Number(i.qty_on_hand);
         const rp  = Number(i.reorder_point);
@@ -1734,7 +1741,10 @@
         if (stock.atRisk) {
           all.push({
             kind: 'stock',
-            dedupeKey: 'stock:' + (i.part_name || i.id || 'unknown'),   // Arc Y Y3: stable dismissal key
+            // Arc Y Y3: stable dismissal key - the PART, not its name (HS, 2026-10-30): two bins of "Bearing 6316 C3" are two
+            // parts, and a name key let handling one bin's alert silently hide the other's (the dismissal filter and the
+            // seen-mark both match the key).
+            dedupeKey: 'stock:' + (i.id || i.part_name || 'unknown'),
             severity: stock.severity,
             title: i.part_name || _t('Unnamed part', 'Walang pangalang part'),
             msg: _t(`${qty} on hand, reorder at ${rp}`, `${qty} ang natitira, mag-order na sa ${rp}`),
@@ -2097,10 +2107,31 @@
     renderFeed();
     renderAlertSummary();   // keep the KPI cards' counts honest after a removal
     try {
-      const { error } = await db.from('alert_dismissals')
-        .upsert({ hive_id: HIVE_ID, alert_key: key, action, actor: WORKER_NAME, snooze_until: snoozeUntil },
-                { onConflict: 'hive_id,alert_key' });
+      // ★TWO MEMBERS, ONE ALERT (HS W1, 2026-10-30). This was an upsert on (hive, alert): when a teammate had just
+      // handled or snoozed it, this write silently REPLACED their record and actor, both of them were told "recorded
+      // under your name", both wrote an audit row - and the first one's Undo then deleted the second's record. It now
+      // writes only where no live record stands; an expired snooze may be renewed; otherwise this person is told who
+      // already acted, and nothing is written in their name.
+      const row = { hive_id: HIVE_ID, alert_key: key, action, actor: WORKER_NAME, snooze_until: snoozeUntil };
+      const { data: _ins, error } = await db.from('alert_dismissals')
+        .upsert(row, { onConflict: 'hive_id,alert_key', ignoreDuplicates: true }).select('alert_key');
       if (error) throw error;
+      if (!_ins || !_ins.length) {
+        const nowIso = new Date().toISOString();
+        const { data: _renewed, error: _rErr } = await db.from('alert_dismissals')
+          .update({ action, actor: WORKER_NAME, snooze_until: snoozeUntil })
+          .eq('hive_id', HIVE_ID).eq('alert_key', key).eq('action', 'snoozed').lt('snooze_until', nowIso).select('alert_key');
+        if (_rErr) throw _rErr;
+        if (!_renewed || !_renewed.length) {
+          const { data: _cur } = await db.from('alert_dismissals').select('action, actor')
+            .eq('hive_id', HIVE_ID).eq('alert_key', key).maybeSingle();
+          showToast(_cur
+            ? _t(`${_cur.actor || 'A teammate'} already ${_cur.action === 'snoozed' ? 'snoozed' : 'handled'} this alert for the hive, so your tap changed nothing and your name is not on it.`,
+                 `Na-${_cur.action === 'snoozed' ? 'snooze' : 'asikaso'} na ni ${_cur.actor || 'isang kasamahan'} ang alertong ito para sa hive - walang naitala sa pangalan mo.`)
+            : _t('This alert changed while you acted on it - refreshed.', 'Nagbago ang alertong ito habang kumikilos ka - ni-refresh.'));
+          return;
+        }
+      }
       writeAuditLog(action === 'snoozed' ? 'alert_snoozed' : 'alert_handled', 'alert', key, _alertName(key, prev),
                     snoozeUntil ? { snooze_until: snoozeUntil } : {});
       if (typeof whUse === 'function') whUse(db, action === 'snoozed' ? 'alert_snoozed' : 'alert_handled', snoozeDays ? { days: snoozeDays } : {});
@@ -2120,9 +2151,15 @@
         // the alert back in everyone's feed (design lens critique, 2026-09-15 - there was no undo at all)
         { label: _t('Undo', 'I-undo'), onAct: async () => {
             try {
-              const { error: undoErr } = await db.from('alert_dismissals')
-                .delete().eq('hive_id', HIVE_ID).eq('alert_key', key);
+              // only this person's own record: a teammate's later handling of the same alert is theirs to undo (HS W1)
+              const { data: _undone, error: undoErr } = await db.from('alert_dismissals')
+                .delete().eq('hive_id', HIVE_ID).eq('alert_key', key).eq('actor', WORKER_NAME).eq('action', action).select('alert_key');
               if (undoErr) throw undoErr;
+              if (!_undone || !_undone.length) {
+                showToast(_t('Not undone - a teammate has acted on this alert since, and their record stands.',
+                             'Hindi na-undo - may kasamahang kumilos na sa alertong ito, at nananatili ang tala nila.'));
+                return;
+              }
               delete _dismissals[key];
               _hiddenBy = _hiddenBy.filter(d => d.alert_key !== key);
               _alerts = prev;
@@ -2572,7 +2609,10 @@
     // Every control in a row's actions names ITS alert (ledger C33, 2026-09-15): thirty identical names in one region were
     // one name to a screen reader. (Kept here, not as an HTML comment in the row: a comment in the template is one more
     // node in every row - SL LB3.)
-    whRenderRows(feed, visible, a => {
+    /* HS L3 (2026-10-30, walked live at 390): the minute's refresh redraws the feed, and a new alert above (a part a teammate
+       ran out of) moved the alert being read 227 px - the redraw replaced its node. The alert at the top of the reader's
+       screen is held by its data-alert-key through the redraw (utils.js whHoldPlace). */
+    const _drawFeed = () => whRenderRows(feed, visible, a => {
       const nm = _alertName(a);
       const sev = a.severity || 'medium';
       // F34: include 'low' (v_alert_truth normalizes some signature severities to it) so it
@@ -2618,6 +2658,7 @@
       key: (a) => JSON.stringify(a) + '|' + _alertName(a) + '|' + fmtRelative(a.time) + '|' + String((a.dedupeKey && _seen[a.dedupeKey]) || ''),
       long: true,
     });
+    if (typeof whHoldPlace === 'function') whHoldPlace(feed, 'data-alert-key', _drawFeed); else _drawFeed();
     // SL LB1: once the feed's loaded alerts are all on screen, say which sources hold more than it lists
     const _caps = (_feedCaps || []).filter((c) => _activeKind === 'all' || c.kind === _activeKind);
     if (typeof whMoreNote === 'function') whMoreNote(feed, { more: _caps.length > 0 && visible.length >= items.length,

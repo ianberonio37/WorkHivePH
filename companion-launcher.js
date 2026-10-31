@@ -1067,8 +1067,12 @@ happens to know maintenance, not a manual.`;
         let msg = error.message || 'Gateway failed';
         try {
           if (error.context && typeof error.context.json === 'function') {
-            const eb = await error.context.json();
-            if (eb && eb.error) msg = eb.error;
+            // Wave JS (2026-10-31): `eb.error` took a bare code ("dependency_down") over the sentence beside it - the
+            // sentence, by whFnError's rule (see the catch below). Cloned, so the catch can still read the body.
+            const eb = await error.context.clone().json();
+            const s = (typeof window.whFnSentence === 'function') ? window.whFnSentence(eb)
+              : ((eb && typeof eb.error === 'string') ? eb.error : '');
+            if (s) msg = s;
           }
         } catch (_) { /* empty-catch-allow: error.context body not JSON → intentionally keep the default msg */ }
         const e = new Error(msg);
@@ -1193,9 +1197,16 @@ happens to know maintenance, not a manual.`;
         if (ctx && typeof ctx.status === 'number' && (/non-2xx/i.test(m) || !m)) {
           let body = null;
           try { body = await ctx.clone().json(); } catch (_) { body = null; }
-          const said = body && (body.error || body.message);
-          if (typeof said === 'string' && said) m = said;
+          // ★A CODE, AND THE PROXY'S OWN WORDS, WERE THE ANSWER (Wave JS, 2026-10-31, walked at 390/1280). This read
+          // `body.error || body.message`: with the functions down it said "⚠️ dependency_down" (the code beside the
+          // sentence), and with the agent failing to boot it said the proxy's JSON. whFnSentence is whFnError's rule -
+          // the function's own sentence wherever it sits, never a bare code, never a body that is not the function's;
+          // a 5xx with none is said in the shared taxonomy's words.
+          const said = (typeof window.whFnSentence === 'function') ? window.whFnSentence(body)
+            : ((body && typeof body.error === 'string') ? body.error : '');
+          if (said) m = said;
           else if (ctx.status === 429) m = 'limit reached';
+          else if (ctx.status >= 500 && typeof window.whAiError === 'function') m = window.whAiError({ message: String(ctx.status) });
         }
       } catch (_) { /* empty-catch-allow: the sentence below still says something */ }
       // Graceful, SCOPE-AWARE 429 UX (Q5 §7-11): each rate-limit scope has its own honest

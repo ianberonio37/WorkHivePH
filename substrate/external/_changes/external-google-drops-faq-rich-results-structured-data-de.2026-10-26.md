@@ -41,3 +41,7 @@ The distilled facts moved. DECIDE: which lever (gate threshold, roadmap claim, r
 +  - `FAQPage` remains a valid Schema.org type, but its utility for Google Search rich results is zero.
 +  - Google has not explicitly linked this deprecation to AI search trends, though practitioners have noted FAQ schema's potential role in AI content parsing.
 ```
+
+## Decision (2026-10-31)
+
+No lever moves; the decision was taken when the drop was announced. MAXIMIZATION_ROADMAP lines 124-126 (M1c, 2026-07-19) keep FAQPage schema for AI Mode's entity resolution though the SERP accordion is gone, and the re-fetch confirms keeping the markup causes no errors. The Search Console API removal (Aug 2026) touches nothing here: no Search Console credential exists (KA-B).

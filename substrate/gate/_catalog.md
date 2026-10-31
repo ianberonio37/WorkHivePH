@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 78a041c91d9dc2fe
+source_sha: cdb3ead1ff474b46
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1484) — the 'what's already gated' brain
+## gate · registered validators (1495) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -14,12 +14,13 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 ### AI Engineer (1)
 - `w4-layer-model-honesty` ⚡ [fail] — Wave-4 layer-AV stories: every AV-layer row's page marks the honesty of its model/AI/prediction output (grounding, confidence, caveat, or honest fallback), or p
 
-### AI Engineering (3)
+### AI Engineering (4)
+- `companion-steering-walk` [fail] — Companion steering, walked: the 38 triggers that built an instruction no server read now send none, still answer, and keep their page actions (phone-390 + deskt
 - `embed-dependency` [fail] — Embedding dependency: the companion's recall paths under a slow / down embedder - one walk per turn, budgeted, strict (Jina never asked), honest outcomes, the f
 - `turn-steering` ⚡ [fail] — Turn steering: each safety rule fires on its words and not on everyday questions; a reply missing a life-safety rule is led by the server's own line; no rule pr
 - `turn-steering-live` [warn] — Turn steering, live: the companion states and carries the LOTO, confined-space, injury and hot-work rules for a worker's own words
 
-### AI Validation (152)
+### AI Validation (154)
 - `account_deactivation` ⚡ [fail] — Arc I: account offboarding (self-scoped anonymize, preserve records; GDPR/PDPA)
 - `advance-batch` ⚡ [fail] — Trajectory writer (a batch with any bad entry is refused whole, never half-applied)
 - `ai-chain-models-snapshot` ⚡ [fail] — AI CHAIN NAMES ONLY MODELS ITS PROVIDERS SERVE US - offline, every run: each model named by _shared/ai-chain.ts PROVIDER_CHAIN, its two Python mirrors and voice
@@ -96,6 +97,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `engines_live_value` [fail] — Arc Q: Engines LIVE Value-at-the-Glass (analytics MTBF/OEE/MTTR + reliability P-F + projects EVM/CPM — running API serves standard-correct)
 - `export_value_contract` [fail] — AI Self-Improvement: Export-Value Contract (§13.16 A7.2, CSV)
 - `extractability` [fail] — Extractability Gate (P2: answer-first + statistic + cited-source per article; Princeton GEO triad; forward-only ratchet)
+- `freshness-surfaces` [warn] — Wave KA-R: every public page production serves carries one date on all five freshness surfaces (JSON-LD, the visible line at 390 and 1280, the sitemap, the mark
 - `gate_milestone_ratchet` ⚡ [fail] — GATE MILESTONE RATCHET (Ian, 2026-08-17: 'save for all the platform gates if we achieve considerable percentage green, like 80% and 100%'). platform_baseline.js
 - `grounding_contract` [fail] — AI Self-Improvement: Grounding Field-Contract (§13.15 A6, forward-only)
 - `hive_board` ⚡ [fail] — Hive Board: asset write on asset_nodes + role-scoped reserve + RLS migration
@@ -103,6 +105,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `hiveless-knowledge-is-owner-read` [fail] — HIVE-LESS KNOWLEDGE IS OWNER-READ - a solo owner's fault_knowledge rows (hive_id NULL) were written by the outbox drain and readable by nobody: fault_knowledge_
 - `indigenous_stack` ⚡ [fail] — Arc H/V: indigenous stack keeps local-first + fallback (data sovereignty, no hard external dep)
 - `integration_configs_authz_live` [fail] — CMMS: live integration_configs authz (config_id BOLA closed; worker token-read/write blocked)
+- `keep-abreast-board` [fail] — Wave KA-B: the scoreboard, the trip and the sitemap's promise each agree with an independent live reading of production (13 instruments)
 - `knowledge-is-retrievable` [fail] — KNOWLEDGE IS RETRIEVABLE - a logbook entry is the hive's memory of a failure and earns its keep only if someone can FIND it months later, which means reaching f
 - `landing-deep` ⚡ [fail] — Landing Deep-Arc Gate (title-token consistency + no-fabricated-metric + subdir twitter:card; forward-only ratchet)
 - `landing-extractability` [fail] — Landing Extractability Gate (P2.5: catalog tool-page links + popup copy/links crawlable + featureList; script-stripped DOM; forward-only ratchet)
@@ -402,7 +405,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1085)
+### Platform (1093)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -652,6 +655,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `composer-caps-visible` [fail] — T168: a cap must announce itself. A maxlength with NO counter is a silent wall - the textarea simply stops accepting keystrokes, and the person typing does not 
 - `consent-narrow-reflow` [fail] — consent-card teeth: at 320 the analytics consent reflows into the page and covers no sign-in control or the hub FAB; the old fixed card provably did; at 390 it 
 - `console-log-drift` ⚡ [fail] — console.log Production Drift (no console.log outside catch/DEBUG-guard in production code; forward-only ratchet)
+- `const-not-reassigned` ⚡ [fail] — A name destructured with const from an awaited read is never assigned again (the link picker threw 'Assignment to constant variable' once a hive held 51 logbook
 - `content-quality` ⚡ [fail] — Content Quality Validator (embed guard, schema drift, label quality)
 - `content_page_hygiene` ⚡ [fail] — Deepwalk content fold: /learn article presentation floor (D4/D5/D7/D17)
 - `context-window` ⚡ [fail] — Context Window Management Validator
@@ -873,6 +877,12 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `hive-quota` ⚡ [fail] — Per-Hive Resource Quota (4-layer: quota table + trigger coverage + inventory + adoption)
 - `hive-rename-reaches` [fail] — T140: a rename must reach the OTHER devices. ★THE TRAJECTORY'S RECORDED PREMISE WAS WRONG IN BOTH HALVES, and this gate is the correction. Its basis read that h
 - `hive-restore-adoption` ⚡ [fail] — Every page that scopes by the stored hive re-seats a missing one from the account: in its own start-up (whEnsureHiveContext) or through utils.js whHiveRecovery 
+- `hive-scale-burst` [fail] — Hive at thirty (HS W2): 29 members write at once and one after another on 13 units - no honest write refused by a limit the rest of the hive spent, every row ke
+- `hive-scale-lists` [fail] — Hive at thirty (HS L1/L2): each member list on the walked pages, read against a 30-member hive as a worker and a supervisor at phone-390 and desktop-1280 - ever
+- `hive-scale-races` [fail] — Hive at thirty (HS W1, the browser half): 31 two-person races through the page - the member who lost is told in the page's own words, the other's change is kept
+- `hive-scale-shift` [fail] — Hive at thirty (HS W2, the browser half): after 29 members write, each page shows every item its window holds, in its own order, at 390 and 1280
+- `hive-scale-writes` ⚡ [fail] — Hive at thirty (HS W1): 31 two-member races replayed as the members with the page's own write - a guarded write (snapshot / still-pending / not-yet-approved) ch
+- `hive-scale-year` [fail] — Hive at thirty (HS L4): with a year of thirty members' work laid in, every capped list read pages, says more, or is proven never to bite
 - `hive-seating-is-by-identity` [fail] — I-pillar: which hive a session is seated in is decided by AUTH, not by a name (2026-08-26). resolveActiveHiveContext() in index.html chooses the tenant a signed
 - `hive-startup` [fail] — BRH-H + BRH-G (Ian's missing hive assets, 2026-10-14): the stored hive and its name are caches of server facts, settled in each page's OWN start-up (utils.js wh
 - `hive-state-consistency` ⚡ [fail] — Hive-State LocalStorage Consistency Validator (branch-symmetry on hive.html)
@@ -1041,6 +1051,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `new-claims-are-opt-in` [fail] — T84: new claims are opt-in — T84's resume-polish oracle (2026-08-26). resume.html's review sheet is a good pattern: the AI only SUGGESTS, and nothing reaches th
 - `night-crawler-freshness` [warn] — Night Crawler external-substrate freshness (NIGHT_CRAWLER — the on-demand web crawler tools/night_crawler.py that distills external sources into substrate/exter
 - `night-crawler-selftest` ⚡ [fail] — Night Crawler distill quality guard self-test (tools/night_crawler.py --selftest — deterministic, no network/AI, instant). The crawler's distiller now EVALUATES
+- `no-call-to-nothing` ⚡ [fail] — A page calls a function nothing defines (2026-10-30, HS L3, walked live) - hive.html's live PM handler called showHiveToast(), a name no page and no script ever
 - `no-client-counter-write` ⚡ [fail] — P6 lost-update regression gate (STATIC): asserts NO page HTML writes a value-integrity counter (qty_on_hand/xp_total/total_sales/rating_avg/votes/points/balance
 - `no-clock-driven-push` [fail] — T109: the structural reason this platform needs no quiet hours YET, guarded so it stays true. The walk found no quiet-hours machinery anywhere AND - the part th
 - `no-comment-inside-tag` ⚡ [fail] — No comment inside a tag (an HTML comment opened between an element's attributes is parsed as bogus attributes and silently drops what follows — the browser neve

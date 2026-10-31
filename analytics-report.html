@@ -974,6 +974,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     async function _arDoFetch(url, body, _tok){
+      // fetch-error-allow: a rejection here (Cancel, the 90 s timeout, a dropped connection) is answered by the Generate
+      // handler's catch, which tells the person's own Cancel from the timeout - a catch in this function would rethrow all three
       var res = await fetch(url, {
         method: 'POST',
         headers: {
@@ -985,8 +987,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         signal: _arAbort.signal,
       });
       if (!res.ok) {
-        var errBody = await res.json().catch(function(){ return {}; });
-        throw new Error(errBody.error || errBody.message || ('Server error ' + res.status));
+        // ★A CODE WAS SHOWN TO A PERSON (Wave JS, JS5, 2026-10-31). This read `errBody.error || errBody.message`, and a
+        // body shaped {error: "<code>", message: "<sentence>"} put the code first: with the analytics service down,
+        // Generate said "Could not generate report: dependency_down". whFnError is the shared reading - the function's
+        // own sentence wherever it is, never a bare code, else the status mapped to its sentence.
+        var _e = new Error('Server error ' + res.status); _e.context = res;
+        throw new Error(typeof window.whFnError === 'function' ? await window.whFnError(_e, 'Server error ' + res.status) : ('Server error ' + res.status));
       }
       var data = await res.json();
       if (data && data.error) throw new Error(data.error);

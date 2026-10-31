@@ -82,6 +82,9 @@ def main() -> int:
                     fo = re.search(rf"for\s*\(\s*(?:const|let|var)\s+{re.escape(n)}\s+of\s+(\w+)", src)
                     if fo:
                         srcdecl = re.search(rf"(?:const|let|var)\s+{re.escape(fo.group(1))}\s*=(.{{0,300}})", src, re.S)
+                        # ...or a FUNCTION that returns the terms (`for (const w of _auditWords())`, audit-log's
+                        # server-side search, Wave HS L4 2026-10-30): its own body is the declaration to judge
+                        srcdecl = srcdecl or re.search(rf"function\s+{re.escape(fo.group(1))}\s*\([^)]*\)\s*\{{(.{{0,300}})", src, re.S)
                         d = srcdecl.group(1) if srcdecl else ""
                 if "whSafeSearchTerm" in d or re.search(r"\[,\(\)", d) or re.search(r",\(\)", d):
                     continue

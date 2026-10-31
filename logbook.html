@@ -1609,7 +1609,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whIsAuthFailure whListSkeleton whMoreNote whPhotoDrop whPhotoHydrate whPhotoSettle whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSafeSearchTerm whSearchList whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
+<script data-wh-skew-heal="whAiTrustRow whCompressImage whEnsureHiveContext whFmtDate whFold whFreshnessFooter whHoldPlace whIsAuthFailure whIsFormerMember whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whPhotoDrop whPhotoHydrate whPhotoSettle whProgressStrip whReadError whRecentlyDeleted whRequireOnline whSafeSearchTerm whSearchList whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -2035,7 +2035,12 @@ function renderLiveBadge() {
   txt.textContent = _logbookLiveCount === 1
     ? '1 new team entry'
     : _logbookLiveCount + ' new team entries';
-  badge.classList.remove('hidden');
+  /* HS L3 (2026-10-30, walked live): the badge sits in the page above the list, and appearing it pushed the entry being
+     read 56 px down at 1280 (the browser held the place at 390, not at 1280). It now appears with the reader's entry held
+     where it was (utils.js whHoldPlace) - the badge is a hint to refresh, never a reason for the list to move. */
+  const _list = document.getElementById('entries-list');
+  if (badge.classList.contains('hidden') && _list && typeof whHoldPlace === 'function') whHoldPlace(_list, 'data-entry-id', () => badge.classList.remove('hidden'));
+  else badge.classList.remove('hidden');
 }
 function refreshFromLiveBadge() {
   _logbookLiveCount = 0;
@@ -2076,6 +2081,9 @@ async function loadMoreLogbook() {
 // ────────────────────────────────────────────
 async function searchTeam(append = false, byPress = false) {
   if (!HIVE_ID) return;
+  // HS L5: the team's entries name their authors - one who has left the hive is said so (utils.js whMemberSuffix); the
+  // hive's departed members are asked once, beside this search
+  const _formerP = (typeof whLoadFormerMembers === 'function') ? whLoadFormerMembers(db, HIVE_ID) : null;
 
   if (!append) {
     _teamLastDate = null;
@@ -2204,6 +2212,7 @@ async function searchTeam(append = false, byPress = false) {
     return;
   }
 
+  if (_formerP) await _formerP;
   renderEntries(false);
 }
 
@@ -2635,6 +2644,69 @@ async function _drainOfflineQueue() {
 // guaranteed refusal — and the fix is to stop offering what the database will always deny.
 //
 // RLS stays the enforcement; this only keeps the glass honest about it.
+/* ★A DEPARTED MEMBER'S OPEN JOB COULD NEVER BE CLOSED (HS L5, 2026-10-30). Only an entry's author may change it, so
+   once Rodel left, the jobs he had opened stayed Open on every board, in every open-jobs count and in the CMMS sync's
+   conflict list, with nobody able to act. An active supervisor may now close such a job or assign it to an active
+   member - nothing else (mig 20261030000012: a policy for exactly these rows, a guard on exactly these columns). The
+   entry stays the departed member's: he raised it and did that work. */
+let _lbModalEntry = null;
+const _departedEntry = (id) => (_lbModalEntry && _lbModalEntry.id === id ? _lbModalEntry
+  : (_viewMode === 'team' ? _teamEntries : _allEntries).find(e => e.id === id));
+function _takesOverDeparted(entry) {
+  return !!entry && HIVE_ROLE === 'supervisor' && (entry.status || 'Open') === 'Open' && !entry.deleted_at && !entry._offline
+    && entry.auth_uid !== null   // the policy knows a departure by the account; an entry with none is not offered what it refuses
+    && typeof whIsFormerMember === 'function' && whIsFormerMember(entry.worker_name);
+}
+async function _afterDepartedChange() {
+  document.getElementById('modal').classList.add('hidden');
+  if (_viewMode === 'team' && _teamSearched && typeof searchTeam === 'function') await searchTeam();
+  else if (typeof loadEntries === 'function') await loadEntries();
+}
+async function closeDepartedEntry(id) {
+  const entry = _departedEntry(id);
+  const who = (entry && entry.worker_name) || 'the member who left';
+  if (!(await window.whConfirm(`Close ${who}'s open job? It stays logged as theirs; the trail records that you closed it.`,
+    { okLabel: 'Close job', cancelLabel: 'Keep open' }))) return;
+  const { data, error } = await db.from('logbook').update({ status: 'Closed', closed_at: new Date().toISOString() })
+    .eq('id', id).eq('status', 'Open').select('id');
+  if (error) { showToast(whWriteError(error, 'The job was NOT closed - it is still open.'), 'error'); return; }
+  showToast(data && data.length ? 'Job closed.' : 'This job is no longer open - it was closed before you pressed.', data && data.length ? 'success' : 'info');
+  await _afterDepartedChange();
+}
+async function pickDepartedAssignee(id) {
+  const box = document.getElementById('departed-actions');
+  if (!box) return;
+  // the members who can take it, read now - a list from when the page opened could offer someone who has since left
+  const { data, error } = await db.from('hive_members').select('worker_name')
+    .eq('hive_id', HIVE_ID).eq('status', 'active').order('worker_name').order('id').limit(500);   // limit-as-count-allow: a picker's rows, nothing counts them
+  if (error) { showToast(whReadError(error, 'the hive\'s members'), 'error'); return; }
+  box.innerHTML = `<label for="departed-assignee" class="text-xs block mb-1" style="color:rgba(255,255,255,0.80);">Assign this open job to</label>
+    <select id="departed-assignee" class="w-full text-sm rounded-lg px-3 mb-2" style="min-height:44px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:inherit;">
+      ${(data || []).map(m => `<option value="${escHtml(m.worker_name)}">${escHtml(m.worker_name)}</option>`).join('')}
+    </select>
+    <div class="flex gap-2">
+      <button type="button" onclick="assignDepartedEntry('${escJsAttr(id)}')" class="btn-primary flex-1 text-sm">Assign</button>
+      <button type="button" onclick="openModal('${escJsAttr(id)}')" class="btn-secondary flex-1 text-sm">Back</button>
+    </div>`;
+  const sel = document.getElementById('departed-assignee');
+  if (sel) sel.focus();
+}
+async function assignDepartedEntry(id) {
+  const name = (document.getElementById('departed-assignee') || {}).value;
+  if (!name) return;
+  const { data, error } = await db.from('logbook').update({ wo_assigned_to: name, wo_state: 'assigned' })
+    .eq('id', id).eq('status', 'Open').select('id');
+  if (error) { showToast(whWriteError(error, 'The job was NOT assigned - it is unchanged.'), 'error'); return; }
+  if (data && data.length) {
+    // a close is trailed by the database (trg_logbook_close_audit); handing a departed member's job on is trailed here
+    const entry = _departedEntry(id);
+    writeAuditLog('assign_departed_job', 'logbook', id, (entry && entry.machine) || '(no machine)',
+      { to: name, raised_by: (entry && entry.worker_name) || null });
+  }
+  showToast(data && data.length ? `Assigned to ${name}.` : 'This job is no longer open - it was closed before you pressed.', data && data.length ? 'success' : 'info');
+  await _afterDepartedChange();
+}
+
 function _canWriteEntry(entry) {
   if (!entry) return false;
   if (entry._offline) return true;                       // not yet on the server; it is still yours
@@ -3225,7 +3297,7 @@ async function initAssets() {
 
   // Phase 5c: select aliases asset_nodes column names back to the legacy
   // shape so downstream render code keeps reading a.asset_id and a.type.
-  const COLS = 'id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, auth_uid, status, submitted_by, approved_by, approved_at, created_at';
+  const COLS = 'id, asset_id:tag, name, type:iso_class, location, criticality, hive_id, worker_name, auth_uid, status, submitted_by, approved_by, approved_at, created_at, updated_at';   // updated_at: the edit form's snapshot (HS W1)
 
   let sbAssets = [];
   if (HIVE_ID) {
@@ -3234,7 +3306,7 @@ async function initAssets() {
     // renames id → asset_id which would break the existing _assets[].id consumers
     const [hiveRes, myRes, uidRes] = await Promise.all([
       db.from('asset_nodes').select(COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500), // Arc L · L2: row cap (hive equipment registry feeds asset picker; bounded-by-nature) · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
-      db.from('asset_nodes').select(COLS).or(_MINE()).limit(500), // Arc L · L2: row cap (one worker's assets; bounded-by-nature) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
+      db.from('asset_nodes').select(COLS).or(_MINE()).limit(500), // Arc L · L2: row cap (one worker's assets; bounded-by-nature) · cap-ok[auth_uid] (LB1 / HS L4: a year put at most 17 machines on one person)
       // ★MY ASSETS BY IDENTITY, NOT BY DISPLAY NAME (2026-10-04, Ian: "in the select an asset there is
       // nothing there, but I can see it in my asset hub"). The picker found "mine" with
       // worker_name = WORKER_NAME, a free-text display name; asset-hub.html finds the same rows with
@@ -3561,6 +3633,7 @@ function openEditAsset(id) {
     return;
   }
   document.getElementById('edit-asset-id').value          = asset.id;
+  document.getElementById('edit-asset-id').dataset.stamp  = asset.updated_at || '';   // the row as this form found it (HS W1)
   document.getElementById('edit-asset-asset-id').value    = asset.asset_id || '';
   document.getElementById('edit-asset-name').value        = asset.name || '';
   document.getElementById('edit-asset-type').value        = asset.type || '';
@@ -3620,6 +3693,10 @@ async function saveEditAsset() {
   // overwriting another member's asset - auth_uid does that correctly, where a display name both
   // over-matches (two people could share one) and under-matches (a renamed person loses their own).
   if (HIVE_ID && HIVE_ROLE !== 'supervisor') q = q.eq('auth_uid', _authUid);
+  // HS W1 (2026-10-30): only the row this form was opened on. The form writes every field, so a teammate's edit made
+  // while it was open was silently overwritten (two members, one asset, last save wins).
+  const _stamp = document.getElementById('edit-asset-id').dataset.stamp || '';
+  if (_stamp) q = q.eq('updated_at', _stamp);
 
   // LG9 (2026-07-28): confirm the write before believing it. The `.eq('worker_name', ...)` scope
   // above is a CLIENT guard; the real one is asset_nodes_write, which requires `auth_uid =
@@ -3640,7 +3717,17 @@ async function saveEditAsset() {
     return;
   }
   if (!updatedRows || updatedRows.length === 0) {
-    errEl.textContent = 'Could not save. An asset can only be edited by whoever registered it, or by a supervisor.';
+    // which of the two it was: someone changed it first (say so - the form keeps what was typed), or not theirs to edit
+    let _changed = false;
+    if (_stamp) {
+      try {
+        const { data: _now } = await db.from('asset_nodes').select('updated_at').eq('id', id).maybeSingle();
+        _changed = !!(_now && _now.updated_at && _now.updated_at !== _stamp);
+      } catch (_) { /* empty-catch-allow: the permission sentence below is still true */ }
+    }
+    errEl.textContent = _changed
+      ? 'Someone changed this asset while you were editing it, so nothing was saved. Your changes are still on the form - close it and reopen the asset to see theirs, then save again.'
+      : 'Could not save. An asset can only be edited by whoever registered it, or by a supervisor.';
     errEl.classList.remove('hidden');
     saveBtn.disabled = false;
     saveBtn.textContent = 'Save Changes';
@@ -3849,22 +3936,25 @@ async function loadAssetDetail(asset) {
           .select('id, part_name, part_number, qty_on_hand, min_qty, unit, bin_location')
           .or(_MINE())
           .contains('linked_asset_node_ids', [assetNodeId])
-          .limit(500), // L2: parts linked to one asset; bounded-by-nature insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
+          .limit(500 + 1), // more-said: by loadAssetDetail (HS L4: parts linked to one machine - a year put 235 on one; a 501st says the list holds the first 500)
         ...(HIVE_ID ? [
           db.from('inventory_items')
             .select('id, part_name, part_number, qty_on_hand, min_qty, unit, bin_location')
             .eq('hive_id', HIVE_ID)
             .eq('status', 'approved')
             .contains('linked_asset_node_ids', [assetNodeId])
-            .limit(500), // L2: parts linked to one asset; bounded-by-nature insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
+            .limit(500 + 1), // more-said: by loadAssetDetail (HS L4: the hive's parts linked to one machine; a 501st says the list holds the first 500)
         ] : []),
       ]
     : [];
 
+  // HS L5: the history names whoever logged and took each part - one who has left is said so (asked once a page)
+  const _formerP = (HIVE_ID && typeof whLoadFormerMembers === 'function') ? whLoadFormerMembers(db, HIVE_ID) : null;
   const [faultsRes, ...invResults] = await Promise.all([
     assetNodeId
       ? db.from('logbook')
-          .select('id, date, machine, category, maintenance_type, problem, status, created_at')
+          // worker_name (HS L1, 2026-10-30): an asset's history in a hive of thirty is written by many people - each entry says whose
+          .select('id, date, machine, category, maintenance_type, problem, status, created_at, worker_name')
           .eq('asset_node_id', assetNodeId)
           .order('created_at', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -3872,6 +3962,7 @@ async function loadAssetDetail(asset) {
       : Promise.resolve({ data: [] }),
     ...invQueries,
   ]);
+  if (_formerP) await _formerP;
 
   /* A FAILED READ IS NOT AN ABSENT PART OR A CLEAN HISTORY. supabase-js resolves with
      { data: null, error } instead of throwing, so an unchecked `.data || []` here would show this
@@ -3896,8 +3987,9 @@ async function loadAssetDetail(asset) {
   // Deduplicate by id: own items take precedence (preserve pending status)
   const seen = new Set();
   _detailLinkedItems = [];
+  const _stockedMore = invResults.some(r => (r && r.data || []).length > 500);
   for (const res of invResults) {
-    for (const item of (res.data || [])) {
+    for (const item of (res.data || []).slice(0, 500)) {
       if (!seen.has(item.id)) { seen.add(item.id); _detailLinkedItems.push(item); }
     }
   }
@@ -3907,19 +3999,24 @@ async function loadAssetDetail(asset) {
   let txns = [];
   if (_detailLinkedItems.length) {
     const ids = _detailLinkedItems.map(i => i.id);
-    const { data: t } = await db.from('v_inventory_transactions_truth')
-      .select('id, item_id, qty_change, note, job_ref, created_at')
-      .in('item_id', ids)   // in-list-bounded: the inventory items linked to one entry
+    // HS L4: a year put 174 parts on one machine - a 6.7 KB in.() list; past ~200 ids the gateway refuses the URL (414, SL
+    // LB3), so the ids are asked 100 at a time and the pieces merged newest first before the 50 are kept
+    const { data: t } = await whInChunks(ids, (part) => db.from('v_inventory_transactions_truth')
+      .select('id, item_id, qty_change, note, job_ref, created_at, worker_name')   // who took the part (HS L1)
+      .in('item_id', part)   // in-list-bounded: the inventory items linked to one entry
       .eq('type', 'use')
       .order('created_at', { ascending: false })
       .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-      .limit(50 + 1);   // more-said: by renderDetailConsumption (SL LB1: a 51st use says older consumption exists)
-    _detailTxnsMore = (t || []).length > 50;
-    txns = (t || []).slice(0, 50);
+      .limit(50 + 1));   // more-said: by renderDetailConsumption (SL LB1: a 51st use says older consumption exists)
+    const _tSorted = (t || []).slice().sort((a, b) => (a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)));
+    _detailTxnsMore = _tSorted.length > 50;
+    txns = _tSorted.slice(0, 50);
   }
 
   document.getElementById('asset-detail-loading').classList.add('hidden');
   renderDetailStocked(_detailLinkedItems);
+  if (typeof whMoreNote === 'function') whMoreNote(document.getElementById('detail-stocked-list'), { shown: _detailLinkedItems.length, more: _stockedMore,
+    noun: 'parts linked to this machine', order: '', where: 'Inventory lists them all.', href: 'inventory.html', hrefLabel: 'Open Inventory', src: 'asset-stocked' });
   renderDetailConsumption(txns, _detailLinkedItems);
   renderDetailFaultHistory(faults);
   switchDetailTab('stocked');
@@ -3976,13 +4073,16 @@ function renderDetailConsumption(txns, itemsList) {
     const name   = item ? escHtml(item.part_name) : 'Unknown part';
     const unit   = item ? escHtml(item.unit || 'pcs') : '';
     const qty    = Math.abs(t.qty_change);
-    const date   = t.created_at ? new Date(t.created_at).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' }) : '';
+    // HS L1 (2026-10-30): the platform's own date (FD1a). A bare toLocaleDateString(undefined) took the phone's locale -
+    // "10/3/2026" reads as March to a PH reader on a US-locale phone - and said nothing of who took the part.
+    const date   = t.created_at ? whFmtDate(t.created_at) : '';
     const jobRef = t.job_ref ? escHtml(t.job_ref) : '';
     const note   = t.note && t.note !== ('Job: ' + t.job_ref) ? escHtml(t.note) : '';
     return `<div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);">
       <div class="flex items-start justify-between gap-2">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white">${name}</p>
+          ${t.worker_name ? `<p class="text-xs text-white/80 mt-0.5">${escHtml(_t('Taken by', 'Kinuha ni'))} <span translate="no">${escHtml(t.worker_name)}</span>${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(t.worker_name) : '')}</p>` : ''}
           ${jobRef ? `<p class="text-xs text-white/80 mt-0.5">Job: ${jobRef}</p>` : ''}
           ${note   ? `<p class="text-xs text-white/80">${note}</p>` : ''}
         </div>
@@ -4021,7 +4121,7 @@ function renderDetailFaultHistory(entries) {
     const statusTx    = isOpen ? 'var(--wh-red-text, #FDC9C9)' : '#4ade80';   // text-safe red for the word (critic C2)
     const borderColor = isOpen ? '#f87171' : '#4ade80';
     const catColor    = catColors[e.category] || '#9ca3af';
-    const date        = e.created_at ? new Date(e.created_at).toLocaleDateString(undefined, { timeZone: 'Asia/Manila' }) : (e.date || '').slice(0, 10);
+    const date        = e.created_at ? whFmtDate(e.created_at) : (e.date ? whFmtDate(e.date) : '');   // FD1a (HS L1): never the phone's locale
     return `<div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-left:3px solid ${borderColor};">
       <div class="flex items-start justify-between gap-2 mb-1">
         <div class="flex items-center gap-1.5 flex-wrap">
@@ -4032,6 +4132,7 @@ function renderDetailFaultHistory(entries) {
         <span class="text-xs text-white/80 flex-shrink-0">${date}</span>
       </div>
       ${e.problem ? `<p class="text-xs text-white/80 leading-relaxed" style="overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${escHtml(e.problem)}</p>` : ''}
+      ${e.worker_name ? `<p class="text-xs text-white/80 mt-1">${escHtml(_t('Logged by', 'Isinulat ni'))} <span translate="no">${escHtml(e.worker_name)}</span>${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(e.worker_name) : '')}</p>` : ''}
     </div>`;
   }).join('');
   document.getElementById('detail-faults-view').classList.remove('hidden');
@@ -5207,7 +5308,8 @@ async function renderEntries(reload = true, fromStatPills = false) {
             ${(e._offline || e._pending_edit) ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(247,162,27,0.15);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.2);">${e._offline ? 'Pending sync' : 'Edit pending sync'}</span>` : ''}
           </div>
           <span class="text-xs text-white/80">${formatDate(e.date)}</span>
-          ${_viewMode === 'team' && !_isMine(e) ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);">${escHtml(e.worker_name)}</span>` : ''}
+          ${_viewMode === 'team' && !_isMine(e) ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(41,182,217,0.12);color:var(--wh-blue-light);">${escHtml(e.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(e.worker_name) : ''))}</span>` : ''}
+          ${/* HS L1 (2026-10-30): in a team feed of thirty, the one entry with no name on it was yours - say so */ _viewMode === 'team' && _isMine(e) ? `<span class="text-xs font-semibold px-1.5 py-0.5 rounded-md" style="background:rgba(247,162,27,0.12);color:var(--wh-orange-text);">${escHtml(_t('You', 'Ikaw'))}</span>` : ''}
         </div>
         <span class="ic ic-next" aria-hidden="true"></span>
       </div>
@@ -5270,6 +5372,10 @@ async function openModal(id) {
   }
   if (!entry) return;
   const status = entry.status || 'Open';
+  // the departed members are known before the actions are drawn - an entry opened from a link, before any team list
+  // has loaded them, must still offer a supervisor the close / assign a departed member's open job needs (HS L5)
+  if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
+  _lbModalEntry = entry;   // the entry as drawn - an entry fetched by id is in neither loaded list
 
   document.getElementById('modal-content').innerHTML = `
     <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -5355,10 +5461,17 @@ async function openModal(id) {
            and cancelling still closed it. deleteEntry closes the modal itself, and only once the
            delete has actually landed. -->
       <button onclick="confirmDelete('${escJsAttr(entry.id)}')" class="btn-danger px-4 text-sm py-2" data-i="delete">Delete</button>
+    </div>` : _takesOverDeparted(entry) ? `
+    <div id="departed-actions" class="pt-2 border-t border-white/[0.07] mt-2">
+      <p class="text-xs mb-2" style="color:rgba(255,255,255,0.80);">${escHtml(entry.worker_name || 'The member who logged this')} has left the hive, so this open job falls to you as supervisor: close it, or assign it to a member. It stays logged as theirs.</p>
+      <div class="flex gap-2">
+        <button type="button" onclick="closeDepartedEntry('${escJsAttr(entry.id)}')" class="btn-primary flex-1 text-sm">Close this job</button>
+        <button type="button" onclick="pickDepartedAssignee('${escJsAttr(entry.id)}')" class="btn-secondary flex-1 text-sm">Assign to a member</button>
+      </div>
     </div>` : `
     <div class="flex items-center gap-2 pt-2 border-t border-white/[0.07] mt-2">
       <span class="ic ic-secure" aria-hidden="true"></span>
-      <p class="text-xs" style="color:rgba(255,255,255,0.55);">Logged by ${escHtml(entry.worker_name || 'a teammate')}. Only the person who wrote an entry can edit or delete it.</p>
+      <p class="text-xs" style="color:rgba(255,255,255,0.55);">Logged by ${escHtml((entry.worker_name || 'a teammate') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(entry.worker_name) : ''))}. Only the person who wrote an entry can edit or delete it.</p>
     </div>`}
   `;
 
@@ -5964,7 +6077,7 @@ async function loadPMTasksForAsset() {
     q = db.from('v_pm_compliance_truth').select('pm_asset_id, asset_name, tag_id, category').eq('hive_id', HIVE_ID).limit(500); // limit-as-count-allow: asset-picker registry (bounded-by-nature ≤ dozens/hive), does not feed a .length count. Arc L · L2 row cap
   } else {
     // canonical-allow: solo-mode fallback (v_pm_compliance_truth is hive-scoped only)
-    q = db.from('pm_assets').select('id, asset_name, tag_id, category').or(_MINE()).limit(500); // Arc L · L2: row cap (one worker's PM assets; bounded-by-nature) · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
+    q = db.from('pm_assets').select('id, asset_name, tag_id, category').or(_MINE()).limit(500); // Arc L · L2: row cap (one worker's PM assets; bounded-by-nature) · cap-ok[auth_uid] (LB1 / HS L4: a year put at most 15 PM machines on one person)
   }
   const { data: pmRaw } = await q;
   // Normalise the id column so downstream code (which expects `id`) works
@@ -6281,6 +6394,17 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
     // The toast was already shown inside addEntry()
     return;
   }
+  // ★A RETRY THAT SAVED NOTHING MUST DO NOTHING ELSE (HS W1, 2026-10-30, walked by tools/prove_hive_scale_races.mjs). addEntry
+  // recognises a refresh-retry ("That entry was just logged; no duplicate created.") and returns deduped - and this handler
+  // went on to write the PM completions and run the parts deduction AGAIN, so a retry took the same parts off the shelf
+  // twice, and the screen said "no duplicate created" and then "Entry saved." The first submit already did all of it.
+  if (addResult && addResult.deduped) {
+    _lbMarkArrived(addResult.id);
+    clearForm();
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save Entry';
+    return;
+  }
 
   // T14 (2026-08-25): the entry went to the OFFLINE QUEUE - every side effect below
   // (pm_completions insert, inventory deduct RPC, the ripple receipt) is a NETWORK call
@@ -6309,10 +6433,23 @@ document.getElementById('log-form').addEventListener('submit', async function(e)
       notes:         `Logged via Logbook: ${machine}`,
       completed_at:  entry.date,
     }));
-    const { error: pmErr } = await db.from('pm_completions').insert(pmPayloads);
-    if (pmErr) {
-      console.warn('PM completions save failed:', pmErr.message);
-      showToast('Entry saved. ' + whWriteError(null, 'Its PM tasks did NOT record, so those PMs still count as due - complete them in PM Scheduler.'));
+    // ★ONE TASK AT A TIME (HS W1, 2026-10-30, walked by tools/prove_hive_scale_races.mjs). The batch insert was atomic, so a
+    // task this person had ALREADY completed today (pm_completions_dedup_uidx: one per task, person and day) refused the
+    // whole batch - every other ticked task was dropped - and the toast said "Its PM tasks did NOT record, so those PMs
+    // still count as due", false for the one already done. The index is an expression on the day, so no upsert can target
+    // it; each task is written alone and the person is told what happened to each kind.
+    let _pmDup = 0, _pmFailed = 0;
+    for (const pmPayload of pmPayloads) {
+      const { error: pmErr } = await db.from('pm_completions').insert(pmPayload);
+      if (!pmErr) continue;
+      if (String(pmErr.code) === '23505') _pmDup++;
+      else { _pmFailed++; console.warn('PM completion save failed:', pmErr.message); }
+    }
+    if (_pmFailed) {
+      showToast('Entry saved. ' + whWriteError(null, `${_pmFailed} of its PM tasks did NOT record, so ${_pmFailed === 1 ? 'that PM still counts' : 'those PMs still count'} as due - complete ${_pmFailed === 1 ? 'it' : 'them'} in PM Scheduler.`)
+        + (_pmDup ? ` ${_pmDup} ${_pmDup === 1 ? 'was' : 'were'} already recorded for you today.` : ''));
+    } else if (_pmDup) {
+      showToast(`Entry saved. ${_pmDup === pmPayloads.length ? (_pmDup === 1 ? 'Its PM task was' : 'Its PM tasks were') : _pmDup + ' of its PM tasks were'} already recorded for you today, so ${_pmDup === 1 ? 'it counts' : 'they count'} once.`);
     }
   }
 

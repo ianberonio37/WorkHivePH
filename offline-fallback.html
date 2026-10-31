@@ -101,7 +101,10 @@
       });
     })();
     const hint = document.getElementById('net-hint');
-    if (navigator.onLine && hint) hint.textContent = 'Connection checked as of now · looks back — tap "Try again".';
+    // Wave JS (2026-10-31, walked on a 3G line that drops one request in twelve): this read 'Connection checked as of now ·
+    // looks back - tap "Try again"', a sentence a freshness prefix broke in half. And on a flaky line nothing "came back":
+    // the device had a connection throughout and one request was lost. What is true in both cases is said instead.
+    if (navigator.onLine && hint) hint.textContent = 'Connection checked as of now · your device has a connection, but this page did not load. Tap "Try again".';
 
     /* ★THE OFFLINE PAGE SPOKE FILIPINO ONLY WHILE ONLINE (2026-09-10).
        This page carries 13 data-i labels and its Filipino dictionary IS precached

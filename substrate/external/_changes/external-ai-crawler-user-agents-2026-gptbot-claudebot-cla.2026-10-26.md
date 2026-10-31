@@ -72,3 +72,7 @@ The distilled facts moved. DECIDE: which lever (gate threshold, roadmap claim, r
 +
 +Sources: https://www.anagram.ai/blog/ai-crawlers-explained-gptbot-claudebot-perplexitybot-and-how-to-let-them-in-2026
 ```
+
+## Decision (2026-10-31)
+
+No lever moves. robots.txt already names every agent the re-fetch lists, by role: GPTBot, OAI-SearchBot, ChatGPT-User, ClaudeBot, Claude-SearchBot, Claude-User, PerplexityBot, Perplexity-User and Google-Extended (read 2026-10-31); freshness_trip's roster check (KA-B) raises nothing for them.

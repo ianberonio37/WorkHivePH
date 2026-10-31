@@ -46,8 +46,10 @@ CHECKS = [
      "asset-hub: exact-count globals wired through render"),
     ("asset-hub.html", "sub", "count: 'exact', head: true", 1,
      "asset-hub: total/critical via an exact count, not the .limit(200) list length"),
-    ("ai-quality.html", "sub", "if (error) throw error", 2,
-     "ai-quality: both loaders throw on a query error instead of swallowing it as []"),
+    # the two browser-side loaders (cost log, reply feedback) became ONE database total in Wave HS L4 (2026-10-30: a
+    # sum over a capped read was a wrong number) - the rule is the same: the loader throws, it never returns a fake []
+    ("ai-quality.html", "sub", "await db.rpc('hive_ai_usage_30d', { p_hive: HIVE_ID });\n      if (error) throw error;", 1,
+     "ai-quality: its loader (hive_ai_usage_30d) throws on a query error instead of swallowing it as []"),
     ("ai-quality.html", "not", "schema_compliance, user_feedback", 1,
      "ai-quality: the unused/legacy user_feedback column was dropped from the cost-log select"),
     ("inventory.html", "sub", "['approved', 'pending', 'rejected']", 1,

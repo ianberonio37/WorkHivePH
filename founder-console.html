@@ -861,6 +861,19 @@
             <div class="panel-body"><div id="gcash-receipts-content"><div class="mod-empty">Loading…</div></div></div>
           </section>
 
+          <!-- Disputed service jobs (Wave JS, 2026-10-31): a client's report stops a job settling, and until this card no
+               screen could end the review. Hidden when nothing is disputed, like the receipts above. -->
+          <section class="panel" id="sec-svc-disputes" hidden>
+            <div class="panel-hdr">
+              <div style="flex:1">
+                <h2>Disputed service jobs</h2>
+                <div class="panel-sub">A client reported a problem on a job the provider marked done. It will not settle until you decide.</div>
+              </div>
+              <span id="svc-disputes-count" class="count">-</span>
+            </div>
+            <div class="panel-body"><div id="svc-disputes-content"><div class="mod-empty">Loading…</div></div></div>
+          </section>
+
           <section class="panel" id="mkt-listings-card" data-opc="founder-console.html::listings-awaiting-review | marketplace-admin.html::listings-queue">
             <div class="panel-hdr">
               <div style="flex:1">

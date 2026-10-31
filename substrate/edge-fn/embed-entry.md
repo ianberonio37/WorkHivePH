@@ -2,7 +2,7 @@
 name: edge-fn-embed-entry
 type: edge-fn
 source: file:supabase/functions/embed-entry/index.ts
-source_sha: 8e370db5e722718e
+source_sha: fdd532a2f807a071
 last_verified: 2026-07-13
 supersedes: null
 ---

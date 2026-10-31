@@ -592,6 +592,99 @@
         more: typeof _gcashCount === 'number' && _gcashCount > rows.length, noun: 'receipts', order: 'first', src: 'v_gcash_receipts_needing_eyes' });
     }
 
+    // ── Disputed service jobs (Wave JS, 2026-10-31) ───────────────────────────────────────────────────────────────
+    // ★A DISPUTE HAD NO SCREEN. A client's report stops a job settling, and apply_dispute_adjustment can return their
+    // credits - but since the ghost-table card was retired (2026-08-03) nothing called it, so a reported job sat
+    // "being reviewed" forever. Walked with two real reports: the admin saw only a trail line. admin_disputed_jobs()
+    // is admin-only (an admin is not a party, so RLS shows them none of these jobs); the list is every disputed job,
+    // which is bounded by nature - a dispute is a rare, hand-worked case, not a feed.
+    async function fetchDisputes() {
+      try {
+        const { data, error } = await db.rpc('admin_disputed_jobs');
+        return { rows: data || [], _error: error ? error.message : null, _code: error ? (error.code || null) : null,
+                 _status: error ? (error.status || error._httpStatus || null) : null };
+      } catch (err) { return { rows: [], _error: err && err.message || 'fetch failed', _code: err && err.code || null, _status: err && (err._httpStatus || err.status) || null }; }
+    }
+
+    function renderDisputes(m) {
+      const card = document.getElementById('sec-svc-disputes');
+      const box = document.getElementById('svc-disputes-content');
+      if (!card || !box) return;
+      m = m || {};
+      // a refusal is the admin boundary, not a failure - the same rule the receipts queue keeps
+      if (m._error && (typeof whIsAuthFailure === 'function' ? whIsAuthFailure({ code: m._code, message: m._error })
+                                                             : /permission denied|42501|platform admin/i.test(m._error))) {
+        card.hidden = true; return;
+      }
+      if (m._error) {
+        card.hidden = false; box.innerHTML = `<div class="mod-empty">${e(_queueErr(m))}</div>`;
+        const _dc = document.getElementById('svc-disputes-count');
+        if (_dc && typeof whStatUnknown === 'function') whStatUnknown(_dc, 'disputes');
+        return;
+      }
+      const rows = m.rows || [];
+      if (!rows.length) { card.hidden = true; return; }   // hidden when there is nothing to decide, like the receipts
+      card.hidden = false;
+      const when = (t) => t ? new Date(t).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'time not recorded';
+      box.innerHTML = rows.map(r => `
+        <div class="mod-row">
+          <div class="mod-main"><strong>${e(r.job || 'Service job')}</strong>
+            <span class="mod-sub">Client ${e(r.client_name || 'not recorded')} · provider ${e(r.provider_name || 'not recorded')}${r.hive_name ? ' · ' + e(r.hive_name) : ''} · reported ${e(when(r.raised_at))}</span>
+            <span class="mod-sub">${r.reason ? 'Client said: “' + e(r.reason) + '”' : 'The client gave no reason on record.'}</span>
+            ${r.reviewed_at ? `<span class="mod-sub">Reviewed ${e(when(r.reviewed_at))}: ${e(r.review_note || '')}</span>` : ''}</div>
+          ${r.reviewed_at ? '' : `<div class="mod-actions">
+            <button class="mod-btn ok" data-dispute-act="client" data-id="${e(r.id)}" data-job="${e(r.job || '')}">Side with the client</button>
+            <button class="mod-btn" data-dispute-act="provider" data-id="${e(r.id)}" data-job="${e(r.job || '')}">Side with the provider</button>
+          </div>`}
+        </div>`).join('')
+        + '<p class="mod-sub" style="margin:0.4rem 0 0;">Siding with the client gives back any credits they paid, reverses the commission and takes back cashback. Siding with the provider lets the work stand: the job settles as completed work. Either way both parties are told, and the job cannot be reported again.</p>';
+      setCount('svc-disputes-count', rows.filter(r => !r.reviewed_at).length, 'warn');
+    }
+
+    let _disputesWired = false;
+    function wireDisputes() {
+      if (_disputesWired) return; _disputesWired = true;
+      const sec = document.getElementById('sec-svc-disputes');
+      if (!sec) return;
+      sec.addEventListener('click', async (ev) => {
+        const btn = ev.target.closest('button[data-dispute-act]');
+        if (!btn) return;
+        const side = btn.dataset.disputeAct === 'provider' ? 'provider' : 'client';
+        if (typeof window.whConfirm === 'function') {
+          const ok = await window.whConfirm(side === 'client'
+            ? 'Side with the client on "' + (btn.dataset.job || 'this job') + '"? Any credits they paid go back to them, '
+              + 'the commission is reversed and cashback is taken back. Both parties will see that WorkHive reviewed it.'
+            : 'Side with the provider on "' + (btn.dataset.job || 'this job') + '"? The work stands: the job settles as completed '
+              + 'work, and the client can no longer report it. Both parties will see that WorkHive reviewed it.',
+            { okLabel: side === 'client' ? 'Side with the client' : 'Side with the provider', cancelLabel: 'Cancel' });
+          if (!ok) return;
+        }
+        let note = null;
+        if (typeof window.whPrompt === 'function') {
+          note = await window.whPrompt('A line both parties will read with the outcome (optional)',
+            { okLabel: 'Record the decision', cancelLabel: 'Cancel', inputLabel: 'Note for both parties' });
+          if (note === null) return;   // cancelled: nothing recorded
+        }
+        const _label = btn.textContent;
+        const _restore = () => { btn.disabled = false; btn.removeAttribute('aria-busy'); btn.textContent = _label; };
+        btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.textContent = 'Recording…';
+        try {
+          const { data, error } = await db.rpc('adjudicate_service_dispute', { p_request_id: btn.dataset.id, p_note: note || null, p_side: side });
+          if (error) throw error;
+          if (data && data.adjusted) showToast(data.said || 'Recorded. Both parties can see the outcome.', 'success');
+          else showToast(data && /already_(adjusted|reviewed)/.test(data.reason || '') ? 'No change: this job was already reviewed.' : 'No change was recorded.', 'info');
+          await refreshQueues();
+          _restore();
+        } catch (err) {
+          console.error('[operator-actions] dispute decision failed:', err);
+          showToast(refusalMessage(err)
+            || (whIsAuthFailure(err) ? 'Your admin session expired, so nothing was recorded. Sign in again to continue.'
+                                     : 'We could not record that decision, and nothing changed. Try again.'), 'error');
+          _restore();
+        }
+      });
+    }
+
     /* THE PLATFORM'S OWN MONEY POSITION. Both halves come from v_credit_posture, never from
        credit_treasury or service_credit_ledger raw: the cap is guarded by a CHECK constraint on that
        row, so the number a founder acts on must come from the view that publishes it, not from a sum
@@ -771,7 +864,7 @@
          Marking the queue containers aria-busy costs nothing, does not disturb the rows already on
          screen (the admin can keep reading them), and is cleared by the renderers below on every
          path, success or failure, because they all overwrite innerHTML. */
-      const _boxes = ['svc-topups-content', 'mkt-listings-content', 'gcash-receipts-content', 'cp-content', 'decisions-list']
+      const _boxes = ['svc-topups-content', 'mkt-listings-content', 'gcash-receipts-content', 'svc-disputes-content', 'cp-content', 'decisions-list']
         .map(id => document.getElementById(id)).filter(Boolean);
       const _sync = document.getElementById('last-sync');
       _boxes.forEach(b => b.setAttribute('aria-busy', 'true'));
@@ -779,13 +872,14 @@
       const wantFeedback = !_fb.drawerId;
       try {
         // the usage card's figures are the console's Growth Pulse panel (OPC): no usage reads from here
-        const [mod, tops, gcash, fb, cp, decided] = await Promise.all([
+        const [mod, tops, gcash, fb, cp, decided, disputes] = await Promise.all([
           fetchMktModeration(), fetchSvcTopups(), fetchGcashLeftovers(),
           wantFeedback ? fetchFeedback() : Promise.resolve(null),
-          fetchCreditPosition(), fetchDecisions()]);
+          fetchCreditPosition(), fetchDecisions(), fetchDisputes()]);
         renderMktModeration(mod);
         renderSvcTopups(tops);
         renderGcashLeftovers(gcash);
+        renderDisputes(disputes);
         if (fb) renderFeedback(fb);
         renderCreditPosition(cp);
         renderDecisions(decided);
@@ -1488,6 +1582,7 @@
     wirePublishedSearch();
     wireVerifiedSearch();
     wireSvcTopups();
+    wireDisputes();
     wireFeedback();
     await refreshQueues();
     searchPublished();

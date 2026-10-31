@@ -22,7 +22,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whListError whListSkeleton whReadError whReconcileHiveRole whRoleUnreadNote whSourcesSync whStartupHive whUse whUseThen whWriteError">
+<script data-wh-skew-heal="whListError whListSkeleton whLoadFormerMembers whMemberSuffix whReadError whReconcileHiveRole whRoleUnreadNote whSourcesSync whStartupHive whUse whUseThen whWriteError">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -630,6 +630,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     async function loadGatewayAudit() {
       const sinceIso = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+      // HS L5: a call made on the key of a member who has since left says so - the key outlived the membership
+      if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
       // canonical-allow: gateway_audit_log is this admin page's own request-audit panel (single-surface, hive-scoped observability list, last 7d), not a cross-surface KPI/aggregate — no v_*_truth wrapper applies.
       const { data, error } = await db.from('gateway_audit_log')
         .select('id, route, method, status_code, latency_ms, created_at, worker_name')
@@ -637,9 +639,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .gte('created_at', sinceIso)
         .order('created_at', { ascending: false })
         .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(50 + 1);   // more-said: by renderGatewayCard (SL LB1: the pill and the non-2xx count were taken over this capped read; a 51st call says the week holds more)
+        .limit(50 + 1);   // more-said: by renderGatewayCard (SL LB1: a 51st call says the week holds more than the 50 listed)
       if (error) throw error; // A5: propagate real read failure to renderAll()'s catch
-      return data || [];
+      // ★THE WEEK'S FIGURES WERE A SAMPLE'S (Wave HS L4, "a year of the hive", 2026-10-30, walked live): an integration
+      // polling every few minutes put 2,000 calls in a week, 157 of them refused, and the card said "7 non-2xx among the
+      // 50 newest calls". The rows stay the newest 50; the week's calls and refusals are counted where they are.
+      const out = data || [];
+      try {
+        const [all, bad] = await Promise.all([
+          db.from('gateway_audit_log').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).gte('created_at', sinceIso).limit(1),   // head:true returns no rows; the count is exact
+          db.from('gateway_audit_log').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).gte('created_at', sinceIso).gte('status_code', 400).limit(1),
+        ]);
+        if (!all.error && !bad.error) { out._weekTotal = all.count; out._weekErr = bad.count; }
+      } catch (_) { /* empty-catch-allow: without the counts the card says what its 50 rows show, as it did */ }
+      return out;
     }
 
     async function loadRetentionConfig() {
@@ -873,8 +886,32 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       `;
     }
 
+    // HS L4: "which calls failed this week?" - the refused calls of the last 7 days, newest first, in place of the 10 newest
+    window.showRefusedGatewayCalls = async function (btn) {
+      const card = btn && btn.closest('.card'); const body = card && card.querySelector('tbody'); if (!body) return;
+      btn.disabled = true; btn.textContent = 'Reading the refused calls…';
+      const sinceIso = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+      const { data, error } = await db.from('gateway_audit_log')
+        .select('id, route, method, status_code, latency_ms, created_at, worker_name')
+        .eq('hive_id', HIVE_ID).gte('created_at', sinceIso).gte('status_code', 400)
+        .order('created_at', { ascending: false }).order('id')
+        .limit(50 + 1);   // more-said: by showRefusedGatewayCalls (a 51st refused call says the week holds more than the 50 listed)
+      if (error) { btn.disabled = false; btn.textContent = 'Show the refused calls'; showToast(whReadError(error, 'the refused calls')); return; }
+      const rows = (data || []).slice(0, 50);
+      body.innerHTML = rows.map(a => {
+        const sc = Number(a.status_code) || 0;
+        return `<tr><td><strong>${escHtml(a.route)}</strong></td><td>${escHtml(a.method)}</td>`
+          + `<td><span class="pill ${sc >= 500 ? 'pill-red' : 'pill-amber'}">${escHtml(String(sc || '-'))}</span></td>`
+          + `<td class="num-right">${escHtml(a.latency_ms != null ? a.latency_ms + ' ms' : '-')}</td>`
+          + `<td>${escHtml((a.worker_name || '-') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(a.worker_name) : ''))}</td>`
+          + `<td class="num-right">${escHtml(whFmtDate(a.created_at, { time: true }))}</td></tr>`;
+      }).join('');
+      btn.textContent = (data || []).length > 50 ? 'Showing the 50 newest refused calls of the week; there are more' : 'Showing every refused call of the week';
+    };
+
     function renderGatewayCard(audit) {
-      // SL LB1: the read probes one past 50 - the pill and the non-2xx count speak for the 50 newest calls, and say so
+      // SL LB1: the read probes one past 50; HS L4: the week's calls and refusals arrive counted exactly beside it
+      const _wt = audit._weekTotal, _we = audit._weekErr;
       const _more = audit.length > 50; audit = audit.slice(0, 50);
       if (!audit.length) {
         return `
@@ -884,7 +921,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           </div>
         `;
       }
-      const errCount = audit.filter(a => Number(a.status_code) >= 400).length;
+      const _exact = typeof _wt === 'number' && typeof _we === 'number';
+      const errCount = _exact ? _we : audit.filter(a => Number(a.status_code) >= 400).length;
       const rows = audit.slice(0, 10).map(a => {
         const sc = Number(a.status_code) || 0;
         const pill = sc >= 500 ? 'pill-red' : sc >= 400 ? 'pill-amber' : 'pill-green';
@@ -894,15 +932,18 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <td>${escHtml(a.method)}</td>
             <td><span class="pill ${pill}">${escHtml(String(sc || '-'))}</span></td>
             <td class="num-right">${escHtml(a.latency_ms != null ? a.latency_ms + ' ms' : '-')}</td>
-            <td>${escHtml(a.worker_name || '-')}</td>
+            <td>${escHtml((a.worker_name || '-') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(a.worker_name) : ''))}</td>
             <td class="num-right">${escHtml(whFmtDate(a.created_at, { time: true }))}</td>
           </tr>
         `;
       }).join('');
       return `
         <div class="card">
-          <h3>Gateway audit <span class="pill ${errCount > 0 ? 'pill-amber' : 'pill-grey'}">${audit.length}${_more ? '+' : ''}</span></h3>
-          <p class="meta"${_more ? ' data-wh-more-note' : ''}>Last 7 days · ${errCount} non-2xx${_more ? ' among the 50 newest calls (there are more)' : ''} · top 10 shown</p>
+          <h3>Gateway audit <span class="pill ${errCount > 0 ? 'pill-amber' : 'pill-grey'}">${_exact ? _wt.toLocaleString('en-PH') : audit.length + (_more ? '+' : '')}</span></h3>
+          <p class="meta"${_more ? ' data-wh-more-note' : ''}>Last 7 days · ${_exact
+            ? errCount.toLocaleString('en-PH') + ' non-2xx of ' + _wt.toLocaleString('en-PH') + ' calls · the 10 newest shown'
+            : errCount + ' non-2xx' + (_more ? ' among the 50 newest calls (there are more)' : '') + ' · top 10 shown'}</p>
+          ${errCount > 0 ? `<button type="button" class="btn small" style="min-height:44px;margin:4px 0 8px;" onclick="showRefusedGatewayCalls(this)">Show the refused calls</button>` : ''}
           <div class="pc-table-wrap">
             <!-- table-name-allow: plant-connections integration status table --> <div class="wh-scroll-x"><table class="pc-table">
               <thead><tr><th>Route</th><th>Method</th><th>Status</th><th class="num-right">Latency</th><th>Caller</th><th class="num-right">When</th></tr></thead>

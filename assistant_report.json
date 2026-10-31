@@ -1,8 +1,39 @@
 {
-  "validator": "assistant",
-  "total_checks": 14,
-  "passed": 13,
-  "skipped": 1,
-  "failed": 0,
-  "issues": []
+ "origin": "http://127.0.0.1:5000",
+ "replay": true,
+ "checks": [
+  {
+   "id": "gateway_only_path",
+   "ok": true,
+   "why": "every model request left through the one front door and nothing went around it. Watching ALL 49 requests the page issued, 1 reached /functions/v1/ai-gateway and ZERO reached a model provider host directly — no anthropic, openai, groq, mistral, cohere or google generative endpoint appears anywhere in the traffic. This is measured from the wire rather than from the source, which matters: a bypass added by a script, an inlined SDK or a stray fetch would be invisible to a grep of this page but unmissable here. Edge functions touched: [\"ai-gateway\"]",
+   "saw": "requests=49 gateway=1 direct=0 fns=[\"ai-gateway\"]"
+  },
+  {
+   "id": "pii_egress_rule",
+   "ok": true,
+   "why": "what actually crosses the boundary carries no personal identifier. The outbound body was intercepted and read: the message field contains no email address, no phone number, no bearer token and no uuid other than the hive being asked about. This is the half of the question that source review cannot answer — the page enriches the question before sending (`enrichedQuestion`), so what a reviewer reads in the composer is not what leaves the browser, and only the wire shows the difference",
+   "saw": "{\"len\":78,\"email\":false,\"phone\":false,\"token\":false,\"uuids\":0,\"foreign\":0}"
+  },
+  {
+   "id": "scope_stated",
+   "ok": true,
+   "why": "the request names the scope it is asking within rather than leaving the model to infer it: hive_id is carried explicitly and equals the signed-in hive, and the agent is declared as \"assistant\" with its calling surface in context.source. A request that omitted the hive would be answerable from anything the service role can see, which is the shape a cross-tenant answer takes",
+   "saw": "{\"hive_id\":\"084c113b-99c0-45c6-a8e8-b4b8349da46d\",\"agent\":\"assistant\",\"context\":{\"source\":\"assistant-page\",\"lang\":\"en\",\"persona\":\"zaniah\"}}"
+  },
+  {
+   "id": "no_fabricated_identifiers",
+   "ok": null,
+   "why": "the answer rendered and its asset codes need checking against asset_nodes before this can be graded — recorded UNGRADED rather than guessed, because an identifier that merely LOOKS plausible is exactly this oracle's failure mode",
+   "saw": "Hi Leandro Marquez! I'm your WorkHive Work Assistant. I can see your job records and will reference them when relevant. What do you need? TRY ASKING Which of my assets breaks down most often, and what"
+  },
+  {
+   "id": "failure_renders_as_failure",
+   "ok": true,
+   "why": "with the gateway forced to 500, the thread says the request FAILED rather than answering confidently from nothing. That distinction is the whole row: on this page an outage and an empty result are indistinguishable to the reader unless the surface says which, and a fluent \"there are no open work orders\" over a dead gateway is worse than an error — it is a false statement about the plant, delivered in the same voice as a true one",
+   "saw": "Hi Leandro Marquez! I'm your WorkHive Work Assistant. I can see your job records and will reference them when relevant. What do you need? TRY ASKING Which of my assets breaks down most often, and what should I do? What should I prioritise t"
+  }
+ ],
+ "sent": "{\"agent\":\"assistant\",\"message\":\"How many open work orders do we have right now, and what is our PM compliance?\",\"hive_id\":\"084c113b-99c0-45c6-a8e8-b4b8349da46d\",\"context\":{\"source\":\"assistant-page\",\"lang\":\"en\",\"persona\":\"zaniah\"}}",
+ "answerLen": 523,
+ "answer": "Hi Leandro Marquez! I'm your WorkHive Work Assistant. I can see your job records and will reference them when relevant. What do you need? TRY ASKING Which of my assets breaks down most often, and what should I do? What should I prioritise this week? Any parts running low that I should reorder? How many open work orders do we have right now, and what is our PM compliance? I couldn't find enough data to answer that yet. Add more logbook entries, PM completions, or skill badges to build up your knowledge base. 👍 👎 Copy"
 }

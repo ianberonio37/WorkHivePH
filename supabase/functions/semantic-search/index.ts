@@ -92,7 +92,9 @@ serveObserved("semantic-search", tracedReply("semantic-search", async (req, _tra
       
         // A5: rate-limit the browser path (service-role/internal callers skip) — reference: voice-model-call/embed-entry.
         const _ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-        const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, _ip);
+        // HS H4 (2026-10-30): the per-address ceiling is for callers who could mint identities from one address; a verified
+        // member of this hive cannot, and on a plant's one connection it made the whole shift share five people's quota
+        const _rl = await checkSoloRateLimit(db, soloRateLimitKey(authUid, _ip), undefined, undefined, (tenancy.ok && !tenancy.is_solo) ? null : _ip);
         if (!_rl.allowed) return soloRateLimitedResponse(corsHeaders, _rl.retry_after_seconds, _rl.scope);
       }
     } else {

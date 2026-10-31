@@ -942,7 +942,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Scripts -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whFnError whIsDismissed whListSkeleton whMoreNote whReadError whReconcileHiveRole whRequireOnline whRoleUnreadNote whSetDismissed whSourcesSync whStartupHive whUse whUseLink whWriteError">
+<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whFnError whFold whIsDismissed whIsFormerMember whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whReadError whReconcileHiveRole whRequireOnline whRoleUnreadNote whSetDismissed whSourcesSync whStartupHive whUse whUseLink whWriteError">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1599,6 +1599,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   let _csvRows    = [];    // all parsed rows as objects
   let _mapping    = {};    // { workhive_field: detected_column }
   let _batchId    = null;  // unique ID grouping all rows from one import run
+  let _importLimitErr = null, _importOtherErr = null;  // why the last import left rows out: a daily limit's refusal, or any other
   let _confidence = {};   // { fieldKey: 'exact' | 'partial' | 'none' }
 
   // Fields per entity type shown in the Step 3 mapping table
@@ -2149,6 +2150,29 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     try { const { data: { session } } = await db.auth.getSession(); AUTH_UID = session?.user?.id || null; } catch (_) { /* empty-catch-allow: best-effort */ }
     let imported = 0, failed = 0;
     const CHUNK  = 500;
+    /* ★A DAILY LIMIT REFUSED THE WHOLE FILE (HS W2, 2026-10-30, measured as a supervisor through this page's own write).
+       A chunk is ONE statement, and the daily row caps count the rows before it in the same statement - so a 150-machine
+       register met the person's limit of 100 at row 101 and Postgres refused all 150: nothing landed, and the screen said
+       "150 rows failed. Check console for details." The limit is monotonic (once reached, every later row is refused), so
+       a chunk a limit refuses is split until every row that fits has landed; the rest are counted, and the limit's own
+       sentence (whose limit, when it resets) is what the person reads. Any other refusal still fails the chunk whole. */
+    _importLimitErr = null; _importOtherErr = null;
+    // returns how many of `rows`, from the first, landed. A refusal that is not a limit fails the chunk whole when nothing
+    // has landed yet (thrown, as before); part-way through a split it stops there, so the count stays true
+    async function landWhatFits(rows, write, inSplit) {
+      const { error } = await write(rows);
+      if (!error) return rows.length;
+      if (String(error.code) !== '54000') {
+        if (!inSplit) throw error;
+        if (!_importOtherErr) _importOtherErr = error;
+        return 0;
+      }
+      if (!_importLimitErr) _importLimitErr = error;
+      if (rows.length === 1) return 0;
+      const mid = Math.ceil(rows.length / 2);
+      const a = await landWhatFits(rows.slice(0, mid), write, true);
+      return a < mid ? a : a + await landWhatFits(rows.slice(mid), write, true);
+    }
 
     // Determine correct workhive_table per entity type
     /* T41 (2026-08-27): 'assets' NAMES A TABLE THAT NO LONGER EXISTS. to_regclass('public.assets')
@@ -2197,7 +2221,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (exErr) {
           console.error('import pre-check failed:', exErr);
           showResults(total, 0, total, [], {});
-          document.getElementById('results-subtitle').textContent = 'Nothing was imported: WorkHive could not check which of these work orders were imported before. Try again in a moment.';
+          // the cause decides the next step (a refused read is not fixed by waiting), so whReadError says it, and logs it
+          document.getElementById('results-subtitle').textContent = 'Nothing was imported. ' + whReadError(exErr, 'the earlier imports of these work orders');
           return;
         }
         (existing || []).forEach(r => alreadySynced.add(r.external_id));
@@ -2235,27 +2260,46 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         // ★EACH CHUNK WRITES ITS OWN ROWS (2026-10-12, W4340): the logbook rows were sliced from a FILTERED list, so chunk i
         // of the logbook was not chunk i of the ledger and a failed chunk dropped other rows.
         const sBatch = syncRows.slice(i, i + CHUNK);
-        const fresh  = validRows.slice(i, i + CHUNK).filter(r => !alreadySynced.has(r.external_id));
-        const lBatch = fresh.map(toLogRow);
+        let fresh = [];
         try {
+          // ★TWO SUPERVISORS, ONE FILE (HS W1, 2026-10-30). "Already imported" was a snapshot taken before this loop, so two
+          // supervisors importing the same CMMS export at the same time both saw every order as new, both ledger upserts
+          // succeeded and BOTH wrote the logbook entries - every work order logged twice. The ledger's unique key decides
+          // now: this chunk first CLAIMS the orders not yet in the ledger (insert-only), writes logbook entries for exactly
+          // the ones it claimed, then brings the orders already known up to date as before.
+          const _onConflict = 'hive_id,system_type,external_id,entity_type';
+          const { data: _claimed, error: cErr } = await db.from('external_sync')
+            .upsert(sBatch, { onConflict: _onConflict, ignoreDuplicates: true }).select('external_id');
+          if (cErr) throw cErr;
+          const _claimedIds = new Set((_claimed || []).map(r => r.external_id));
+          const _known = sBatch.filter(r => !_claimedIds.has(r.external_id));
           // supabase-js doesn't throw on API errors — the .error checks make the catch reachable (else a failed chunk counts as imported).
-          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'hive_id,system_type,external_id,entity_type' });
+          const { error: sErr } = _known.length
+            ? await db.from('external_sync').upsert(_known, { onConflict: _onConflict })
+            : { error: null };
           if (sErr) throw sErr;
+          fresh = validRows.slice(i, i + CHUNK).filter(r => _claimedIds.has(r.external_id) && !alreadySynced.has(r.external_id));
+          const lBatch = fresh.map(toLogRow);
+          // ★THE LEDGER KEPT ORDERS THE LOGBOOK NEVER GOT (2026-10-12): the orders this chunk added and the logbook did not
+          // take are taken back, so a later import brings them in instead of skipping them as already imported (cmms-sync's rule)
+          const takeBack = async (ids) => {
+            if (!ids.length) return;
+            const { error: backErr } = await db.from('external_sync').delete()
+              .eq('hive_id', HIVE_ID).eq('system_type', sysType).eq('entity_type', 'work_order')
+              .in('external_id', ids);   // in-list-bounded: one import chunk's new ids (at most 500 short codes - one chunk)
+            if (backErr) console.warn('import: the ledger rows of a failed chunk could not be taken back:', backErr.message);
+          };
+          let landed = lBatch.length;
           if (lBatch.length) {
-            const { error: lErr } = await db.from('logbook').insert(lBatch);
-            if (lErr) {
-              // ★THE LEDGER KEPT ORDERS THE LOGBOOK NEVER GOT (2026-10-12): the orders this chunk added are taken back, so
-              // a later import brings them in instead of skipping them as already imported (cmms-sync's rule)
-              const { error: backErr } = await db.from('external_sync').delete()
-                .eq('hive_id', HIVE_ID).eq('system_type', sysType).eq('entity_type', 'work_order')
-                .in('external_id', fresh.map(r => r.external_id));   // in-list-bounded: one import chunk's new ids (at most 300 short codes - the chunk the duplicate check above asks)
-              if (backErr) console.warn('import: the ledger rows of a failed chunk could not be taken back:', backErr.message);
-              throw lErr;
-            }
+            try { landed = await landWhatFits(lBatch, (rows) => db.from('logbook').insert(rows)); }
+            catch (lErr) { await takeBack(fresh.map(r => r.external_id)); throw lErr; }
+            await takeBack(fresh.slice(landed).map(r => r.external_id));
           }
-          imported += sBatch.length;
+          imported += sBatch.length - (lBatch.length - landed);
+          failed += lBatch.length - landed;
         } catch (e) {
           console.error('batch error:', e);
+          if (!_importOtherErr) _importOtherErr = e;
           failed += sBatch.length;
         }
       }
@@ -2288,12 +2332,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const sBatch = syncRows.slice(i, i + CHUNK);
         const aBatch = assetRows.slice(i, i + CHUNK);
         try {
-          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'hive_id,system_type,external_id,entity_type' });
+          // the machines first, then the ledger for exactly the ones that landed (a ledger row with no machine behind it
+          // would tell plant-connections an asset was synced that never arrived)
+          const landed = await landWhatFits(aBatch, (rows) => db.from('asset_nodes').upsert(rows, { onConflict: 'hive_id,tag' }));
+          const { error: sErr } = landed ? await db.from('external_sync').upsert(sBatch.slice(0, landed), { onConflict: 'hive_id,system_type,external_id,entity_type' }) : { error: null };
           if (sErr) throw sErr;
-          const { error: aErr } = await db.from('asset_nodes').upsert(aBatch, { onConflict: 'hive_id,tag' });
-          if (aErr) throw aErr;
-          imported += sBatch.length;
-        } catch (e) { console.error('batch error:', e); failed += sBatch.length; }
+          imported += landed;
+          failed += aBatch.length - landed;
+        } catch (e) { console.error('batch error:', e); if (!_importOtherErr) _importOtherErr = e; failed += sBatch.length; }
       }
 
     // --- PM Schedules -------------------------------------------------------
@@ -2313,8 +2359,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const sBatch = syncRows.slice(i, i + CHUNK);
         const rBatch = validRows.slice(i, i + CHUNK);
         try {
-          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'hive_id,system_type,external_id,entity_type' });
-          if (sErr) throw sErr;
           const pmRows = rBatch.map(r => ({
             hive_id:          HIVE_ID,
             worker_name:      WORKER_NAME,
@@ -2326,22 +2370,30 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             criticality:      'Major',
             last_anchor_date: r.last_done || now.slice(0, 10),
           }));
-          const { data: inserted, error: pmErr } = await db.from('pm_assets').insert(pmRows).select('id');
-          if (pmErr) throw pmErr;
-          if (inserted?.length) {
-            const scopeRows = inserted.map((pm, idx) => ({
-              asset_id:    pm.id,
-              hive_id:     HIVE_ID,
-              item_text:   rBatch[idx]?.task || 'Routine maintenance',
-              frequency:   daysToFreq(rBatch[idx]?.interval_days || 30),
-              anchor_date: rBatch[idx]?.last_done || now.slice(0, 10),
-              is_custom:   false,
-            }));
-            const { error: scopeErr } = await db.from('pm_scope_items').insert(scopeRows);
-            if (scopeErr) { console.error('pm_scope_items insert failed:', scopeErr); showToast(whWriteError(scopeErr, 'PM scope items were not saved. Re-run the import to retry them.')); }
-          }
-          imported += sBatch.length;
-        } catch (e) { console.error('batch error:', e); failed += sBatch.length; }
+          // the programs (each with its task), then the ledger for exactly the ones that landed; each row carries its
+          // place in the chunk, so a piece of a split chunk still finds its own task
+          const landed = await landWhatFits(pmRows.map((row, idx) => ({ row, idx })), async (piece) => {
+            const { data: inserted, error: pmErr } = await db.from('pm_assets').insert(piece.map(x => x.row)).select('id');
+            if (pmErr) return { error: pmErr };
+            if (inserted?.length) {
+              const scopeRows = inserted.map((pm, k) => { const src = rBatch[piece[k].idx]; return {
+                asset_id:    pm.id,
+                hive_id:     HIVE_ID,
+                item_text:   src?.task || 'Routine maintenance',
+                frequency:   daysToFreq(src?.interval_days || 30),
+                anchor_date: src?.last_done || now.slice(0, 10),
+                is_custom:   false,
+              }; });
+              const { error: scopeErr } = await db.from('pm_scope_items').insert(scopeRows);
+              if (scopeErr) { console.error('pm_scope_items insert failed:', scopeErr); showToast(whWriteError(scopeErr, 'PM scope items were not saved. Re-run the import to retry them.')); }
+            }
+            return { error: null };
+          });
+          const { error: sErr } = landed ? await db.from('external_sync').upsert(sBatch.slice(0, landed), { onConflict: 'hive_id,system_type,external_id,entity_type' }) : { error: null };
+          if (sErr) throw sErr;
+          imported += landed;
+          failed += pmRows.length - landed;
+        } catch (e) { console.error('batch error:', e); if (!_importOtherErr) _importOtherErr = e; failed += sBatch.length; }
       }
 
     // --- Inventory ----------------------------------------------------------
@@ -2372,12 +2424,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const sBatch = syncRows.slice(i, i + CHUNK);
         const vBatch = invRows.slice(i, i + CHUNK);
         try {
-          const { error: sErr } = await db.from('external_sync').upsert(sBatch, { onConflict: 'hive_id,system_type,external_id,entity_type' });
+          // the parts, then the ledger for exactly the ones that landed
+          const landed = await landWhatFits(vBatch, (rows) => db.from('inventory_items').upsert(rows, { onConflict: 'part_number,hive_id' }));
+          const { error: sErr } = landed ? await db.from('external_sync').upsert(sBatch.slice(0, landed), { onConflict: 'hive_id,system_type,external_id,entity_type' }) : { error: null };
           if (sErr) throw sErr;
-          const { error: vErr } = await db.from('inventory_items').upsert(vBatch, { onConflict: 'part_number,hive_id' });
-          if (vErr) throw vErr;
-          imported += sBatch.length;
-        } catch (e) { console.error('batch error:', e); failed += sBatch.length; }
+          imported += landed;
+          failed += vBatch.length - landed;
+        } catch (e) { console.error('batch error:', e); if (!_importOtherErr) _importOtherErr = e; failed += sBatch.length; }
       }
     }
 
@@ -2508,17 +2561,38 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       ).join('');
     }
 
+    // one of them is "1 asset is", not "1 assets are" (the HS race walk read it on the second supervisor's screen, 2026-10-30)
+    const _noun = (n) => ((n === 1 ? { work_order:'work order', asset:'asset', pm_schedule:'PM schedule', inventory:'inventory item' }
+                                   : { work_order:'work orders', asset:'assets', pm_schedule:'PM schedules', inventory:'inventory items' })[_entityType] || (n === 1 ? 'record' : 'records'));
+    const _one = imported === 1;
+    const _label = _noun(imported);
+
+    /* ★"CHECK CONSOLE FOR DETAILS" (HS W2, 2026-10-30). Rows left out were reported as a count and a pointer to the
+       developer console - a supervisor whose register met a daily limit read "150 rows failed" and nothing of whose limit
+       it was, when it resets, or that the rows which fit were kept. Say what happened, in the refusal's own words. */
     if (failed > 0) {
       document.getElementById('import-error-section').classList.remove('hidden');
-      document.getElementById('error-detail').textContent = failed + ' rows failed. Check console for details.';
+      const _left = whFmtNum(failed) + ' ' + _noun(failed) + (failed === 1 ? ' was' : ' were') + ' not imported';
+      const _kept = imported ? ' The ' + whFmtNum(imported) + ' imported ' + (_one ? 'is' : 'are') + ' kept.' : '';
+      // asset, part and work-order imports match the file's ids, so the same file again adds only the rest; a PM program
+      // is added fresh each time, so the rest must come in a file of their own
+      const _again = _entityType === 'pm_schedule'
+        ? (imported ? ' Import the rest in a file of their own - the same file again would add the first ' + whFmtNum(imported) + ' a second time.' : '')
+        : ' Importing the same file again adds only the ' + (failed === 1 ? 'one' : 'ones') + ' not yet in.';
+      // (an import stopped before writing - its pre-check could not run - says why in the subtitle, and carries no error)
+      document.getElementById('error-detail').textContent = _importLimitErr
+        ? _left + ': ' + whWriteError(_importLimitErr, 'a daily limit was reached.') + _kept + _again
+        : _importOtherErr ? _left + ': ' + whWriteError(_importOtherErr, 'the database refused them, so nothing of those rows was saved.') + _kept + _again
+        : _left + '.';
     }
 
-    const _label = { work_order:'work orders', asset:'assets', pm_schedule:'PM schedules', inventory:'inventory items' }[_entityType] || 'records';
     // where they landed (T2 SE): work orders are written to the logbook, assets to asset_nodes, PM schedules to
     // pm_assets + pm_scope_items, parts to inventory_items - each lands on the page that shows it
-    const _where = { work_order: 'in your Logbook, and they count toward Analytics (MTBF, MTTR)', asset: 'in your Asset Hub',
+    const _where = { work_order: 'in your Logbook, and ' + (_one ? 'it counts' : 'they count') + ' toward Analytics (MTBF, MTTR)', asset: 'in your Asset Hub',
                      pm_schedule: 'in your PM Scheduler', inventory: 'in your Inventory' }[_entityType] || 'in your hive';
-    showToast('Import complete: ' + whFmtNum(imported) + ' ' + _label + ' are ' + _where + ' now.');
+    showToast(failed > 0
+      ? 'Imported ' + whFmtNum(imported) + ' of ' + whFmtNum(imported + failed) + ' ' + _noun(imported + failed) + ' - ' + whFmtNum(failed) + ' ' + (failed === 1 ? 'was' : 'were') + ' not. The reason is on the screen.'
+      : 'Import complete: ' + whFmtNum(imported) + ' ' + _label + (_one ? ' is ' : ' are ') + _where + ' now.', failed > 0 ? 8000 : undefined);
     loadImportHistory();
   }
 
@@ -3260,7 +3334,63 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   // ── Conflict Resolution ───────────────────────────────────────────────────
+  // the conflict list's paging and find field (HS L4); the card itself is the one the check always drew
+  let _conflicts = [], _conflictShown = 30, _conflictHead = '';
+  function _conflictCardHtml(c) {
+    return `          <div class="sync-conflict" data-log-id="${escHtml(String(c.logId))}" style="background:var(--card); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:12px 12px; margin-bottom:8px;">
+            <div style="font-size:.75rem; font-weight:700; margin-bottom:8px;">${escHtml(c.machine)}</div>
+            <div style="display:flex; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
+              <span style="font-size:0.75rem; background:rgba(41,182,217,0.1); color:var(--blue); padding:2px 8px; border-radius:999px; border:1px solid rgba(41,182,217,0.25);">SAP: ${escHtml(c.extStatus)}</span>
+              <span style="font-size:0.75rem; background:rgba(247,162,27,0.1); color:var(--gold); padding:2px 8px; border-radius:999px; border:1px solid rgba(247,162,27,0.25);">WorkHive: ${escHtml(c.logStatus)}</span>
+            </div>
+            ${/* HS L1/L2 (2026-10-30): whose entry this is, and when - the WorkHive side of a conflict is one member's logbook
+                 entry, and only its author can change it (logbook_update), so "Use SAP" is offered on the viewer's own entry
+                 and otherwise the card says who has to set it, instead of offering a write that is refused when tapped */ ''}
+            <div style="font-size:0.75rem; color:var(--muted); margin-bottom:8px;">${escHtml(_t('Logged by', 'Isinulat ni'))} <span translate="no">${escHtml(c.logWorker || '-')}</span>${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(c.logWorker) : '')}${c.logDate && typeof whFmtDate === 'function' ? ' · ' + escHtml(whFmtDate(c.logDate)) : ''}</div>
+            <div style="display:flex; gap:6px;">
+              ${c.logWorker === WORKER_NAME
+                ? `<button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.extStatus)}','sap','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Use SAP (${escHtml(c.extStatus)})</button>`
+                : (typeof whIsFormerMember === 'function' && whIsFormerMember(c.logWorker))
+                ? `<p style="flex:1; margin:0; font-size:0.75rem; color:var(--muted); line-height:1.4;"><span translate="no">${escHtml(c.logWorker)}</span>${escHtml(c.logStatus === 'Open'
+                    // HS L5 (2026-10-30): an active supervisor may now close a departed member's OPEN job (mig 20261030000012)
+                    ? ' has left the hive. Their entry is Open; as supervisor you can close it from the logbook (it stays logged as theirs). SAP says ' + c.extStatus + '.'
+                    : ' has left the hive, so their entry stays ' + (c.logStatus || '') + ' - only its author could change it. SAP says ' + c.extStatus + '.')}</p>`
+                : `<p style="flex:1; margin:0; font-size:0.75rem; color:var(--muted); line-height:1.4;">${escHtml(_t('To match SAP, ', 'Para tumugma sa SAP, '))}<span translate="no">${escHtml(c.logWorker || '')}</span>${escHtml(_t(' sets their entry to ', ' ang magtatakda ng entry sa '))}${escHtml(c.extStatus)}.</p>`}
+              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.logStatus)}','workhive','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Keep WorkHive (${escHtml(c.logStatus)})</button>
+            </div>
+          </div>`;
+  }
+  function _renderConflictList(listEl) {
+    listEl = listEl || document.getElementById('conflicts-list');
+    if (!listEl) return;
+    const fold = (v) => (typeof whFold === 'function' ? whFold(String(v || '')) : String(v || '').toLowerCase());
+    const inp = document.getElementById('conflict-find');
+    const raw = inp ? inp.value : '';
+    const words = fold(raw).split(/[\s,]+/).filter(Boolean);
+    const hits = words.length
+      ? _conflicts.filter(c => { const hay = fold([c.machine, c.logWorker, c.extStatus, c.logStatus].join(' ')); return words.every(w => hay.includes(w)); })
+      : _conflicts;
+    const shown = hits.slice(0, _conflictShown);
+    const rest = hits.length - shown.length;
+    listEl/* xss-allow: escHtml on every dynamic value; the card template escapes its own */ .innerHTML = _conflictHead
+      + `<input id="conflict-find" type="search" class="wh-input" autocomplete="off" maxlength="100" style="margin:0 0 10px;width:100%;min-height:44px;"`
+      + ` placeholder="Find a machine or member" aria-label="Find a conflict by machine, member or status" value="${escHtml(raw)}" oninput="_conflictFind()">`
+      + (words.length && !hits.length ? `<div style="font-size:0.75rem; color:var(--muted);">No conflict matches “${escHtml(raw.trim().slice(0, 60))}”.</div>` : '')
+      + shown.map(_conflictCardHtml).join('')
+      + (rest > 0 ? `<button type="button" onclick="_conflictMore()" style="width:100%;min-height:44px;margin-top:4px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:inherit;">Show ${Math.min(30, rest)} more (${rest} not shown)</button>` : '');
+    const f = document.getElementById('conflict-find');
+    if (f && raw && document.activeElement !== f) { f.focus(); f.setSelectionRange(raw.length, raw.length); }
+  }
+  let _conflictFindT = null;
+  function _conflictFind() {
+    clearTimeout(_conflictFindT);
+    _conflictFindT = setTimeout(() => { _conflictShown = 30; _renderConflictList(); }, 200);
+  }
+  function _conflictMore() { _conflictShown += 30; _renderConflictList(); }
+
   async function loadConflicts() {
+    // HS L5: a conflict names who logged the WorkHive side - one who has left the hive is said so, and is not waited on
+    if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
     const listEl = document.getElementById('conflicts-list');
     if (!HIVE_ID) { listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = '<div style="font-size:0.75rem; color:var(--muted);">Join a hive first.</div>'; return; }
 
@@ -3331,7 +3461,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (!log) continue;
         _compared++;
         if (log.status !== extStatus) {
-          conflicts.push({ machine, extStatus, logStatus: log.status, logId: log.id, extId: ext.external_id, logWorker: log.worker_name });
+          conflicts.push({ machine, extStatus, logStatus: log.status, logId: log.id, extId: ext.external_id, logWorker: log.worker_name, logDate: log.date });
         }
       }
 
@@ -3351,20 +3481,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return;
       }
 
-      listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-        <div style="font-size:0.75rem; color:var(--muted); margin-bottom:12px;">${conflicts.length} ${_t(`conflict${conflicts.length > 1 ? 's' : ''} detected: SAP and WorkHive disagree on status.`, 'conflict ang natukoy: hindi magkasundo ang SAP at WorkHive sa status.')} ${escHtml(_scope + _gap)}</div>
-        ${conflicts.map(c => `
-          <div style="background:var(--card); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:12px 12px; margin-bottom:8px;">
-            <div style="font-size:.75rem; font-weight:700; margin-bottom:8px;">${escHtml(c.machine)}</div>
-            <div style="display:flex; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
-              <span style="font-size:0.75rem; background:rgba(41,182,217,0.1); color:var(--blue); padding:2px 8px; border-radius:999px; border:1px solid rgba(41,182,217,0.25);">SAP: ${escHtml(c.extStatus)}</span>
-              <span style="font-size:0.75rem; background:rgba(247,162,27,0.1); color:var(--gold); padding:2px 8px; border-radius:999px; border:1px solid rgba(247,162,27,0.25);">WorkHive: ${escHtml(c.logStatus)}</span>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.extStatus)}','sap','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Use SAP (${escHtml(c.extStatus)})</button>
-              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.logStatus)}','workhive','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Keep WorkHive (${escHtml(c.logStatus)})</button>
-            </div>
-          </div>`).join('')}`;
+      // HS L4 (2026-10-30, "a year of the hive", walked live): a year of the plant's CMMS sync put 129 conflicts in this list,
+      // all drawn at once (28,000 characters at 390) with no way to find one machine's. The count stays whole; the cards
+      // page 30 at a time and a find field narrows them by machine, member or status.
+      _conflicts = conflicts; _conflictShown = 30;
+      _conflictHead = `<div style="font-size:0.75rem; color:var(--muted); margin-bottom:12px;">${conflicts.length} ${_t(`conflict${conflicts.length > 1 ? 's' : ''} detected: SAP and WorkHive disagree on status.`, 'conflict ang natukoy: hindi magkasundo ang SAP at WorkHive sa status.')} ${escHtml(_scope + _gap)}</div>`;
+      _renderConflictList(listEl);
     } catch (e) {
       listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="font-size:0.75rem; color:var(--red);">Error: ${escHtml(e.message)}</div>`;
     }

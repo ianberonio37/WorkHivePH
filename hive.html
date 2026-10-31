@@ -1979,7 +1979,7 @@
 
 <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whMoreNote whRealtimeBackfill whRequireOnline whRowCols whSourcesSync whUse">
+<script data-wh-skew-heal="whAiTrustRow whAuditView whFmtAgo whFmtDate whFocusCapture whFreshnessFooter whHiveId whListError whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whPresenceFit whRealtimeBackfill whRequireOnline whRowCols whSourcesSync whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -2301,7 +2301,7 @@ function catStyle(cat) {
 // ── FEED CARDS ──
 function buildFeedCard(entry, isNew) {
   const initial    = escHtml((entry.worker_name || '?')[0].toUpperCase());
-  const workerName = escHtml(entry.worker_name || '');
+  const workerName = escHtml((entry.worker_name || '') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(entry.worker_name) : ''));   // HS L5: a member who has left is said so
   const machine    = escHtml(entry.machine     || '-');
   const problem    = escHtml(entry.problem     || '');
   const cat        = escHtml(entry.category    || '');
@@ -2330,7 +2330,7 @@ function buildFeedCard(entry, isNew) {
 }
 
 function buildPartsCard(record, isNew) {
-  const workerName = escHtml(record.worker_name || '');
+  const workerName = escHtml((record.worker_name || '') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(record.worker_name) : ''));
   const jobRef     = escHtml(record.job_ref     || '-');
   const jobType    = escHtml(record.job_type    || '');
   const time       = record.created_at ? timeAgo(record.created_at) : escHtml(record.date || '');
@@ -2361,13 +2361,13 @@ function buildPartsCard(record, isNew) {
 
 // ── PM COMPLETION FEED CARD ──
 function buildPMCard(record, isNew) {
-  const workerName = escHtml(record.worker_name || 'Unknown');
+  const workerName = escHtml((record.worker_name || 'Unknown') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(record.worker_name) : ''));
   const assetName  = escHtml(record.asset_name  || 'Asset');
   const itemText   = escHtml(record.item_text   || 'PM Task');
   const freq       = record.frequency || '';
-  const time       = record.completed_at
-    ? whFmtDate(record.completed_at, { timeOnly: true, hour12: true }) // FD1a canonical
-    : '';
+  // HS L1 (2026-10-30): the same clock as the job cards beside it. A time of day alone ("04:41 PM") read as today on a PM
+  // done three weeks ago, in a feed whose job cards say "3d ago".
+  const time       = record.completed_at ? timeAgo(record.completed_at) : '';
   // Canonical PM frequency badge — case/synonym-robust so Weekly/Annual/Semi-annual from the
   // seeder/CMMS import render a proper pill, not a raw-text gray fallback (PM PDDA cross-page
   // consistency; mirrors pm-scheduler.html's FREQ registry).
@@ -3230,10 +3230,18 @@ document.getElementById('btn-sup-transfer-leave').addEventListener('click', asyn
   if (!targetId) return;
   const _row = (window._memberRoster || []).find(m => m.id === targetId);
   const target = _row ? _row.worker_name : '';
-  const { error: roleErr } = await db.from('hive_members').update({ role: 'supervisor' })
-    .eq('hive_id', HIVE_ID).eq('id', targetId);   // ONE row: a name match promoted every namesake
+  // HS W1 (2026-10-30): only a member still ACTIVE takes the role, and the promotion is confirmed before anyone leaves.
+  // A second supervisor removing that member at the same moment made the update land on a removed row (or none) while
+  // only an ERROR stopped the leave - so the hive could be left with no active supervisor, the one outcome below forbids.
+  const { data: _promoted, error: roleErr } = await db.from('hive_members').update({ role: 'supervisor' })
+    .eq('hive_id', HIVE_ID).eq('id', targetId).eq('status', 'active').select('id');   // ONE row: a name match promoted every namesake
   // If the promotion failed, do NOT leave — a hive with no supervisor can't be managed.
   if (roleErr) { showToast(whWriteError(roleErr, _t('Could not transfer supervisor. You are still the supervisor; nothing changed.', 'Hindi nailipat ang pagka-supervisor. Ikaw pa rin ang supervisor; walang nabago.'))); return; }
+  if (!_promoted || !_promoted.length) {
+    showToast(_t(`${target || 'That member'} is no longer active in this hive, so the role was not handed over. You are still the supervisor - pick someone else.`,
+      `Hindi na aktibo si ${target || 'ang miyembrong iyon'} sa hive, kaya hindi naipasa ang tungkulin. Ikaw pa rin ang supervisor - pumili ng iba.`));
+    return;
+  }
   // Audit the supervisor handoff BEFORE performLeave deletes our own membership — once the
   // row is gone, hive_audit_log RLS (active member) rejects the insert, so the audit must
   // precede the self-delete (same ordering as the leave-audit). (Hive Board PDDA I5, 2026-07-10.)
@@ -4192,19 +4200,20 @@ async function loadSupervisorSummary() {
   // min_qty=0, so relying on is_low_stock alone MISSED out-of-stock-at-min-0 parts and made
   // this card disagree with Team Pulse on the same board. Now: issue = is_low_stock OR
   // is_out_of_stock(qty<=0); out-of-stock tracked as the subset for the honest caption.
+  // ★A COUNT OVER A CAPPED READ (Wave HS L4, "a year of the hive", 2026-10-30): these two totals were counted from the
+  // first 500 approved parts, and a year put 601 in the store - every issue among the other 101 was not counted. The
+  // same tests are now counted where the parts are (head counts, no rows): issue = low OR out (qty <= 0), out = the subset.
   let lowStock = 0, outOfStock = 0;
   try {
-    const { data: invRows } = await db.from('v_inventory_items_truth')
-      .select('qty_on_hand, is_low_stock, is_out_of_stock')
-      .eq('hive_id', HIVE_ID)
-      .eq('status', 'approved')
-      .limit(500);  // L2: hive parts catalog (distinct SKUs stocked) is bounded-by-nature, not an append-forever log; reads flag cols -> can't be head:true; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
-    (invRows || []).forEach(i => {
-      const isOut = i.is_out_of_stock === true || Number(i.qty_on_hand) <= 0;
-      const isLow = i.is_low_stock === true;
-      if (isLow || isOut) lowStock++;   // total stock issues (no double-count: single increment)
-      if (isOut) outOfStock++;          // out-of-stock subset for the caption
-    });
+    const [iss, out] = await Promise.all([
+      db.from('v_inventory_items_truth').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).eq('status', 'approved')
+        .or('is_low_stock.eq.true,is_out_of_stock.eq.true,qty_on_hand.lte.0').limit(1),   // head:true returns no rows; the count is exact
+      db.from('v_inventory_items_truth').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).eq('status', 'approved')
+        .or('is_out_of_stock.eq.true,qty_on_hand.lte.0').limit(1),
+    ]);
+    if (iss.error || out.error) throw (iss.error || out.error);
+    lowStock = iss.count || 0;     // total stock issues (low or out, each part once)
+    outOfStock = out.count || 0;   // out-of-stock subset for the caption
   } catch (e) { console.warn('stock-issue count:', e); }
 
   // U8 first-run (Hive Board PDDA, 2026-07-10): a BRAND-NEW hive (Stair 0, no work / PMs /
@@ -5002,6 +5011,8 @@ function _openIntentModal(preset) {
 // ── MEMBERS ──
 async function loadMembers() {
   if (!HIVE_ID) return;   // guard: no active hive -> don't fire hive_id=eq."" queries (400 invalid-uuid). Matches loadReadiness/loadAdoption/etc.
+  // HS L5: the roster keeps a member who has left (deactivated) - it says so beside their name
+  if (typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
   let membersData, openJobsData, membersErr = null, openJobsErr = null;
   if (_board) {
     membersData  = _board.members || [];
@@ -5113,7 +5124,9 @@ async function renderRoster() {
     const isMe    = _whIsSelf(m);
     const isSup   = m.role === 'supervisor'; // role-check-allow: m.role is a per-member DB field (the listed member's role), not the ambient user role
     const canKick = HIVE_ROLE === 'supervisor' && !isMe;
-    const canReset = HIVE_ROLE === 'supervisor' && !isMe && !isSup;  // supervisor resets a WORKER's password (Arc I I3/I)
+    // supervisor resets a WORKER's password (Arc I I3/I) - an ACTIVE worker's: supervisor-reset-password refuses one who has
+    // left, so a departed member's row does not offer it (HS L5, 2026-10-30)
+    const canReset = HIVE_ROLE === 'supervisor' && !isMe && !isSup && (!m.status || m.status === 'active');
     const openJobs = openByWorker[m.worker_name] || 0;
     const workloadColor = openJobs >= 5 ? '#f87171' : openJobs >= 3 ? '#F7A21B' : '#4ade80';
     // C2/K1: pair the workload color with a WORD so heavy/busy isn't conveyed by color alone.
@@ -5124,7 +5137,7 @@ async function renderRoster() {
     return `<div class="flex items-center gap-3 p-3 rounded-xl" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); margin-bottom:0.5rem;">
       <div style="flex-shrink:0;padding-bottom:${(memberTiers[m.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(m.worker_name, memberTiers[m.worker_name] || 0, 32)}</div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-white truncate">${escHtml(m.worker_name)}${isMe ? ` <span style="color:rgba(255,255,255,0.80);font-size: 0.75rem;">${_t('(you)','(ikaw)')}</span>` : ''}</p>
+        <p class="text-sm font-semibold text-white break-words">${escHtml(m.worker_name)}${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(m.worker_name) : '')}${isMe ? ` <span style="color:rgba(255,255,255,0.80);font-size: 0.75rem;">${_t('(you)','(ikaw)')}</span>` : ''}</p>
         ${isSup ? `<span class="supervisor-tag" style="font-size: 0.75rem; padding:1px 6px; margin-top:2px; display:inline-flex;">${_t('Supervisor','Superbisor')}</span>` : ''}
       </div>
       ${workloadBadge}
@@ -5217,9 +5230,16 @@ async function kickMember(memberId, workerName) {
     ? `Remove ${workerName} from the hive? They are a SUPERVISOR - you would take sole charge of approvals and member management. They cannot rejoin unless re-approved.`
     : `Remove ${workerName} from the hive? They will not be able to rejoin unless a supervisor re-approves them.`) + _recordsFate;
   if (!(await window.whConfirm(_kickMsg, { okLabel: 'Remove', cancelLabel: 'Keep' }))) return;
-  const { error } = await db.from('hive_members')
-    .update({ status: 'kicked' }).eq('hive_id', HIVE_ID).eq('id', memberId);   // ONE row: a name match removed every namesake
+  // HS W1 (2026-10-30): only a member not already removed - two supervisors removing one member at once both "succeeded"
+  // and the trail recorded the removal twice; the second is now told, and writes nothing
+  const { data: _removed, error } = await db.from('hive_members')
+    .update({ status: 'kicked' }).eq('hive_id', HIVE_ID).eq('id', memberId).neq('status', 'kicked').select('id');   // ONE row: a name match removed every namesake
   if (error) { showToast(whWriteError(error, _t('Could not remove the member. They are still in the hive.', 'Hindi natanggal ang miyembro. Nasa hive pa rin siya.'))); return; }
+  if (!_removed || !_removed.length) {
+    showToast(_t(`${workerName} was already removed by another supervisor.`, `Natanggal na si ${workerName} ng ibang superbisor.`));
+    await loadMembers();
+    return;
+  }
   writeAuditLog('kick_member', 'hive_members', memberId, workerName, {});
   if (typeof whUse === 'function') whUse(db, 'member_removed');
   await loadMembers();
@@ -5236,9 +5256,24 @@ document.getElementById('btn-toggle-members').addEventListener('click', () => {
   btn.textContent = isHidden ? _t('Hide', 'Itago') : _t('Show', 'Ipakita');
   btn.classList.toggle('active', isHidden);                      // whToggleAria syncs aria-expanded from .active
   btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  /* ★THE ROSTER SHOWN WAS THE ONE READ WHEN THE BOARD OPENED (HS L3, 2026-10-30, walked live). Joel opened the roster
+     (30), Efren joined the hive, and the roster - closed, reopened, kept open - stayed 30 without him, under a board
+     chip saying "Live data". Membership is not sent live to this page, so the roster is read when it is looked at:
+     each opening reads it again, and so does coming back to the tab while it is open (the visibilitychange listener below). */
+  if (isHidden) loadMembers();
+});
+/* The two disclosures whose lists no live channel reaches - the roster and the Supervisor Action Log - read again when
+   the person comes back to the tab with them open: what they show is then as of the moment they are looked at. */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  const _open = (id) => { const el = document.getElementById(id); return !!el && el.style.display !== 'none'; };
+  if (_open('members-list')) loadMembers();
+  if (_open('audit-log-body') && typeof loadAuditLog === 'function') loadAuditLog();
 });
 
 async function loadFeed() {
+  // HS L5: the feed's cards name who did each job - the hive's departed members are asked once, before they are drawn
+  if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
   const feed    = document.getElementById('feed');
   const emptyEl = document.getElementById('feed-empty');
   // ★A HIVE-LESS READER'S BROWSER FIRED THREE QUERIES THAT CANNOT SUCCEED (walked 2026-09-11, FIL, as
@@ -5505,7 +5540,7 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
         '&times;' +
       '</button>' +
     '</div>' +
-    '<p style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:2px 0 16px;">Loading profile&hellip;</p>' +
+    '<p id="wh-wp-loading" style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:2px 0 16px;">Loading profile&hellip;</p>' +
     '<div id="wh-wp-body" style="display:flex; flex-direction:column; gap:12px;"></div>';
   drawer.style.display = 'flex';
 
@@ -5515,8 +5550,8 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
              : db.from('v_skill_badges_truth').select('discipline, level').eq('worker_name', workerName)).order('level', { ascending: false }).order('id').limit(1),   // SL LB1: only the top badge is shown - ask for one
     (_them ? db.from('community_xp').select('xp_total').or(_them).eq('hive_id', HIVE_ID)
              : db.from('community_xp').select('xp_total').eq('worker_name', workerName).eq('hive_id', HIVE_ID)).maybeSingle(),
-    (_uid ? db.from('hive_members').select('role, joined_at').eq('auth_uid', _uid).eq('hive_id', HIVE_ID)
-            : db.from('hive_members').select('role, joined_at').eq('worker_name', workerName).eq('hive_id', HIVE_ID)).maybeSingle(),
+    (_uid ? db.from('hive_members').select('role, joined_at, status').eq('auth_uid', _uid).eq('hive_id', HIVE_ID)
+            : db.from('hive_members').select('role, joined_at, status').eq('worker_name', workerName).eq('hive_id', HIVE_ID)).maybeSingle(),
     (_them ? db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).or(_them)
              : db.from('v_logbook_truth').select('machine, problem, created_at, status').eq('hive_id', HIVE_ID).eq('worker_name', workerName)).order('created_at', { ascending: false }).order('id').limit(3 + 1),   // more-said: by _openWorkerProfileDrawer (SL LB1: a 4th says more entries exist)
     /* THE TIEBREAKER WAS INERT (fixed 2026-08-08). This read .eq('worker_name', workerName) and then
@@ -5540,13 +5575,18 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
     const badges = (bRes.data || []).slice().sort((a, b) => (b.level || 0) - (a.level || 0));
     const top    = badges[0];
     const xp     = xRes.data?.xp_total || 0;
-    const role   = mRes.data?.role || 'member';
+    // HS L5 (2026-10-30): a member who has LEFT (deactivated, removed) read "Role: Worker", as if still on the team; the
+    // card now says they have left, beside the work and XP they leave behind
+    const _left  = !!(mRes.data && mRes.data.status && mRes.data.status !== 'active');
+    const role   = _left ? 'Former member' : (mRes.data?.role || 'member');
     const joined = mRes.data?.joined_at ? whFmtDate(mRes.data.joined_at) : '-'; // FD1a canonical
     const recentMore = (lRes.data || []).length > 3;   // SL LB1
     const recent = (lRes.data || []).slice(0, 3);
 
     const body = document.getElementById('wh-wp-body');
     if (!body) return;
+    // the "Loading profile..." line stayed on a card that had finished loading - it goes once the profile is drawn
+    document.getElementById('wh-wp-loading')?.remove();
     body.innerHTML =
       '<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">' +
         '<div style="padding: 12px 12px; background:rgba(247,162,27,0.08); border:1px solid rgba(247,162,27,0.2); border-radius:12px;">' +
@@ -5586,6 +5626,7 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
     // done nothing". Logs as well as shows: a profile drawer failing for every supervisor would
     // otherwise be invisible in observability (L-layer).
     console.error('worker profile load failed:', err);
+    document.getElementById('wh-wp-loading')?.remove();   // the failure is said below; "Loading" no longer is true
     const body = document.getElementById('wh-wp-body');
     if (body) {
       body.innerHTML = '<p style="font-size: 0.75rem; color:rgba(255,255,255,0.80); margin:0;">'
@@ -5645,6 +5686,7 @@ function renderPresence() {
       ${name}${isMe ? '&nbsp;<span style="color:rgba(255,255,255,0.80);font-size: 0.75rem">' + _t('(you)', '(ikaw)') + '</span>' : ''}
     </div>`;
   }).join('');
+  if (typeof whPresenceFit === 'function') whPresenceFit(bar);   // HS H1: thirty online stays one line and says how many
 }
 
 // ── FEED REALTIME ──
@@ -5734,7 +5776,10 @@ function startFeedRealtime() {
         const who   = payload.new.worker_name || 'Someone';
         const asset = entry.asset_name;
         const task  = entry.item_text.split(' ').slice(0, 6).join(' ');
-        showHiveToast(`${who} completed PM: ${task}… on ${asset}`);
+        /* HS L3 (2026-10-30, walked live): this called showHiveToast, which this page never defined (the board's toast
+           is showToast) - so since the PM integration landed, every teammate's completion threw a ReferenceError here
+           and the "completed PM" toast never once appeared. */
+        showToast(`${who} completed PM: ${task}… on ${asset}`);
       }
     })
     .subscribe(_rtBackfill);   // P171 reconnect & backfill (2026-09-05): rows inserted during a drop are re-read on the first re-SUBSCRIBED
@@ -5786,7 +5831,10 @@ function setConn(state) {
   dot.className = 'conn-dot ' + state;
   if (state === 'live')         { label.textContent = 'Live';            label.style.color = '#4ade80'; }
   else if (state === 'reconnecting') { label.textContent = 'Reconnecting...'; label.style.color = '#facc15'; } /* D1 a11y: #f7a21b (~2.9:1) → #facc15 ≥4.5:1 */
-  else                          { label.textContent = 'Offline';         label.style.color = '#f87171'; } /* D1 a11y: #f87171 → #f87171 ≥4.5:1 */
+  // Wave JS (2026-10-31): this said 'Offline' for every lost live link - and a link the server refused (too many
+  // connections) or closed is lost while the device is online and every read still works. 'Offline' sends the person to
+  // their Wi-Fi; the chip beside it already says 'live updates paused'. Offline is said only when the device is.
+  else                          { label.textContent = (navigator.onLine === false) ? 'Offline' : 'Live updates off'; label.style.color = '#f87171'; } /* D1 a11y: #f87171 → #f87171 ≥4.5:1 */
   // Silence-is-golden (2026-07-22): hide the pill in the healthy "live" state (redundant with the
   // source chip); surface it ONLY when the realtime link degrades.
   if (pill) pill.style.display = (state === 'live') ? 'none' : 'flex';
@@ -5802,7 +5850,7 @@ async function checkStockAlert() {
       .select('part_name, qty_on_hand, min_qty')
       .or(_MINE())
       .eq('status', 'approved')
-      .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
+      .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap · cap-ok[auth_uid] (LB1 / HS L4: a year put at most 33 parts on one person)
     inv = res.data;
   }
   if (!inv || !inv.length) return;
@@ -5920,7 +5968,7 @@ async function buildNotifications() {
       .select('part_name, qty_on_hand, min_qty')
       .or(_MINE())
       .eq('status', 'approved')
-      .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (the whole table) is far under 500 - sized live by list-caps-say-more
+      .limit(500);  // L2: ONE worker's own parts (<= dozens of SKUs) is bounded-by-nature; insurance cap · cap-ok[auth_uid] (LB1 / HS L4: a year put at most 33 parts on one person)
     inv = res.data;
   }
   (inv || []).forEach(i => {
@@ -6061,7 +6109,9 @@ async function loadPMHealth() {
   }
 }
 
+let _teamStockCapped = false;   // the fallback read stopped at its cap (HS L4)
 async function checkTeamStockAlert() {
+  _teamStockCapped = false;
   if (HIVE_ROLE !== 'supervisor' || !memberNames.length) return;
 
   const others = memberNames.filter(n => n !== WORKER_NAME);
@@ -6080,7 +6130,9 @@ async function checkTeamStockAlert() {
       .eq('hive_id', HIVE_ID)
       .eq('status', 'approved')
       .in('worker_name', part)
-      .limit(500));  // L2: team parts catalog scoped to the bounded member list -> bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
+      // HS L4: only the parts this card shows - out or low - so a year's 601 parts are not cut at 500 before it looks
+      .or('qty_on_hand.lte.0,is_low_stock.eq.true,is_out_of_stock.eq.true')
+      .limit(500 + 1));  // more-said: by checkTeamStockAlert (a 501st at-risk part makes its '+N more' read '+N or more')
     if (res.error) {
       // E2/G1: a failed read must NOT render identically to "no teammates low" — a safety-relevant
       // stock alert vanishing with no signal is dangerous. Surface a neutral inline retry instead.
@@ -6091,6 +6143,7 @@ async function checkTeamStockAlert() {
       return;
     }
     inv = res.data;
+    _teamStockCapped = (inv || []).length > 500;
   }
   if (!inv || !inv.length) return;
 
@@ -6138,7 +6191,7 @@ async function checkTeamStockAlert() {
       <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:${tagBg};color:${tagFg};">${tagText}</span>
     </div>`;
   }).join('') + (hidden > 0
-    ? `<div class="text-xs text-white/80 mt-1">+${hidden} more</div>`
+    ? `<div class="text-xs text-white/80 mt-1">+${hidden} ${_teamStockCapped ? 'or more' : 'more'}</div>`
     : '');
 
   // C1/L1: the frame's urgency must match reality — red ONLY when a part is genuinely OUT.
@@ -6185,9 +6238,11 @@ async function loadApprovalQueue() {
   if (_pendingAssets.length + _pendingParts.length > 0) {
     try {
       const norm = (s) => String(s || '').trim().toUpperCase().replace(/\s+/g, ' ');
+      // HS L4 (2026-10-30): a name already in the register is only found if every name is read - a year put 601 parts in
+      // the store against a 1,000 cap, so the catalog is read a page at a time (one request at this size)
       const [aRes, pRes] = await Promise.all([
-        db.from('asset_nodes').select('tag, name').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(1000),   // cap-ok (LB1): its largest group (hive_id) is far under 1000 - sized live by list-caps-say-more
-        db.from('v_inventory_items_truth').select('part_number, part_name').eq('hive_id', HIVE_ID).eq('status', 'approved').limit(1000),   // cap-ok (LB1): its largest group (hive_id) is far under 1000 - sized live by list-caps-say-more
+        whReadPaged((a, b) => db.from('asset_nodes').select('tag, name').eq('hive_id', HIVE_ID).eq('status', 'approved').order('id').range(a, b), 20000),   // cap-ok[hive_id] (LB1 / HS L4: a hive's register, read to its end)
+        whReadPaged((a, b) => db.from('v_inventory_items_truth').select('part_number, part_name').eq('hive_id', HIVE_ID).eq('status', 'approved').order('id').range(a, b), 20000),   // cap-ok[hive_id] (LB1 / HS L4: a hive's catalog, read to its end)
       ]);
       if (!aRes.error && !pRes.error) {
         window._apprExisting = {
@@ -6551,6 +6606,8 @@ function startWorkerApprovalListener() {
 
 // ── AUDIT LOG (supervisor only) ──
 async function loadAuditLog() {
+  // HS L5: the trail names who acted - one who has left the hive is said so
+  if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
   if (HIVE_ROLE !== 'supervisor') return;
   const section = document.getElementById('audit-log-section');
   section.classList.remove('hidden');
@@ -6558,7 +6615,8 @@ async function loadAuditLog() {
   // E2: shimmer skeleton while the async fetch is in flight (the _board cache path renders
   // synchronously below, so it never flashes the skeleton).
   const _auditList = document.getElementById('audit-log-list');
-  if (_auditList && !(_board && _board.audit_log) && typeof whListSkeleton === 'function') whListSkeleton(_auditList, 3, "the hive's audit log");
+  // HS L3: re-read on opening and on coming back to the tab - a log with entries drawn keeps them while it reads again
+  if (_auditList && !(_board && _board.audit_log) && !_auditList.childElementCount && typeof whListSkeleton === 'function') whListSkeleton(_auditList, 3, "the hive's audit log");
 
   let data, error = null;
   if (_board && _board.audit_log) {
@@ -6604,6 +6662,11 @@ async function loadAuditLog() {
     const _last = data[0] && data[0].created_at && typeof timeAgo === 'function' ? timeAgo(data[0].created_at) : '';
     _alc.textContent = ' · ' + data.length + (_auditMore ? '+' : '') + (_last ? ' · ' + _t('last', 'huli') + ' ' + _last : '');   // SL LB1: the latest 50 is a floor
   }
+  // HS L4 (2026-10-30, "a year of the hive": 3,001 trail rows): "50+" said older actions exist and gave no way to them;
+  // the audit log holds them all, with its filters and search
+  // gated-offer-ok: loadAuditLog returns above for anyone but a supervisor, so only a supervisor is ever offered this link
+  if (typeof whMoreNote === 'function') whMoreNote(list, { shown: data.length, more: _auditMore, noun: 'supervisor actions', order: 'newest',
+    where: 'Older ones, with filters and search, are in the audit log.', href: 'audit-log.html', hrefLabel: 'Open the audit log', src: 'hive-audit' });
 
   // Action vocabulary: utils.js WH_AUDIT_ACTIONS, through whAuditView (SL L2, 2026-10-21). This board kept its own
   // 74-entry map and audit-log.html kept none, so one event read two ways and ten stored actions read as codes on both;
@@ -6657,7 +6720,7 @@ async function loadAuditLog() {
       <span class="text-sm font-black flex-shrink-0 mt-0.5" style="color:${_AUD_TONE[v.tone] || '#94a3b8'};width:16px;text-align:center;">${escHtml(v.icon)}</span>
       <div class="flex-1 min-w-0">
         <p class="text-xs font-semibold text-white/80">${escHtml(_t(v.label, FIL_ACTION[row.action]))}${targetHtml}${sub}</p>
-        <p class="text-xs text-white/80 mt-0.5">${escHtml(row.actor)} · ${when}</p>
+        <p class="text-xs text-white/80 mt-0.5">${escHtml(row.actor + (typeof whMemberSuffix === 'function' ? whMemberSuffix(row.actor) : ''))} · ${when}</p>
       </div>
     </div>`;
   }).join('');
@@ -6671,6 +6734,8 @@ document.getElementById('btn-toggle-audit').addEventListener('click', () => {
   btn.textContent = isHidden ? _t('Hide', 'Itago') : _t('Show', 'Ipakita');
   btn.classList.toggle('active', isHidden);                      // whToggleAria syncs aria-expanded from .active
   btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  // another supervisor's action reaches this log only when it is read - opening it reads it (HS L3, as the roster above)
+  if (isHidden) loadAuditLog();
 });
 
 
@@ -7189,17 +7254,18 @@ async function loadTeamPulse() {
     .eq('hive_id', HIVE_ID).gte('created_at', todayStart.toISOString());
   const jobsToday = jobsRes.count ?? '?';
 
-  let stockSrc;
+  let stockIssues;
   if (_board && _board.team_inventory) {
-    stockSrc = _board.team_inventory;
+    stockIssues = _board.team_inventory.filter(i =>
+      (i.qty_on_hand ?? 0) <= 0 || ((i.min_qty ?? 0) > 0 && (i.qty_on_hand ?? 0) <= (i.min_qty ?? 0))
+    ).length;
   } else {
-    const stockRes = await db.from('v_inventory_items_truth').select('qty_on_hand, min_qty')
-      .eq('hive_id', HIVE_ID).eq('status', 'approved').limit(500);  // L2: hive approved parts catalog is bounded-by-nature; insurance cap · cap-ok (LB1): its largest group (hive_id) is far under 500 - sized live by list-caps-say-more
-    stockSrc = stockRes.data || [];
+    // HS L4 (2026-10-30): counted from the first 500 approved parts, and a year put 601 in the store. The same test (out,
+    // or at/below a set reorder point) is counted where the parts are; "?" when it could not be read, as jobs today does.
+    const sc = await db.from('v_inventory_items_truth').select('id', { count: 'exact', head: true })
+      .eq('hive_id', HIVE_ID).eq('status', 'approved').or('qty_on_hand.lte.0,is_low_stock.eq.true,is_out_of_stock.eq.true').limit(1);   // head:true returns no rows; the count is exact
+    stockIssues = sc.error ? '?' : (sc.count || 0);
   }
-  const stockIssues = (stockSrc || []).filter(i =>
-    (i.qty_on_hand ?? 0) <= 0 || ((i.min_qty ?? 0) > 0 && (i.qty_on_hand ?? 0) <= (i.min_qty ?? 0))
-  ).length;
 
   const _pjEl = document.getElementById('pulse-jobs-today');
   const _ppEl = document.getElementById('pulse-pm-overdue');

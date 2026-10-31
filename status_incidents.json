@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 2,
+ "open": 0,
  "resolved": 1,
  "incidents": [
   {
@@ -13,26 +13,8 @@
    "title": "failure-signature-scan",
    "severity": "major",
    "started_at": "2026-10-28 21:03:36.632147+00",
-   "ended_at": "2026-10-28 21:03:36.632147+00",
+   "ended_at": "2026-10-30 21:04:09.367083+00",
    "status": "resolved"
-  },
-  {
-   "id": "gate-w4-layer-entitlement",
-   "source": "gate",
-   "title": "w4-layer-entitlement",
-   "severity": "major",
-   "started_at": "2026-10-29T05:49:24.032441+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-lxp-au-identity-solo",
-   "source": "gate",
-   "title": "lxp-au-identity-solo",
-   "severity": "major",
-   "started_at": "2026-10-29T05:49:24.032441+00:00",
-   "ended_at": null,
-   "status": "open"
   }
  ]
 }

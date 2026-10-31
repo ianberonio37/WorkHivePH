@@ -15,7 +15,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whAuditLabel whAuditView whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whReadError whReconcileHiveRole whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whAuditLabel whAuditView whFmtAgo whFmtDate whFreshnessFooter whHiveId whListError whListSkeleton whLoadFormerMembers whMarkFormerIn whMemberSuffix whReadError whReconcileHiveRole whSafeSearchTerm whSourcesSync whStartupHive whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -672,7 +672,7 @@
       const v = (e.target.value || '').trim();
       const valid = [...document.getElementById(id + '-options').options].some(o => o.value === v);
       setActive(valid ? v : '');
-      _auditDisplayCount = 30; renderFeed(); _auditSyncUrl();
+      _auditReload();   // HS L4: filtered where the entries are, not over the latest 500
       // SL L3: a filter PICKED (a change to a real option) is a use; each keystroke on the way there is not
       if (ev === 'change' && valid && v && typeof whUse === 'function') whUse(db, 'trail_filtered', { by: id.replace(/-filter$/, '') });
     }));
@@ -680,13 +680,11 @@
   wireFilter('actor-filter',  v => { _activeActor = v; });
   wireFilter('action-filter', v => { _activeAction = v; });
   wireFilter('target-filter', v => { _activeTarget = v; });
-  // SL LB3: the feed follows the typing 150 ms after it pauses - a keystroke that re-rendered the feed in the same task held
-  // its own paint behind the whole filter and render
-  const _auditSearchRender = debounce(() => { renderFeed(); _auditSyncUrl(); }, 150);
+  // SL LB3: the feed follows the typing after it pauses (now _auditReload, 250 ms) - a keystroke that re-rendered the feed
+  // in the same task held its own paint behind the whole filter and render
   document.getElementById('search-input').addEventListener('input', (e) => {
     _searchTerm = (e.target.value || '').toLowerCase().trim();
-    _auditDisplayCount = 30;
-    _auditSearchRender();
+    _auditReload();   // HS L4: searched where the entries are, not over the latest 500
   });
   document.getElementById('btn-export').addEventListener('click', exportCsv);
   document.getElementById('btn-clear').addEventListener('click', () => {
@@ -695,8 +693,7 @@
     document.getElementById('action-filter').value = '';
     document.getElementById('target-filter').value = '';
     document.getElementById('search-input').value  = '';
-    _auditDisplayCount = 30;
-    renderFeed(); _auditSyncUrl();
+    _auditReload();
   });
   window.loadMoreAudit = () => { _auditDisplayCount += 30; renderFeed(); };
 
@@ -755,12 +752,45 @@
   subscribeRealtime();
 
   // ── Data load ──────────────────────────────────────────────────────────────
+  /* ★THE SEARCH LOOKED IN THE LATEST 500 AND SAID "NO MATCH" FOR THE REST (Wave HS L4, "a year of the hive", 2026-10-30,
+     walked live). A year put 4,501 entries in the trail; "All time" loaded the newest 500 and the search and filters ran
+     over those, so "CW-P-07B" - a task added on 2025-11-06 - answered "No entries match those filters". Filters and search
+     are applied where the entries are, to both trails and to their counts; the browser's pass over the result agrees. */
+  function _auditWords() {
+    const safe = (typeof whSafeSearchTerm === 'function') ? whSafeSearchTerm(_searchTerm || '') : '';
+    return safe.split(' ').filter(Boolean).slice(0, 5);
+  }
+  function _trailFilters(q) {
+    if (_activeActor)  q = q.eq('actor', _activeActor);
+    if (_activeAction) q = q.eq('action', _activeAction);
+    if (_activeTarget) q = q.eq('target_type', _activeTarget);
+    for (const w of _auditWords()) q = q.or(`target_name.ilike.%${w}%,actor.ilike.%${w}%,action.ilike.%${w}%,target_id.ilike.%${w}%`);
+    return q;
+  }
+  // the voice half maps worker_name -> actor and event -> action, and is only ever target "voice" (voiceEntry);
+  // null when a filter rules every voice entry out
+  function _voiceFilters(q) {
+    if (_activeTarget && _activeTarget !== 'voice') return null;
+    if (_activeActor)  q = q.eq('worker_name', _activeActor);
+    if (_activeAction) q = q.eq('event', _activeAction);
+    for (const w of _auditWords()) q = q.or(`worker_name.ilike.%${w}%,event.ilike.%${w}%`);
+    return q;
+  }
+  const _auditReload = debounce(() => { _auditDisplayCount = 30; loadEntries(); _auditSyncUrl(); }, 250);
+
   async function loadEntries() {
+    // HS L5: each entry names who acted - one who has left the hive is said so (the hive's departed members, asked once)
+    if (HIVE_ID && typeof whLoadFormerMembers === 'function') await whLoadFormerMembers(db, HIVE_ID);
     const range = RANGES.find(r => r.id === _activeRange) || RANGES[1];
     const feedEl = document.getElementById('feed');
     // E2 consistent states: shimmer skeleton while the audit feed fetches so the
     // panel never flashes blank before rows arrive (shared whListSkeleton).
-    if (typeof whListSkeleton === 'function') whListSkeleton(feedEl, 5, 'the audit log');
+    /* ★EVERY 30 SECONDS THE LOG THREW ITS READER BACK UP THE PAGE (HS L3, 2026-10-30, walked live at 390). This loader is
+       also the 30-second poll, and it painted the skeleton every time: Ernesto, reading an entry halfway down, watched
+       the log turn to five placeholder rows - the entry he was reading gone, his scroll 3109 -> 728 - and it happened
+       again every half minute. The skeleton is for a log with nothing drawn; a drawn log keeps its rows while it reads
+       again, and whRenderRows below redraws only the entries that changed. */
+    if (feedEl && !feedEl.querySelector('.entry-actor') && typeof whListSkeleton === 'function') whListSkeleton(feedEl, 5, 'the audit log');
     let q = db.from('hive_audit_log')
       .select('id, actor, action, target_type, target_id, target_name, meta, created_at')
       .eq('hive_id', HIVE_ID)
@@ -771,6 +801,7 @@
       const since = new Date(Date.now() - range.hours * 3600 * 1000).toISOString();
       q = q.gte('created_at', since);
     }
+    q = _trailFilters(q);
     let data, error;
     try { ({ data, error } = await q); } catch (err) { error = err; }
     if (error) {
@@ -810,7 +841,8 @@
         .order('id')
         .limit(500);   // more-said: by renderFeed (the voice half of the same timeline; its head count is in the total)
       if (range.hours) vq = vq.gte('created_at', new Date(Date.now() - range.hours * 3600 * 1000).toISOString());
-      const { data: vdata, error: verror } = await vq;
+      vq = _voiceFilters(vq);
+      const { data: vdata, error: verror } = vq ? await vq : { data: [], error: null };
       // a failed read of the second source must not silently shrink the timeline into a claim
       if (verror) { _voiceReadFailed = true; }
       else {
@@ -824,7 +856,7 @@
     try {
       let cq = db.from('hive_audit_log').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID);
       if (range.hours) cq = cq.gte('created_at', new Date(Date.now() - range.hours * 3600 * 1000).toISOString());
-      const { count: _cnt } = await cq;
+      const { count: _cnt } = await _trailFilters(cq);
       // the feed now carries two tables, so a total counting one of them would understate the timeline it
       // sits under - the cap-shown-as-a-total shape, arrived at by addition instead of truncation
       // canonical-allow: audit-log.html IS the canonical surface for ai_audit_log - the page whose
@@ -834,7 +866,8 @@
       // companion's two calls on this table are INSERTs, not reads - it writes the trail.)
       let vq2 = db.from('ai_audit_log').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID);
       if (range.hours) vq2 = vq2.gte('created_at', new Date(Date.now() - range.hours * 3600 * 1000).toISOString());
-      const { count: _vcnt } = await vq2;
+      vq2 = _voiceFilters(vq2);
+      const { count: _vcnt } = vq2 ? await vq2 : { count: 0 };
       _entriesTotal = (typeof _cnt === 'number')
         ? _cnt + (typeof _vcnt === 'number' ? _vcnt : 0)
         : null;                                   // one side unknown means the total is unknown, not partial
@@ -996,7 +1029,7 @@
       if (_activeTarget && en.target_type !== _activeTarget) return false;
       if (_searchTerm) {
         const hay = ((en.target_name || '') + ' ' + (en.actor || '') + ' ' + (en.action || '') + ' ' + (en.target_id || '')).toLowerCase();
-        if (!hay.includes(_searchTerm)) return false;
+        if (!_searchTerm.split(/[\s,]+/).filter(Boolean).every(w => hay.includes(w))) return false;   // by words, as the server matched
       }
       return true;
     });
@@ -1087,6 +1120,18 @@
     /* ★SL LB3 (2026-10-21): "Load more" rebuilt every entry (30 more a press, each press re-rendering and re-binding all
        of them). whRenderRows appends the new entries; an entry's own HTML is its key (its relative time, its expanded
        details and its arrival mark all move it), so an entry that would render differently redraws the list. */
+    /* ★A REDRAWN LIST HAS NOTHING FOR THE BROWSER TO HOLD (HS L3, 2026-10-30, walked live at 390). With the poll's skeleton
+       gone (loadEntries), a teammate's entry arriving on the poll still moved the entry Ernesto was reading 212 px down
+       the screen: the redraw replaces the rows, so the browser's scroll anchoring has no row left to anchor on. The row
+       at the top of the reader's screen is found again by its entry id and the page scrolls by exactly what moved. (Its
+       words would not do: a voice entry repeats word for word - "Took parts from inventory by voice" - and the first
+       try matched a twin further down and threw the page 701 px.) At the top of the log nothing is held. */
+    // ONE hand holds the place: whRenderRows keeps the rows that did not change, so the browser's own scroll anchoring
+    // also moved the page - and with this correction on top, the place was moved twice (the row read ended 280 px ABOVE
+    // the screen's top). The log opts out of the browser's anchoring; this code alone keeps the reader's row.
+    feed.style.overflowAnchor = 'none';
+    const _readRow = feed.getBoundingClientRect().top < 0 ? [...feed.querySelectorAll('[data-entry-id]')].find((c) => c.getBoundingClientRect().bottom > 0) : null;
+    const _readKey = _readRow ? _readRow.getAttribute('data-entry-id') : null, _readTop = _readRow ? _readRow.getBoundingClientRect().top : 0;
     whRenderRows(feed, visible, en => {
       const v = auditView(en);
       const actionClass = classifyAction(en.action, v.tone);
@@ -1106,18 +1151,18 @@
       // Both halves are needed: without _fromPoll, Load more animates thirty rows; without _paintedIds,
       // every poll animates all thirty again.
       const isNew = _fromPoll && !_paintedIds.has(en.id);
-      return '<div class="entry action-' + e(actionClass) + (isNew ? ' entry-new' : '') + '">'
+      return '<div class="entry action-' + e(actionClass) + (isNew ? ' entry-new' : '') + '" data-entry-id="' + e(String(en.id)) + '">'
            +   '<div class="entry-icon">' + e(icon) + '</div>'
            +   '<div class="entry-body">'
            +     '<div class="entry-head">'
-           +       '<span class="entry-actor">' + e(en.actor || 'unknown') + '</span>'
+           +       '<span class="entry-actor">' + e((en.actor || 'unknown') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(en.actor) : '')) + '</span>'
            +       '<span class="entry-action">' + e(v.label) + '</span>'
            /* An entry about the actor THEMSELF named them twice: "CHRISTINE DIZON · new device · Christine Dizon
               (Worker Profile)" (critique, 2026-10-13) - the eye reads two people where there is one. The target
               collapses to "(own profile)" when it is the actor; the record keeps both fields and Show details.
               SL L2: the same holds for any row about the person themselves (their seller profile, their account). */
            +       (isSelf ? (selfLabel(en.target_type) ? '<span class="entry-target-type">(' + e(selfLabel(en.target_type)) + ')</span>' : '')
-                     : ((v.target ? '<span class="entry-target">' + e(v.target) + '</span>' : '')
+                     : ((v.target ? '<span class="entry-target">' + e(typeof whMarkFormerIn === 'function' ? whMarkFormerIn(v.target) : v.target) + '</span>' : '')
                       + (typeLabel ? '<span class="entry-target-type">(' + e(typeLabel) + ')</span>' : '')))
            +       '<span class="entry-time" title="' + e(en.created_at || '') + '">' + e(fmtRelative(en.created_at)) + '</span>'
            +     '</div>'
@@ -1142,6 +1187,23 @@
            + '</div>';
     }, { sig: 'audit-feed', long: true,
       key: (en) => JSON.stringify(en) + '|' + fmtRelative(en.created_at) + '|' + _expanded.has(en.id) + '|' + (_fromPoll && !_paintedIds.has(en.id)) });
+    if (_readKey) {
+      /* Held through the settle, not once: an entry arriving on top shifts every row's position, so the whole list is
+         replaced, and the log's rows are content-visibility rows - a fresh row above the screen first stands at an
+         estimated height and takes its real one a frame or two later. One correction made against the estimate threw
+         the row read 252 px off (measured). The place is re-measured each frame for a third of a second; the moment the
+         reader scrolls themselves, the hold lets go. */
+      let _expectY = null;
+      const _hold = (n) => {
+        if (_expectY !== null && Math.abs(window.scrollY - _expectY) > 2) return;   // the reader moved - theirs now
+        const _same = [...feed.querySelectorAll('[data-entry-id]')].find((c) => c.getAttribute('data-entry-id') === _readKey);
+        const _moved = _same ? _same.getBoundingClientRect().top - _readTop : 0;
+        if (_moved) window.scrollBy(0, _moved);
+        _expectY = window.scrollY;
+        if (n > 0) requestAnimationFrame(() => _hold(n - 1));
+      };
+      _hold(20);
+    }
     // AFTER the markup is built, never before: the check above asks whether a row was painted in a PREVIOUS
     // pass, so marking them as we go would make every row look already-seen and the animation would never run.
     visible.forEach((en) => _paintedIds.add(en.id));

@@ -4,7 +4,7 @@
    "id": "AL4X",
    "page": "alert-hub.html",
    "role": "supervisor",
-   "ran": "2026-10-26T14:52:15.839Z",
+   "ran": "2026-10-30T21:01:23.341Z",
    "same_account": true,
    "pre_state_ok": true,
    "draft_field": null,
@@ -14,7 +14,7 @@
    },
    "marker": null,
    "live": true,
-   "live_ms": 3,
+   "live_ms": 1,
    "mode": "realtime",
    "draft_kept_live": null,
    "appears": true,
@@ -25,7 +25,7 @@
    "id": "LOG1@asset-hub",
    "page": "asset-hub.html",
    "role": "worker",
-   "ran": "2026-10-26T14:52:31.173Z",
+   "ran": "2026-10-30T21:01:37.154Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -42,9 +42,9 @@
      "persisted": true
     }
    },
-   "marker": "K2-PROBE-1793026360854",
+   "marker": "K2-PROBE-1793394105755",
    "live": true,
-   "live_ms": 17,
+   "live_ms": 26,
    "mode": "on opening the view it lives in",
    "draft_kept_live": null,
    "appears": true,
@@ -55,7 +55,7 @@
    "id": "LOG1@assistant",
    "page": "assistant.html",
    "role": "worker",
-   "ran": "2026-10-26T14:52:58.424Z",
+   "ran": "2026-10-30T21:02:03.940Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -74,10 +74,10 @@
    },
    "marker": null,
    "live": true,
-   "live_ms": 8121,
+   "live_ms": 19165,
    "mode": "in the answer when asked",
    "draft_kept_live": null,
-   "observed": "K2-PROBE-1793026386896 bearing noise drive end",
+   "observed": "You just logged a repair for BE-001 with the problem description: \"K2-PROBE-1793394134678 bearing noise drive end\".",
    "appears": true,
    "page_errors_desktop": [],
    "cleaned": 1
@@ -86,7 +86,7 @@
    "id": "CM1",
    "page": "community.html",
    "role": "worker",
-   "ran": "2026-10-26T14:53:28.865Z",
+   "ran": "2026-10-30T21:02:47.049Z",
    "same_account": true,
    "draft_field": "#post-content",
    "baseline": null,
@@ -97,14 +97,14 @@
      "T": true
     },
     "evidence": {
-     "nonce": "ArcK-CM1-1793026420599",
+     "nonce": "ArcK-CM1-1793394177765",
      "persisted": true,
      "cnt": "1"
     }
    },
-   "marker": "ArcK-CM1-1793026420599",
+   "marker": "ArcK-CM1-1793394177765",
    "live": true,
-   "live_ms": 16,
+   "live_ms": 18,
    "mode": "realtime",
    "draft_kept_live": true,
    "appears": true,
@@ -115,7 +115,7 @@
    "id": "DAY1",
    "page": "dayplanner.html",
    "role": "worker",
-   "ran": "2026-10-26T14:53:43.264Z",
+   "ran": "2026-10-30T21:03:00.623Z",
    "same_account": true,
    "draft_field": "#m-title",
    "baseline": null,
@@ -132,9 +132,9 @@
      "cnt": "1"
     }
    },
-   "marker": "K2-DP-1793026434274",
+   "marker": "K2-DP-1793394192233",
    "live": true,
-   "live_ms": 31,
+   "live_ms": 12,
    "mode": "realtime",
    "draft_kept_live": true,
    "appears": true,
@@ -145,7 +145,7 @@
    "id": "ED2",
    "page": "engineering-design.html",
    "role": "worker",
-   "ran": "2026-10-26T14:53:58.085Z",
+   "ran": "2026-10-30T21:03:15.230Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -156,15 +156,15 @@
      "T": true
     },
     "evidence": {
-     "tag": "ARCK-ED2-1793026451006",
+     "tag": "ARCK-ED2-1793394206705",
      "out": true,
      "persisted": true,
      "cnt": "1"
     }
    },
-   "marker": "ARCK-ED2-1793026451006",
+   "marker": "ARCK-ED2-1793394206705",
    "live": true,
-   "live_ms": 16,
+   "live_ms": 6,
    "mode": "on opening the view it lives in",
    "draft_kept_live": null,
    "appears": true,
@@ -175,7 +175,7 @@
    "id": "LOG1@index",
    "page": "index.html",
    "role": "worker",
-   "ran": "2026-10-26T14:54:20.757Z",
+   "ran": "2026-10-30T21:03:53.635Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -192,7 +192,7 @@
      "persisted": true
     }
    },
-   "marker": "logbook.html?id=1793026479611",
+   "marker": "logbook.html?id=1793394251218",
    "live": false,
    "live_ms": null,
    "mode": "after a refresh",
@@ -207,7 +207,7 @@
    "id": "SYNCCFG@integrations",
    "page": "integrations.html",
    "role": "supervisor",
-   "ran": "2026-10-26T14:55:02.916Z",
+   "ran": "2026-10-30T21:04:33.641Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -216,7 +216,7 @@
    },
    "marker": null,
    "live": true,
-   "live_ms": 17,
+   "live_ms": 14,
    "mode": "on opening the view it lives in",
    "draft_kept_live": null,
    "appears": true,
@@ -227,7 +227,7 @@
    "id": "INV2",
    "page": "inventory.html",
    "role": "worker",
-   "ran": "2026-10-26T14:55:18.771Z",
+   "ran": "2026-10-30T21:04:46.632Z",
    "same_account": true,
    "draft_field": "#f-part-name",
    "baseline": null,
@@ -240,7 +240,7 @@
     "evidence": {
      "clicked": true,
      "modal": true,
-     "toast": "Used 2 pcs of K2-USE-1793026526995 → off",
+     "toast": "Used 2 pcs of K2-USE-1793394293046 → off",
      "qtyAfter": "18"
     }
    },
@@ -257,7 +257,7 @@
    "id": "MK5",
    "page": "marketplace.html",
    "role": "worker",
-   "ran": "2026-10-26T14:55:35.988Z",
+   "ran": "2026-10-30T21:05:01.314Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -273,9 +273,9 @@
      "cnt": "1"
     }
    },
-   "marker": "K6-MK5-1793026546213",
+   "marker": "K6-MK5-1793394309902",
    "live": true,
-   "live_ms": 50,
+   "live_ms": 19,
    "mode": "on opening the view it lives in",
    "draft_kept_live": null,
    "appears": true,
@@ -286,7 +286,7 @@
    "id": "SYNCCFG@plant-connections",
    "page": "plant-connections.html",
    "role": "supervisor",
-   "ran": "2026-10-26T14:55:58.926Z",
+   "ran": "2026-10-30T21:05:21.607Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -308,7 +308,7 @@
    "id": "PMK1",
    "page": "project-manager.html",
    "role": "supervisor",
-   "ran": "2026-10-26T14:56:31.397Z",
+   "ran": "2026-10-30T21:05:50.628Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -319,14 +319,14 @@
      "T": true
     },
     "evidence": {
-     "name": "ARC-K K5 PMK1 1793026603216",
+     "name": "ARC-K K5 PMK1 1793394360246",
      "persisted": true,
      "cnt": "1"
     }
    },
-   "marker": "ARC-K K5 PMK1 1793026603216",
+   "marker": "ARC-K K5 PMK1 1793394360246",
    "live": true,
-   "live_ms": 24,
+   "live_ms": 21,
    "mode": "on opening the view it lives in",
    "draft_kept_live": null,
    "appears": true,
@@ -337,7 +337,7 @@
    "id": "RS2",
    "page": "report-sender.html",
    "role": "supervisor",
-   "ran": "2026-10-26T14:56:50.796Z",
+   "ran": "2026-10-30T21:06:04.278Z",
    "same_account": true,
    "draft_field": "#contact-name",
    "baseline": null,
@@ -351,13 +351,13 @@
      "card": true,
      "opened": true,
      "listed": true,
-     "db": "1:f8ebd0ec-14a4-45d1-a306-4d59ba296bab",
-     "email": "rs2-1793026618842@qa.workhive.test"
+     "db": "1:084c113b-99c0-45c6-a8e8-b4b8349da46d",
+     "email": "rs2-1793394372201@qa.workhive.test"
     }
    },
-   "marker": "rs2-1793026618842@qa.workhive.test",
+   "marker": "rs2-1793394372201@qa.workhive.test",
    "live": true,
-   "live_ms": 3076,
+   "live_ms": 3064,
    "mode": "on return to the tab",
    "draft_kept_live": true,
    "appears": true,
@@ -368,22 +368,17 @@
    "id": "SBPUB",
    "page": "shift-brain.html",
    "role": "supervisor",
-   "ran": "2026-10-26T14:57:09.098Z",
+   "ran": "2026-10-30T21:06:22.852Z",
    "same_account": true,
-   "pre_state_ok": true,
+   "pre_state_ok": false,
    "draft_field": null,
    "baseline": null,
    "phone": {
-    "clicked": true
+    "clicked": false
    },
    "marker": null,
-   "live": false,
-   "live_ms": null,
-   "mode": "after a refresh",
-   "draft_kept_live": null,
-   "after_refresh": true,
-   "draft_kept_refresh": null,
-   "appears": true,
+   "appears": false,
+   "why": "the phone write did not complete",
    "page_errors_desktop": [],
    "cleaned": "scenario"
   },
@@ -391,7 +386,7 @@
    "id": "SKK2",
    "page": "skillmatrix.html",
    "role": "worker",
-   "ran": "2026-10-26T14:57:41.050Z",
+   "ran": "2026-10-30T21:06:47.911Z",
    "same_account": true,
    "draft_field": null,
    "baseline": null,
@@ -422,5 +417,5 @@
    "cleaned": 1
   }
  },
- "generated": "2026-10-26T14:58:17.224Z"
+ "generated": "2026-10-30T21:07:19.217Z"
 }

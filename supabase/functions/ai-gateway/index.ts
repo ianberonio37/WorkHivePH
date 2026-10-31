@@ -784,6 +784,31 @@ const _whWarmClient = _WH_SUPABASE_URL_M && _WH_SERVICE_KEY_M
   : null;
 void _whWarmClient;
 
+// What a person is told when a specialist answered non-2xx. A specialist's own refusal leads with `error` (or ok:false)
+// and is passed on as a sentence - never a bare code ("rate_limited") - with its retry window. A body without one is the
+// proxy's or the runtime's (Kong {message}, BOOT_ERROR) and is about our machinery: the person gets a plain sentence and
+// the raw text stays in the log. Same rule as utils.js whFnSentence, on the server side of the same hop.
+function agentFailureBody(status: number, text: string): Record<string, unknown> {
+  const sentence = (v: unknown) => (typeof v === "string" && /\s/.test(v.trim())) ? v.trim() : "";
+  let b: Record<string, unknown> | null = null;
+  try {
+    const p = JSON.parse(text);
+    if (p && typeof p === "object" && !Array.isArray(p)) b = p as Record<string, unknown>;
+  } catch { /* empty-catch-allow: a body that is not JSON is the proxy's, not the specialist's */ }
+  const own = b && (b.error !== undefined || b.ok === false)
+    ? (sentence(b.message) || sentence(b.error)
+      || (b.error && typeof b.error === "object" ? sentence((b.error as Record<string, unknown>).message) : ""))
+    : "";
+  const out: Record<string, unknown> = {
+    error: own || (status === 429
+      ? "That assistant is at its limit right now. Try again later."
+      : "That assistant could not finish. Try again in a moment."),
+  };
+  if (b && b.retry_after_seconds != null) out.retry_after_seconds = b.retry_after_seconds;
+  if (b && typeof b.scope === "string") out.scope = b.scope;
+  return out;
+}
+
 // Whitelist of agent_ids the gateway will route to. Each entry maps to
 // a deployed edge function. Adding a new specialist agent requires
 // updating BOTH this map AND the validate_gateway_routing.py registry
@@ -1794,9 +1819,12 @@ serveObserved("ai-gateway", async (req) => {
   }
 
   if (agentStatus < 200 || agentStatus >= 300) {
-    return jsonResponse(corsHeaders, agentStatus, {
-      error: `Agent returned ${agentStatus}: ${agentRespText.slice(0, 300)}`,
-    }, ctx.trace_id);
+    // ★A PERSON READ THE PROXY'S JSON (Wave JS, 2026-10-31, walked at 390/1280 with the specialist failing to boot). This
+    // forwarded `Agent returned 502: <the body>` as the error, and the companion shows a function's error as the answer:
+    // "⚠️ Agent returned 502: { "message":"An invalid response was received from the upstream server"}". The raw text is
+    // for the LOG (as the catch above already holds); the person gets the agent's own refusal sentence with its window.
+    console.error(`ai-gateway: agent '${agent}' (${route.fn}) returned ${agentStatus}: ${agentRespText.slice(0, 300)}`);
+    return jsonResponse(corsHeaders, agentStatus, agentFailureBody(agentStatus, agentRespText), ctx.trace_id);
   }
 
   // The specialist agent returns a JSON envelope. Extract the user-facing

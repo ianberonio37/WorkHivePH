@@ -312,9 +312,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // write path was a no-op: missing RPC + RLS-denied UPDATE), so reading
       // thumbs from it always showed "no ratings yet". We read both: cost
       // from ai_cost_log, thumbs from ai_reply_feedback.
-      let costRows, feedbackRows;
+      let summary;
       try {
-        [costRows, feedbackRows] = await Promise.all([loadCostLog(), loadReplyFeedback()]);
+        summary = await loadUsage();
       } catch (err) {
         console.error('ai-quality load failed:', err);
         // E2 consistent states: inline error + Retry (shared whListError) + toast.
@@ -332,7 +332,6 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         if (typeof showToast === 'function' && !(typeof whIsAccessDenied === 'function' && whIsAccessDenied(err))) showToast(_t('AI quality failed to load. Tap Retry.', 'Hindi na-load ang AI quality. Pindutin ang Retry.'), 'warn');
         return;
       }
-      const summary = aggregate(costRows, feedbackRows);
       // Simple-by-default 2026-05-13: manager dashboard up top, engineering
       // details collapsed behind a toggle. Tradeoff: the page now answers
       // "is AI helping?" in one glance instead of forcing the supervisor
@@ -417,14 +416,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         const thumbsTotal = s.thumbsUp + s.thumbsDown;
         if (thumbsTotal >= MIN_RATINGS_FOR_VERDICT) {
           const pct = Math.round(100 * s.thumbsUp / thumbsTotal);
-          line2 = _t(`Workers used AI ${s.totalCalls} times in the last 30 days and rated it ${pct}% useful (${s.thumbsUp} thumbs up / ${s.thumbsDown} down).`, `Gumamit ng AI ang mga worker nang ${s.totalCalls} beses sa nakaraang 30 araw at ${pct}% ang nagsabing kapaki-pakinabang (${s.thumbsUp} thumbs up / ${s.thumbsDown} down).`) + (s.capped ? _t(' Totals cover the latest 2,000 calls / 5,000 ratings.', ' Ang mga kabuuan ay mula sa pinakabagong 2,000 call / 5,000 rating.') : '');
+          line2 = _t(`Workers used AI ${whFmtNum(s.totalCalls)} times in the last 30 days and rated it ${pct}% useful (${s.thumbsUp} thumbs up / ${s.thumbsDown} down).`, `Gumamit ng AI ang mga worker nang ${s.totalCalls} beses sa nakaraang 30 araw at ${pct}% ang nagsabing kapaki-pakinabang (${s.thumbsUp} thumbs up / ${s.thumbsDown} down).`);
         } else if (thumbsTotal > 0) {
           // A percentage over one or two ratings is noise wearing a number's clothes: one tap moves
           // it 50 points. State the raw counts, which are true, and say what would make a rate mean
           // something — the same discipline the trust card below already applies.
-          line2 = _t(`Workers used AI ${s.totalCalls} times in the last 30 days. Only ${thumbsTotal} rating${thumbsTotal === 1 ? '' : 's'} so far (${s.thumbsUp} up / ${s.thumbsDown} down). Too few for a useful-rate; ${MIN_RATINGS_FOR_VERDICT}+ makes it meaningful.`, `Gumamit ng AI ang mga worker nang ${s.totalCalls} beses sa nakaraang 30 araw. ${thumbsTotal} pa lang ang rating (${s.thumbsUp} up / ${s.thumbsDown} down). Kulang pa para sa useful-rate; ${MIN_RATINGS_FOR_VERDICT}+ ang kailangan.`) + (s.capped ? _t(' Totals cover the latest 2,000 calls / 5,000 ratings.', ' Ang mga kabuuan ay mula sa pinakabagong 2,000 call / 5,000 rating.') : '');
+          line2 = _t(`Workers used AI ${whFmtNum(s.totalCalls)} times in the last 30 days. Only ${thumbsTotal} rating${thumbsTotal === 1 ? '' : 's'} so far (${s.thumbsUp} up / ${s.thumbsDown} down). Too few for a useful-rate; ${MIN_RATINGS_FOR_VERDICT}+ makes it meaningful.`, `Gumamit ng AI ang mga worker nang ${s.totalCalls} beses sa nakaraang 30 araw. ${thumbsTotal} pa lang ang rating (${s.thumbsUp} up / ${s.thumbsDown} down). Kulang pa para sa useful-rate; ${MIN_RATINGS_FOR_VERDICT}+ ang kailangan.`);
         } else {
-          line2 = _t(`Workers used AI ${s.totalCalls} times in the last 30 days. No thumbs ratings yet: encourage workers to rate answers so this page gets sharper.`, `Gumamit ng AI ang mga worker nang ${s.totalCalls} beses sa nakaraang 30 araw. Wala pang thumbs rating: hikayatin ang mga worker na i-rate ang mga sagot para lumawak ang page na ito.`) + (s.capped ? _t(' Totals cover the latest 2,000 calls / 5,000 ratings.', ' Ang mga kabuuan ay mula sa pinakabagong 2,000 call / 5,000 rating.') : '');
+          line2 = _t(`Workers used AI ${whFmtNum(s.totalCalls)} times in the last 30 days. No thumbs ratings yet: encourage workers to rate answers so this page gets sharper.`, `Gumamit ng AI ang mga worker nang ${s.totalCalls} beses sa nakaraang 30 araw. Wala pang thumbs rating: hikayatin ang mga worker na i-rate ang mga sagot para lumawak ang page na ito.`);
         }
       }
       return `
@@ -480,7 +479,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         hero: whFmtPeso(php, { decimals: 2 }),
         // one number, one place: the call count is in the verdict line; this sub says the unit cost and the FX basis
         sub: noCost ? _t('No AI cost recorded in the last 30 days.', 'Walang naitalang gastos sa AI sa nakaraang 30 araw.')
-                    : _t(`avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} per call · ${FX_BASIS}`, `avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} bawat call · ${FX_BASIS_FIL}`) + (s.capped ? _t(' · over the latest 2,000 calls', ' · mula sa pinakabagong 2,000 call') : ''),
+                    : _t(`avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} per call · ${FX_BASIS}`, `avg ${whFmtPeso(php / Math.max(s.totalCalls, 1), { decimals: 2 })} bawat call · ${FX_BASIS_FIL}`),
         tag: costTag,
         tone: costTone,
       };
@@ -597,100 +596,25 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return `<div class="card" style="text-align:center;color:var(--muted);">${_t('Loading AI quality and ROI data…', 'Nilo-load ang AI quality at ROI data…')}</div>`;
     }
 
-    async function loadCostLog() {
-      const sinceIso = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
-      // BUGFIX: distinguish a query ERROR from a genuine empty result. supabase-js returns
-      // {data:null, error} (it does NOT throw) on an RLS-deny / dropped-column / network
-      // failure; swallowing it as [] rendered a FAKE "No AI activity yet" for a hive that
-      // actually has data. Throw on error so render()'s catch shows whListError + Retry.
-      // (user_feedback dropped from the select — aggregate() reads thumbs from ai_reply_feedback,
-      //  so requesting the legacy column only risked erroring the whole query if it's ever removed.)
-      // paged (whReadPaged): the API's 1,000-row ceiling read 1,000 of these and its 2,001st probe never arrived
-      const { data, error } = await whReadPaged((a, b) => db.from('ai_cost_log')
-        .select('fn, model, provider, prompt_tokens, output_tokens, total_tokens, cost_usd, latency_ms, status, schema_compliance, created_at')
-        .eq('hive_id', HIVE_ID)
-        .gte('created_at', sinceIso)
-        .order('created_at', { ascending: false })
-        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .range(a, b), 2000 + 1);   // more-said: by renderVerdict - the summary carries `capped` and every painted total discloses it (SL LB1: a 2,001st call is the probe)
+    // ★A CAP ON A SUM IS A WRONG NUMBER (Wave HS L4, "a year of the hive", 2026-10-30, walked live). This page read the
+    // latest 2,000 calls and 5,000 ratings of the last 30 days and summed them here. An AI-heavy month in a hive of thirty
+    // (2,973 calls) then read "Workers used AI 2000 times" and "Cost, last 30 days ₱35.84" against a true ₱54.07, with
+    // "over the latest 2,000 calls" in the small print. Every figure here is a total, so the database sums every row
+    // (hive_ai_usage_30d, security invoker: the reader's own RLS slice - a supervisor's hive, a worker's own calls).
+    // supabase-js returns {data:null, error} on a refused or failed read; throw so render() says so instead of a fake
+    // "No AI activity yet" for a hive that has data.
+    async function loadUsage() {
+      const { data, error } = await db.rpc('hive_ai_usage_30d', { p_hive: HIVE_ID });
       if (error) throw error;
-      return data || [];
-    }
-
-    // Worker thumbs (👍/👎) for this hive over the 30-day window. Reads
-    // ai_reply_feedback (rating: -1 down / +1 up) — the live, client-writable
-    // feedback sink shared by the floating launcher, the voice bubble, and the
-    // Chat assistant. RLS: any active hive member may read the hive's feedback,
-    // so the supervisor sees the whole team's ratings here.
-    async function loadReplyFeedback() {
-      const sinceIso = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
-      const { data, error } = await whReadPaged((a, b) => db.from('ai_reply_feedback')
-        .select('rating, agent, created_at')
-        .eq('hive_id', HIVE_ID)
-        .gte('created_at', sinceIso)
-        .order('created_at', { ascending: false })
-        .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-        .range(a, b), 5000 + 1);   // more-said: by renderVerdict - the summary carries `capped` and every painted total discloses it (SL LB1: a 5,001st rating is the probe)
-      if (error) throw error;   // surface via render()'s catch (whListError+Retry), not a fake empty
-      return data || [];
-    }
-
-    // Build per-fn aggregates + a top-level summary. Cost/schema signals come
-    // from ai_cost_log rows; worker thumbs come from ai_reply_feedback rows.
-    function aggregate(costRows, feedbackRows) {
-      // SL LB1: each read asked one row past its cap; that row only says more exist - the totals are over the cap's rows
-      const _costMore = (costRows || []).length > 2000, _fbMore = (feedbackRows || []).length > 5000;
-      costRows = (costRows || []).slice(0, 2000); feedbackRows = (feedbackRows || []).slice(0, 5000);
-      const fnMap = new Map();
-      let totalCost = 0;
-      let totalCalls = 0;
-      let totalTokens = 0;
-      let fallbackCount = 0;
-      let successCount = 0;
-
-      for (const r of costRows) {
-        totalCalls += 1;
-        totalCost += Number(r.cost_usd || 0);
-        totalTokens += Number(r.total_tokens || 0);
-        if (r.status === 'fallback') fallbackCount += 1;
-        else if (r.status === 'success') successCount += 1;
-        const k = r.fn || 'unknown';
-        const f = fnMap.get(k) || { fn: k, calls: 0, cost: 0, tokens: 0, latencyTotal: 0, latencyN: 0, failures: 0 };
-        f.calls += 1;
-        f.cost  += Number(r.cost_usd || 0);
-        f.tokens += Number(r.total_tokens || 0);
-        if (r.latency_ms != null) { f.latencyTotal += Number(r.latency_ms); f.latencyN += 1; }
-        if (r.status !== 'success') f.failures += 1;
-        fnMap.set(k, f);
-      }
-
-      // Schema compliance stays on ai_cost_log rows (the 2026-05-11 columns).
-      let schemaOk = 0, schemaTotal = 0;
-      for (const q of costRows) {
-        if (q.schema_compliance != null) {
-          schemaTotal += 1;
-          if (q.schema_compliance === true) schemaOk += 1;
-        }
-      }
-      // Worker thumbs come from ai_reply_feedback (rating -1/+1), not the
-      // never-populated ai_cost_log.user_feedback column.
-      let thumbsUp = 0, thumbsDown = 0;
-      for (const q of (feedbackRows || [])) {
-        if (q.rating === 1)  thumbsUp += 1;
-        if (q.rating === -1) thumbsDown += 1;
-      }
-
-      // (No ROI here: a return needs the downtime an AI answer saved, and nothing records that link yet - see
-      // renderROIBlock. The formula this held was the spend times a factor from the ratings.)
-
+      const u = data || {};
+      const n = (v) => Number(v || 0);
       return {
-        // cap is not a total (2026-09-05): the two reads are .limit(2000) / .limit(5000); when either is full the
-        // totals below are sums over the latest rows, and every sentence that paints them says so.
-        capped: _costMore || _fbMore,
-        totalCalls, totalCost, totalTokens, fallbackCount, successCount,
-        schemaOk, schemaTotal,
-        thumbsUp, thumbsDown,
-        fns: Array.from(fnMap.values()).sort((a, b) => b.cost - a.cost),
+        totalCalls: n(u.total_calls), totalCost: n(u.total_cost), totalTokens: n(u.total_tokens),
+        fallbackCount: n(u.fallback_count), successCount: n(u.success_count),
+        schemaOk: n(u.schema_ok), schemaTotal: n(u.schema_total),
+        thumbsUp: n(u.thumbs_up), thumbsDown: n(u.thumbs_down),
+        fns: (u.fns || []).map((f) => ({ fn: f.fn, calls: n(f.calls), tokens: n(f.tokens), cost: n(f.cost),
+          latencyAvg: f.latency_avg == null ? null : n(f.latency_avg), failures: n(f.failures) })),
       };
     }
 
@@ -700,7 +624,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const schemaPct   = s.schemaTotal === 0 ? '-' : Math.round(100 * s.schemaOk / s.schemaTotal) + '%';
       return `
         <div class="summary-row">
-          <div class="sum-card"><span class="sn">${s.totalCalls}</span><span class="sl">${_t('AI calls (30d)', 'AI call (30 araw)')}</span></div>
+          <div class="sum-card"><span class="sn">${whFmtNum(s.totalCalls)}</span><span class="sl">${_t('AI calls (30d)', 'AI call (30 araw)')}</span></div>
           <div class="sum-card"><span class="sn">$${usd}</span><span class="sl">${_t('Spend (30d)', 'Gastos (30 araw)')}</span></div>
           <div class="sum-card ${s.fallbackCount === 0 ? 'green' : (s.fallbackCount > s.totalCalls * 0.2 ? 'red' : '')}"><span class="sn">${escHtml(fallbackPct)}</span><span class="sl">${_t('Fallback rate', 'Rate ng fallback')}</span></div>
           <div class="sum-card ${schemaPct !== '-' && parseInt(schemaPct, 10) >= 90 ? 'green' : ''}"><span class="sn">${escHtml(schemaPct)}</span><span class="sl">${_t('Schema compliance', 'Pagsunod sa schema')}</span></div>
@@ -709,7 +633,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     }
 
     // ★NOT A SAVING (OPC, 2026-10-22). This card printed the 30-day spend times (1.5 + 4 x the share of good ratings) as
-    // "predicted savings unlocked by AI assist" - a formula with no saving in it: aggregate() says itself that the link
+    // "predicted savings unlocked by AI assist" - a formula with no saving in it: nothing records the link
     // from an AI answer to the downtime it saved does not exist yet. With no cost recorded on any call it read $0.00 of
     // savings, and with costs it would have read 3.5 times the spend whatever the AI did. The operator console says the
     // same thing for every hive (founder-console.html, Platform tab).
@@ -719,7 +643,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="card">
           <h2 data-i="aq_roi_30d">Estimated 30-day ROI</h2>
           <p class="meta">Not estimated yet.</p>
-          <p style="font-size:0.85rem; color:var(--muted); line-height:1.5; margin-top:6px;">A return needs the downtime an AI answer saved. No logbook entry records that link yet, so this card shows what is measured: ${s.totalCalls} AI calls and ${rated} ${rated === 1 ? 'rating' : 'ratings'} in the last 30 days.</p>
+          <p style="font-size:0.85rem; color:var(--muted); line-height:1.5; margin-top:6px;">A return needs the downtime an AI answer saved. No logbook entry records that link yet, so this card shows what is measured: ${whFmtNum(s.totalCalls)} AI calls and ${rated} ${rated === 1 ? 'rating' : 'ratings'} in the last 30 days.</p>
         </div>
       `;
     }
@@ -748,12 +672,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         return `<div class="card"><h3>${_t('Per-function spend', 'Gastos bawat function')}</h3><p class="meta" style="margin-top:6px;">${_t('No AI calls recorded in the last 30 days for this hive.', 'Walang naitalang AI call sa nakaraang 30 araw para sa hive na ito.')}</p></div>`;
       }
       const rows = s.fns.map(f => {
-        const avgLat = f.latencyN > 0 ? Math.round(f.latencyTotal / f.latencyN) + ' ms' : '-';
+        const avgLat = f.latencyAvg != null ? f.latencyAvg + ' ms' : '-';
         const failPct = f.calls === 0 ? '-' : Math.round(100 * f.failures / f.calls) + '%';
         return `
           <tr>
             <td><strong>${escHtml(f.fn)}</strong></td>
-            <td class="num-right">${f.calls}</td>
+            <td class="num-right">${whFmtNum(f.calls)}</td>
             <td class="num-right">${whFmtNum(f.tokens)}</td>
             <td class="num-right">$${f.cost.toFixed(4)}</td>
             <td class="num-right">${escHtml(avgLat)}</td>
@@ -806,8 +730,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     var el = document.getElementById('aq-source-chip');
     if (!el) { el = document.createElement('div'); el.id = 'aq-source-chip'; el.style.margin = '0 0 12px'; var hdr = document.querySelector('.page-header'); var host = document.querySelector('.page') || document.querySelector('main') || document.body; if (hdr && hdr.parentNode) hdr.parentNode.insertBefore(el, hdr.nextSibling); else host.appendChild(el); }   // one provenance line, under the title (DESIGN.md), not at the page foot
     if (typeof renderSourceChip === 'function') el.innerHTML = renderSourceChip({
-      // G4 (single freshness source): freshness lives in the live "Updated just now" stamp already on
-      // this page — the source chip stays PROVENANCE-only so the two don't stack (Ian: redundant status).
+      /* ★THE STAMP THIS CHIP DEFERRED TO WAS RETIRED (HS L3, 2026-10-30, walked live). This chip was kept provenance-only
+         because freshness lived in an "Updated just now" stamp - the bottom footer retired platform-wide on 2026-07-22
+         (whFreshnessFooter is a no-op), which left the page with no word on when its figures were read. A supervisor
+         watching the totals while the hive's workers kept using AI saw "114 times" with no moment attached. The chip is
+         now the page's single freshness source, as the retirement intended: read on load, and the moment it read. */
+      freshness: 'Live · refreshed on load',
       source: 'ai_reply_feedback + ai_cost_log',
     });
   });

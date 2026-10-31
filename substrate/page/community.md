@@ -2,19 +2,19 @@
 name: page-community
 type: page
 source: file:community.html
-source_sha: abdd991316ecec9e
+source_sha: 4f1bbc60f7895c1a
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `community.html` — Community: WorkHive
 
-Size: 255KB · 96 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 268KB · 100 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (6): `community_posts.insert`, `community_posts.update`, `community_reactions.delete`, `community_reactions.insert`, `community_replies.insert`, `hive_audit_log.insert`
 **RPC calls**: `get_community_reputation`, `get_hive_trade_peers`, `notify_post_mentions`, `notify_reply_accepted`, `notify_reply_posted`, `report_community_post`, `set_community_best_answer`, `wh_restore`, `wh_trash`
 **Edge invokes**: (none)
 **Truth views read**: `v_community_posts_truth`, `v_marketplace_listings_public`, `v_marketplace_sellers_truth`
 
-**Functions**: _MINE, _POST_UNCHANGED, _addGlobalPostFromRealtime, _appendMoreStubs, _carryArrival, _commSyncUrl, _expandAllStubs, _fetchPage, _findPost, _hideMentionDropdown, _initObservers, _isMinePost, _isMineRow, _loadMyPostIds, _makeStub, _markCommunitySeen, _maybeOpenMentionDropdown, _mentionDropdownEl, _mineAuthorFilter, _mineFilter, _postMenu, _postName, _prependPostCard, _presenceUnavailable, _queueOfflinePost, _reEscape, _removePostCard, _renderMentionDropdown, _renderNextMilestone, _reportName, _resetFeed, _rxButton, _rxCount, _setCommunityAiContext, _updateRenderedCard, cleanup, closeComposer, closePersonCard, closePostMenus, closeReport, closeThread, communityRetryAll, copyThreadLink, deletePost, formatTimeAgo, listFocusable, loadGlobalFeed, loadHiveMembers, loadLeaderboard, loadModQueue, loadMoreGlobalPosts, loadMorePosts, loadPosts, loadProfileStats, loadReactions, loadRelatedListings, loadReplies, loadReplyCounts, loadReportReasons, loadTradePeers …
+**Functions**: _MINE, _POST_UNCHANGED, _addGlobalPostFromRealtime, _appendMoreStubs, _carryArrival, _commSyncUrl, _expandAllStubs, _fetchPage, _findPost, _hideMentionDropdown, _initObservers, _isMinePost, _isMineRow, _keepPlace, _leaderboardMoved, _loadMyPostIds, _makeStub, _markCommunitySeen, _maybeOpenMentionDropdown, _mentionDropdownEl, _mineAuthorFilter, _mineFilter, _postMenu, _postName, _prependPostCard, _presenceUnavailable, _queueOfflinePost, _reEscape, _removePostCard, _renderMentionDropdown, _renderNextMilestone, _reportName, _resetFeed, _runPostAct, _rxButton, _rxCount, _setCommunityAiContext, _updateRenderedCard, cleanup, closeComposer, closePersonCard, closePostMenus, closeReport, closeThread, communityRetryAll, copyThreadLink, deletePost, formatTimeAgo, listFocusable, loadGlobalFeed, loadHiveMembers, loadLeaderboard, loadModQueue, loadMoreGlobalPosts, loadMorePosts, loadPosts, loadProfileStats, loadReactions, loadRelatedListings, loadReplies …
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

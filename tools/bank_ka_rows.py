@@ -119,13 +119,164 @@ def bank_s(dry: bool, limit: int | None) -> int:
     return 0
 
 
+DECISION = re.compile(r"^##\s*Decision\b", re.M)
+
+
+def bank_e(dry: bool, limit: int | None) -> int:
+    """KA-E (Wave JS follow-on, 2026-10-31), one row per cited external source: "this external source is within its TTL;
+    when it is re-fetched a changed sha produces a diff note and a recorded decision on the lever it anchors". A row
+    closes only when all three hold, each read now:
+      1. the chunk was re-verified within its ttl_days (night_crawler.py --refresh-stale, one slice at a time);
+      2. freshness_trip.py raises no evidence trip for it;
+      3. EVERY change note the re-fetches left for it (substrate/external/_changes/<unit>.<date>.md) carries a
+         '## Decision' section - which lever rests on the source and whether it moved. A change with no decision is
+         exactly the silent rewrite this lens exists to stop, so the row stays open and says which note is owed."""
+    c = ft.census()
+    ev_trips = {t["unit"] for t in c["trips"] if t["kind"] == "evidence"}
+    ok, last = bsw._run_gate(str(ROOT / "tools" / "freshness_trip.py"), "--check")
+    print(f"  gate seo-trip (freshness_trip.py --check): {'PASS' if ok else 'FAIL'} - {last}")
+    if not ok:
+        print("  refused: a row is never banked on a red gate")
+        return 1
+    ext = ROOT / "substrate" / "external"
+    reg = bsw._load_registry()
+    rows = [t for t in reg["trajectories"] if t.get("wave") == "KA-E" and t.get("status") not in ("locked", "locking", "descoped")]
+    banked, left = 0, []
+    for t in rows[: limit or None]:
+        unit = (t.get("ka") or {}).get("unit")
+        chunk = ext / f"{unit}.md"
+        if not unit or not chunk.exists():
+            left.append(f"{t['id']} {unit}: no chunk on disk")
+            continue
+        if unit in ev_trips:
+            left.append(f"{t['id']} {unit}: still past its TTL - re-fetch it (night_crawler.py --refresh-stale --only)")
+            continue
+        fm = ft._frontmatter(ft._rd(chunk))
+        # The chunk's OWN age, not the trip list: freshness_trip ages only SEO-topic or cited chunks, so a UX source
+        # 101 days past its 30-day TTL raised no trip - and the first dry run would have banked three of them.
+        ttl = int(re.sub(r"\D", "", str(fm.get("ttl_days", "30"))) or 30)
+        age = ft._age(ft._d(fm.get("last_verified")) or ft._d(fm.get("fetched_at")), date.today())
+        if age is None or age > ttl:
+            left.append(f"{t['id']} {unit}: {age if age is not None else '?'} days since verified against a {ttl}-day TTL - "
+                        "re-fetch it (night_crawler.py --refresh-stale --only)")
+            continue
+        notes = sorted((ext / "_changes").glob(f"{unit}.*.md"))
+        owed = [n for n in notes if not DECISION.search(n.read_text(encoding="utf-8"))]
+        if owed:
+            left.append(f"{t['id']} {unit}: changed - decision owed in {owed[-1].relative_to(ROOT).as_posix()}")
+            continue
+        verified = fm.get("last_verified") or fm.get("fetched_at")
+        decided = []
+        for n in notes:
+            m = re.search(r"^##\s*Decision\b[^\n]*\n+(.+)", n.read_text(encoding="utf-8"), re.M)
+            decided.append(f"{n.name.rsplit('.', 2)[-2]}: {m.group(1).strip()[:200] if m else ''}")
+        basis = (f"[{date.today().isoformat()}] pct -> {{pct}}. Re-fetched by night_crawler.py --refresh-stale "
+                 f"(verified {verified}, sha {fm.get('source_sha')}, ttl {fm.get('ttl_days')}d); freshness_trip.py raises no "
+                 f"evidence trip for it. "
+                 + (f"Changes on re-fetch, each with its recorded decision: {' | '.join(decided)}." if decided
+                    else "The source had not changed since its last fetch (sha matched), so no lever was in question.")
+                 + " Gate seo-trip.")
+        if dry:
+            print(f"  would bank {t['id']} {unit}: verified {verified}, {len(notes)} change note(s), all decided")
+        else:
+            bsw._bank(reg, t["id"], basis, ["seo-trip"])
+        banked += 1
+    if not dry and banked:
+        bsw._write_registry(reg)
+    for line in left:
+        print("  left open: " + line)
+    print(f"{'would bank' if dry else 'banked'} {banked} KA-E row(s); {len(left)} left open")
+    return 0
+
+
+SURFACES = ROOT / "freshness_surfaces_report.json"
+SURFACES_TEETH = ROOT / "freshness_surfaces_teeth.json"
+
+
+def bank_r(dry: bool, limit: int | None) -> int:
+    """KA-R (KA1..KA120), one row per sitemap URL: "this page's five freshness surfaces agree; it is inside its kind's
+    window or holds an open refresh". The 58 rows of 2026-10-30 were banked from this reading by hand; this is the same
+    reading as a tool (2026-10-31). A row closes only when, read now:
+      1. tools/prove_freshness_surfaces.mjs read the DEPLOYED origin within 6 h and found the page's JSON-LD dateModified,
+         its visible 'Last updated' line at phone-390 and desktop-1280, and its sitemap <lastmod> to be one date, its
+         markdown twin the repository's, and an IndexNow push on or after the change;
+      2. the prover's --teeth run (a <lastmod> moved a day early) reddened the same day - a prover that cannot fail does
+         not get to pass anything;
+      3. freshness_trip.py raises no refresh or sitemap-promise trip for the page."""
+    if not SURFACES.exists():
+        print("  refused: no freshness_surfaces_report.json - run node tools/prove_freshness_surfaces.mjs after the deploy")
+        return 1
+    rep = json.loads(SURFACES.read_text(encoding="utf-8"))
+    ran = datetime.fromisoformat(rep["ran"].replace("Z", "+00:00"))
+    age_h = (datetime.now(timezone.utc) - ran).total_seconds() / 3600
+    if rep.get("teeth") or age_h > 6:
+        print(f"  refused: the surfaces report is {'a teeth run' if rep.get('teeth') else f'{age_h:.1f} h old'} - re-run the prover")
+        return 1
+    teeth = json.loads(SURFACES_TEETH.read_text(encoding="utf-8")) if SURFACES_TEETH.exists() else {}
+    # the planted fault is a <lastmod> a day before the page's own date: the teeth run must have failed THAT disagreement,
+    # not merely failed something (a page already wrong on production would also make `failed` non-zero)
+    caught = any(not x.get("ok") and x.get("lastmod") and x.get("jsonld") and x["lastmod"] < x["jsonld"]
+                 for x in (teeth.get("rows") or {}).values())
+    if not teeth.get("teeth") or not caught or (teeth.get("ran") or "")[:10] != rep["ran"][:10]:
+        print("  refused: no same-day --teeth run that reddened - run node tools/prove_freshness_surfaces.mjs --teeth")
+        return 1
+    ok, last = bsw._run_gate(str(ROOT / "tools" / "freshness_trip.py"), "--check")
+    print(f"  gate seo-trip (freshness_trip.py --check): {'PASS' if ok else 'FAIL'} - {last}")
+    if not ok:
+        print("  refused: a row is never banked on a red gate")
+        return 1
+    c = ft.census()
+    tripped = {t["unit"] for t in c["trips"] if t["kind"] in ("refresh", "sitemap-promise")}
+    by_local = {r.get("local"): (url, r) for url, r in rep["rows"].items()}
+    reg = bsw._load_registry()
+    rows = [t for t in reg["trajectories"] if t.get("wave") == "KA-R" and t.get("status") not in ("locked", "locking", "descoped")]
+    banked, left = 0, []
+    for t in rows[: limit or None]:
+        ka = t.get("ka") or {}
+        unit = ka.get("unit")
+        hit = by_local.get(unit)
+        if not hit:
+            left.append(f"{t['id']} {unit}: not in the prover's reading of production's sitemap")
+            continue
+        url, r = hit
+        if tripped & ({unit} | set(ka.get("aliases") or [])):
+            left.append(f"{t['id']} {unit}: freshness_trip still raises a refresh or sitemap-promise trip")
+            continue
+        vis = r.get("visible") or {}
+        dates = {r.get("jsonld"), vis.get("phone-390"), vis.get("desktop-1280"), r.get("lastmod")}
+        if not r.get("ok") or r.get("status") != 200 or len(dates) != 1 or None in dates or r.get("twin") != "current" \
+                or not r.get("pushed_after_change") or not r.get("in_window"):
+            left.append(f"{t['id']} {unit}: production disagrees - jsonld {r.get('jsonld')}, visible {vis}, lastmod "
+                        f"{r.get('lastmod')}, twin {r.get('twin')}, pushed {r.get('pushed')}")
+            continue
+        d = r["lastmod"]
+        basis = (f"[{date.today().isoformat()}] pct -> {{pct}}. Measured live {rep['ran'][:16]}Z - tools/prove_freshness_surfaces.mjs "
+                 f"read the deployed origin for {url}: HTTP 200; JSON-LD dateModified {d}; the visible 'Last updated' <time> {d} "
+                 f"at phone-390 and {d} at desktop-1280 (rendered and visible); sitemap <lastmod> {d}; the deployed markdown twin "
+                 f"is the repository's (current); IndexNow pushed {r.get('pushed')}, on or after the change; no refresh trip "
+                 f"(inside its kind's window). One date on all five surfaces. Teeth: the same-day --teeth run moved a <lastmod> "
+                 f"a day early and it read as disagreement. Gate freshness-surfaces (with sitemap-promise, md-twins-current, "
+                 f"seo-trip).")
+        if dry:
+            print(f"  would bank {t['id']} {unit}: one date {d} on five surfaces")
+        else:
+            bsw._bank(reg, t["id"], basis, ["freshness-surfaces", "seo-trip"])
+        banked += 1
+    if not dry and banked:
+        bsw._write_registry(reg)
+    for line in left:
+        print("  left open: " + line)
+    print(f"{'would bank' if dry else 'banked'} {banked} KA-R row(s); {len(left)} left open")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--lens", choices=["S"], required=True)
+    ap.add_argument("--lens", choices=["S", "E", "R"], required=True)
     ap.add_argument("--dry", action="store_true")
     ap.add_argument("--limit", type=int)
     a = ap.parse_args()
-    return bank_s(a.dry, a.limit)
+    return {"E": bank_e, "S": bank_s, "R": bank_r}[a.lens](a.dry, a.limit)
 
 
 if __name__ == "__main__":

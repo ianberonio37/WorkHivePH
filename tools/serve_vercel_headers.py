@@ -70,6 +70,12 @@ def git_blob(ref: str, rel: str) -> bytes | None:
     return r.stdout if r.returncode == 0 else None
 
 
+def load_trailing(root: Path, ref: str | None = None):
+    """vercel.json's trailingSlash: True (/x -> 308 /x/), False (/x/ -> 308 /x), None (no redirect either way)."""
+    cfg = json.loads(git_blob(ref, "vercel.json").decode("utf-8") if ref else (root / "vercel.json").read_text(encoding="utf-8"))
+    return cfg.get("trailingSlash")
+
+
 def load_rules(root: Path, ref: str | None = None) -> list[tuple[re.Pattern, list[tuple[str, str]]]]:
     cfg = json.loads(git_blob(ref, "vercel.json").decode("utf-8") if ref else (root / "vercel.json").read_text(encoding="utf-8"))
     rules = []
@@ -98,8 +104,30 @@ class Handler(SimpleHTTPRequestHandler):
     local_stack = False             # --local-stack: also serve HTML/JS with the cloud URL+key rewritten to the local stack
     _pairs: list = []
     _blobs: dict = {}
+    trailing = None                 # vercel.json trailingSlash, answered here as the edge answers it (a 308)
+
+    def _slash_redirect(self):
+        """The edge's trailing-slash 308, BEFORE any file is served (2026-10-30). true: a path with no extension and no
+        trailing slash goes to the slash form (Vercel leaves /x/styles.css alone); false: a slash path goes to the bare
+        form. The substitute answered neither, so a walk on it never saw the redirect production sends."""
+        raw = self.path.split("?", 1)
+        path, query = raw[0], ("?" + raw[1] if len(raw) > 1 else "")
+        last = path.rsplit("/", 1)[-1]
+        if self.trailing is True and path != "/" and not path.endswith("/") and "." not in last:
+            target = path + "/"
+        elif self.trailing is False and path != "/" and path.endswith("/"):
+            target = path.rstrip("/")
+        else:
+            return False
+        self.send_response(308)
+        self.send_header("Location", target + query)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+        return True
 
     def send_head(self):
+        if self._slash_redirect():
+            return None
         # ★--local-stack: THE PAGES TALK TO THE LOCAL STACK (2026-10-16). --local-supabase only widens the CSP: every page
         # still named the PRODUCTION Supabase URL and key (the local tester on :5000 rewrites them; this server did not), so
         # a walk on this substitute signed its test cast in against production's login function (400) and every page read
@@ -111,7 +139,7 @@ class Handler(SimpleHTTPRequestHandler):
         rel = urllib.parse.unquote(self.path.split("?", 1)[0].split("#", 1)[0]).lstrip("/")
         cands = [rel or "index.html"] if not rel.endswith("/") else [rel + "index.html"]
         if rel and not rel.endswith("/"):
-            cands.append(rel + "/index.html")            # vercel.json trailingSlash false: /learn/x serves learn/x/index.html
+            cands.append(rel + "/index.html")            # trailingSlash false: /learn/x serves learn/x/index.html
         for c in cands:
             if c not in self._blobs or not self.ref:
                 if self.ref:
@@ -162,6 +190,7 @@ def main() -> int:
     a = ap.parse_args()
     root = Path(a.root).resolve()
     Handler.rules = load_rules(root, a.ref)
+    Handler.trailing = load_trailing(root, a.ref)
     Handler.ref, Handler.local_supabase = a.ref, a.local_supabase or a.local_stack
     Handler.local_stack, Handler._pairs = a.local_stack, (_local_stack_pairs() if a.local_stack else [])
     if a.local_stack and not Handler._pairs:

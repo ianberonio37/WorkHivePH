@@ -1030,6 +1030,8 @@
               <span class="meta-chip">${e(item.section)}</span>
               <span class="meta-chip">${e(item.category || 'Other')}</span>
               ${item.location ? `<span class="meta-chip">${e(item.location)}</span>` : ''}
+              ${/* HS L1 (2026-10-30): how old the listing is - the card said what and where, never when */
+                item.created_at && typeof whFmtAgo === 'function' ? `<span class="meta-chip">listed ${e(whFmtAgo(item.created_at))}</span>` : ''}
               ${typeof whCreditsBackChipHtml === 'function'
                   ? whCreditsBackChipHtml(item.price, _rewardKnobs)
                   : ''}
