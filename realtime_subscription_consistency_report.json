@@ -171,7 +171,7 @@
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 203616
+          "offset": 203737
         }
       ],
       "drift": []
@@ -244,42 +244,42 @@
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 223650
+          "offset": 223648
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 224912
+          "offset": 224910
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 229325
+          "offset": 229323
         },
         {
           "table": "community_replies",
           "allowed": false,
-          "offset": 231301
+          "offset": 231299
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 232876
+          "offset": 232874
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 233749
+          "offset": 233747
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 237067
+          "offset": 237065
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 237327
+          "offset": 237325
         }
       ],
       "drift": []
