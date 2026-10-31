@@ -1192753,8 +1192753,8 @@
     },
     {
       "id": "ED345",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Short Circuit on engineering-design.html · solo-owner",
       "pages": [
@@ -1192807,6 +1192807,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Short Circuit calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED (a safety defect): the form sends xfmr_kva, z_pct, voltage_ll, cable_len_m and breaker_ic_kA; python-api/calcs/short_circuit.py read transformer_kva, transformer_z_pct, voltage, cable_length_m and ocpd_interrupting_ka. Every fault current came from a 500 kVA default transformer, and the breaker verdict judged a 25 kA default breaker: a 10 kA breaker on a 1000 kVA transformer (22 kA available) was reported ADEQUATE. The form's names are read now; oracle vector 'Short Circuit - the form's transformer and breaker reach the verdict' fails on the old engine on all three asserts (25 / 11.16 kA / True). Walked live: 1000 kVA + 10 kA -> 22.03 kA, '10 kA installed vs 22.034 kA required', 'the current 10 kA breaker is inadequate'. WALKED: Short Circuit: every value its form sends now reaches its engine (tools/census_calc_input_reach.py), and in the page through the Playwright MCP. HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {

@@ -96,6 +96,14 @@ I1_FIXED = {
                   "forms while every engine shares the load (each unit half) - relabelled 'sharing the load', and the guides "
                   "now say how to get N+1 (a standby of the same size, not counted).",
 }
+I1_FIXED["Short Circuit"] = (
+    "FOUND AND FIXED (a safety defect): the form sends xfmr_kva, z_pct, voltage_ll, cable_len_m and breaker_ic_kA; "
+    "python-api/calcs/short_circuit.py read transformer_kva, transformer_z_pct, voltage, cable_length_m and "
+    "ocpd_interrupting_ka. Every fault current came from a 500 kVA default transformer, and the breaker verdict judged a "
+    "25 kA default breaker: a 10 kA breaker on a 1000 kVA transformer (22 kA available) was reported ADEQUATE. The form's "
+    "names are read now; oracle vector 'Short Circuit - the form's transformer and breaker reach the verdict' fails on the "
+    "old engine on all three asserts (25 / 11.16 kA / True). Walked live: 1000 kVA + 10 kA -> 22.03 kA, '10 kA installed vs "
+    "22.034 kA required', 'the current 10 kA breaker is inadequate'.")
 GR_FIXED = {
     "GR1": "FOUND AND FIXED: every tip, note, standard and the subtitle were rgba(255,255,255,0.55) and the tips 12.5px - now "
            "0.80 (the page's measured Lc 79.8 value) at 14px, the formulas 14px.",

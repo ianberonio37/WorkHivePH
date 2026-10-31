@@ -122,26 +122,6 @@
    "shock_type"
   ],
   [
-   "Short Circuit",
-   "breaker_ic_kA"
-  ],
-  [
-   "Short Circuit",
-   "cable_len_m"
-  ],
-  [
-   "Short Circuit",
-   "voltage_ll"
-  ],
-  [
-   "Short Circuit",
-   "xfmr_kva"
-  ],
-  [
-   "Short Circuit",
-   "z_pct"
-  ],
-  [
    "Solar PV System",
    "battery_voltage"
   ],

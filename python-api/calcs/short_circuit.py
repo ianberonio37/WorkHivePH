@@ -139,18 +139,22 @@ def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcShortCircuit() keys.
     """
-    # ── System inputs ─────────────────────────────────────────────────────────
-    voltage_lv     = float(inputs.get("voltage",          400))   # V LV bus
+    # ★THE FORM'S TRANSFORMER NEVER REACHED THE FAULT (2026-10-31, ED-I1 Short Circuit, tools/census_calc_input_reach.py).
+    # The page sends xfmr_kva, z_pct, voltage_ll, cable_len_m and breaker_ic_kA; this read transformer_kva, transformer_z_pct,
+    # voltage, cable_length_m and ocpd_interrupting_ka - so every fault current came from a 500 kVA default transformer at
+    # its default %Z, 30 m of cable and a 25 kA breaker, whatever the person chose, and the breaker verdict judged a breaker
+    # they had not picked. A 1000 kVA transformer's fault was understated by about half. The form's names are read now.
+    voltage_lv     = float(inputs.get("voltage",          inputs.get("voltage_ll", 400)))   # V LV bus
     voltage_hv     = float(inputs.get("voltage_hv",     22000))   # V HV supply (22kV typical PH)
-    trafo_kva      = float(inputs.get("transformer_kva",  500))
-    trafo_z_pct    = float(inputs.get("transformer_z_pct",
-                           DEFAULT_Z_PCT["Distribution (< 500 kVA)"]))
+    trafo_kva      = float(inputs.get("transformer_kva",  inputs.get("xfmr_kva", 500)))
+    trafo_z_pct    = float(inputs.get("transformer_z_pct", inputs.get("z_pct",
+                           DEFAULT_Z_PCT["Distribution (< 500 kVA)"])))
     trafo_xr       = float(inputs.get("transformer_xr_ratio", 5.0))
     source_mva     = float(inputs.get("source_fault_mva",  250))   # utility SCC at PCC (MVA)
 
     # Cable from transformer to fault point
     cable_mm2      = float(inputs.get("cable_mm2",         50))
-    cable_length_m = float(inputs.get("cable_length_m",    30))
+    cable_length_m = float(inputs.get("cable_length_m",    inputs.get("cable_len_m", 30)))
     cable_parallel = int  (inputs.get("cable_parallel",     1))
     cable_temp_c   = float(inputs.get("cable_temp_c",      75))   # at max load (75°C THHN)
 
@@ -160,7 +164,7 @@ def calculate(inputs: dict) -> dict:
     cable2_parallel = int (inputs.get("cable2_parallel",    1))
 
     # OCPD at fault bus
-    ocpd_ka        = float(inputs.get("ocpd_interrupting_ka", 25))
+    ocpd_ka        = float(inputs.get("ocpd_interrupting_ka", inputs.get("breaker_ic_kA", 25)))
 
     # IEC 60909 voltage factor
     c_factor       = C_MAX_LV if voltage_lv <= 1000 else C_MAX_HV

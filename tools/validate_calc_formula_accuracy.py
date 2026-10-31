@@ -878,6 +878,22 @@ VECTORS = [
         "custom": _check_short_circuit_zsqrt,
     },
     {
+        # ★THE FORM'S TRANSFORMER AND BREAKER (2026-10-31, ED-I1): the page sends xfmr_kva / z_pct / voltage_ll / cable_len_m
+        # / breaker_ic_kA; the engine read other names and computed every fault from a 500 kVA default and judged a 25 kA
+        # default breaker - a 10 kA breaker on a 1000 kVA transformer (22 kA available) was reported adequate.
+        "module": "calcs.short_circuit",
+        "calc_type": "Short Circuit - the form's transformer and breaker reach the verdict",
+        "standard": "IEC 60909 — I_FL = S/(√3·U); the transformer bounds Ik'' below I_FL·100/Z% = 28.9 kA; OCPD ≥ Ik''",
+        "inputs": {"xfmr_kva": 1000, "z_pct": 5.0, "voltage_ll": 400, "cable_mm2": 50, "cable_len_m": 10, "breaker_ic_kA": 10},
+        "asserts": [
+            {"path": "ocpd_provided_kA", "expected": 10.0, "tol": 0.001, "note": "the breaker the person chose, not the 25 kA default"},
+            {"path": "Isc_3ph_kA", "expected": 22.137, "tol": 0.05,
+             "note": "1000 kVA at 5% (I_FL 1443 A, transformer-only bound 28.9 kA) through the 250 MVA source and 10 m of 50 mm² "
+                     "= 22.1 kA - the 500 kVA default gave 11.2"},
+            {"path": "ocpd_adequate", "expected": False, "tol": 0, "note": "22.1 kA available > 10 kA interrupting rating: inadequate"},
+        ],
+    },
+    {
         "module": "calcs.duct_sizing",
         "calc_type": "Duct Sizing",
         "standard": "ASHRAE 2021 Ch.21 — De (sizing) vs D_h (pressure drop)",
