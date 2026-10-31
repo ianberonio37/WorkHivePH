@@ -115,6 +115,21 @@ def calculate(inputs: dict) -> dict:
     load_kva     = float(inputs.get("load_kva",     0))
     power_factor = float(inputs.get("power_factor", 0.90))   # IT loads typically 0.9–0.95
 
+    # ★THE FORM'S LOAD SCHEDULE NEVER REACHED THE UPS (2026-10-31, ED-I1 UPS Sizing, census_calc_input_reach.py). The page
+    # sends its loads as a schedule - loads: [{description, va_per_unit, power_factor, qty}] - and this read only load_kw /
+    # load_kva, so EVERY UPS sized from the form was sized for the 10 kW default below, whatever the schedule held (60 kVA
+    # of servers got the same 20 kVA UPS as the default room). The form's backup_min, growth_factor and ups_eff were read
+    # under other names, and two of its three topologies ("Online (Double-Conversion)", "Offline (Standby)") under other
+    # spellings. The schedule now sets the load: kVA = Σ VA x qty, kW = Σ VA x PF x qty.
+    sched = inputs.get("loads") or []
+    if isinstance(sched, list) and sched and load_kw <= 0 and load_kva <= 0:
+        va = sum(float(l.get("va_per_unit") or 0) * float(l.get("qty") or 0) for l in sched if isinstance(l, dict))
+        w = sum(float(l.get("va_per_unit") or 0) * float(l.get("power_factor") or 0.9) * float(l.get("qty") or 0)
+                for l in sched if isinstance(l, dict))
+        if va > 0:
+            load_kva, load_kw = va / 1000, w / 1000
+            power_factor = w / va
+
     if load_kw <= 0 and load_kva > 0:
         load_kw = load_kva * power_factor
     if load_kva <= 0 and load_kw > 0:
@@ -125,13 +140,18 @@ def calculate(inputs: dict) -> dict:
 
     # ── UPS parameters ────────────────────────────────────────────────────────
     topology       = str  (inputs.get("topology",          "Online Double-Conversion"))
-    backup_mins    = float(inputs.get("backup_minutes",     15.0))
-    design_margin  = float(inputs.get("design_margin_pct",  20.0))
+    topology       = {"Online (Double-Conversion)": "Online Double-Conversion",
+                      "Offline (Standby)": "Offline/Standby"}.get(topology, topology)   # the form's spellings
+    backup_mins    = float(inputs.get("backup_minutes", inputs.get("backup_min", 15.0)) or 15.0)
+    _growth        = inputs.get("growth_factor")
+    design_margin  = float(inputs.get("design_margin_pct",
+                           (float(_growth) - 1) * 100 if _growth not in (None, "") and float(_growth) >= 1 else 20.0))
     ambient_c      = float(inputs.get("ambient_temp_c",     35.0))
     redundancy     = str  (inputs.get("redundancy",         "N"))   # N, N+1, 2N
 
     topo_data = UPS_TOPOLOGIES.get(topology, UPS_TOPOLOGIES["Online Double-Conversion"])
-    eta_ups   = float(inputs.get("ups_efficiency", topo_data["eta_ups"]))
+    _eff      = inputs.get("ups_efficiency", inputs.get("ups_eff"))
+    eta_ups   = float(_eff) if _eff not in (None, "") and 0 < float(_eff) <= 1 else topo_data["eta_ups"]
 
     # ── Design load ───────────────────────────────────────────────────────────
     # IEEE 446: size for 80% loading limit → UPS kVA = load_kVA / 0.80

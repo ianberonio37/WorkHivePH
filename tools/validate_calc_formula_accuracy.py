@@ -761,6 +761,23 @@ VECTORS = [
         "custom": _check_ups_sizing,
     },
     {
+        # ★THE FORM'S LOAD SCHEDULE (2026-10-31, ED-I1 UPS Sizing): the page sends loads[] and backup_min / growth_factor /
+        # ups_eff; the engine read none, so every UPS from the form was sized for a 10 kW default. Fails on that engine.
+        "module": "calcs.ups_sizing",
+        "calc_type": "UPS Sizing - the form's load schedule sizes the UPS",
+        "standard": "IEEE 446: UPS kVA >= load kVA x growth / 0.80 loading limit; kVA = Σ VA·qty, kW = Σ VA·PF·qty",
+        "inputs": {"topology": "Online (Double-Conversion)", "phase": "3-Phase", "backup_min": 30, "growth_factor": 1.2,
+                   "ups_eff": 0.96, "loads": [{"description": "Servers", "va_per_unit": 3000, "power_factor": 0.9, "qty": 20}]},
+        "asserts": [
+            {"path": "load_kVA", "expected": 60.0, "tol": 0.01, "note": "20 servers x 3000 VA = 60 kVA (not the 10 kW default)"},
+            {"path": "load_kW", "expected": 54.0, "tol": 0.01, "note": "60 kVA x 0.9 = 54 kW"},
+            {"path": "ups_kVA_min", "expected": 90.0, "tol": 0.01, "note": "60 x 1.2 growth / 0.80 = 90 kVA"},
+            {"path": "recommended_kVA", "expected": 100, "tol": 0, "note": "next standard size >= 90 kVA"},
+            {"path": "backup_minutes_target", "expected": 30.0, "tol": 0.001, "note": "the form's 30 min (not 15)"},
+            {"path": "ups_efficiency", "expected": 0.96, "tol": 0.0001, "note": "the form's 0.96"},
+        ],
+    },
+    {
         "module": "calcs.earthing_grounding",
         "calc_type": "Earthing / Grounding System",
         "standard": "PEC 2017 Art. 2.50 / IEEE 80 — pass verdict = resistance <= limit (shock safety)",

@@ -86,22 +86,6 @@
    "z3_c"
   ],
   [
-   "UPS Sizing",
-   "backup_min"
-  ],
-  [
-   "UPS Sizing",
-   "growth_factor"
-  ],
-  [
-   "UPS Sizing",
-   "phase"
-  ],
-  [
-   "UPS Sizing",
-   "ups_eff"
-  ],
-  [
    "Wire Sizing",
    "ambient_temp"
   ],

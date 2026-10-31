@@ -135,6 +135,8 @@ BASELINE = ROOT / "calc_input_reach_baseline.json"
 RECORDED: dict[str, dict[str, str]] = {
     "Bearing Life (L10)": {"bearing_no": "the form labels it 'Bearing Number (optional: for report reference)' - a catalog "
                                          "number printed on the report; the life comes from C and P, which are read"},
+    "UPS Sizing": {"phase": "1-Phase 230V or 3-Phase is printed on the report and decides the product line; the UPS kVA "
+                            "(load x growth / 80%) and the battery Ah do not depend on it"},
     "HVAC Cooling Load": {"building_type": "the form labels it 'Building Type (for permit documentation: also suggests Room "
                                            "Function)' - it fills the report header and pre-selects Room Function on the "
                                            "page; the load comes from Room Function's values, which are read"},

@@ -140,6 +140,14 @@ I1_FIXED["Solar PV System"] = (
     "voltage they chose was ignored. Both read now; the bank reports its DoD. Oracle vector 'Solar PV System - the form's "
     "depth of discharge and battery voltage size the bank' fails on the old engine. Walked through the served path "
     "(engineering-calc-agent): source python, 94.12 kWh at 50% DoD on a 24 V bus, 2 in series x 16 strings of 250 Ah.")
+I1_FIXED["UPS Sizing"] = (
+    "FOUND AND FIXED: the form sends its loads as a schedule (loads: [{description, va_per_unit, power_factor, qty}]); "
+    "python-api/calcs/ups_sizing.py read only load_kw / load_kva, so EVERY UPS sized from the form was sized for its 10 kW "
+    "default - 60 kVA of servers got the same 20 kVA UPS as the default room. backup_min, growth_factor and ups_eff were "
+    "read under other names, and two of three topologies under other spellings. The schedule now sets kVA and kW; the "
+    "form's backup, growth, efficiency and topology are read; phase is recorded-only (UPS kVA and Ah do not depend on it). "
+    "Oracle vector 'UPS Sizing - the form's load schedule sizes the UPS' fails on the old engine on all six asserts; walked "
+    "through the served path (engineering-calc-agent).")
 for _calc in ("Bearing Life (L10)", "HVAC Cooling Load"):
     I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py "
                        "RECORDED names the label as the reason) - the value it sends is a reference printed on the report, "

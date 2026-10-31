@@ -1192976,8 +1192976,8 @@
     },
     {
       "id": "ED348",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - UPS Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1193030,6 +1193030,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the UPS Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-01] FOUND AND FIXED: the form sends its loads as a schedule (loads: [{description, va_per_unit, power_factor, qty}]); python-api/calcs/ups_sizing.py read only load_kw / load_kva, so EVERY UPS sized from the form was sized for its 10 kW default - 60 kVA of servers got the same 20 kVA UPS as the default room. backup_min, growth_factor and ups_eff were read under other names, and two of three topologies under other spellings. The schedule now sets kVA and kW; the form's backup, growth, efficiency and topology are read; phase is recorded-only (UPS kVA and Ah do not depend on it). Oracle vector 'UPS Sizing - the form's load schedule sizes the UPS' fails on the old engine on all six asserts; walked through the served path (engineering-calc-agent). WALKED: UPS Sizing: every value its form sends now reaches its engine (tools/census_calc_input_reach.py), and in the page through the Playwright MCP. HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {
