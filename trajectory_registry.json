@@ -1173060,7 +1173060,7 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pump Sizing (TDH) calculator with a receipt, the fix landed, a gate holds it"
       },
-      "basis": "[2026-10-31] FOUND AND FIXED: the guide described Hazen-Williams; python-api/calcs/pump_tdh.py is Darcy-Weisbach / Colebrook-White. Reading the two side by side found four ENGINE defects: the form's pressure_head never reached TDH (and the result carried a hard-coded 0.0), fittings_allowance was never read (always 20%), fluid_density was never read (seawater and glycol sized as water), and the form's default diameter 0 = Auto was refused, so the default calculation failed. All four fixed in the engine; two oracle vectors fail on the old engine; walked live in the page - Auto chose 80 mm and TDH carried the 20 m back-pressure. The guide is rewritten from the engine, and names the form's Fluid field. WALKED: Pump Sizing (TDH)'s Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-10-31T10:09:41Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "basis": "[2026-10-31] FOUND AND FIXED: the guide described Hazen-Williams; python-api/calcs/pump_tdh.py is Darcy-Weisbach / Colebrook-White. Reading the two side by side found four ENGINE defects: the form's pressure_head never reached TDH (and the result carried a hard-coded 0.0), fittings_allowance was never read (always 20%), fluid_density was never read (seawater and glycol sized as water), and the form's default diameter 0 = Auto was refused, so the default calculation failed. All four fixed in the engine; two oracle vectors fail on the old engine; walked live in the page - Auto chose 80 mm and TDH carried the 20 m back-pressure. The guide is rewritten from the engine, and names the form's Fluid field. WALKED: Pump Sizing (TDH)'s Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-10-31T10:09:41Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60 || [2026-11-01] CORRECTION: the default 'Auto' calculation did not fail in front of the person - python-api refused it (422) and the engineering-calc-agent edge function fell through silently to its TypeScript calcPumpSizingTDH; the Python defects held wherever Python answered (any diameter entered). Found measuring which engine serves each calculator (tools/census_calc_served_engine.py).",
       "artifacts": {
         "gates": [
           "engineering-guides"
@@ -1193075,7 +1193075,239 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wire Sizing calculator with a receipt, the fix landed, a gate holds it"
       }
+    },
+    {
+      "id": "ED350",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-E1",
+      "title": "the engine a person is served is the oracle-verified engine - Duct Sizing (Equal Friction) on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Duct Sizing (Equal Friction) calculator on engineering-design.html: the calculation the page shows comes from the Python engine that validate_calc_formula_accuracy.py pins to hand-computed, standard-anchored values - not from the edge function's unchecked TypeScript fallback; the report renders every field it reads from that engine. MEASURED: Duct Sizing (Equal Friction) is answered by the edge function's TypeScript (ts-only): no python handler. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "E1",
+        "lens": "the engine a person is served is the oracle-verified engine",
+        "unit": "Duct Sizing (Equal Friction)",
+        "page": "engineering-design.html",
+        "ask": "the calculation the page shows comes from the Python engine that validate_calc_formula_accuracy.py pins to hand-computed, standard-anchored values - not from the edge function's unchecked TypeScript fallback; the report renders every field it reads from that engine",
+        "detail": "Duct Sizing (Equal Friction) is answered by the edge function's TypeScript (ts-only): no python handler",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Duct Sizing (Equal Friction) calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED351",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-E1",
+      "title": "the engine a person is served is the oracle-verified engine - Wire Sizing on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Wire Sizing calculator on engineering-design.html: the calculation the page shows comes from the Python engine that validate_calc_formula_accuracy.py pins to hand-computed, standard-anchored values - not from the edge function's unchecked TypeScript fallback; the report renders every field it reads from that engine. MEASURED: Wire Sizing is answered by the edge function's TypeScript (ts-fallback): ValueError: Provide load_kw, load_kva, or load_amps.. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "E1",
+        "lens": "the engine a person is served is the oracle-verified engine",
+        "unit": "Wire Sizing",
+        "page": "engineering-design.html",
+        "ask": "the calculation the page shows comes from the Python engine that validate_calc_formula_accuracy.py pins to hand-computed, standard-anchored values - not from the edge function's unchecked TypeScript fallback; the report renders every field it reads from that engine",
+        "detail": "Wire Sizing is answered by the edge function's TypeScript (ts-fallback): ValueError: Provide load_kw, load_kva, or load_amps.",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Wire Sizing calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED352",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-E1",
+      "title": "the engine a person is served is the oracle-verified engine - Lightning Protection System (LPS) on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Lightning Protection System (LPS) calculator on engineering-design.html: the calculation the page shows comes from the Python engine that validate_calc_formula_accuracy.py pins to hand-computed, standard-anchored values - not from the edge function's unchecked TypeScript fallback; the report renders every field it reads from that engine. MEASURED: Lightning Protection System (LPS) is answered by the edge function's TypeScript (ts-only): no python handler. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "E1",
+        "lens": "the engine a person is served is the oracle-verified engine",
+        "unit": "Lightning Protection System (LPS)",
+        "page": "engineering-design.html",
+        "ask": "the calculation the page shows comes from the Python engine that validate_calc_formula_accuracy.py pins to hand-computed, standard-anchored values - not from the edge function's unchecked TypeScript fallback; the report renders every field it reads from that engine",
+        "detail": "Lightning Protection System (LPS) is answered by the edge function's TypeScript (ts-only): no python handler",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Lightning Protection System (LPS) calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED353",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-E1",
+      "title": "the engine a person is served is the oracle-verified engine - V-Belt Drive Design on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the V-Belt Drive Design calculator on engineering-design.html: the calculation the page shows comes from the Python engine that validate_calc_formula_accuracy.py pins to hand-computed, standard-anchored values - not from the edge function's unchecked TypeScript fallback; the report renders every field it reads from that engine. MEASURED: V-Belt Drive Design is answered by the edge function's TypeScript (ts-only): no python handler. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "E1",
+        "lens": "the engine a person is served is the oracle-verified engine",
+        "unit": "V-Belt Drive Design",
+        "page": "engineering-design.html",
+        "ask": "the calculation the page shows comes from the Python engine that validate_calc_formula_accuracy.py pins to hand-computed, standard-anchored values - not from the edge function's unchecked TypeScript fallback; the report renders every field it reads from that engine",
+        "detail": "V-Belt Drive Design is answered by the edge function's TypeScript (ts-only): no python handler",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the V-Belt Drive Design calculator with a receipt, the fix landed, a gate holds it"
+      }
     }
   ],
-  "count": 20804
+  "count": 20808
 }

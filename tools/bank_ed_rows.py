@@ -81,7 +81,7 @@ ENGINE_CHECKED["Pump Sizing (TDH)"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams; python-api/calcs/pump_tdh.py is Darcy-Weisbach / Colebrook-White. "
     "Reading the two side by side found four ENGINE defects: the form's pressure_head never reached TDH (and the result "
     "carried a hard-coded 0.0), fittings_allowance was never read (always 20%), fluid_density was never read (seawater and "
-    "glycol sized as water), and the form's default diameter 0 = Auto was refused, so the default calculation failed. All "
+    "glycol sized as water), and the form's default diameter 0 = Auto was refused by Python (the edge function then fell through silently to its TypeScript fallback). All "
     "four fixed in the engine; two oracle vectors fail on the old engine; walked live in the page - Auto chose 80 mm and "
     "TDH carried the 20 m back-pressure. The guide is rewritten from the engine, and names the form's Fluid field.")
 # I1 - a value the form sends that its engine never reads: closed when tools/census_calc_input_reach.py finds none left for

@@ -1959187,7 +1959187,71 @@
       "needs_review": false,
       "dims_graded": [],
       "findings": []
+    },
+    {
+      "id": "ED350",
+      "wave": "ED-E1",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "cell": "wide-1920|solo-owner|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ED351",
+      "wave": "ED-E1",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "cell": "wide-1920|solo-owner|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ED352",
+      "wave": "ED-E1",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "cell": "wide-1920|solo-owner|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "ED353",
+      "wave": "ED-E1",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "cell": "wide-1920|solo-owner|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
     }
   ],
-  "count": 17701
+  "count": 17705
 }

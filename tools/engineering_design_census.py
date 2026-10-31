@@ -29,6 +29,7 @@ THE LENSES - one row per (calculator, lens) the registry does not already hold, 
   D1 the drawing matches the numbers                      the drawing dispatch        F D
   GR the guide renderer, once for all 55                  a measured site each        F CA
   I1 every value the form sends reaches the engine        census_calc_input_reach.py  F D   (added 2026-10-31)
+  E1 the served engine is the oracle-verified engine     census_calc_served_engine.py F D  (added 2026-10-31)
 
     python tools/engineering_design_census.py           # the table
     python tools/engineering_design_census.py --json    # the population the seeder reads
@@ -80,6 +81,10 @@ CALC_LENSES = [
      "block, is legible at 390 and 1280, and downloads as the same drawing",
      ["F", "D"], ["U", "F"]),
 ]
+E1_LENS = "the engine a person is served is the oracle-verified engine"
+E1_ASK = ("the calculation the page shows comes from the Python engine that validate_calc_formula_accuracy.py pins to "
+          "hand-computed, standard-anchored values - not from the edge function's unchecked TypeScript fallback; the report "
+          "renders every field it reads from that engine")
 I1_LENS = "every value the form sends reaches the engine"
 I1_ASK = ("each value this calculator's form sends is read by its engine and changes the result as the field says - or the "
           "form says plainly that it is recorded on the report only; none is typed and silently ignored")
@@ -225,6 +230,16 @@ def census() -> dict:
         if r.get("unread") and r["calc"] in calcs:
             add("I1", I1_LENS, I1_ASK, ["F", "D"], ["F"], r["calc"],
                 f"{r['calc']}'s form sends {len(r['unread'])} value(s) {r['module']}.py never reads: {', '.join(r['unread'])}")
+
+    # E1 - the engine a person is served is the oracle-verified one (2026-10-31, found walking Wire Sizing). The edge function
+    # tries Python and falls through SILENTLY to TypeScript when Python has no handler for the frontend's name or raises on
+    # the form's payload; validate_calc_formula_accuracy.py checks only the Python modules. Measured by
+    # tools/census_calc_served_engine.py on the form's real default payload; one row per calculator not served by Python.
+    import census_calc_served_engine as cse
+    for r in cse.census()["rows"]:
+        if r["served"] != "python" and r["calc"] in calcs:
+            add("E1", E1_LENS, E1_ASK, ["F", "D"], ["F"], r["calc"],
+                f"{r['calc']} is answered by the edge function's TypeScript ({r['served']}): {r['why']}")
 
     empty = sum(v["empty_formula"] for v in gd.values())
     long_ = sum(v["long_formula"] for v in gd.values())
