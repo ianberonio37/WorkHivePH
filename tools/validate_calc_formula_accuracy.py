@@ -1965,6 +1965,20 @@ VECTORS = [
              "note": "v = Q/A = 0.01/(π·(0.0779/2)²) = 2.10 m/s (continuity, 80mm ID 77.9)"},
         ],
     },
+    {
+        # ★THE FORM'S NAME MUST READ ITS OWN RANGE (2026-10-31, ED-G1): the page sends "Cold Water Supply", which the engine
+        # did not know and sized on General (≤3.0 m/s). Domestic cold water is ≤2.5 m/s. Fails on the unmapped engine.
+        "module": "calcs.pipe_sizing",
+        "calc_type": "Pipe Sizing (the form's service name)",
+        "standard": "PSME / ASHRAE — domestic cold water velocity ≤ 2.5 m/s",
+        "inputs": {"flow_rate": 360, "pipe_diameter": 0, "service_type": "Cold Water Supply",
+                   "pipe_material": "PVC", "fluid_temp_c": 25, "pipe_length": 50},
+        "asserts": [
+            {"path": "recommended_nominal_mm", "expected": 65, "tol": 0,
+             "note": "360 L/min = 0.006 m³/s; 50mm (ID 52.5) v = 2.77 m/s > 2.5 → too fast; 65mm (ID 62.7) v = 1.94 m/s ✓ "
+                     "(on the General range 50mm would pass at ≤3.0)"},
+        ],
+    },
 ]
 
 

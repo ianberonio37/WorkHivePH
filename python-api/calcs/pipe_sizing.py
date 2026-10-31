@@ -73,6 +73,18 @@ VELOCITY_TARGETS: dict[str, dict] = {
     "General":           {"min": 0.6, "max": 3.0, "ideal": 1.5},
 }
 
+# ★THE FORM'S SERVICE NAMES WERE NOT THIS TABLE'S (2026-10-31, ED-G1 Pipe Sizing). engineering-design.js sends "Chilled Water
+# Supply", "Chilled Water Return", "Hot Water Supply", "Cold Water Supply" and "General Water"; .get(service, General) found
+# none of them, so five of the form's seven services were sized on the General range - a domestic cold-water pipe could be
+# chosen at up to 3.0 m/s against its 2.5 m/s limit. Each form name now reads its own row.
+SERVICE_ALIASES: dict[str, str] = {
+    "Chilled Water Supply": "Chilled Water",
+    "Chilled Water Return": "Chilled Water",
+    "Hot Water Supply":     "Hot Water",
+    "Cold Water Supply":    "Domestic Cold",
+    "General Water":        "General",
+}
+
 
 def _water_props(temp_c: float) -> tuple[float, float]:
     """Return (density kg/m3, dynamic viscosity Pa·s) via IAPWS-IF97."""
@@ -179,6 +191,7 @@ def calculate(inputs: dict) -> dict:
     pipe_mat    = str  (inputs.get("pipe_material",   "PVC"))
     temp_c      = float(inputs.get("fluid_temp_c",    25))
     service     = str  (inputs.get("service_type",    "General"))
+    service     = SERVICE_ALIASES.get(service, service)
     # ★THE FORM SENDS fittings_allowance (2026-10-09, walked KCW41283). This read only fittings_allowance_pct, which no
     # caller sends, so every report used 20% whatever the person typed. The legacy key still counts when it is the one given.
     fittings_pct= float(inputs.get("fittings_allowance", inputs.get("fittings_allowance_pct", 20)) or 20)

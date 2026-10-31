@@ -64,6 +64,19 @@ ENGINE_CHECKED["Load Estimation"] = (
     "used US 120 V branch-circuit figures, and described four fields the form does not have. Rewritten from the engine: "
     "the demand-factor table, the 1.25 spare, the STANDARD_BREAKER_A ladder, and the form's two fields. The schedule's "
     "controls had all been named 'Load Schedule (qty)/(W)/(PF)' - each now names its row, its load type and its column.")
+ENGINE_CHECKED["Ventilation / ACH"] = (
+    "READ AGAINST python-api/calcs/ventilation_ach.py: Vbz, the ACH conversion, max(ASHRAE, minimum ACH), the 1.15 margin "
+    "and the fan ladder were the engine's. FIXED: the guide said only toilets and kitchens use the minimum-ACH method - the "
+    "engine uses it for every space with no Rp and no Ra, Server Room included; the per-space minimum ACH table and the "
+    "ACH line were missing; and Ventilation Type, which changes nothing in the engine, did not say so.")
+ENGINE_CHECKED["Pipe Sizing"] = (
+    "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
+    "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
+    "water properties - the method, the material tip and the temperature tip are rewritten from it, and fire protection's "
+    "floor is 1.2 m/s, not 1.5. Reading it found an ENGINE defect: the form sends 'Chilled Water Supply', 'Hot Water "
+    "Supply', 'Cold Water Supply', 'General Water', and the engine knew none of them, so five of seven services were sized "
+    "on the General range (a domestic cold-water pipe up to 3.0 m/s against its 2.5 limit). SERVICE_ALIASES maps each; "
+    "oracle vector 'Pipe Sizing (the form's service name)' in validate_calc_formula_accuracy.py fails on the old engine.")
 GR_FIXED = {
     "GR1": "FOUND AND FIXED: every tip, note, standard and the subtitle were rgba(255,255,255,0.55) and the tips 12.5px - now "
            "0.80 (the page's measured Lc 79.8 value) at 14px, the formulas 14px.",

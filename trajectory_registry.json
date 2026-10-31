@@ -1172467,8 +1172467,8 @@
     },
     {
       "id": "ED7",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Ventilation / ACH on engineering-design.html · solo-owner",
       "pages": [
@@ -1172522,6 +1172522,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Ventilation / ACH calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] READ AGAINST python-api/calcs/ventilation_ach.py: Vbz, the ACH conversion, max(ASHRAE, minimum ACH), the 1.15 margin and the fan ladder were the engine's. FIXED: the guide said only toilets and kitchens use the minimum-ACH method - the engine uses it for every space with no Rp and no Ra, Server Room included; the per-space minimum ACH table and the ACH line were missing; and Ventilation Type, which changes nothing in the engine, did not say so. WALKED: Ventilation / ACH's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-10-31T09:59:21Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
@@ -1173057,8 +1173063,8 @@
     },
     {
       "id": "ED67",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1173112,6 +1173118,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 water properties - the method, the material tip and the temperature tip are rewritten from it, and fire protection's floor is 1.2 m/s, not 1.5. Reading it found an ENGINE defect: the form sends 'Chilled Water Supply', 'Hot Water Supply', 'Cold Water Supply', 'General Water', and the engine knew none of them, so five of seven services were sized on the General range (a domestic cold-water pipe up to 3.0 m/s against its 2.5 limit). SERVICE_ALIASES maps each; oracle vector 'Pipe Sizing (the form's service name)' in validate_calc_formula_accuracy.py fails on the old engine. WALKED: Pipe Sizing's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-10-31T09:59:21Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
