@@ -1638,7 +1638,7 @@ const GUIDES = {
       'Q_total = Q_sprinklers + Hose Stream Allowance',
       '',
       'Hazen-Williams pipe friction:',
-      '  hL (bar/m) = 6.05e4 x Q^1.85 / (C^1.85 x d^4.87)',
+      '  hL (bar/m) = 6.05e5 x Q^1.85 / (C^1.85 x d^4.87)',
       '  C: Black Steel = 120, CPVC = 150, Copper = 140',
       '',
       'P_source (bar) = P_design + H_friction',
@@ -1668,7 +1668,7 @@ const GUIDES = {
     formulas: [
       'TDH (m) = Required Pressure Head (m) + Static Elevation (m) + Friction Loss (m) - Suction Head (m)',
       '  Required Pressure Head (m) = Required Pressure (bar) x 10.197',
-      '  Hazen-Williams friction: hL (bar/m) = 6.05e4 x Q^1.85 / (C^1.85 x d^4.87)',
+      '  Hazen-Williams friction: hL (bar/m) = 6.05e5 x Q^1.85 / (C^1.85 x d^4.87)',
       '',
       'Pump Shaft Power (kW) = 9.81 x Q (m³/s) x TDH (m) / pump efficiency',
       'Motor Input Power (kW) = Shaft Power / motor efficiency',

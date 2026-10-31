@@ -1259,6 +1259,28 @@ VECTORS = [
         ],
     },
     {
+        # ★THE FORM'S PUMP-SIDE INPUTS (2026-10-31, ED-I1 Fire Pump): the engine rated the pump at system pressure + 10% and
+        # never added the form's static rise (pump to highest outlet), the pump piping's friction or the flooded suction, and
+        # fixed the efficiencies at 0.70 / 0.92. Every assert below fails on that engine.
+        "module": "calcs.fire_pump",
+        "calc_type": "Fire Pump Sizing - the form's rise, piping, suction and efficiencies reach the rating",
+        "standard": "NFPA 20 / NFPA 13 SI Hazen-Williams p = 6.05e5·Q^1.85/(C^1.85·d^4.87)·L; P_pump = P_req + ρgH_rise + p_f − ρgH_flooded",
+        "inputs": {"required_flow": 1900, "required_pressure": 7, "elevation": 30, "pipe_length": 20,
+                   "suction_type": "Flooded Suction", "suction_head": 1.5, "pipe_diameter": 0, "pipe_material": "Steel",
+                   "drive_type": "Electric Motor", "pump_efficiency": 70, "motor_efficiency": 90},
+        "asserts": [
+            {"path": "pipe_dia", "expected": 150, "tol": 0,
+             "note": "auto at <= 2.5 m/s: 125 mm runs 2.58 m/s, 150 mm 1.79 m/s"},
+            {"path": "friction_bar", "expected": 0.0506, "tol": 0.0005,
+             "note": "6.05e5 x 1900^1.85 / (120^1.85 x 150^4.87) x 20 m = 0.0506 bar (Darcy cross-check ~0.04)"},
+            {"path": "rated_pressure_bar", "expected": 10.831, "tol": 0.01,
+             "note": "(7 + 30 x 0.0981 + 0.0506 - 1.5 x 0.0981) x 1.10 = 10.83 bar (the old engine said 7.70)"},
+            {"path": "motor_eff_pct", "expected": 90, "tol": 0, "note": "the form's 90%, not the fixed 92%"},
+            {"path": "npsha_m", "expected": 11.5, "tol": 0.01,
+             "note": "10.33 + 1.5 m flooded - 0.33 vapour = 11.5 m; the 30 m rise is not a lift"},
+        ],
+    },
+    {
         "module": "calcs.lighting_design",
         "calc_type": "Lighting Design",
         "standard": "IES Zonal Cavity — RCR = 5·h_rc·(L+W)/(L·W); LLF = LLD·LDD",

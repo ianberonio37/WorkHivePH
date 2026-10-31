@@ -121,6 +121,18 @@ I1_FIXED["Fire Sprinkler Hydraulic"] = (
     "0.437 bar (below the engine's own 0.52 bar floor) now pins the density figures under their own names and the floor's "
     "flow; a new vector fails on the old engine. The public tools/fire-sprinkler-calculator worked example moved 881.3 -> "
     "923 L/min - patched in place (promoting staging would revert the live page's later fixes) and restamped.")
+I1_FIXED["Fire Pump Sizing"] = (
+    "FOUND AND FIXED (fire safety): python-api/calcs/fire_pump.py rated the pump at the system pressure + 10% and never "
+    "added the form's static rise (pump to highest outlet), the pump piping's friction or the suction - a 30 m riser's 2.9 "
+    "bar was left out of the pump's rated pressure and motor; the efficiencies were fixed at 0.70 / 0.92; the report printed "
+    "a fixed 100 mm pipe and a 'friction head' of 30% of TDH; NPSH subtracted the rise as a suction lift. Now P_pump = P_req "
+    "+ rise + Hazen-Williams friction (auto pipe <= 2.5 m/s) - flooded head (+ lift), each when the caller describes it (the "
+    "sprinkler hand-off sends its total demand alone; no suction credit assumed). Reading the method's source found the "
+    "Hazen-Williams constant at 6.05e4 in the edge function's TypeScript sprinkler and pump fallbacks and in both guides - "
+    "NFPA 13's SI form is 6.05e5, ten times more: all four fixed (the Python sprinkler and domestic-water engines already "
+    "had 6.05e5). Oracle vector 'Fire Pump Sizing - the form's rise, piping, suction and efficiencies reach the rating' "
+    "fails on the old engine; the public fire-pump page's example moved 7.58 -> 7.75 bar, 55.74 -> 56.96 kW (patched, "
+    "restamped). Walked through the served path (engineering-calc-agent): source python, rated 10.831 bar, 150 mm.")
 for _calc in ("Bearing Life (L10)", "HVAC Cooling Load"):
     I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py "
                        "RECORDED names the label as the reason) - the value it sends is a reference printed on the report, "
@@ -146,19 +158,22 @@ def main() -> int:
         if not ok:
             print(f"gate {GATE} is red ({last}) - nothing banked")
             return 1
+    # the guide receipt is what a G1 / GR row closes on; an I1 row closes on the reach census and its oracle vector, so a
+    # stale or missing guide receipt holds the guide rows only (2026-11-01: a 12.8 h receipt had refused an I1 row)
+    rep, receipt_problem = {}, None
     if not REPORT.exists():
-        print(f"no receipt at {REPORT.name} - run {PROVER}")
-        return 1
-    rep = json.loads(REPORT.read_text(encoding="utf-8"))
-    if rep.get("teeth"):
-        print("the receipt is a --teeth run - nothing banked")
-        return 1
-    age_h = (datetime.now(timezone.utc) - datetime.fromisoformat(rep["generated"].replace("Z", "+00:00"))).total_seconds() / 3600
-    if age_h > MAX_AGE_H:
-        print(f"the receipt is {age_h:.1f} h old (limit {MAX_AGE_H}) - re-run {PROVER}")
-        return 1
-    calcs = {c["calc"]: c for c in rep.get("calcs") or []}
-    gr = rep.get("gr") or {}
+        receipt_problem = f"no receipt at {REPORT.name} - run {PROVER}"
+    else:
+        rep = json.loads(REPORT.read_text(encoding="utf-8"))
+        age_h = (datetime.now(timezone.utc) - datetime.fromisoformat(rep["generated"].replace("Z", "+00:00"))).total_seconds() / 3600
+        if rep.get("teeth"):
+            receipt_problem = "the guide receipt is a --teeth run"
+        elif age_h > MAX_AGE_H:
+            receipt_problem = f"the guide receipt is {age_h:.1f} h old (limit {MAX_AGE_H}) - re-run {PROVER}"
+    calcs = {c["calc"]: c for c in rep.get("calcs") or []} if not receipt_problem else {}
+    gr = (rep.get("gr") or {}) if not receipt_problem else {}
+    if receipt_problem:
+        print(f"  guide rows held: {receipt_problem}")
     today = date.today().isoformat()
     reg = bsw._load_registry()
     banked, held = [], []

@@ -26,22 +26,6 @@
    "pipe_system"
   ],
   [
-   "Fire Pump Sizing",
-   "motor_efficiency"
-  ],
-  [
-   "Fire Pump Sizing",
-   "pipe_diameter"
-  ],
-  [
-   "Fire Pump Sizing",
-   "pump_efficiency"
-  ],
-  [
-   "Fire Pump Sizing",
-   "suction_type"
-  ],
-  [
    "Generator Sizing",
    "application"
   ],

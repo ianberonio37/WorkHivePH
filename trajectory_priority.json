@@ -9,7 +9,7 @@
    "tier": "T1",
    "name": "defects a person meets today",
    "count": 27,
-   "locking": 2,
+   "locking": 3,
    "first": [
     "BRH509",
     "BRH510",
@@ -17,6 +17,7 @@
     "BRH512",
     "BRH513",
     "OWN62",
+    "ED338",
     "BRH517",
     "BRH515",
     "ED332",
@@ -24,7 +25,6 @@
     "ED334",
     "ED336",
     "ED337",
-    "ED338",
     "ED340",
     "ED341",
     "ED343",
@@ -314,6 +314,7 @@
   "BRH512",
   "BRH513",
   "OWN62",
+  "ED338",
   "BRH517",
   "BRH515",
   "ED332",
@@ -321,7 +322,6 @@
   "ED334",
   "ED336",
   "ED337",
-  "ED338",
   "ED340",
   "ED341",
   "ED343",
@@ -8926,35 +8926,35 @@
    "tier": 1,
    "rank": 6
   },
-  "BRH517": {
+  "ED338": {
    "tier": 1,
    "rank": 7
   },
-  "BRH515": {
+  "BRH517": {
    "tier": 1,
    "rank": 8
   },
-  "ED332": {
+  "BRH515": {
    "tier": 1,
    "rank": 9
   },
-  "ED333": {
+  "ED332": {
    "tier": 1,
    "rank": 10
   },
-  "ED334": {
+  "ED333": {
    "tier": 1,
    "rank": 11
   },
-  "ED336": {
+  "ED334": {
    "tier": 1,
    "rank": 12
   },
-  "ED337": {
+  "ED336": {
    "tier": 1,
    "rank": 13
   },
-  "ED338": {
+  "ED337": {
    "tier": 1,
    "rank": 14
   },

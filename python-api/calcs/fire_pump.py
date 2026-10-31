@@ -43,7 +43,7 @@ PUMP_EFF  = 0.70   # typical fire pump hydraulic efficiency
 MOTOR_EFF = 0.92   # electric motor efficiency
 
 
-def _pump_power_kw(flow_lpm: float, pressure_bar: float) -> float:
+def _pump_power_kw(flow_lpm: float, pressure_bar: float, pump_eff: float = PUMP_EFF, motor_eff: float = MOTOR_EFF) -> float:
     """
     Brake horsepower: P = (Q × ΔP) / (η_pump × η_motor × 60)
     Q in m³/s = L/min / 60000; ΔP in Pa = bar × 100000
@@ -51,7 +51,7 @@ def _pump_power_kw(flow_lpm: float, pressure_bar: float) -> float:
     """
     Q_m3s  = flow_lpm / 60000
     dp_Pa  = pressure_bar * 100000
-    return (Q_m3s * dp_Pa) / (PUMP_EFF * MOTOR_EFF * 1000)
+    return (Q_m3s * dp_Pa) / (pump_eff * motor_eff * 1000)
 
 
 def _pump_curve_points(rated_flow: float, rated_pressure: float) -> list[dict]:
@@ -127,10 +127,39 @@ def calculate(inputs: dict) -> dict:
 
     design_margin_pct = float(inputs.get("design_margin_pct", 10.0))
 
+    # ★THE FORM'S PUMP-SIDE INPUTS NEVER REACHED THE PRESSURE (2026-10-31, ED-I1 Fire Pump, census_calc_input_reach.py).
+    # The page sends elevation ("Static Elevation (pump to highest outlet)"), pipe_length / pipe_diameter / pipe_material,
+    # suction_type / suction_head and pump_efficiency / motor_efficiency. This rated the pump at the system pressure + 10%
+    # alone: the static rise, the pump piping's friction and the suction were never in it (a 30 m riser's 2.9 bar left out),
+    # the efficiencies were fixed at 0.70 / 0.92, the report printed a 100 mm pipe and a "friction head" that was 30% of TDH,
+    # and NPSH subtracted the pump-to-outlet rise as if it were a suction lift. The method is the one the page was built on
+    # (the edge function's calcFirePumpSizing): pump pressure = required pressure + static rise + piping friction (Hazen-
+    # Williams in NFPA 13's SI form, 6.05x10^5 - the TypeScript it came from had 6.05x10^4, ten times too small - pipe
+    # auto-sized at <= 2.5 m/s when 0) - a flooded suction head (+ a lift). Each term is applied when the
+    # caller describes it - the sprinkler hand-off sends its total demand alone, and no suction credit is ever assumed.
+    pump_eff  = float(inputs.get("pump_efficiency", PUMP_EFF * 100) or PUMP_EFF * 100) / 100
+    motor_eff = float(inputs.get("motor_efficiency", MOTOR_EFF * 100) or MOTOR_EFF * 100) / 100
+    static_rise_m = float(inputs.get("elevation") or 0.0)
+    lift_legacy_m = float(inputs.get("suction_lift_m") or 0.0)
+    suction_type  = str(inputs.get("suction_type") or "")
+    if "suction_type" in inputs:
+        flooded_m = suction_head_m if "Flooded" in suction_type else 0.0
+        lift_m    = suction_head_m if "Lift" in suction_type else lift_legacy_m
+    else:
+        flooded_m, lift_m = 0.0, lift_legacy_m
+    pipe_given   = "pipe_length" in inputs or "pipe_diameter" in inputs
+    pipe_dia_mm  = float(inputs.get("pipe_diameter") or 0)
+    q_m3s        = system_flow_lpm / 60000
+    if pipe_dia_mm <= 0:
+        pipe_dia_mm = next((d for d in (50, 65, 80, 100, 125, 150, 200, 250, 300)
+                            if q_m3s / (math.pi * (d / 1000) ** 2 / 4) <= 2.5), 300)
+    friction_bar = (6.05e5 * system_flow_lpm ** 1.85 / (C_hw ** 1.85 * pipe_dia_mm ** 4.87)) * pipe_length if pipe_given else 0.0
+    pump_press_bar = system_press_bar + static_rise_m * 0.0981 + friction_bar - flooded_m * 0.0981 + lift_m * 0.0981
+
     # ── Pump rated point ──────────────────────────────────────────────────────
     # Add design margin; pump rated flow must cover system demand
     rated_flow_lpm  = system_flow_lpm  * (1 + design_margin_pct / 100)
-    rated_press_bar = system_press_bar * (1 + design_margin_pct / 100)
+    rated_press_bar = pump_press_bar * (1 + design_margin_pct / 100)
 
     # Select next standard pump size (by flow)
     rec_flow_lpm  = next((s for s in STD_PUMP_LPM if s >= rated_flow_lpm), STD_PUMP_LPM[-1])
@@ -143,9 +172,9 @@ def calculate(inputs: dict) -> dict:
     overload_bar = rated_press_bar * 0.65   # 150% flow point minimum
 
     # ── Motor / driver sizing ─────────────────────────────────────────────────
-    motor_kw_calc = _pump_power_kw(rec_flow_lpm, rated_press_bar)
+    motor_kw_calc = _pump_power_kw(rec_flow_lpm, rated_press_bar, pump_eff, motor_eff)
     # NFPA 20 §9.5.2: motor must be non-overloading at 150% flow and rated pressure
-    motor_kw_overload = _pump_power_kw(rec_flow_lpm * 1.5, rated_press_bar * 0.65)
+    motor_kw_overload = _pump_power_kw(rec_flow_lpm * 1.5, rated_press_bar * 0.65, pump_eff, motor_eff)
     motor_kw_design   = max(motor_kw_calc, motor_kw_overload) * 1.15   # 15% service factor
     rec_motor_kw      = next((s for s in STD_PUMP_KW if s >= motor_kw_design), STD_PUMP_KW[-1])
 
@@ -155,7 +184,7 @@ def calculate(inputs: dict) -> dict:
     # ── Jockey pump ───────────────────────────────────────────────────────────
     jockey_flow_lpm  = rec_flow_lpm * JOCKEY_FLOW_PCT / 100
     jockey_press_bar = rated_press_bar + JOCKEY_PRESSURE_ADD_BAR
-    jockey_kw_calc   = _pump_power_kw(jockey_flow_lpm, jockey_press_bar)
+    jockey_kw_calc   = _pump_power_kw(jockey_flow_lpm, jockey_press_bar, pump_eff, motor_eff)
     jockey_kw_design  = jockey_kw_calc * 1.25
     rec_jockey_kw     = next((s for s in STD_PUMP_KW if s >= jockey_kw_design), STD_PUMP_KW[-1])
 
@@ -167,7 +196,8 @@ def calculate(inputs: dict) -> dict:
     # Simplified: NPSHa = 10.33 + suction_bar/0.0981 - elevation_m - 0.24 (water vapor at 25°C)
     atm_head_m   = 10.33   # m (1 atm = 10.33 m water)
     vapor_head_m = 0.33    # m (vapor pressure water at 30°C ≈ 0.0325 bar)
-    npsha_m      = atm_head_m + (suction_bar / 0.0981) - elevation_m - vapor_head_m
+    # a flooded head adds to what the pump sees at its eye, a lift takes it away - the pump-to-outlet rise is not a lift
+    npsha_m      = atm_head_m + (suction_bar / 0.0981) + flooded_m - lift_m - vapor_head_m
     # Typical fire pump NPSHr ≈ 3-6 m
     npshr_m      = 5.0
     npsh_ok      = npsha_m >= npshr_m
@@ -269,20 +299,23 @@ def calculate(inputs: dict) -> dict:
         "P_jockey_bar":    round(jockey_press_bar, 3),
         "P_overload":      round(overload_bar, 3),
         "Q_overload":      round(rec_flow_lpm * 1.5, 0),
-        "H_friction_m":    round(rated_press_bar / 0.0981 * 0.3, 1),  # approx friction = 30% TDH
+        "H_friction_m":    round(friction_bar / 0.0981, 2),   # Hazen-Williams over the pump piping (it was 30% of TDH)
+        "friction_bar":    round(friction_bar, 4),
+        "static_rise_m":   static_rise_m,
+        "pump_pressure_bar": round(pump_press_bar, 3),
         "drive_type":      driver_type,
         "selected_kW":     rec_motor_kw,
         "selected_HP":     round(rec_motor_kw / 0.746, 1),
         "selected_jockey_HP": round(rec_jockey_kw / 0.746, 1),
-        "pump_eff_pct":    round(PUMP_EFF * 100, 0),
-        "motor_eff_pct":   round(MOTOR_EFF * 100, 0),
-        "suction_type":    "Flooded Suction" if suction_head_m >= 0 and elevation_m <= 0 else "Suction Lift",
+        "pump_eff_pct":    round(pump_eff * 100, 0),
+        "motor_eff_pct":   round(motor_eff * 100, 0),
+        "suction_type":    suction_type or ("Suction Lift" if lift_m > 0 else "Flooded Suction"),
         "suction_head_m":  round(suction_head_m, 2),
         "elev_m":          elevation_m,
         "pipe_material":   pipe_mat_disp,
-        "velocity":        round(rec_flow_lpm / 60000 / (math.pi * (0.1)**2 / 4), 1),
+        "velocity":        round(q_m3s / (math.pi * (pipe_dia_mm / 1000) ** 2 / 4), 2),
         "nfpa_factor":     round(churn_bar / rated_press_bar * 100, 0),
-        "pipe_dia":        100,   # nominal mm, bare number (renderer appends " mm")
+        "pipe_dia":        pipe_dia_mm,   # nominal mm - the form's, or auto-sized at <= 2.5 m/s (it was a fixed 100)
         "inputs_used": {
             "C":           C_hw,
             "pipe_length": pipe_length,

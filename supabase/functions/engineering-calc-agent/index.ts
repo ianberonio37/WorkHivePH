@@ -2978,8 +2978,9 @@ function calcFireSprinklerHydraulic(inputs: Record<string, number | string>): Re
     if (v <= 3.0) { pipe_dia = d; break; }
   }
 
-  // Hazen-Williams friction loss: hL (bar/m) = 6.05e4 x Q^1.85 / (C^1.85 x d^4.87)
-  const hL_per_m  = 6.05e4 * Math.pow(Q_sprinklers_total, 1.85) / (Math.pow(C, 1.85) * Math.pow(pipe_dia, 4.87));
+  // Hazen-Williams friction loss: hL (bar/m) = 6.05e5 x Q^1.85 / (C^1.85 x d^4.87) - NFPA 13 SI form (Q L/min, d mm).
+  // It was 6.05e4 here and in calcFirePumpSizing, ten times too small (2026-10-31; the Python engines had 6.05e5).
+  const hL_per_m  = 6.05e5 * Math.pow(Q_sprinklers_total, 1.85) / (Math.pow(C, 1.85) * Math.pow(pipe_dia, 4.87));
   const H_friction = hL_per_m * pipe_length; // bar
 
   // Required source pressure = design pressure + friction losses
@@ -3064,7 +3065,7 @@ function calcFirePumpSizing(inputs: Record<string, number | string>): Record<str
   const velocity = Q_m3s / A_pipe;
 
   // Hazen-Williams friction loss (bar/m → convert to m H2O: ×10.197)
-  const hL_bar_per_m = 6.05e4 * Math.pow(Q_Lmin, 1.85) / (Math.pow(C, 1.85) * Math.pow(pipe_dia, 4.87));
+  const hL_bar_per_m = 6.05e5 * Math.pow(Q_Lmin, 1.85) / (Math.pow(C, 1.85) * Math.pow(pipe_dia, 4.87));
   const H_friction_m = hL_bar_per_m * pipe_length * 10.197;
 
   // Suction head contribution
