@@ -52,6 +52,17 @@ AIR_TOOL_FLOW: dict[str, float] = {
 }
 
 
+# The form's tool list (engineering-design.js TOOL_OPTIONS) - rated free-air CFM and the duty factor (share of the time
+# the tool draws air) per tool, the same table the edge function's TypeScript method uses (TOOL_DEMAND)
+TOOL_DEMAND: dict[str, tuple[float, float]] = {
+    "Angle Grinder": (5.0, 0.25), "Impact Wrench 1/2": (4.0, 0.25), "Impact Wrench 3/4": (7.0, 0.25),
+    "Air Drill": (3.0, 0.30), "Die Grinder": (4.0, 0.25), "Blow Gun": (2.5, 0.20), "Sand Blaster": (50.0, 0.50),
+    "Paint Spray Gun": (12.0, 0.40), "Pneumatic Cylinder": (2.0, 0.50), "Air Hammer": (3.5, 0.20),
+    "Ratchet Wrench": (2.5, 0.20), "Air Sander": (6.0, 0.30), "Needle Scaler": (4.0, 0.25), "Air Saw": (5.0, 0.20),
+    "Custom": (0.0, 0.50),
+}
+
+
 def _air_density(temp_c: float, pressure_bar_g: float) -> float:
     """
     Return air density (kg/m3) at temperature and gauge pressure.
@@ -176,6 +187,33 @@ def calculate(inputs: dict) -> dict:
     num_tools       = int  (inputs.get("num_tools",          1))
     safety_factor   = float(inputs.get("safety_factor",     1.25))  # 25% spare capacity
 
+    # ★THE FORM'S TOOL LIST NEVER REACHED THE COMPRESSOR (2026-11-01, ED-I1 Compressed Air, census_calc_input_reach.py -
+    # found only after the census learned the shorthand `tools,`). The page sends tools: [{tool_type, quantity, custom_cfm}],
+    # diversity_factor and leakage_allowance; this read none of them for the sizing and fell to one default impact wrench,
+    # so 20 tools sized the same 2.2 kW compressor as the default three. Demand = Σ CFM x qty x duty, x diversity, + leakage.
+    tools = inputs.get("tools") or []
+    diversity = float(inputs.get("diversity_factor", 0.70) or 0.70)
+    leakage_pct = float(inputs.get("leakage_allowance", inputs.get("leakage_pct", 10)) or 0)
+    breakdown, connected_cfm, demand_cfm = [], 0.0, 0.0
+    if flow_fad_m3min <= 0 and isinstance(tools, list) and tools:
+        for t in tools:
+            if not isinstance(t, dict):
+                continue
+            name = str(t.get("tool_type") or "Custom")
+            cfm_each, duty = TOOL_DEMAND.get(name, (0.0, 0.5))
+            if name == "Custom" or cfm_each <= 0:
+                cfm_each = float(t.get("custom_cfm") or 0)
+            qty = float(t.get("quantity") or 0)
+            breakdown.append({"tool_type": name, "qty": qty, "cfm_each": cfm_each, "duty": duty,
+                              "total_cfm": round(cfm_each * qty, 2), "demand_cfm": round(cfm_each * qty * duty, 2)})
+            connected_cfm += cfm_each * qty
+            demand_cfm += cfm_each * qty * duty
+        diversity_cfm = demand_cfm * diversity
+        leakage_cfm = diversity_cfm * leakage_pct / 100
+        flow_fad_m3min = (diversity_cfm + leakage_cfm) * 0.0283168   # CFM free air -> m3/min
+    else:
+        diversity_cfm = leakage_cfm = 0.0
+
     if flow_fad_m3min <= 0:
         # Try to estimate from tools if no direct flow given
         tool_type = str(inputs.get("tool_type", "Impact Wrench 1/2\""))
@@ -272,16 +310,19 @@ def calculate(inputs: dict) -> dict:
 
         # ── Legacy renderer aliases (frontend renderAirReport) ─────────────────
         # Python computes total FAD directly; renderer expects breakdown steps
-        "total_cfm":           round(flow_fad_m3min * 35.3147 / safety_factor, 2),  # before safety factor
-        "connected_cfm":       round(flow_fad_m3min * 35.3147 / safety_factor / (1 + inputs.get("leakage_pct", 10) / 100) / float(inputs.get("diversity_factor", 0.7)), 2),
-        "demand_cfm":          round(flow_fad_m3min * 35.3147 / safety_factor, 2),
-        "diversity_cfm":       round(flow_fad_m3min * 35.3147 / safety_factor / (1 + inputs.get("leakage_pct", 10) / 100), 2),
-        "leakage_cfm":         round(flow_fad_m3min * 35.3147 / safety_factor - flow_fad_m3min * 35.3147 / safety_factor / (1 + inputs.get("leakage_pct", 10) / 100), 2),
-        "design_cfm":          round(flow_fad_m3min * 35.3147, 2),
+        # the breakdown is the tool list's own when the form sent one (it was back-computed from a default leakage key)
+        "total_cfm":           round(flow_fad_m3min * 35.3147, 2),            # demand + leakage, before the safety factor
+        "connected_cfm":       round(connected_cfm, 2) if breakdown else None,
+        "demand_cfm":          round(demand_cfm, 2) if breakdown else None,
+        "diversity_cfm":       round(diversity_cfm, 2) if breakdown else None,
+        "leakage_cfm":         round(leakage_cfm, 2) if breakdown else None,
+        "leakage_pct":         leakage_pct,
+        "diversity_factor":    diversity,
+        "design_cfm":          round(flow_fad_m3min * 35.3147 * safety_factor, 2),
         "design_lps":          round(flow_fad_m3min / 60 * 1000, 2),
         "design_m3min":        round(flow_fad_m3min, 3),
         "recommended_cfm":     round(flow_fad_m3min * 35.3147, 2),
         "receiver_litres":     round(V_tank * 1000, 1),
         "recommended_receiver_L": rec_tank,
-        "tool_breakdown":      [],   # tool-level breakdown not computed by this handler
+        "tool_breakdown":      breakdown,
     }

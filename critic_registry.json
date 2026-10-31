@@ -1959251,7 +1959251,23 @@
       "needs_review": false,
       "dims_graded": [],
       "findings": []
+    },
+    {
+      "id": "ED354",
+      "wave": "ED-I1",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "cell": "wide-1920|solo-owner|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
     }
   ],
-  "count": 17705
+  "count": 17706
 }

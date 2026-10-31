@@ -1192122,8 +1192122,8 @@
     },
     {
       "id": "ED334",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Compressed Air on engineering-design.html · solo-owner",
       "pages": [
@@ -1192176,6 +1192176,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Compressed Air calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-01] FOUND AND FIXED: the form sends tools: [{tool_type, quantity, custom_cfm}], diversity_factor and leakage_allowance; python-api/calcs/compressed_air.py read none of them for the sizing and fell to one default impact wrench, so 20 tools sized the same 2.2 kW compressor as the default three (now 5.5 kW), and the report's connected / diversity / leakage CFM were back-computed from a default leakage key. The tool table (the edge function's TOOL_DEMAND, keyed by the form's own names) now sets demand = Σ CFM x qty x duty, x diversity, + leakage. Found only after the census learned the shorthand `tools,` - its first parser counted `name:` alone. Oracle vector 'Compressed Air - the form's tool list sizes the demand' fails on the old engine; walked through the served path (engineering-calc-agent). WALKED: Compressed Air: every value its form sends now reaches its engine (tools/census_calc_input_reach.py), and in the page through the Playwright MCP. HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {
@@ -1193105,6 +1193112,64 @@
       }
     },
     {
+      "id": "ED354",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Refrigerant Pipe Sizing on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Refrigerant Pipe Sizing calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Refrigerant Pipe Sizing's form sends 1 value(s) refrigerant_pipe.py never reads: lines. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Refrigerant Pipe Sizing",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Refrigerant Pipe Sizing's form sends 1 value(s) refrigerant_pipe.py never reads: lines",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Refrigerant Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
       "id": "ED350",
       "status": "specced",
       "pct": 5,
@@ -1193337,5 +1193402,5 @@
       }
     }
   ],
-  "count": 20808
+  "count": 20809
 }

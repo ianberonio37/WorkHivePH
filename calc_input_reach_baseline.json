@@ -10,10 +10,6 @@
    "iplv"
   ],
   [
-   "Compressed Air",
-   "leakage_allowance"
-  ],
-  [
    "Earthing / Grounding System",
    "system_voltage"
   ],
@@ -32,6 +28,10 @@
   [
    "Hoist Capacity",
    "hoist_type"
+  ],
+  [
+   "Refrigerant Pipe Sizing",
+   "lines"
   ],
   [
    "Shaft Design",

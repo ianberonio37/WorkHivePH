@@ -155,6 +155,14 @@ I1_FIXED["Generator Sizing"] = (
     "its rating basis with a note to compare like with like; phase is recorded-only (the engine computes in kVA). Oracle "
     "vector 'Generator Sizing - the form's safety factor sets the margin and the result names its rating' fails on the old "
     "engine; walked through the served path (engineering-calc-agent).")
+I1_FIXED["Compressed Air"] = (
+    "FOUND AND FIXED: the form sends tools: [{tool_type, quantity, custom_cfm}], diversity_factor and leakage_allowance; "
+    "python-api/calcs/compressed_air.py read none of them for the sizing and fell to one default impact wrench, so 20 tools "
+    "sized the same 2.2 kW compressor as the default three (now 5.5 kW), and the report's connected / diversity / leakage "
+    "CFM were back-computed from a default leakage key. The tool table (the edge function's TOOL_DEMAND, keyed by the form's "
+    "own names) now sets demand = Σ CFM x qty x duty, x diversity, + leakage. Found only after the census learned the "
+    "shorthand `tools,` - its first parser counted `name:` alone. Oracle vector 'Compressed Air - the form's tool list "
+    "sizes the demand' fails on the old engine; walked through the served path (engineering-calc-agent).")
 for _calc in ("Bearing Life (L10)", "HVAC Cooling Load"):
     I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py "
                        "RECORDED names the label as the reason) - the value it sends is a reference printed on the report, "

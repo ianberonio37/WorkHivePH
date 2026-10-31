@@ -69,6 +69,55 @@ def _block_after(src: str, i: int) -> str:
     return src[j:]
 
 
+def _top_level_keys(obj: str) -> set[str]:
+    """The keys of an object literal's top level - `name: value` AND the shorthand `name,` (2026-11-01: Compressed Air
+    sends its tool list as `tools,` and the first parser, which only counted `name:`, never saw it - the engine ignored
+    every tool a person listed and the census said nothing)."""
+    inner = obj.strip()[1:-1]
+    parts, depth, cur, q, k = [], 0, [], None, 0
+    while k < len(inner):
+        ch = inner[k]
+        if q:
+            cur.append(ch)
+            if ch == "\\" and k + 1 < len(inner):
+                cur.append(inner[k + 1])
+                k += 2
+                continue
+            if ch == q:
+                q = None
+        elif ch == "/" and inner[k + 1:k + 2] == "/":
+            nl = inner.find("\n", k)
+            k = len(inner) if nl < 0 else nl
+            continue
+        elif ch in "'\"`":
+            q = ch
+            cur.append(ch)
+        elif ch in "{[(":
+            depth += 1
+            cur.append(ch)
+        elif ch in "}])":
+            depth -= 1
+            cur.append(ch)
+        elif ch == "," and depth == 0:
+            parts.append("".join(cur))
+            cur = []
+        else:
+            cur.append(ch)
+        k += 1
+    parts.append("".join(cur))
+    keys = set()
+    for part in parts:
+        seg = part.strip()
+        if not seg or seg.startswith("..."):
+            continue
+        m = re.match(r"([A-Za-z_][A-Za-z0-9_]*)\s*:", seg)
+        if m:
+            keys.add(m.group(1))
+        elif re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", seg):
+            keys.add(seg)
+    return keys
+
+
 def sent_keys(src: str) -> dict[str, set[str]]:
     """calc id -> the top-level keys of the object collectInputs() returns for it."""
     fn = _block_after(src, src.index("function collectInputs("))
@@ -79,18 +128,7 @@ def sent_keys(src: str) -> dict[str, set[str]]:
         if r < 0:
             continue
         obj = _block_after(body, r)
-        keys, depth, line_start = set(), 0, True
-        # top-level keys: a name followed by ':' at depth 1 of the returned literal
-        depth = 0
-        tok = re.finditer(r"[{}\[\]()]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\"|`(?:[^`\\]|\\.)*`|([A-Za-z_][A-Za-z0-9_]*)\s*:", obj)
-        for t in tok:
-            s = t.group(0)
-            if s in "{[(":
-                depth += 1
-            elif s in "}])":
-                depth -= 1
-            elif t.group(1) and depth == 1:
-                keys.add(t.group(1))
+        keys = _top_level_keys(obj)
         out.setdefault(m.group(1), set()).update(keys)
     return out
 

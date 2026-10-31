@@ -750,6 +750,23 @@ VECTORS = [
         "custom": _check_compressed_air,
     },
     {
+        # ★THE FORM'S TOOL LIST (2026-11-01, ED-I1 Compressed Air): the page sends tools[] with diversity and leakage; the
+        # engine sized one default impact wrench whatever was listed. Fails on that engine.
+        "module": "calcs.compressed_air",
+        "calc_type": "Compressed Air - the form's tool list sizes the demand",
+        "standard": "CAGI demand method: Σ CFM x qty x duty, x diversity, + leakage %",
+        "inputs": {"working_pressure": 7, "diversity_factor": 0.7, "safety_factor": 1.25, "pipe_length": 50, "leakage_allowance": 10,
+                   "tools": [{"tool_type": "Impact Wrench 1/2", "quantity": 2, "custom_cfm": 0},
+                             {"tool_type": "Blow Gun", "quantity": 3, "custom_cfm": 0},
+                             {"tool_type": "Angle Grinder", "quantity": 1, "custom_cfm": 0}]},
+        "asserts": [
+            {"path": "connected_cfm", "expected": 20.5, "tol": 0.01, "note": "2 x 4 + 3 x 2.5 + 1 x 5 = 20.5 CFM connected"},
+            {"path": "demand_cfm", "expected": 4.75, "tol": 0.01, "note": "2x4x0.25 + 3x2.5x0.20 + 5x0.25 = 4.75 CFM drawn"},
+            {"path": "total_cfm", "expected": 3.66, "tol": 0.01, "note": "4.75 x 0.70 diversity = 3.325, + 10% leakage = 3.66 CFM"},
+            {"path": "leakage_pct", "expected": 10.0, "tol": 0.001, "note": "the form's leakage allowance"},
+        ],
+    },
+    {
         "module": "calcs.solar_pv",
         "calc_type": "Solar PV System",
         "standard": "IEC 62548 — topology + Vmp_hot < Vmp_stc < Voc_cold (temp-voltage physics)",
