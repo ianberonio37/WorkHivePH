@@ -4,6 +4,7 @@
  "passing": [
   "Clean Agent Suppression",
   "Harmonic Distortion",
+  "Load Estimation",
   "Pipe Sizing",
   "Transformer Sizing",
   "Ventilation / ACH"

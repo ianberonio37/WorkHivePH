@@ -14,6 +14,7 @@
 //   GR1  no guide text under 0.8 opacity, none under 14px (the page's floor: 0.6 at 14px read APCA Lc 55, 0.80 reads 79.8)
 //   GR2  no hole in the formula block (no <br>, no empty line taller than a gap)
 //   GR3  every formula is its own line with a hanging indent, so its wrapped continuation reads as the same formula
+//   FN   every control a person can reach in the form has a name of its own (no two alike, none empty)
 //   and nothing wider than the viewport at 390.
 //
 //   node tools/prove_engineering_guides.mjs                    # read every guide, write engineering_guides_report.json
@@ -48,6 +49,12 @@ const READ = async ({ id, plant }) => {
   const labels = [...form.querySelectorAll('.field-label')].map(ownText).filter((t) => t && !/^project/i.test(t));
   // a guide may describe a group by the heading the form gives it ("Harmonic Components (% of I₁)")
   const heads = [...form.querySelectorAll('.field-label, h3, h4, h5, legend, th, [class*="section"]')].map(ownText);
+  // FN - every control a person can reach has a name of its own: 139 of 470 shared one (a schedule's rows, Fire Alarm's
+  // devices, Harmonic's five orders), so a screen reader could not tell one row from the next (2026-10-31)
+  const reach = [...form.querySelectorAll('input, select, textarea')].filter((c) => c.type !== 'hidden' && c.getClientRects().length);
+  if (plant && reach.length > 2) reach[1].setAttribute('aria-label', reach[2].getAttribute('aria-label') || 'x');
+  const cnames = reach.map((c) => (c.getAttribute('aria-label') || '').trim());
+  const dupNames = cnames.filter((n, i) => !n || cnames.indexOf(n) !== i);
   switchTab('guide');
   await new Promise((r) => setTimeout(r, 120));
   const el = document.getElementById('guide-content');
@@ -91,7 +98,7 @@ const READ = async ({ id, plant }) => {
   const overflow = document.documentElement.scrollWidth - innerWidth;
   switchTab('calculator');
   return { labels: labels.length, guideFields: gnames.length, noGuide, ghost, missing, faint, faintAt, small, holes, flat,
-    lines, overflow };
+    lines, overflow, controls: reach.length, dupNames: dupNames.slice(0, 4), dupCount: dupNames.length };
 };
 
 const browser = await chromium.launch();
@@ -135,6 +142,7 @@ const gr = {
   GR1: results.every((r) => !r.faint && !r.small),
   GR2: results.every((r) => !r.holes),
   GR3: results.every((r) => !r.flat),
+  FN: results.every((r) => !r.dupCount),
 };
 
 if (TEETH) {
@@ -145,10 +153,11 @@ if (TEETH) {
     small: t.every((r) => r.small > 0),
     hole: t.every((r) => r.holes > 0),
     flat: t.every((r) => r.flat > 0),
+    sameName: t.every((r) => r.dupCount > 0),
   };
   const ok = Object.values(caught).every(Boolean);
   writeFileSync(REPORT, JSON.stringify({ generated: new Date().toISOString(), teeth: true, caught, ok, results }, null, 1));
-  console.log(ok ? 'TEETH ok engineering-guides: a planted ghost field, faint text, small text, a formula hole and a flat line were each caught'
+  console.log(ok ? 'TEETH ok engineering-guides: a planted ghost field, faint text, small text, a formula hole, a flat line and two controls with one name were each caught'
                  : 'BLUNT engineering-guides: ' + JSON.stringify(caught));
   process.exit(ok ? 0 : 1);
 }
@@ -172,8 +181,10 @@ for (const c of calcs.filter((x) => !x.g1)) {
 }
 const bad = results.filter((r) => !r.renderer).slice(0, 5);
 for (const r of bad) console.log(`  RENDER ${r.calc} @ ${r.vp}: faint ${r.faint} ${r.faintAt.join(', ')} · small ${r.small} · holes ${r.holes} · flat ${r.flat} · overflow ${r.overflow}`);
-const fail = GATE && (!gr.GR1 || !gr.GR2 || !gr.GR3 || noGuide.length || regressed.length
+for (const r of results.filter((x) => x.dupCount).slice(0, 5)) console.log(`  NAMES ${r.calc} @ ${r.vp}: ${r.dupCount} control(s) share or lack a name - ${r.dupNames.join('; ')}`);
+const fail = GATE && (!gr.GR1 || !gr.GR2 || !gr.GR3 || !gr.FN || noGuide.length || regressed.length
   || results.some((r) => r.vp === 'phone-390' && r.overflow > 1));
 console.log(`${fail ? 'FAIL' : 'PASS'} engineering-guides: ${calcs.length} calculators at ${VIEWPORTS.length} widths · guides matching their form ${passing.length}/${calcs.length} · `
-  + `renderer GR1 ${gr.GR1 ? 'ok' : 'FAIL'} GR2 ${gr.GR2 ? 'ok' : 'FAIL'} GR3 ${gr.GR3 ? 'ok' : 'FAIL'} · no guide ${noGuide.length} · regressed ${regressed.length}`);
+  + `renderer GR1 ${gr.GR1 ? 'ok' : 'FAIL'} GR2 ${gr.GR2 ? 'ok' : 'FAIL'} GR3 ${gr.GR3 ? 'ok' : 'FAIL'} · `
+  + `every control its own name ${gr.FN ? 'ok' : 'FAIL'} (${results.filter((r) => r.vp === 'phone-390').reduce((a, r) => a + r.controls, 0)} at 390) · no guide ${noGuide.length} · regressed ${regressed.length}`);
 process.exit(fail ? 1 : 0);

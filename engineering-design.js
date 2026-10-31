@@ -973,35 +973,38 @@ const GUIDES = {
     ],
   },
 
+  // ★REWRITTEN FROM ITS ENGINE (2026-10-31, row ED-G1 Load Estimation). The guide said Connected Load = Qty x W x PF
+  // (VA is W / PF - the engine divides), "motors 125% largest + 100% rest" (the engine applies 125% to every motor row, and
+  // to elevators; welding is 50%), told the reader to add the 125% to motor rows themselves (it would then count twice),
+  // used US 120 V branch-circuit figures (1,800 VA on 15 A), and described four fields the form does not have.
   'Load Estimation': {
     title: 'Load Estimation: Panel Schedule Method',
-    subtitle: 'Computes total connected load, applies demand factors, and determines the required service entrance ampacity and feeder size per Philippine Electrical Code (PEC).',
-    standards: ['Philippine Electrical Code (PEC) 2017: based on NEC','PEC Article 2.20: Feeders and Services','PEC Article 2.10: Branch Circuits','NFPA 70 (NEC): National Electrical Code'],
+    subtitle: 'Adds up a panel schedule, applies each load type demand factor, and sizes the service: demand ampacity plus 25% spare, rounded up to a standard breaker.',
+    standards: ['Philippine Electrical Code (PEC) 2017: based on NEC','PEC Article 2.20: Feeders and Services','PEC Article 2.10: Branch Circuits','IEC 60364: Low-voltage electrical installations'],
     formulas: [
-      'Connected Load (VA) = sum of (Qty x Wattage x Power Factor)',
+      'Connected VA (per row) = Qty x Watts each / PF',
+      'Demand VA (per row) = Connected VA x demand factor of its load type',
+      '  1.25: Motor (General), Motor (Fire Pump), Elevator / Escalator',
+      '  0.50: Welding Equipment',
+      '  1.00: every other load type',
       '',
-      'Demand Load (VA) = Connected Load x Demand Factor',
-      '(Demand factors per PEC: lighting 100%, HVAC 100%, motors 125% largest + 100% rest)',
-      '',
-      'Service Ampacity (A) = Demand Load (VA) / (Voltage x sqrt(3))  [3-phase]',
-      'Service Ampacity (A) = Demand Load (VA) / Voltage              [1-phase]',
-      '',
-      'Service Size = round up to next standard breaker rating',
-      'Standard sizes: 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 225, 250, 300, 350, 400, 500, 600 A',
+      'Demand ampacity = Total demand VA / (√3 x 400 V)   [3-phase]',
+      'Demand ampacity = Total demand VA / 230 V          [1-phase]',
+      'With spare = Demand ampacity x 1.25',
+      'Breaker = next standard rating at or above With spare',
+      '  15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 225, 250, 300, 350, 400, 500, 600 A',
     ],
     fields: [
-      { name: 'Load Schedule', tip: 'Add every load on this panel or service. Select the load type: it determines which demand factor PEC requires. Enter rated wattage from nameplate.' },
-      { name: 'System Voltage', tip: '230V single-phase is standard for residential. 400V three-phase (3P+N) is standard for commercial and industrial. 208V is rare in PH (US-sourced equipment only).' },
-      { name: 'Phase Configuration', tip: 'Single-phase: 2-wire (hot+neutral) or 3-wire (hot+hot+neutral). Three-phase: 3-wire or 4-wire (3 phases + neutral). Most commercial panels in PH are 3-phase 4-wire.' },
-      { name: 'Power Factor', tip: 'Pure resistive loads (heaters, incandescent): PF=1.0. Fluorescent/LED lighting: PF=0.85-0.95. Motors: PF=0.85. Air conditioning: PF=0.85. Use 0.85 if unsure.' },
-      { name: 'Demand Factor', tip: 'The probability that not all loads run simultaneously. PEC mandates 100% for lighting and receptacles. Motors: 125% for largest, 100% for rest. HVAC: 100%.' },
+      { name: 'System Configuration', tip: '1-Phase 2-Wire or 3-Wire at 230 V for small and residential panels; 3-Phase 3-Wire or 4-Wire at 400 V for commercial and industrial panels. The phase count decides the ampacity formula; most plant panels are 3-Phase 4-Wire.' },
+      { name: 'Load Schedule', tip: 'One row per group of identical loads: Load Type (it sets the demand factor), Qty, Watts each from the nameplate input power, and PF (resistive heaters 1.0, LED lighting 0.9 to 0.95, motors and air conditioners about 0.85). Use + Add Load for more rows.' },
     ],
     notes: [
-      'PEC requires 25% spare capacity on all feeders and service entrances: the calculated ampacity is the minimum; the actual installed service should be at least 125% of that.',
-      'Motor loads are sized at 125% of nameplate FLA (Full Load Amperes) for the branch circuit. Include this 125% in the load schedule for motors.',
-      'Lighting and receptacle circuits: PEC 2.10 limits 15A branch circuits to 1,440 VA (80% of 1,800 VA). 20A circuits: 1,920 VA maximum.',
-      'Air conditioning: always include the compressor nameplate FLA, not just the rated cooling output in kW.',
-      'Philippine standard voltage: 220-230V single-phase, 380-400V three-phase (meralco/distribution standard). Always confirm the actual utility supply voltage before design.',
+      'Do not add the 125% to motor rows yourself: Motor, Fire Pump and Elevator rows already carry it, and adding it again counts it twice.',
+      'The 125% here is applied to every motor row, which is conservative: PEC sizes a feeder at 125% of the largest motor plus 100% of the others.',
+      'The breaker includes 25% spare capacity over the demand ampacity.',
+      'For an air conditioner, enter its electrical input watts from the nameplate, not its cooling capacity.',
+      'A branch circuit continuous load stays within 80% of its breaker rating: at 230 V a 20 A circuit carries up to 3,680 VA continuous.',
+      'Philippine supply is 220 to 230 V single-phase and 380 to 400 V three-phase: confirm the utility voltage before design.',
     ],
   },
 
@@ -2881,9 +2884,11 @@ function labelizeInputs() {
     clone.querySelectorAll('span').forEach(s => s.remove());   // drop parenthetical hint spans
     const name = (clone.textContent || '').trim().replace(/\s+/g, ' ');
     if (!name) return;
-    const unitEl = (el.closest('.input-group') || el.parentElement || el).querySelector
+    // a select carries no unit badge of its own - a schedule row's Load Type select had borrowed its row's "qty"
+    const unitEl = el.tagName === 'SELECT' ? null : (el.closest('.input-group') || el.parentElement || el).querySelector
       ? (el.closest('.input-group') || el.parentElement).querySelector('.input-unit') : null;
     const unit = unitEl ? unitEl.textContent.trim() : '';
+    el.dataset.whBase = name;
     // ★THE UNIT WAS SAID TWICE (2026-10-08, W4 compute walk, AHU Sizing at 320). A label that already names its unit
     // ("Total Cooling Load (kW)") got the badge's unit appended again, so every screen reader heard "kW" twice and the
     // range refusal - which builds its sentence from this same name - read "Total Cooling Load (kW) (kW) must be at
@@ -2891,6 +2896,72 @@ function labelizeInputs() {
     const named = !!unit && new RegExp('\\(\\s*' + unit.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\)', 'i').test(name);
     el.setAttribute('aria-label', unit && !named ? `${name} (${unit})` : name);
   });
+  // ★A SCHEDULE'S ROWS ALL HAD ONE NAME (2026-10-31, ED-F1): 139 of 470 controls in 15 calculators shared a name - every
+  // load row "Load Schedule (qty)", every Fire Alarm device "Panel Standby Current", every catchment "Catchment Area" - so a
+  // screen reader could not tell one row from the next. A name that repeats is a table's: each control is renamed with its
+  // row (and what the row is, from its own select or leading text) and its column (its unit badge, or "type" for a select).
+  // only controls a person can reach now: a mode's hidden panel (Boiler's steam vs hot-water inputs) is not heard beside
+  // the visible one, so its twin is not a clash
+  const ctrls = [...area.querySelectorAll('input, select, textarea')].filter(el => el.type !== 'hidden'
+    && !el.hasAttribute('data-wh-own-label') && el.getClientRects().length > 0);
+  const byName = {};
+  ctrls.forEach(el => { const n = el.getAttribute('aria-label') || ''; if (n) (byName[n] = byName[n] || []).push(el); });
+  Object.values(byName).filter(g => g.length > 1).forEach(g => {
+    // the TABLE is the smallest element holding every control of the group; its children holding controls are the rows,
+    // and a child holding none but several labelled cells is the header that names the columns
+    let box = g[0].parentElement;
+    while (box && box !== area.parentElement && !g.every(e => box.contains(e))) box = box.parentElement;
+    if (!box) return;
+    const rows = [...box.children].filter(c => c.querySelector && c.querySelector('input, select, textarea'));
+    // the header is the sibling just before the first row, and it holds no control at all (a group of toggle buttons
+    // above Fire Alarm's device rows was read as one); a group that sits loose in the form itself has no header
+    // (or just before the list itself - FCU's "Room / Zone Name · Area (m²) · Load (kW) · Qty" sits above #fcu-room-list)
+    const isHdr = (c) => c && c.children.length > 1 && !c.querySelector('input, select, textarea, button') && (c.textContent || '').trim();
+    const hdr = box === area ? null : [rows.length ? rows[0].previousElementSibling : null, box.previousElementSibling].find(isHdr) || null;
+    g.forEach(el => {
+      const row = rows.find(r => r.contains(el));
+      if (!row) return;
+      let cell = el;
+      while (cell.parentElement && cell.parentElement !== row) cell = cell.parentElement;
+      const idx = [...row.children].indexOf(cell);
+      const head = hdr && idx >= 0 && hdr.children.length === row.children.length
+        ? (hdr.children[idx].textContent || '').trim().replace(/\s+/g, ' ') : '';
+      const sel = row.querySelector('select');
+      let what = '';
+      if (sel && sel !== el && sel.selectedIndex >= 0) what = (sel.options[sel.selectedIndex].text || '').trim();
+      if (!what) {
+        const lead = [...row.querySelectorAll('div, span, label, td')].find(x => x.children.length === 0
+          && !x.classList.contains('input-unit') && (x.textContent || '').trim() && !x.closest('.input-group'));
+        what = lead ? lead.textContent.trim() : '';
+      }
+      const ub = el.tagName === 'SELECT' ? null : (el.closest('.input-group') || el.parentElement).querySelector('.input-unit');
+      const unit = ub ? ub.textContent.trim() : '';
+      const col = head ? head + (unit && head.indexOf(unit) < 0 ? ` (${unit})` : '')
+        : (el.tagName === 'SELECT' ? 'type' : (unit || el.getAttribute('placeholder') || ''));
+      // rows loose in the form (Fire Alarm's device counts: a line of text and one input each) are named by their own
+      // line - the field label above them belongs to a different field
+      if (box === area && what) {
+        el.setAttribute('aria-label', what + (unit ? ` (${unit})` : ''));
+        return;
+      }
+      const base = el.dataset.whBase || (el.getAttribute('aria-label') || '').replace(/\s*\([^)]*\)\s*$/, '');
+      const n = rows.length > 1 ? `, row ${rows.indexOf(row) + 1}` : '';
+      el.setAttribute('aria-label', `${base}${n}${what && what !== head ? ` (${what.slice(0, 40)})` : ''}${col ? `: ${col}` : ''}`);
+    });
+  });
+  // what is still alike (two cells of one row with no header and no unit) is told apart by its place
+  const left = {};
+  ctrls.forEach(el => { const n = el.getAttribute('aria-label') || ''; if (n) (left[n] = left[n] || []).push(el); });
+  Object.values(left).filter(g => g.length > 1).forEach(g => g.forEach((el, k) =>
+    el.setAttribute('aria-label', `${el.getAttribute('aria-label')} (${k + 1} of ${g.length})`)));
+  // a row added later (+ Add Load, + Add Fixture ...) or a row whose type changes is named again, without editing each adder
+  if (!area._whLabelWatch) {
+    let t = 0;
+    const again = () => { clearTimeout(t); t = setTimeout(labelizeInputs, 30); };
+    area._whLabelWatch = new MutationObserver(again);
+    area._whLabelWatch.observe(area, { childList: true, subtree: true });
+    area.addEventListener('change', (e) => { if (e.target && e.target.tagName === 'SELECT') again(); });
+  }
 }
 
 // ── A-6 (deep-arc P6): SCOPED SI/IP units toggle ──────────────────────────────

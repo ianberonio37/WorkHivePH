@@ -5319,7 +5319,7 @@ VALIDATORS = [
     # available yet ... check back after it is built", three guides printed "[object Object]" for every formula, and on a
     # phone the text was 12.5px at 55% white with three-line holes in the formulas. ~2 min, so board-only.
     {"id":"engineering-guides","script":"tools/prove_engineering_guides.mjs","args":["--gate"],
-     "label":"Engineering design guides (ED G1/GR): every built calculator has a Guide; no guide text under 0.8 opacity or 14px, no hole in a formula block, every formula a hanging-indent line, nothing wider than 390 - on all 55 at both widths; a guide whose field names once matched its form exactly (engineering_guides_baseline.json) must still match. Teeth: --teeth plants a ghost field, faint and small text, a formula hole and a flat line, and must catch each",
+     "label":"Engineering design guides (ED G1/GR): every built calculator has a Guide; no guide text under 0.8 opacity or 14px, no hole in a formula block, every formula a hanging-indent line, every control a person can reach with a name of its own, nothing wider than 390 - on all 55 at both widths; a guide whose field names once matched its form exactly (engineering_guides_baseline.json) must still match. Teeth: --teeth plants a ghost field, faint and small text, a formula hole and a flat line, and must catch each",
      "group":"Engineering Calculator","skip_if_fast":True},
     # Wave HS W1 (2026-10-30): two members change the same item at once. Each race is replayed in one rolled-back transaction
     # as the two people with the page's own write and guard; DB-only, ~1 min.

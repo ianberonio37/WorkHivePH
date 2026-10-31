@@ -38,8 +38,9 @@
    "tier": "T3",
    "name": "the cube where the person works (production, weakest layer first)",
    "count": 323,
-   "locking": 0,
+   "locking": 1,
    "first": [
+    "ED85",
     "ED101",
     "ED106",
     "ED11",
@@ -78,8 +79,7 @@
     "ED289",
     "ED29",
     "ED295",
-    "ED301",
-    "ED307"
+    "ED301"
    ],
    "why": {
     "engineering design: the bill of materials and scope are this result's": 55,
@@ -297,6 +297,7 @@
   "BRH517",
   "BRH515",
   "BRH445",
+  "ED85",
   "ED101",
   "ED106",
   "ED11",
@@ -509,7 +510,6 @@
   "ED79",
   "ED8",
   "ED80",
-  "ED85",
   "ED86",
   "ED92",
   "ED97",
@@ -8904,855 +8904,855 @@
    "tier": 1,
    "rank": 9
   },
-  "ED101": {
+  "ED85": {
    "tier": 3,
    "rank": 10
   },
-  "ED106": {
+  "ED101": {
    "tier": 3,
    "rank": 11
   },
-  "ED11": {
+  "ED106": {
    "tier": 3,
    "rank": 12
   },
-  "ED111": {
+  "ED11": {
    "tier": 3,
    "rank": 13
   },
-  "ED116": {
+  "ED111": {
    "tier": 3,
    "rank": 14
   },
-  "ED121": {
+  "ED116": {
    "tier": 3,
    "rank": 15
   },
-  "ED127": {
+  "ED121": {
    "tier": 3,
    "rank": 16
   },
-  "ED133": {
+  "ED127": {
    "tier": 3,
    "rank": 17
   },
-  "ED139": {
+  "ED133": {
    "tier": 3,
    "rank": 18
   },
-  "ED145": {
+  "ED139": {
    "tier": 3,
    "rank": 19
   },
-  "ED151": {
+  "ED145": {
    "tier": 3,
    "rank": 20
   },
-  "ED157": {
+  "ED151": {
    "tier": 3,
    "rank": 21
   },
-  "ED163": {
+  "ED157": {
    "tier": 3,
    "rank": 22
   },
-  "ED169": {
+  "ED163": {
    "tier": 3,
    "rank": 23
   },
-  "ED17": {
+  "ED169": {
    "tier": 3,
    "rank": 24
   },
-  "ED175": {
+  "ED17": {
    "tier": 3,
    "rank": 25
   },
-  "ED181": {
+  "ED175": {
    "tier": 3,
    "rank": 26
   },
-  "ED187": {
+  "ED181": {
    "tier": 3,
    "rank": 27
   },
-  "ED193": {
+  "ED187": {
    "tier": 3,
    "rank": 28
   },
-  "ED199": {
+  "ED193": {
    "tier": 3,
    "rank": 29
   },
-  "ED205": {
+  "ED199": {
    "tier": 3,
    "rank": 30
   },
-  "ED211": {
+  "ED205": {
    "tier": 3,
    "rank": 31
   },
-  "ED217": {
+  "ED211": {
    "tier": 3,
    "rank": 32
   },
-  "ED223": {
+  "ED217": {
    "tier": 3,
    "rank": 33
   },
-  "ED229": {
+  "ED223": {
    "tier": 3,
    "rank": 34
   },
-  "ED23": {
+  "ED229": {
    "tier": 3,
    "rank": 35
   },
-  "ED235": {
+  "ED23": {
    "tier": 3,
    "rank": 36
   },
-  "ED241": {
+  "ED235": {
    "tier": 3,
    "rank": 37
   },
-  "ED247": {
+  "ED241": {
    "tier": 3,
    "rank": 38
   },
-  "ED253": {
+  "ED247": {
    "tier": 3,
    "rank": 39
   },
-  "ED259": {
+  "ED253": {
    "tier": 3,
    "rank": 40
   },
-  "ED265": {
+  "ED259": {
    "tier": 3,
    "rank": 41
   },
-  "ED271": {
+  "ED265": {
    "tier": 3,
    "rank": 42
   },
-  "ED277": {
+  "ED271": {
    "tier": 3,
    "rank": 43
   },
-  "ED283": {
+  "ED277": {
    "tier": 3,
    "rank": 44
   },
-  "ED289": {
+  "ED283": {
    "tier": 3,
    "rank": 45
   },
-  "ED29": {
+  "ED289": {
    "tier": 3,
    "rank": 46
   },
-  "ED295": {
+  "ED29": {
    "tier": 3,
    "rank": 47
   },
-  "ED301": {
+  "ED295": {
    "tier": 3,
    "rank": 48
   },
-  "ED307": {
+  "ED301": {
    "tier": 3,
    "rank": 49
   },
-  "ED313": {
+  "ED307": {
    "tier": 3,
    "rank": 50
   },
-  "ED319": {
+  "ED313": {
    "tier": 3,
    "rank": 51
   },
-  "ED325": {
+  "ED319": {
    "tier": 3,
    "rank": 52
   },
-  "ED35": {
+  "ED325": {
    "tier": 3,
    "rank": 53
   },
-  "ED41": {
+  "ED35": {
    "tier": 3,
    "rank": 54
   },
-  "ED47": {
+  "ED41": {
    "tier": 3,
    "rank": 55
   },
-  "ED5": {
+  "ED47": {
    "tier": 3,
    "rank": 56
   },
-  "ED53": {
+  "ED5": {
    "tier": 3,
    "rank": 57
   },
-  "ED59": {
+  "ED53": {
    "tier": 3,
    "rank": 58
   },
-  "ED65": {
+  "ED59": {
    "tier": 3,
    "rank": 59
   },
-  "ED71": {
+  "ED65": {
    "tier": 3,
    "rank": 60
   },
-  "ED77": {
+  "ED71": {
    "tier": 3,
    "rank": 61
   },
-  "ED83": {
+  "ED77": {
    "tier": 3,
    "rank": 62
   },
-  "ED89": {
+  "ED83": {
    "tier": 3,
    "rank": 63
   },
-  "ED95": {
+  "ED89": {
    "tier": 3,
    "rank": 64
   },
-  "ED10": {
+  "ED95": {
    "tier": 3,
    "rank": 65
   },
-  "ED100": {
+  "ED10": {
    "tier": 3,
    "rank": 66
   },
-  "ED105": {
+  "ED100": {
    "tier": 3,
    "rank": 67
   },
-  "ED110": {
+  "ED105": {
    "tier": 3,
    "rank": 68
   },
-  "ED115": {
+  "ED110": {
    "tier": 3,
    "rank": 69
   },
-  "ED120": {
+  "ED115": {
    "tier": 3,
    "rank": 70
   },
-  "ED126": {
+  "ED120": {
    "tier": 3,
    "rank": 71
   },
-  "ED132": {
+  "ED126": {
    "tier": 3,
    "rank": 72
   },
-  "ED138": {
+  "ED132": {
    "tier": 3,
    "rank": 73
   },
-  "ED144": {
+  "ED138": {
    "tier": 3,
    "rank": 74
   },
-  "ED150": {
+  "ED144": {
    "tier": 3,
    "rank": 75
   },
-  "ED156": {
+  "ED150": {
    "tier": 3,
    "rank": 76
   },
-  "ED16": {
+  "ED156": {
    "tier": 3,
    "rank": 77
   },
-  "ED162": {
+  "ED16": {
    "tier": 3,
    "rank": 78
   },
-  "ED168": {
+  "ED162": {
    "tier": 3,
    "rank": 79
   },
-  "ED174": {
+  "ED168": {
    "tier": 3,
    "rank": 80
   },
-  "ED180": {
+  "ED174": {
    "tier": 3,
    "rank": 81
   },
-  "ED186": {
+  "ED180": {
    "tier": 3,
    "rank": 82
   },
-  "ED192": {
+  "ED186": {
    "tier": 3,
    "rank": 83
   },
-  "ED198": {
+  "ED192": {
    "tier": 3,
    "rank": 84
   },
-  "ED204": {
+  "ED198": {
    "tier": 3,
    "rank": 85
   },
-  "ED210": {
+  "ED204": {
    "tier": 3,
    "rank": 86
   },
-  "ED216": {
+  "ED210": {
    "tier": 3,
    "rank": 87
   },
-  "ED22": {
+  "ED216": {
    "tier": 3,
    "rank": 88
   },
-  "ED222": {
+  "ED22": {
    "tier": 3,
    "rank": 89
   },
-  "ED228": {
+  "ED222": {
    "tier": 3,
    "rank": 90
   },
-  "ED234": {
+  "ED228": {
    "tier": 3,
    "rank": 91
   },
-  "ED240": {
+  "ED234": {
    "tier": 3,
    "rank": 92
   },
-  "ED246": {
+  "ED240": {
    "tier": 3,
    "rank": 93
   },
-  "ED252": {
+  "ED246": {
    "tier": 3,
    "rank": 94
   },
-  "ED258": {
+  "ED252": {
    "tier": 3,
    "rank": 95
   },
-  "ED264": {
+  "ED258": {
    "tier": 3,
    "rank": 96
   },
-  "ED270": {
+  "ED264": {
    "tier": 3,
    "rank": 97
   },
-  "ED276": {
+  "ED270": {
    "tier": 3,
    "rank": 98
   },
-  "ED28": {
+  "ED276": {
    "tier": 3,
    "rank": 99
   },
-  "ED282": {
+  "ED28": {
    "tier": 3,
    "rank": 100
   },
-  "ED288": {
+  "ED282": {
    "tier": 3,
    "rank": 101
   },
-  "ED294": {
+  "ED288": {
    "tier": 3,
    "rank": 102
   },
-  "ED300": {
+  "ED294": {
    "tier": 3,
    "rank": 103
   },
-  "ED306": {
+  "ED300": {
    "tier": 3,
    "rank": 104
   },
-  "ED312": {
+  "ED306": {
    "tier": 3,
    "rank": 105
   },
-  "ED318": {
+  "ED312": {
    "tier": 3,
    "rank": 106
   },
-  "ED324": {
+  "ED318": {
    "tier": 3,
    "rank": 107
   },
-  "ED34": {
+  "ED324": {
    "tier": 3,
    "rank": 108
   },
-  "ED4": {
+  "ED34": {
    "tier": 3,
    "rank": 109
   },
-  "ED40": {
+  "ED4": {
    "tier": 3,
    "rank": 110
   },
-  "ED46": {
+  "ED40": {
    "tier": 3,
    "rank": 111
   },
-  "ED52": {
+  "ED46": {
    "tier": 3,
    "rank": 112
   },
-  "ED58": {
+  "ED52": {
    "tier": 3,
    "rank": 113
   },
-  "ED64": {
+  "ED58": {
    "tier": 3,
    "rank": 114
   },
-  "ED70": {
+  "ED64": {
    "tier": 3,
    "rank": 115
   },
-  "ED76": {
+  "ED70": {
    "tier": 3,
    "rank": 116
   },
-  "ED82": {
+  "ED76": {
    "tier": 3,
    "rank": 117
   },
-  "ED88": {
+  "ED82": {
    "tier": 3,
    "rank": 118
   },
-  "ED94": {
+  "ED88": {
    "tier": 3,
    "rank": 119
   },
-  "ED1": {
+  "ED94": {
    "tier": 3,
    "rank": 120
   },
-  "ED102": {
+  "ED1": {
    "tier": 3,
    "rank": 121
   },
-  "ED103": {
+  "ED102": {
    "tier": 3,
    "rank": 122
   },
-  "ED107": {
+  "ED103": {
    "tier": 3,
    "rank": 123
   },
-  "ED108": {
+  "ED107": {
    "tier": 3,
    "rank": 124
   },
-  "ED112": {
+  "ED108": {
    "tier": 3,
    "rank": 125
   },
-  "ED113": {
+  "ED112": {
    "tier": 3,
    "rank": 126
   },
-  "ED117": {
+  "ED113": {
    "tier": 3,
    "rank": 127
   },
-  "ED118": {
+  "ED117": {
    "tier": 3,
    "rank": 128
   },
-  "ED123": {
+  "ED118": {
    "tier": 3,
    "rank": 129
   },
-  "ED124": {
+  "ED123": {
    "tier": 3,
    "rank": 130
   },
-  "ED129": {
+  "ED124": {
    "tier": 3,
    "rank": 131
   },
-  "ED13": {
+  "ED129": {
    "tier": 3,
    "rank": 132
   },
-  "ED130": {
+  "ED13": {
    "tier": 3,
    "rank": 133
   },
-  "ED136": {
+  "ED130": {
    "tier": 3,
    "rank": 134
   },
-  "ED14": {
+  "ED136": {
    "tier": 3,
    "rank": 135
   },
-  "ED141": {
+  "ED14": {
    "tier": 3,
    "rank": 136
   },
-  "ED142": {
+  "ED141": {
    "tier": 3,
    "rank": 137
   },
-  "ED147": {
+  "ED142": {
    "tier": 3,
    "rank": 138
   },
-  "ED148": {
+  "ED147": {
    "tier": 3,
    "rank": 139
   },
-  "ED153": {
+  "ED148": {
    "tier": 3,
    "rank": 140
   },
-  "ED154": {
+  "ED153": {
    "tier": 3,
    "rank": 141
   },
-  "ED159": {
+  "ED154": {
    "tier": 3,
    "rank": 142
   },
-  "ED160": {
+  "ED159": {
    "tier": 3,
    "rank": 143
   },
-  "ED165": {
+  "ED160": {
    "tier": 3,
    "rank": 144
   },
-  "ED166": {
+  "ED165": {
    "tier": 3,
    "rank": 145
   },
-  "ED171": {
+  "ED166": {
    "tier": 3,
    "rank": 146
   },
-  "ED172": {
+  "ED171": {
    "tier": 3,
    "rank": 147
   },
-  "ED177": {
+  "ED172": {
    "tier": 3,
    "rank": 148
   },
-  "ED178": {
+  "ED177": {
    "tier": 3,
    "rank": 149
   },
-  "ED183": {
+  "ED178": {
    "tier": 3,
    "rank": 150
   },
-  "ED184": {
+  "ED183": {
    "tier": 3,
    "rank": 151
   },
-  "ED189": {
+  "ED184": {
    "tier": 3,
    "rank": 152
   },
-  "ED19": {
+  "ED189": {
    "tier": 3,
    "rank": 153
   },
-  "ED190": {
+  "ED19": {
    "tier": 3,
    "rank": 154
   },
-  "ED195": {
+  "ED190": {
    "tier": 3,
    "rank": 155
   },
-  "ED196": {
+  "ED195": {
    "tier": 3,
    "rank": 156
   },
-  "ED2": {
+  "ED196": {
    "tier": 3,
    "rank": 157
   },
-  "ED20": {
+  "ED2": {
    "tier": 3,
    "rank": 158
   },
-  "ED201": {
+  "ED20": {
    "tier": 3,
    "rank": 159
   },
-  "ED202": {
+  "ED201": {
    "tier": 3,
    "rank": 160
   },
-  "ED207": {
+  "ED202": {
    "tier": 3,
    "rank": 161
   },
-  "ED208": {
+  "ED207": {
    "tier": 3,
    "rank": 162
   },
-  "ED213": {
+  "ED208": {
    "tier": 3,
    "rank": 163
   },
-  "ED214": {
+  "ED213": {
    "tier": 3,
    "rank": 164
   },
-  "ED219": {
+  "ED214": {
    "tier": 3,
    "rank": 165
   },
-  "ED220": {
+  "ED219": {
    "tier": 3,
    "rank": 166
   },
-  "ED225": {
+  "ED220": {
    "tier": 3,
    "rank": 167
   },
-  "ED226": {
+  "ED225": {
    "tier": 3,
    "rank": 168
   },
-  "ED231": {
+  "ED226": {
    "tier": 3,
    "rank": 169
   },
-  "ED232": {
+  "ED231": {
    "tier": 3,
    "rank": 170
   },
-  "ED237": {
+  "ED232": {
    "tier": 3,
    "rank": 171
   },
-  "ED238": {
+  "ED237": {
    "tier": 3,
    "rank": 172
   },
-  "ED243": {
+  "ED238": {
    "tier": 3,
    "rank": 173
   },
-  "ED244": {
+  "ED243": {
    "tier": 3,
    "rank": 174
   },
-  "ED25": {
+  "ED244": {
    "tier": 3,
    "rank": 175
   },
-  "ED250": {
+  "ED25": {
    "tier": 3,
    "rank": 176
   },
-  "ED255": {
+  "ED250": {
    "tier": 3,
    "rank": 177
   },
-  "ED256": {
+  "ED255": {
    "tier": 3,
    "rank": 178
   },
-  "ED26": {
+  "ED256": {
    "tier": 3,
    "rank": 179
   },
-  "ED261": {
+  "ED26": {
    "tier": 3,
    "rank": 180
   },
-  "ED262": {
+  "ED261": {
    "tier": 3,
    "rank": 181
   },
-  "ED267": {
+  "ED262": {
    "tier": 3,
    "rank": 182
   },
-  "ED268": {
+  "ED267": {
    "tier": 3,
    "rank": 183
   },
-  "ED273": {
+  "ED268": {
    "tier": 3,
    "rank": 184
   },
-  "ED274": {
+  "ED273": {
    "tier": 3,
    "rank": 185
   },
-  "ED279": {
+  "ED274": {
    "tier": 3,
    "rank": 186
   },
-  "ED280": {
+  "ED279": {
    "tier": 3,
    "rank": 187
   },
-  "ED285": {
+  "ED280": {
    "tier": 3,
    "rank": 188
   },
-  "ED286": {
+  "ED285": {
    "tier": 3,
    "rank": 189
   },
-  "ED291": {
+  "ED286": {
    "tier": 3,
    "rank": 190
   },
-  "ED292": {
+  "ED291": {
    "tier": 3,
    "rank": 191
   },
-  "ED297": {
+  "ED292": {
    "tier": 3,
    "rank": 192
   },
-  "ED298": {
+  "ED297": {
    "tier": 3,
    "rank": 193
   },
-  "ED303": {
+  "ED298": {
    "tier": 3,
    "rank": 194
   },
-  "ED304": {
+  "ED303": {
    "tier": 3,
    "rank": 195
   },
-  "ED309": {
+  "ED304": {
    "tier": 3,
    "rank": 196
   },
-  "ED31": {
+  "ED309": {
    "tier": 3,
    "rank": 197
   },
-  "ED310": {
+  "ED31": {
    "tier": 3,
    "rank": 198
   },
-  "ED315": {
+  "ED310": {
    "tier": 3,
    "rank": 199
   },
-  "ED316": {
+  "ED315": {
    "tier": 3,
    "rank": 200
   },
-  "ED32": {
+  "ED316": {
    "tier": 3,
    "rank": 201
   },
-  "ED321": {
+  "ED32": {
    "tier": 3,
    "rank": 202
   },
-  "ED322": {
+  "ED321": {
    "tier": 3,
    "rank": 203
   },
-  "ED37": {
+  "ED322": {
    "tier": 3,
    "rank": 204
   },
-  "ED38": {
+  "ED37": {
    "tier": 3,
    "rank": 205
   },
-  "ED43": {
+  "ED38": {
    "tier": 3,
    "rank": 206
   },
-  "ED44": {
+  "ED43": {
    "tier": 3,
    "rank": 207
   },
-  "ED49": {
+  "ED44": {
    "tier": 3,
    "rank": 208
   },
-  "ED50": {
+  "ED49": {
    "tier": 3,
    "rank": 209
   },
-  "ED55": {
+  "ED50": {
    "tier": 3,
    "rank": 210
   },
-  "ED56": {
+  "ED55": {
    "tier": 3,
    "rank": 211
   },
-  "ED61": {
+  "ED56": {
    "tier": 3,
    "rank": 212
   },
-  "ED62": {
+  "ED61": {
    "tier": 3,
    "rank": 213
   },
-  "ED67": {
+  "ED62": {
    "tier": 3,
    "rank": 214
   },
-  "ED68": {
+  "ED67": {
    "tier": 3,
    "rank": 215
   },
-  "ED7": {
+  "ED68": {
    "tier": 3,
    "rank": 216
   },
-  "ED73": {
+  "ED7": {
    "tier": 3,
    "rank": 217
   },
-  "ED74": {
+  "ED73": {
    "tier": 3,
    "rank": 218
   },
-  "ED79": {
+  "ED74": {
    "tier": 3,
    "rank": 219
   },
-  "ED8": {
+  "ED79": {
    "tier": 3,
    "rank": 220
   },
-  "ED80": {
+  "ED8": {
    "tier": 3,
    "rank": 221
   },
-  "ED85": {
+  "ED80": {
    "tier": 3,
    "rank": 222
   },

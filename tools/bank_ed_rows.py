@@ -57,6 +57,13 @@ ENGINE_CHECKED = {
                                "concentrations and the NOAEL table. The form note and the drawing's general notes had stated "
                                "only the halocarbon formula and '(halocarbon)' for every agent - both now follow the agent class.",
 }
+ENGINE_CHECKED["Load Estimation"] = (
+    "FOUND AND FIXED: the guide said Connected Load = Qty x W x PF (VA is W / PF - python-api/calcs/load_estimation.py "
+    "divides), '125% of the largest motor + 100% of the rest' (the engine's LOAD_DEMAND_FACTOR applies 1.25 to every Motor, "
+    "Fire Pump and Elevator row and 0.50 to welding), told the reader to add the 125% to motor rows (it would count twice), "
+    "used US 120 V branch-circuit figures, and described four fields the form does not have. Rewritten from the engine: "
+    "the demand-factor table, the 1.25 spare, the STANDARD_BREAKER_A ladder, and the form's two fields. The schedule's "
+    "controls had all been named 'Load Schedule (qty)/(W)/(PF)' - each now names its row, its load type and its column.")
 GR_FIXED = {
     "GR1": "FOUND AND FIXED: every tip, note, standard and the subtitle were rgba(255,255,255,0.55) and the tips 12.5px - now "
            "0.80 (the page's measured Lc 79.8 value) at 14px, the formulas 14px.",
