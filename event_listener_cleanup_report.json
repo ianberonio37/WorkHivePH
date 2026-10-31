@@ -191,9 +191,9 @@
     },
     {
       "page": "asset-hub.html",
-      "add": 16,
+      "add": 15,
       "remove": 2,
-      "add_raw": 16,
+      "add_raw": 15,
       "rebuild_scoped": 0,
       "risky": false
     },

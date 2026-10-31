@@ -137,7 +137,30 @@ def find_mismatches(schema):
             for am in re.finditer(r'(?<![A-Za-z0-9_])' + re.escape(listvar) + r'\.append\(', src):
                 check(table, _payload_keys(src, am.end()))
         for m in RE_INLINE.finditer(src):
-            check(m.group(1), _payload_keys(src, m.end()))
+            # ★AN ARGUMENT THAT IS A NAME HAS ITS OWN PAYLOAD (2026-10-31, M4's first push: 88 phantom offenders).
+            # `.table("asset_nodes").insert(nodes)` was checked against the first `{` AFTER the call - the next table's
+            # dict in the file (rcm_fmea_modes'), so asset_nodes "wrote" cause_text and severity. A literal argument is
+            # read where it is; a named one through its own `.append({` and `= [{` / `= {` builders; nothing else.
+            nxt = src[m.end():m.end() + 200].lstrip()
+            if nxt[:1] in ("{", "["):
+                check(m.group(1), _payload_keys(src, m.end()))
+                continue
+            im = re.match(r"([A-Za-z_]\w*)", nxt)
+            if not im:
+                continue
+            var = im.group(1)
+            # ...and only inside the function that makes the call: `rows` is a different list in every seeder function
+            # (marketplace.py builds a `rows` for listings, inquiries and orders), so a file-wide match charged each
+            # table with the others' columns
+            fs = src.rfind("\ndef ", 0, m.start())
+            fs = 0 if fs < 0 else fs
+            fe = src.find("\ndef ", m.end())
+            fe = len(src) if fe < 0 else fe
+            scope = src[fs:fe]
+            for am in re.finditer(r'(?<![A-Za-z0-9_])' + re.escape(var) + r'\.append\(', scope):
+                check(m.group(1), _payload_keys(scope, am.end()))
+            for dm in re.finditer(r'(?<![A-Za-z0-9_.])' + re.escape(var) + r'\s*=\s*\[?\s*(?=\{)', scope):
+                check(m.group(1), _payload_keys(scope, dm.end()))
     return sorted(set(mismatches))
 
 

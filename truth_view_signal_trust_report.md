@@ -6,7 +6,7 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **329**
+- View/column pairs scanned: **330**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
 - Files scanned: **355**
@@ -146,8 +146,8 @@ re-deriving what the canonical view should expose:
 | `v_inventory_items_truth` | `bin_location` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `category` | ✅ OK | 2 | direct |
 | `v_inventory_items_truth` | `is_critical_low` | ✅ OK | 1 | direct |
-| `v_inventory_items_truth` | `is_low_stock` | ✅ OK | 5 | direct |
-| `v_inventory_items_truth` | `is_out_of_stock` | ✅ OK | 2 | direct |
+| `v_inventory_items_truth` | `is_low_stock` | ✅ OK | 4 | direct |
+| `v_inventory_items_truth` | `is_out_of_stock` | ✅ OK | 1 | direct |
 | `v_inventory_items_truth` | `min_qty` | ✅ OK | 4 | direct |
 | `v_inventory_items_truth` | `part_name` | ✅ OK | 14 | direct |
 | `v_inventory_items_truth` | `part_number` | ✅ OK | 6 | direct, mapped_enum |
@@ -162,6 +162,7 @@ re-deriving what the canonical view should expose:
 | `v_inventory_transactions_truth` | `note` | ✅ OK | 1 | direct |
 | `v_inventory_transactions_truth` | `qty_change` | ✅ OK | 5 | direct |
 | `v_inventory_transactions_truth` | `type` | ✅ OK | 3 | direct |
+| `v_inventory_transactions_truth` | `worker_name` | ✅ OK | 1 | direct |
 | `v_knowledge_freshness_truth` | `days_since_last_embed` | ✅ OK | 1 | direct |
 | `v_knowledge_freshness_truth` | `embedded_pct` | ✅ OK | 1 | direct |
 | `v_knowledge_freshness_truth` | `embedded_rows` | ✅ OK | 1 | direct |
@@ -188,7 +189,7 @@ re-deriving what the canonical view should expose:
 | `v_logbook_truth` | `readings_json` | ✅ OK | 3 | direct |
 | `v_logbook_truth` | `root_cause` | ✅ OK | 15 | direct |
 | `v_logbook_truth` | `status` | ✅ OK | 17 | direct |
-| `v_logbook_truth` | `worker_name` | ✅ OK | 7 | direct |
+| `v_logbook_truth` | `worker_name` | ✅ OK | 8 | direct |
 | `v_marketplace_inquiries_truth` | `buyer_contact` | ✅ OK | 1 | direct |
 | `v_marketplace_inquiries_truth` | `buyer_name` | ✅ OK | 1 | direct |
 | `v_marketplace_inquiries_truth` | `listing_id` | ✅ OK | 2 | direct |
@@ -267,14 +268,13 @@ re-deriving what the canonical view should expose:
 | `v_pm_scope_items_truth` | `pm_asset_id` | ✅ OK | 8 | direct |
 | `v_pm_scope_items_truth` | `scope_item_id` | ⚠️ REVIEW | 5 | direct |
 | `v_project_items_truth` | `actual_hours` | ✅ OK | 2 | direct |
-| `v_project_items_truth` | `estimated_hours` | ✅ OK | 3 | direct |
+| `v_project_items_truth` | `estimated_hours` | ✅ OK | 2 | direct |
 | `v_project_items_truth` | `notes` | ✅ OK | 2 | direct |
 | `v_project_items_truth` | `owner_name` | ✅ OK | 2 | direct |
-| `v_project_items_truth` | `pct_complete` | ✅ OK | 3 | direct |
-| `v_project_items_truth` | `planned_end` | ✅ OK | 3 | direct |
+| `v_project_items_truth` | `pct_complete` | ✅ OK | 2 | direct |
+| `v_project_items_truth` | `planned_end` | ✅ OK | 2 | direct |
 | `v_project_items_truth` | `planned_start` | ✅ OK | 1 | direct |
 | `v_project_items_truth` | `predecessors` | ✅ OK | 1 | direct |
-| `v_project_items_truth` | `project_id` | ✅ OK | 1 | direct |
 | `v_project_items_truth` | `sort_order` | ✅ OK | 1 | direct |
 | `v_project_items_truth` | `status` | ✅ OK | 3 | direct |
 | `v_project_items_truth` | `title` | ✅ OK | 2 | direct |
@@ -289,6 +289,7 @@ re-deriving what the canonical view should expose:
 | `v_project_progress_truth` | `reported_by` | ✅ OK | 2 | direct |
 | `v_project_truth` | `maintenance_nature` | ✅ OK | 1 | direct |
 | `v_project_truth` | `name` | ✅ OK | 2 | direct |
+| `v_project_truth` | `owner_name` | ✅ OK | 1 | direct |
 | `v_project_truth` | `project_code` | ✅ OK | 3 | direct |
 | `v_project_truth` | `project_id` | ✅ OK | 5 | direct |
 | `v_project_truth` | `project_type` | ✅ OK | 2 | direct |

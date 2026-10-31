@@ -126,6 +126,43 @@ def function_body(text, name):
                 return body
     return None
 
+def _param_source(text, name, before_idx):
+    """★A PAYLOAD NAMED BY A PARAMETER IS THE ARGUMENT BESIDE IT (2026-10-31, M4's first push). Wave HS routes the
+    import's writes through `landWhatFits(aBatch, (rows) => db.from('asset_nodes').upsert(rows))` and the PM writes
+    through `for (const pmPayload of pmPayloads)`: `rows`, `piece` and `pmPayload` have no `name =` of their own, so
+    the resolver matched an unrelated `rows =` elsewhere, or nothing, and five correctly attributed writes read as
+    drops. A for-of variable is its array; an arrow's parameter is the argument passed before that arrow."""
+    win_start = max(0, before_idx - 2500)
+    fo = None
+    for fo in re.finditer(rf"for\s*\(\s*(?:const|let|var)\s+{re.escape(name)}\s+of\s+([A-Za-z_$][\w$]*)", text[win_start:before_idx]):
+        pass
+    if fo:
+        return fo.group(1)
+    ar = None
+    for ar in re.finditer(rf"(?:async\s*)?(?:\(\s*{re.escape(name)}\s*\)|\b{re.escape(name)})\s*=>", text[max(0, before_idx - 600):before_idx]):
+        pass
+    if not ar:
+        return None
+    k = max(0, before_idx - 600) + ar.start() - 1
+    while k >= 0 and text[k] in " \t\r\n":
+        k -= 1
+    if k < 0 or text[k] != ",":
+        return None
+    k -= 1
+    depth = 0
+    while k >= 0:
+        c = text[k]
+        if c in ")]}":
+            depth += 1
+        elif c in "([{":
+            if depth == 0:
+                break
+            depth -= 1
+        k -= 1
+    m = re.match(r"\s*([A-Za-z_$][\w$]*)", text[k + 1:])
+    return m.group(1) if m else None
+
+
 def resolve_ident_literal(text, name, before_idx, depth=0):
     """Resolve `name` to the object literal / body that defines its payload shape."""
     if depth > 4:
@@ -214,7 +251,8 @@ def scan(path):
         if kind == "obj":
             literal = arg
         elif kind == "ident":
-            literal = resolve_ident_literal(text, arg, fm.start())
+            _src = _param_source(text, arg, fm.start())
+            literal = resolve_ident_literal(text, _src or arg, fm.start())
         elif kind == "call":
             literal = function_body(text, arg)
         # Per-PAYLOAD check only — NO enclosing-scope fallback (that hid the original

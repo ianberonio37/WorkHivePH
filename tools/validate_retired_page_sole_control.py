@@ -94,6 +94,13 @@ ALLOWLIST = {
         "the recent traces - and founder-console.html's Developer tab calls it (loadDeveloperTab, "
         "db.rpc('founder_dev_reads', range)). The retired page read the viewer's own hive's latest 500 rows. Was "
         "BASELINE 'WRITE-ONLY TRACES' until the reader got this live home.",
+    ("llm-observability.html", "read:ai_cost_log"):
+        "NOT stranded: both of its readers are RPCs (Wave HS L4, 2026-10-30). A supervisor's AI spend is read by "
+        "hive_ai_usage_30d (migration 20261030000014, security invoker - the reader's own RLS slice), which "
+        "ai-quality.html calls in loadUsage; the platform's, across hives, by founder_ai_cost, which "
+        "founder-console.html calls three times (the day's spend, the range and the per-function breakdown). "
+        "ai-quality's direct .from('ai_cost_log') was the last table-name match, and it went when the page stopped "
+        "summing a capped read. Verified by reading both call sites and both function bodies.",
     ("platform-actions.html", "rpc:founder_page_heatmap"):
         "NOT stranded: relocated into an RPC (OPC, 2026-10-22). Platform Actions' usage card read it for one figure, "
         "'Most-opened page (30d)'. The operator console's Platform tab draws 'Top surfaces (feature heatmap)' - every "

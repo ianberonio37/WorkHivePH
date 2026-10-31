@@ -1,6 +1,6 @@
 {
   "summary": {
-    "view_column_pairs": 329,
+    "view_column_pairs": 330,
     "at_risk": 0,
     "review": 9,
     "files_scanned": 355
@@ -1939,11 +1939,6 @@
           "smells": []
         },
         {
-          "file": "hive.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "index.html",
           "shape": "direct",
           "smells": []
@@ -1968,11 +1963,6 @@
       "consumers": [
         {
           "file": "alert-hub.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "hive.html",
           "shape": "direct",
           "smells": []
         }
@@ -2400,6 +2390,19 @@
         },
         {
           "file": "supabase/functions/trigger-ml-retrain/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_inventory_transactions_truth",
+      "column": "worker_name",
+      "consumers": [
+        {
+          "file": "logbook.html",
           "shape": "direct",
           "smells": []
         }
@@ -3411,6 +3414,11 @@
         },
         {
           "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
+          "file": "project-manager.html",
           "shape": "direct",
           "smells": []
         },
@@ -5283,11 +5291,6 @@
       "column": "estimated_hours",
       "consumers": [
         {
-          "file": "project-manager.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/project-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -5342,11 +5345,6 @@
       "column": "pct_complete",
       "consumers": [
         {
-          "file": "project-manager.html",
-          "shape": "direct",
-          "smells": []
-        },
-        {
           "file": "supabase/functions/project-orchestrator/index.ts",
           "shape": "direct",
           "smells": []
@@ -5364,11 +5362,6 @@
       "view": "v_project_items_truth",
       "column": "planned_end",
       "consumers": [
-        {
-          "file": "project-manager.html",
-          "shape": "direct",
-          "smells": []
-        },
         {
           "file": "supabase/functions/project-orchestrator/index.ts",
           "shape": "direct",
@@ -5402,19 +5395,6 @@
       "consumers": [
         {
           "file": "supabase/functions/project-progress/index.ts",
-          "shape": "direct",
-          "smells": []
-        }
-      ],
-      "smells": [],
-      "risk": "OK"
-    },
-    {
-      "view": "v_project_items_truth",
-      "column": "project_id",
-      "consumers": [
-        {
-          "file": "project-manager.html",
           "shape": "direct",
           "smells": []
         }
@@ -5657,6 +5637,19 @@
         },
         {
           "file": "supabase/functions/project-orchestrator/index.ts",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_project_truth",
+      "column": "owner_name",
+      "consumers": [
+        {
+          "file": "project-report.html",
           "shape": "direct",
           "smells": []
         }

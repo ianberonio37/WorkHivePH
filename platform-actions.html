@@ -1221,7 +1221,7 @@
           await refreshQueues();
           _restore();
         } catch (err) {
-          console.error('[operator-actions] dispute decision failed:', err);
+          console.error('[platform-actions] dispute decision failed:', err);
           showToast(refusalMessage(err)
             || (whIsAuthFailure(err) ? 'Your admin session expired, so nothing was recorded. Sign in again to continue.'
                                      : 'We could not record that decision, and nothing changed. Try again.'), 'error');

@@ -1,6 +1,6 @@
 {
   "_doc": "Component adoption baseline (Layer F). Floors are FORWARD-ONLY: validate_component_adoption.py fails any drop and auto-tightens any rise. Regenerate view: python tools/component_adoption_census.py",
-  "generated": "2026-10-29T04:39:00.517612+00:00",
+  "generated": "2026-10-31T01:18:13.099448+00:00",
   "family_pages": 39,
   "rows": [
     {
@@ -376,8 +376,8 @@
       "mode": "measured",
       "need_rule": "renders-date",
       "adopters_n": 24,
-      "need_n": 27,
-      "pct": 89,
+      "need_n": 28,
+      "pct": 86,
       "adopters": [
         "alert-hub.html",
         "analytics-report.html",
@@ -407,6 +407,7 @@
       "gap": [
         "engineering-design.html",
         "llm-observability.html",
+        "marketplace-seller.html",
         "platform-actions.html"
       ],
       "status": "built"
@@ -419,8 +420,8 @@
       "mode": "measured",
       "need_rule": "renders-number",
       "adopters_n": 6,
-      "need_n": 25,
-      "pct": 24,
+      "need_n": 26,
+      "pct": 23,
       "adopters": [
         "agentic-rag-observability.html",
         "ai-quality.html",
@@ -446,6 +447,7 @@
         "logbook.html",
         "marketplace-seller-profile.html",
         "marketplace-seller.html",
+        "plant-connections.html",
         "platform-actions.html",
         "pm-scheduler.html",
         "resume.html"
@@ -499,9 +501,9 @@
       "satisfies": "S1/N1",
       "mode": "measured",
       "need_rule": "relative-time",
-      "adopters_n": 15,
-      "need_n": 18,
-      "pct": 83,
+      "adopters_n": 16,
+      "need_n": 19,
+      "pct": 84,
       "adopters": [
         "achievements.html",
         "agentic-rag-observability.html",
@@ -517,6 +519,7 @@
         "marketplace-seller-profile.html",
         "marketplace-seller.html",
         "marketplace.html",
+        "project-report.html",
         "public-feed.html"
       ],
       "gap": [
@@ -767,11 +770,11 @@
     "FD1a": 24,
     "FD1b": 6,
     "FD1c": 11,
-    "FD1e": 15,
+    "FD1e": 16,
     "FD3": 33,
     "FCh1": 31,
     "FCh2": 29,
     "FCh3": 33
   },
-  "tightened": false
+  "tightened": true
 }

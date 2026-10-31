@@ -671,7 +671,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (s.fns.length === 0) {
         return `<div class="card"><h3>${_t('Per-function spend', 'Gastos bawat function')}</h3><p class="meta" style="margin-top:6px;">${_t('No AI calls recorded in the last 30 days for this hive.', 'Walang naitalang AI call sa nakaraang 30 araw para sa hive na ito.')}</p></div>`;
       }
-      const rows = s.fns.map(f => {
+      // one row per AI function the hive used (hive_ai_usage_30d groups by function, costliest first): bounded by the
+      // platform's function count (62 today) - the render cap sits above it, so it holds if that list ever grows
+      const FN_RENDER_CAP = 100;
+      const rows = s.fns.slice(0, FN_RENDER_CAP).map(f => {
         const avgLat = f.latencyAvg != null ? f.latencyAvg + ' ms' : '-';
         const failPct = f.calls === 0 ? '-' : Math.round(100 * f.failures / f.calls) + '%';
         return `

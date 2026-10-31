@@ -3372,11 +3372,20 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       : _conflicts;
     const shown = hits.slice(0, _conflictShown);
     const rest = hits.length - shown.length;
-    listEl/* xss-allow: escHtml on every dynamic value; the card template escapes its own */ .innerHTML = _conflictHead
-      + `<input id="conflict-find" type="search" class="wh-input" autocomplete="off" maxlength="100" style="margin:0 0 10px;width:100%;min-height:44px;"`
-      + ` placeholder="Find a machine or member" aria-label="Find a conflict by machine, member or status" value="${escHtml(raw)}" oninput="_conflictFind()">`
-      + (words.length && !hits.length ? `<div style="font-size:0.75rem; color:var(--muted);">No conflict matches “${escHtml(raw.trim().slice(0, 60))}”.</div>` : '')
-      + shown.map(_conflictCardHtml).join('')
+    // the frame (header, search box, the rows' box, the more button) is drawn once per header; "show more" and the
+    // search then go through whRenderRows, which APPENDS a grown list instead of rebuilding every card (SL LB3)
+    if (listEl.dataset.conflictHead !== _conflictHead || !listEl.querySelector('#conflict-rows')) {
+      listEl/* xss-allow: escHtml on every dynamic value; the card template escapes its own */ .innerHTML = _conflictHead
+        + `<input id="conflict-find" type="search" class="wh-input" autocomplete="off" maxlength="100" style="margin:0 0 10px;width:100%;min-height:44px;"`
+        + ` placeholder="Find a machine or member" aria-label="Find a conflict by machine, member or status" value="${escHtml(raw)}" oninput="_conflictFind()">`
+        + '<div id="conflict-nomatch" role="status"></div><div id="conflict-rows"></div><div id="conflict-more"></div>';
+      listEl.dataset.conflictHead = _conflictHead;
+    }
+    const _nm = listEl.querySelector('#conflict-nomatch');
+    if (_nm) _nm.innerHTML = (words.length && !hits.length ? `<div style="font-size:0.75rem; color:var(--muted);">No conflict matches “${escHtml(raw.trim().slice(0, 60))}”.</div>` : '');
+    whRenderRows(listEl.querySelector('#conflict-rows'), shown, _conflictCardHtml, { key: 'html' });
+    const _more = listEl.querySelector('#conflict-more');
+    if (_more) _more/* xss-allow: numbers only */ .innerHTML = ''
       + (rest > 0 ? `<button type="button" onclick="_conflictMore()" style="width:100%;min-height:44px;margin-top:4px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:inherit;">Show ${Math.min(30, rest)} more (${rest} not shown)</button>` : '');
     const f = document.getElementById('conflict-find');
     if (f && raw && document.activeElement !== f) { f.focus(); f.setSelectionRange(raw.length, raw.length); }

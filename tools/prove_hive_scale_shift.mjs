@@ -11,6 +11,8 @@
 //
 //   node tools/prove_hive_scale_shift.mjs [HS402 ...]   -> hive_scale_shift_report.json; exit 1 on any failure
 import { chromium } from 'playwright';
+// what a page SAYS includes every row of its long lists (content-visibility skips the off-screen ones)
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { spawnSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 
@@ -71,6 +73,7 @@ async function rpcValue(p, fn, args) {
 async function session(browser, p, vp, hive = HIVE) {
   const ctx = await browser.newContext({ ...(vp === 'phone-390' ? { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }
     : { viewport: { width: 1280, height: 800 } }), timezoneId: 'Asia/Manila', serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   await ctx.addInitScript(([t, hive, name, role]) => {
     try {
       if (!localStorage.getItem('sb-127-auth-token')) localStorage.setItem('sb-127-auth-token', JSON.stringify(t));

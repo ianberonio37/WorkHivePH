@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 0,
+ "open": 26,
  "resolved": 1,
  "incidents": [
   {
@@ -15,6 +15,240 @@
    "started_at": "2026-10-28 21:03:36.632147+00",
    "ended_at": "2026-10-30 21:04:09.367083+00",
    "status": "resolved"
+  },
+  {
+   "id": "gate-type-floor",
+   "source": "gate",
+   "title": "type-floor",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-lens-read-rpcs",
+   "source": "gate",
+   "title": "lens-read-rpcs",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-w4-layer-loadbearing",
+   "source": "gate",
+   "title": "w4-layer-loadbearing",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-page-log-tags",
+   "source": "gate",
+   "title": "page-log-tags",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-reference-pages-uncapped",
+   "source": "gate",
+   "title": "reference-pages-uncapped",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-no-dead-feature-remnants",
+   "source": "gate",
+   "title": "no-dead-feature-remnants",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-destructive-proportional-confirm",
+   "source": "gate",
+   "title": "destructive-proportional-confirm",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-gateway-gate-depth",
+   "source": "gate",
+   "title": "gateway-gate-depth",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-gateway-bypass",
+   "source": "gate",
+   "title": "gateway-bypass",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-memory_write_quality",
+   "source": "gate",
+   "title": "memory_write_quality",
+   "severity": "minor",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-retired_page_sole_control",
+   "source": "gate",
+   "title": "retired_page_sole_control",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-ai_call_sinks",
+   "source": "gate",
+   "title": "ai_call_sinks",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-prover-reads-whole-list",
+   "source": "gate",
+   "title": "prover-reads-whole-list",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-long-list-render",
+   "source": "gate",
+   "title": "long-list-render",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-select-placeholder",
+   "source": "gate",
+   "title": "select-placeholder",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-api-grants-explicit",
+   "source": "gate",
+   "title": "api-grants-explicit",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-trigger-function",
+   "source": "gate",
+   "title": "trigger-function",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-supabase-object-existence",
+   "source": "gate",
+   "title": "supabase-object-existence",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-rpc-argument-consistency",
+   "source": "gate",
+   "title": "rpc-argument-consistency",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-au-adoption",
+   "source": "gate",
+   "title": "au-adoption",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-user-facing-kpi-canonical",
+   "source": "gate",
+   "title": "user-facing-kpi-canonical",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-reset-coverage",
+   "source": "gate",
+   "title": "reset-coverage",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-sw-shell-membership",
+   "source": "gate",
+   "title": "sw-shell-membership",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-attribution",
+   "source": "gate",
+   "title": "attribution",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-role-checks",
+   "source": "gate",
+   "title": "role-checks",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-seeder-insert-columns",
+   "source": "gate",
+   "title": "seeder-insert-columns",
+   "severity": "major",
+   "started_at": "2026-10-31T02:18:12.296767+00:00",
+   "ended_at": null,
+   "status": "open"
   }
  ]
 }

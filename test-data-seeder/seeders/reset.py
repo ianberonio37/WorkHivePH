@@ -228,6 +228,8 @@ RESET_TABLES = [
 # Tables that don't have an 'id' PK. Reset filters by a different column.
 # Maps table -> (column, sentinel_value) used for the .neq() delete filter.
 RESET_TABLES_NON_ID = {
+    # 2026-10-31 (M4): the code generators' counters (20261030000009), keyed by scope - a reseed renumbers from the codes
+    "code_counters":    ("scope", ""),
     "ai_rate_limits":   ("hive_id", "00000000-0000-0000-0000-000000000000"),
     # 2026-05-21 paydown: composite-PK tables from voice-handler infra migration.
     "asset_watchlist":   ("hive_id", "00000000-0000-0000-0000-000000000000"),

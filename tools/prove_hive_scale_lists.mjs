@@ -21,6 +21,8 @@
 //   node tools/prove_hive_scale_lists.mjs community.html     one page
 //   node tools/prove_hive_scale_lists.mjs --teeth            perturbs an expectation; must FAIL
 import { chromium } from 'playwright';
+// what a page SAYS includes every row of its long lists (content-visibility skips the off-screen ones)
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { writeFileSync, renameSync, readFileSync } from 'node:fs';
 import { SEEDER, signIn, psql } from './prover_harness.mjs';
 
@@ -365,6 +367,7 @@ const SPECS = {
       // two under review, one of them neither subject's - so the supervisor's queue holds a teammate's post to judge
       if (have() >= 2) return `reported posts already under review (${have()})`;
       const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+      await ctx.addInitScript(ALL_ROWS_DRAWN);
       try {
         if (!(await signIn(ctx, PEOPLE.worker))) return 'the worker could not sign in to report a post';
         const p = await ctx.newPage();
@@ -1240,6 +1243,7 @@ try {
     for (const [roleKey, person] of Object.entries(PEOPLE)) {
       for (const vp of VIEWPORTS) {
         const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: 1 });
+        await ctx.addInitScript(ALL_ROWS_DRAWN);
         if (!(await signIn(ctx, person))) { fail('*', `${person.name} could not sign in - no reading is possible`); await ctx.close(); continue; }
         const p = await ctx.newPage();
         await p.goto(`${SEEDER}/workhive/${page}`, { waitUntil: 'load', timeout: 45000 });

@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 39,
-    "total_links": 329,
+    "total_links": 334,
     "total_broken": 0,
     "baseline": 0
   },
@@ -38,7 +38,7 @@
     },
     {
       "page": "asset-hub.html",
-      "link_count": 17,
+      "link_count": 18,
       "broken": []
     },
     {
@@ -78,7 +78,7 @@
     },
     {
       "page": "hive.html",
-      "link_count": 31,
+      "link_count": 32,
       "broken": []
     },
     {
@@ -103,7 +103,7 @@
     },
     {
       "page": "logbook.html",
-      "link_count": 8,
+      "link_count": 9,
       "broken": []
     },
     {
@@ -118,7 +118,7 @@
     },
     {
       "page": "marketplace-seller.html",
-      "link_count": 10,
+      "link_count": 11,
       "broken": []
     },
     {
@@ -158,7 +158,7 @@
     },
     {
       "page": "project-report.html",
-      "link_count": 5,
+      "link_count": 6,
       "broken": []
     },
     {

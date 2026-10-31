@@ -191,7 +191,7 @@
     .post-who  { flex: 1 1 auto; min-width: 0; }
     .post-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 2px;
                  font-size: 0.75rem; color: rgba(255,255,255,0.80); }
-    .post-meta .cat-badge { padding: 2px 8px; font-size: 0.6875rem; }
+    .post-meta .cat-badge { padding: 2px 8px; font-size: 0.75rem; }
     .post-body { font-size: 0.875rem; line-height: 1.55; color: rgba(255,255,255,0.86); margin: 10px 0 8px;
                  word-break: break-word; }
     .post-foot { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
@@ -2091,7 +2091,7 @@ function _isMinePost(p) {
     // Every action on the post, for this viewer, in the one menu. The destructive Delete is last and set apart (the Z3
     // rule the two inline deletes kept with a 22px gap now holds as the menu's divider). A supervisor's own post adds
     // Edit; a worker's own post gets Edit + Delete; anyone else's, Report.
-    const _items = HIVE_ROLE === 'supervisor' ? [
+    const _items = (window.WHRoles && window.WHRoles.isSupervisor()) ? [
       ...(isMine ? [{ label: _t('Edit my post', 'I-edit ang post ko'), icon: 'ic-edit', act: 'openEditor', args: [p.id] }] : []),
       { label: p.pinned ? _t('Unpin post', 'Alisin sa pin ang post') : _t('Pin post', 'I-pin ang post'), icon: 'ic-pin', on: !!p.pinned,
         act: 'togglePin', args: [p.id, !!p.pinned] },
@@ -2843,7 +2843,7 @@ function _isMinePost(p) {
       // isPublic is always false - sending it made fixing a typo take a post their supervisor had shared off the Global
       // feed. The server now holds the same line (tg_community_posts_moderation_fields keeps OLD.public for members).
       const _editPatch = { content, category, mentions, edited_at: editedAt };
-      if (HIVE_ROLE === 'supervisor') _editPatch.public = isPublic;
+      if ((window.WHRoles && window.WHRoles.isSupervisor())) _editPatch.public = isPublic;
       let editQ = db.from('community_posts')
         .update(_editPatch)
         .eq('id', editId).eq('hive_id', HIVE_ID).or(_mineAuthorFilter() || ('author_name.eq.' + JSON.stringify(String(WORKER_NAME || ''))));
@@ -2870,7 +2870,7 @@ function _isMinePost(p) {
       }
       // Local cache + DOM
       post.content = content; post.category = category;
-      if (HIVE_ROLE === 'supervisor') post.public = isPublic;
+      if ((window.WHRoles && window.WHRoles.isSupervisor())) post.public = isPublic;
       post.edited_at = editedAt; post.mentions = mentions;
       post.updated_at = editRows[0].updated_at; // refresh snapshot source for a subsequent edit
       _updateRenderedCard(editId);
@@ -3499,7 +3499,7 @@ function _isMinePost(p) {
            this page holds and its badge from a count, and neither was asked again. A post whose flag moved (raised, or
            cleared by another supervisor) now re-reads both, after this handler has put the row in place. */
         const _was = onScreen ? (ia !== -1 ? allPosts[ia] : pinnedPosts[ip]) : null;
-        if (HIVE_ROLE === 'supervisor' && (!_was || !!_was.flagged !== !!payload.new.flagged)) setTimeout(() => loadModQueue(), 0);
+        if ((window.WHRoles && window.WHRoles.isSupervisor()) && (!_was || !!_was.flagged !== !!payload.new.flagged)) setTimeout(() => loadModQueue(), 0);
 
         // Soft-delete transition: remove from local state + DOM
         if (payload.new.deleted_at) {

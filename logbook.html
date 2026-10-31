@@ -2653,7 +2653,7 @@ let _lbModalEntry = null;
 const _departedEntry = (id) => (_lbModalEntry && _lbModalEntry.id === id ? _lbModalEntry
   : (_viewMode === 'team' ? _teamEntries : _allEntries).find(e => e.id === id));
 function _takesOverDeparted(entry) {
-  return !!entry && HIVE_ROLE === 'supervisor' && (entry.status || 'Open') === 'Open' && !entry.deleted_at && !entry._offline
+  return !!entry && (window.WHRoles && window.WHRoles.isSupervisor()) && (entry.status || 'Open') === 'Open' && !entry.deleted_at && !entry._offline
     && entry.auth_uid !== null   // the policy knows a departure by the account; an entry with none is not offered what it refuses
     && typeof whIsFormerMember === 'function' && whIsFormerMember(entry.worker_name);
 }
@@ -2677,11 +2677,13 @@ async function pickDepartedAssignee(id) {
   const box = document.getElementById('departed-actions');
   if (!box) return;
   // the members who can take it, read now - a list from when the page opened could offer someone who has since left
+  // canonical-allow: the active members a supervisor may hand the job to - a picker over the membership rows, not a worker figure
   const { data, error } = await db.from('hive_members').select('worker_name')
     .eq('hive_id', HIVE_ID).eq('status', 'active').order('worker_name').order('id').limit(500);   // limit-as-count-allow: a picker's rows, nothing counts them
   if (error) { showToast(whReadError(error, 'the hive\'s members'), 'error'); return; }
   box.innerHTML = `<label for="departed-assignee" class="text-xs block mb-1" style="color:rgba(255,255,255,0.80);">Assign this open job to</label>
     <select id="departed-assignee" class="w-full text-sm rounded-lg px-3 mb-2" style="min-height:44px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:inherit;">
+      <option value="" disabled selected>Choose who takes it</option>
       ${(data || []).map(m => `<option value="${escHtml(m.worker_name)}">${escHtml(m.worker_name)}</option>`).join('')}
     </select>
     <div class="flex gap-2">
@@ -2693,7 +2695,7 @@ async function pickDepartedAssignee(id) {
 }
 async function assignDepartedEntry(id) {
   const name = (document.getElementById('departed-assignee') || {}).value;
-  if (!name) return;
+  if (!name) { showToast('Choose who takes this job first.', 'info'); return; }
   const { data, error } = await db.from('logbook').update({ wo_assigned_to: name, wo_state: 'assigned' })
     .eq('id', id).eq('status', 'Open').select('id');
   if (error) { showToast(whWriteError(error, 'The job was NOT assigned - it is unchanged.'), 'error'); return; }
@@ -3721,6 +3723,7 @@ async function saveEditAsset() {
     let _changed = false;
     if (_stamp) {
       try {
+        // canonical-allow: a conflict re-read of one row's stamp by its id (the optimistic-lock check), not a display read
         const { data: _now } = await db.from('asset_nodes').select('updated_at').eq('id', id).maybeSingle();
         _changed = !!(_now && _now.updated_at && _now.updated_at !== _stamp);
       } catch (_) { /* empty-catch-allow: the permission sentence below is still true */ }

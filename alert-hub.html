@@ -1727,6 +1727,7 @@
     // Low stock alerts
     if (invRes.status === 'fulfilled') {
       let inv = invRes.value.data || [];
+      // cap-ok (LB1): disclosed - past 500 the feed says it lists "the 500 lowest-stocked parts at risk" (_feedCaps)
       if (inv.length > 500) { inv = inv.slice(0, 500); _feedCaps.push({ kind: 'stock', said: 'the 500 lowest-stocked parts at risk' }); }
       for (const i of inv) {
         const qty = Number(i.qty_on_hand);
@@ -2123,6 +2124,7 @@
           .eq('hive_id', HIVE_ID).eq('alert_key', key).eq('action', 'snoozed').lt('snooze_until', nowIso).select('alert_key');
         if (_rErr) throw _rErr;
         if (!_renewed || !_renewed.length) {
+          // canonical-allow: the conflict re-read - who already handled this alert, by its key - to name them in the toast
           const { data: _cur } = await db.from('alert_dismissals').select('action, actor')
             .eq('hive_id', HIVE_ID).eq('alert_key', key).maybeSingle();
           showToast(_cur

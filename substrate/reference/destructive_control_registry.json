@@ -6,35 +6,35 @@
   "controls": {
     "alert-hub.html": [
       {
-        "line": 1158,
+        "line": 1164,
         "message_head": "Reject today's AMC brief? The crew will not act on it."
       },
       {
-        "line": 1161,
+        "line": 1167,
         "message_head": "Approve today's brief? The crew suggestions go out to your whole hive under your name."
       }
     ],
     "asset-hub.html": [
       {
-        "line": 1803,
+        "line": 1852,
         "message_head": "Reject this asset? It stays in the queue but will not appear in the approved list."
       },
       {
-        "line": 3479,
+        "line": 3600,
         "message_head": "Delete this FMEA failure mode? Linked RCM strategies will cascade."
       },
       {
-        "line": 3691,
+        "line": 3826,
         "message_head": "Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only)."
       }
     ],
     "community.html": [
       {
-        "line": 2475,
+        "line": 2561,
         "message_head": "Make this post public? Workers in every other hive will be able to read it in their Global feed."
       },
       {
-        "line": 3092,
+        "line": 3191,
         "message_head": "Copy this link:"
       }
     ],
@@ -76,23 +76,23 @@
         "message_head": "Leave this hive? You'll lose access to its board and can't post here anymore. Your past logbook entries stay in the hive's records."
       },
       {
-        "line": 3254,
+        "line": 3262,
         "message_head": "You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it ca"
       },
       {
-        "line": 3465,
+        "line": 3473,
         "message_head": "Rename this hive. Everyone in it will see the new name."
       },
       {
-        "line": 5150,
+        "line": 5163,
         "message_head": "Reset ${workerName}'s password? You'll get a one-time temporary password to give them. They should change it after signing in."
       },
       {
-        "line": 5177,
+        "line": 5190,
         "message_head": "Temporary password for ${workerName}:\\n\\n${data.temp_password}\\n\\nGive this to ${workerName} now; it won't be shown again. Ask them to chang"
       },
       {
-        "line": 6434,
+        "line": 6489,
         "message_head": "Reject \"${label}\" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing."
       }
     ],
@@ -136,35 +136,39 @@
         "message_head": "Remove everything this wizard just created? This deletes the vehicle, its PM schedule"
       },
       {
-        "line": 3039,
+        "line": 3113,
         "message_head": "Revoke this API key? Any integrations using it will stop working."
       },
       {
-        "line": 3103,
+        "line": 3177,
         "message_head": "Undo this import? This will delete the ${entityType} records from external_sync and attempt to remove the corresponding logbook/asset/invent"
       }
     ],
     "inventory.html": [
       {
-        "line": 2283,
+        "line": 2355,
         "message_head": "${_uResv} ${_uUnit} of this part is staged for a predicted failure. Taking ${qty} spends the"
       },
       {
-        "line": 2678,
+        "line": 2833,
         "message_head": "Remove \"${item.part_name}\" (${item.part_number}) from inventory? You can restore it from Recently deleted for at least 30 days."
       }
     ],
     "logbook.html": [
       {
-        "line": 2377,
+        "line": 2386,
         "message_head": "Discard this offline save? It was never saved to the server, so it will be gone."
       },
       {
-        "line": 3146,
+        "line": 2668,
+        "message_head": "Close ${who}'s open job? It stays logged as theirs; the trail records that you closed it."
+      },
+      {
+        "line": 3220,
         "message_head": "Delete this entry? Any XP it earned is taken back. You can restore it from Recently deleted for at least 30 days."
       },
       {
-        "line": 3525,
+        "line": 3599,
         "message_head": "Remove this asset from the registry? It and its reliability history (Weibull fits, FMEA modes,"
       }
     ],
@@ -184,11 +188,11 @@
     ],
     "marketplace-seller.html": [
       {
-        "line": 2135,
+        "line": 2170,
         "message_head": "Delete \"${item.title}\"? This cannot be undone."
       },
       {
-        "line": 3251,
+        "line": 3299,
         "message_head": "Cancel this job? The client will be notified."
       }
     ],
@@ -198,15 +202,15 @@
         "message_head": "Delete this saved search? This cannot be undone."
       },
       {
-        "line": 4837,
+        "line": 4858,
         "message_head": "You already hailed this at the same address in the last few minutes, and providers are still being notified about it. Hail a second one?"
       },
       {
-        "line": 5476,
+        "line": 5497,
         "message_head": "What went wrong with this job?"
       },
       {
-        "line": 5505,
+        "line": 5526,
         "message_head": "Cancel this request?"
       }
     ],
@@ -216,19 +220,23 @@
         "message_head": "Verify this top-up? Credits are minted into the provider’s wallet immediately"
       },
       {
-        "line": 942,
+        "line": 664,
+        "message_head": "A line both parties will read with the outcome (optional)"
+      },
+      {
+        "line": 1036,
         "message_head": "Remove ${_who}'s ${_isCert ? 'certification badge' : 'ID Verified badge'}?"
       },
       {
-        "line": 969,
+        "line": 1063,
         "message_head": "Unpublish \"${btn.dataset.title || 'this listing'}\". Tell the seller why:"
       },
       {
-        "line": 1005,
+        "line": 1099,
         "message_head": "Reject this listing. Tell the seller why:"
       },
       {
-        "line": 1334,
+        "line": 1428,
         "message_head": "Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be"
       }
     ],
@@ -238,67 +246,71 @@
         "message_head": "Verify this top-up? Credits are minted into the provider’s wallet immediately"
       },
       {
-        "line": 1487,
+        "line": 1209,
+        "message_head": "A line both parties will read with the outcome (optional)"
+      },
+      {
+        "line": 1581,
         "message_head": "Remove ${_who}'s ${_isCert ? 'certification badge' : 'ID Verified badge'}?"
       },
       {
-        "line": 1514,
+        "line": 1608,
         "message_head": "Unpublish \"${btn.dataset.title || 'this listing'}\". Tell the seller why:"
       },
       {
-        "line": 1550,
+        "line": 1644,
         "message_head": "Reject this listing. Tell the seller why:"
       },
       {
-        "line": 1879,
+        "line": 1973,
         "message_head": "Publish this feedback to the PUBLIC roadmap (/feedback/)? It becomes visible to anyone and can be"
       }
     ],
     "pm-scheduler.html": [
       {
-        "line": 2389,
+        "line": 2412,
         "message_head": "Auto-hail this asset’s PM work? When an item falls due, WorkHive files a service request for you and providers nearby can accept it."
       },
       {
-        "line": 3156,
+        "line": 3179,
         "message_head": "\"${name}\" is already registered as an asset.\\n\\nOpen it to add more tasks instead?"
       },
       {
-        "line": 3427,
+        "line": 3450,
         "message_head": "Delete \"${currentAsset.asset_name}\"? Its ${_blast} go with it into Recently deleted, where you can restore them for at least 30 days."
       }
     ],
     "project-manager.html": [
       {
-        "line": 1927,
+        "line": 1969,
         "message_head": "No scope items checked. Create an empty project?"
       },
       {
-        "line": 2219,
+        "line": 2261,
         "message_head": "Hide project"
       },
       {
-        "line": 2864,
+        "line": 2967,
         "message_head": "Remove this link?"
       },
       {
-        "line": 3191,
+        "line": 3305,
         "message_head": "Remove this role?"
       },
       {
-        "line": 3326,
+        "line": 3440,
         "message_head": "Approve this change order? Cost / schedule impact will be reflected in the project."
       },
       {
-        "line": 3353,
+        "line": 3467,
         "message_head": "Reason for rejection (visible to requester):"
       },
       {
-        "line": 3384,
+        "line": 3498,
         "message_head": "Cancel this change order? It will be hidden from the active queue but kept for history."
       },
       {
-        "line": 3614,
+        "line": 3741,
         "message_head": "Mark project as complete? ${WAY_BACK}"
       }
     ],
@@ -324,15 +336,15 @@
     ],
     "utils.js": [
       {
-        "line": 6855,
+        "line": 7024,
         "message_head": "Delete X?"
       },
       {
-        "line": 6858,
+        "line": 7027,
         "message_head": "Enter name"
       }
     ]
   },
   "total_files": 20,
-  "total_controls": 72
+  "total_controls": 75
 }

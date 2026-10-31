@@ -2,7 +2,7 @@
 name: page-community
 type: page
 source: file:community.html
-source_sha: 4f1bbc60f7895c1a
+source_sha: 25ea1012945aae2e
 last_verified: 2026-07-13
 supersedes: null
 ---

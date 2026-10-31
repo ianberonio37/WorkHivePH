@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 29,
-    "total_channels": 24,
+    "total_channels": 25,
     "unsafe_pages": 0,
     "baseline": 0
   },
@@ -152,8 +152,8 @@
     },
     {
       "page": "asset-hub.html",
-      "channels": 2,
-      "removes": 4,
+      "channels": 3,
+      "removes": 5,
       "has_unmount": true
     },
     {

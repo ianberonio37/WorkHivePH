@@ -52,7 +52,9 @@ def run_census():
 
     signed_in = {p for p, s in src.items()
                  if re.search(r"wh_last_worker|WORKER_NAME|restoreIdentityFromSession", s)}
-    gated_read = {p for p in signed_in if re.search(r"\.from\(\s*['\"]", src[p])}
+    # an .rpc() under RLS or a role check is as gated as a .from() (2026-10-31: ai-quality's two loaders became one rpc,
+    # and the page fell out of the set while still settling the session first)
+    gated_read = {p for p in signed_in if re.search(r"\.(?:from|rpc)\(\s*['\"]", src[p])}
 
     def comp(cid):
         return next(c for c in reg["components"] if c["id"] == cid)

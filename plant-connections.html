@@ -646,6 +646,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // 50 newest calls". The rows stay the newest 50; the week's calls and refusals are counted where they are.
       const out = data || [];
       try {
+        // canonical-allow: the gateway's own call log (no truth view exists - a gap table); the week's calls and refusals are COUNTED here
         const [all, bad] = await Promise.all([
           db.from('gateway_audit_log').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).gte('created_at', sinceIso).limit(1),   // head:true returns no rows; the count is exact
           db.from('gateway_audit_log').select('id', { count: 'exact', head: true }).eq('hive_id', HIVE_ID).gte('created_at', sinceIso).gte('status_code', 400).limit(1),
@@ -891,6 +892,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const card = btn && btn.closest('.card'); const body = card && card.querySelector('tbody'); if (!body) return;
       btn.disabled = true; btn.textContent = 'Reading the refused calls…';
       const sinceIso = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+      // canonical-allow: the refused calls themselves, read from the gateway's own log (a gap table with no truth view)
       const { data, error } = await db.from('gateway_audit_log')
         .select('id, route, method, status_code, latency_ms, created_at, worker_name')
         .eq('hive_id', HIVE_ID).gte('created_at', sinceIso).gte('status_code', 400)

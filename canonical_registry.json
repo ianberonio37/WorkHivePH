@@ -2907,7 +2907,6 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "ai-quality.html",
         "llm-observability.html"
       ],
       "written_by_surfaces": [],
@@ -5286,7 +5285,6 @@
       "realtime_published": false,
       "comment": "",
       "read_by_surfaces": [
-        "ai-quality.html",
         "assistant.html"
       ],
       "written_by_surfaces": [
@@ -6311,6 +6309,31 @@
       "grants": {},
       "realtime_published": false,
       "comment": "",
+      "read_by_surfaces": [],
+      "written_by_surfaces": [],
+      "read_by_edge_fns": [],
+      "written_by_edge_fns": []
+    },
+    "code_counters": {
+      "defined_in": "20261030000009_a_shift_of_thirty_gets_thirty_codes.sql",
+      "columns": [
+        "scope",
+        "last_seq"
+      ],
+      "rls_enabled": true,
+      "grants": {
+        "service_role": [
+          "SELECT",
+          "INSERT",
+          "UPDATE",
+          "DELETE",
+          "TRUNCATE",
+          "REFERENCES",
+          "TRIGGER"
+        ]
+      },
+      "realtime_published": false,
+      "comment": "The last number issued per code scope (project:<hive>:<prefix>:<year>, change_order:<project>). Written only by the ",
       "read_by_surfaces": [],
       "written_by_surfaces": [],
       "read_by_edge_fns": [],
@@ -7531,7 +7554,9 @@
         "_source_count",
         "_freshness_ts",
         "_canonical_version",
-        "objection_deadline"
+        "objection_deadline",
+        "reviewed_at",
+        "review_note"
       ]
     },
     "v_service_open_broadcasts": {
@@ -7781,7 +7806,7 @@
     "check_listing_rate": {
       "defined_in": "20260420000000_baseline.sql",
       "args": "",
-      "security_definer": false,
+      "security_definer": true,
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
@@ -7988,7 +8013,7 @@
     },
     "generate_project_code": {
       "defined_in": "20260505000000_project_manager.sql",
-      "args": "p_hive_id uuid,\n  p_type    text,\n  p_year    integer",
+      "args": "p_hive_id uuid, p_type text, p_year integer",
       "security_definer": true,
       "comment": "Next project code for a hive/type/year. Scans ALL projects including soft-deleted ones so a code ",
       "called_by_surfaces": [
@@ -7999,7 +8024,7 @@
     "generate_change_order_number": {
       "defined_in": "20260505000001_project_advanced.sql",
       "args": "p_project_id uuid",
-      "security_definer": false,
+      "security_definer": true,
       "comment": "",
       "called_by_surfaces": [
         "project-manager.html"
@@ -11185,6 +11210,94 @@
         "founder-console.html"
       ],
       "called_by_edge_fns": []
+    },
+    "tg_rcm_fmea_modes_member_scope": {
+      "defined_in": "20261030000003_a_worker_could_rewrite_any_failure_mode.sql",
+      "args": "",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "user_project_ids": {
+      "defined_in": "20261030000004_a_project_team_can_read_its_roster.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "bind_ai_audit_log_actor": {
+      "defined_in": "20261030000010_the_voice_trail_is_the_supervisors.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_departed_entry_takeover": {
+      "defined_in": "20261030000012_a_departed_members_open_job_can_be_closed.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "achievement_level_for_xp": {
+      "defined_in": "20261030000013_a_level_follows_its_xp.sql",
+      "args": "p_xp bigint",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "worker_achievement_level_follows_xp": {
+      "defined_in": "20261030000013_a_level_follows_its_xp.sql",
+      "args": "",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "hive_ai_usage_30d": {
+      "defined_in": "20261030000014_ai_quality_totals_every_call.sql",
+      "args": "p_hive uuid",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [
+        "ai-quality.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "project_rollups": {
+      "defined_in": "20261030000015_project_rollups_every_item.sql",
+      "args": "p_hive uuid",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [
+        "project-manager.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "admin_disputed_jobs": {
+      "defined_in": "20261031000001_a_dispute_has_a_screen.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "platform-actions.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "adjudicate_service_dispute": {
+      "defined_in": "20261031000001_a_dispute_has_a_screen.sql",
+      "args": "p_request_id uuid, p_note text default null,\n                                                             p_side text default 'client'",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "platform-actions.html"
+      ],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -11213,14 +11326,13 @@
       "size_kb": 41.2
     },
     "ai-quality.html": {
-      "tables_read": [
-        "ai_cost_log",
-        "ai_reply_feedback"
-      ],
+      "tables_read": [],
       "tables_written": [],
-      "rpcs_called": [],
+      "rpcs_called": [
+        "hive_ai_usage_30d"
+      ],
       "edge_fns_invoked": [],
-      "size_kb": 60.8
+      "size_kb": 57.2
     },
     "alert-hub.html": {
       "tables_read": [
@@ -11248,7 +11360,7 @@
       "edge_fns_invoked": [
         "analytics-orchestrator"
       ],
-      "size_kb": 182.4
+      "size_kb": 186.2
     },
     "analytics-report.html": {
       "tables_read": [
@@ -11257,7 +11369,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 143.9
+      "size_kb": 144.6
     },
     "analytics.html": {
       "tables_read": [
@@ -11271,7 +11383,7 @@
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 252.4
+      "size_kb": 253.0
     },
     "asset-hub.html": {
       "tables_read": [
@@ -11315,7 +11427,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 330.8
+      "size_kb": 345.5
     },
     "assistant.html": {
       "tables_read": [
@@ -11336,7 +11448,7 @@
       "edge_fns_invoked": [
         "ai-gateway"
       ],
-      "size_kb": 240.3
+      "size_kb": 240.6
     },
     "audit-log.html": {
       "tables_read": [
@@ -11348,7 +11460,7 @@
         "audit_filter_vocab"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 87.3
+      "size_kb": 92.6
     },
     "community.html": {
       "tables_read": [
@@ -11380,7 +11492,7 @@
         "wh_trash"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 255.4
+      "size_kb": 268.8
     },
     "dayplanner.html": {
       "tables_read": [
@@ -11432,7 +11544,7 @@
         "founder_scheduled_work"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 196.4
+      "size_kb": 197.2
     },
     "hive.html": {
       "tables_read": [
@@ -11488,7 +11600,7 @@
         "export-hive-data",
         "supervisor-reset-password"
       ],
-      "size_kb": 518.6
+      "size_kb": 525.5
     },
     "index.html": {
       "tables_read": [],
@@ -11527,7 +11639,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 240.5
+      "size_kb": 252.3
     },
     "inventory.html": {
       "tables_read": [
@@ -11555,7 +11667,7 @@
         "inventory_restock"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 223.5
+      "size_kb": 236.7
     },
     "llm-observability.html": {
       "tables_read": [
@@ -11605,7 +11717,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 520.6
+      "size_kb": 532.9
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -11627,7 +11739,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 76.8
+      "size_kb": 76.9
     },
     "marketplace-seller-profile.html": {
       "tables_read": [
@@ -11642,7 +11754,7 @@
         "marketplace_seller_reply_stats"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 87.7
+      "size_kb": 88.0
     },
     "marketplace-seller.html": {
       "tables_read": [
@@ -11691,7 +11803,7 @@
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 278.1
+      "size_kb": 282.6
     },
     "marketplace.html": {
       "tables_read": [
@@ -11746,14 +11858,14 @@
         "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 416.0
+      "size_kb": 418.2
     },
     "offline-fallback.html": {
       "tables_read": [],
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 9.9
+      "size_kb": 10.3
     },
     "ph-intelligence.html": {
       "tables_read": [
@@ -11781,7 +11893,7 @@
         "set_hive_retention"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 63.8
+      "size_kb": 67.7
     },
     "platform-actions.html": {
       "tables_read": [
@@ -11803,6 +11915,8 @@
         "service_credit_topups"
       ],
       "rpcs_called": [
+        "adjudicate_service_dispute",
+        "admin_disputed_jobs",
         "founder_active_hives",
         "founder_anon_sessions",
         "founder_dau_series",
@@ -11812,7 +11926,7 @@
         "get_credit_ledger_totals"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 158.8
+      "size_kb": 165.5
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -11843,7 +11957,7 @@
         "get_pm_ontime_delivery"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 214.5
+      "size_kb": 217.2
     },
     "project-manager.html": {
       "tables_read": [
@@ -11876,6 +11990,7 @@
         "generate_change_order_number",
         "generate_project_code",
         "get_project_budget",
+        "project_rollups",
         "set_project_budget"
       ],
       "edge_fns_invoked": [
@@ -11883,7 +11998,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 247.5
+      "size_kb": 261.8
     },
     "project-report.html": {
       "tables_read": [
@@ -11899,7 +12014,7 @@
       "edge_fns_invoked": [
         "project-orchestrator"
       ],
-      "size_kb": 92.4
+      "size_kb": 94.0
     },
     "promo-poster.html": {
       "tables_read": [],
@@ -11932,7 +12047,7 @@
         "send-report-email",
         "voice-report-intent"
       ],
-      "size_kb": 167.6
+      "size_kb": 167.7
     },
     "resume.html": {
       "tables_read": [
@@ -12660,7 +12775,7 @@
         "record_ai_chain_depth"
       ],
       "edge_fns_invoked": [],
-      "loc": 2053
+      "loc": 2080
     },
     "ai-orchestrator": {
       "tables_read": [
@@ -12788,7 +12903,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 300
+      "loc": 302
     },
     "cmms-push-completion": {
       "tables_read": [
@@ -12803,7 +12918,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 274
+      "loc": 276
     },
     "cmms-sync": {
       "tables_read": [
@@ -12825,7 +12940,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 489
+      "loc": 491
     },
     "cmms-webhook-receiver": {
       "tables_read": [
@@ -12874,7 +12989,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 374
+      "loc": 376
     },
     "engineering-bom-sow": {
       "tables_read": [],
@@ -13080,7 +13195,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 298
+      "loc": 300
     },
     "platform-gateway": {
       "tables_read": [
@@ -13104,7 +13219,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 264
+      "loc": 266
     },
     "project-orchestrator": {
       "tables_read": [
@@ -13130,7 +13245,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 206
+      "loc": 212
     },
     "resend-webhook-receiver": {
       "tables_read": [
@@ -13202,7 +13317,7 @@
         "search_skill_knowledge"
       ],
       "edge_fns_invoked": [],
-      "loc": 218
+      "loc": 220
     },
     "send-report-email": {
       "tables_read": [
@@ -13396,7 +13511,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 285
+      "loc": 287
     }
   },
   "phantom_tables": {},
@@ -13849,6 +13964,11 @@
     {
       "kind": "dead_table",
       "table": "scheduled_calls",
+      "note": "defined in migrations but not referenced in any surface or edge fn"
+    },
+    {
+      "kind": "dead_table",
+      "table": "code_counters",
       "note": "defined in migrations but not referenced in any surface or edge fn"
     }
   ]

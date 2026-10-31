@@ -1,7 +1,7 @@
 {
   "_doc": "Layer D adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-10-29T04:39:00.832016+00:00",
-  "surfaces": 248,
+  "generated": "2026-10-31T01:25:55.820461+00:00",
+  "surfaces": 249,
   "rows": [
     {
       "id": "D1",
@@ -393,8 +393,9 @@
       "name": "bind_* attribution triggers",
       "satisfies": "attribution pin",
       "mode": "census-only",
-      "adopters_n": 25,
+      "adopters_n": 26,
       "adopters": [
+        "ai_audit_log",
         "analytics_events",
         "asset_nodes",
         "client_errors",

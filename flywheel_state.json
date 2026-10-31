@@ -1,64 +1,6 @@
 {
-  "turn": 496,
+  "turn": 497,
   "history": [
-    {
-      "turn": 487,
-      "ts": "2026-10-27T12:34:00",
-      "diff": {
-        "L-1_total_proposals": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        },
-        "L-1.5_rules_in_manifest": {
-          "from": 50,
-          "to": 50,
-          "delta": 0
-        },
-        "L0_total_baseline_count": {
-          "from": 3570,
-          "to": 3571,
-          "delta": 1
-        },
-        "L0_validators_with_baseline": {
-          "from": 217,
-          "to": 217,
-          "delta": 0
-        },
-        "L2_sentinel_specs": {
-          "from": 29,
-          "to": 29,
-          "delta": 0
-        },
-        "L13_walkthroughs_stale": {
-          "from": 0,
-          "to": 0,
-          "delta": 0
-        }
-      },
-      "L0_ratchets": [],
-      "L0_regressions": [],
-      "L0_regressions_quarantined": [
-        {
-          "validator": "ai_seams",
-          "from": 185,
-          "to": 186,
-          "classification": "adoption-ratchet",
-          "scored": false,
-          "env_up": true,
-          "fresh_count": 186
-        }
-      ],
-      "env_up": true,
-      "promotions": {
-        "rule_candidates": 13,
-        "sentinel_candidates": 2,
-        "tracked_total": 15,
-        "below_threshold": 0,
-        "top_rule": "rule:html:loads_utils_js",
-        "top_sentinel": "sentinel:user_facing_jargon"
-      }
-    },
     {
       "turn": 488,
       "ts": "2026-10-27T12:52:49",
@@ -506,6 +448,70 @@
         "top_rule": "rule:html:loads_utils_js",
         "top_sentinel": "sentinel:user_facing_jargon"
       }
+    },
+    {
+      "turn": 497,
+      "ts": "2026-10-31T14:25:55",
+      "diff": {
+        "L-1_total_proposals": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        },
+        "L-1.5_rules_in_manifest": {
+          "from": 50,
+          "to": 50,
+          "delta": 0
+        },
+        "L0_total_baseline_count": {
+          "from": 3561,
+          "to": 3557,
+          "delta": -4
+        },
+        "L0_validators_with_baseline": {
+          "from": 217,
+          "to": 217,
+          "delta": 0
+        },
+        "L2_sentinel_specs": {
+          "from": 29,
+          "to": 29,
+          "delta": 0
+        },
+        "L13_walkthroughs_stale": {
+          "from": 0,
+          "to": 0,
+          "delta": 0
+        }
+      },
+      "L0_ratchets": [
+        {
+          "validator": "clone_debt",
+          "from": 28,
+          "to": 23
+        }
+      ],
+      "L0_regressions": [],
+      "L0_regressions_quarantined": [
+        {
+          "validator": "db_adoption",
+          "from": 248,
+          "to": 249,
+          "classification": "adoption-ratchet",
+          "scored": false,
+          "env_up": true,
+          "fresh_count": 249
+        }
+      ],
+      "env_up": true,
+      "promotions": {
+        "rule_candidates": 13,
+        "sentinel_candidates": 2,
+        "tracked_total": 15,
+        "below_threshold": 0,
+        "top_rule": "rule:html:loads_utils_js",
+        "top_sentinel": "sentinel:user_facing_jargon"
+      }
     }
   ],
   "snapshots": {
@@ -568,7 +574,7 @@
         "canonical_drift": 0,
         "canonical_url_consistency": 0,
         "client_write_grants": 0,
-        "clone_debt": 28,
+        "clone_debt": 23,
         "commission_leakage": 0,
         "companion_delivery": 0,
         "companion_diverse": 12,
@@ -588,7 +594,7 @@
         "cta": 0,
         "cwv": 0,
         "data_db_ufai": 0,
-        "db_adoption": 248,
+        "db_adoption": 249,
         "deeplink_param_contracts": 0,
         "definer_doors": 0,
         "deploy_safety": 3,
@@ -746,7 +752,7 @@
         "view_select_star": 0,
         "viewport_user_scalable": 0
       },
-      "total_baseline_count": 3561,
+      "total_baseline_count": 3557,
       "validators_with_baseline": 217,
       "higher_is_better": [
         "ai_seam_coverage",
@@ -784,92 +790,92 @@
     "rule:html:loads_utils_js": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 496,
-      "seen_turns": 440
+      "last_seen_turn": 497,
+      "seen_turns": 441
     },
     "rule:seeder:accepts_client_param": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 496,
-      "seen_turns": 440
+      "last_seen_turn": 497,
+      "seen_turns": 441
     },
     "rule:validator:has_main_guard": {
       "kind": "rule",
       "first_seen_turn": 57,
-      "last_seen_turn": 496,
-      "seen_turns": 440
+      "last_seen_turn": 497,
+      "seen_turns": 441
     },
     "sentinel:user_facing_jargon": {
       "kind": "sentinel",
       "first_seen_turn": 109,
-      "last_seen_turn": 496,
-      "seen_turns": 388
+      "last_seen_turn": 497,
+      "seen_turns": 389
     },
     "rule:html:has_main_landmark": {
       "kind": "rule",
       "first_seen_turn": 142,
-      "last_seen_turn": 496,
-      "seen_turns": 355
+      "last_seen_turn": 497,
+      "seen_turns": 356
     },
     "rule:edge:uses_error_envelope": {
       "kind": "rule",
       "first_seen_turn": 315,
-      "last_seen_turn": 496,
-      "seen_turns": 182
+      "last_seen_turn": 497,
+      "seen_turns": 183
     },
     "rule:edge:sets_content_type_json": {
       "kind": "rule",
       "first_seen_turn": 315,
-      "last_seen_turn": 496,
-      "seen_turns": 182
+      "last_seen_turn": 497,
+      "seen_turns": 183
     },
     "rule:edge:imports_supabase_esm": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 496,
-      "seen_turns": 142
+      "last_seen_turn": 497,
+      "seen_turns": 143
     },
     "rule:edge:reads_supabase_url_env": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 496,
-      "seen_turns": 142
+      "last_seen_turn": 497,
+      "seen_turns": 143
     },
     "rule:edge:reads_service_role_env": {
       "kind": "rule",
       "first_seen_turn": 355,
-      "last_seen_turn": 496,
-      "seen_turns": 142
+      "last_seen_turn": 497,
+      "seen_turns": 143
     },
     "rule:edge:handles_options": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 496,
-      "seen_turns": 74
+      "last_seen_turn": 497,
+      "seen_turns": 75
     },
     "rule:edge:uses_get_cors_headers": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 496,
-      "seen_turns": 74
+      "last_seen_turn": 497,
+      "seen_turns": 75
     },
     "rule:edge:has_try_catch": {
       "kind": "rule",
       "first_seen_turn": 423,
-      "last_seen_turn": 496,
-      "seen_turns": 74
+      "last_seen_turn": 497,
+      "seen_turns": 75
     },
     "rule:html:has_details_toggle": {
       "kind": "rule",
       "first_seen_turn": 473,
-      "last_seen_turn": 496,
-      "seen_turns": 24
+      "last_seen_turn": 497,
+      "seen_turns": 25
     },
     "sentinel:i18n_family_consistency": {
       "kind": "sentinel",
       "first_seen_turn": 483,
-      "last_seen_turn": 496,
-      "seen_turns": 14
+      "last_seen_turn": 497,
+      "seen_turns": 15
     }
   }
 }

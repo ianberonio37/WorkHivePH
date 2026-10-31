@@ -278,7 +278,7 @@
       ],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "f1b91dc437fba98b"
+      "source_sha256": "f339c21304b46e38"
     },
     "ai-orchestrator": {
       "calls_model": true,
@@ -425,7 +425,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "8e370db5e722718e"
+      "source_sha256": "fdd532a2f807a071"
     },
     "engineering-bom-sow": {
       "calls_model": true,
@@ -852,7 +852,7 @@
       ],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "7bcc39e05e71ae58"
+      "source_sha256": "a71c53da944bcffb"
     },
     "shift-planner-orchestrator": {
       "calls_model": true,

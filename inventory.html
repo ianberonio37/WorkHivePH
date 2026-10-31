@@ -564,7 +564,7 @@
         <div>
           <label class="wh-label"><span data-i="linktoassets">Link to Assets</span> <span class="text-white/80 font-normal normal-case" data-i="whichmachines">(which machines use this part?)</span></label>
           <!-- HS L4 (2026-10-30, "a year of the hive"): 251 machines drawn as chips with no way to find one -->
-          <input id="asset-linker-find" type="search" class="wh-input mt-1" autocomplete="off" maxlength="100" oninput="_filterAssetLinker()"
+          <input id="asset-linker-find" type="search" class="wh-input mt-1" autocomplete="off" maxlength="100" oninput="_filterAssetLinkerSoon()"
                  placeholder="Find a machine by tag or name" aria-label="Find a machine by tag or name" />
           <p id="asset-linker-nomatch" class="text-xs text-white/80 mt-1 hidden" role="status"></p>
           <div id="asset-linker" class="flex flex-wrap gap-2 mt-1 rounded-xl p-3 min-h-[52px]"
@@ -1706,6 +1706,9 @@ function renderAssetLinker() {
 
 // the linker's find field: every word typed must appear in the chip's tag or name; a machine already chosen stays shown,
 // so the person always sees what this part is linked to
+// HS L4: 251 machines as chips - a keystroke filters once the typing pauses, not on every letter
+const _filterAssetLinkerDebounced = debounce(_filterAssetLinker, 150);
+function _filterAssetLinkerSoon() { _filterAssetLinkerDebounced(); }   // the inline oninput needs a named function
 function _filterAssetLinker() {
   const inp = document.getElementById('asset-linker-find');
   const fold = (v) => (typeof whFold === 'function' ? whFold(String(v || '')) : String(v || '').toLowerCase());
@@ -1832,6 +1835,7 @@ const INV_ASSET_COLS = 'id, asset_id:tag, name, type:iso_class, location, critic
 async function _refreshAssetsForLinker() {
   if (!HIVE_ID || !db) return;
   try {
+    // canonical-allow: the linker's machine list in the legacy-aliased shape (asset_id = tag) initData reads; v_asset_truth renames id
     const [hiveRes, mineRes] = await Promise.all([
       whReadPaged((a, b) => db.from('asset_nodes').select(INV_ASSET_COLS).eq('hive_id', HIVE_ID).eq('status', 'approved').order('created_at').order('id').range(a, b), 2000),   // cap-ok (LB1): as initData's read
       whReadPaged((a, b) => db.from('asset_nodes').select(INV_ASSET_COLS).or(_MINE()).order('created_at').order('id').range(a, b), 2000)   // cap-ok (LB1): as initData's read

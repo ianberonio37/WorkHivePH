@@ -1058,7 +1058,6 @@ function fmtDate(d) {
   if (!d) return '-';
   return (typeof whFmtDate === 'function') ? whFmtDate(d) : String(d); // FD1a: canonical utils.js
 }
-function _todayIso() { return whManilaYmd(); }
 function fmtPHP(n) {
   // Delegates to the shared utils.js whFmtPeso (STREAMLINE E6): keeps the
   // null→'-' affordance, whole-peso en-PH with thousands separators, never ₱NaN.

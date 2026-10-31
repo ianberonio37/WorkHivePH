@@ -13,6 +13,8 @@
 //
 //   node tools/prove_hive_scale_races.mjs [HS401 HS407 ...]    -> hive_scale_races_report.json; exit 1 on any failure
 import { chromium } from 'playwright';
+// what a page SAYS includes every row of its long lists (content-visibility skips the off-screen ones)
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 import { spawnSync } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 
@@ -53,6 +55,7 @@ const idType = (table) => psql(`select data_type from information_schema.columns
 
 async function session(browser, person, vpName) {
   const ctx = await browser.newContext({ ...VP[vpName], timezoneId: 'Asia/Manila', serviceWorkers: 'block' });
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   const tok = await (await fetch(`${SB}/auth/v1/token?grant_type=password`, { method: 'POST',
     headers: { apikey: KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ email: `${USER[person]}@auth.workhiveph.com`, password: 'test1234' }) })).json();
