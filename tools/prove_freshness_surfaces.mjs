@@ -79,7 +79,11 @@ for (const e of entries) {
       visible[vp] = await p.evaluate(() => {
         for (const t of document.querySelectorAll('time[datetime]')) {
           const line = t.closest('p, div, footer, span') || t;
-          if (/last updated/i.test(line.textContent || '')) {
+          // "Last updated <time>" on most pages; an article's byline reads "Published <time> · Updated <time>" - the same
+          // visible surface (M4, 2026-10-31: the power-rates article read null with all its dates in agreement). The words
+          // RIGHT BEFORE this <time> decide it, never the line: a byline holds both dates, and the published one comes first.
+          const before = ((t.previousSibling && t.previousSibling.textContent) || '').slice(-40);
+          if (/\b(last\s+)?updated\W*$/i.test(before) || /last updated/i.test(line.textContent || '')) {
             const shown = t.checkVisibility ? t.checkVisibility() : true;
             if (shown || (window.scrollTo(0, document.body.scrollHeight), t.checkVisibility && t.checkVisibility())) return t.getAttribute('datetime').slice(0, 10);
             return 'hidden:' + t.getAttribute('datetime').slice(0, 10);

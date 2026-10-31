@@ -26,7 +26,7 @@
       else if (localStorage.getItem(DISMISS_KEY)) return;
     } catch (e) { /* empty-catch-allow: localStorage blocked (private mode); show the bar */ }
 
-    fetch('/learn_links.json').then(function (r) { return r.json(); }).then(function (map) {
+    fetch('/learn_links.json').then(function (r) { return r.json(); }).then(function mountGuide(map) {
       var guides = map && map[page];
       if (!guides || !guides.length) return;
       var g = guides[0];
@@ -126,7 +126,26 @@
          ~58px after the first paint (the CLS gate refused it); at the end of <main> it still moved the footer on a page
          whose list had not loaded yet (alert-hub 0.08 -> 0.125, A/B against the floating chip). Appended last in <body>
          there is nothing after it to move - an arrival there is no layout shift at all. */
-      var phone = !!(window.matchMedia && window.matchMedia('(max-width: 767px)').matches);
+      var mq = window.matchMedia && window.matchMedia('(max-width: 767px)');
+      var phone = !!(mq && mq.matches);
+      /* ★THE FORM WAS CHOSEN ONCE, AT LOAD (M4 post-deploy smoke, 2026-10-31). A page opened wide gets the floating chip;
+         turned narrow - a phone opened in landscape and turned upright, a window dragged narrow - it stayed a floating
+         chip over phone-width text the in-flow line exists to avoid (the smoke, which opens at 1280 and reads at 390,
+         found it over assistant's composer hint, community's posting note, audit-log's footer and hive's verdict). When
+         the width crosses 767px the guide is mounted again in the form that width uses; removing it stops the floating
+         chip's machinery (its observer and timers end once the bar is not connected). A dismissed guide stays gone. */
+      if (mq && !window._whGuideMq) {
+        window._whGuideMq = true;
+        var _remount = function () {
+          try { if (typeof whIsDismissed === 'function' ? whIsDismissed(DISMISS_KEY) : localStorage.getItem(DISMISS_KEY)) return; }
+          catch (_) { /* empty-catch-allow: storage blocked - the bar's presence below decides */ }
+          var old = document.getElementById('wh-guide-link');
+          if (!old) return;   // dismissed, or never shown: nothing to move
+          old.remove();
+          mountGuide(map);
+        };
+        if (mq.addEventListener) mq.addEventListener('change', _remount); else if (mq.addListener) mq.addListener(_remount);
+      }
       var host = phone ? document.body : null;
       if (host) {
         bar.style.cssText =

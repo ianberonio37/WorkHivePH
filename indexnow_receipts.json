@@ -1,26 +1,12 @@
 {
- "last_submit_at": "2026-10-29T07:38:32+00:00",
- "count": 17,
- "mode": "changed",
+ "last_submit_at": "2026-10-31T05:45:17+00:00",
+ "count": 3,
+ "mode": "url",
  "response": 200,
  "urls": [
-  "https://workhiveph.com/learn/free-engineering-calculators-philippine-plants/",
-  "https://workhiveph.com/learn/predictive-alert-thresholds-plants/",
-  "https://workhiveph.com/learn/dole-iso-audit-trail-from-logbook/",
-  "https://workhiveph.com/learn/loto-procedures-dole-oshs-template/",
-  "https://workhiveph.com/learn/vibration-analysis-on-a-phone-budget/",
-  "https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/",
-  "https://workhiveph.com/learn/what-is-workhive-complete-platform-guide/",
-  "https://workhiveph.com/tools/vibration-isolation-calculator/",
-  "https://workhiveph.com/learn/maintenance-metrics-reliability-guide/",
-  "https://workhiveph.com/learn/start-digital-maintenance-guide/",
-  "https://workhiveph.com/learn/ph-plant-compliance-guide/",
-  "https://workhiveph.com/learn/workhive-vs-upkeep-free-cmms-comparison/",
-  "https://workhiveph.com/learn/workhive-vs-maintainx-comparison/",
-  "https://workhiveph.com/learn/best-free-cmms-software-philippines/",
-  "https://workhiveph.com/learn/cmms-vs-excel-spreadsheet-maintenance/",
-  "https://workhiveph.com/learn/reduce-unplanned-downtime-guide/",
-  "https://workhiveph.com/learn/philippine-plants-now-pay-the-highest-power-rates/"
+  "https://workhiveph.com/tools/mtbf-calculator/",
+  "https://workhiveph.com/tools/oee-calculator/",
+  "https://workhiveph.com/tools/solar-pv-calculator/"
  ],
  "pushed": {
   "https://workhiveph.com/": {
@@ -566,10 +552,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/mtbf-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-10-31T05:45:17+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "url"
   },
   "https://workhiveph.com/tools/noise-acoustics-calculator/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -578,10 +563,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/oee-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-10-31T05:45:17+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "url"
   },
   "https://workhiveph.com/tools/pipe-sizing-calculator/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -644,10 +628,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/solar-pv-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-10-31T05:45:17+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "url"
   },
   "https://workhiveph.com/tools/stairwell-pressurization-calculator/": {
    "at": "2026-10-27T03:15:48+00:00",

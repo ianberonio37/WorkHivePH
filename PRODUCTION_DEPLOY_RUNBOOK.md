@@ -51,27 +51,84 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
-# M4 release (2026-10-31) ⏳ IN PROGRESS
+# M4 release (2026-10-31) ✅ DEPLOYED
 
-> **M4 = T1 and T4 have nothing left to BUILD.** T4: Wave HS 486/486, Wave JS 41/41, KA-E 62/68 (+2 descoped, 4 open on
-> sources blocked by Cloudflare / an origin outage). What T1/T4 still owe needs this release (KA-S x3 IndexNow, KA-R x62,
-> OWN62), Ian's go (BRH509-513: one paid production assistant call; BRH445: a dashboard switch) or the full board
-> (locking -> locked).
+> **✅ M4 DEPLOYED 2026-10-31: T1 and T4 have nothing left to build.** Production serves `workhive-shell-v583` from
+> `074d1044`. Leg A 17 migrations (16 + the counters' grant), Leg B 10 functions (62/62 running the tree's code), Leg C
+> on the fourth push. Filipino descoped from the trajectories mid-release (Ian): 1,429 rows, their critic rows, 16
+> Filipino-only gates.
 >
-> - **Leg A, 16 migrations** (production holds none past 20261028000002): 20261030000001-15 (Wave HS: role and tenant
->   fixes, the year layer's caps, XP/achievement reversals, ai-quality totals and project rollups in the database) and
->   20261031000001 (a dispute has a screen: admin_disputed_jobs, adjudicate_service_dispute, and v_service_request_truth
->   gains reviewed_at / review_note). Production's v_service_request_truth read 2026-10-31: identical text to the
->   definition the migration extends (36 columns, objection_deadline last), so nothing production-only is overwritten.
->   Dry run first; every statement read.
-> - **Leg B, 10 functions**, no _shared change: ai-gateway (agentFailureBody - a failed specialist's raw proxy body no
->   longer reaches a person), project-progress (per-person limiter), and the eight that applied the per-address ceiling to
->   verified hive members (benchmark-compute, cmms-push-completion, cmms-sync, embed-entry, pf-calculator,
->   platform-scraper, semantic-search, weibull-fitter). edge_remote_deps_lock --online PASS (4 modules, 0 changed).
-> - **Leg C**: every page of Waves HS and JS, utils.js (whFnSentence, the network phrase, hive presence fit, hold
->   place), companion-launcher.js, operator-actions.js + founder-console (Disputed service jobs), sw v582.
-> - **IndexNow after the frontend push**: the changed URLs, and mtbf / oee / solar-pv (KA-S, owed since M3).
-> - **Post-deploy**: the comprehensive smoke; then walk KA-S, KA-R and OWN62 against production.
+> **Post-deploy, read on production:**
+> - **IndexNow:** `--changed` had nothing to send (every sitemap date predates the 10-29 receipt); the three calculators
+>   committed after their 10-27 push (mtbf, oee, solar-pv) were pushed by URL - HTTP 200.
+> - **Smoke:** public 120/120 load clean and 120/120 read clean at 390; app (the smoke-bench supervisor) 26/26 load
+>   clean, **23/26 read clean - the "Page guide" chip sits over the last line on assistant (the composer hint),
+>   community (the posting note) and audit-log (the footer)** with no scroll that clears it: a defect a person meets,
+>   owed to the next release. Flows tier not run: it asks the assistant on production, a paid call that waits for Ian.
+> - **KA-S:** 120/120 banked (raw GET 200, canonical, a push on or after the change). **KA-R:** 119/120 banked from
+>   `prove_freshness_surfaces.mjs` + its same-day teeth (the prover now reads an article's "Updated <time>" byline by
+>   the words right before the time, never the line - a byline holds the published date first); **KA2 feedback/ open**:
+>   the page showed no date at all - it now has its line, restamped on all five surfaces locally, and closes with the
+>   next deploy's IndexNow push.
+> - **AU:** the 13 audit-log rows banked from fresh readings (worker blind to 1,742 trail rows while active; supervisor
+>   2,067 -> 0 once kicked).
+>
+> **Owed after M4:** OWN62 (the founder's Model providers panel - Ian's admin sign-in on production), BRH509-513 (one
+> paid production assistant call - Ian's go), BRH445 (a dashboard switch), the page-guide defect, and the board-only
+> reds listed below.
+>
+> **The touched-gate run (step 1): 436 gates, 394 PASS / 42 FAIL on the first pass.** 18 of the 42 are in the push
+> gate (the fast board); every one was fixed at its cause or its instrument, and all 22 re-checked together PASS.
+> - **A real defect in this release, caught before production:** the code generators padded with `LPAD(n, 3, '0')`,
+>   which TRUNCATES - `LPAD('1000', 3)` is `'100'` - so past a type's 999th code in a year every create failed on
+>   `projects_code_per_hive` (the burst walk: 3 of 29 landed one after another). Fixed in 0009 before Leg A:
+>   `GREATEST(3, length(n))`. Burst walk 24/24 after.
+> - **A fix that a regeneration would have deleted:** the disputes queue lived only in the generated
+>   `operator-actions.js`; it now lives in its source (platform-actions.html + the generator's own `start()`), and
+>   `build_operator_actions.py --out` reproduces the walked file byte for byte.
+> - **Instruments that misread correct code** (search-term, XSS wildcard, unbounded-query, governance, bounded-list,
+>   ack-scope, trust-card labels, the sentence test's loader, the display-correctness marker): each widened by one honest
+>   hop and proven still to fail on a synthetic mutant.
+> - **24 board-only reds** (not in the push gate) are listed below, NOT fixed in this release.
+>
+> **Filipino descoped (Ian, mid-release, "we are descoping Filipino in our trajectories"):** 1,429 rows, their 1,431
+> critic rows, and 16 Filipino-only gates (`"descoped"` in run_platform_checks.py -> SKIP with the reason). 36,534 in scope.
+>
+> - **Leg A, 16 migrations:** dry run, then `db push` from `Z:` - all applied; the NOTICEs were the migrations' own
+>   "drop ... if exists" on objects production never had. Read back: 16 versions recorded; the generator carries the
+>   pad fix; ONE `adjudicate_service_dispute(uuid, text, text)` (no PGRST203); `admin_disputed_jobs`, the view's
+>   `reviewed_at`/`review_note`, `code_counters`, `hive_ai_usage_30d` present. Security advisors: nothing new
+>   (`code_counters` RLS-on/no-policy is by design; none of today's functions is anon-executable).
+> - **Leg B, 10 functions** (ai-gateway, project-progress, benchmark-compute, cmms-push-completion, cmms-sync,
+>   embed-entry, pf-calculator, platform-scraper, semantic-search, weibull-fitter), deps lock re-fetched PASS:
+>   all deployed; `verify_function_builds.py --target prod` 62/62 running functions are the tree's code.
+> - **Leg C, push 1 (the first full run, `9971cdae`): BLOCKED** - static 862 PASS / 25 FAIL, data 58 pass / 0 fail
+>   (UI skipped by the hook). None of the 25 was in the touched set: they read files the touched run's rule did not
+>   tie to the release (derived catalogs, seeders, reset lists, provers). Fixed in `710edab0`: four new raw role
+>   comparisons -> WHRoles; a departed member's job had no placeholder (the first name was the silent default);
+>   integrations' conflict list rebuilt on "show more" (now appends - walked); a grant 0009 left to default privileges
+>   (new migration 20261031000002 - 0009 is in production and stays untouched); `canonical_registry.json` was from
+>   before the HS migrations (three object gates); six instruments that lost a payload's trail through a wrapper,
+>   a loop variable or a named argument (88 phantom seeder offenders, 4 of them baselined since July). Re-checked with
+>   `--rerun-failed --fast` (25 failed + 295 tied to 21 changed files): 3 red, each fixed and re-run green.
+> - **Leg A again:** 20261031000002 dry run, push, read back (service_role's privileges written, no client grant).
+> - **Leg C, push 2 (`710edab0`): stopped by me** at its first red (sw-shell: a shell page edited after v583 was
+>   bumped) - waiting out the rest would have cost an hour to learn a known fix. **Push 3 (`d92b9ab0`): BLOCKED** on one
+>   gate, 887 PASS / 1 FAIL (the destructive-control roster records confirms by LINE NUMBER, and I had regenerated it
+>   before my last comment insertions). **Push 4 (`074d1044`): GATE PASS - 888/888 static, data 58/0**; pushed
+>   `b957a8e7..074d1044`. Production served `workhive-shell-v583` within a minute.
+>
+> **Board-only reds from the touched run, owed after M4** (each a row of work, none in the push gate):
+> - *finished red (a finding):* `hive-scale-year` - the logbook and PM asset pickers cap at 500 and the 30-member hive
+>   holds 254 (past half; the picker must say "first 500 of N" and reach the rest by search);
+>   `pm_ontime_vs_compliance` - with a year of data the scheduled-count approximation flatters compliance by 0.08 pt;
+>   `refusal_reason_persists` - 0 of 13 refused reliability fits carry a reason; `lifecycle-state-reachability` -
+>   `marketplace_listings.draft` invisible on founder-console; `scheduled-work` - `listing-holding-fee-monthly`
+>   double-fire probe returned too little; `two-devices`, `read-battery`, `page-battery`, `at-cap-fits`,
+>   `layer_invariants`, `reliability-kpi-faithfulness` - live, to be re-run alone on a quiet host before judging.
+> - *killed at the 1,200 s cap (instrument, not finding):* `hive-scale-lists`, `hive-scale-races` (~45 min by design),
+>   `hive-scale-shift`, `public-journeys`, `session-states-honest`, `hive-startup`, `phone-fit-1280` - each needs its
+>   own `"timeout"` registration, as `rollout` has.
 
 ---
 
