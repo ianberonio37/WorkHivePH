@@ -739,6 +739,22 @@ VECTORS = [
         "custom": _check_solar_pv,
     },
     {
+        # ★THE FORM'S BATTERY (2026-10-31, ED-I1 Solar PV): the page (and its off-grid planner) sends dod_pct and
+        # battery_voltage; the engine fixed DoD at 0.80 and chose 48 / 96 V itself. Every assert fails on that engine.
+        "module": "calcs.solar_pv",
+        "calc_type": "Solar PV System - the form's depth of discharge and battery voltage size the bank",
+        "standard": "IEEE 1562 stand-alone: E_batt = E_day x days / (DoD x η_batt); Ah = E_batt / V_bank",
+        "inputs": {"system_type": "Off-Grid", "location": "Metro Manila", "psh_hr": 4.5, "daily_energy_kwh": 20,
+                   "panel_wp": 450, "autonomy_days": 2, "dod_pct": 50, "battery_voltage": 24},
+        "asserts": [
+            {"path": "battery_bank.dod_pct", "expected": 50.0, "tol": 0.001, "note": "the form's 50% DoD (not the fixed 80%)"},
+            {"path": "battery_bank.required_kwh", "expected": 94.12, "tol": 0.02,
+             "note": "E = 20 kWh/day x 2 days / (0.50 DoD x 0.85 round-trip) = 94.12 kWh (58.82 at the fixed 80%)"},
+            {"path": "battery_bank.bank_voltage_V", "expected": 24.0, "tol": 0.001, "note": "the form's 24 V bus (not 48)"},
+            {"path": "battery_bank.cells_in_series", "expected": 2, "tol": 0, "note": "24 V / 12 V monoblocs = 2 in series"},
+        ],
+    },
+    {
         "module": "calcs.ups_sizing",
         "calc_type": "UPS Sizing",
         "standard": "IEEE 1184 — load_kVA = load_kW / PF; recommended UPS >= minimum kVA",

@@ -1192853,8 +1192853,8 @@
     },
     {
       "id": "ED346",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Solar PV System on engineering-design.html · solo-owner",
       "pages": [
@@ -1192907,6 +1192907,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Solar PV System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-01] FOUND AND FIXED: the form - and the off-grid planner that hands its plan into the form - sends dod_pct and battery_voltage; python-api/calcs/solar_pv.py fixed the DoD at 0.80 and chose a 48 / 96 V bus itself. A person who set 50% DoD for lead-acid life got a bank sized for 80% (58.82 kWh where 94.12 kWh was needed, 1.6x too small), and the voltage they chose was ignored. Both read now; the bank reports its DoD. Oracle vector 'Solar PV System - the form's depth of discharge and battery voltage size the bank' fails on the old engine. Walked through the served path (engineering-calc-agent): source python, 94.12 kWh at 50% DoD on a 24 V bus, 2 in series x 16 strings of 250 Ah. WALKED: Solar PV System: every value its form sends now reaches its engine (tools/census_calc_input_reach.py), and in the page through the Playwright MCP. HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {

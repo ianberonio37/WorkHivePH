@@ -133,6 +133,13 @@ I1_FIXED["Fire Pump Sizing"] = (
     "had 6.05e5). Oracle vector 'Fire Pump Sizing - the form's rise, piping, suction and efficiencies reach the rating' "
     "fails on the old engine; the public fire-pump page's example moved 7.58 -> 7.75 bar, 55.74 -> 56.96 kW (patched, "
     "restamped). Walked through the served path (engineering-calc-agent): source python, rated 10.831 bar, 150 mm.")
+I1_FIXED["Solar PV System"] = (
+    "FOUND AND FIXED: the form - and the off-grid planner that hands its plan into the form - sends dod_pct and "
+    "battery_voltage; python-api/calcs/solar_pv.py fixed the DoD at 0.80 and chose a 48 / 96 V bus itself. A person who set "
+    "50% DoD for lead-acid life got a bank sized for 80% (58.82 kWh where 94.12 kWh was needed, 1.6x too small), and the "
+    "voltage they chose was ignored. Both read now; the bank reports its DoD. Oracle vector 'Solar PV System - the form's "
+    "depth of discharge and battery voltage size the bank' fails on the old engine. Walked through the served path "
+    "(engineering-calc-agent): source python, 94.12 kWh at 50% DoD on a 24 V bus, 2 in series x 16 strings of 250 Ah.")
 for _calc in ("Bearing Life (L10)", "HVAC Cooling Load"):
     I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py "
                        "RECORDED names the label as the reason) - the value it sends is a reference printed on the report, "

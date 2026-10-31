@@ -237,8 +237,14 @@ def calculate(inputs: dict) -> dict:
     batt_bank = None
     if system_type in ("Off-Grid", "Hybrid"):
         autonomy_days = float(inputs.get("autonomy_days", 1.0))
-        batt_kwh_req  = daily_load_kwh * autonomy_days / (BATT_DOD * BATT_EFF)
-        batt_v_bank   = 48 if system_kw < 10 else 96   # V DC bus
+        # ★THE FORM'S BATTERY NEVER REACHED THE BANK (2026-10-31, ED-I1 Solar PV, census_calc_input_reach.py): the page sends
+        # dod_pct ("Depth of Discharge") and battery_voltage; this fixed the DoD at 0.80 and chose 48 / 96 V itself - a person
+        # who set 50% DoD for lead-acid life got a bank sized for 80% (1.6x too small), and the voltage they chose was ignored.
+        _dod          = float(inputs.get("dod_pct") or 0)
+        dod           = _dod / 100 if 0 < _dod <= 100 else BATT_DOD
+        batt_kwh_req  = daily_load_kwh * autonomy_days / (dod * BATT_EFF)
+        _bv           = float(inputs.get("battery_voltage") or 0)
+        batt_v_bank   = _bv if _bv >= BATT_CELL_V else (48 if system_kw < 10 else 96)   # V DC bus
         batt_ah_req   = batt_kwh_req * 1000 / batt_v_bank
         std_batt_ah   = [100, 150, 200, 250]
         rec_batt_ah   = next((a for a in std_batt_ah if a >= batt_ah_req),
@@ -251,6 +257,7 @@ def calculate(inputs: dict) -> dict:
             "daily_load_kwh":     daily_load_kwh,
             "autonomy_days":      autonomy_days,
             "required_kwh":       round(batt_kwh_req, 2),
+            "dod_pct":            round(dod * 100, 1),
             "bank_voltage_V":     batt_v_bank,
             "required_Ah":        round(batt_ah_req, 1),
             "recommended_Ah":     rec_batt_ah,

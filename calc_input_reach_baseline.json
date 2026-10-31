@@ -62,14 +62,6 @@
    "shock_type"
   ],
   [
-   "Solar PV System",
-   "battery_voltage"
-  ],
-  [
-   "Solar PV System",
-   "dod_pct"
-  ],
-  [
    "Storm Drain / Stormwater",
    "z1_area"
   ],
