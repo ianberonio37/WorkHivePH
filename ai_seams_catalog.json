@@ -2,7 +2,7 @@
   "_meta": {
     "format_version": "1.0",
     "description": "C4 Phase 1 \u2014 AI seams catalog. SaaS\u2192AI / AI\u2192AI / AI\u2192tenant / AI\u2192quota call sites. Consumed by Phase 2a (seam contract tests), Phase 2b (meta-gate composition), and `validate_ai_seams_inventory.py` (forward-only ratchet).",
-    "generated_at": "2026-10-31T01:28:29Z",
+    "generated_at": "2026-10-31T03:36:11Z",
     "seam_count": 186,
     "by_kind": {
       "saas\u2192ai": 46,
@@ -1605,7 +1605,7 @@
       "caller": "logbook.html",
       "callee": "embed-entry",
       "file": "logbook.html",
-      "line": 3188,
+      "line": 3190,
       "evidence": "await fetchWithTimeout(`${SUPABASE_URL}/functions/v1/embed-entry`, {",
       "contract_test": null
     },
@@ -1615,7 +1615,7 @@
       "caller": "logbook.html",
       "callee": "equipment-label-ocr",
       "file": "logbook.html",
-      "line": 4792,
+      "line": 4795,
       "evidence": "const { data, error } = await db.functions.invoke('equipment-label-ocr', {",
       "contract_test": null
     },
@@ -1625,7 +1625,7 @@
       "caller": "logbook.html",
       "callee": "visual-defect-capture",
       "file": "logbook.html",
-      "line": 7134,
+      "line": 7137,
       "evidence": "const { data, error } = await db.functions.invoke('visual-defect-capture', {",
       "contract_test": null
     },
@@ -1635,7 +1635,7 @@
       "caller": "logbook.html",
       "callee": "voice-logbook-entry",
       "file": "logbook.html",
-      "line": 6873,
+      "line": 6876,
       "evidence": "const res = await db.functions.invoke('voice-logbook-entry', {",
       "contract_test": null
     },
@@ -1675,7 +1675,7 @@
       "caller": "project-manager.html",
       "callee": "embed-entry",
       "file": "project-manager.html",
-      "line": 3709,
+      "line": 3708,
       "evidence": "db.functions.invoke('embed-entry', { body: payload })",
       "contract_test": null
     },
@@ -1685,7 +1685,7 @@
       "caller": "project-manager.html",
       "callee": "project-orchestrator",
       "file": "project-manager.html",
-      "line": 2093,
+      "line": 2092,
       "evidence": "const { data, error } = await db.functions.invoke('project-orchestrator', {",
       "contract_test": null
     },

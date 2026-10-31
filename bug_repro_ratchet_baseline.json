@@ -1,6 +1,6 @@
 {
   "_doc": "Forward-only floors for the \u00a7BRP wave: a class's site count may fall, never rise. Measured by tools/bug_repro_inventory.py against the live source and schema.",
-  "generated": "2026-10-31T01:23:52.227290+00:00",
+  "generated": "2026-10-31T03:31:54.029491+00:00",
   "floors": {
     "A": 0,
     "C": 3,

@@ -742,5 +742,6 @@
   "20261030000013_a_level_follows_its_xp.sql": "1033268875b24c01509074cdd04b4452df97eccbdcbfda0cbce0fce1092b6d86",
   "20261030000014_ai_quality_totals_every_call.sql": "02b4402c38ed5c549c1bc37d6b761db7638e901311e76f7c128a8982d762a655",
   "20261030000015_project_rollups_every_item.sql": "ec0f27765586637590ce8b29ab67424b9856dbcdb3f9bc221e98e24adcd01591",
-  "20261031000001_a_dispute_has_a_screen.sql": "cdc4214ad48e8f1f8a6323e1dfbd2f472d4f5040fd244d9bb533f42653f2ab4f"
+  "20261031000001_a_dispute_has_a_screen.sql": "cdc4214ad48e8f1f8a6323e1dfbd2f472d4f5040fd244d9bb533f42653f2ab4f",
+  "20261031000002_the_counters_grant_is_written.sql": "e18bb2cbb0d169b1a041c21ebb4b16235a6d89b44ad1eb701f0e1ab5cc740776"
 }
