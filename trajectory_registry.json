@@ -1191873,7 +1191873,1167 @@
           "engineering-guides"
         ]
       }
+    },
+    {
+      "id": "ED330",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - AHU Sizing on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the AHU Sizing calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: AHU Sizing's form sends 10 value(s) ahu_sizing.py never reads: chw_return_C, chw_supply_C, eta_fan, fan_static_Pa, n_units, room_temp_C, safety_factor, shr, space_type, supply_temp_C. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "AHU Sizing",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "AHU Sizing's form sends 10 value(s) ahu_sizing.py never reads: chw_return_C, chw_supply_C, eta_fan, fan_static_Pa, n_units, room_temp_C, safety_factor, shr, space_type, supply_temp_C",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the AHU Sizing calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED331",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Bearing Life (L10) on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Bearing Life (L10) calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Bearing Life (L10)'s form sends 1 value(s) bearing_life.py never reads: bearing_no. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Bearing Life (L10)",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Bearing Life (L10)'s form sends 1 value(s) bearing_life.py never reads: bearing_no",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Bearing Life (L10) calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED332",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Chiller System — Air Cooled on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Chiller System — Air Cooled calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Chiller System — Air Cooled's form sends 1 value(s) chiller.py never reads: iplv. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Chiller System — Air Cooled",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Chiller System — Air Cooled's form sends 1 value(s) chiller.py never reads: iplv",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Chiller System — Air Cooled calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED333",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Chiller System — Water Cooled on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Chiller System — Water Cooled calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Chiller System — Water Cooled's form sends 1 value(s) chiller.py never reads: iplv. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Chiller System — Water Cooled",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Chiller System — Water Cooled's form sends 1 value(s) chiller.py never reads: iplv",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Chiller System — Water Cooled calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED334",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Compressed Air on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Compressed Air calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Compressed Air's form sends 1 value(s) compressed_air.py never reads: leakage_allowance. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Compressed Air",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Compressed Air's form sends 1 value(s) compressed_air.py never reads: leakage_allowance",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Compressed Air calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED335",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Cooling Tower Sizing on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Cooling Tower Sizing calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Cooling Tower Sizing's form sends 8 value(s) cooling_tower.py never reads: chiller_cap_tr, chiller_cop, coc, ewt, lg_ratio, lwt, n_cells, wbt. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Cooling Tower Sizing",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Cooling Tower Sizing's form sends 8 value(s) cooling_tower.py never reads: chiller_cap_tr, chiller_cop, coc, ewt, lg_ratio, lwt, n_cells, wbt",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Cooling Tower Sizing calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED336",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Earthing / Grounding System on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Earthing / Grounding System calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Earthing / Grounding System's form sends 1 value(s) earthing_grounding.py never reads: system_voltage. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Earthing / Grounding System",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Earthing / Grounding System's form sends 1 value(s) earthing_grounding.py never reads: system_voltage",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Earthing / Grounding System calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED337",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - FCU Selection on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the FCU Selection calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: FCU Selection's form sends 2 value(s) fcu_selection.py never reads: mounting_type, pipe_system. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "FCU Selection",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "FCU Selection's form sends 2 value(s) fcu_selection.py never reads: mounting_type, pipe_system",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the FCU Selection calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED338",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Fire Pump Sizing on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Fire Pump Sizing calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Fire Pump Sizing's form sends 4 value(s) fire_pump.py never reads: motor_efficiency, pipe_diameter, pump_efficiency, suction_type. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Fire Pump Sizing",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Fire Pump Sizing's form sends 4 value(s) fire_pump.py never reads: motor_efficiency, pipe_diameter, pump_efficiency, suction_type",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Fire Pump Sizing calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED339",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Fire Sprinkler Hydraulic on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Fire Sprinkler Hydraulic calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Fire Sprinkler Hydraulic's form sends 1 value(s) fire_sprinkler.py never reads: operating_pressure. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Fire Sprinkler Hydraulic",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Fire Sprinkler Hydraulic's form sends 1 value(s) fire_sprinkler.py never reads: operating_pressure",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Fire Sprinkler Hydraulic calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED340",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Generator Sizing on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Generator Sizing calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Generator Sizing's form sends 3 value(s) generator_sizing.py never reads: application, phase_config, safety_factor. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Generator Sizing",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Generator Sizing's form sends 3 value(s) generator_sizing.py never reads: application, phase_config, safety_factor",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Generator Sizing calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED341",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Grease Trap Sizing on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Grease Trap Sizing calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Grease Trap Sizing's form sends 1 value(s) grease_trap.py never reads: facility_type. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Grease Trap Sizing",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Grease Trap Sizing's form sends 1 value(s) grease_trap.py never reads: facility_type",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Grease Trap Sizing calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED342",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - HVAC Cooling Load on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the HVAC Cooling Load calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: HVAC Cooling Load's form sends 1 value(s) hvac_cooling_load.py never reads: building_type. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "HVAC Cooling Load",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "HVAC Cooling Load's form sends 1 value(s) hvac_cooling_load.py never reads: building_type",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the HVAC Cooling Load calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED343",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Hoist Capacity on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Hoist Capacity calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Hoist Capacity's form sends 1 value(s) hoist_capacity.py never reads: hoist_type. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Baguio Textile Mills",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Hoist Capacity",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Hoist Capacity's form sends 1 value(s) hoist_capacity.py never reads: hoist_type",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Hoist Capacity calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED344",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Shaft Design on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Shaft Design calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Shaft Design's form sends 4 value(s) shaft_design.py never reads: keyway, power_input, power_unit, shock_type. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Shaft Design",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Shaft Design's form sends 4 value(s) shaft_design.py never reads: keyway, power_input, power_unit, shock_type",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Shaft Design calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED345",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Short Circuit on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Short Circuit calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Short Circuit's form sends 5 value(s) short_circuit.py never reads: breaker_ic_kA, cable_len_m, voltage_ll, xfmr_kva, z_pct. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Lucena Pharmaceutical Mfg.",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Short Circuit",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Short Circuit's form sends 5 value(s) short_circuit.py never reads: breaker_ic_kA, cable_len_m, voltage_ll, xfmr_kva, z_pct",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Short Circuit calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED346",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Solar PV System on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Solar PV System calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Solar PV System's form sends 2 value(s) solar_pv.py never reads: battery_voltage, dod_pct. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Dela Cruz Delivery Fleet",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Solar PV System",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Solar PV System's form sends 2 value(s) solar_pv.py never reads: battery_voltage, dod_pct",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Solar PV System calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED347",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Storm Drain / Stormwater on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Storm Drain / Stormwater calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Storm Drain / Stormwater's form sends 6 value(s) storm_drain.py never reads: z1_area, z1_c, z2_area, z2_c, z3_area, z3_c. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Manila Electronics Assembly",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Storm Drain / Stormwater",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Storm Drain / Stormwater's form sends 6 value(s) storm_drain.py never reads: z1_area, z1_c, z2_area, z2_c, z3_area, z3_c",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Storm Drain / Stormwater calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED348",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - UPS Sizing on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the UPS Sizing calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: UPS Sizing's form sends 4 value(s) ups_sizing.py never reads: backup_min, growth_factor, phase, ups_eff. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Ramos Jeepney Line",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "UPS Sizing",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "UPS Sizing's form sends 4 value(s) ups_sizing.py never reads: backup_min, growth_factor, phase, ups_eff",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the UPS Sizing calculator with a receipt, the fix landed, a gate holds it"
+      }
+    },
+    {
+      "id": "ED349",
+      "status": "specced",
+      "pct": 5,
+      "wave": "ED-I1",
+      "title": "every value the form sends reaches the engine - Wire Sizing on engineering-design.html · solo-owner",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "layers": [
+        "F",
+        "D"
+      ],
+      "ufai": [
+        "F"
+      ],
+      "persona": "solo-owner",
+      "device": "any",
+      "entry": "hub-nav",
+      "framing": "person",
+      "story": "solo-owner opens the Wire Sizing calculator on engineering-design.html: each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored. MEASURED: Wire Sizing's form sends 5 value(s) wire_sizing.py never reads: ambient_temp, conduit_fill, load_type, phase, power_w. Walked inside the app (engineering-design.html?calc=), at phone-390 and desktop-1280, with the engine's own result read beside what the page says",
+      "journey": {
+        "archetype": "ED:solo-owner",
+        "stage": "operate",
+        "vertical": "Tan Delivery Vans",
+        "pair": "",
+        "language": "en",
+        "moment": "present",
+        "condition": "normal",
+        "tier": "A",
+        "pages": [
+          "index.html",
+          "hive.html",
+          "engineering-design.html"
+        ]
+      },
+      "axis": {
+        "device": "phone-390",
+        "language": "en"
+      },
+      "ed": {
+        "kind": "engineering-design",
+        "key": "I1",
+        "lens": "every value the form sends reaches the engine",
+        "unit": "Wire Sizing",
+        "page": "engineering-design.html",
+        "ask": "each value this calculator's form sends is read by its engine and changes the result as the field says - or the form says plainly that it is recorded on the report only; none is typed and silently ignored",
+        "detail": "Wire Sizing's form sends 5 value(s) wire_sizing.py never reads: ambient_temp, conduit_fill, load_type, phase, power_w",
+        "viewports": [
+          "phone-390",
+          "desktop-1280"
+        ],
+        "instrument": "playwright-mcp + postgres-mcp",
+        "closes": "walked on the Wire Sizing calculator with a receipt, the fix landed, a gate holds it"
+      }
     }
   ],
-  "count": 20784
+  "count": 20804
 }

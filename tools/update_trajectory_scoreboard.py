@@ -137,6 +137,7 @@ try:
     import engineering_design_census as _edc
     WAVE_NAMES.update({f"ED-{k}": f"Engineering design: {lens}" for k, lens, *_r in _edc.CALC_LENSES})
     WAVE_NAMES.update({f"ED-{k}": f"Engineering design, the guide renderer: {lens}" for k, lens in _edc.GR_LENSES.items()})
+    WAVE_NAMES["ED-I1"] = f"Engineering design: {_edc.I1_LENS}"
 except Exception:
     pass
 # SL / ENH / OPC = the three waves of 2026-10-14 (the sub-layers, the enhancements, the operator console), named from

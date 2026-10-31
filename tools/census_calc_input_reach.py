@@ -1,0 +1,150 @@
+#!/usr/bin/env python3
+"""census_calc_input_reach.py - does every value the calculator form sends reach its engine? (Wave ED, 2026-10-31)
+
+Reading two guides against their engines found the same defect twice in one day: the form sends a key the engine never
+reads, so a value the person typed does nothing. Pipe Sizing sent "Cold Water Supply" where the engine knew "Domestic Cold"
+(a value mismatch); Pump Sizing sent pressure_head, fittings_allowance and fluid_density, none of which pump_tdh.py read
+(TDH left out the discharge back-pressure). The pipe calculator had had its own fittings_allowance read fixed on
+2026-10-09 - the pump beside it kept the bug - so this measures the whole class instead of one engine at a time.
+
+For every calculator: the TOP-LEVEL keys collectInputs() returns for it (engineering-design.js) against the keys its engine
+module reads (python-api/main.py's handler map -> calcs/<module>.py: inputs.get("k") / inputs["k"]).
+  SENT, NEVER READ   a value the person types or picks that changes nothing (project metadata excepted)
+  READ, NEVER SENT   a value the engine takes from its own default every time (reported, not failed: often deliberate)
+
+    python tools/census_calc_input_reach.py            # the table
+    python tools/census_calc_input_reach.py --json
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+JS = ROOT / "engineering-design.js"
+MAIN = ROOT / "python-api" / "main.py"
+CALCS = ROOT / "python-api" / "calcs"
+META = {"project_name", "project", "calc_type", "notes", "units", "unit_system"}
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
+
+def _block_after(src: str, i: int) -> str:
+    """The brace-balanced body that starts at the first '{' at or after i (strings skipped)."""
+    j = src.index("{", i)
+    depth, k, q = 0, j, None
+    while k < len(src):
+        ch = src[k]
+        if q:
+            if ch == "\\":
+                k += 2
+                continue
+            if ch == q:
+                q = None
+        elif ch == "/" and src[k + 1:k + 2] == "/":
+            # a // comment runs to the end of the line - its apostrophes ("the guide's") open no string (2026-10-31)
+            nl = src.find("\n", k)
+            k = len(src) if nl < 0 else nl
+            continue
+        elif ch == "/" and src[k + 1:k + 2] == "*":
+            end = src.find("*/", k + 2)
+            k = len(src) if end < 0 else end + 2
+            continue
+        elif ch in "'\"`":
+            q = ch
+        elif ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return src[j:k + 1]
+        k += 1
+    return src[j:]
+
+
+def sent_keys(src: str) -> dict[str, set[str]]:
+    """calc id -> the top-level keys of the object collectInputs() returns for it."""
+    fn = _block_after(src, src.index("function collectInputs("))
+    out: dict[str, set[str]] = {}
+    for m in re.finditer(r"if \(_calcType === '([^']+)'\) \{", fn):
+        body = _block_after(fn, m.start())
+        r = body.find("return {")
+        if r < 0:
+            continue
+        obj = _block_after(body, r)
+        keys, depth, line_start = set(), 0, True
+        # top-level keys: a name followed by ':' at depth 1 of the returned literal
+        depth = 0
+        tok = re.finditer(r"[{}\[\]()]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\"|`(?:[^`\\]|\\.)*`|([A-Za-z_][A-Za-z0-9_]*)\s*:", obj)
+        for t in tok:
+            s = t.group(0)
+            if s in "{[(":
+                depth += 1
+            elif s in "}])":
+                depth -= 1
+            elif t.group(1) and depth == 1:
+                keys.add(t.group(1))
+        out.setdefault(m.group(1), set()).update(keys)
+    return out
+
+
+def engine_modules(main: str) -> dict[str, str]:
+    alias = {m.group(2): m.group(1) for m in re.finditer(r"from calcs\.(\w+)\s+import calculate as (\w+)", main)}
+    out = {}
+    for m in re.finditer(r'handlers\["([^"]+)"\]\s*=\s*(\w+)', main):
+        if m.group(2) in alias:
+            out[m.group(1)] = alias[m.group(2)]
+    return out
+
+
+def read_keys(module: str) -> set[str]:
+    p = CALCS / f"{module}.py"
+    if not p.exists():
+        return set()
+    s = p.read_text(encoding="utf-8", errors="ignore")
+    return set(re.findall(r"""(?:inputs|inp|data|params)\.get\(\s*["']([A-Za-z_0-9]+)["']""", s)) | \
+        set(re.findall(r"""(?:inputs|inp|data|params)\[\s*["']([A-Za-z_0-9]+)["']\s*\]""", s))
+
+
+def census() -> dict:
+    src, main = JS.read_text(encoding="utf-8", errors="ignore"), MAIN.read_text(encoding="utf-8", errors="ignore")
+    sent, mods = sent_keys(src), engine_modules(main)
+    rows = []
+    for calc, keys in sorted(sent.items()):
+        mod = mods.get(calc)
+        if not mod:
+            rows.append({"calc": calc, "module": None, "unread": [], "unsent": [], "note": "no python handler"})
+            continue
+        rk = read_keys(mod)
+        rows.append({"calc": calc, "module": mod, "sent": len(keys), "read": len(rk),
+                     "unread": sorted(k for k in keys - rk - META), "unsent": sorted(rk - keys - META)})
+    return {"calculators": len(rows), "with_unread": sum(1 for r in rows if r["unread"]),
+            "unread_keys": sum(len(r["unread"]) for r in rows), "rows": rows}
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--json", action="store_true")
+    a = ap.parse_args()
+    c = census()
+    if a.json:
+        print(json.dumps(c, ensure_ascii=False, indent=1))
+        return 0
+    for r in c["rows"]:
+        if r.get("note"):
+            print(f"  --    {r['calc']}: {r['note']}")
+        elif r["unread"]:
+            print(f"  SENT, NEVER READ  {r['calc']} ({r['module']}): {', '.join(r['unread'])}")
+    print(f"{c['with_unread']} of {c['calculators']} calculators send {c['unread_keys']} key(s) their engine never reads")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

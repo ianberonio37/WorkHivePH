@@ -28,6 +28,7 @@ THE LENSES - one row per (calculator, lens) the registry does not already hold, 
   B1 the bill of materials and scope are this result's    BOM_SOW_SUPPORTED           AV F
   D1 the drawing matches the numbers                      the drawing dispatch        F D
   GR the guide renderer, once for all 55                  a measured site each        F CA
+  I1 every value the form sends reaches the engine        census_calc_input_reach.py  F D   (added 2026-10-31)
 
     python tools/engineering_design_census.py           # the table
     python tools/engineering_design_census.py --json    # the population the seeder reads
@@ -79,6 +80,9 @@ CALC_LENSES = [
      "block, is legible at 390 and 1280, and downloads as the same drawing",
      ["F", "D"], ["U", "F"]),
 ]
+I1_LENS = "every value the form sends reaches the engine"
+I1_ASK = ("each value this calculator's form sends is read by its engine and changes the result as the field says - or the "
+          "form says plainly that it is recorded on the report only; none is typed and silently ignored")
 # the guide renderer's measured sites: key -> lens (named here so the scoreboard reads the same words)
 GR_LENSES = {"GR1": "the guide's text is too faint to read", "GR2": "an empty formula entry opens a hole",
              "GR3": "a wrapped formula reads as the next formula"}
@@ -104,6 +108,15 @@ def _block(src: str, start: str) -> str:
                 continue
             if ch == q:
                 q = None
+        elif ch == "/" and src[k + 1:k + 2] == "/":
+            # a // comment runs to the end of the line - its apostrophes ("the guide's") open no string (2026-10-31)
+            nl = src.find("\n", k)
+            k = len(src) if nl < 0 else nl
+            continue
+        elif ch == "/" and src[k + 1:k + 2] == "*":
+            end = src.find("*/", k + 2)
+            k = len(src) if end < 0 else end + 2
+            continue
         elif ch in "'\"`":
             q = ch
         elif ch == "{":
@@ -202,6 +215,16 @@ def census() -> dict:
             else:
                 detail = f"{c} has its own form, renderer and stored shape on {PAGE}; no row walks it as its own calculator"
             add(key, lens, ask, layers, ufai, c, detail)
+
+    # I1 - a value the form sends that its engine never reads (2026-10-31, found reading Pump and Pipe Sizing against their
+    # engines: the pump's discharge back-pressure never reached TDH). Measured by tools/census_calc_input_reach.py; one row
+    # per calculator that sends such a key - a defect site, each key decided on the walk: the engine uses it, or the form
+    # says it is recorded only.
+    import census_calc_input_reach as cir
+    for r in cir.census()["rows"]:
+        if r.get("unread") and r["calc"] in calcs:
+            add("I1", I1_LENS, I1_ASK, ["F", "D"], ["F"], r["calc"],
+                f"{r['calc']}'s form sends {len(r['unread'])} value(s) {r['module']}.py never reads: {', '.join(r['unread'])}")
 
     empty = sum(v["empty_formula"] for v in gd.values())
     long_ = sum(v["long_formula"] for v in gd.values())
