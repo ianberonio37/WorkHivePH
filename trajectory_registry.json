@@ -1191876,8 +1191876,8 @@
     },
     {
       "id": "ED330",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - AHU Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1191930,6 +1191930,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the AHU Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-10-31] FOUND AND FIXED: python-api/calcs/ahu_sizing.py read none of ten values the form sends. It took the whole load as sensible (airflow from the TOTAL load - SHR was ignored), fixed the room and supply temperatures at 24 / 13 °C, the fan static and efficiency at a budget table and 0.65, the CHW flow at a 7/12 °C ΔT of 5 K, one unit, and the 62.1 OA check at office rates for every space. All ten read now; oracle vector 'AHU Sizing - the form's values reach the result' fails on the old engine on every assert. Walked live: 2 units halved the per-unit airflow (11669 -> 5835 m³/h). The unit toggle said '2 units (N+1)' on the AHU and both chiller forms while every engine shares the load (each unit half) - relabelled 'sharing the load', and the guides now say how to get N+1 (a standby of the same size, not counted). WALKED: AHU Sizing: every value its form sends now reaches its engine (tools/census_calc_input_reach.py), and in the page through the Playwright MCP. HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {

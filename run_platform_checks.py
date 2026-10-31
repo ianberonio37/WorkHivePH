@@ -5318,6 +5318,11 @@ VALIDATORS = [
     # calculator's Guide tab, read at phone-390 and desktop-1280 against its own form. Three built calculators said "No guide
     # available yet ... check back after it is built", three guides printed "[object Object]" for every formula, and on a
     # phone the text was 12.5px at 55% white with three-line holes in the formulas. ~2 min, so board-only.
+    # Wave ED I1 (2026-10-31): a value a calculator's form sends that its engine never reads - the pump's discharge
+    # back-pressure, AHU's chilled-water temperatures. Static, a second; a ratchet over the open ED-I1 rows.
+    {"id":"calc-input-reach","script":"tools/census_calc_input_reach.py","args":["--gate"],
+     "label":"Engineering design I1: every key a calculator form's collectInputs() sends is read by its python engine, or is recorded-only by a stated decision; a NEW value sent and never read fails (calc_input_reach_baseline.json holds the open ED-I1 rows). Teeth: --teeth plants an unread key and must catch it",
+     "group":"Engineering Calculator","skip_if_fast":False},
     {"id":"engineering-guides","script":"tools/prove_engineering_guides.mjs","args":["--gate"],
      "label":"Engineering design guides (ED G1/GR): every built calculator has a Guide; no guide text under 0.8 opacity or 14px, no hole in a formula block, every formula a hanging-indent line, every control a person can reach with a name of its own, nothing wider than 390 - on all 55 at both widths; a guide whose field names once matched its form exactly (engineering_guides_baseline.json) must still match. Teeth: --teeth plants a ghost field, faint and small text, a formula hole and a flat line, and must catch each",
      "group":"Engineering Calculator","skip_if_fast":True},

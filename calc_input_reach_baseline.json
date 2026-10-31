@@ -1,0 +1,213 @@
+{
+ "note": "values a calculator form sends that its engine never reads - each an open ED-I1 row; the gate fails on any pair not listed here",
+ "unread": [
+  [
+   "Bearing Life (L10)",
+   "bearing_no"
+  ],
+  [
+   "Chiller System \u2014 Air Cooled",
+   "iplv"
+  ],
+  [
+   "Chiller System \u2014 Water Cooled",
+   "iplv"
+  ],
+  [
+   "Compressed Air",
+   "leakage_allowance"
+  ],
+  [
+   "Cooling Tower Sizing",
+   "chiller_cap_tr"
+  ],
+  [
+   "Cooling Tower Sizing",
+   "chiller_cop"
+  ],
+  [
+   "Cooling Tower Sizing",
+   "coc"
+  ],
+  [
+   "Cooling Tower Sizing",
+   "ewt"
+  ],
+  [
+   "Cooling Tower Sizing",
+   "lg_ratio"
+  ],
+  [
+   "Cooling Tower Sizing",
+   "lwt"
+  ],
+  [
+   "Cooling Tower Sizing",
+   "n_cells"
+  ],
+  [
+   "Cooling Tower Sizing",
+   "wbt"
+  ],
+  [
+   "Earthing / Grounding System",
+   "system_voltage"
+  ],
+  [
+   "FCU Selection",
+   "mounting_type"
+  ],
+  [
+   "FCU Selection",
+   "pipe_system"
+  ],
+  [
+   "Fire Pump Sizing",
+   "motor_efficiency"
+  ],
+  [
+   "Fire Pump Sizing",
+   "pipe_diameter"
+  ],
+  [
+   "Fire Pump Sizing",
+   "pump_efficiency"
+  ],
+  [
+   "Fire Pump Sizing",
+   "suction_type"
+  ],
+  [
+   "Fire Sprinkler Hydraulic",
+   "operating_pressure"
+  ],
+  [
+   "Generator Sizing",
+   "application"
+  ],
+  [
+   "Generator Sizing",
+   "phase_config"
+  ],
+  [
+   "Generator Sizing",
+   "safety_factor"
+  ],
+  [
+   "Grease Trap Sizing",
+   "facility_type"
+  ],
+  [
+   "HVAC Cooling Load",
+   "building_type"
+  ],
+  [
+   "Hoist Capacity",
+   "hoist_type"
+  ],
+  [
+   "Shaft Design",
+   "keyway"
+  ],
+  [
+   "Shaft Design",
+   "power_input"
+  ],
+  [
+   "Shaft Design",
+   "power_unit"
+  ],
+  [
+   "Shaft Design",
+   "shock_type"
+  ],
+  [
+   "Short Circuit",
+   "breaker_ic_kA"
+  ],
+  [
+   "Short Circuit",
+   "cable_len_m"
+  ],
+  [
+   "Short Circuit",
+   "voltage_ll"
+  ],
+  [
+   "Short Circuit",
+   "xfmr_kva"
+  ],
+  [
+   "Short Circuit",
+   "z_pct"
+  ],
+  [
+   "Solar PV System",
+   "battery_voltage"
+  ],
+  [
+   "Solar PV System",
+   "dod_pct"
+  ],
+  [
+   "Storm Drain / Stormwater",
+   "z1_area"
+  ],
+  [
+   "Storm Drain / Stormwater",
+   "z1_c"
+  ],
+  [
+   "Storm Drain / Stormwater",
+   "z2_area"
+  ],
+  [
+   "Storm Drain / Stormwater",
+   "z2_c"
+  ],
+  [
+   "Storm Drain / Stormwater",
+   "z3_area"
+  ],
+  [
+   "Storm Drain / Stormwater",
+   "z3_c"
+  ],
+  [
+   "UPS Sizing",
+   "backup_min"
+  ],
+  [
+   "UPS Sizing",
+   "growth_factor"
+  ],
+  [
+   "UPS Sizing",
+   "phase"
+  ],
+  [
+   "UPS Sizing",
+   "ups_eff"
+  ],
+  [
+   "Wire Sizing",
+   "ambient_temp"
+  ],
+  [
+   "Wire Sizing",
+   "conduit_fill"
+  ],
+  [
+   "Wire Sizing",
+   "load_type"
+  ],
+  [
+   "Wire Sizing",
+   "phase"
+  ],
+  [
+   "Wire Sizing",
+   "power_w"
+  ]
+ ]
+}

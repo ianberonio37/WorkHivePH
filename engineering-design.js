@@ -2134,7 +2134,7 @@ const GUIDES = {
       { name: 'Chilled Water Return Temp', tip: 'Temperature of chilled water returning to the chiller. Standard delta-T: 5-7°C, so return = 12-14°C. Larger delta-T (10°C) reduces pump flow and energy but requires larger AHU coils.' },
       { name: 'COP (Coefficient of Performance)', tip: 'Ratio of cooling output to power input. Air-cooled chillers in Philippine climate: 2.8 (35°C ambient, R-22 era) to 3.5 (inverter scroll, R-410A/R-32, 35°C). ASHRAE 90.1 minimum: COP 2.84 (EER 9.7). Modern inverter chillers: COP 3.0-4.0.' },
       { name: 'Safety / Diversity Factor', tip: 'Multiplier on the cooling load before selecting chiller capacity. Typical: 1.10-1.15 (10-15% margin). Accounts for future load growth, simultaneous demand peaks, and measurement uncertainty. Never use 1.0: there is always some uncertainty in load calculations.' },
-      { name: 'Number of Chiller Units', tip: 'Number of parallel chiller units. Single chiller: simple, lower cost, no redundancy. Two chillers at 60% each: N+1 redundancy, better part-load efficiency, recommended for critical facilities (hospitals, data centers, hotels). Three or more: large central plants only.' },
+      { name: 'Number of Chiller Units', tip: 'The chillers share the design load equally: 2 units are each sized for half, 3 units for a third. For N+1 redundancy, install one more chiller of the same size as a standby; it is not counted here. Two or more units also run better at part load.' },
     ],
     notes: [
       'Air-cooled chillers reject heat directly to ambient air via condenser fans: no cooling tower required. This makes them simpler to install but less efficient than water-cooled systems at high ambient temperatures.',
@@ -2173,7 +2173,7 @@ const GUIDES = {
       { name: 'Condenser Water Return Temp (to cooling tower)', tip: 'CW leaving chiller condenser and returning to cooling tower for re-cooling. Standard: CW supply + 5°C. Larger ΔT = smaller CW pump and pipe but requires larger cooling tower. Common range: 34–37°C.' },
       { name: 'COP (Coefficient of Performance)', tip: 'Water-cooled COP is much higher than air-cooled because condensing temperature is lower (water at 29–32°C vs air at 35°C+). Centrifugal: 5.5–7.0. Screw: 4.5–5.5. Scroll: 4.0–5.0. Reciprocating: 3.5–4.5. ASHRAE 90.1 minimums are stricter for water-cooled.' },
       { name: 'Safety / Diversity Factor', tip: 'Apply 1.10–1.15 (10–15% margin) to account for load uncertainty, future growth, and simultaneous demand peaks. For central plants serving multiple zones, 1.10 is typically sufficient if load calculations are well-documented.' },
-      { name: 'Number of Chiller Units', tip: 'Two chillers at 60% each provides N+1 redundancy: recommended for hospitals, hotels, data centers. Three or more for large central plants (>500 TR). A single chiller is only acceptable for non-critical facilities with a portable chiller contingency plan.' },
+      { name: 'Number of Chiller Units', tip: 'The chillers share the design load equally: 2 units are each sized for half, 3 units for a third. For N+1 redundancy, install one more chiller of the same size as a standby; it is not counted here. Two or more units also run better at part load.' },
     ],
     notes: [
       'Water-cooled chillers are 15–30% more efficient than air-cooled at the same capacity because condenser water (29–32°C) is cooler than outdoor air (35°C): lower condensing temperature = higher COP.',
@@ -2217,7 +2217,7 @@ const GUIDES = {
       { name: 'Fan Static Pressure (Pa)', tip: 'Total external static pressure the fan must overcome: sum of duct friction, coil DP, filter DP, damper losses. Small AHU (duct <20m): 200–350 Pa. Medium AHU (20–50m duct): 350–600 Pa. Large central AHU with long distribution: 600–900 Pa. Oversizing by 30% is typical for design margin.' },
       { name: 'Fan + Motor Efficiency (η)', tip: 'Combined fan mechanical efficiency × motor efficiency. AMCA-rated fans: 65–75% at design point. EC (electronically commutated) motors: 85–92%. Typical design value: 0.65. For high-efficiency ECM AHU: 0.75–0.80. Never use 0.80+ unless equipment has AMCA-certified performance data at design airflow.' },
       { name: 'CHW Supply / Return Temp', tip: 'Standard for coil: 7°C supply / 12°C return (5°C ΔT). Higher return temp (14°C, 7°C ΔT) reduces CHW flow by 28%: saves pump energy and allows smaller pipes. Match to chiller plant CHW design conditions: AHU coil must be selected to achieve design supply air temperature at specified CHW temperatures.' },
-      { name: 'Number of AHU Units', tip: 'N+1 is standard for critical facilities. For zoned systems, each zone typically gets its own AHU sized for that zone only. Central AHUs serving multiple zones need zone-level VAV boxes (variable air volume) for individual temperature control. Single-AHU-per-floor is typical for Philippine commercial buildings.' },
+      { name: 'Number of AHU Units', tip: 'The AHUs share the airflow equally: 2 units each carry half, 3 units a third. For N+1 redundancy, add one more unit of the same size as a standby; it is not counted here. A zoned system usually gives each zone its own AHU sized for that zone.' },
     ],
     notes: [
       'Supply air temperature: standard range 13-15°C. At 14°C supply and 24°C room, ΔT = 10°C: this produces airflow of about 285 CMH per kW of sensible load. At 12°C supply (ΔT = 12°C), airflow is 237 CMH/kW: smaller ducts, but colder coil needed.',
@@ -7006,7 +7006,7 @@ function renderInputForm(calcType) {
         <div class="field-label">Number of Chiller Units</div>
         <div class="toggle-group" id="tg-n-units">
           <button class="toggle-btn" data-val="1" onclick="toggle('tg-n-units','1')">1 unit</button>
-          <button class="toggle-btn active" data-val="2" onclick="toggle('tg-n-units','2')">2 units (N+1)</button>
+          <button class="toggle-btn active" data-val="2" onclick="toggle('tg-n-units','2')">2 units, sharing the load</button>
           <button class="toggle-btn" data-val="3" onclick="toggle('tg-n-units','3')">3 units</button>
         </div>
       </div>
@@ -7095,8 +7095,8 @@ function renderInputForm(calcType) {
         <div class="field-label">Number of Chiller Units</div>
         <div class="toggle-group" id="tg-n-units">
           <button class="toggle-btn active" data-val="1" onclick="toggle('tg-n-units','1')">1 unit</button>
-          <button class="toggle-btn" data-val="2" onclick="toggle('tg-n-units','2')">2 units (N+1)</button>
-          <button class="toggle-btn" data-val="3" onclick="toggle('tg-n-units','3')">3 units (large plant)</button>
+          <button class="toggle-btn" data-val="2" onclick="toggle('tg-n-units','2')">2 units, sharing the load</button>
+          <button class="toggle-btn" data-val="3" onclick="toggle('tg-n-units','3')">3 units, sharing the load</button>
         </div>
       </div>
 
@@ -7235,8 +7235,8 @@ function renderInputForm(calcType) {
           <div class="field-label">Number of AHU Units</div>
           <div class="toggle-group" id="tg-n-units">
             <button class="toggle-btn active" data-val="1" onclick="toggle('tg-n-units','1')">1 unit</button>
-            <button class="toggle-btn" data-val="2" onclick="toggle('tg-n-units','2')">2 units (N+1)</button>
-            <button class="toggle-btn" data-val="3" onclick="toggle('tg-n-units','3')">3 units</button>
+            <button class="toggle-btn" data-val="2" onclick="toggle('tg-n-units','2')">2 units, sharing the load</button>
+            <button class="toggle-btn" data-val="3" onclick="toggle('tg-n-units','3')">3 units, sharing the load</button>
           </div>
         </div>
       </div>

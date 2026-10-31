@@ -95,6 +95,17 @@ def _fan_motor_kw(
     return (flow_m3s * static_pa) / (fan_eff * motor_eff * 1000)
 
 
+# ASHRAE 62.1 Table 6-1 outdoor-air rates (Rp L/s/person, Ra L/s/m²) by the AHU form's space types - the same rows as
+# calcs/ventilation_ach.py VENTILATION_RATES; Retail = the table's Sales row (3.8, 0.6)
+OA_RATES: dict[str, tuple[float, float]] = {
+    "Office":           (2.5, 0.30),
+    "Conference":       (2.5, 0.30),
+    "Server Room":      (0.0, 0.00),
+    "Production Floor": (2.5, 0.50),
+    "Hospital Ward":    (2.5, 0.30),
+    "Retail":           (3.8, 0.60),
+}
+
 # Standard motor kW sizes
 MOTOR_SIZES_KW = [0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3.0, 4.0, 5.5, 7.5,
                   11, 15, 18.5, 22, 30, 37, 45, 55, 75, 90, 110]
@@ -124,18 +135,39 @@ def calculate(inputs: dict) -> dict:
         q_sensible_w  = float(inputs.get("q_sensible_total", q_total_w * 0.70))
         q_latent_w    = q_total_w - q_sensible_w
 
+    # ★TEN OF THE FORM'S VALUES CHANGED NOTHING (2026-10-31, ED-I1 AHU Sizing, tools/census_calc_input_reach.py). The page
+    # sends shr, room_temp_C, supply_temp_C, safety_factor, fan_static_Pa, eta_fan, chw_supply_C, chw_return_C, n_units and
+    # space_type; this read none of them - the whole load was taken as sensible (airflow from the TOTAL load), the supply and
+    # room temperatures were fixed at 13 / 24 °C, the fan's static and efficiency at a budget table and 0.65, the CHW flow at
+    # a 7/12 °C ΔT of 5 K, one unit, and the OA check at office rates. Each is read below; a caller that sends the engine's
+    # own keys (q_sensible, supply_air_temp_c, indoor_temp, design_margin_pct) keeps them.
+    form_shr = inputs.get("shr")
+    if _kw_in > 0 and not inputs.get("q_sensible") and form_shr not in (None, "") and 0 < float(form_shr) <= 1:
+        q_total_w    = _kw_in * 1000                 # the form's load is the TOTAL load; SHR splits it
+        q_sensible_w = q_total_w * float(form_shr)
+        q_latent_w   = q_total_w - q_sensible_w
+
     if q_total_w <= 0:
         raise ValueError("Cooling load must be greater than 0 W.")
 
-    supply_temp_c   = float(inputs.get("supply_air_temp_c",  13.0))  # typical 12-16°C
-    indoor_db       = float(inputs.get("indoor_temp",        24.0))
+    supply_temp_c   = float(inputs.get("supply_air_temp_c", inputs.get("supply_temp_C", 13.0)))  # typical 12-16°C
+    indoor_db       = float(inputs.get("indoor_temp",       inputs.get("room_temp_C",   24.0)))
     indoor_rh_pct   = float(inputs.get("indoor_rh_pct",      55.0))
     outdoor_db      = float(inputs.get("outdoor_temp",        35.0))
     outdoor_rh_pct  = float(inputs.get("outdoor_rh_pct",      80.0))
     oa_pct          = float(inputs.get("oa_pct",              20.0))  # % outside air
     face_vel_key    = str  (inputs.get("face_velocity",    "Standard"))
     coil_rows       = int  (inputs.get("coil_rows",             6))
-    design_margin   = float(inputs.get("design_margin_pct",    10.0))
+    _sf             = inputs.get("safety_factor")
+    design_margin   = float(inputs.get("design_margin_pct",
+                            (float(_sf) - 1) * 100 if _sf not in (None, "") and float(_sf) >= 1 else 10.0))
+    _eta            = float(inputs.get("eta_fan", 0.65) or 0.65)
+    fan_eff         = _eta / 100 if _eta > 1 else _eta                 # a percent or a fraction
+    form_static_pa  = float(inputs.get("fan_static_Pa", 0) or 0)
+    chw_supply_c    = float(inputs.get("chw_supply_C", 7.0) or 7.0)
+    chw_return_c    = float(inputs.get("chw_return_C", 12.0) or 12.0)
+    n_units         = max(1, int(float(inputs.get("n_units", 1) or 1)))
+    space_type      = str(inputs.get("space_type", "Office") or "Office")
     floor_area_m2   = float(inputs.get("floor_area",            50))
     persons         = float(inputs.get("persons",                5))
 
@@ -213,11 +245,11 @@ def calculate(inputs: dict) -> dict:
     else:
         fan_sp_pa = FAN_STATIC_BUDGET["Large (>25 kW)"]
 
-    # Total static = external duct + filter + coil + dampers
-    fan_total_static_pa = fan_sp_pa + FILTER_DP + COIL_DP_PA + DAMPER_DP
+    # Total static = external duct + filter + coil + dampers - or the form's Fan Total Static Pressure when it is given
+    fan_total_static_pa = form_static_pa if form_static_pa > 0 else fan_sp_pa + FILTER_DP + COIL_DP_PA + DAMPER_DP
 
     # ── Fan motor sizing ──────────────────────────────────────────────────────
-    fan_motor_kw_calc = _fan_motor_kw(vol_flow_design_m3s, fan_total_static_pa)
+    fan_motor_kw_calc = _fan_motor_kw(vol_flow_design_m3s, fan_total_static_pa, fan_eff=fan_eff)
     rec_motor_kw      = next((s for s in MOTOR_SIZES_KW if s >= fan_motor_kw_calc),
                               MOTOR_SIZES_KW[-1])
 
@@ -228,8 +260,10 @@ def calculate(inputs: dict) -> dict:
     fan_power_ok        = fan_power_w_lps <= FAN_POWER_LIMIT_W_LPS
 
     # ── ASHRAE 62.1 OA adequacy ───────────────────────────────────────────────
-    # Required OA: 2.5 L/s/person + 0.3 L/s/m2 (office default)
-    oa_required_lps   = persons * 2.5 + floor_area_m2 * 0.3
+    # Required OA: Rp L/s/person + Ra L/s/m2 for the form's space type (ASHRAE 62.1 Table 6-1 - the Ventilation calculator's
+    # own rows; Retail is the table's Sales row). It had been office rates for every space.
+    rp, ra            = OA_RATES.get(space_type, OA_RATES["Office"])
+    oa_required_lps   = persons * rp + floor_area_m2 * ra
     oa_delivered_lps  = flow_lps * oa_fraction
     oa_adequate       = oa_delivered_lps >= oa_required_lps
 
@@ -331,30 +365,30 @@ def calculate(inputs: dict) -> dict:
         "Q_input_kW":        round(q_sensible_w / 1000, 3),  # sensible cooling load in kW
         "Q_sa_m3s":          round(vol_flow_m3s, 4),
         "Q_sa_CMH":          round(vol_flow_m3hr, 1),
-        "Q_sa_CMH_each":     round(vol_flow_m3hr, 1),
+        "Q_sa_CMH_each":     round(vol_flow_m3hr / n_units, 1),
         "Q_sa_CFM":          round(vol_flow_cfm, 1),
         "Q_oa_CMH":          round(oa_delivered_lps * 3.6, 1),
         "Q_ra_CMH":          round((vol_flow_m3hr - oa_delivered_lps * 3.6), 1),
         "P_fan_kW":          round(fan_motor_kw_calc, 3),
-        "P_fan_kW_each":     round(fan_motor_kw_calc, 3),
+        "P_fan_kW_each":     round(fan_motor_kw_calc / n_units, 3),
         "fan_static_pa":     fan_total_static_pa,
-        # CHW flow (default dT=5°C, Cp=4.186 kJ/kg·K, rho=1000 kg/m³)
-        "Q_chw_lps":         round(coil_kw / (4.186 * 5), 3),
-        "Q_chw_m3h":         round(coil_kw / (4.186 * 5) * 3.6, 2),
-        "Q_chw_GPM":         round(coil_kw / (4.186 * 5) * 15.8503, 1),
-        "dT_chw_C":          5.0,
-        "chw_supply_C":      7.0,
-        "chw_return_C":      12.0,
+        # CHW flow over the form's own supply/return ΔT (Cp=4.186 kJ/kg·K, rho=1000 kg/m³) - it was a fixed 7/12 °C
+        "Q_chw_lps":         round(coil_kw / (4.186 * max(chw_return_c - chw_supply_c, 1.0)), 3),
+        "Q_chw_m3h":         round(coil_kw / (4.186 * max(chw_return_c - chw_supply_c, 1.0)) * 3.6, 2),
+        "Q_chw_GPM":         round(coil_kw / (4.186 * max(chw_return_c - chw_supply_c, 1.0)) * 15.8503, 1),
+        "dT_chw_C":          round(max(chw_return_c - chw_supply_c, 1.0), 2),
+        "chw_supply_C":      chw_supply_c,
+        "chw_return_C":      chw_return_c,
         "shr":               round(coil_shr, 3),
-        "n_units":           1,
+        "n_units":           n_units,
         "nominal_AHU_CMH_total": round(vol_flow_m3hr, 1),
-        "nominal_AHU_CMH_each":  round(vol_flow_m3hr, 1),
+        "nominal_AHU_CMH_each":  round(vol_flow_m3hr / n_units, 1),
         "ach_actual":        round(ach, 1),
         "ceiling_height":    ceiling_h,
         "floor_area":        floor_area_m2,   # use internally computed value (defaults to 50 m²)
         "zone_volume":       round(room_vol, 1),
         "persons":           persons,
-        "safety_factor":     float(inputs.get("design_margin_pct", 10)) / 100 + 1,
+        "safety_factor":     round(design_margin / 100 + 1, 3),
         "oa_pct_used":       oa_pct,
         "oa_per_person_lps": float(inputs.get("oa_per_person_lps", 10.0)),
         "fan_hp_std":        round(rec_motor_kw / 0.746, 1),
@@ -362,10 +396,12 @@ def calculate(inputs: dict) -> dict:
         "fan_power_W_lps":   round(fan_power_w_lps, 3),
         "fan_power_check":   "PASS" if fan_power_ok else "FAIL",
         "ashrae_fan_max":    1.2,
-        "ashrae_oa_min_lps_person": 2.5,
+        "ashrae_oa_min_lps_person": rp,
+        "ashrae_oa_lps_m2":  ra,
+        "space_type":        space_type,
         "oa_check":          "PASS" if oa_adequate else "FAIL",
         "T_mixed":           round(ma_db, 1),
-        "eta_fan":           0.65,
+        "eta_fan":           fan_eff,
         "dT_sa":             round(indoor_db - supply_temp_c, 1),
         "fan_static_Pa":     fan_total_static_pa,
     }

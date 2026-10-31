@@ -129,14 +129,48 @@ def census() -> dict:
             "unread_keys": sum(len(r["unread"]) for r in rows), "rows": rows}
 
 
+BASELINE = ROOT / "calc_input_reach_baseline.json"
+# a value the engine deliberately does not compute with - it describes the job and is printed on the report. Each needs its
+# reason, and the form/guide must say "recorded on the report" for it (decided per key on the ED-I1 walk)
+RECORDED: dict[str, dict[str, str]] = {}
+
+
+def _unread_pairs(c: dict) -> set[tuple[str, str]]:
+    return {(r["calc"], k) for r in c["rows"] for k in r.get("unread", [])
+            if k not in RECORDED.get(r["calc"], {})}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--gate", action="store_true", help="fail on a value sent and never read that the baseline does not hold")
+    ap.add_argument("--update-baseline", action="store_true", help="write today's unread set as the ratchet")
+    ap.add_argument("--teeth", action="store_true", help="plant an unread key; the gate must catch it")
     a = ap.parse_args()
     c = census()
+    if a.teeth:
+        c["rows"][0].setdefault("unread", []).append("wh_teeth_planted_key")
     if a.json:
         print(json.dumps(c, ensure_ascii=False, indent=1))
         return 0
+    if a.update_baseline:
+        BASELINE.write_text(json.dumps({"note": "values a calculator form sends that its engine never reads - each an open "
+                                        "ED-I1 row; the gate fails on any pair not listed here", "unread":
+                                        sorted([list(p) for p in _unread_pairs(c)])}, indent=1) + "\n", encoding="utf-8")
+    if a.gate or a.teeth:
+        base = {tuple(p) for p in json.loads(BASELINE.read_text(encoding="utf-8"))["unread"]} if BASELINE.exists() else set()
+        new = sorted(_unread_pairs(c) - base)
+        for calc, k in new:
+            print(f"  NEW   {calc}: the form sends '{k}' and its engine never reads it")
+        if a.teeth:
+            ok = any(k == "wh_teeth_planted_key" for _, k in new)
+            print("TEETH ok calc-input-reach: a planted unread key was caught" if ok else "BLUNT calc-input-reach")
+            return 0 if ok else 1
+        left = len(_unread_pairs(c))
+        print(f"{'FAIL' if new else 'PASS'} calc-input-reach: {len(new)} new value(s) sent and never read · {left} still open "
+              f"in {sum(1 for r in c['rows'] if set(r.get('unread', [])) - set(RECORDED.get(r['calc'], {})))} calculator(s) "
+              f"(the ED-I1 rows) · {sum(len(v) for v in RECORDED.values())} recorded-only by decision")
+        return 1 if new else 0
     for r in c["rows"]:
         if r.get("note"):
             print(f"  --    {r['calc']}: {r['note']}")

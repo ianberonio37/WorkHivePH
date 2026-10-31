@@ -678,6 +678,26 @@ VECTORS = [
         "custom": _check_ahu_continuity,
     },
     {
+        # ★THE AHU FORM'S OWN VALUES (2026-10-31, ED-I1): the engine read none of shr, room/supply temperature, safety
+        # factor, fan static, fan efficiency, CHW supply/return, units or space type. Every assert fails on that engine.
+        "module": "calcs.ahu_sizing",
+        "calc_type": "AHU Sizing - the form's values reach the result",
+        "standard": "Qs = Q·SHR; V = Qs/(ρ·cp·ΔT); P_fan = V·ΔP/(η_fan·η_m); CHW = Q/(cp·ΔT_chw); OA = Rp·P + Ra·A (62.1)",
+        "inputs": {"cooling_load_kW": 50, "space_type": "Retail", "shr": 0.75, "safety_factor": 1.10, "room_temp_C": 24,
+                   "supply_temp_C": 14, "oa_pct": 20, "fan_static_Pa": 400, "chw_supply_C": 6, "chw_return_C": 13,
+                   "eta_fan": 0.65, "n_units": 2, "floor_area": 200, "ceiling_height": 3, "persons": 20},
+        "asserts": [
+            {"path": "Q_sa_m3s", "expected": 3.2414, "tol": 0.0005,
+             "note": "sensible = 50 kW x 0.75 = 37.5 kW; V = 37500 / (1006 x (24-14)) / 1.15 = 3.2414 m³/s"},
+            {"path": "Q_sa_CMH_each", "expected_expr": "Q_sa_CMH / 2", "tol": 0.2, "note": "two units share the airflow"},
+            {"path": "P_fan_kW", "expected_expr": "design_flow_m3s * 400 / (0.65 * 0.92 * 1000)", "tol": 0.002,
+             "note": "the form's 400 Pa total static and 0.65 fan efficiency (motor 0.92)"},
+            {"path": "dT_chw_C", "expected": 7.0, "tol": 0.001, "note": "CHW 6 / 13 °C - not the fixed 7 / 12"},
+            {"path": "oa_required_lps", "expected": 196.0, "tol": 0.05,
+             "note": "Retail (62.1 Sales): 20 persons x 3.8 + 200 m² x 0.6 = 196 L/s - not office rates (110)"},
+        ],
+    },
+    {
         # NOTE: this custom (_check_domestic_water_flow, reads peak_flow_* fields) tests the
         # calcs.domestic_water handler, which the live API serves under "Domestic Water System"
         # — NOT "Water Supply Pipe Sizing" (that routes to calcs.water_supply_pipe → peak_* fields,

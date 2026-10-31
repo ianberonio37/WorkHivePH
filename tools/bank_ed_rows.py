@@ -84,6 +84,18 @@ ENGINE_CHECKED["Pump Sizing (TDH)"] = (
     "glycol sized as water), and the form's default diameter 0 = Auto was refused, so the default calculation failed. All "
     "four fixed in the engine; two oracle vectors fail on the old engine; walked live in the page - Auto chose 80 mm and "
     "TDH carried the 20 m back-pressure. The guide is rewritten from the engine, and names the form's Fluid field.")
+# I1 - a value the form sends that its engine never reads: closed when tools/census_calc_input_reach.py finds none left for
+# the calculator (gate calc-input-reach green), with the fix and its oracle named here
+I1_FIXED = {
+    "AHU Sizing": "FOUND AND FIXED: python-api/calcs/ahu_sizing.py read none of ten values the form sends. It took the whole "
+                  "load as sensible (airflow from the TOTAL load - SHR was ignored), fixed the room and supply temperatures at "
+                  "24 / 13 °C, the fan static and efficiency at a budget table and 0.65, the CHW flow at a 7/12 °C ΔT of 5 K, "
+                  "one unit, and the 62.1 OA check at office rates for every space. All ten read now; oracle vector 'AHU Sizing "
+                  "- the form's values reach the result' fails on the old engine on every assert. Walked live: 2 units halved "
+                  "the per-unit airflow (11669 -> 5835 m³/h). The unit toggle said '2 units (N+1)' on the AHU and both chiller "
+                  "forms while every engine shares the load (each unit half) - relabelled 'sharing the load', and the guides "
+                  "now say how to get N+1 (a standby of the same size, not counted).",
+}
 GR_FIXED = {
     "GR1": "FOUND AND FIXED: every tip, note, standard and the subtitle were rgba(255,255,255,0.55) and the tips 12.5px - now "
            "0.80 (the page's measured Lc 79.8 value) at 14px, the formulas 14px.",
@@ -133,6 +145,17 @@ def main() -> int:
                 continue
             why = GR_FIXED.get(key, "")
             what = f"the Guide renderer's {ed.get('lens')} - held on all {rep.get('calculators')} calculators at phone-390 and desktop-1280"
+        elif key == "I1":
+            if unit not in I1_FIXED:
+                continue                                  # open: the census still names its unread values
+            import census_calc_input_reach as cir
+            left = [r for r in cir.census()["rows"] if r["calc"] == unit and
+                    set(r.get("unread", [])) - set(cir.RECORDED.get(unit, {}))]
+            if left:
+                held.append((t["id"], f"{unit}: still sends {', '.join(left[0]['unread'])} its engine never reads"))
+                continue
+            why = I1_FIXED[unit]
+            what = f"{unit}: every value its form sends now reaches its engine (tools/census_calc_input_reach.py)"
         elif key == "G1":
             c = calcs.get(unit)
             if not c or not c.get("g1") or not c.get("renderer"):
@@ -144,13 +167,20 @@ def main() -> int:
             what = f"{unit}'s Guide - present, its field names exactly the form's, its text and formulas clean at both widths"
         else:
             continue
-        basis = (f"[{today}] {why} WALKED: {what}, read through {PROVER} (receipt {REPORT.name}, {rep['generated'][:19]}Z) "
-                 f"after selecting the calculator inside engineering-design.html. HELD BY: gate {GATE} (ratchet "
-                 f"engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). "
-                 f"pct -> {{pct}}")
+        if key == "I1":
+            basis = (f"[{today}] {why} WALKED: {what}, and in the page through the Playwright MCP. HELD BY: gate "
+                     f"calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate "
+                     f"calc_formula_accuracy (the oracle vector named above). pct -> {{pct}}")
+            gates = ["calc-input-reach", "calc_formula_accuracy"]
+        else:
+            basis = (f"[{today}] {why} WALKED: {what}, read through {PROVER} (receipt {REPORT.name}, {rep['generated'][:19]}Z) "
+                     f"after selecting the calculator inside engineering-design.html. HELD BY: gate {GATE} (ratchet "
+                     f"engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). "
+                     f"pct -> {{pct}}")
+            gates = [GATE]
         banked.append(t["id"])
         if not a.dry:
-            bsw._bank(reg, t["id"], basis, [GATE])
+            bsw._bank(reg, t["id"], basis, gates)
     for rid, reason in held:
         print(f"  held   {rid}: {reason}")
     print(f"{'would bank' if a.dry else 'banked'} {len(banked)} ED row(s): {', '.join(banked)}")
