@@ -193,6 +193,11 @@ RECORDED: dict[str, dict[str, str]] = {
         "power_input": "the number the person typed, echoed for the report - the form converts it to power_kW (HP x 0.746) "
                        "before sending, and power_kW is read",
         "power_unit": "kW or HP, echoed for the report - the conversion happens in the form; power_kW is read"},
+    # the same echo pair, visible once python-api answered the form's own name (2026-11-02, ED-E1)
+    "V-Belt Drive Design": {
+        "power_input": "the number the person typed, echoed - the form converts HP to kW (x 0.746) and sends power_kW, "
+                       "which the engine reads (oracle: 7.5 kW x SF 1.2 = 9.0 kW design power)",
+        "power_unit": "kW or HP, echoed - the conversion happens in the form; power_kW is read"},
     "Earthing / Grounding System": {"system_voltage": "the form labels it 'System Voltage (V L-L, for fault current ref.)' - "
                                                       "printed for reference; the electrode resistance and the GEC size (by "
                                                       "the service conductor) do not depend on it"},

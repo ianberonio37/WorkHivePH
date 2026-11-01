@@ -280,6 +280,10 @@ def _load_handlers() -> dict[str, Any]:
     handlers["Beam / Column Design"]       = beam_column_calc
     handlers["Lighting Design"]            = lighting_calc
     handlers["Lightning Protection (LPS)"] = lps_calc
+    # ★THE FRONTEND SENDS THE LONGER NAME (2026-11-02, ED-E1): engineering-design.js names this calculator "Lightning
+    # Protection System (LPS)", which no handler matched - the edge function fell through to its unchecked TypeScript and
+    # this oracle-verified engine never answered a person. Registered under the name the page sends.
+    handlers["Lightning Protection System (LPS)"] = lps_calc
     from calcs.earthing_grounding    import calculate as earthing_calc
     from calcs.hot_water_demand      import calculate as hw_demand_calc
     from calcs.drainage_pipe_sizing  import calculate as drainage_calc
@@ -294,6 +298,8 @@ def _load_handlers() -> dict[str, Any]:
     from calcs.heat_exchanger  import calculate as hx_calc
     handlers["Shaft Design"]         = shaft_calc
     handlers["Gear / Belt Drive"]    = gear_calc
+    # ...and the page names the belt drive "V-Belt Drive Design" (2026-11-02, ED-E1) - same fall-through, same fix
+    handlers["V-Belt Drive Design"]  = gear_calc
     handlers["Pressure Vessel"]      = pv_calc
     handlers["Heat Exchanger"]       = hx_calc
 

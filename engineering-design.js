@@ -14330,7 +14330,7 @@ function renderLPSReport(inputs, results, narrative) {
         <thead><tr><th>Parameter</th><th>Value</th><th>Notes</th></tr></thead>
         <tbody>
           <tr><td>Earth Electrode Type</td><td>${e(earthType)}</td><td>Selected per soil conditions</td></tr>
-          <tr><td>Number of Electrodes</td><td>${e(nElec)}</td><td>One per down conductor (IEC 62305-3 &sect;5.4.2)</td></tr>
+          <tr><td>Number of Electrodes</td><td>${results.earth_arrangement === 'Type B' ? `Ring ${e(results.ring_earth_m)} m${Number(nElec) > 0 ? ` + ${e(nElec)} supplementary` : ''}` : e(nElec)}</td><td>${results.earth_basis ? e(results.earth_basis) : 'One per down conductor (IEC 62305-3 &sect;5.4.2)'}</td></tr>
           <tr><td>Minimum Electrode Length</td><td>${e(elecLen)} m</td><td>max(5m, 0.5&times;H) per IEC 62305-3 Annex E</td></tr>
           <tr><td>Target Earth Resistance</td><td>&le; 10 &Omega; (complete ring)</td><td>IEC 62305-3 &sect;5.4: as low as practicable</td></tr>
           <tr><td>Integration with LV Earthing</td><td>Bond at main equipotential bar</td><td>PEC 2017 Art. 2.50 / IEC 62305-3 &sect;6.2</td></tr>

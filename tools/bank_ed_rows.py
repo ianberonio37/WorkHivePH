@@ -221,6 +221,23 @@ E1_FIXED: dict[str, str] = {
         "now (a fill range at its top count; motors, HVAC, lighting and continuous loads at 125%, a general load at 100% - "
         "the form's own rule). The report's 21 reads are all in the Python result. Oracle vector 'Wire Sizing - the form's "
         "payload is sized by the verified engine' raises on the old engine; walked through the served path (curl): source python."),
+    "Lightning Protection System (LPS)": (
+        "FOUND AND FIXED: the page sends 'Lightning Protection System (LPS)'; python-api registered only 'Lightning Protection "
+        "(LPS)', so every LPS a person ran was the edge function's TypeScript, which the oracle never checks. main.py now "
+        "registers the form's name. Served by Python, the census showed the form's Type A / Type B earthing choice was never "
+        "read: the engine forced a ring for LPL I/II or any building 20 m long, so a person who chose Type A got a ring in the "
+        "take-off and a small LPL III Type B got none. The arrangement is now the person's (IEC 62305-3 §5.4.2): Type A an "
+        "electrode at each down conductor, min two, vertical >= 0.5 l1; Type B a ring ~1 m outside the walls, re = sqrt(A/pi) "
+        "checked against l1 with supplementary electrodes when short. The report's electrode row names the ring and the "
+        "basis. Three oracle vectors (Type A, Type B, a short ring) all fail on the old engine; walked on the served page "
+        "(Type B (Ring) -> Run Calculation): source python, 'Ring 108 m ... re = 14.97 m >= l1 = 6.0 m'. Open: l1 is still "
+        "max(5 m, 0.5 H), not Figure 3 by class and soil resistivity - an R1 row."),
+    "V-Belt Drive Design": (
+        "FOUND AND FIXED: the page names the belt drive 'V-Belt Drive Design'; python-api had no handler under that name, so "
+        "the TypeScript fallback answered every belt drive. main.py now registers it to gear_belt_drive, which already reads "
+        "the form's driver_rpm / driven_rpm / center_dist_mm / service_factor (varied, every result moved). power_input / "
+        "power_unit are echoes - the form converts HP to kW before sending - recorded with that reason. Oracle vector on the "
+        "form's own field names (Lp = 1600 mm, 9.0 kW design power); walked through the served path (curl): source python."),
 }
 I1_FIXED["Wire Sizing"] = E1_FIXED["Wire Sizing"]
 GR_FIXED = {

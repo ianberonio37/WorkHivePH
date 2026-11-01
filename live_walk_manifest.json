@@ -93,8 +93,8 @@
  },
  "by_kind": {
   "live": 28308,
-  "prose": 78,
-  "none": 8502
+  "prose": 80,
+  "none": 8500
  },
  "open_by_family": {
   "other": 6630,
@@ -136,7 +136,7 @@
  },
  "mcp_rewalk_queue": {
   "playwright-mcp": 4064,
-  "playwright-mcp + postgres-mcp": 3888,
+  "playwright-mcp + postgres-mcp": 3886,
   "postgres-mcp": 546,
   "raw-http fetch (no JS - what a crawler receives)": 67,
   "chrome-devtools-mcp": 11,
@@ -342502,9 +342502,9 @@
   {
    "id": "ED352",
    "wave": "ED-E1",
-   "status": "specced",
-   "kind": "none",
-   "gated": false,
+   "status": "locking",
+   "kind": "prose",
+   "gated": true,
    "surface": "index.html",
    "lens": "the engine a person is served is the oracle-verified engine",
    "family": "other",
@@ -342513,18 +342513,18 @@
     "D"
    ],
    "mcp": "playwright-mcp + postgres-mcp",
-   "mcp_used": false,
+   "mcp_used": true,
    "retracted_instrument": "",
-   "needs_mcp_rewalk": true,
+   "needs_mcp_rewalk": false,
    "receipt_red": false,
    "needs_w4_evidence": ""
   },
   {
    "id": "ED353",
    "wave": "ED-E1",
-   "status": "specced",
-   "kind": "none",
-   "gated": false,
+   "status": "locking",
+   "kind": "prose",
+   "gated": true,
    "surface": "index.html",
    "lens": "the engine a person is served is the oracle-verified engine",
    "family": "other",
@@ -342533,9 +342533,9 @@
     "D"
    ],
    "mcp": "playwright-mcp + postgres-mcp",
-   "mcp_used": false,
+   "mcp_used": true,
    "retracted_instrument": "",
-   "needs_mcp_rewalk": true,
+   "needs_mcp_rewalk": false,
    "receipt_red": false,
    "needs_w4_evidence": ""
   },

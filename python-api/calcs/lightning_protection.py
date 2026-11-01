@@ -165,6 +165,14 @@ def calculate(inputs: dict) -> dict:
     air_method         = str  (inputs.get("air_term_method",  "Rolling Sphere"))
     rho_soil           = float(inputs.get("soil_resistivity_ohm_m", 100.0))
     rod_length_m       = float(inputs.get("earth_rod_length_m",   3.0))
+    # ★THE FORM'S EARTHING ARRANGEMENT CHANGED NOTHING (2026-11-02, ED-E1 / census_calc_input_reach.py). The page asks
+    # Type A (radial / vertical electrodes) or Type B (ring / foundation electrode) and draws the one chosen; this engine
+    # never read it - it decided "ring required" from the LPL and the building length, so a person who chose Type A got a
+    # ring in the take-off and one who chose Type B on a small LPL III building got none. IEC 62305-3 §5.4.2 leaves the
+    # arrangement to the designer (Type B is PREFERRED for extensive electronics or high fire risk, not imposed), so the
+    # choice is now the person's and the electrode count, lengths and ring follow it.
+    earth_type         = str  (inputs.get("earth_type") or "Type A - Radial / Vertical Electrodes")
+    is_type_b          = earth_type.strip().upper().startswith("TYPE B") or "RING" in earth_type.upper()
 
     # Location / structure factor (Cd) — IEC 62305-2 Table B.2
     CD_TABLE: dict[str, float] = {
@@ -239,8 +247,34 @@ def calculate(inputs: dict) -> dict:
     # ── Earth termination ─────────────────────────────────────────────────────
     min_electrode_length_m = round(max(5.0, 0.5 * building_height_m), 1)
     n_rods   = _earth_rod_count(rho_soil, rod_length_m, EARTH_R_TARGET)
-    ring_earth_required = (lpl in ["LPL I", "LPL II"]) or (building_length_m >= 20)
-    ring_earth_m = ring_conductor_m
+    # IEC 62305-3 §5.4.2.1 Type A: an electrode at each down conductor, never fewer than two; a vertical or inclined
+    # electrode is at least 0.5 x l1 long, a radial (horizontal) one at least l1.
+    # §5.4.2.2 Type B: a ring about 1 m outside the walls (§5.4.3); its mean radius re = sqrt(A / pi) must be at least l1,
+    # and where it is short, supplementary electrodes are added at the down-conductor points (not fewer than the down
+    # conductors, minimum two): horizontal lr = l1 - re, or vertical lv = (l1 - re) / 2.
+    l1_m                = min_electrode_length_m
+    vertical_min_m      = round(0.5 * l1_m, 2)
+    ring_earth_required = is_type_b
+    ring_earth_m        = 2 * (building_length_m + building_width_m) + 8 if is_type_b else 0.0
+    ring_mean_radius_m  = round(math.sqrt((building_length_m + 2) * (building_width_m + 2) / math.pi), 2) if is_type_b else 0.0
+    if is_type_b:
+        ring_short          = ring_mean_radius_m < l1_m
+        n_electrodes        = max(2, n_down) if ring_short else 0
+        suppl_horizontal_m  = round(l1_m - ring_mean_radius_m, 2) if ring_short else 0.0
+        suppl_vertical_m    = round((l1_m - ring_mean_radius_m) / 2, 2) if ring_short else 0.0
+        earth_arrangement   = "Type B"
+        earth_basis = (f"Ring earth electrode {round(ring_earth_m, 1)} m, about 1 m outside the walls: mean radius "
+                       f"re = {ring_mean_radius_m} m " + (f"< l1 = {l1_m} m, so {n_electrodes} supplementary electrodes "
+                       f"(horizontal {suppl_horizontal_m} m or vertical {suppl_vertical_m} m each) at the down-conductor points"
+                       if ring_short else f"≥ l1 = {l1_m} m, so no supplementary electrodes are needed"))
+    else:
+        n_electrodes        = max(2, n_down)
+        suppl_horizontal_m  = suppl_vertical_m = 0.0
+        earth_arrangement   = "Type A"
+        rod_length_m        = max(rod_length_m, vertical_min_m)
+        n_rods              = max(n_rods, n_electrodes)
+        earth_basis = (f"{n_electrodes} electrodes, one at each down conductor (minimum two): vertical ≥ {vertical_min_m} m "
+                       f"(0.5 x l1) or radial ≥ {l1_m} m (l1)")
 
     # ── LPZ zoning ───────────────────────────────────────────────────────────
     lpz_zones = [
@@ -295,7 +329,7 @@ def calculate(inputs: dict) -> dict:
         f"Risk assessment (IEC 62305-2): {risk_check} (ratio={risk_ratio}).",
         f"Separation distance to internal wiring/equipment: s ≥ {round(s_sep_m,2)} m (IEC 62305-3 §6.3).",
         f"Earth resistance target: ≤ {EARTH_R_TARGET} Ω - soil ρ={rho_soil} Ω·m → {n_rods} rod(s) required.",
-        f"{'Ring earth electrode required.' if ring_earth_required else 'Ring earth electrode optional for this LPL/size.'}",
+        f"Earth termination ({earth_arrangement}, IEC 62305-3 §5.4.2): {earth_basis}.",
         "All LPS conductors must be bonded to structural steel, reinforcement, and metallic services (IEC 62305-3 §6.2).",
         f"SPD coordination: Type 1 at MDB, Type 2 at SDB, Type 3 at equipment (IEC 62305-4).",
         "PEC 2017 Art. 280: LPS installation requires licensed Electrical Engineer design and PEE inspection.",
@@ -352,7 +386,13 @@ def calculate(inputs: dict) -> dict:
 
         # Earth — renderer-compatible
         "min_electrode_length_m":  min_electrode_length_m, # renderer key
-        "n_electrodes":            n_down,                 # renderer key (one per DC)
+        "n_electrodes":            n_electrodes,           # renderer key: Type A one per DC (min 2); Type B the supplementary ones
+        "earth_type":              earth_type,
+        "earth_arrangement":       earth_arrangement,
+        "earth_basis":             earth_basis,
+        "ring_mean_radius_m":      ring_mean_radius_m,
+        "suppl_electrode_horizontal_m": suppl_horizontal_m,
+        "suppl_electrode_vertical_m":   suppl_vertical_m,
         "rho_soil_ohm_m":          rho_soil,
         "n_earth_rods":            n_rods,
         "ring_earth_required":     ring_earth_required,

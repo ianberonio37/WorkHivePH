@@ -977,6 +977,61 @@ VECTORS = [
              "note": "verdict: Nd 0.115/yr exceeds the tolerable strike frequency → an LPS IS required"},
         ],
     },
+    # ★THE FORM'S NAME AND ITS EARTHING CHOICE (2026-11-02, ED-E1): the page sends "Lightning Protection System (LPS)",
+    # which python-api had no handler for - every LPS a person ran was the edge function's TypeScript, unchecked. Now
+    # served by this engine, and the Type A / Type B arrangement the form asks for decides the electrodes (IEC 62305-3 §5.4.2).
+    {
+        "module": "calcs.lightning_protection",
+        "calc_type": "Lightning Protection System (LPS)",
+        "standard": "IEC 62305-3 §5.4.2.1 Type A - an electrode at each down conductor, min two; vertical ≥ 0.5·l1",
+        "inputs": {"building_length_m": 30, "building_width_m": 20, "building_height_m": 12, "lpl": "LPL II",
+                   "ng_location": "Metro Manila / NCR", "structure_type": "Residential",
+                   "earth_type": "Type A - Radial / Vertical Electrodes"},
+        "asserts": [
+            {"path": "n_electrodes", "expected": 10, "tol": 0,
+             "note": "perimeter 100 m / LPL II spacing 10 m = 10 down conductors → 10 electrodes"},
+            {"path": "ring_earth_m", "expected": 0, "tol": 0, "note": "Type A chosen - no ring in the take-off"},
+            {"path": "earth_arrangement", "expected": "Type A", "tol": 0, "note": "the person's choice is the engine's"},
+        ],
+    },
+    {
+        "module": "calcs.lightning_protection",
+        "calc_type": "Lightning Protection System (LPS)",
+        "standard": "IEC 62305-3 §5.4.2.2 Type B - ring ~1 m outside the walls, mean radius re = √(A/π) ≥ l1",
+        "inputs": {"building_length_m": 30, "building_width_m": 20, "building_height_m": 12, "lpl": "LPL II",
+                   "ng_location": "Metro Manila / NCR", "structure_type": "Residential",
+                   "earth_type": "Type B - Ring / Foundation Electrode"},
+        "asserts": [
+            {"path": "ring_earth_m", "expected": 108.0, "tol": 0.1, "note": "2·(32 + 22) = 108 m, 1 m outside each wall"},
+            {"path": "ring_mean_radius_m", "expected": 14.97, "tol": 0.01, "note": "√(32·22/π) = √224.1 = 14.97 m"},
+            {"path": "n_electrodes", "expected": 0, "tol": 0, "note": "re 14.97 m ≥ l1 6 m - no supplementary electrodes"},
+        ],
+    },
+    {
+        "module": "calcs.lightning_protection",
+        "calc_type": "Lightning Protection System (LPS)",
+        "standard": "IEC 62305-3 §5.4.2.2 - a ring short of l1 gets supplementary electrodes lv = (l1 − re)/2",
+        "inputs": {"building_length_m": 6, "building_width_m": 5, "building_height_m": 6, "lpl": "LPL III",
+                   "earth_type": "Type B - Ring / Foundation Electrode"},
+        "asserts": [
+            {"path": "ring_mean_radius_m", "expected": 4.22, "tol": 0.01, "note": "√(8·7/π) = √17.83 = 4.22 m < l1 5 m"},
+            {"path": "n_electrodes", "expected": 2, "tol": 0, "note": "not fewer than the down conductors, minimum two"},
+            {"path": "suppl_electrode_vertical_m", "expected": 0.39, "tol": 0.01, "note": "(5 − 4.22)/2 = 0.39 m"},
+        ],
+    },
+    {
+        "module": "calcs.gear_belt_drive",
+        "calc_type": "V-Belt Drive Design",
+        "standard": "RMA IP-20 / Shigley Eq.17-1 on the form's own field names (driver_rpm, center_dist_mm, service_factor)",
+        "inputs": {"drive_type": "V-Belt", "power_kW": 7.5, "power_unit": "kW", "power_input": 7.5, "service_factor": 1.2,
+                   "driver_rpm": 1450, "driven_rpm": 720, "belt_section": "B", "driver_dia_mm": 125, "center_dist_mm": 500},
+        "asserts": [
+            {"path": "speed_ratio", "expected": 2.014, "tol": 0.001, "note": "1450/720 = 2.014"},
+            {"path": "belt_length_mm", "expected": 1600, "tol": 1,
+             "note": "Lp = 2·500 + π·(125+252)/2 + 127²/(4·500) = 1000 + 592.2 + 8.1 = 1600 mm"},
+            {"path": "design_power_kW", "expected": 9.0, "tol": 0.01, "note": "7.5 kW × service factor 1.2"},
+        ],
+    },
     {
         "module": "calcs.ups_sizing",
         "calc_type": "UPS Sizing",
