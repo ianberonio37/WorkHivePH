@@ -5320,6 +5320,12 @@ VALIDATORS = [
     # phone the text was 12.5px at 55% white with three-line holes in the formulas. ~2 min, so board-only.
     # Wave ED I1 (2026-10-31): a value a calculator's form sends that its engine never reads - the pump's discharge
     # back-pressure, AHU's chilled-water temperatures. Static, a second; a ratchet over the open ED-I1 rows.
+    # Wave ED E1 (2026-11-02): the engine a person is served is the oracle-verified one. The calc edge function falls through
+    # silently to TypeScript when Python has no handler under the frontend's name or raises on the form's payload. Static
+    # (runs each Python handler on the form's real default payload), seconds.
+    {"id":"calc-served-engine","script":"tools/census_calc_served_engine.py","args":["--gate"],
+     "label":"Engineering design E1: every calculator the oracle-verified Python engine answered on its form's own default payload (tools/fixtures/ed_default_payloads.json) still does - one that falls back to the edge function's unchecked TypeScript fails (calc_served_engine_baseline.json; the ones never served by Python are the open ED-E1 rows). Teeth: --teeth plants a fall-back and must catch it",
+     "group":"Engineering Calculator","skip_if_fast":False},
     {"id":"calc-input-reach","script":"tools/census_calc_input_reach.py","args":["--gate"],
      "label":"Engineering design I1: every key a calculator form's collectInputs() sends is read by its python engine, or is recorded-only by a stated decision; a NEW value sent and never read fails (calc_input_reach_baseline.json holds the open ED-I1 rows). Teeth: --teeth plants an unread key and must catch it",
      "group":"Engineering Calculator","skip_if_fast":False},

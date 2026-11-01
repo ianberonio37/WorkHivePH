@@ -1193111,8 +1193111,8 @@
     },
     {
       "id": "ED349",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Wire Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1193165,6 +1193165,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wire Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED: python-api/calcs/wire_sizing.py raised 'Provide load_kw, load_kva, or load_amps.' on every calculation the form sent (power_w, phase, ambient_temp, conduit_fill, load_type), so the edge function fell through silently to its TypeScript and the oracle-verified engine never sized a wire for a person - recorded as an 'input-contract drift' residual in COMPREHENSIVE_STUDY_FULLSTACK_GATE.md and never closed. The form's keys are read now (a fill range at its top count; motors, HVAC, lighting and continuous loads at 125%, a general load at 100% - the form's own rule). The report's 21 reads are all in the Python result. Oracle vector 'Wire Sizing - the form's payload is sized by the verified engine' raises on the old engine; walked through the served path (curl): source python. MEASURED: Wire Sizing: every value its form sends now reaches its engine (tools/census_calc_input_reach.py) (how each row was walked is in its sentence above). HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {
@@ -1193292,8 +1193299,8 @@
     },
     {
       "id": "ED351",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-E1",
       "title": "the engine a person is served is the oracle-verified engine - Wire Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1193346,6 +1193353,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wire Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED: python-api/calcs/wire_sizing.py raised 'Provide load_kw, load_kva, or load_amps.' on every calculation the form sent (power_w, phase, ambient_temp, conduit_fill, load_type), so the edge function fell through silently to its TypeScript and the oracle-verified engine never sized a wire for a person - recorded as an 'input-contract drift' residual in COMPREHENSIVE_STUDY_FULLSTACK_GATE.md and never closed. The form's keys are read now (a fill range at its top count; motors, HVAC, lighting and continuous loads at 125%, a general load at 100% - the form's own rule). The report's 21 reads are all in the Python result. Oracle vector 'Wire Sizing - the form's payload is sized by the verified engine' raises on the old engine; walked through the served path (curl): source python. MEASURED: Wire Sizing: the form's own default payload is answered by the Python engine (tools/census_calc_served_engine.py) (how each row was walked is in its sentence above). HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-served-engine",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {

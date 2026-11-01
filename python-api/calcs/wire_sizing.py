@@ -194,13 +194,27 @@ def calculate(inputs: dict) -> dict:
     load_kva     = float(inputs.get("load_kva",        0))
     load_amps    = float(inputs.get("load_amps",       0))
 
+    # ★THIS ENGINE REFUSED EVERY CALCULATION THE FORM SENT (2026-11-02, ED-E1 + ED-I1 Wire Sizing). The page sends power_w,
+    # phase ("Single-phase" / "Three-phase"), ambient_temp, conduit_fill ("1-3" ... "10-20") and load_type; this read load_kw /
+    # load_kva / load_amps, phases, ambient_temp_c, conductors_in_conduit and continuous_load, and raised "Provide load_kw,
+    # load_kva, or load_amps." on every form calculation - so the edge function fell through silently to its unchecked
+    # TypeScript, and the oracle-verified engine never sized a wire for a person. The form's keys are read now, with this
+    # engine's own keys first for any other caller. A conduit-fill range is read at its top count (the conservative end);
+    # motors, HVAC, lighting and continuous loads are sized at 125% and a general load at 100% (the form's own rule).
+    if load_kw <= 0 and load_kva <= 0 and load_amps <= 0 and inputs.get("power_w"):
+        load_kw = float(inputs.get("power_w") or 0) / 1000
+    _phase       = str(inputs.get("phase") or "")
     voltage_v    = float(inputs.get("voltage",        230))
-    phases       = int  (inputs.get("phases",           1))
+    phases       = int  (inputs.get("phases", 3 if "Three" in _phase else 1))
     power_factor = float(inputs.get("power_factor",   0.85))
     length_m     = float(inputs.get("wire_length_m",  30))
-    ambient_c    = float(inputs.get("ambient_temp_c",  35))   # Manila typical
-    num_cond     = int  (inputs.get("conductors_in_conduit", 3))
-    is_continuous = bool(inputs.get("continuous_load", True))
+    ambient_c    = float(inputs.get("ambient_temp_c", inputs.get("ambient_temp", 35)))   # Manila typical
+    _fill        = str(inputs.get("conduit_fill") or "")
+    num_cond     = int  (inputs.get("conductors_in_conduit",
+                                    int(_fill.split("-")[-1]) if _fill.replace("-", "").isdigit() else 3))
+    _lt          = str(inputs.get("load_type") or "")
+    is_continuous = bool(inputs.get("continuous_load",
+                                    any(w in _lt for w in ("Motor", "HVAC", "Lighting", "continuous")) if _lt else True))
 
     # ── Derive design current ─────────────────────────────────────────────────
     if load_amps > 0:

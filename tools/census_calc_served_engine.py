@@ -79,14 +79,42 @@ def census() -> dict:
     return {"calculators": len(rows), "by_served": dict(Counter(r["served"] for r in rows)), "rows": rows}
 
 
+BASELINE = ROOT / "calc_served_engine_baseline.json"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--gate", action="store_true", help="fail when a calculator Python answered falls back to TypeScript")
+    ap.add_argument("--update-baseline", action="store_true", help="record today's Python-served set (only ever grows)")
+    ap.add_argument("--teeth", action="store_true", help="plant a Python-served calculator as fallen back; must be caught")
     a = ap.parse_args()
     c = census()
     if a.json:
         print(json.dumps(c, ensure_ascii=False, indent=1))
         return 0
+    served = {r["calc"] for r in c["rows"] if r["served"] == "python"}
+    base = set(json.loads(BASELINE.read_text(encoding="utf-8"))["python"]) if BASELINE.exists() else set()
+    if a.update_baseline:
+        BASELINE.write_text(json.dumps({"note": "calculators whose form payload the oracle-verified Python engine answers - "
+                                        "one that falls back to the edge function's TypeScript fails the gate",
+                                        "python": sorted(base | served)}, indent=1) + "\n", encoding="utf-8")
+        base = base | served
+    if a.gate or a.teeth:
+        now = set(served)
+        if a.teeth and now:
+            now.discard(sorted(now)[0])
+        fell = sorted(base - now)
+        for calc in fell:
+            why = next((r["why"] for r in c["rows"] if r["calc"] == calc), "")
+            print(f"  FELL BACK  {calc}: Python no longer answers the form ({why or 'planted by --teeth'})")
+        if a.teeth:
+            print("TEETH ok calc-served-engine: a planted fall-back was caught" if fell else "BLUNT calc-served-engine")
+            return 0 if fell else 1
+        print(f"{'FAIL' if fell else 'PASS'} calc-served-engine: {len(served)}/{c['calculators']} calculators answered by the "
+              f"oracle-verified Python engine on the form's own payload · {len(fell)} fell back · "
+              f"{c['calculators'] - len(served)} still answered by TypeScript (the ED-E1 rows)")
+        return 1 if fell else 0
     for r in c["rows"]:
         if r["served"] != "python":
             print(f"  {r['served']:<12} {r['calc']}: {r['why']}")

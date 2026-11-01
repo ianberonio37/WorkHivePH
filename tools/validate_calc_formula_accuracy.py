@@ -642,6 +642,23 @@ VECTORS = [
         "custom": _check_wire_ampacity_pec,
     },
     {
+        # ★THE FORM'S OWN PAYLOAD (2026-11-02, ED-E1 + ED-I1 Wire Sizing): the engine refused every form calculation
+        # ("Provide load_kw, load_kva, or load_amps.") so the unchecked TypeScript answered. Raises on that engine.
+        "module": "calcs.wire_sizing",
+        "calc_type": "Wire Sizing - the form's payload is sized by the verified engine",
+        "standard": "PEC 2017 / NEC 310.15: I = P/(√3·V·PF); motors and continuous loads x 1.25; ambient and fill derating",
+        "inputs": {"load_type": "Motor (continuous)", "phase": "Three-phase", "voltage": 400, "power_w": 15000,
+                   "power_factor": 0.85, "ambient_temp": 40, "conduit_fill": "7-9"},
+        "asserts": [
+            {"path": "load_current", "expected": 25.47, "tol": 0.02, "note": "15000 / (√3 x 400 x 0.85) = 25.47 A"},
+            {"path": "demand_multiplier", "expected": 1.25, "tol": 0.0001, "note": "a motor: 125% (sizing current 31.84 A)"},
+            {"path": "temp_factor", "expected": 0.88, "tol": 0.001, "note": "40 °C ambient, 75 °C insulation"},
+            {"path": "fill_factor", "expected": 0.70, "tol": 0.001, "note": "7-9 current-carrying conductors"},
+            {"path": "recommended_size_mm2", "expected": 14.0, "tol": 0.001,
+             "note": "31.84 / (0.88 x 0.70) = 51.7 A of table ampacity -> 14 mm²"},
+        ],
+    },
+    {
         "module": "calcs.generator_sizing",
         "calc_type": "Generator Sizing",
         "standard": "NFPA 110 — kVA = kW / power factor; recommended genset >= installed requirement",

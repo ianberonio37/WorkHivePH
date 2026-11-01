@@ -210,6 +210,19 @@ for _calc in ("Bearing Life (L10)", "HVAC Cooling Load"):
     I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py "
                        "RECORDED names the label as the reason) - the value it sends is a reference printed on the report, "
                        "and every value the result depends on is read by the engine.")
+# E1 - the engine a person is served is the oracle-verified one: closed when tools/census_calc_served_engine.py finds Python
+# answering the form's own payload, with the report's reads covered and an oracle vector on the form's keys
+E1_FIXED: dict[str, str] = {
+    "Wire Sizing": (
+        "FOUND AND FIXED: python-api/calcs/wire_sizing.py raised 'Provide load_kw, load_kva, or load_amps.' on every "
+        "calculation the form sent (power_w, phase, ambient_temp, conduit_fill, load_type), so the edge function fell through "
+        "silently to its TypeScript and the oracle-verified engine never sized a wire for a person - recorded as an "
+        "'input-contract drift' residual in COMPREHENSIVE_STUDY_FULLSTACK_GATE.md and never closed. The form's keys are read "
+        "now (a fill range at its top count; motors, HVAC, lighting and continuous loads at 125%, a general load at 100% - "
+        "the form's own rule). The report's 21 reads are all in the Python result. Oracle vector 'Wire Sizing - the form's "
+        "payload is sized by the verified engine' raises on the old engine; walked through the served path (curl): source python."),
+}
+I1_FIXED["Wire Sizing"] = E1_FIXED["Wire Sizing"]
 GR_FIXED = {
     "GR1": "FOUND AND FIXED: every tip, note, standard and the subtitle were rgba(255,255,255,0.55) and the tips 12.5px - now "
            "0.80 (the page's measured Lc 79.8 value) at 14px, the formulas 14px.",
@@ -273,6 +286,16 @@ def main() -> int:
                 continue
             why = I1_FIXED[unit]
             what = f"{unit}: every value its form sends now reaches its engine (tools/census_calc_input_reach.py)"
+        elif key == "E1":
+            if unit not in E1_FIXED:
+                continue                                  # open: TypeScript still answers this calculator
+            import census_calc_served_engine as cse
+            served = next((r for r in cse.census()["rows"] if r["calc"] == unit), {})
+            if served.get("served") != "python":
+                held.append((t["id"], f"{unit}: still answered by {served.get('served')} - {served.get('why')}"))
+                continue
+            why = E1_FIXED[unit]
+            what = f"{unit}: the form's own default payload is answered by the Python engine (tools/census_calc_served_engine.py)"
         elif key == "G1":
             c = calcs.get(unit)
             if not c or not c.get("g1") or not c.get("renderer"):
@@ -284,11 +307,11 @@ def main() -> int:
             what = f"{unit}'s Guide - present, its field names exactly the form's, its text and formulas clean at both widths"
         else:
             continue
-        if key == "I1":
+        if key in ("I1", "E1"):
             basis = (f"[{today}] {why} MEASURED: {what} (how each row was walked is in its sentence above). HELD BY: gate "
                      f"calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate "
                      f"calc_formula_accuracy (the oracle vector named above). pct -> {{pct}}")
-            gates = ["calc-input-reach", "calc_formula_accuracy"]
+            gates = ["calc-served-engine", "calc_formula_accuracy"] if key == "E1" else ["calc-input-reach", "calc_formula_accuracy"]
         else:
             basis = (f"[{today}] {why} WALKED: {what}, read through {PROVER} (receipt {REPORT.name}, {rep['generated'][:19]}Z) "
                      f"after selecting the calculator inside engineering-design.html. HELD BY: gate {GATE} (ratchet "
