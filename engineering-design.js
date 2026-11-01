@@ -2286,7 +2286,9 @@ const GUIDES = {
     ],
     formulas: [
       'Equal Friction: Circular Duct (Darcy-Weisbach + Blasius, ASHRAE Ch.21):',
-      '  D (m) = [K × Q^1.75 / fr]^(1/4.75)',
+      '  D is the round duct whose friction equals fr: ΔP/L = f × ρ × v² / (2D) = fr',
+      '  f from Colebrook (Swamee-Jain) at the material roughness ε: galvanized 0.09 mm, aluminum 0.05 mm, flexible 1.5 mm',
+      '  For a smooth duct this reduces to D (m) = [K × Q^1.75 / fr]^(1/4.75)',
       '  K = 8 × 0.3164 × ρ × (π×ν)^0.25 / (π² × 4^0.25)',
       '  Q = airflow (m³/s)    fr = design friction rate (Pa/m)',
       '  ρ = air density (kg/m³)   ν = kinematic viscosity (m²/s)',
@@ -2305,8 +2307,9 @@ const GUIDES = {
       '',
       'Segment Pressure Drop (actual, at standard size):',
       '  ΔP (Pa) = f × ρ × v² × L / (2 × D_h)',
-      '  System Total ΔP = Σ(ΔP per segment)',
-      '  Fan Static Pressure = System Total × 1.50  (+50% fittings, SMACNA)',
+      '  Index-run ΔP = Σ(ΔP of the mains) + the worst supply branch + the worst return branch',
+      '  (branches run in parallel: the fan sees only the worst one, ASHRAE Ch.21 critical path)',
+      '  Fan Static Pressure = Index-run ΔP × 1.50  (+50% fittings, SMACNA)',
       '',
       'Fan Motor:',
       '  P_fan (kW) = Q_fan (m³/s) × ΔP_fan (Pa) / (η_fan × η_motor × 1000)',
@@ -2315,18 +2318,17 @@ const GUIDES = {
     ],
     fields: [
       { name: 'Duct Shape', tip: 'Circular: lower friction for same flow area, easier to seal, preferred for main ducts. Rectangular: fits tight ceiling spaces, easier to branch. Rectangular ducts are sized using ASHRAE hydraulic equivalent diameter: actual W×H computed from De at the selected aspect ratio.' },
-      { name: 'Design Friction Rate (Pa/m)', tip: 'Target pressure drop per metre of straight duct. Philippine practice: 1.0 Pa/m standard for supply mains. Lower (0.8 Pa/m): quieter, larger ducts, less fan power. Higher (1.2–1.5 Pa/m): compact ducts, more fan power. Use 0.8 for libraries / theatres, 1.0–1.2 for offices, 1.5 for industrial.' },
+      { name: 'Friction Rate (Pa/m)', tip: 'Target pressure drop per metre of straight duct. Philippine practice: 1.0 Pa/m standard for supply mains. Lower (0.8 Pa/m): quieter, larger ducts, less fan power. Higher (1.2–1.5 Pa/m): compact ducts, more fan power. Use 0.8 for libraries / theatres, 1.0–1.2 for offices, 1.5 for industrial.' },
       { name: 'Air Density', tip: 'Standard 1.20 kg/m³ at 20°C sea level (ASHRAE standard). Tropical 1.15 kg/m³ at 35°C: recommended for Philippine projects. Lower density reduces mass flow for the same volume flow; ducts may need to be slightly larger to maintain supply air mass.' },
       { name: 'Duct Material', tip: 'Galvanized steel (roughness 0.09 mm): PH standard, durable, fireproof. Aluminum (0.05 mm): lighter, corrosion-resistant, coastal projects. Flexible duct (roughness ~1.5 mm): ONLY for short connections ≤1.5 m to diffusers: never for main runs. This tool does not model roughness in the friction factor for simplicity; a roughness correction may add 5–15% to actual ΔP.' },
       { name: 'Max Aspect Ratio (Rect.)', tip: 'Width-to-height ratio. SMACNA recommends ≤4:1. 2:1 most common for ceiling concealment. Avoid >4:1: friction increases rapidly and structural reinforcement required per SMACNA.' },
-      { name: 'Segment Airflow (L/s)', tip: 'Volume flow for this duct segment. Supply mains carry total fan flow. Branches carry terminal zone flow. Convert CFM to L/s: 1 CFM = 0.472 L/s. From cooling load: 1 kW at 10°C ΔT ≈ 24 L/s supply air (cp_air=1.0 kJ/kg·°C, ρ=1.2).' },
-      { name: 'Segment Length (m)', tip: 'Straight duct run length only. Do NOT include fittings: the 50% system allowance is applied automatically. For critical path analysis, measure the longest supply run from AHU to the farthest terminal.' },
+      { name: 'Duct Segment Schedule', tip: 'One row per straight duct run: its name, type, airflow (L/s) and length (m). Supply mains carry the total fan flow; branches carry each zone flow. Convert CFM to L/s: 1 CFM = 0.472 L/s. From a sensible cooling load: 1 kW at a 10°C supply ΔT ≈ 83 L/s (L/s = 1000 × kW / (1.2 × ΔT)). Length is straight duct only: do NOT include fittings, the 50% allowance is applied automatically. The type matters: mains add in series, and only the worst branch on each side joins the index run the fan must overcome.' },
     ],
     notes: [
       'The 50% fittings pressure allowance (1.5× total duct ΔP) is a conservative SMACNA preliminary sizing rule. For final design, calculate each fitting equivalent length from ASHRAE Chapter 21 loss coefficient tables and add to the duct run length.',
       'ASHRAE 62.1 velocity limits: Supply mains ≤ 8 m/s, branches ≤ 5 m/s (reduce to 5 m/s for open-plan offices for noise compliance). Return mains ≤ 6 m/s, return branches ≤ 4 m/s. Exceeding limits causes turbulence noise and higher fan power.',
       'PRC-licensed Mechanical Engineer sign-off is required for HVAC duct system designs submitted for LGU Building Permit. SMACNA duct construction class (Pressure Class ½, 1, or 2 inch w.g.) must be specified on drawings based on operating static pressure.',
-      'Flexible duct connections to diffusers shall not exceed 1.5 m per SMACNA. Do NOT use this tool to size flexible duct runs: flex roughness is 15–20× higher than galvanized steel.',
+      'Flexible duct connections to diffusers shall not exceed 1.5 m per SMACNA. Flex roughness is 15–20× higher than galvanized steel: choosing Flexible applies its 1.5 mm roughness, so the same flow needs a larger duct.',
       'Total system static pressure for fan selection = duct ΔP (from this tool) + AHU internal components (cooling coil, filters, heating coil: typically 200–500 Pa) + terminal device pressure drop (50–150 Pa). Always get AHU ESP from the equipment manufacturer datasheet.',
     ],
   },
@@ -14442,7 +14444,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
     <tr>
       <td style="text-align:center;">${i + 1}</td>
       <td>${escHtml(s.name || segments[i]?.name || '')}</td>
-      <td>${escHtml(s.seg_type || '')}</td>
+      <td>${escHtml(s.seg_type || '')}${s.on_index_run ? ' <strong>(index run)</strong>' : ''}</td>
       <td class="num">${s.flow_lps}</td>
       <td class="num">${s.length_m}</td>
       <td class="num"><strong>${escHtml(String(s.dim || ''))}</strong></td>
@@ -14485,7 +14487,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
     <h2>4. DESIGN BASIS</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><td style="width:35%;">Duct Shape</td><td>${e(ductShape)}</td></tr>
-      <tr><td>Duct Material</td><td>${e(ductMat)}</td></tr>
+      <tr><td>Duct Material</td><td>${e(ductMat + (results.roughness_mm != null ? ` (roughness ε = ${results.roughness_mm} mm, ASHRAE 2021 Ch.21 Table 1)` : ''))}</td></tr>
       <tr><td>Design Friction Rate</td><td>${e(frRate + ' Pa/m')}</td></tr>
       <tr><td>Air Density</td><td>${e(airDensity + ' kg/m³  (standard: 1.20 @ 20°C; tropical: 1.15 @ 35°C)')}</td></tr>
       ${ductShape === 'Rectangular' ? `<tr><td>Max Aspect Ratio</td><td>${e(aspectRatio + ':1')}</td></tr>` : ''}
@@ -14510,7 +14512,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
         </tr>
         ${segRows}
         <tr class="total-row">
-          <td colspan="8" style="text-align:right;"><strong>TOTAL DUCT PRESSURE DROP</strong></td>
+          <td colspan="8" style="text-align:right;"><strong>${results.index_run ? `INDEX-RUN PRESSURE DROP (the mains + the worst branch each side; every segment summed: ${escHtml(String(results.sum_all_dp_pa))} Pa)` : 'TOTAL DUCT PRESSURE DROP'}</strong></td>
           <td class="num"><strong>${totalDpPa} Pa</strong></td>
         </tr>
       </table>
@@ -14519,9 +14521,9 @@ function renderDuctSizingReport(inputs, results, narrative) {
     <h2>6. SYSTEM PRESSURE AND FAN MOTOR SIZING</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Parameter</th><th class="num">Value</th><th>Unit / Note</th></tr>
-      <tr><td>Total Duct ΔP (straight runs)</td><td class="num">${totalDpPa}</td><td>Pa: sum of all segment pressure drops</td></tr>
+      <tr><td>${results.index_run ? 'Index-Run Duct ΔP (straight runs)' : 'Total Duct ΔP (straight runs)'}</td><td class="num">${totalDpPa}</td><td>${results.index_run ? 'Pa: the mains plus the worst branch on each side. Branches run in parallel, so the fan sees only the worst one (ASHRAE 2021 Ch.21 critical path)' : 'Pa: sum of all segment pressure drops'}</td></tr>
       <tr><td>Fittings Allowance Factor</td><td class="num">1.50</td><td>SMACNA preliminary: +50% for elbows, tees, reducers, dampers</td></tr>
-      <tr class="total-row"><td><strong>Required Fan Static Pressure</strong></td><td class="num"><strong>${fanStaticPa}</strong></td><td><strong>Pa  = Total ΔP × 1.50</strong></td></tr>
+      <tr class="total-row"><td><strong>Required Fan Static Pressure</strong></td><td class="num"><strong>${fanStaticPa}</strong></td><td><strong>Pa  = ${results.index_run ? 'Index-run' : 'Total'} ΔP × 1.50</strong></td></tr>
       <tr><td>Maximum Segment Flow (fan flow)</td><td class="num">${maxFlowLps}</td><td>L/s  = ${Math.round(Number(maxFlowLps) * 3.6 * 100) / 100} m³/h</td></tr>
       <tr><td>Fan Motor Power (calculated)</td><td class="num">${fanMotorKw}</td><td>kW  = Q × ΔP_fan / (η_fan × η_motor × 1000)</td></tr>
       <tr><td>Fan Motor Power (HP calculated)</td><td class="num">${results.fan_motor_hp_calc ?? ''}</td><td>HP  = ${fanMotorKw} kW / 0.746</td></tr>
@@ -14532,7 +14534,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
     <h2>7. RESULTS SUMMARY</h2>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem;page-break-inside:avoid;break-inside:avoid;">
       <div class="result-card">
-        <div class="res-label">Total Duct ΔP</div>
+        <div class="res-label">${results.index_run ? 'Index-Run Duct ΔP' : 'Total Duct ΔP'}</div>
         <div class="res-value">${totalDpPa} Pa</div>
         <div class="res-sub">straight runs only</div>
       </div>

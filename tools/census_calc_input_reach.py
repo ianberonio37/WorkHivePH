@@ -139,6 +139,13 @@ def engine_modules(main: str) -> dict[str, str]:
     for m in re.finditer(r'handlers\["([^"]+)"\]\s*=\s*(\w+)', main):
         if m.group(2) in alias:
             out[m.group(1)] = alias[m.group(2)]
+    # ★A NAME REGISTERED AS ANOTHER NAME (2026-11-02): main.py maps the frontend's longer names with
+    # handlers["Lightning Protection System (LPS)"] = handlers["Lightning Protection (LPS)"] - this parser followed only
+    # `= <name>_calc`, so four calculators read as "no python handler" and two rows (ED352, ED353) were banked on a
+    # fall-through that never happened. Follow the alias to the module it names.
+    for m in re.finditer(r'handlers\["([^"]+)"\]\s*=\s*handlers\["([^"]+)"\]', main):
+        if m.group(2) in out:
+            out[m.group(1)] = out[m.group(2)]
     return out
 
 

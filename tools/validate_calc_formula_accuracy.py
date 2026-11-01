@@ -77,9 +77,12 @@ TOTAL_PYTHON_CALCS = 58
 
 
 def _get(d: dict, path: str):
-    """Walk a dotted path through nested dicts. Raises KeyError if absent."""
+    """Walk a dotted path through nested dicts (a digit part indexes a list: segments.1.dp_pa). Raises KeyError if absent."""
     cur = d
     for part in path.split("."):
+        if isinstance(cur, list) and part.isdigit() and int(part) < len(cur):
+            cur = cur[int(part)]
+            continue
         if not isinstance(cur, dict) or part not in cur:
             raise KeyError(f"missing result field '{path}' (stopped at '{part}')")
         cur = cur[part]
@@ -1076,6 +1079,54 @@ VECTORS = [
         "calc_type": "Duct Sizing",
         "standard": "ASHRAE 2021 Ch.21 — De (sizing) vs D_h (pressure drop)",
         "custom": _check_duct_de_vs_dh,
+    },
+    # ★THE FORM'S SEGMENT SCHEDULE (2026-11-02, ED-E1): the page sends segments[] and this engine raised on every one, so
+    # the edge function's TypeScript sized every duct a person drew - summing parallel branches into the fan's load and
+    # ignoring the duct material. These vectors hold the ported method on the form's own payload.
+    {
+        "module": "calcs.duct_sizing",
+        "calc_type": "Duct Sizing (Equal Friction)",
+        "standard": "ASHRAE 2021 Ch.21 - equal friction (dp/L = fr, Colebrook at the material roughness); the index run",
+        "inputs": {"duct_shape": "Circular", "friction_rate": 1, "air_density": 1.2, "duct_material": "Galvanized Steel",
+                   "aspect_ratio": 2, "segments": [
+                       {"name": "Supply Main", "flow_lps": 1200, "length_m": 20, "seg_type": "Supply Main"},
+                       {"name": "Branch-1 (Zone A)", "flow_lps": 400, "length_m": 12, "seg_type": "Supply Branch"},
+                       {"name": "Branch-2 (Zone B)", "flow_lps": 300, "length_m": 8, "seg_type": "Supply Branch"},
+                       {"name": "Return Main", "flow_lps": 1000, "length_m": 18, "seg_type": "Return Main"}]},
+        "asserts": [
+            {"path": "segments.0.dim", "expected": "Ø500 mm", "tol": 0,
+             "note": "1.2 m3/s at 1.0 Pa/m: D_calc 473 mm -> next standard round 500 mm"},
+            {"path": "segments.0.dp_pa", "expected": 15.2, "tol": 0.05,
+             "note": "v = 1.2/0.19635 = 6.11 m/s, Re = 202,594, Swamee-Jain f(0.09 mm) = 0.01696; 0.01696*1.2*6.11^2/(2*0.5)*20 = 15.2 Pa"},
+            {"path": "total_dp_pa", "expected_expr": "sum_all_dp_pa - 5.77", "tol": 0.02,
+             "note": "the index run drops the lesser parallel branch (Branch-2, 5.77 Pa): 15.2 + 6.9 + 16.39 = 38.49 Pa"},
+            {"path": "fan_static_pa", "expected_expr": "total_dp_pa * 1.5", "tol": 0.01, "note": "+50% fittings (SMACNA)"},
+            {"path": "D_std_mm", "expected": 500, "tol": 0, "note": "the drawing is given the fan-side main's round size"},
+        ],
+    },
+    {
+        "module": "calcs.duct_sizing",
+        "calc_type": "Duct Sizing (Equal Friction)",
+        "standard": "ASHRAE 2021 Ch.21 Table 1 - flexible duct roughness 1.5 mm needs a larger duct for the same friction",
+        "inputs": {"duct_shape": "Circular", "friction_rate": 1, "air_density": 1.2, "duct_material": "Flexible",
+                   "segments": [{"name": "Supply Main", "flow_lps": 1200, "length_m": 20, "seg_type": "Supply Main"}]},
+        "asserts": [
+            {"path": "segments.0.dim", "expected": "Ø550 mm", "tol": 0,
+             "note": "at ε 1.5 mm the 500 mm steel duct runs above 1.0 Pa/m, so the next size up - the material is read"},
+            {"path": "roughness_mm", "expected": 1.5, "tol": 0, "note": "the guide's flexible-duct roughness"},
+        ],
+    },
+    {
+        "module": "calcs.duct_sizing",
+        "calc_type": "Duct Sizing (Equal Friction)",
+        "standard": "ASHRAE De = 1.30(ab)^0.625/(a+b)^0.25 solved at r = 2, rounded up to 50 mm",
+        "inputs": {"duct_shape": "Rectangular", "friction_rate": 1, "air_density": 1.2, "duct_material": "Galvanized Steel",
+                   "aspect_ratio": 2,
+                   "segments": [{"name": "Supply Main", "flow_lps": 1200, "length_m": 20, "seg_type": "Supply Main"}]},
+        "asserts": [
+            {"path": "segments.0.dim", "expected": "650 × 350 mm", "tol": 0,
+             "note": "a = 0.473*3^0.25/(1.3*2^0.625) = 0.3105 m -> 350; b = 2a = 0.621 -> 650"},
+        ],
     },
     {
         "module": "calcs.power_factor_correction",

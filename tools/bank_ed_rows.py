@@ -69,6 +69,15 @@ ENGINE_CHECKED["Ventilation / ACH"] = (
     "and the fan ladder were the engine's. FIXED: the guide said only toilets and kitchens use the minimum-ACH method - the "
     "engine uses it for every space with no Rp and no Ra, Server Room included; the per-space minimum ACH table and the "
     "ACH line were missing; and Ventilation Type, which changes nothing in the engine, did not say so.")
+ENGINE_CHECKED["Duct Sizing (Equal Friction)"] = (
+    "FOUND AND FIXED, read against the ported segment method in python-api/calcs/duct_sizing.py (_form_segments): the "
+    "guide said 'System Total dP = sum of every segment' (branches run in parallel - the fan sees the mains plus the worst "
+    "branch on each side, ASHRAE Ch.21 index run), gave the smooth-duct closed form as the method (the engine solves "
+    "dp/L = fr with Colebrook at the material's roughness - now stated, the closed form kept as its smooth case), told "
+    "the reader not to size flexible duct with a tool that offers it (the material is read now), and said '1 kW at 10 C "
+    "dT = 24 L/s supply air' - 1000 x kW / (1.2 x dT) = 83 L/s, so a branch flow taken from a cooling load came out 3.5x "
+    "too small. Its field names are the form's: 'Friction Rate', and one 'Duct Segment Schedule' tip in place of two "
+    "for fields the form does not have.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
@@ -221,23 +230,20 @@ E1_FIXED: dict[str, str] = {
         "now (a fill range at its top count; motors, HVAC, lighting and continuous loads at 125%, a general load at 100% - "
         "the form's own rule). The report's 21 reads are all in the Python result. Oracle vector 'Wire Sizing - the form's "
         "payload is sized by the verified engine' raises on the old engine; walked through the served path (curl): source python."),
-    "Lightning Protection System (LPS)": (
-        "FOUND AND FIXED: the page sends 'Lightning Protection System (LPS)'; python-api registered only 'Lightning Protection "
-        "(LPS)', so every LPS a person ran was the edge function's TypeScript, which the oracle never checks. main.py now "
-        "registers the form's name. Served by Python, the census showed the form's Type A / Type B earthing choice was never "
-        "read: the engine forced a ring for LPL I/II or any building 20 m long, so a person who chose Type A got a ring in the "
-        "take-off and a small LPL III Type B got none. The arrangement is now the person's (IEC 62305-3 §5.4.2): Type A an "
-        "electrode at each down conductor, min two, vertical >= 0.5 l1; Type B a ring ~1 m outside the walls, re = sqrt(A/pi) "
-        "checked against l1 with supplementary electrodes when short. The report's electrode row names the ring and the "
-        "basis. Three oracle vectors (Type A, Type B, a short ring) all fail on the old engine; walked on the served page "
-        "(Type B (Ring) -> Run Calculation): source python, 'Ring 108 m ... re = 14.97 m >= l1 = 6.0 m'. Open: l1 is still "
-        "max(5 m, 0.5 H), not Figure 3 by class and soil resistivity - an R1 row."),
-    "V-Belt Drive Design": (
-        "FOUND AND FIXED: the page names the belt drive 'V-Belt Drive Design'; python-api had no handler under that name, so "
-        "the TypeScript fallback answered every belt drive. main.py now registers it to gear_belt_drive, which already reads "
-        "the form's driver_rpm / driven_rpm / center_dist_mm / service_factor (varied, every result moved). power_input / "
-        "power_unit are echoes - the form converts HP to kW before sending - recorded with that reason. Oracle vector on the "
-        "form's own field names (Lp = 1600 mm, 9.0 kW design power); walked through the served path (curl): source python."),
+    "Duct Sizing (Equal Friction)": (
+        "FOUND AND FIXED: python-api/calcs/duct_sizing.py read only sections / flow_m3s, so it raised 'Duct flow rate must "
+        "be greater than 0' on the page's segments[] schedule; Python was reached through main.py's alias and the edge "
+        "function fell through to its TypeScript, which sized every duct a person drew (walked before the fix: source "
+        "typescript). The page's segment method is ported with the TypeScript's result keys, and three of its defects fixed: "
+        "the duct material changed nothing (roughness fixed at 0.09 mm, smooth Blasius below Re 1e5) - Colebrook at the "
+        "material's roughness now, a flexible supply main 500 -> 550 mm; the fan's duct loss summed parallel branches - now "
+        "the index run, 38.49 Pa against a 44.26 Pa sum for the form's defaults; and the drawing read single-duct keys the "
+        "TypeScript never returned ('O0mm or 0x0mm, v = 0.00 m/s') - it is given the fan-side main. Three oracle vectors "
+        "fail on the old engine. Walked on the served page at 390 (Run Calculation): source python, the schedule marks the "
+        "index run, 'INDEX-RUN PRESSURE DROP ... 38.49 Pa'; the drawing reads 'O500mm or 650x350mm | v=6.11 m/s'. The "
+        "TypeScript fallback keeps the old method - it answers only when Python is down."),
+    "Lightning Protection System (LPS)": "MEASURED AGAIN - the E1 premise was the census's false reading: main.py already maps the page's name, handlers[\"Lightning Protection System (LPS)\"] = handlers[\"Lightning Protection (LPS)\"] (commit 84fbae35), and the census's first parser followed only `= <name>_calc`, so it reported no handler. Python has answered every LPS a person ran. Reading the engine under the right name found a real defect: the form's Type A / Type B earthing choice was never read - the engine forced a ring for LPL I/II or any building 20 m long. The arrangement is now the person's (IEC 62305-3 §5.4.2): Type A an electrode at each down conductor, min two, vertical >= 0.5 l1; Type B a ring ~1 m outside the walls, re = sqrt(A/pi) checked against l1, supplementary electrodes when short. Three oracle vectors fail on the old engine; walked on the served page (Type B (Ring) -> Run Calculation): source python, 'Ring 108 m ... re = 14.97 m >= l1 = 6.0 m'. The census follows aliases now. Open on ED149: l1 is max(5 m, 0.5 H), not Figure 3.",
+    "V-Belt Drive Design": "MEASURED AGAIN - the row was the census's false reading: main.py already maps handlers[\"V-Belt Drive Design\"] = handlers[\"Gear / Belt Drive\"] (commit 84fbae35); the census's first parser could not follow the alias and reported no handler. Python has answered every belt drive. Read against the engine, it takes the form's driver_rpm / driven_rpm / center_dist_mm / service_factor (varied, every result moved); power_input / power_unit are echoes of the HP-to-kW conversion the form does, recorded. Oracle vector on the form's own names (Lp = 1600 mm, 9.0 kW design power); walked through the served path (curl): source python. The census follows aliases now.",
 }
 I1_FIXED["Wire Sizing"] = E1_FIXED["Wire Sizing"]
 GR_FIXED = {
