@@ -2000,9 +2000,34 @@ VECTORS = [
             {"path": "total_dfu", "expected": 22, "tol": 0,
              "note": "ΣDFU·qty = 4·4 (WC) + 1·6 (lavatory) = 22 (UPC Table 7-5)"},
             {"path": "recommended_dia_mm", "expected": 100, "tol": 0,
-             "note": "75mm carries 22 DFU @2% but WC hard-rule forces ≥100 mm (UPC/PPC)"},
+             "note": "75 mm carries 35 DFU @2% (UPC Table 703.2) but 4 water closets exceed its 3 on a horizontal drain (note d)"},
             {"path": "capacity_q_ls", "expected": 5.27, "tol": 0.05,
              "note": "Manning half-full d=100 n=0.009 S=2%: (1/n)·A·R^⅔·√S = 5.27 L/s"},
+        ],
+    },
+    {
+        # ★UPC TABLE 703.2, NOT A SPLICED IPC TABLE (2026-11-02, ED-G1 Drainage, read against the guide): the engine forced
+        # 100 mm for a single water closet and rated a 75 mm branch at 42 DFU (IPC's building drain). Fails on that engine.
+        "module": "calcs.drainage_pipe_sizing",
+        "calc_type": "Drainage Pipe Sizing - UPC Table 703.2 water-closet limit (note d)",
+        "standard": "UPC Table 703.2 note d: a 75 mm horizontal branch or drain takes at most 3 water closets",
+        "inputs": {"fixtures": [{"fixture_type": "Water Closet", "quantity": 2},
+                                {"fixture_type": "Lavatory / Hand Sink", "quantity": 4}],
+                   "system_type": "Horizontal Branch", "slope": "2%", "pipe_material": "PVC"},
+        "asserts": [
+            {"path": "recommended_dia_mm", "expected": 75, "tol": 0,
+             "note": "2·4 + 4·1 = 12 DFU: 65 mm carries 14, but water closets need 75 mm, and 2 ≤ 3 - 75 mm (the old rule: 100)"},
+        ],
+    },
+    {
+        "module": "calcs.drainage_pipe_sizing",
+        "calc_type": "Drainage Pipe Sizing - a 75 mm horizontal branch carries 35 DFU, not 42",
+        "standard": "UPC Table 703.2 horizontal at 1/4 in per ft: 75 mm 35 DFU",
+        "inputs": {"fixtures": [{"fixture_type": "Lavatory / Hand Sink", "quantity": 38}],
+                   "system_type": "Horizontal Branch", "slope": "2%", "pipe_material": "PVC"},
+        "asserts": [
+            {"path": "recommended_dia_mm", "expected": 100, "tol": 0,
+             "note": "38 DFU > 35 (75 mm) → 100 mm (the IPC building-drain 42 kept it at 75 mm)"},
         ],
     },
     {

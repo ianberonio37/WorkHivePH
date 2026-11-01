@@ -1174356,8 +1174356,8 @@
     },
     {
       "id": "ED189",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Drainage Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1174411,6 +1174411,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Drainage Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/drainage_pipe_sizing.py: the engine and guide said 'UPC Table 7-5' but the tables were IPC - the stack table was IPC 710.1(2) exactly, the '2%' horizontal row spliced IPC's 1/4-in building-drain column (up to 75 mm: 42) onto its 1/8-in column (100 mm: 180), and a horizontal fixture BRANCH was rated like a building drain (75 mm: 42 DFU; UPC gives 35). The water-closet rule forced 100 mm for a single water closet and called it a UPC hard rule; UPC Table 703.2 note d allows 3 on a 75 mm horizontal (4 on a stack), none on 50/65 mm. Now UPC Table 703.2 (verified against the King County and CPC 2022 reproductions): horizontal at 1/4 in per ft, x 0.8 at 1/8 in (note 5), vertical for stacks; 38 lavatories -> 100 mm (was 75), 2 WC + 4 lavatories -> 75 mm (was 100). Guide states the table and the WC limits; the report's override names its reason. Two vectors fail on the old engine; walked on the served page at 390: source python, 'upsized to 100 mm: 4 water closets, and UPC Table 703.2 allows a 75 mm pipe at most 3 on a horizontal branch or drain'. WALKED: Drainage Pipe Sizing's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T21:16:35Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

@@ -840,7 +840,11 @@ const GUIDES = {
     formulas: [
       'Total DFU = sum of (DFU per fixture x quantity)',
       '',
-      'Pipe diameter: smallest size from UPC Table 7-5 where max DFU >= total DFU',
+      'Pipe diameter: smallest size from UPC Table 703.2 where max DFU >= total DFU',
+      '  Horizontal (branch or drain), at 2% (1/4 in per ft): 50 mm 8, 65 mm 14, 75 mm 35, 100 mm 216, 125 mm 428, 150 mm 720, 200 mm 2640',
+      '  At 1% (1/8 in per ft) the horizontal values x 0.8 (Table 703.2 note 5)',
+      '  Vertical (stack): 50 mm 16, 65 mm 32, 75 mm 48, 100 mm 256, 125 mm 600, 150 mm 1380, 200 mm 3600',
+      '  Water closets: none on 50 or 65 mm; 75 mm takes at most 3 (horizontal) or 4 (stack)',
       '',
       "Manning's formula: flow capacity verification:",
       'Q = (1/n) x A x R^(2/3) x S^(1/2)',
@@ -854,14 +858,14 @@ const GUIDES = {
       { name: 'System Type', tip: 'Horizontal Branch: connects fixtures to a stack. Drain Stack: vertical pipe carrying drainage from multiple floors. Building Drain: lowest horizontal pipe, connects to sewer.' },
       { name: 'Drain Slope', tip: 'Minimum slope for self-cleansing velocity. 2% (1/4 inch per foot) is standard in Philippine practice. Use 1% only for long runs where 2% is impossible. Never design below 1%.' },
       { name: 'Pipe Material', tip: 'PVC (n=0.009) is standard in Philippine buildings. Cast Iron (n=0.012) for noise-sensitive floors. Manning n is higher for rougher pipes: affects flow capacity calculation.' },
-      { name: 'Fixture List', tip: 'Add every fixture drained by this pipe segment. DFU values are assigned automatically from UPC Table 7-3. Use Custom for non-standard fixtures and enter the DFU directly.' },
+      { name: 'Plumbing Fixtures (served by this drain)', tip: 'Add every fixture drained by this pipe segment. DFU values are assigned automatically from UPC Table 7-3. Use Custom for non-standard fixtures and enter the DFU directly.' },
     ],
     notes: [
       'DFU values (UPC Table 7-3): Water Closet=4, Lavatory=1, Bathtub/Shower=2, Kitchen Sink=2, Commercial Kitchen Sink=4, Urinal (flush valve)=4, Floor Drain=2-3, Mop Sink=3, Washing Machine=2.',
-      'Horizontal pipe at 2% slope (1/4" per foot): 75mm handles 42 DFU, 100mm handles 180 DFU, 150mm handles 700 DFU, 200mm handles 1600 DFU.',
-      'Stack pipe: 100mm handles 240 DFU total, 150mm handles 960 DFU total.',
+      'Horizontal pipe at 2% slope (1/4" per foot), UPC Table 703.2: 75 mm handles 35 DFU, 100 mm 216 DFU, 150 mm 720 DFU, 200 mm 2640 DFU. At 1% use 80% of these. Some engineers consider the UPC capacities above 200 mm generous; check large building drains against Manning.',
+      'Stack pipe, UPC Table 703.2: 75 mm handles 48 DFU, 100 mm 256 DFU, 150 mm 1380 DFU total.',
       'Minimum self-cleansing velocity is 0.6 m/s. Below this, solids settle and the pipe blocks. Never use a slope below 1% on a horizontal drain.',
-      'A 75mm (3") pipe cannot serve a water closet as a horizontal branch even if DFU count is met: this is a UPC hard rule. Use 100mm minimum for WC connections.',
+      'Water closets (UPC Table 703.2 notes c, d): never on a 50 or 65 mm drain; a 75 mm (3") drain may take at most 3 water closets on a horizontal branch or drain and 4 on a stack. More water closets need 100 mm even when the DFU count fits.',
       'Vent pipes are sized separately (not covered in this calculator). Every P-trap requires a vent within the code-specified distance.',
     ],
   },
@@ -15977,7 +15981,7 @@ function renderDrainageReport(inputs, results, narrative) {
       Slope: ${slopeLabel} &nbsp;|&nbsp;
       Material: ${escHtml(results.pipe_material || inputs.pipe_material)} (n = ${results.manning_n})
     </p>
-    ${results.wc_override ? `<p style="font-size:0.82rem;background:#fff3e0;border:1px solid #ff9800;border-radius:0.4rem;padding:0.4rem 0.6rem;margin-bottom:0.5rem;color:#7a4a00;"><strong>Code Override:</strong> DFU table selected 75 mm; upsized to <strong>100 mm</strong> per UPC/PPC hard rule: 75 mm horizontal branches may not serve water closets.</p>` : ''}
+    ${results.wc_override ? `<p style="font-size:0.82rem;background:#fff3e0;border:1px solid #ff9800;border-radius:0.4rem;padding:0.4rem 0.6rem;margin-bottom:0.5rem;color:#7a4a00;"><strong>Code Override:</strong> DFU table selected ${escHtml(String(results.dfu_selected_dia_mm ?? 75))} mm; upsized to <strong>${escHtml(String(results.recommended_dia_mm))} mm</strong>: ${escHtml(String(results.wc_count ?? ''))} water closets, and UPC Table 703.2 allows a 75 mm pipe at most 3 on a horizontal branch or drain (4 on a stack), none on 50 or 65 mm.</p>` : ''}
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr>
         <th>Pipe Diameter</th>

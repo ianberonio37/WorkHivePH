@@ -150,6 +150,17 @@ ENGINE_CHECKED["Compressed Air"] = (
     "report's pipe card claimed '@ 8 m/s' - it shows the velocity, the drop and their limits. Field name is the form's. "
     "Two vectors fail on the old engine; walked on the served page at 390 (30 m main): source python, '15 mm 1.392 m/s "
     "(limit 8), drop 0.0058 bar (limit 0.1)'.")
+ENGINE_CHECKED["Drainage Pipe Sizing"] = (
+    "FOUND AND FIXED, read against python-api/calcs/drainage_pipe_sizing.py: the engine and guide said 'UPC Table 7-5' "
+    "but the tables were IPC - the stack table was IPC 710.1(2) exactly, the '2%' horizontal row spliced IPC's 1/4-in "
+    "building-drain column (up to 75 mm: 42) onto its 1/8-in column (100 mm: 180), and a horizontal fixture BRANCH was "
+    "rated like a building drain (75 mm: 42 DFU; UPC gives 35). The water-closet rule forced 100 mm for a single water "
+    "closet and called it a UPC hard rule; UPC Table 703.2 note d allows 3 on a 75 mm horizontal (4 on a stack), none on "
+    "50/65 mm. Now UPC Table 703.2 (verified against the King County and CPC 2022 reproductions): horizontal at 1/4 in per "
+    "ft, x 0.8 at 1/8 in (note 5), vertical for stacks; 38 lavatories -> 100 mm (was 75), 2 WC + 4 lavatories -> 75 mm "
+    "(was 100). Guide states the table and the WC limits; the report's override names its reason. Two vectors fail on the "
+    "old engine; walked on the served page at 390: source python, 'upsized to 100 mm: 4 water closets, and UPC Table "
+    "703.2 allows a 75 mm pipe at most 3 on a horizontal branch or drain'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

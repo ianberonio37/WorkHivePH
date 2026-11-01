@@ -35,17 +35,24 @@ DRAIN_DFU: dict[str, dict] = {
     "Custom":                     {"dfu": 0, "label": "Custom"},
 }
 
-# UPC Table 7-5: horizontal branch capacity by slope (mm → max DFU)
+# ★THE TABLES WERE IPC, SPLICED, AND CALLED UPC (2026-11-02, ED-G1 Drainage, read against the guide). The stack table was
+# IPC Table 710.1(2) (stacks of <= 3 branch intervals: 48/240/540/960/2200); the "2%" horizontal row took IPC's 1/4-in
+# building-drain column up to 75 mm (21, 42) and its 1/8-in column above (180, 390, 700, 1600); the "1%" row matched no
+# column at all; and a horizontal fixture BRANCH was rated like a building drain (75 mm: 42 DFU - a fixture branch carries
+# 20 under IPC, 35 under UPC). The guide and the Philippine plumbing code are UPC, so the capacities are UPC Table 703.2
+# (King County / CPC 2022 reproductions): horizontal at 1/4 in per ft, x 0.8 at 1/8 in (note 5); vertical for stacks.
+# A pipe of 100 mm carries 216 horizontal (was 180) and 256 vertical (was 240); 75 mm carries 35 horizontal (was 42).
+UPC_HORIZONTAL: dict[int, int] = {40: 1, 50: 8, 65: 14, 75: 35, 100: 216, 125: 428, 150: 720, 200: 2640, 250: 4680, 300: 8200}
+UPC_VERTICAL:   dict[int, int] = {40: 2, 50: 16, 65: 32, 75: 48, 100: 256, 125: 600, 150: 1380, 200: 3600, 250: 5600, 300: 8400}
 HORIZ_TABLE: dict[str, dict[int, int]] = {
-    "1%": {75:21, 100:96,  125:216, 150:384,  200:864,  250:1584, 300:2520},
-    "2%": {50:21, 75:42,  100:180, 125:390,  150:700,  200:1600, 250:2900, 300:4600},
-    "4%": {40:3,  50:21,  75:42,  100:180,  125:390,  150:700,  200:1600},
+    "1%": {d: int(u * 0.8) for d, u in UPC_HORIZONTAL.items()},   # 1/8 in per ft: note 5, x 0.8
+    "2%": dict(UPC_HORIZONTAL),                                    # 1/4 in per ft - the table's own basis
+    "4%": dict(UPC_HORIZONTAL),                                    # steeper earns no credit in the table
 }
-
-# UPC Table 7-5: stack capacity (total DFU)
-STACK_TABLE: dict[int, int] = {
-    50:10, 75:48, 100:240, 125:540, 150:960, 200:2200, 250:3800, 300:6000,
-}
+STACK_TABLE: dict[int, int] = dict(UPC_VERTICAL)
+# Water closets (Table 703.2 notes c, d): none on 50 / 65 mm; a 75 mm pipe takes at most 3 on a horizontal branch or
+# drain and 4 on a vertical stack; more needs 100 mm.
+WC_LIMIT_75MM = {"horizontal": 3, "vertical": 4}
 
 # Manning's n per pipe material
 MANNING_N: dict[str, float] = {
@@ -90,11 +97,16 @@ def calculate(inputs: dict) -> dict:
     recommended = next((d for d in sorted_sizes if table_raw[d] >= total_dfu),
                        sorted_sizes[-1])
 
-    # UPC/PPC hard rule: 75mm horizontal branch cannot serve water closets
-    has_wc     = any(str(f.get("fixture_type", "")) == "Water Closet" for f in fixtures)
-    wc_override = (not is_stack) and has_wc and recommended < 100
+    # UPC Table 703.2 notes c, d: water closets need 75 mm at least, and 75 mm takes no more than 3 on a horizontal
+    # branch or drain (4 on a stack) - the old rule here forced 100 mm for a single water closet and called it a UPC rule
+    n_wc = sum(int(float(f.get("quantity", 1) or 0)) for f in fixtures if str(f.get("fixture_type", "")) == "Water Closet")
+    has_wc = n_wc > 0
+    wc_cap = WC_LIMIT_75MM["vertical" if is_stack else "horizontal"]
+    wc_min = 0 if not has_wc else (75 if n_wc <= wc_cap else 100)
+    wc_override = has_wc and recommended < wc_min
+    dfu_selected = recommended
     if wc_override:
-        recommended = 100
+        recommended = next(d for d in sorted_sizes if d >= wc_min)
 
     # Manning's flow capacity for comparison sizes
     half_full  = not is_stack
@@ -133,6 +145,10 @@ def calculate(inputs: dict) -> dict:
         "pipe_material":      pipe_mat,
         "manning_n":          n,
         "wc_override":        wc_override,
+        "wc_count":           n_wc,
+        "wc_min_dia_mm":      wc_min,
+        "dfu_selected_dia_mm": dfu_selected,
+        "table_basis":        "UPC Table 703.2 " + ("vertical" if is_stack else "horizontal" + (" x 0.8 (1/8 in per ft)" if slope_str == "1%" else " (1/4 in per ft)")),
         "fixture_breakdown":  fixture_breakdown,
         "size_comparison":    comparison,
     }
