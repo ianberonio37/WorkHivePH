@@ -29,7 +29,16 @@ NEMA_CLASSES: list[tuple[str, float]] = [
     ("32A", 47.6),
 ]
 
-# NEC 392.22 maximum fill ratios by tray type
+# ★NEC 392.22 IS AN AREA PER WIDTH FOR POWER CABLE, NOT 50% OF THE CROSS-SECTION (2026-11-02, ED-G1 Cable Tray, read
+# against the guide). For multiconductor power / lighting cable smaller than 4/0 the code's limit is Table 392.22(A) Column 1
+# (ladder / ventilated trough) = tray width x 7/6 in2 per in - 7.0 in2 for a 6 in tray, 28.0 for 24 in - i.e. 29.6 mm of
+# equivalent depth WHATEVER the tray depth; Column 3 (solid bottom) = width x 11/12 in2 per in (5.5 in2 for 6 in). This
+# engine took 50% of width x depth as the "NEC limit" and sized on the form's fill % of width x depth, so a deep tray
+# carried more power cable than the code allows: 75 mm deep at 50% is 27% over Column 1, 150 mm deep at 40% is 2x over.
+# The 50% of the cross-section applies to control / signal cable only (392.22(A)(3)), which is kept below.
+NEC_POWER_MM2_PER_MM = {"Ladder": 7 / 6 * 25.4, "Ventilated Trough": 7 / 6 * 25.4,
+                        "Solid Bottom": 11 / 12 * 25.4, "Channel": 11 / 12 * 25.4}
+# control / signal / instrument cable only: % of the tray's interior cross-section
 FILL_LIMITS: dict[str, float] = {
     "Ladder":            50.0,
     "Ventilated Trough": 50.0,
@@ -78,16 +87,31 @@ def calculate(inputs: dict) -> dict:
 
     # Step 2 — required tray width
     fill_decimal  = fill_ratio_pct / 100.0
-    req_width_raw = (total_fill_area / (fill_decimal * depth_mm)) if depth_mm > 0 else 0.0
+    # power unless the type says control / signal / instrument / data - the conservative default (THHN, XHHW... are power)
+    _ctrl = ("control", "signal", "instrument", "data", "comm", "fiber", "fibre")
+    has_power     = any(not any(k in str(c.get("cable_type", "")).lower() for k in _ctrl) for c in cable_details)
+    nec_mm2_per_mm = NEC_POWER_MM2_PER_MM.get(tray_type, 7 / 6 * 25.4)
+    w_design   = (total_fill_area / (fill_decimal * depth_mm)) if depth_mm > 0 else 0.0
+    w_nec      = (total_fill_area / nec_mm2_per_mm) if has_power else \
+                 ((total_fill_area / (FILL_LIMITS.get(tray_type, 50.0) / 100.0 * depth_mm)) if depth_mm > 0 else 0.0)
+    req_width_raw = max(w_design, w_nec)
     req_width_mm  = round(req_width_raw, 2)
     sel_width_mm  = next((w for w in STD_WIDTHS_MM if w >= req_width_raw), 900)
 
     # Step 3 — actual fill %
     tray_area       = sel_width_mm * depth_mm
     fill_actual_pct = round((total_fill_area / tray_area) * 100, 2) if tray_area > 0 else 0.0
-    nec_fill_limit  = FILL_LIMITS.get(tray_type, 50.0)
+    if has_power:
+        nec_allow_mm2  = round(sel_width_mm * nec_mm2_per_mm, 1)
+        nec_fill_limit = round(nec_allow_mm2 / tray_area * 100, 2) if tray_area > 0 else 0.0
+        nec_basis      = (f"NEC 392.22(A) Column {'1' if tray_type in ('Ladder', 'Ventilated Trough') else '3'}: "
+                          f"{sel_width_mm} mm x {nec_mm2_per_mm:.1f} mm2/mm = {nec_allow_mm2:.0f} mm2 for power cable")
+    else:
+        nec_fill_limit = FILL_LIMITS.get(tray_type, 50.0)
+        nec_allow_mm2  = round(tray_area * nec_fill_limit / 100, 1)
+        nec_basis      = f"NEC 392.22(A)(3): {nec_fill_limit:g}% of the cross-section for control / signal cable"
     fill_check      = "PASS" if fill_actual_pct <= fill_ratio_pct else "FAIL"
-    nec_check       = "PASS" if fill_actual_pct <= nec_fill_limit  else "FAIL: exceeds NEC 392.22 limit"
+    nec_check       = "PASS" if total_fill_area <= nec_allow_mm2 + 1e-6 else "FAIL: exceeds NEC 392.22 limit"
 
     # Step 4 — NEMA load class
     load_per_span = round(total_weight_kg_m * span_m, 2)
@@ -106,6 +130,8 @@ def calculate(inputs: dict) -> dict:
         "depth_mm":             depth_mm,
         "fill_ratio_pct":       fill_ratio_pct,
         "nec_fill_limit_pct":   nec_fill_limit,
+        "nec_allowable_mm2":    nec_allow_mm2,
+        "nec_basis":            nec_basis,
         "span_m":               span_m,
         "run_length_m":         run_length_m,
         "total_fill_area_mm2":  total_fill_area,

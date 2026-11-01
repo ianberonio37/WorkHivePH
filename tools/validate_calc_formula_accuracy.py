@@ -1538,12 +1538,29 @@ VECTORS = [
         "asserts": [
             {"path": "total_fill_area_mm2", "expected": 3141.59, "tol": 0.5,
              "note": "10 · (π/4·20²) = 10·314.16 = 3141.59 mm²"},
-            {"path": "required_width_mm", "expected": 104.72, "tol": 0.1,
-             "note": "A_fill/(fill·depth) = 3141.59/(0.40·75) = 104.72 mm"},
+            {"path": "required_width_mm", "expected": 106.02, "tol": 0.1,
+             "note": "the larger of the design fill 3141.59/(0.40·75) = 104.72 mm and NEC Column 1 3141.59/29.633 = 106.02 mm"},
             {"path": "selected_width_mm", "expected": 150, "tol": 0,
              "note": "next NEMA std width ≥ 104.72 = 150 mm"},
             {"path": "fill_actual_pct", "expected": 27.93, "tol": 0.05,
-             "note": "3141.59/(150·75)·100 = 27.93% (≤ NEC 392.22 50% ladder limit)"},
+             "note": "3141.59/(150·75)·100 = 27.93% of the cross-section"},
+            {"path": "nec_allowable_mm2", "expected": 4445.0, "tol": 1,
+             "note": "THHN is power cable: NEC Table 392.22(A) Column 1 = 150 mm × 7/6 in²/in (29.633 mm²/mm) = 4445 mm² ≥ 3141.6"},
+        ],
+    },
+    {
+        # ★NEC 392.22 POWER FILL IS AN AREA PER WIDTH (2026-11-02, ED-G1 Cable Tray, read against the guide): the engine took
+        # 50% of width × depth as the NEC limit and sized deep trays on the % alone. Fails on that engine.
+        "module": "calcs.cable_tray_sizing",
+        "calc_type": "Cable Tray Sizing - NEC 392.22(A) Column 1 governs a deep tray of power cable",
+        "standard": "NEC Table 392.22(A) Column 1: width × 7/6 in² per in (ladder / ventilated trough), independent of depth",
+        "inputs": {"tray_type": "Ladder", "depth_mm": 150, "fill_ratio_pct": 40,
+                   "cables": [{"cable_type": "Power", "od_mm": 30, "qty": 20}]},
+        "asserts": [
+            {"path": "selected_width_mm", "expected": 600, "tol": 0,
+             "note": "A = 20·π/4·30² = 14137 mm²; design 40%·150: 14137/60 = 236 → 300 mm, but Column 1 needs 14137/29.633 = "
+                     "477 mm → 600 mm (the old engine chose 300 - 59% over the code's allowable area)"},
+            {"path": "nec_fill_check", "expected": "PASS", "tol": 0, "note": "600·29.633 = 17780 mm² ≥ 14137"},
         ],
     },
     {

@@ -1438,8 +1438,11 @@ const GUIDES = {
       '',
       'Actual Fill %:',
       '  Fill_actual (%) = A_fill / (W_selected × depth_mm) × 100',
-      '  → Limit: ≤ 40% for mixed power + control (NEC 392.22)',
-      '  → Limit: ≤ 50% for control/instrument cable only',
+      '  → Design fill: the % entered (40% is common practice)',
+      '  → NEC 392.22(A), power / lighting cable below 4/0: allowable area = tray width × 7/6 in² per in (Column 1, ladder / ventilated',
+      '     trough: 29.6 mm² per mm of width, whatever the depth) or × 11/12 in² per in (Column 3, solid bottom)',
+      '  → NEC 392.22(A)(3), control / signal cable only: ≤ 50% of the interior cross-section',
+      '  → Width = the larger of the design-fill width and the NEC width; next standard size',
       '',
       'Cable Weight and Span Load:',
       '  W_total (kg/m) = Σ [ Qty × weight_per_m ]',
@@ -1463,7 +1466,8 @@ const GUIDES = {
       { name: 'Tray Depth', tip: 'Standard depths: 50 mm (shallow: control cables), 75 mm (medium: mixed), 100 mm (standard: power), 150 mm (deep: large power cables or high fill). Deeper tray increases fill area but adds structural weight.' },
       { name: 'Fill Ratio Limit', tip: '40% for mixed power and control cables per NEC 392.22. 50% for control and instrumentation cable only. Never exceed the fill ratio: overloaded trays trap heat, accelerate insulation degradation, and become a fire hazard.' },
       { name: 'Support Span', tip: 'Standard spans: 1.2 m (4 ft) to 3.0 m (10 ft). Shorter spans needed for heavy power cables or when using standard-gauge tray. Typical for industrial: 1.5–2.4 m. Span determines the NEMA VE 1 load class required: heavier cables and wider trays need shorter spans or higher load class.' },
-      { name: 'Cable OD', tip: 'Outer diameter of the cable in mm. Read from the cable manufacturer\'s data sheet. If unknown: estimate 1.5× the conductor diameter for single-core, or use typical values: 16 mm² = ~15 mm OD, 35 mm² = ~19 mm, 70 mm² = ~25 mm, 120 mm² = ~32 mm, 185 mm² = ~41 mm.' },
+      { name: 'Tray Run Length', tip: 'Length of the tray route in metres. It sets the quantity of tray, supports and fittings in the take-off; the width, fill and load class do not depend on it.' },
+      { name: 'Cable Schedule', tip: 'One row per cable group: its type, outer diameter (mm), quantity and weight per metre. Type matters: power cable is held to the NEC 392.22 area per tray width, control / signal cable to 50% of the cross-section. OD: outer diameter of the cable in mm. Read from the cable manufacturer\'s data sheet. If unknown: estimate 1.5× the conductor diameter for single-core, or use typical values: 16 mm² = ~15 mm OD, 35 mm² = ~19 mm, 70 mm² = ~25 mm, 120 mm² = ~32 mm, 185 mm² = ~41 mm.' },
     ],
     notes: [
       'Fill area basis: all cable ODs are squared and multiplied by π/4 (circle area formula). This correctly accounts for the circular cross-section of each cable: not the bounding square.',
@@ -12897,7 +12901,7 @@ function renderCableTrayReport(inputs, results, narrative) {
     </table>
 
     <h2>3. DESIGN BASIS AND ASSUMPTIONS</h2>
-    <p>${e(narrative?.assumptions || `Tray type: ${trayType}. Tray depth: ${depthMm} mm. Fill ratio limit: ${fillLimit}% per NEC 392.22 (mixed power and control). Support span: ${spanM} m. Cable tray run length: ${runLengthM} m. Standard tray widths per NEMA VE 1: 100, 150, 200, 300, 450, 600, 750, 900 mm. Cable weight estimated at 0.01 kg/(m·mm of OD) where manufacturer data is not provided. Ampacity derating per NEC 392.80: no derating if fill ≤ 30%; derate to 80% of base ampacity if fill > 30%.`)}</p>
+    <p>${e(narrative?.assumptions || `Tray type: ${trayType}. Tray depth: ${depthMm} mm. Design fill ratio: ${fillLimit}% (practice); the NEC 392.22 allowable area is checked separately${results.nec_basis ? ` (${results.nec_basis})` : ''}. Support span: ${spanM} m. Cable tray run length: ${runLengthM} m. Standard tray widths per NEMA VE 1: 100, 150, 200, 300, 450, 600, 750, 900 mm. Cable weight estimated at 0.01 kg/(m·mm of OD) where manufacturer data is not provided. Ampacity derating per NEC 392.80: no derating if fill ≤ 30%; derate to 80% of base ampacity if fill > 30%.`)}</p>
 
     <h2>4. CABLE SCHEDULE AND FILL AREA</h2>
     <div style="overflow-x:auto;">
@@ -12919,7 +12923,8 @@ function renderCableTrayReport(inputs, results, narrative) {
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Step</th><th>Parameter</th><th class="num">Value</th><th>Unit / Remarks</th></tr>
       <tr><td>1</td><td>Total Cable Fill Area</td><td class="num">${e(totalFillArea)}</td><td>mm²</td></tr>
-      <tr><td>2</td><td>Fill Ratio Limit (NEC 392.22)</td><td class="num">${e(fillLimit)}</td><td>%</td></tr>
+      <tr><td>2</td><td>Design Fill Ratio (practice)</td><td class="num">${e(fillLimit)}</td><td>%</td></tr>
+      ${results.nec_basis ? `<tr><td>2a</td><td>NEC 392.22 allowable</td><td class="num">${e(results.nec_allowable_mm2)}</td><td>mm² (${escHtml(String(results.nec_basis))})</td></tr>` : ''}
       <tr><td>3</td><td>Tray Depth</td><td class="num">${e(depthMm)}</td><td>mm</td></tr>
       <tr><td>4</td><td>Required Width = Fill Area / (Fill% × Depth)</td><td class="num">${e(reqWidth)}</td><td>mm</td></tr>
       <tr class="total-row"><td>5</td><td><strong>Selected Standard Tray Width (NEMA VE 1)</strong></td><td class="num"><strong>${e(selWidth)}</strong></td><td><strong>mm (next standard size ≥ required)</strong></td></tr>

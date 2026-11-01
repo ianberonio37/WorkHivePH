@@ -242,6 +242,17 @@ ENGINE_CHECKED["Voltage Drop"] = (
     "'approx 0.0220' and aluminium 0.0354 ohm.mm2/m at 75 C; the engine computes 0.01724 x (1 + 0.00393 x 55) = 0.0210 and "
     "0.0283 x (1 + 0.00403 x 55) = 0.0346 - now stated so. The form's Phase Configuration, VD Limit and Conductor Material "
     "had no tip. Read in the page by the guide prover at 390 and 1280.")
+ENGINE_CHECKED["Cable Tray Sizing"] = (
+    "FOUND AND FIXED, read against python-api/calcs/cable_tray_sizing.py: the guide said 'NEC 392.22: <= 40% mixed power "
+    "+ control, <= 50% control only', and the engine took 50% of width x depth as the 'NEC limit'. For multiconductor power "
+    "cable below 4/0, NEC 392.22(A) is Table 392.22(A) Column 1 = width x 7/6 in2 per in (7.0 in2 for 6 in, 28.0 for 24 in "
+    "- two secondary sources; one notes calculators misdescribing it as 50%), i.e. 29.6 mm2 per mm of width WHATEVER the "
+    "depth - so deep trays were sized on the % alone: 20 x 30 mm power cables in a 150 mm deep ladder tray at 40% got "
+    "300 mm, 59% over the code's area; Column 1 needs 600 mm. Now width = max(design fill, NEC Column 1 / 3 for power, 50% "
+    "for control only); a cable is power unless its type says control/signal/instrument/data. The report called the "
+    "design fill 'Fill Ratio Limit (NEC 392.22)' - relabelled, with the NEC allowable area and its basis. Guide fields are "
+    "the form's (Tray Run Length, Cable Schedule). The vector fails on the old engine; walked on the served page at 390: "
+    "source python, '2a NEC 392.22 allowable 2963.3 mm2 (Column 1: 100 mm x 29.6 mm2/mm)'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
