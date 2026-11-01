@@ -192,6 +192,14 @@ ENGINE_CHECKED["Power Factor Correction"] = (
     "55.32 kVAR → 60). FIXED: the form's Monthly kWh and Meralco Rate had no tip - the guide now says they only feed the "
     "savings estimate, only below PF 0.85, and that the engine takes 18% of the all-in rate as the distribution charge "
     "(an assumption, stated). Read in the page by the guide prover at 390 and 1280.")
+ENGINE_CHECKED["Bolt Torque & Preload"] = (
+    "FOUND AND FIXED, read against python-api/calcs/bolt_torque.py: the separation minimum was written as a ceiling, "
+    "-(-int(x)), but int() truncates first - it was a FLOOR. 100 kN x 1.5 / 68.3 kN = 2.196 gave 2 bolts (2 clamp 136.6 kN "
+    "against the 150 kN asked: PASS), and 73 kN on 1 bolt (clamping 68.3 kN, less than the load) passed. Now math.ceil. "
+    "The guide divided by the margin (n_min = F_ext / (Fi x SF) - fewer bolts the bigger the margin) and gave grade 8.8 "
+    "as 600 MPa where the engine and ISO 898-1 use 580 MPa for d <= 16 mm. Field names are the form's (Preload Target, "
+    "Number of Bolts in Joint). The vector fails on the old engine; walked on the served page at 390 (100 kN, 2 bolts): "
+    "source python, 'Minimum bolts required (SF >= 1.5) = ceil(100 x 1.5 / 68.3) = 3 bolts ... 2: Status: FAIL'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

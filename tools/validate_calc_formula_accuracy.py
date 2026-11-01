@@ -1262,6 +1262,20 @@ VECTORS = [
         ],
     },
     {
+        # ★THE CEILING WAS A FLOOR (2026-11-02, ED-G1 Bolt Torque, read against the guide): -(-int(x)) truncated, so 2 bolts
+        # passed a joint that needs 3 - and 1 bolt clamping less than the load passed. Fails on that engine.
+        "module": "calcs.bolt_torque",
+        "calc_type": "Bolt Torque & Preload - the separation minimum is a ceiling",
+        "standard": "Joint separation: n_min = ⌈1.5 · F_external / Fi⌉",
+        "inputs": {"bolt_size": "M16", "bolt_grade": "8.8", "nut_factor": 0.15, "preload_pct": 75, "ext_load_kN": 100, "n_bolts": 2},
+        "asserts": [
+            {"path": "n_bolts_min", "expected": 3, "tol": 0,
+             "note": "Fi = 0.75 · 157 mm² · 580 MPa = 68.30 kN; 1.5 · 100 / 68.30 = 2.196 → 3 bolts (the floor gave 2)"},
+            {"path": "joint_check", "expected": "FAIL", "tol": 0,
+             "note": "2 bolts clamp 136.6 kN against the 150 kN the 1.5 margin asks for"},
+        ],
+    },
+    {
         "module": "calcs.shaft_design",
         "calc_type": "Shaft Design",
         "standard": "ASME B106.1M / Shigley — T = P/ω, M = F·L/4 (SS midspan)",

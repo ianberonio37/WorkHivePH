@@ -12,6 +12,8 @@ Formula (Shigley / VDI 2230):
   3-pass tightening: 30% → 70% → 100% of T_target
 """
 
+import math
+
 # Bolt stress area (mm²) — ISO 898-1 Table 4 / ASME B18
 BOLT_DATA: dict[str, tuple[float, float]] = {
     "M6":  (6,    20.1),
@@ -84,8 +86,11 @@ def calculate(inputs: dict) -> dict:
     # Joint separation check
     total_clamp_kN = round(n_bolts * Fi_kN, 2)
     separation_sf  = round(total_clamp_kN / ext_load_kN, 2) if ext_load_kN > 0 else None
-    n_bolts_min    = max(1, -(-int(ext_load_kN * 1.5 / Fi_kN) if Fi_kN > 0 else 1)) \
-                     if ext_load_kN > 0 else 1   # ceil division
+    # ★THE "CEIL DIVISION" WAS A FLOOR (2026-11-02, ED-G1 Bolt Torque, read against the guide): -(-int(x)) truncates
+    # first, so 100 kN x 1.5 / 68.3 kN = 2.196 gave 2 bolts - 2 bolts clamp 136.6 kN against the 150 kN the 1.5 margin
+    # asks for, yet the check said PASS; and 73 kN gave 1 bolt clamping 68.3 kN, less than the load. The minimum is the
+    # ceiling.
+    n_bolts_min    = max(1, math.ceil(ext_load_kN * 1.5 / Fi_kN)) if (ext_load_kN > 0 and Fi_kN > 0) else 1
     joint_check    = "PASS" if n_bolts >= n_bolts_min else "FAIL"
 
     nut_condition = NUT_LABELS.get(str(nut_factor), f"K={nut_factor}")
