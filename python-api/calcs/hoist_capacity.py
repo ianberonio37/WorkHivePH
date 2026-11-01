@@ -40,6 +40,13 @@ def calculate(inputs: dict) -> dict:
     n_parts         = int(inputs.get("n_parts",           1))
     safety_factor   = float(inputs.get("safety_factor",   5))
     mech_eff_pct    = float(inputs.get("mech_eff_pct",    82))
+    # ★THE FORM'S HOIST TYPE CHANGED NOTHING (2026-11-02, ED-I1 Hoist Capacity, census_calc_input_reach.py). The page sends
+    # hoist_type (Wire Rope Electric / Electric Chain / Manual Chain); this recommended a 6x19 wire rope and sized a motor for
+    # all three - a chain hoist carries its load on load chain, and a manual chain hoist has no motor (its own guide says
+    # "no motor sizing needed"). The type now decides the lifting medium and whether a motor is sized.
+    hoist_type = str(inputs.get("hoist_type") or "Wire Rope Electric")
+    is_chain   = "Chain" in hoist_type
+    is_manual  = "Manual" in hoist_type
 
     gross_load_kg = rated_load_kg + hook_weight_kg + sling_weight_kg
     gross_load_kN = round(gross_load_kg * 9.81 / 1000.0, 2)
@@ -75,10 +82,17 @@ def calculate(inputs: dict) -> dict:
     motor_hp_sf   = motor_hp_calc * 1.15   # 15% service factor
     motor_hp_std  = next((hp for hp in STD_HP if hp >= motor_hp_sf), STD_HP[-1])
     motor_kW      = round(motor_hp_std * 0.746, 2)
+    motor_note    = ""
+    if is_manual:
+        motor_hp_calc = motor_hp_sf = motor_hp_std = motor_kW = 0
+        motor_note    = "Manual chain hoist: hand-operated, no motor to size."
 
     # Wire rope selection
     selected = next((r for r in ROPE_SIZES if r["MBF"] >= MBF_kN), ROPE_SIZES[-1])
     rope_rec  = f"{selected['dia']}, 6x19 IWRC EIPS wire rope (MBF = {selected['MBF']} kN)"
+    if is_chain:
+        rope_rec = (f"load chain rated for a working load of at least {gross_load_kg} kg (ASME B30.16 / the hoist maker's "
+                    f"rating) - a chain hoist carries its load on chain, so a wire rope does not apply")
 
     # Rope length on drum (n_parts × lift height + dead wraps)
     dead_wrap = 3 * math.pi * 0.15   # 3 wraps on ~150mm core
@@ -102,4 +116,7 @@ def calculate(inputs: dict) -> dict:
         "rope_recommendation":    rope_rec,
         "rope_length_m":          rope_length_m,
         "safety_factor_check":    sf_check,
+        "hoist_type":             hoist_type,
+        "lifting_medium":         "load chain" if is_chain else "wire rope",
+        "motor_note":             motor_note,
     }

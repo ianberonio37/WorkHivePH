@@ -187,6 +187,18 @@ I1_FIXED["Shaft Design"] = (
     "(Kf 2.2 / Kfs 3.0): a keyed shaft under heavy shock went 26.38 -> 38.70 mm. power_input / power_unit are echoes (the "
     "form converts HP to power_kW before sending) - recorded-only. Oracle vector 'Shaft Design - the form's keyway and shock "
     "type reach the diameter' fails on the old engine; walked through the served path (engineering-calc-agent, by curl).")
+I1_FIXED["Hoist Capacity"] = (
+    "FOUND AND FIXED: the form sends hoist_type (Wire Rope Electric / Electric Chain / Manual Chain); "
+    "python-api/calcs/hoist_capacity.py recommended a 6x19 wire rope and sized a motor for all three - its own guide says a "
+    "manual chain hoist needs no motor sizing. The type now decides the lifting medium (load chain, ASME B30.16) and whether "
+    "a motor is sized, and the report's heading, specification items 1, 2 and 4 and its motor tile follow it. Oracle vector "
+    "'Hoist Capacity - the form's hoist type decides the lifting medium and the motor' fails on the old engine. WALKED in "
+    "the page through the Playwright MCP (signed in, Manual Chain): 'Lifting medium: load chain rated for a working load of "
+    "at least 2045 kg', 'Manual chain hoist: hand-operated, no motor to size', '4. Load chain inspection schedule per ASME B30.16'.")
+for _calc in ("Earthing / Grounding System", "Grease Trap Sizing", "FCU Selection"):
+    I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the value is descriptive and the result does not depend on it "
+                       "(tools/census_calc_input_reach.py RECORDED states each reason - for FCU Selection the guide now says "
+                       "a 4-pipe unit's heating coil is sized separately).")
 for _calc in ("Bearing Life (L10)", "HVAC Cooling Load"):
     I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py "
                        "RECORDED names the label as the reason) - the value it sends is a reference printed on the report, "

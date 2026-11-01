@@ -1192252,8 +1192252,8 @@
     },
     {
       "id": "ED336",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Earthing / Grounding System on engineering-design.html · solo-owner",
       "pages": [
@@ -1192306,12 +1192306,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Earthing / Grounding System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] DECIDED, recorded on the report only: the value is descriptive and the result does not depend on it (tools/census_calc_input_reach.py RECORDED states each reason - for FCU Selection the guide now says a 4-pipe unit's heating coil is sized separately). MEASURED: Earthing / Grounding System: every value its form sends now reaches its engine (tools/census_calc_input_reach.py) (how each row was walked is in its sentence above). HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {
       "id": "ED337",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - FCU Selection on engineering-design.html · solo-owner",
       "pages": [
@@ -1192364,6 +1192371,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the FCU Selection calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] DECIDED, recorded on the report only: the value is descriptive and the result does not depend on it (tools/census_calc_input_reach.py RECORDED states each reason - for FCU Selection the guide now says a 4-pipe unit's heating coil is sized separately). MEASURED: FCU Selection: every value its form sends now reaches its engine (tools/census_calc_input_reach.py) (how each row was walked is in its sentence above). HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {
@@ -1192563,8 +1192577,8 @@
     },
     {
       "id": "ED341",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Grease Trap Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1192617,6 +1192631,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Grease Trap Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] DECIDED, recorded on the report only: the value is descriptive and the result does not depend on it (tools/census_calc_input_reach.py RECORDED states each reason - for FCU Selection the guide now says a 4-pipe unit's heating coil is sized separately). MEASURED: Grease Trap Sizing: every value its form sends now reaches its engine (tools/census_calc_input_reach.py) (how each row was walked is in its sentence above). HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {
@@ -1192686,8 +1192707,8 @@
     },
     {
       "id": "ED343",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Hoist Capacity on engineering-design.html · solo-owner",
       "pages": [
@@ -1192740,6 +1192761,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hoist Capacity calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED: the form sends hoist_type (Wire Rope Electric / Electric Chain / Manual Chain); python-api/calcs/hoist_capacity.py recommended a 6x19 wire rope and sized a motor for all three - its own guide says a manual chain hoist needs no motor sizing. The type now decides the lifting medium (load chain, ASME B30.16) and whether a motor is sized, and the report's heading, specification items 1, 2 and 4 and its motor tile follow it. Oracle vector 'Hoist Capacity - the form's hoist type decides the lifting medium and the motor' fails on the old engine. WALKED in the page through the Playwright MCP (signed in, Manual Chain): 'Lifting medium: load chain rated for a working load of at least 2045 kg', 'Manual chain hoist: hand-operated, no motor to size', '4. Load chain inspection schedule per ASME B30.16'. MEASURED: Hoist Capacity: every value its form sends now reaches its engine (tools/census_calc_input_reach.py) (how each row was walked is in its sentence above). HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {

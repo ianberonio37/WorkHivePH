@@ -193,6 +193,16 @@ RECORDED: dict[str, dict[str, str]] = {
         "power_input": "the number the person typed, echoed for the report - the form converts it to power_kW (HP x 0.746) "
                        "before sending, and power_kW is read",
         "power_unit": "kW or HP, echoed for the report - the conversion happens in the form; power_kW is read"},
+    "Earthing / Grounding System": {"system_voltage": "the form labels it 'System Voltage (V L-L, for fault current ref.)' - "
+                                                      "printed for reference; the electrode resistance and the GEC size (by "
+                                                      "the service conductor) do not depend on it"},
+    "Grease Trap Sizing": {"facility_type": "describes the kitchen on the report; the sizing reads the fixtures, the "
+                                            "simultaneous-use factor and the meals per day, which are all read"},
+    "FCU Selection": {
+        "mounting_type": "cassette / concealed / floor-mounted is printed on the schedule; the FCU is chosen by its cooling "
+                         "load and CHW flow, which the mounting does not change",
+        "pipe_system": "2-pipe or 4-pipe is printed on the schedule; this calculator sizes the cooling coil and CHW flow - a "
+                       "4-pipe system's heating coil is not sized here (its guide must say so)"},
     "UPS Sizing": {"phase": "1-Phase 230V or 3-Phase is printed on the report and decides the product line; the UPS kVA "
                             "(load x growth / 80%) and the battery Ah do not depend on it"},
     "HVAC Cooling Load": {"building_type": "the form labels it 'Building Type (for permit documentation: also suggests Room "

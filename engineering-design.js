@@ -2381,7 +2381,7 @@ const GUIDES = {
       { label: 'FCU Tier Selection', eq: 'Select smallest standard FCU where nominal kW ≥ room load per unit. Standard tiers: 0.50, 0.75, 1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 5.00 TR' },
     ],
     fields: [
-      { name: 'Pipe System', tip: '2-Pipe (Cooling Only): single chilled water circuit, no heating. 4-Pipe (Cooling + Heating): separate CHW and HHW coils: used in offices and hotels where heating is required seasonally.' },
+      { name: 'Pipe System', tip: '2-Pipe (Cooling Only): single chilled water circuit, no heating. 4-Pipe (Cooling + Heating): separate CHW and HHW coils: used in offices and hotels where heating is required seasonally. This calculator selects the FCU and sizes its cooling side; size the heating coil of a 4-pipe unit separately.' },
       { name: 'Mounting Type', tip: 'Ceiling Cassette: exposed ceiling, 4-way blow: most common in Philippines commercial. Concealed Ceiling: ducted FCU above false ceiling: quieter, cleaner look. Floor-Mounted: under window sill. Wall-Mounted: high wall unit.' },
       { name: 'CHW Supply / Return (°C)', tip: 'Standard: 7°C supply / 12°C return (ΔT=5°C). Higher ΔT (6–8°C) reduces pipe size and pump energy but needs larger coil. Coordinate ΔT with chiller plant designer.' },
       { name: 'Diversity Factor', tip: 'Not all rooms peak simultaneously. ASHRAE: 0.70–0.90 for commercial. 0.85 is typical for offices. Hospitals/hotels with 24/7 occupancy: 0.90–0.95.' },
@@ -18571,7 +18571,7 @@ function renderHoistCapacityReport(inputs, results, narrative) {
       MBF = Gross Load × Safety Factor<br>
       MBF = ${r.gross_load_kg} kg × ${escHtml(String(inputs.safety_factor))} = <strong>${r.MBF_kg} kg</strong> (${r.MBF_kN} kN)
     </p>
-    <p style="font-size:0.83rem;color:#333;"><strong>Recommended wire rope:</strong> ${escHtml(r.rope_recommendation)}: minimum breaking force ≥ ${r.MBF_kN} kN</p>
+    <p style="font-size:0.83rem;color:#333;"><strong>${r.lifting_medium === 'load chain' ? 'Lifting medium' : 'Recommended wire rope'}:</strong> ${escHtml(r.rope_recommendation)}: minimum breaking force ≥ ${r.MBF_kN} kN</p>
 
     <h2>6. Rope Pull and Motor Sizing</h2>
     <p style="font-size:0.83rem;color:#333;"><strong>Rope Pull per Part:</strong></p>
@@ -18586,7 +18586,7 @@ function renderHoistCapacityReport(inputs, results, narrative) {
       = ${r.rope_pull_N} N × ${r.speed_ms} m/s = ${r.power_W} W<br><br>
       Motor HP = Power / (η<sub>mechanical</sub> × 746)<br>
       = ${r.power_W} / (${escHtml(String(inputs.mech_eff_pct / 100))} × 746) = ${r.motor_hp_calc} HP (calculated)<br>
-      <strong>Standard motor selected: ${r.motor_hp_std} HP</strong> (next standard size with 15% service factor)
+      ${r.motor_note ? `<strong>${escHtml(r.motor_note)}</strong>` : `<strong>Standard motor selected: ${r.motor_hp_std} HP</strong> (next standard size with 15% service factor)`}
     </p>
 
     <h2>7. Rope Length and Drum Check</h2>
@@ -18609,7 +18609,7 @@ function renderHoistCapacityReport(inputs, results, narrative) {
       </div>
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
         <div style="font-size:0.78rem;color:#777;">Hoist Motor (Standard)</div>
-        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.motor_hp_std} HP</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.motor_note ? 'No motor' : `${r.motor_hp_std} HP`}</div>
         <div style="font-size:0.75rem;color:#555;">${r.motor_kW} kW</div>
       </div>
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
@@ -18620,7 +18620,7 @@ function renderHoistCapacityReport(inputs, results, narrative) {
     </div>
 
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(`1. Provide wire rope with minimum breaking force not less than ${r.MBF_kN} kN. Recommended: ${r.rope_recommendation}.\n2. Hoist motor: specify ${r.motor_hp_std} HP (${r.motor_kW} kW), TEFC enclosure (IP55 minimum), Class F insulation, designed for S3 or S4 intermittent duty cycle per IEC 60034-1.\n3. Maintain safety factor not less than ${inputs.safety_factor}:1 per ASME B30.2 (selected rope MBF / gross load). Do not exceed the rated SWL of ${inputs.rated_load_kg} kg under any circumstances; tag SWL plate on hoist body.\n4. Wire rope inspection schedule per ASME B30.2 and DOLE D.O. 13: daily visual (broken wires, kinks, bird-caging, corrosion), monthly detailed (rope diameter measurement, lay length, end termination integrity), annual third-party. Remove from service if broken wires exceed 10 percent of total wires in one rope lay or 3 broken wires in one strand.\n5. Maintain not less than 3 dead wraps on the drum at all times (drum anchor is not rated for full working load per ASME B30.2 Section 2-1.13.3).\n6. Drum D/d ratio not less than 18 for ASME B30.2 wire rope hoists (drum dia divided by rope dia); sheave D/d ratio not less than 16. Verify drum specification matches the selected rope diameter.\n7. Runway beam and support structure must be verified by a PRC-licensed Structural Engineer for ${r.gross_load_kg} kg gross load with 1.25 dynamic impact factor (per ASME B30.2 Section 2-1.3.2); include end stop impact loading.\n8. Philippines: hoists above 1 tonne require DOLE-accredited riggers (DOLE D.O. 13 Section 4) and third-party inspection certificate before commissioning. Static proof load test at 125 percent SWL = ${Math.round(Number(inputs.rated_load_kg || 0) * 1.25)} kg held 10 minutes; dynamic test at 100 percent SWL through full travel.\n9. Limit switches required at both upper and lower travel positions (ASME B30.16); test cut-off function before each shift. Pendant control IP65 with emergency-stop button.\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the load-test certificate before placing the hoist into routine service.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(`1. ${r.lifting_medium === 'load chain' ? `Provide ${r.rope_recommendation}` : `Provide wire rope with minimum breaking force not less than ${r.MBF_kN} kN. Recommended: ${r.rope_recommendation}`}.\n2. ${r.motor_note ? r.motor_note : `Hoist motor: specify ${r.motor_hp_std} HP (${r.motor_kW} kW), TEFC enclosure (IP55 minimum), Class F insulation, designed for S3 or S4 intermittent duty cycle per IEC 60034-1.`}\n3. Maintain safety factor not less than ${inputs.safety_factor}:1 per ASME B30.2 (selected rope MBF / gross load). Do not exceed the rated SWL of ${inputs.rated_load_kg} kg under any circumstances; tag SWL plate on hoist body.\n4. ${r.lifting_medium === 'load chain' ? 'Load chain inspection schedule per ASME B30.16' : 'Wire rope inspection schedule per ASME B30.2'} and DOLE D.O. 13: daily visual (broken wires, kinks, bird-caging, corrosion), monthly detailed (rope diameter measurement, lay length, end termination integrity), annual third-party. Remove from service if broken wires exceed 10 percent of total wires in one rope lay or 3 broken wires in one strand.\n5. Maintain not less than 3 dead wraps on the drum at all times (drum anchor is not rated for full working load per ASME B30.2 Section 2-1.13.3).\n6. Drum D/d ratio not less than 18 for ASME B30.2 wire rope hoists (drum dia divided by rope dia); sheave D/d ratio not less than 16. Verify drum specification matches the selected rope diameter.\n7. Runway beam and support structure must be verified by a PRC-licensed Structural Engineer for ${r.gross_load_kg} kg gross load with 1.25 dynamic impact factor (per ASME B30.2 Section 2-1.3.2); include end stop impact loading.\n8. Philippines: hoists above 1 tonne require DOLE-accredited riggers (DOLE D.O. 13 Section 4) and third-party inspection certificate before commissioning. Static proof load test at 125 percent SWL = ${Math.round(Number(inputs.rated_load_kg || 0) * 1.25)} kg held 10 minutes; dynamic test at 100 percent SWL through full travel.\n9. Limit switches required at both upper and lower travel positions (ASME B30.16); test cut-off function before each shift. Pendant control IP65 with emergency-stop button.\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the load-test certificate before placing the hoist into routine service.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">

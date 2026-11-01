@@ -2049,6 +2049,20 @@ VECTORS = [
         ],
     },
     {
+        # ★THE FORM'S HOIST TYPE (2026-11-02, ED-I1 Hoist Capacity): the engine recommended a wire rope and sized a motor for
+        # every type. Fails on that engine.
+        "module": "calcs.hoist_capacity",
+        "calc_type": "Hoist Capacity - the form's hoist type decides the lifting medium and the motor",
+        "standard": "ASME B30.16 (chain hoists) vs B30.2 (wire rope); a manual hoist has no motor",
+        "inputs": {"hoist_type": "Manual Chain", "rated_load_kg": 2000, "hook_weight_kg": 30, "sling_weight_kg": 15,
+                   "lift_height_m": 6, "lift_speed_mpm": 8, "n_parts": 1, "safety_factor": 5, "mech_eff_pct": 82},
+        "asserts": [
+            {"path": "lifting_medium", "expected": "load chain", "tol": 0, "note": "a chain hoist lifts on load chain"},
+            {"path": "motor_hp_std", "expected": 0, "tol": 0, "note": "manual: no motor (the old engine sized 7.5 HP)"},
+            {"path": "gross_load_kg", "expected": 2045, "tol": 0.01, "note": "2000 + 30 hook + 15 sling - unchanged by the type"},
+        ],
+    },
+    {
         "module": "calcs.vibration_analysis",
         "calc_type": "Vibration Analysis",
         "standard": "ISO 10816 / Rao — fn=(1/2π)√(k/m); cc=2√(k·m); ζ=c/cc",

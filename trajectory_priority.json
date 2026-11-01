@@ -9,7 +9,7 @@
    "tier": "T1",
    "name": "defects a person meets today",
    "count": 21,
-   "locking": 3,
+   "locking": 7,
    "first": [
     "BRH509",
     "BRH510",
@@ -17,15 +17,15 @@
     "BRH512",
     "BRH513",
     "OWN62",
+    "ED336",
+    "ED337",
+    "ED341",
+    "ED343",
     "ED344",
     "BRH517",
     "BRH515",
     "ED332",
     "ED333",
-    "ED336",
-    "ED337",
-    "ED341",
-    "ED343",
     "ED349",
     "ED350",
     "ED351",
@@ -308,15 +308,15 @@
   "BRH512",
   "BRH513",
   "OWN62",
+  "ED336",
+  "ED337",
+  "ED341",
+  "ED343",
   "ED344",
   "BRH517",
   "BRH515",
   "ED332",
   "ED333",
-  "ED336",
-  "ED337",
-  "ED341",
-  "ED343",
   "ED349",
   "ED350",
   "ED351",
@@ -8914,39 +8914,39 @@
    "tier": 1,
    "rank": 6
   },
-  "ED344": {
+  "ED336": {
    "tier": 1,
    "rank": 7
   },
-  "BRH517": {
+  "ED337": {
    "tier": 1,
    "rank": 8
   },
-  "BRH515": {
+  "ED341": {
    "tier": 1,
    "rank": 9
   },
-  "ED332": {
+  "ED343": {
    "tier": 1,
    "rank": 10
   },
-  "ED333": {
+  "ED344": {
    "tier": 1,
    "rank": 11
   },
-  "ED336": {
+  "BRH517": {
    "tier": 1,
    "rank": 12
   },
-  "ED337": {
+  "BRH515": {
    "tier": 1,
    "rank": 13
   },
-  "ED341": {
+  "ED332": {
    "tier": 1,
    "rank": 14
   },
-  "ED343": {
+  "ED333": {
    "tier": 1,
    "rank": 15
   },

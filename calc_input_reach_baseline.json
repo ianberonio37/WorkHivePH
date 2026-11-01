@@ -10,26 +10,6 @@
    "iplv"
   ],
   [
-   "Earthing / Grounding System",
-   "system_voltage"
-  ],
-  [
-   "FCU Selection",
-   "mounting_type"
-  ],
-  [
-   "FCU Selection",
-   "pipe_system"
-  ],
-  [
-   "Grease Trap Sizing",
-   "facility_type"
-  ],
-  [
-   "Hoist Capacity",
-   "hoist_type"
-  ],
-  [
    "Wire Sizing",
    "ambient_temp"
   ],
