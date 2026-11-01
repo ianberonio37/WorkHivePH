@@ -229,6 +229,13 @@ ENGINE_CHECKED["Roof Drain Sizing"] = (
     "old table and printed '125 mm <- SELECTED 2.65 x' beside the engine's 22.71 - it carries the IPC values. The oracle "
     "vector had pinned the engine's 200 mm (re-derived: 100 mm); the door page's 200 / 200 mm restamped 75 / 75. Field "
     "names are the form's. Walked on the served page at 390 (1000 m2): source python, '125 mm <- SELECTED 22.71 ✓'.")
+ENGINE_CHECKED["Fire Alarm Battery"] = (
+    "READ AGAINST python-api/calcs/fire_alarm_battery.py: Ah = I_standby x hours + I_alarm x minutes / 60, x 1.25, next "
+    "standard size - the engine's (hand-checked: panel 50/200 mA + 20 addressable + 10 horn/strobe + 4 pull stations = "
+    "56.4 / 1262 mA -> 1.354 + 0.105 = 1.459 Ah x 1.25 = 1.823 -> 2.6 Ah). FIXED: the guide described three device "
+    "'fields' the form does not have (the device counts are rows of one table, with their currents in their labels) and "
+    "named only three of the seven device types; it now lists all seven currents the engine uses. Read in the page by "
+    "the guide prover at 390 and 1280.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

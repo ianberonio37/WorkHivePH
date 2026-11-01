@@ -1820,12 +1820,10 @@ const GUIDES = {
       { name: 'Standby Requirement', tip: 'NFPA 72 standard: 24 hours standby + 5 minutes alarm. Supervising stations (central monitoring): 60 hours standby + 5 minutes alarm. Use 24h for all typical building applications.' },
       { name: 'Panel Standby Current', tip: 'From the FACP datasheet (Istandby or Iquiescent). Typical small FACP: 50-100 mA. Large addressable system: 200-500 mA. Always use the actual panel datasheet value: this is the biggest variable in the calc.' },
       { name: 'Panel Alarm Current', tip: 'From the FACP datasheet (Ialarm). This is the panel electronics only: notification appliance current is added separately. Typical: 200-500 mA.' },
-      { name: 'Addressable Smoke/Heat Detectors', tip: 'SLC (Signaling Line Circuit) devices. Standby: ~0.3 mA each. Alarm: ~3 mA each. Much lower alarm current than conventional because the panel drives them via the loop, not direct power.' },
-      { name: 'Conventional 4-Wire Smoke Detectors', tip: 'Separate power and signal wires. Standby: ~0.5 mA. Alarm: ~20 mA each. Common in older Philippine buildings and smaller systems.' },
-      { name: 'Horn/Strobe Notification Appliances', tip: 'Highest alarm current draw: 75-150 mA each. This is usually the dominant term in the alarm Ah calc. Always confirm from the device datasheet. Pre-filled at 100 mA for typical 24V horn/strobe.' },
     ],
     notes: [
       'NFPA 72 Table 10.6.7 requires 25% additional capacity above the calculated Ah: this is mandatory, not optional.',
+      'Device counts (the table under Panel Alarm Current): the calculator uses these currents per device, standby / alarm - addressable smoke or heat 0.3 / 3 mA; conventional 4-wire smoke 0.5 / 20 mA; conventional heat 0.3 / 15 mA; manual pull station 0.1 / 0.5 mA; horn/strobe 0 / 100 mA; strobe only 0 / 75 mA; bell 0 / 80 mA. Notification appliances draw only in alarm and usually dominate the alarm Ah; replace these with the datasheet currents when they differ.',
       'For 24 VDC systems: use 2 × 12V sealed lead-acid (SLA) batteries in series. Both must be identical Ah rating.',
       'Standard Ah sizes available in Philippine market: 1.2, 2.6, 4.5, 7, 12, 17, 18, 26, 33, 40, 55, 65, 75, 100 Ah.',
       'NFPA 72 requires the battery charger to fully recharge the battery within 48 hours after a full discharge.',
