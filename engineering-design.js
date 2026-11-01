@@ -1873,21 +1873,22 @@ const GUIDES = {
     formulas: [
       'Gross Load (GL) = Rated Load + Hook/Block Weight + Sling Weight',
       '',
-      'Wire Rope Minimum Breaking Force (MBF):',
-      '  MBF = GL × Safety Factor',
-      '  Safety Factor: 5 (general hoisting), 6 (personnel hoisting: prohibited by ASME B30.2)',
+      'Wire Rope Minimum Breaking Force (MBF), per part of rope (ASME B30.2):',
+      '  MBF = (GL / N_parts) × Safety Factor',
+      '  Safety Factor: 5 minimum for load-hoisting rope; each part carries GL / N_parts',
       '',
-      'Rope Pull (P) = GL / (N_parts × rope_efficiency)',
+      'Rope Pull at the drum (P) = GL / (N_parts × η_rope)',
       '  N_parts = number of rope parts supporting the load',
-      '  rope_efficiency per part ≈ 0.98 (sheave/bearing factor)',
+      '  η_rope = 0.98 per part (sheave / bearing loss), so 0.98^N_parts',
       '',
       'Hoist Motor HP:',
-      '  Power (W) = P × V  (rope pull × lifting speed)',
-      '  Motor HP = Power / (mechanical_efficiency × 746)',
+      '  Rope speed = N_parts × lifting speed (the rope travels N times as far as the hook)',
+      '  Power (W) = P × rope speed = GL × g × v / η_rope  (reeving lowers the pull, not the power)',
+      '  Motor HP = Power / (mechanical_efficiency × 746), × 1.15 service factor, next standard size',
+      '  Manual chain hoist: no motor',
       '',
-      'Drum Capacity:',
-      '  Rope length required = lift_height × N_parts',
-      '  Drum flange diameter = drum_core + 2 × (layers × rope_dia × 1.15)',
+      'Rope Length:',
+      '  Rope length = lift_height × N_parts + dead wraps (3 minimum on the drum)',
     ],
     fields: [
       { name: 'Rated Load (SWL)', tip: 'The maximum load the hoist is rated to lift, in kg. This is the net load: do NOT include the hook block or slings here; those are added separately as dead weight.' },
@@ -1895,7 +1896,8 @@ const GUIDES = {
       { name: 'Sling / Rigging Weight', tip: 'Estimated weight of chain slings, wire rope slings, or shackles used to attach the load. Typical: 5-50 kg. Include if significant relative to the rated load.' },
       { name: 'Lifting Speed', tip: 'Rated lifting speed in m/min. Typical values: 3-6 m/min (maintenance/slow), 10-15 m/min (standard industrial), 20-30 m/min (high-speed production). Higher speed requires a larger motor.' },
       { name: 'Lift Height', tip: 'Vertical distance from lowest hook position to highest hook position, in meters. Determines rope length on drum. Include any below-floor or pit depth if applicable.' },
-      { name: 'Number of Rope Parts', tip: 'Also called "parts of line" or "falls." A single-part line (1 fall) has rope pull = gross load. A 2-part line halves the rope pull but requires twice the rope speed. Standard hoists: 1-4 parts. More parts = slower but lower rope tension.' },
+      { name: 'Parts of Line (rope falls)', tip: 'The number of rope parts supporting the hook block. A single-part line (1 fall) has rope pull = gross load. A 2-part line halves the rope pull and the breaking force each part needs, but the rope runs twice as fast, so the motor power is unchanged. Standard hoists: 1-4 parts.' },
+      { name: 'Safety Factor', tip: 'Design factor of the hoisting rope: its minimum breaking force divided by the load on each part. ASME B30.2 requires at least 5 for load-hoisting rope. Never enter less than 5; personnel hoisting is not done with a material hoist.' },
       { name: 'Hoist Type', tip: 'Electric chain hoist (typical for <5 tonnes, maintenance use). Wire rope electric hoist (5-100 tonnes, production use). Manual chain hoist (maintenance only, no motor sizing needed). Manila rope: never use for industrial hoisting.' },
       { name: 'Mechanical Efficiency', tip: 'Overall drive efficiency from motor to drum. Wire rope electric hoist with gear reducer: 80-85%. Chain hoist: 65-75%. Higher efficiency = smaller motor needed.' },
     ],
@@ -18579,8 +18581,8 @@ function renderHoistCapacityReport(inputs, results, narrative) {
     <h2>5. Wire Rope Minimum Breaking Force</h2>
     <p style="font-size:0.83rem;color:#333;"><strong>Formula (ASME B30.2):</strong></p>
     <p style="font-size:0.83rem;color:#333;">
-      MBF = Gross Load × Safety Factor<br>
-      MBF = ${r.gross_load_kg} kg × ${escHtml(String(inputs.safety_factor))} = <strong>${r.MBF_kg} kg</strong> (${r.MBF_kN} kN)
+      MBF = (Gross Load / Parts of Line) × Safety Factor  (the load on each part of rope)<br>
+      MBF = (${r.gross_load_kg} kg / ${escHtml(String(r.n_parts ?? inputs.n_parts))}) × ${escHtml(String(inputs.safety_factor))} = <strong>${r.MBF_kg} kg</strong> (${r.MBF_kN} kN)
     </p>
     <p style="font-size:0.83rem;color:#333;"><strong>${r.lifting_medium === 'load chain' ? 'Lifting medium' : 'Recommended wire rope'}:</strong> ${escHtml(r.rope_recommendation)}: minimum breaking force ≥ ${r.MBF_kN} kN</p>
 
@@ -18593,8 +18595,8 @@ function renderHoistCapacityReport(inputs, results, narrative) {
     </p>
     <p style="font-size:0.83rem;color:#333;"><strong>Hoist Motor Power:</strong></p>
     <p style="font-size:0.83rem;color:#333;">
-      Power (W) = Rope Pull (N) × Lifting Speed (m/s)<br>
-      = ${r.rope_pull_N} N × ${r.speed_ms} m/s = ${r.power_W} W<br><br>
+      Power (W) = Rope Pull (N) × Rope Speed (m/s), Rope Speed = Parts of Line × Lifting Speed<br>
+      = ${r.rope_pull_N} N × ${r.rope_speed_ms ?? r.speed_ms} m/s = ${r.power_W} W  (reeving lowers the pull, not the power)<br><br>
       Motor HP = Power / (η<sub>mechanical</sub> × 746)<br>
       = ${r.power_W} / (${escHtml(String(inputs.mech_eff_pct / 100))} × 746) = ${r.motor_hp_calc} HP (calculated)<br>
       ${r.motor_note ? `<strong>${escHtml(r.motor_note)}</strong>` : `<strong>Standard motor selected: ${r.motor_hp_std} HP</strong> (next standard size with 15% service factor)`}
@@ -18631,7 +18633,7 @@ function renderHoistCapacityReport(inputs, results, narrative) {
     </div>
 
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(`1. ${r.lifting_medium === 'load chain' ? `Provide ${r.rope_recommendation}` : `Provide wire rope with minimum breaking force not less than ${r.MBF_kN} kN. Recommended: ${r.rope_recommendation}`}.\n2. ${r.motor_note ? r.motor_note : `Hoist motor: specify ${r.motor_hp_std} HP (${r.motor_kW} kW), TEFC enclosure (IP55 minimum), Class F insulation, designed for S3 or S4 intermittent duty cycle per IEC 60034-1.`}\n3. Maintain safety factor not less than ${inputs.safety_factor}:1 per ASME B30.2 (selected rope MBF / gross load). Do not exceed the rated SWL of ${inputs.rated_load_kg} kg under any circumstances; tag SWL plate on hoist body.\n4. ${r.lifting_medium === 'load chain' ? 'Load chain inspection schedule per ASME B30.16' : 'Wire rope inspection schedule per ASME B30.2'} and DOLE D.O. 13: daily visual (broken wires, kinks, bird-caging, corrosion), monthly detailed (rope diameter measurement, lay length, end termination integrity), annual third-party. Remove from service if broken wires exceed 10 percent of total wires in one rope lay or 3 broken wires in one strand.\n5. Maintain not less than 3 dead wraps on the drum at all times (drum anchor is not rated for full working load per ASME B30.2 Section 2-1.13.3).\n6. Drum D/d ratio not less than 18 for ASME B30.2 wire rope hoists (drum dia divided by rope dia); sheave D/d ratio not less than 16. Verify drum specification matches the selected rope diameter.\n7. Runway beam and support structure must be verified by a PRC-licensed Structural Engineer for ${r.gross_load_kg} kg gross load with 1.25 dynamic impact factor (per ASME B30.2 Section 2-1.3.2); include end stop impact loading.\n8. Philippines: hoists above 1 tonne require DOLE-accredited riggers (DOLE D.O. 13 Section 4) and third-party inspection certificate before commissioning. Static proof load test at 125 percent SWL = ${Math.round(Number(inputs.rated_load_kg || 0) * 1.25)} kg held 10 minutes; dynamic test at 100 percent SWL through full travel.\n9. Limit switches required at both upper and lower travel positions (ASME B30.16); test cut-off function before each shift. Pendant control IP65 with emergency-stop button.\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the load-test certificate before placing the hoist into routine service.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(`1. ${r.lifting_medium === 'load chain' ? `Provide ${r.rope_recommendation}` : `Provide wire rope with minimum breaking force not less than ${r.MBF_kN} kN. Recommended: ${r.rope_recommendation}`}.\n2. ${r.motor_note ? r.motor_note : `Hoist motor: specify ${r.motor_hp_std} HP (${r.motor_kW} kW), TEFC enclosure (IP55 minimum), Class F insulation, designed for S3 or S4 intermittent duty cycle per IEC 60034-1.`}\n3. Maintain safety factor not less than ${inputs.safety_factor}:1 per ASME B30.2 (selected rope MBF / the load on each part of rope = gross load / parts of line). Do not exceed the rated SWL of ${inputs.rated_load_kg} kg under any circumstances; tag SWL plate on hoist body.\n4. ${r.lifting_medium === 'load chain' ? 'Load chain inspection schedule per ASME B30.16' : 'Wire rope inspection schedule per ASME B30.2'} and DOLE D.O. 13: daily visual (broken wires, kinks, bird-caging, corrosion), monthly detailed (rope diameter measurement, lay length, end termination integrity), annual third-party. Remove from service if broken wires exceed 10 percent of total wires in one rope lay or 3 broken wires in one strand.\n5. Maintain not less than 3 dead wraps on the drum at all times (drum anchor is not rated for full working load per ASME B30.2 Section 2-1.13.3).\n6. Drum D/d ratio not less than 18 for ASME B30.2 wire rope hoists (drum dia divided by rope dia); sheave D/d ratio not less than 16. Verify drum specification matches the selected rope diameter.\n7. Runway beam and support structure must be verified by a PRC-licensed Structural Engineer for ${r.gross_load_kg} kg gross load with 1.25 dynamic impact factor (per ASME B30.2 Section 2-1.3.2); include end stop impact loading.\n8. Philippines: hoists above 1 tonne require DOLE-accredited riggers (DOLE D.O. 13 Section 4) and third-party inspection certificate before commissioning. Static proof load test at 125 percent SWL = ${Math.round(Number(inputs.rated_load_kg || 0) * 1.25)} kg held 10 minutes; dynamic test at 100 percent SWL through full travel.\n9. Limit switches required at both upper and lower travel positions (ASME B30.16); test cut-off function before each shift. Pendant control IP65 with emergency-stop button.\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the load-test certificate before placing the hoist into routine service.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">

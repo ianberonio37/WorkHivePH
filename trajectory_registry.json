@@ -1175660,8 +1175660,8 @@
     },
     {
       "id": "ED321",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Hoist Capacity on engineering-design.html · solo-owner",
       "pages": [
@@ -1175715,6 +1175715,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hoist Capacity calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/hoist_capacity.py: the guide still stated the reeving error fixed in the engine on 2026-09-16 ('Power = rope pull x lifting speed' - the rope runs n_parts times faster), a drum-flange formula the engine does not compute, and 'MBF = GL x Safety Factor'. Reading the MBF found an ENGINE defect: the rope's breaking force ignored the parts of line (ASME B30.2: the load on EACH part <= 1/5 of the MBF), so a 4-part hoist for 2045 kg was told to fit the 1-part 14 mm rope (>= 100 kN) where 8 mm (>= 25.08 kN) meets 5:1 - rope, drum and sheaves all oversize; the report's spec item judged the factor against the gross load. And the lift speed was rounded to 0.13 m/s before the power, cutting it 2.5% (2835 W for 2907). Guide names the form's 'Parts of Line' and explains its Safety Factor field; the report's MBF and power lines reproduce. Oracle vector fails on the old engine; reeving invariant holds (2729 -> 3006 W, 1 -> 6 parts, sheave loss only); walked on the served page at 390, 4 parts: source python, 'MBF = (2045 kg / 4) x 5 = 2556.25 kg (25.08 kN)', '5451 N x 0.5333 m/s = 2907 W'. WALKED: Hoist Capacity's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T20:26:42Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

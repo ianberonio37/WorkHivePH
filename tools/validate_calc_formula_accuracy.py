@@ -2280,6 +2280,21 @@ VECTORS = [
         ],
     },
     {
+        # ★THE PARTS OF LINE NEVER REACHED THE ROPE (2026-11-02, ED-G1 Hoist, read against the guide): MBF was gross load
+        # x SF whatever the reeving, so a 4-part hoist was told to fit the 1-part rope.
+        "module": "calcs.hoist_capacity",
+        "calc_type": "Hoist Capacity - each part of rope carries GL / parts (ASME B30.2)",
+        "standard": "ASME B30.2: (rated load + block) / parts of rope ≤ 1/5 of the rope's minimum breaking force",
+        "inputs": {"hoist_type": "Wire Rope Electric", "rated_load_kg": 2000, "hook_weight_kg": 30, "sling_weight_kg": 15,
+                   "lift_height_m": 6, "lift_speed_mpm": 8, "n_parts": 4, "safety_factor": 5, "mech_eff_pct": 82},
+        "asserts": [
+            {"path": "MBF_kN", "expected": 25.08, "tol": 0.02,
+             "note": "2045 kg / 4 parts × 5 = 2556.25 kg × 9.81 = 25.08 kN (gross × SF gave 100.31 - the 1-part rope)"},
+            {"path": "power_W", "expected_expr": "rope_pull_N * rope_speed_ms", "tol": 2,
+             "note": "the rope runs 4 × 8/60 m/s - reeving lowers the pull, not the power (2026-09-16 invariant)"},
+        ],
+    },
+    {
         "module": "calcs.vibration_analysis",
         "calc_type": "Vibration Analysis",
         "standard": "ISO 10816 / Rao — fn=(1/2π)√(k/m); cc=2√(k·m); ζ=c/cc",

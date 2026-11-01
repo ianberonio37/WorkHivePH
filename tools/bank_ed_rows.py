@@ -114,6 +114,17 @@ ENGINE_CHECKED["V-Belt Drive Design"] = (
     "old engine; walked on the served page at 390: source python, 'Corrected power per belt = 3.414 x 0.959 x 1.004 = "
     "3.287 kW/belt ... 2.74 -> 3 belts'. Open: the AI narrative called 7.5 kW the design power (it is 9.0); the door page's "
     "SPB example is a narrow ISO section the classical equation does not cover (still the old estimate).")
+ENGINE_CHECKED["Hoist Capacity"] = (
+    "FOUND AND FIXED, read against python-api/calcs/hoist_capacity.py: the guide still stated the reeving error fixed in the "
+    "engine on 2026-09-16 ('Power = rope pull x lifting speed' - the rope runs n_parts times faster), a drum-flange formula "
+    "the engine does not compute, and 'MBF = GL x Safety Factor'. Reading the MBF found an ENGINE defect: the rope's "
+    "breaking force ignored the parts of line (ASME B30.2: the load on EACH part <= 1/5 of the MBF), so a 4-part hoist for "
+    "2045 kg was told to fit the 1-part 14 mm rope (>= 100 kN) where 8 mm (>= 25.08 kN) meets 5:1 - rope, drum and "
+    "sheaves all oversize; the report's spec item judged the factor against the gross load. And the lift speed was "
+    "rounded to 0.13 m/s before the power, cutting it 2.5% (2835 W for 2907). Guide names the form's 'Parts of Line' and "
+    "explains its Safety Factor field; the report's MBF and power lines reproduce. Oracle vector fails on the old engine; "
+    "reeving invariant holds (2729 -> 3006 W, 1 -> 6 parts, sheave loss only); walked on the served page at 390, 4 parts: "
+    "source python, 'MBF = (2045 kg / 4) x 5 = 2556.25 kg (25.08 kN)', '5451 N x 0.5333 m/s = 2907 W'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

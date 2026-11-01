@@ -51,8 +51,13 @@ def calculate(inputs: dict) -> dict:
     gross_load_kg = rated_load_kg + hook_weight_kg + sling_weight_kg
     gross_load_kN = round(gross_load_kg * 9.81 / 1000.0, 2)
 
-    # Minimum breaking force required
-    MBF_kg = gross_load_kg * safety_factor
+    # Minimum breaking force required - per PART of rope (ASME B30.2: the rated load plus the block, divided by the parts
+    # of rope, shall not exceed 1/5 of the rope's minimum breaking force).
+    # ★THE PARTS OF LINE NEVER REACHED THE ROPE (2026-11-02, ED-G1 Hoist, read against the guide). This was gross load x SF
+    # whatever the reeving, so a 4-part hoist for 2045 kg was told to fit a 14 mm rope (MBF >= 100 kN) when each part
+    # carries 511 kg and an 8 mm rope (MBF >= 25 kN) meets the 5:1 design factor - the rope, the drum and the sheaves all
+    # specified oversize. One part is unchanged (100.31 kN).
+    MBF_kg = gross_load_kg / max(n_parts, 1) * safety_factor
     MBF_kN = round(MBF_kg * 9.81 / 1000.0, 2)
 
     # Rope efficiency (0.98 per sheave/part — standard for lubricated wire rope)
@@ -61,7 +66,8 @@ def calculate(inputs: dict) -> dict:
     rope_pull_N  = round(rope_pull_kg * 9.81)
 
     # Lift speed - this is the LOAD's speed, which is how a hoist is specified
-    speed_ms = round(lift_speed_mpm / 60.0, 2)
+    # unrounded - rounding 8 m/min to 0.13 m/s before the power cut it 2.5% (2835 W for 2907 at 4 parts); shown rounded
+    speed_ms = lift_speed_mpm / 60.0
 
     # ★THE ROPE MOVES n_parts TIMES FASTER THAN THE LOAD (2026-09-16). Reeving divides the rope TENSION
     # by n and multiplies the rope TRAVEL by n; power is their product and is therefore invariant - a
@@ -108,8 +114,10 @@ def calculate(inputs: dict) -> dict:
         "rope_efficiency_factor": rope_eff,
         "rope_pull_kg":           rope_pull_kg,
         "rope_pull_N":            rope_pull_N,
-        "speed_ms":               speed_ms,
+        "speed_ms":               round(speed_ms, 4),
         "power_W":                power_W,
+        "rope_speed_ms":          rope_speed_ms,   # n_parts x the hook speed - what the report's power line multiplies
+        "n_parts":                n_parts,
         "motor_hp_calc":          motor_hp_calc,
         "motor_hp_std":           motor_hp_std,
         "motor_kW":               motor_kW,
