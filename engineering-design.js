@@ -2515,10 +2515,11 @@ const GUIDES = {
       'Spherical shell (UG-27): t = P×R / (2×S×E − 0.2P)',
       'Ellipsoidal head 2:1 (UG-32): t = P×D / (2×S×E − 0.2P)',
       'Torispherical head (UG-32): t = 0.885×P×L / (S×E − 0.1P)',
-      'Flat head (UG-34): t = d×C×√(P/SE)  where C = 0.33 bolted',
+      'Flat head (UG-34): t = d × √(C × P / (S × E))  where C = 0.33 bolted',
       'MAWP (back-calc): P_max = S×E×t_net / (R + 0.6×t_net)',
       'Hydrostatic test (UG-99b): P_test = 1.3 × MAWP',
-      'Nozzle reinf. (UG-37): A_required = d × t_required',
+      'Nozzle reinf. (UG-37): A_required = d × tr, tr = seamless shell thickness at the SHELL radius (E = 1), d = bore + 2 CA',
+      '  A1 (shell excess) = d × (t_net − tr); a pad is needed when A1 < A_required (nozzle-neck area A2 not counted)',
       't_required = t_min + corrosion allowance (CA)',
       'P in MPa, R in mm (inner radius), S = allowable stress (MPa), E = joint efficiency',
     ],
@@ -2526,11 +2527,13 @@ const GUIDES = {
       { name: 'Design Pressure (bar)', tip: 'Maximum operating pressure plus a surge allowance (typically 10%). This is NOT the relief valve set pressure.' },
       { name: 'Design Temperature (°C)', tip: 'Maximum operating temperature. Allowable stress S decreases at elevated temperature: values above 300°C need separate lookup in ASME Sec.II Part D.' },
       { name: 'Inner Diameter (mm)', tip: 'Inside diameter of the shell. ASME formulas are based on inside radius R = ID/2.' },
+      { name: 'Shell Length', tip: 'Tangent-to-tangent length of the cylindrical shell. It sets the shell weight and volume only; the thickness, MAWP and test pressure do not depend on it.' },
       { name: 'Shell Material', tip: 'SA-516 Gr.70 is the most common carbon steel for moderate temperature service. Use SA-240 316 SS for corrosive service.' },
       { name: 'Head Type', tip: '2:1 Ellipsoidal is the standard choice: same thickness as shell, good pressure efficiency. Hemispherical is thinnest but most expensive to form. Flat heads are thickest: only for small, low-pressure vessels.' },
-      { name: 'Joint Efficiency (E)', tip: 'E=1.00 requires 100% radiographic (X-ray) examination of all welds. E=0.85 spot RT. E=0.70 no RT. Higher E means thinner shell but higher inspection cost.' },
+      { name: 'Weld Joint Efficiency', tip: 'E=1.00 requires 100% radiographic (X-ray) examination of all welds. E=0.85 spot RT. E=0.70 no RT. Higher E means thinner shell but higher inspection cost.' },
       { name: 'Corrosion Allowance (mm)', tip: 'Added to calculated minimum thickness. Use 1.6mm for water/steam, 3.2mm for mild process, 6.4mm for acidic service.' },
-      { name: 'Nozzle Diameter (mm)', tip: 'Nozzle openings weaken the shell. UG-37 requires that metal removed be replaced by reinforcement: this check determines if a pad is needed.' },
+      { name: 'No. Nozzles', tip: 'How many nozzles of this size the shell carries. Each is checked the same way (UG-37); the count goes to the bill of materials and the pads, if a pad is needed.' },
+      { name: 'Nozzle Dia.', tip: 'Nozzle openings weaken the shell. UG-37 requires that metal removed be replaced by reinforcement: this check determines if a pad is needed.' },
     ],
     notes: [
       'MAWP is the maximum allowable working pressure at the actual shell thickness: it will always be ≥ design pressure if the plate is adequate.',
@@ -32295,7 +32298,7 @@ function renderPressureVesselReport(inputs, r, narrative) {
           return `t<sub>head,min</sub> = 0.885 &times; P &times; L / (S &times; E &minus; 0.1 P) &nbsp; <em>(UG-32(e), torispherical)</em><br>
           t<sub>head,min</sub> = <strong>${r.t_head_min_mm} mm</strong>`;
         }
-        return `t<sub>head,min</sub> = d &times; C &times; &radic;(P / SE) &nbsp; <em>(UG-34, flat head)</em><br>
+        return `t<sub>head,min</sub> = d &times; &radic;(C &times; P / (S &times; E)), C = 0.33 &nbsp; <em>(UG-34, flat head)</em><br>
         t<sub>head,min</sub> = <strong>${r.t_head_min_mm} mm</strong>`;
       })()}<br>
       t<sub>head,required</sub> = t<sub>head,min</sub> + CA = ${r.t_head_min_mm} + ${r.corrosion_allowance_mm} = ${r.t_head_required_mm} mm<br>
@@ -32314,9 +32317,9 @@ function renderPressureVesselReport(inputs, r, narrative) {
     <p style="font-size:0.83rem;color:#333;">For each ${r.nozzle_diameter_mm} mm nozzle, compute reinforcement areas per UG-37:</p>
     <p style="font-size:0.83rem;color:#333;">
       A<sub>required</sub> = d &times; t<sub>r,shell</sub> &nbsp; <em>(area removed from shell by nozzle opening)</em><br>
-      where d = nozzle ID = ${r.nozzle_diameter_mm} mm, t<sub>r,shell</sub> = ${r.t_shell_min_mm} mm (per UG-27 above)<br>
-      A<sub>required</sub> = ${r.nozzle_diameter_mm} &times; ${r.t_shell_min_mm} = <strong>${r.nozzle_A_required_mm2} mm&sup2;</strong><br>
-      A<sub>available</sub> = (t<sub>actual</sub> &minus; t<sub>r</sub>) &times; (effective shell length) &nbsp; <em>(excess shell thickness within reinforcement zone)</em><br>
+      where d = nozzle bore + 2 &times; CA = ${r.nozzle_diameter_mm} + 2 &times; ${r.corrosion_allowance_mm} = ${(Number(r.nozzle_diameter_mm) + 2 * Number(r.corrosion_allowance_mm)).toFixed(1)} mm (corroded opening), t<sub>r,shell</sub> = ${r.nozzle_tr_nozzle_mm ?? r.t_shell_min_mm} mm (UG-27 at the shell radius, seamless E = 1)<br>
+      A<sub>required</sub> = ${(Number(r.nozzle_diameter_mm) + 2 * Number(r.corrosion_allowance_mm)).toFixed(1)} &times; ${r.nozzle_tr_nozzle_mm ?? r.t_shell_min_mm} = <strong>${r.nozzle_A_required_mm2} mm&sup2;</strong><br>
+      A<sub>available</sub> = d &times; (t<sub>net</sub> &minus; t<sub>r</sub>) &nbsp; <em>(excess shell metal within the reinforcement limit; the nozzle neck's own excess is not counted)</em><br>
       A<sub>available</sub> = <strong>${r.nozzle_A_available_mm2} mm&sup2;</strong>
     </p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>

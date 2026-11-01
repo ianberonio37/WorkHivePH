@@ -210,6 +210,16 @@ ENGINE_CHECKED["Bearing Life (L10)"] = (
     "0.25); field names are the form's, with a tip for Bearing Number (report only). Two vectors fail on the old engine; "
     "walked on the served page at 390 (Fa 2 kN): source python, 'P = 0.56 x 5 + 1.325 x 2 = 5.45 kN', 'L10h = ... = 1,178 "
     "hours' (old 1,525).")
+ENGINE_CHECKED["Pressure Vessel"] = (
+    "FOUND AND FIXED, read against python-api/calcs/pressure_vessel.py: the guide wrote the UG-34 flat head as "
+    "t = d x C x sqrt(P/SE) and the ENGINE implemented it so - the code is t = d x sqrt(C P / (S E)): C = 0.33 where the "
+    "code has sqrt(0.33) = 0.574, so every flat head was 42% thin (800 mm at 10 bar in SA-516-70: 22.5 mm, needs 39.1 -> a "
+    "45 mm plate, not 25). The UG-37 nozzle check computed tr at the NOZZLE's radius (0.36 mm against the shell's 2.91) and "
+    "counted the shell excess twice, so a pad was essentially never required - the form's default needs 300.4 mm2, has "
+    "50.4, and was told 'no pad'. Now tr at the shell radius (seamless E = 1), d = bore + 2 CA, A1 = d (t_net - tr), neck "
+    "area not counted (stated). The report's steps reproduce; field names are the form's, with tips for Shell Length and "
+    "No. Nozzles. The vector fails on the old engine; walked on the served page at 390 (Flat): source python, "
+    "'t = d x sqrt(C x P / (S x E)) ... 39.121 mm ... 45 mm', 'A_required = 103.2 x 2.911 = 300.4 mm2 ... A_available = 50.4'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

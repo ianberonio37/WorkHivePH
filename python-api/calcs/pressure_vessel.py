@@ -12,7 +12,7 @@ Methods:
   Spherical shell:   t = P×R / (2×S×E − 0.2P)     ASME VIII-1 UG-27(d)
   Ellipsoidal head:  t = P×D / (2×S×E − 0.2P)     ASME VIII-1 UG-32(d)
   Hemispherical head: t = P×R / (2×S×E − 0.2P)    ASME VIII-1 UG-32(c)
-  Flat head:         t = d × C × √(P/SE)           ASME VIII-1 UG-34
+  Flat head:         t = d × √(C × P / (S × E))     ASME VIII-1 UG-34(c)(2)
   Hydrostatic test:  P_test = 1.3 × MAWP × (S_test/S_design)  UG-99(b)
   Nozzle reinforcement: A_required = d × t_required  UG-37
 """
@@ -91,8 +91,13 @@ def _torispherical_head(P_MPa: float, D_mm: float, S_MPa: float, E: float) -> fl
 
 def _flat_head(P_MPa: float, d_mm: float, S_MPa: float, E: float,
                C: float = 0.33) -> float:
-    """ASME VIII-1 UG-34(c)(2) - flat head thickness (mm). C=0.33 bolted."""
-    return d_mm * C * math.sqrt(P_MPa / (S_MPa * E))
+    """ASME VIII-1 UG-34(c)(2) - flat head thickness (mm): t = d x sqrt(C P / (S E)). C=0.33 bolted.
+
+    ★C WAS OUTSIDE THE ROOT (2026-11-02, ED-G1 Pressure Vessel, read against the guide): this was d x C x sqrt(P/SE) -
+    0.33 where the code has sqrt(0.33) = 0.574 - so every flat head came out 42% thin: an 800 mm head at 10 bar in
+    SA-516-70 was 22.5 mm where UG-34 needs 39.1 mm.
+    """
+    return d_mm * math.sqrt(C * P_MPa / (S_MPa * E))
 
 
 def _mawp_cylinder(t_mm: float, R_mm: float, S_MPa: float, E: float) -> float:
@@ -101,17 +106,23 @@ def _mawp_cylinder(t_mm: float, R_mm: float, S_MPa: float, E: float) -> float:
 
 
 def _nozzle_reinforcement(t_shell_mm: float, d_nozzle_mm: float,
-                           P_MPa: float, S_MPa: float, E: float) -> dict:
+                           P_MPa: float, S_MPa: float, E: float,
+                           R_shell_mm: float = 0.0, CA_mm: float = 0.0) -> dict:
     """
-    ASME VIII-1 UG-37 nozzle reinforcement area check.
-    A_required = d × tr   (tr = required shell thickness)
-    A_available = excess metal in shell + nozzle neck
-    Simplified: checks if excess shell thickness provides required area.
+    ASME VIII-1 UG-37 nozzle reinforcement area check (shell excess only).
+    A_required = d x tr, F = 1; tr = required thickness of a SEAMLESS shell (E = 1) at the shell's own radius;
+    d = finished opening in the corroded condition = nozzle bore + 2 CA.
+    A1 = d x (t - tr): the excess shell metal inside the reinforcement limit (2d wide, less the opening d).
+    The nozzle neck's own excess (A2) is not counted - a heavier neck can avoid the pad this flags.
+
+    ★THE NOZZLE WAS CHECKED AGAINST ITSELF (2026-11-02, ED-G1 Pressure Vessel): tr was computed at the NOZZLE's radius
+    (0.36 mm for a 100 mm nozzle in an 800 mm shell at 10 bar - the shell needs 2.91) and the shell excess was counted
+    twice, so a pad was essentially never required: the form's default needs 300 mm2, has 50 mm2, and was told 'no pad'.
     """
-    tr_mm = _shell_thickness(P_MPa, d_nozzle_mm / 2, S_MPa, E)
-    A_req_mm2 = d_nozzle_mm * tr_mm
-    # Excess in shell (simplified: 2.5t excess each side)
-    A_avail_shell = (t_shell_mm - tr_mm) * d_nozzle_mm * 2
+    tr_mm = _shell_thickness(P_MPa, R_shell_mm if R_shell_mm > 0 else d_nozzle_mm / 2, S_MPa, 1.0)
+    d_open_mm = d_nozzle_mm + 2 * CA_mm
+    A_req_mm2 = d_open_mm * tr_mm
+    A_avail_shell = (t_shell_mm - tr_mm) * d_open_mm
     A_avail_shell = max(A_avail_shell, 0)
     pad_required  = A_avail_shell < A_req_mm2
     A_pad_mm2     = max(0, A_req_mm2 - A_avail_shell)
@@ -189,7 +200,7 @@ def calculate(inputs: dict) -> dict:
     P_test_MPa = P_test_bar / 10
 
     # ── Nozzle reinforcement ──────────────────────────────────────────────────
-    nozzle_check = _nozzle_reinforcement(t_net_mm, nozzle_dia_mm, P_MPa, S_MPa, E)
+    nozzle_check = _nozzle_reinforcement(t_net_mm, nozzle_dia_mm, P_MPa, S_MPa, E, R_mm, CA_mm)
 
     # ── Weight estimate ────────────────────────────────────────────────────────
     rho = mat["rho"]   # kg/m³

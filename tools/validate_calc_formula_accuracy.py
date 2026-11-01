@@ -1393,6 +1393,28 @@ VECTORS = [
         ],
     },
     {
+        # ★C OUTSIDE THE ROOT, AND A NOZZLE CHECKED AGAINST ITSELF (2026-11-02, ED-G1 Pressure Vessel, read against the guide):
+        # the flat head was d·C·√(P/SE) - 42% thin - and UG-37's tr was taken at the nozzle's radius with the shell excess
+        # counted twice, so no pad was ever required. Fails on that engine.
+        "module": "calcs.pressure_vessel",
+        "calc_type": "Pressure Vessel - UG-34 flat head and UG-37 nozzle reinforcement",
+        "standard": "ASME VIII-1 UG-34(c)(2) t = d·√(C·P/(S·E)); UG-37 A = d·tr (tr at the shell radius, E = 1), A1 = d·(t − tr)",
+        "inputs": {"design_pressure_bar": 10.0, "inner_diameter_mm": 800.0, "material": "SA-516 Gr.70 (Carbon Steel)",
+                   "joint_efficiency": "Full radiography (Type 1)", "corrosion_mm": 1.6, "vessel_type": "Cylindrical",
+                   "head_type": "Flat (bolted)", "nozzle_diameter_mm": 100, "n_nozzles": 2},
+        "asserts": [
+            {"path": "t_head_min_mm", "expected": 39.12, "tol": 0.02,
+             "note": "800·√(0.33·1.0/138) = 800·0.048901 = 39.12 mm (C outside the root gave 800·0.33·√(1/138) = 22.47)"},
+            {"path": "t_head_actual_mm", "expected": 45, "tol": 0, "note": "39.12 + 1.6 CA = 40.72 → next plate 45 mm (was 25)"},
+            {"path": "nozzle_A_required_mm2", "expected": 300.4, "tol": 0.2,
+             "note": "d = 100 + 2·1.6 = 103.2 mm; tr = 1.0·400/(138·1 − 0.6) = 2.911 mm; 103.2·2.911 = 300.4 mm²"},
+            {"path": "nozzle_A_available_mm2", "expected": 50.4, "tol": 0.2,
+             "note": "shell t_net = 5 − 1.6 = 3.4 mm; A1 = 103.2·(3.4 − 2.911) = 50.4 mm²"},
+            {"path": "nozzle_reinforcement_pad_required", "expected": True, "tol": 0,
+             "note": "50.4 < 300.4 → pad (or a heavier nozzle neck) required; the old check said none"},
+        ],
+    },
+    {
         "module": "calcs.gear_belt_drive",
         "calc_type": "Gear / Belt Drive (V-Belt)",
         "standard": "RMA IP-20 / Shigley Eq.17-1 — Lp = 2C + π(D+d)/2 + (D−d)²/4C",

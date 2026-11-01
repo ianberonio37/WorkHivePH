@@ -1175360,8 +1175360,8 @@
     },
     {
       "id": "ED285",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Pressure Vessel on engineering-design.html · solo-owner",
       "pages": [
@@ -1175415,6 +1175415,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pressure Vessel calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/pressure_vessel.py: the guide wrote the UG-34 flat head as t = d x C x sqrt(P/SE) and the ENGINE implemented it so - the code is t = d x sqrt(C P / (S E)): C = 0.33 where the code has sqrt(0.33) = 0.574, so every flat head was 42% thin (800 mm at 10 bar in SA-516-70: 22.5 mm, needs 39.1 -> a 45 mm plate, not 25). The UG-37 nozzle check computed tr at the NOZZLE's radius (0.36 mm against the shell's 2.91) and counted the shell excess twice, so a pad was essentially never required - the form's default needs 300.4 mm2, has 50.4, and was told 'no pad'. Now tr at the shell radius (seamless E = 1), d = bore + 2 CA, A1 = d (t_net - tr), neck area not counted (stated). The report's steps reproduce; field names are the form's, with tips for Shell Length and No. Nozzles. The vector fails on the old engine; walked on the served page at 390 (Flat): source python, 't = d x sqrt(C x P / (S x E)) ... 39.121 mm ... 45 mm', 'A_required = 103.2 x 2.911 = 300.4 mm2 ... A_available = 50.4'. WALKED: Pressure Vessel's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T22:41:23Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
