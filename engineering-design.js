@@ -1998,45 +1998,45 @@ const GUIDES = {
   },
 
   'Shaft Design': {
-    title: 'Shaft Design: ASME B17.1 / Shigley\'s Combined Loading Method',
-    subtitle: 'Sizes a solid circular shaft under combined torsion and bending using the ASME elliptic failure criterion. Determines the minimum shaft diameter for the applied loads and target safety factor, then selects the nearest standard shaft size.',
-    standards: ['ASME B17.1: Keys and Keyseats','ASME B106.1M: Design of Transmission Shafting','Shigley\'s Mechanical Engineering Design (ASME elliptic criterion)','PSME Code: Philippine Mechanical Engineering Code'],
+    title: 'Shaft Design: Shigley DE-Goodman Fatigue / ASME B106.1M',
+    subtitle: 'Sizes a solid circular shaft under fully reversed bending and steady torsion. The governing minimum diameter is the larger of the Shigley DE-Goodman fatigue diameter (with the keyseat or fillet stress concentration) and the ASME B106.1M elliptic diameter; the next standard size is selected and checked for twist, deflection and critical speed.',
+    standards: ['Shigley\u2019s Mechanical Engineering Design, 10th Ed.: Ch. 6 (endurance limit) and Ch. 7 (DE-Goodman shaft sizing)','ASME B106.1M: Design of Transmission Shafting (elliptic criterion, twist limit)','ASME B17.1: Keys and Keyseats','PSME Code: Philippine Mechanical Engineering Code'],
     formulas: [
       'Torque (T):',
       '  T = P × 9549 / n  (kW to N·m at n RPM)',
       '  or  T = P × 7121 / n  (HP to N·m)',
       '',
-      'Bending Moment (M):',
-      '  M = F × L  (transverse load × span between supports)',
+      'Bending Moment (M), load at midspan between two bearings:',
+      '  M = F × L / 4',
+      '  Design loads: Ma = Kb × M (fully reversed bending), Tm = Kt × T (steady torque)',
       '',
-      'ASME Elliptic Criterion (combined loading):',
-      '  d³ = (16 / π) × SF × √[ (Kb×M)² + (Kt×T)² ] / Ss_allow',
+      'DE-Goodman minimum diameter (Shigley Eq. 7-8), design factor n = 2.0:',
+      '  d³ = (16 n / π) × [ √(4 (Kf Ma)² + 3 (Kfs Ta)²) / Se + √(4 (Kf Mm)² + 3 (Kfs Tm)²) / Sut ]',
+      '  Kf / Kfs = 2.2 / 3.0 with a keyway (end-mill keyseat), 2.1 / 1.8 without (shoulder fillet r/d 0.05)',
+      '  Se = ka × kb × ke × 0.5 Sut   (machined surface, size factor, 90% reliability)',
       '',
-      'Where:',
-      '  Kb = bending shock factor (1.5–2.0 for minor shock)',
-      '  Kt = torsion shock factor (1.0–1.5 for minor shock)',
-      '  Ss_allow = allowable shear stress = 0.30 × Sut (for no keyway)',
-      '           = 0.18 × Sut (shaft with keyway: ASME reduction)',
-      '  Sut = ultimate tensile strength of shaft material (MPa)',
+      'ASME B106.1M elliptic diameter (shown beside it in the report):',
+      '  d³ = (16 / π) × √[ (Kb×M)² + (Kt×T)² ] / Ss_allow',
+      '  Ss_allow = min(0.30 Sy, 0.18 Sut), × 0.75 with a keyway',
+      '  Governing minimum = the larger of the two; select the next standard size',
       '',
-      'Angle of Twist (θ):',
-      '  θ = T × L / (G × J)  (radians)',
-      '  J = π × d⁴ / 32  (polar moment of inertia)',
-      '  G ≈ 80 GPa for steel',
+      'Checks at the selected size:',
+      '  σ\u2032 = √(σ² + 3τ²): σ = 32M/πd³ (bending), τ = 16T/πd³ (torsion)',
+      '  Angle of twist θ = T × L / (G × J), J = π d⁴ / 32, G = 80 GPa, limit 1°/m',
     ],
     fields: [
       { name: 'Power Transmitted', tip: 'Shaft power in kW or HP. This is the actual power being transmitted through the shaft: not the motor nameplate power. If unknown, use motor rated power × drive efficiency as an estimate.' },
       { name: 'Shaft Speed (RPM)', tip: 'Speed of the shaft being designed. For a motor shaft, use motor RPM. For a driven shaft, use the driven speed after the speed ratio. Torque is inversely proportional to speed: a slow shaft carries much higher torque than a fast one for the same power.' },
       { name: 'Transverse Load (F)', tip: 'Bending load acting perpendicular to the shaft axis. Sources: belt tension (tight + slack side resultant), gear tangential/radial force, overhung load from a pulley or coupling. This is often the dominant term in shaft sizing for belt-driven equipment.' },
-      { name: 'Support Span (L)', tip: 'Distance between the two bearing supports in mm. Longer span = larger bending moment = larger shaft diameter. For overhung loads (load applied outside the bearings), use the overhang distance instead.' },
-      { name: 'Shaft Material', tip: 'AISI 1045 (Sut = 570 MPa) is the standard Philippine shaft material: widely available. AISI 1020 (Sut = 380 MPa) for light-duty. AISI 4340 (Sut = 1035 MPa) for high-strength shafts. Material choice directly sets the allowable shear stress.' },
-      { name: 'Keyway Present', tip: 'A keyway introduces a stress concentration. ASME B106.1M reduces the allowable shear stress from 0.30×Sut to 0.18×Sut when a keyway is present. Always select "Yes" unless the shaft uses a shrink fit or spline instead of a key.' },
-      { name: 'Shock/Loading Type', tip: 'Kb and Kt shock factors per ASME B106.1M. Uniform/steady: Kb=1.0, Kt=1.0. Minor shock (fans, pumps): Kb=1.5, Kt=1.0. Moderate shock (compressors, conveyors): Kb=2.0, Kt=1.5. Heavy shock (crushers, presses): Kb=3.0, Kt=2.0.' },
+      { name: 'Support Span (L)', tip: 'Distance between the two bearing supports in mm; the load is taken at midspan, so M = F × L / 4. For an overhung pulley or coupling (load outside the bearings) the moment is F × overhang: enter a span of 4 × the overhang to get that moment. Entering the overhang itself gives a quarter of it and an undersized shaft. The deflection and critical-speed figures do not apply to an overhung load.' },
+      { name: 'Shaft Material', tip: 'AISI 1045 hot-rolled (Sut 570, Sy 310 MPa) is the standard Philippine shaft material: widely available. AISI 1020 hot-rolled (Sut 380, Sy 210 MPa) for light duty. AISI 4140 (Sut 965, Sy 830 MPa) and AISI 4340 (Sut 1170, Sy 1030 MPa) quenched and tempered for high-strength shafts. Sut sets the endurance limit Se and the Goodman diameter; Sy sets the yield check and the ASME allowable.' },
+      { name: 'Keyway Present?', tip: 'A keyway introduces a stress concentration. With Yes the fatigue sizing uses the end-mill keyseat factors Kf 2.2 (bending) and Kfs 3.0 (torsion); with No it uses a shoulder fillet, Kf 2.1 / Kfs 1.8. The ASME B106.1M allowable is also reduced by 25% with a keyway. Select Yes unless the shaft uses a shrink fit or spline instead of a key.' },
+      { name: 'Loading / Shock Type', tip: 'Kb and Kt shock factors per ASME B106.1M. Uniform/steady: Kb=1.0, Kt=1.0. Minor shock (fans, pumps): Kb=1.5, Kt=1.0. Moderate shock (compressors, conveyors): Kb=2.0, Kt=1.5. Heavy shock (crushers, presses): Kb=3.0, Kt=2.0.' },
     ],
     notes: [
-      'The ASME elliptic criterion is a conservative design method: it is appropriate for preliminary shaft sizing. For critical or highly cyclic applications, a full fatigue analysis (Goodman or Gerber criterion) should follow.',
-      'Standard shaft diameters available in Philippine market (mm): 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 90, 100, 110, 120. Always round UP to the next standard size.',
-      'Keyway stress concentration: the ASME 0.18×Sut factor already accounts for the stress concentration. Do not apply an additional Kt factor for the keyway on top of this.',
+      'The DE-Goodman diameter includes the keyseat or fillet stress concentration and usually governs; the ASME elliptic diameter carries no stress concentration factor and is shown as a cross-check. The report selects the next standard size above the larger of the two.',
+      'Standard shaft diameters used (mm): 10, 12, 15, 17, 20, 22, 25, 28, 30, 32, 35, 38, 40, 42, 45, 48, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 110, 120 and up. Always round UP to the next standard size.',
+      'Keyway stress concentration: apply it once. The fatigue sizing uses Kf / Kfs for the keyseat; the ASME elliptic check uses the 25% allowable reduction instead. Do not stack both on one method.',
       'For long shafts, check the angle of twist: ASME recommends limiting twist to 0.5–1.0°/meter of shaft length to prevent vibration and coupling problems.',
       'Critical speed (lateral): the shaft\'s natural frequency must be well above operating speed. Rule of thumb: critical speed should be at least 2× the operating speed. Use Dunkerley\'s method for multi-disk shafts.',
       'Philippine material sourcing: AISI 1045 cold-drawn shafting is available in round bar from steel distributors (Pag-asa Steel, Steel Asia). Verify the mill certificate Sut before use: re-rolled or imported bars may not meet AISI spec.',
@@ -17604,8 +17604,8 @@ function renderShaftDesignReport(inputs, results, narrative) {
     <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
         <div style="font-size:0.78rem;color:#777;">Min. Shaft Diameter</div>
-        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.d_min_mm} mm</div>
-        <div style="font-size:0.75rem;color:#555;">calculated</div>
+        <div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.d_min_goodman_mm ? Math.max(Number(r.d_min_mm), Number(r.d_min_goodman_mm)).toFixed(1) : r.d_min_mm} mm</div>
+        <div style="font-size:0.75rem;color:#555;">${r.d_min_goodman_mm && Number(r.d_min_goodman_mm) > Number(r.d_min_mm) ? 'governing: DE-Goodman fatigue' : 'governing: ASME elliptic'}</div>
       </div>
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;">
         <div style="font-size:0.78rem;color:#777;">Standard Shaft Selected</div>

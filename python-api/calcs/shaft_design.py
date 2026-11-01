@@ -8,9 +8,8 @@ Libraries: math (all formulas closed-form)
 
 Methods:
   Static:  Von Mises combined stress σ' = √(σ² + 3τ²)
-  Fatigue: ASME DE-Goodman criterion
-    16/πd³ × √[(Kf×Ma)² + ¾(Kfs×Ta)²]^0.5 / Se
-    + √[(Kf×Mm)² + ¾(Kfs×Tm)²]^0.5 / Sut ≤ 1/nf
+  Fatigue: DE-Goodman (Shigley Eq. 7-7 / 7-8)
+    1/n = 16/(πd³) × { √[4(Kf×Ma)² + 3(Kfs×Ta)²] / Se + √[4(Kf×Mm)² + 3(Kfs×Tm)²] / Sut }
   Deflection: δ = FL³/48EI (simply supported midpoint load)
   Critical speed: ωc = π²/L² × √(EI/ρA)  (Rayleigh-Ritz, simply supported)
 """
@@ -112,12 +111,18 @@ def _section_modulus(d_mm: float):
 def _goodman(d_mm: float, Ma_Nm: float, Mm_Nm: float,
              Ta_Nm: float, Tm_Nm: float,
              Kf: float, Kfs: float,
-             Se_MPa: float, Sut_MPa: float) -> dict:
+             Se_MPa: float, Sut_MPa: float, Sy_MPa: float | None = None) -> dict:
     """
-    ASME DE-Goodman (Shigley's Eq. 6-41):
-    σ'a = (16/πd³) × √[(Kf×Ma)² + ¾(Kfs×Ta)²]^0.5
-    σ'm = (16/πd³) × √[(Kf×Mm)² + ¾(Kfs×Tm)²]^0.5
-    n = 1 / (σ'a/Se + σ'm/Sut)
+    DE-Goodman (Shigley Eq. 7-5 to 7-7):
+    σ'a = (16/πd³) × √[4(Kf×Ma)² + 3(Kfs×Ta)²]    (bending σ = 32M/πd³, torsion τ = 16T/πd³, σ' = √(σ² + 3τ²))
+    σ'm = (16/πd³) × √[4(Kf×Mm)² + 3(Kfs×Tm)²]
+    n = 1 / (σ'a/Se + σ'm/Sut);  yield: n_y = Sy / σ'max (Eq. 7-15/7-16)
+
+    ★HALF THE STRESS (2026-11-02, ED-G1 Shaft Design, read against the guide): this computed σ' as
+    (16/πd³)·√[M² + ¾T²] - half the von Mises stress, since bending is 32M/πd³, not 16M/πd³. Every fatigue and yield
+    safety factor it reported was twice the real one, and the sizing below carried the same half, so every shaft came
+    out at 2^(-1/3) = 0.794 of its minimum diameter: the form's default (7.5 kW, 2000 N over 300 mm, keyway, minor shock)
+    was given Ø32 reporting n_f 2.21 - at Ø32 the real n_f is 1.10, and the minimum is 38.7 mm (Ø40).
     """
     d_m = d_mm * 1e-3
     coeff = 16 / (math.pi * d_m**3)   # 1/m³ × 1e-6 → MPa conversion handled by units
@@ -135,15 +140,16 @@ def _goodman(d_mm: float, Ma_Nm: float, Mm_Nm: float,
     Tm_f  = Tm_Nm_f  * 1000
     coeff_mm = 16 / (math.pi * d_mm**3)  # gives MPa directly
 
-    sigma_a = coeff_mm * math.sqrt(Ma_f**2 + 0.75 * Ta_f**2)
-    sigma_m = coeff_mm * math.sqrt(Mm_f**2 + 0.75 * Tm_f**2)
+    sigma_a = coeff_mm * math.sqrt(4 * Ma_f**2 + 3 * Ta_f**2)
+    sigma_m = coeff_mm * math.sqrt(4 * Mm_f**2 + 3 * Tm_f**2)
 
     lhs = sigma_a / Se_MPa + sigma_m / Sut_MPa
     nf  = 1 / lhs if lhs > 0 else 999
 
     # Von Mises yield check
-    sigma_max = coeff_mm * math.sqrt((Ma_f + Mm_f)**2 + 0.75 * (Ta_f + Tm_f)**2)
-    Sy_MPa    = Sut_MPa * 0.60   # approximate if not given
+    sigma_max = coeff_mm * math.sqrt(4 * (Ma_f + Mm_f)**2 + 3 * (Ta_f + Tm_f)**2)
+    if not Sy_MPa:
+        Sy_MPa = Sut_MPa * 0.60   # only when the material has no yield strength - the table gives every one
     ny        = Sy_MPa / sigma_max if sigma_max > 0 else 999
 
     return {
@@ -191,6 +197,7 @@ def calculate(inputs: dict) -> dict:
     SHOCK = {"Steady": (1.0, 1.0), "Minor": (1.5, 1.0), "Moderate": (2.0, 1.5), "Heavy": (3.0, 2.0)}
     shock_type = str(inputs.get("shock_type") or "Steady")
     Kb_shock, Kt_shock = SHOCK.get(shock_type, (1.0, 1.0))
+    M_raw_Nm, T_raw_Nm = M_Nm, T_Nm          # the operating moment and torque - what the report's M = F.L/4 and T = P/w show
     M_Nm = M_Nm * Kb_shock
     T_Nm = T_Nm * Kt_shock
 
@@ -242,22 +249,34 @@ def calculate(inputs: dict) -> dict:
     Mm_f   = Kf  * abs(Mm_Nm)  * 1000
     Tm_f   = Kfs * abs(Tm_Nm)  * 1000
 
-    A_coeff = math.sqrt(Ma_f**2 + 0.75 * Ta_f**2)
-    B_coeff = math.sqrt(Mm_f**2 + 0.75 * Tm_f**2)
+    A_coeff = math.sqrt(4 * Ma_f**2 + 3 * Ta_f**2)   # Shigley Eq. 7-8 - see _goodman for the half this once dropped
+    B_coeff = math.sqrt(4 * Mm_f**2 + 3 * Tm_f**2)
 
     # d³ = 16 n_design / π × (A/Se + B/Sut)  [mm³]
-    d_min_mm3 = 16 * n_design / math.pi * (A_coeff / Se_est + B_coeff / Sut)
-    d_min_mm  = d_min_mm3 ** (1/3)
+    # Se depends on d through the size factor kb, so iterate (Shigley Ex. 7-2): the first pass took kb at 25 mm, and a
+    # larger shaft has a lower Se - without the iteration a Ø38 shaft came out at n_f 1.96 against the design 2.0.
+    d_iter = d_est if d_est > 0 else 25.0
+    for _ in range(8):
+        Se_est   = _endurance_limit(mat, surface, d_iter, reliability)
+        d_min_mm = (16 * n_design / math.pi * (A_coeff / Se_est + B_coeff / Sut)) ** (1/3)
+        if abs(d_min_mm - d_iter) < 0.005:
+            break
+        d_iter = d_min_mm
 
-    # Select standard size
+    # Select standard size - the next one up whose own Se still gives the design factor
     d_std_mm = next((s for s in STD_DIAMETERS_MM if s >= d_min_mm), STD_DIAMETERS_MM[-1])
+    if d_est <= 0:
+        while d_std_mm < STD_DIAMETERS_MM[-1] and _goodman(d_std_mm, Ma_Nm, Mm_Nm, Ta_Nm, Tm_Nm, Kf, Kfs,
+                                                           _endurance_limit(mat, surface, d_std_mm, reliability),
+                                                           Sut, mat["Sy_MPa"])["nf_goodman"] < n_design:
+            d_std_mm = STD_DIAMETERS_MM[STD_DIAMETERS_MM.index(d_std_mm) + 1]
     d_used   = d_est if d_est > 0 else d_std_mm
 
     # Recompute Se with actual diameter
     Se = _endurance_limit(mat, surface, d_used, reliability)
 
     # ── Goodman check at selected diameter ────────────────────────────────────
-    goodman = _goodman(d_used, Ma_Nm, Mm_Nm, Ta_Nm, Tm_Nm, Kf, Kfs, Se, Sut)
+    goodman = _goodman(d_used, Ma_Nm, Mm_Nm, Ta_Nm, Tm_Nm, Kf, Kfs, Se, Sut, mat["Sy_MPa"])
 
     # ── Deflection ────────────────────────────────────────────────────────────
     E_Pa  = mat["E_GPa"] * 1e9
@@ -298,13 +317,14 @@ def calculate(inputs: dict) -> dict:
     G_Pa       = 80e9
     d_m_used   = d_used / 1000.0
     J_m4_used  = math.pi * d_m_used**4 / 32
-    twist_rad_per_m = abs(T_Nm) / (G_Pa * J_m4_used) if (G_Pa * J_m4_used) > 0 else 0.0
+    # stiffness under the OPERATING torque - the shock factor is a strength allowance, not a running load
+    twist_rad_per_m = abs(T_raw_Nm) / (G_Pa * J_m4_used) if (G_Pa * J_m4_used) > 0 else 0.0
     twist_deg_per_m = math.degrees(twist_rad_per_m)
     TWIST_LIMIT_DEG_M = 1.0
     twist_ok   = 0.0 < twist_deg_per_m <= TWIST_LIMIT_DEG_M
     # diameter to satisfy the limit: θ_lim = 32 T / (G π d⁴) → d = (32 T / (G π θ_lim))^¼
     theta_lim_rad = math.radians(TWIST_LIMIT_DEG_M)
-    d_twist_req_m = (32 * abs(T_Nm) / (G_Pa * math.pi * theta_lim_rad)) ** 0.25 if (T_Nm and theta_lim_rad) else 0.0
+    d_twist_req_m = (32 * abs(T_raw_Nm) / (G_Pa * math.pi * theta_lim_rad)) ** 0.25 if (T_raw_Nm and theta_lim_rad) else 0.0
     d_twist_required_mm = d_twist_req_m * 1000
     d_twist_std_mm = next((s for s in STD_DIAMETERS_MM if s >= d_twist_required_mm), STD_DIAMETERS_MM[-1])
 
@@ -312,8 +332,12 @@ def calculate(inputs: dict) -> dict:
         # Loads
         "power_kW":          power_kW,
         "speed_rpm":         speed_rpm,
-        "torque_Nm":         round(T_Nm, 2),
-        "bending_moment_Nm": round(M_Nm, 2),
+        "torque_Nm":         round(T_raw_Nm, 2),     # T = P/w - the report multiplies by Kt itself
+        "bending_moment_Nm": round(M_raw_Nm, 2),     # M = F.L/4 - the report multiplies by Kb itself
+        "design_torque_Nm":  round(T_Nm, 2),         # Kt x T - what the Goodman sizing used
+        "design_moment_Nm":  round(M_Nm, 2),         # Kb x M
+        "Kb":                Kb_shock,
+        "Kt":                Kt_shock,
 
         # Material
         "material":          mat_key,

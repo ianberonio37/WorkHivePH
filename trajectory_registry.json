@@ -1175058,8 +1175058,8 @@
     },
     {
       "id": "ED261",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Shaft Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1175113,6 +1175113,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Shaft Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/shaft_design.py: the guide described the ASME elliptic method with Ss = 0.30/0.18 Sut and M = F x L, while the engine sizes by Shigley DE-Goodman with M = F x L / 4. Reading the engine's von Mises term found an ENGINE defect: sigma' was (16/pi d3)sqrt(M2 + 3/4 T2) - HALF the real stress (bending is 32M/pi d3) - in the sizing, the fatigue check and the yield check, so every shaft came out at 0.794 of its minimum and every safety factor doubled: the form's default was given 32 mm at a reported n_f 2.21, real 1.10; it needs 40 mm (d_min 39.28, kb now iterated on d - Shigley Ex. 7-2 - and the size steps up until n_f >= 2). The yield check took Sy as 0.6 Sut instead of the material's Sy. The report applied Kb/Kt to a moment the engine had already factored (shock counted twice; 'M = F x L / 4' printed 225 for 150) - the engine returns the raw loads beside the design ones, and the summary card shows the governing minimum. The guide's overhung-load tip (enter the overhang as the span) gave a quarter of the moment - an undersized shaft; it now says enter 4 x the overhang. Materials are the engine's (4340: 1170, not 1035). Two oracle vectors fail on the old engine (the I1 vector's 38.70 re-derived by hand: 49.88); door page restamped (45 mm / 177.39 MPa); walked on the served page at 390: source python, 'M = 2000 N x 300 mm / 4 = 150.0', 'Combined load = sqrt[(1.5 x 150.0)2 + (1 x 49.4)2] = 230.4', Goodman 39.3 governs, 40 mm selected. WALKED: Shaft Design's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T19:57:37Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

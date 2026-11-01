@@ -89,6 +89,20 @@ ENGINE_CHECKED["Short Circuit"] = (
     "Field names are the form's. Two oracle vectors fail on the old engine; the door page's three figures restamped "
     "(21.35 kA / 41.04 kA / 14.79 MVA); walked on the served page at 390 (1000 kVA, 100 mm2, 25 kA): source python, every "
     "step reproduces - 'Isc = c x V_LL / (sqrt3 x Z_total) = 1.05 x 400 / (1.7321 x 0.012014) = 20.184 kA'.")
+ENGINE_CHECKED["Shaft Design"] = (
+    "FOUND AND FIXED, read against python-api/calcs/shaft_design.py: the guide described the ASME elliptic method with "
+    "Ss = 0.30/0.18 Sut and M = F x L, while the engine sizes by Shigley DE-Goodman with M = F x L / 4. Reading the engine's "
+    "von Mises term found an ENGINE defect: sigma' was (16/pi d3)sqrt(M2 + 3/4 T2) - HALF the real stress (bending is "
+    "32M/pi d3) - in the sizing, the fatigue check and the yield check, so every shaft came out at 0.794 of its minimum and "
+    "every safety factor doubled: the form's default was given 32 mm at a reported n_f 2.21, real 1.10; it needs 40 mm "
+    "(d_min 39.28, kb now iterated on d - Shigley Ex. 7-2 - and the size steps up until n_f >= 2). The yield check took Sy "
+    "as 0.6 Sut instead of the material's Sy. The report applied Kb/Kt to a moment the engine had already factored (shock "
+    "counted twice; 'M = F x L / 4' printed 225 for 150) - the engine returns the raw loads beside the design ones, and the "
+    "summary card shows the governing minimum. The guide's overhung-load tip (enter the overhang as the span) gave a "
+    "quarter of the moment - an undersized shaft; it now says enter 4 x the overhang. Materials are the engine's (4340: "
+    "1170, not 1035). Two oracle vectors fail on the old engine (the I1 vector's 38.70 re-derived by hand: 49.88); door "
+    "page restamped (45 mm / 177.39 MPa); walked on the served page at 390: source python, 'M = 2000 N x 300 mm / 4 = "
+    "150.0', 'Combined load = sqrt[(1.5 x 150.0)2 + (1 x 49.4)2] = 230.4', Goodman 39.3 governs, 40 mm selected.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

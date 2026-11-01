@@ -79,6 +79,10 @@
   "content_sha": "e4399ee36cc138d4",
   "stamped": "2026-10-31"
  },
+ "tools/shaft-design-calculator": {
+  "content_sha": "c23a98c174b6a783",
+  "stamped": "2026-11-02"
+ },
  "tools/short-circuit-calculator": {
   "content_sha": "16ae5093874ab32b",
   "stamped": "2026-11-02"

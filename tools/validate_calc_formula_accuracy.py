@@ -792,8 +792,31 @@ VECTORS = [
         "asserts": [
             {"path": "Kf", "expected": 2.2, "tol": 0.001, "note": "keyway Yes -> end-mill keyseat Kf 2.2 (fillet was 2.1)"},
             {"path": "Kfs", "expected": 3.0, "tol": 0.001, "note": "keyseat Kfs 3.0 (fillet was 1.8)"},
-            {"path": "d_min_mm", "expected": 38.7, "tol": 0.1,
-             "note": "Heavy: M x 3.0, T x 2.0 - the bending term dominates, d ~ 27.18 x ∛3 = 39 -> 38.70 mm (steady fillet: 26.38)"},
+            {"path": "d_min_mm", "expected": 49.88, "tol": 0.1,
+             "note": "Heavy: Ma = 3.0 x 150 = 450 N.m, Tm = 2.0 x 49.39 = 98.78 N.m; Kf 2.2 / Kfs 3.0 -> 990,000 / 296,350 N.mm. "
+                     "d³ = (32/π)(√(4·990000²)/Se + √(3·296350²)/570) with Se = 285·ka 0.83918·kb·ke 0.897 iterated on d: "
+                     "Se 188.89 @25 -> 48.76; 175.88 -> 49.85; 175.46 -> 49.89 mm (pinned 38.70 until 2026-11-02 - the half "
+                     "von Mises stress the next vector refutes)"},
+        ],
+    },
+    {
+        # ★HALF THE STRESS (2026-11-02, ED-G1 Shaft Design, read against the guide): σ' was (16/πd³)·√(M² + ¾T²) - half
+        # the von Mises stress (bending is 32M/πd³) - so every shaft came out at 0.794 of its minimum and every safety
+        # factor was doubled. The form's default was given Ø32 at a reported n_f 2.21; its real n_f there is 1.10.
+        "module": "calcs.shaft_design",
+        "calc_type": "Shaft Design - the von Mises stress is the full one (bending 32M/πd³)",
+        "standard": "Shigley Eq. 7-5/7-8 DE-Goodman: σ' = (16/πd³)√(4(Kf·M)² + 3(Kfs·T)²); kb iterated on d (Ex. 7-2)",
+        "inputs": {"power_kW": 7.5, "power_unit": "kW", "power_input": 7.5, "shaft_rpm": 1450, "transverse_load_N": 2000,
+                   "span_mm": 300, "material": "AISI 1045", "keyway": "Yes", "shock_type": "Minor"},
+        "asserts": [
+            {"path": "bending_moment_Nm", "expected": 150.0, "tol": 0.01,
+             "note": "M = F·L/4 = 2000 · 0.3 / 4 - the report applies Kb itself, so the engine returns the raw moment"},
+            {"path": "d_min_mm", "expected": 39.28, "tol": 0.05,
+             "note": "Ma = 1.5·150 = 225 -> Kf 2.2: 495,000 N.mm; Tm 49.39 -> Kfs 3.0: 148,180; d³ = 10.186·(990000/Se + "
+                     "256,656/570), Se 188.89 @25 mm -> 38.70; kb at 38.70 -> Se 180.27 -> 39.27; -> 39.29 mm"},
+            {"path": "d_standard_mm", "expected": 40, "tol": 0, "note": "next standard size (the half stress selected 32)"},
+            {"path": "sigma_a_MPa", "expected": 78.78, "tol": 0.1,
+             "note": "at Ø40: 32·495,000/(π·40³) = 15,840,000/201,062 = 78.78 MPa (the half stress gave 39.4 here)"},
         ],
     },
     {
