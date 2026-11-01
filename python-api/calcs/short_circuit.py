@@ -156,7 +156,13 @@ def calculate(inputs: dict) -> dict:
     cable_mm2      = float(inputs.get("cable_mm2",         50))
     cable_length_m = float(inputs.get("cable_length_m",    inputs.get("cable_len_m", 30)))
     cable_parallel = int  (inputs.get("cable_parallel",     1))
-    cable_temp_c   = float(inputs.get("cable_temp_c",      75))   # at max load (75°C THHN)
+    # ★THE MAXIMUM FAULT WAS COMPUTED ON A HOT CABLE (2026-11-02, ED-G1 Short Circuit, read against the guide). IEC 60909-0
+    # computes the MAXIMUM short-circuit current - the one a breaker's interrupting capacity is checked against - with
+    # conductor resistance at 20 °C; this used 75 °C (the cable at full load), a higher R and a LOWER fault current, while
+    # also applying c_max = 1.05 for the maximum case. For 1000 kVA / 4.5 % / 30 m of 100 mm2 it gave 19.14 kA and
+    # recommended a 20 kA breaker; at 20 °C it is 20.18 kA and needs 25 kA. Hot-cable resistance belongs to the MINIMUM
+    # fault (protection sensitivity), which this calculator does not report.
+    cable_temp_c   = float(inputs.get("cable_temp_c",      20))   # IEC 60909-0: maximum fault, conductors at 20 °C
 
     # Additional cable segment (optional - for bus to panel run)
     cable2_mm2     = float(inputs.get("cable2_mm2",         0))
@@ -301,6 +307,14 @@ def calculate(inputs: dict) -> dict:
         "Z_cable_ohm":  round(Z_c1 + Z_c2, 6),
         "Z_xfmr_ohm":   round(Z_trafo, 6),
         "Z_base_ohm":   round(voltage_lv**2 / (trafo_kva * 1000), 6),
+        "Z_source_ohm": round(Z_src, 6),
+        "R_total_ohm":  round(R_total, 6),
+        "X_total_ohm":  round(X_total, 6),
+        "R_xfmr_ohm":   round(R_trafo, 6),
+        "X_xfmr_ohm":   round(X_trafo, 6),
+        "source_fault_mva": source_mva,
+        "rho_cu_ohm_mm2_m": round(RHO_CU_20C * (1 + ALPHA_CU * (cable_temp_c - 20)), 5),
+        "cable_temp_c": cable_temp_c,
         "ic_check":     "PASS" if ocpd_adequate else "FAIL",
         "ic_min_recommended": rec_ocpd,
         "ic_margin":    round(ocpd_ka - Isc_3ph_kA, 3),

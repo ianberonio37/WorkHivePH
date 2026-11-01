@@ -1068,10 +1068,29 @@ VECTORS = [
         "inputs": {"xfmr_kva": 1000, "z_pct": 5.0, "voltage_ll": 400, "cable_mm2": 50, "cable_len_m": 10, "breaker_ic_kA": 10},
         "asserts": [
             {"path": "ocpd_provided_kA", "expected": 10.0, "tol": 0.001, "note": "the breaker the person chose, not the 25 kA default"},
-            {"path": "Isc_3ph_kA", "expected": 22.137, "tol": 0.05,
+            {"path": "Isc_3ph_kA", "expected": 22.927, "tol": 0.05,
              "note": "1000 kVA at 5% (I_FL 1443 A, transformer-only bound 28.9 kA) through the 250 MVA source and 10 m of 50 mm² "
-                     "= 22.1 kA - the 500 kVA default gave 11.2"},
-            {"path": "ocpd_adequate", "expected": False, "tol": 0, "note": "22.1 kA available > 10 kA interrupting rating: inadequate"},
+                     "at 20 °C (IEC 60909 maximum fault): R 0.005081 + X 0.009276 → Z 0.010577 Ω, 1.05·400/(√3·Z) = 22.93 kA - "
+                     "the 500 kVA default gave 11.2 (pinned 22.137 until 2026-11-02, the 75 °C cable the next vector refutes)"},
+            {"path": "ocpd_adequate", "expected": False, "tol": 0, "note": "22.9 kA available > 10 kA interrupting rating: inadequate"},
+        ],
+    },
+    {
+        # ★THE MAXIMUM FAULT ON A HOT CABLE (2026-11-02, ED-G1, read against the guide): IEC 60909-0 takes conductor
+        # resistance at 20 °C for the maximum short-circuit current; the engine used 75 °C, a lower fault, and here
+        # recommended a 20 kA breaker for a 20.18 kA fault.
+        "module": "calcs.short_circuit",
+        "calc_type": "Short Circuit - the maximum fault takes the cable at 20 °C",
+        "standard": "IEC 60909-0 - maximum Ik'' with R_L at 20 °C and c_max = 1.05; ip = κ·√2·Ik'', κ = 1.02 + 0.98·e^(−3R/X)",
+        "inputs": {"xfmr_kva": 1000, "z_pct": 4.5, "voltage_ll": 400, "cable_mm2": 100, "cable_len_m": 30, "breaker_ic_kA": 20},
+        "asserts": [
+            {"path": "Isc_3ph_kA", "expected": 20.184, "tol": 0.02,
+             "note": "R = 0.0014121 + 0.0000637 + (1/58)·30/100 = 0.0066482; X = 0.0070602 + 0.0006368 + 0.077·0.03 = "
+                     "0.010007; Z = 0.012014 Ω; 1.05·400/(√3·0.012014) = 20.18 kA (75 °C gave 19.14)"},
+            {"path": "recommended_ocpd_kA", "expected": 25, "tol": 0, "note": "next standard IC above 20.18 kA - not 20"},
+            {"path": "ocpd_adequate", "expected": False, "tol": 0, "note": "a 20 kA breaker cannot interrupt 20.18 kA"},
+            {"path": "Ip_peak_kA", "expected": 32.93, "tol": 0.05,
+             "note": "R/X 0.6644, κ = 1.02 + 0.98·e^(−1.993) = 1.1536; ip = 1.1536·√2·20.184 = 32.93 kA (not 1.8·Isc)"},
         ],
     },
     {

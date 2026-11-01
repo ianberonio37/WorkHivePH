@@ -6,16 +6,16 @@ Source: https://workhiveph.com/tools/short-circuit-calculator/
 
 Short Circuit Calculator
  G1+E3 
-**The Short Circuit Calculator finds the prospective fault current (kA) and peak at a board from the transformer and cable impedance. Example: for a 1000 kVA 5%-impedance transformer feeding a 400 V board via 30 m of 240 mm² cable, from a 250 MVA source, 3-phase fault = 21.05 kA, Peak = 39.22 kA, Fault level = 14.58 MVA (per IEC 60909-0:2016, PEC 2017 Art.2.40, IEEE 141 and IEEE 242).**
+**The Short Circuit Calculator finds the prospective fault current (kA) and peak at a board from the transformer and cable impedance. Example: for a 1000 kVA 5%-impedance transformer feeding a 400 V board via 30 m of 240 mm² cable, from a 250 MVA source, 3-phase fault = 21.35 kA, Peak = 41.04 kA, Fault level = 14.79 MVA (per IEC 60909-0:2016, PEC 2017 Art.2.40, IEEE 141 and IEEE 242).**
 How it works
 The calculator follows IEC 60909-0:2016, PEC 2017 Art.2.40, IEEE 141 and IEEE 242. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Electrical & Power)
 Inputs: a 1000 kVA 5%-impedance transformer feeding a 400 V board via 30 m of 240 mm² cable, from a 250 MVA source.
 ResultValue
-3-phase fault21.05 kA
-Peak39.22 kA
-Fault level14.58 MVA
+3-phase fault21.35 kA
+Peak41.04 kA
+Fault level14.79 MVA
 Computed by WorkHive's calculation engine when this page was built; standard: IEC 60909-0:2016, PEC 2017 Art.2.40, IEEE 141 and IEEE 242.
 How to use this calculator
 Read the worked example. It uses a 1000 kVA 5%-impedance transformer feeding a 400 V board via 30 m of 240 mm² cable, from a 250 MVA source and shows every number in the method.
@@ -36,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: f2f8cb80abb9f11b -->
+<!-- md-twin source-sha: 9af00f334434e4d1 -->

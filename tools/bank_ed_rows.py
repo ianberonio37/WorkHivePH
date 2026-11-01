@@ -78,6 +78,17 @@ ENGINE_CHECKED["Duct Sizing (Equal Friction)"] = (
     "dT = 24 L/s supply air' - 1000 x kW / (1.2 x dT) = 83 L/s, so a branch flow taken from a cooling load came out 3.5x "
     "too small. Its field names are the form's: 'Friction Rate', and one 'Duct Segment Schedule' tip in place of two "
     "for fields the form does not have.")
+ENGINE_CHECKED["Short Circuit"] = (
+    "FOUND AND FIXED, read against python-api/calcs/short_circuit.py: the guide gave the infinite-bus transformer formula "
+    "and 'Z_total = Z_transformer + Z_cable' (the engine adds the 250 MVA utility source and sums R and X separately, with "
+    "IEC 60909's c = 1.05), and 'Peak = 1.8 x Isc' (ip = kappa x sqrt2 x Isc - 1.8 is a typical kappa, so the guide's peak was "
+    "sqrt2 too low). Reading the copper resistivity found an ENGINE defect: the maximum fault was computed with the cable at "
+    "75 C while IEC 60909-0 takes 20 C for the maximum - 1000 kVA / 4.5% / 30 m of 100 mm2 gave 19.14 kA and recommended a "
+    "20 kA breaker; at 20 C it is 20.18 kA and needs 25 kA. The report's steps (0.0175 'at 75 C', V/(sqrt3 Z) without c, "
+    "1.8 x Isc, Z_xfmr + Z_cable) could not reproduce the engine's own figures - each step now shows the engine's value. "
+    "Field names are the form's. Two oracle vectors fail on the old engine; the door page's three figures restamped "
+    "(21.35 kA / 41.04 kA / 14.79 MVA); walked on the served page at 390 (1000 kVA, 100 mm2, 25 kA): source python, every "
+    "step reproduces - 'Isc = c x V_LL / (sqrt3 x Z_total) = 1.05 x 400 / (1.7321 x 0.012014) = 20.184 kA'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

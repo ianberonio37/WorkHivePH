@@ -1175,36 +1175,36 @@ const GUIDES = {
     subtitle: 'Calculates the available 3-phase symmetrical fault current at a distribution panel and verifies that the installed breaker interrupting capacity (IC) meets or exceeds the fault level. Required for PEC compliance and panel schedule submissions.',
     standards: ['Philippine Electrical Code (PEC) 2017: Article 1.30 (Short Circuit Current Rating)','IEEE Std 141 (Red Book): Recommended Practice for Electric Power Distribution','IEC 60909: Short-Circuit Currents in Three-Phase AC Systems','PEC Article 2.40 (Overcurrent Protection)'],
     formulas: [
-      'Transformer Impedance Method (most common for LV systems):',
-      '  Isc = kVA_transformer / (sqrt(3) x kV_secondary x Z%/100)',
-      '  where Z% = transformer impedance percent (typically 4-6% for Philippine distribution)',
+      'Impedances referred to the secondary (IEC 60909-0, maximum fault):',
+      '  Z_source = V_LL² / S_utility   (utility fault level 250 MVA assumed, X/R 10)',
+      '  Z_transformer = (V_LL² / kVA) × Z%/100   (split into R and X at X/R 5)',
+      '  R_cable = ρ × Length / Area, ρ_Cu = 1/58 Ω·mm²/m at 20°C (the maximum fault takes conductors at 20°C)',
+      '  X_cable = table reactance (Ω/km) × Length / 1000',
       '',
-      'Cable Impedance Reduction:',
-      '  Z_cable = (R + jX) x Length  [Ω]',
-      '  For copper THHN: R ≈ 0.0175 / conductor_area (Ω/m)',
-      '',
-      'Total Impedance:',
-      '  Z_total = Z_transformer + Z_cable',
-      '  Isc_panel = V_LL / (sqrt(3) x Z_total)',
+      'Total Impedance (resistances and reactances add separately):',
+      '  Z_total = √((R_src + R_xfmr + R_cable)² + (X_src + X_xfmr + X_cable)²)',
+      '  Isc_panel = c × V_LL / (√3 × Z_total),   c = 1.05 (IEC 60909 c_max, LV)',
+      '  Transformer alone (infinite bus, an upper bound): Isc = kVA / (√3 × kV × Z%/100)',
       '',
       'Breaker IC Check:',
-      '  IC_required >= Isc_panel  (PASS)',
-      '  IC_required < Isc_panel   (FAIL: upsize breaker)',
+      '  IC_installed >= Isc_panel  (PASS)',
+      '  IC_installed < Isc_panel   (FAIL: select the next standard IC rating above Isc)',
       '',
-      'Asymmetry Factor (X/R ratio):',
-      '  Peak fault = 1.8 x Isc  (conservative per IEC 60909)',
+      'Peak Fault Current (IEC 60909-0):',
+      '  κ = 1.02 + 0.98 × e^(−3R/X)',
+      '  ip = κ × √2 × Isc   (κ ≈ 1.8 at X/R ≈ 14: the peak is about 2.5 × Isc, not 1.8 × Isc)',
     ],
     fields: [
-      { name: 'Transformer kVA', tip: 'Installed transformer capacity at the nearest substation or distribution transformer serving the panel. Typical Philippine values: 25, 50, 75, 100, 167, 250, 500 kVA.' },
+      { name: 'Transformer kVA Rating', tip: 'Installed transformer capacity at the nearest substation or distribution transformer serving the panel. Typical Philippine values: 25, 50, 75, 100, 167, 250, 500 kVA.' },
       { name: 'Transformer Impedance (%Z)', tip: 'From the transformer nameplate. Philippine distribution transformers (MERALCO/coops): typically 4% for ≤100 kVA, 4.5% for 100-500 kVA, 5.5% for >500 kVA. Conservatively use 4% if unknown (gives highest fault current = worst case).' },
       { name: 'Secondary Voltage', tip: '380/400V three-phase (most Philippine industrial). 220/230V single-phase residential. Use 400V for three-phase commercial/industrial.' },
       { name: 'Cable Size (mm2)', tip: 'Conductor cross-section from the transformer secondary to the main panel. Larger cable = lower impedance = higher fault current at panel.' },
       { name: 'Cable Length (m)', tip: 'One-way cable run from transformer to the panel under study. Longer run = higher cable impedance = lower fault current at panel.' },
-      { name: 'Installed Breaker IC (kA)', tip: 'The interrupting capacity (IC) stamped on the breaker. Philippine standard: 6 kA (residential/small commercial), 10 kA (commercial), 25 kA (industrial), 50 kA (substation level). Check nameplate: do not assume.' },
+      { name: 'Installed Breaker IC Rating', tip: 'The interrupting capacity (IC) stamped on the breaker. Philippine standard: 6 kA (residential/small commercial), 10 kA (commercial), 25 kA (industrial), 50 kA (substation level). Check nameplate: do not assume.' },
     ],
     notes: [
       'Conservative approach: use the minimum transformer impedance (4%): this gives the maximum fault current, which is the worst-case for breaker sizing.',
-      'MERALCO primary supply: fault current at the transformer primary is typically 25 kA. The transformer impedance limits it on the secondary side.',
+      'The calculation assumes a utility fault level of 250 MVA at the transformer primary (X/R 10). The transformer impedance limits it on the secondary side; the source adds only a little impedance, so the result is close to the transformer-alone figure.',
       'A FAIL result means the breaker may rupture or explode during a fault event: this is a critical safety deficiency requiring immediate correction.',
       'Always check the IC of every breaker in the panel, not just the main breaker: branch breakers also need IC >= available fault current at the panel.',
       'For accuracy, request the utility company (MERALCO / local EC) for the available fault current at the point of connection.',
@@ -16897,19 +16897,22 @@ function renderShortCircuitReport(inputs, results, narrative) {
         <p style="margin-left:1rem;">Z_xfmr = Z_base × (%Z / 100) = ${r.Z_base_ohm} × ${inputs.z_pct/100} = <strong>${r.Z_xfmr_ohm} Ω</strong></p>
 
         <p><strong>Step 3: Cable Impedance (Z_cable)</strong></p>
-        <p style="margin-left:1rem;">R_cu = 0.0175 Ω·mm²/m (copper resistivity at 75°C)</p>
-        <p style="margin-left:1rem;">R_cable = (0.0175 / ${inputs.cable_mm2}) × ${inputs.cable_len_m} = <strong>${r.R_cable_ohm} Ω</strong></p>
+        <p style="margin-left:1rem;">ρ_Cu = ${r.rho_cu_ohm_mm2_m ?? 0.01724} Ω·mm²/m (copper at ${r.cable_temp_c ?? 20}°C: IEC 60909-0 takes conductors at 20°C for the maximum fault)</p>
+        <p style="margin-left:1rem;">R_cable = (${r.rho_cu_ohm_mm2_m ?? 0.01724} / ${inputs.cable_mm2}) × ${inputs.cable_len_m} = <strong>${r.R_cable_ohm} Ω</strong></p>
         <p style="margin-left:1rem;">X_cable = X_table(${inputs.cable_mm2} mm²) × ${inputs.cable_len_m} / 1000 = <strong>${r.X_cable_ohm} Ω</strong> (50 Hz, XLPE/PVC LV cable)</p>
         <p style="margin-left:1rem;">Z_cable = √(R_cable² + X_cable²) = √(${r.R_cable_ohm}² + ${r.X_cable_ohm}²) = <strong>${r.Z_cable_ohm} Ω</strong></p>
 
         <p><strong>Step 4: Total Impedance (Z_total)</strong></p>
-        <p style="margin-left:1rem;">Z_total = Z_xfmr + Z_cable = ${r.Z_xfmr_ohm} + ${r.Z_cable_ohm} = <strong>${r.Z_total_ohm} Ω</strong></p>
+        <p style="margin-left:1rem;">Z_source = V² / S_utility = (${inputs.voltage_ll})² / (${r.source_fault_mva ?? 250} MVA) = ${r.Z_source_ohm ?? ''} Ω (utility fault level assumed, X/R 10)</p>
+        <p style="margin-left:1rem;">Transformer R / X at X/R 5: ${r.R_xfmr_ohm ?? ''} / ${r.X_xfmr_ohm ?? ''} Ω</p>
+        <p style="margin-left:1rem;">Z_total = √((ΣR)² + (ΣX)²) = √(${r.R_total_ohm ?? ''}² + ${r.X_total_ohm ?? ''}²) = <strong>${r.Z_total_ohm} Ω</strong> (source + transformer + cable, resistances and reactances added separately)</p>
 
         <p><strong>Step 5: 3-Phase Symmetrical Fault Current (Isc)</strong></p>
-        <p style="margin-left:1rem;">Isc = V_LL / (√3 × Z_total) = ${inputs.voltage_ll} / (1.7321 × ${r.Z_total_ohm}) = <strong>${r.Isc_kA} kA rms</strong></p>
+        <p style="margin-left:1rem;">Isc = c × V_LL / (√3 × Z_total) = ${r.c_factor ?? 1.05} × ${inputs.voltage_ll} / (1.7321 × ${r.Z_total_ohm}) = <strong>${r.Isc_kA} kA rms</strong> (IEC 60909 voltage factor c_max)</p>
 
         <p><strong>Step 6: Asymmetrical Peak Fault Current</strong></p>
-        <p style="margin-left:1rem;">Ipeak = 1.8 × Isc = 1.8 × ${r.Isc_kA} = <strong>${r.Ipeak_kA} kA peak</strong> (IEC 60909 asymmetry factor)</p>
+        <p style="margin-left:1rem;">κ = 1.02 + 0.98 × e^(−3R/X) = <strong>${r.kappa ?? ''}</strong> (R/X = ${r.R_total_ohm && r.X_total_ohm ? (r.R_total_ohm / r.X_total_ohm).toFixed(3) : ''})</p>
+        <p style="margin-left:1rem;">ip = κ × √2 × Isc = ${r.kappa ?? ''} × 1.4142 × ${r.Isc_kA} = <strong>${r.Ipeak_kA} kA peak</strong> (IEC 60909-0 peak short-circuit current)</p>
 
         <p><strong>Step 7: Breaker IC Verification</strong></p>
         <p style="margin-left:1rem;">IC_installed = ${inputs.breaker_ic_kA} kA | Isc_available = ${r.Isc_kA} kA</p>
