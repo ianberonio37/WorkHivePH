@@ -2,6 +2,7 @@
  "updated": "2026-11-01",
  "note": "guides whose fields match their form exactly - a guide on this list that fails again is a regression",
  "passing": [
+  "Bearing Life (L10)",
   "Bolt Torque & Preload",
   "Clean Agent Suppression",
   "Compressed Air",

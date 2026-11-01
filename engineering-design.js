@@ -1985,7 +1985,11 @@ const GUIDES = {
       'Equivalent Dynamic Bearing Load (P):',
       '  P = X × Fr + Y × Fa',
       '  Fr = radial load (kN), Fa = axial load (kN)',
-      '  X, Y = load factors from ISO 281 Table (depends on bearing type and Fa/C0 ratio)',
+      '  X, Y = load factors from ISO 281 Table 3, set by f0·Fa/C0:',
+      '    Deep-groove ball: e = 0.19 to 0.44 and Y = 2.30 to 1.00 as f0·Fa/C0 rises from 0.17 to 6.9',
+      '    If Fa/Fr <= e: X = 1, Y = 0 (P = Fr); otherwise X = 0.56 and Y from the table',
+      '    C0 (static rating) is not on this form: the calculator takes C0 = 0.55·C and f0 = 14 (typical 62xx / 63xx)',
+      '    Tapered roller (about 15°): e = 0.40; P = Fr up to e, then 0.4·Fr + 1.5·Fa',
       '  For pure radial load: P = Fr (X=1, Y=0)',
       '',
       'Basic Rating Life (L10):',
@@ -1998,16 +2002,17 @@ const GUIDES = {
       '',
       'Adjusted Rating Life (Lna):',
       '  Lna = a1 × aISO × L10h',
-      '  a1 = reliability factor (1.0 at 90%, 0.62 at 95%, 0.21 at 99%)',
+      '  a1 = reliability factor (1.0 at 90%, 0.62 at 95%, 0.21 at 99%: the ISO 281:1990 values, slightly more conservative than the 2007 edition\u2019s 0.64 and 0.25)',
       '  aISO = life modification factor (simplified: 1.0 for standard industrial conditions)',
     ],
     fields: [
+      { name: 'Bearing Number', tip: 'Optional, for the report only (for example 6205-2RS): the calculator does not look the bearing up, so enter its C from the catalog below. Use the same catalog page for C0 when the bearing takes axial load.' },
       { name: 'Bearing Type', tip: 'Ball bearings (deep groove, angular contact): exponent p = 3. Roller bearings (cylindrical, tapered, spherical): exponent p = 10/3 ≈ 3.33. Roller bearings carry higher radial loads; ball bearings handle combined radial + axial better.' },
-      { name: 'Basic Dynamic Load Rating (C)', tip: 'From the bearing manufacturer\'s catalog (SKF, FAG, NSK, NTN, Timken). The C rating is the constant load under which the bearing achieves L10 = 1 million revolutions. Always use the catalog C value for the specific bearing number being checked.' },
+      { name: 'Dynamic Load Rating (C)', tip: 'From the bearing manufacturer\'s catalog (SKF, FAG, NSK, NTN, Timken). The C rating is the constant load under which the bearing achieves L10 = 1 million revolutions. Always use the catalog C value for the specific bearing number being checked.' },
       { name: 'Radial Load (Fr)', tip: 'Force acting perpendicular to the shaft axis. For belt drives: Fr = tight-side tension + slack-side tension. For gear drives: Fr = tangential force / cos(pressure angle). Units: kN.' },
       { name: 'Axial Load (Fa)', tip: 'Force acting along the shaft axis. Thrust from helical gears, worm gears, or angled belt drives. For pure spur gear or V-belt drives with no misalignment: Fa ≈ 0. Units: kN.' },
       { name: 'Operating Speed', tip: 'Shaft speed in RPM at the bearing location. Life in hours is inversely proportional to speed: doubling the speed halves the life in hours.' },
-      { name: 'Reliability', tip: 'ISO 281 L10 = 90% reliability (10% of bearings fail before L10h). For critical equipment: specify L5 (95%) or L1 (99%). Reliability factor a1: 90%=1.0, 95%=0.62, 99%=0.21.' },
+      { name: 'Reliability Target', tip: 'ISO 281 L10 = 90% reliability (10% of bearings fail before L10h). For critical equipment: specify L5 (95%) or L1 (99%). Reliability factor a1: 90%=1.0, 95%=0.62, 99%=0.21.' },
       { name: 'Required Life (target)', tip: 'Target bearing service life in hours. Industrial standards: 20,000–30,000 h for electric motors and pumps, 40,000–60,000 h for gearboxes, 100,000+ h for critical continuous process equipment. Compare computed L10h against this target.' },
     ],
     notes: [
@@ -17734,6 +17739,7 @@ function renderBearingLifeReport(inputs, results, narrative) {
       <tr><td>Fa / Fr Ratio</td><td class="num">${r.Fa_Fr_ratio}</td></tr>
       <tr><td>Radial Load Factor (X)</td><td class="num">${r.X}</td></tr>
       <tr><td>Axial Load Factor (Y)</td><td class="num">${r.Y}</td></tr>
+      ${r.xy_basis ? `<tr><td>X, Y basis</td><td>${escHtml(String(r.xy_basis))}</td></tr>` : ''}
       <tr><td>Reliability</td><td class="num">${escHtml(String(inputs.reliability_pct))}% (L${100 - inputs.reliability_pct})</td></tr>
       <tr><td>Reliability Factor (a1)</td><td class="num">${r.a1}</td></tr>
     </table>

@@ -200,6 +200,16 @@ ENGINE_CHECKED["Bolt Torque & Preload"] = (
     "as 600 MPa where the engine and ISO 898-1 use 580 MPa for d <= 16 mm. Field names are the form's (Preload Target, "
     "Number of Bolts in Joint). The vector fails on the old engine; walked on the served page at 390 (100 kN, 2 bolts): "
     "source python, 'Minimum bolts required (SF >= 1.5) = ceil(100 x 1.5 / 68.3) = 3 bolts ... 2: Status: FAIL'.")
+ENGINE_CHECKED["Bearing Life (L10)"] = (
+    "FOUND AND FIXED, read against python-api/calcs/bearing_life.py: the guide said X, Y come from the ISO 281 table by "
+    "Fa/C0; the engine keyed a made-up table on Fa/Fr (thresholds 0.44, 0.72, 1.02 ... match no ISO column), so any axial "
+    "load up to 0.44 Fr was dropped - ISO's e is 0.19-0.44 by f0 Fa/C0 - and a roller took P = 0.4 Fr + 1.5 Fa for ANY "
+    "axial load: at Fa = 0.1 Fr, P = 0.55 Fr, below the radial load, life overstated 7.3x. Now ISO 281 Table 3 (deep-groove, "
+    "normal clearance, interpolated) with the catalog C0 when given, else C0 = 0.55 C and f0 = 14, stated in the report; "
+    "rollers e = 0.40. The guide's a1 values are ISO 281:1990's (labelled as such - conservative against 2007's 0.64 / "
+    "0.25); field names are the form's, with a tip for Bearing Number (report only). Two vectors fail on the old engine; "
+    "walked on the served page at 390 (Fa 2 kN): source python, 'P = 0.56 x 5 + 1.325 x 2 = 5.45 kN', 'L10h = ... = 1,178 "
+    "hours' (old 1,525).")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

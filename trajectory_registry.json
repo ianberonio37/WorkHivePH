@@ -1175295,8 +1175295,8 @@
     },
     {
       "id": "ED279",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Bearing Life (L10) on engineering-design.html · solo-owner",
       "pages": [
@@ -1175350,6 +1175350,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bearing Life (L10) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/bearing_life.py: the guide said X, Y come from the ISO 281 table by Fa/C0; the engine keyed a made-up table on Fa/Fr (thresholds 0.44, 0.72, 1.02 ... match no ISO column), so any axial load up to 0.44 Fr was dropped - ISO's e is 0.19-0.44 by f0 Fa/C0 - and a roller took P = 0.4 Fr + 1.5 Fa for ANY axial load: at Fa = 0.1 Fr, P = 0.55 Fr, below the radial load, life overstated 7.3x. Now ISO 281 Table 3 (deep-groove, normal clearance, interpolated) with the catalog C0 when given, else C0 = 0.55 C and f0 = 14, stated in the report; rollers e = 0.40. The guide's a1 values are ISO 281:1990's (labelled as such - conservative against 2007's 0.64 / 0.25); field names are the form's, with a tip for Bearing Number (report only). Two vectors fail on the old engine; walked on the served page at 390 (Fa 2 kN): source python, 'P = 0.56 x 5 + 1.325 x 2 = 5.45 kN', 'L10h = ... = 1,178 hours' (old 1,525). WALKED: Bearing Life (L10)'s Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T22:28:06Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

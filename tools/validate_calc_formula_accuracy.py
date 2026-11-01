@@ -992,6 +992,31 @@ VECTORS = [
         ],
     },
     {
+        # ★AXIAL LOAD (2026-11-02, ED-G1 Bearing Life, read against the guide): the old X/Y table ignored any Fa up to 0.44 Fr
+        # and keyed on no ISO column. Fails on that engine.
+        "module": "calcs.bearing_life",
+        "calc_type": "Bearing Life (L10) - ball X, Y from ISO 281 Table 3 by f0 Fa / C0",
+        "standard": "ISO 281 Table 3 (deep-groove, normal clearance); C0 estimated 0.55 C, f0 14 when the catalog C0 is absent",
+        "inputs": {"bearing_type": "Ball", "C_kN": 25.5, "Fr_kN": 5, "Fa_kN": 2.0, "speed_rpm": 1450, "reliability_pct": 90},
+        "asserts": [
+            {"path": "P_kN", "expected": 5.45, "tol": 0.01,
+             "note": "C0 = 0.55·25.5 = 14.025; f0·Fa/C0 = 14·2/14.025 = 1.996 → between rows 1.38 and 2.07: e = 0.336, "
+                     "Y = 1.325; Fa/Fr = 0.40 > e → P = 0.56·5 + 1.325·2 = 5.45 kN (the old table held P = 5.0)"},
+            {"path": "L10h", "expected": 1178, "tol": 2, "note": "(25.5/5.45)³ = 102.4 Mrev × 10⁶ / (60·1450) = 1178 h (old 1525)"},
+        ],
+    },
+    {
+        "module": "calcs.bearing_life",
+        "calc_type": "Bearing Life (L10) - a roller's P is never below its radial load",
+        "standard": "ISO 281: P = Fr while Fa/Fr <= e (tapered roller ~15°: e = 0.40), then 0.4 Fr + 1.5 Fa",
+        "inputs": {"bearing_type": "Roller", "C_kN": 25.5, "Fr_kN": 5, "Fa_kN": 0.5, "speed_rpm": 1450, "reliability_pct": 90},
+        "asserts": [
+            {"path": "P_kN", "expected": 5.0, "tol": 0.01,
+             "note": "Fa/Fr = 0.1 ≤ 0.40 → P = Fr = 5.0 kN (the old engine: 0.4·5 + 1.5·0.5 = 2.75, below the radial load)"},
+            {"path": "L10h", "expected": 2624, "tol": 2, "note": "(25.5/5)^(10/3) = 228.3 Mrev × 10⁶ / 87000 = 2624 h (old: 7.3× this)"},
+        ],
+    },
+    {
         "module": "calcs.load_estimation",
         "calc_type": "Load Estimation",
         "standard": "PEC 2017 — watts_each IS real power; PF not applied to kW",
