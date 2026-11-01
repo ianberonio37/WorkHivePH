@@ -546,7 +546,9 @@ const GUIDES = {
       'Backwash Flow (L/min) = Tank Cross-Section (m²) × 204 L/min/m²',
     ],
     fields: [
-      { name: 'Demand Source', tip: 'Direct entry: enter total daily water demand in L/day. By Occupancy: enter number of people and per capita use: system calculates demand automatically. Use By Occupancy for early-stage design; Direct Entry when the flow meter or water bill data is available.' },
+      { name: 'Demand Input Method', tip: 'Direct entry: enter total daily water demand in L/day. By Occupancy: enter number of people and per capita use: system calculates demand automatically. Use By Occupancy for early-stage design; Direct Entry when the flow meter or water bill data is available.' },
+      { name: 'Number of People', tip: 'Used only with By Occupancy: the persons the softened supply serves. Demand = people × per capita use.' },
+      { name: 'Per Capita Use', tip: 'Used only with By Occupancy: litres per person per day of softened water. Typical Philippine values: 150-250 L/person/day residential, 50-100 office; hotels and hospitals are better entered as a direct daily demand.' },
       { name: 'Daily Water Demand (L/day)', tip: 'Total volume of water to be softened per day. 1 m³/day = 1,000 L/day. Typical Philippine commercial: hotel 300-500 L/room/day, hospital 400-600 L/bed/day, laundry 50-80 L/kg dry linen, boiler makeup 5-10% of steam output.' },
       { name: 'Inlet Hardness (mg/L as CaCO3)', tip: 'Get this from your water quality test report. Philippine municipal water (MWSS/LWUA): typically 80-150 mg/L. Deep well groundwater: 150-400 mg/L. Very hard water >300 mg/L exceeds PNS 1998 limit and requires softening. 1 gpg = 17.1 mg/L.' },
       { name: 'Target Hardness (mg/L)', tip: 'Desired outlet hardness after softening. "Soft" = 17 mg/L (1 gpg) for general use. For boiler feed: 0-5 mg/L (effectively zero). For cooling tower makeup: 50-85 mg/L is acceptable. For laundry: 50 mg/L. Too soft (0 mg/L) can cause corrosion in copper pipes.' },

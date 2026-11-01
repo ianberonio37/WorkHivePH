@@ -253,6 +253,12 @@ ENGINE_CHECKED["Cable Tray Sizing"] = (
     "design fill 'Fill Ratio Limit (NEC 392.22)' - relabelled, with the NEC allowable area and its basis. Guide fields are "
     "the form's (Tray Run Length, Cable Schedule). The vector fails on the old engine; walked on the served page at 390: "
     "source python, '2a NEC 392.22 allowable 2963.3 mm2 (Column 1: 100 mm x 29.6 mm2/mm)'.")
+ENGINE_CHECKED["Water Softener Sizing"] = (
+    "READ AGAINST python-api/calcs/water_softener.py: gpg = mg/L / 17.1, daily load = demand x removal, load per cycle x "
+    "regen days x 1.20, resin = load / exchange capacity (35-55 g/L by salt dose; 45 g/L at 80 g/L is consistent with "
+    "resin data, ~19 kgr/ft3 at 5 lb/ft3 x 2.288), salt per regen and monthly - the engine's. FIXED: the guide named the "
+    "form's Demand Input Method 'Demand Source' and had no tip for Number of People or Per Capita Use (used only By "
+    "Occupancy). Read in the page by the guide prover at 390 and 1280.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
