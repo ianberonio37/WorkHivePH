@@ -849,6 +849,30 @@ VECTORS = [
         ],
     },
     {
+        # ★THE MAIN AT ANY SPEED (2026-11-02, ED-G1 Compressed Air, read against the guide): the pipe was the smallest within
+        # a 10%-of-working-pressure drop - 5 m3/min on 30 m got 25 mm at 19 m/s and 0.43 bar. Fails on that engine.
+        "module": "calcs.compressed_air",
+        "calc_type": "Compressed Air - the main is sized on the guide's velocity and a 0.1 bar drop",
+        "standard": "Guide: 8 m/s main (6 m/s over 50 m); network drop <= 0.1 bar (Atlas Copco); Design FAD = FAD x safety factor",
+        "inputs": {"flow_rate": 5, "working_pressure": 7, "pipe_length": 30, "safety_factor": 1.25},
+        "asserts": [
+            {"path": "recommended_pipe_mm", "expected": 50, "tol": 0,
+             "note": "Design FAD 6.25 m3/min x (1.01325/8.01325) / 60 = 0.013171 m3/s at 7 bar g; 40 mm (ID 40.9) runs 10.03 m/s "
+                     "> 8; 50 mm (ID 52.5) runs 6.08 m/s (the old engine chose 25 mm at 19 m/s)"},
+            {"path": "pipe_velocity_ms", "expected": 6.084, "tol": 0.01, "note": "0.013171 / (π·0.0525²/4 = 0.0021648) = 6.084 m/s"},
+        ],
+    },
+    {
+        "module": "calcs.compressed_air",
+        "calc_type": "Compressed Air - a main over 50 m holds 6 m/s",
+        "standard": "Guide: 6 m/s on runs over 50 m",
+        "inputs": {"flow_rate": 5, "working_pressure": 7, "pipe_length": 100, "safety_factor": 1.25},
+        "asserts": [
+            {"path": "recommended_pipe_mm", "expected": 65, "tol": 0,
+             "note": "0.013171 m3/s at <= 6 m/s needs ID >= 52.9 mm -> 65 mm (ID 62.7) at 4.27 m/s (the old engine: 32 mm at 10.9)"},
+        ],
+    },
+    {
         "module": "calcs.solar_pv",
         "calc_type": "Solar PV System",
         "standard": "IEC 62548 — topology + Vmp_hot < Vmp_stc < Voc_cold (temp-voltage physics)",

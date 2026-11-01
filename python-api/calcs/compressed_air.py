@@ -142,13 +142,14 @@ def _select_pipe(
     length_m: float,
     pressure_bar_g: float,
     temp_c: float,
-    max_dp_bar: float = 0.1,   # CAGI: max 10% pressure drop = 0.7 bar for 7 bar system
+    max_dp_bar: float = 0.1,   # across the distribution network (Atlas Copco Compressed Air Manual)
+    v_max_ms: float = 8.0,     # the guide's main-header velocity: 8 m/s, 6 m/s on runs over 50 m
 ) -> dict:
-    """Select smallest pipe that keeps pressure drop within limit."""
+    """Select the smallest pipe inside both the velocity limit and the pressure-drop limit."""
     for ps in PIPE_SIZES:
         id_m = ps["id_mm"] / 1000
         dp, v, Re = _pipe_pressure_drop(flow_fad_m3min, id_m, length_m, pressure_bar_g, temp_c)
-        if dp <= max_dp_bar:
+        if dp <= max_dp_bar and v <= v_max_ms:
             return {
                 "nominal_mm":  ps["nominal"],
                 "id_mm":       ps["id_mm"],
@@ -240,8 +241,9 @@ def calculate(inputs: dict) -> dict:
     recommended_hp = round(recommended_kw * 1.341, 1)
 
     # ── Receiver tank sizing - ISO 1217 ───────────────────────────────────────
-    # V = (Q * t * P_atm) / (P_max - P_min)
-    # t = 60s (1 min), P_max = working + 0.5 bar, P_min = working - 0.5 bar
+    # V = (Q * t * P_atm) / (P_max - P_min)  - CAGI draw-down, compressor stopped
+    # t = 60 s (1 min of the full demand with the compressor off - conservative), P_max = the working pressure (cut-out),
+    # P_min = 0.5 bar below it (cut-in). The comment here once said +/-0.5 bar; the code has always used the 0.5 bar band.
     Q_m3s   = flow_fad_m3min / 60
     P_max   = p_outlet_bar_a * 1e5
     P_min   = (pressure_bar_g - 0.5 + 1.01325) * 1e5
@@ -254,9 +256,15 @@ def calculate(inputs: dict) -> dict:
     rec_tank  = next((t for t in std_tanks if t >= V_tank * 1000), std_tanks[-1])
 
     # ── Distribution pipe sizing ───────────────────────────────────────────────
-    # CAGI: max pressure drop = 10% of working pressure
-    max_dp = pressure_bar_g * 0.10
-    pipe   = _select_pipe(flow_fad_m3min, pipe_length_m, pressure_bar_g, temp_c, max_dp)
+    # ★THE MAIN WAS SIZED TO LOSE 10% OF THE PRESSURE, AT ANY SPEED (2026-11-02, ED-G1 Compressed Air, read against the
+    # guide). This took the smallest pipe whose drop stayed under 10% of the working pressure (0.7 bar at 7 bar g) and
+    # never checked the velocity the guide sizes on ("8 m/s; 6 m/s on runs over 50 m"): 5 m3/min on a 30 m main got a
+    # 25 mm pipe at 19 m/s and 0.43 bar - every bar of drop costs about 7% compressor power. Now the design flow (FAD x
+    # safety factor, the guide's own 'Design FAD') inside both the guide's velocity and a 0.1 bar network drop.
+    max_dp = 0.1
+    v_max  = 6.0 if pipe_length_m > 50 else 8.0
+    design_fad_m3min = flow_fad_m3min * safety_factor
+    pipe   = _select_pipe(design_fad_m3min, pipe_length_m, pressure_bar_g, temp_c, max_dp, v_max)
 
     # ── Compressed air quality (ISO 8573-1 class reference) ───────────────────
     # Default: Class 1.4.2 suitable for general industrial use
@@ -291,6 +299,9 @@ def calculate(inputs: dict) -> dict:
         "pipe_id_mm":          pipe["id_mm"],
         "pipe_velocity_ms":    pipe["velocity_ms"],
         "pipe_dp_bar":         pipe["dp_bar"],
+        "pipe_velocity_limit_ms": v_max,
+        "pipe_dp_limit_bar":   max_dp,
+        "pipe_design_fad_m3min": round(design_fad_m3min, 3),
         "pipe_dp_pct":         round(pipe["dp_bar"] / pressure_bar_g * 100, 2),
 
         # Efficiency

@@ -139,6 +139,17 @@ ENGINE_CHECKED["Refrigerant Pipe Sizing"] = (
     "state the method. Two vectors fail on the old engine; two earlier vectors that had pinned engine numbers (Q/h_fg; "
     "0.94 K) re-derived by hand. Walked on the served page at 390 (Low-Temp): source python, '-10 C', 'm = Q / RE, RE = "
     "152.3 kJ/kg'.")
+ENGINE_CHECKED["Compressed Air"] = (
+    "FOUND AND FIXED, read against python-api/calcs/compressed_air.py: the guide says the main is 'sized at 8 m/s (6 m/s "
+    "over 50 m)'; the engine never checked velocity - it took the smallest pipe whose drop stayed under 10% of the working "
+    "pressure (0.7 bar at 7 bar g): 5 m3/min on a 30 m main got 25 mm at 19 m/s and 0.43 bar (each bar of drop costs ~7% "
+    "compressor power). Now the Design FAD (FAD x safety factor - the guide's own term) inside the guide's velocity and a "
+    "0.1 bar network drop: 50 mm at 6.08 m/s; 65 mm over 100 m. The guide's receiver labels were reversed (P1 'cut-in', "
+    "P2 'working' - the engine uses P1 = working = cut-out, P2 = 0.5 bar lower) and the engine's comment claimed a +/-0.5 "
+    "bar band it never used; the guide never stated the motor's duty-cycle up-size (/0.70) or the ISO 1217 power. The "
+    "report's pipe card claimed '@ 8 m/s' - it shows the velocity, the drop and their limits. Field name is the form's. "
+    "Two vectors fail on the old engine; walked on the served page at 390 (30 m main): source python, '15 mm 1.392 m/s "
+    "(limit 8), drop 0.0058 bar (limit 0.1)'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

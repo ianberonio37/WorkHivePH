@@ -1173146,8 +1173146,8 @@
     },
     {
       "id": "ED73",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Compressed Air on engineering-design.html · solo-owner",
       "pages": [
@@ -1173201,6 +1173201,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Compressed Air calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/compressed_air.py: the guide says the main is 'sized at 8 m/s (6 m/s over 50 m)'; the engine never checked velocity - it took the smallest pipe whose drop stayed under 10% of the working pressure (0.7 bar at 7 bar g): 5 m3/min on a 30 m main got 25 mm at 19 m/s and 0.43 bar (each bar of drop costs ~7% compressor power). Now the Design FAD (FAD x safety factor - the guide's own term) inside the guide's velocity and a 0.1 bar network drop: 50 mm at 6.08 m/s; 65 mm over 100 m. The guide's receiver labels were reversed (P1 'cut-in', P2 'working' - the engine uses P1 = working = cut-out, P2 = 0.5 bar lower) and the engine's comment claimed a +/-0.5 bar band it never used; the guide never stated the motor's duty-cycle up-size (/0.70) or the ISO 1217 power. The report's pipe card claimed '@ 8 m/s' - it shows the velocity, the drop and their limits. Field name is the form's. Two vectors fail on the old engine; walked on the served page at 390 (30 m main): source python, '15 mm 1.392 m/s (limit 8), drop 0.0058 bar (limit 0.1)'. WALKED: Compressed Air's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T21:00:42Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

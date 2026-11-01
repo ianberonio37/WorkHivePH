@@ -341,13 +341,20 @@ const GUIDES = {
       'Sub-total = After Diversity x (1 + leakage %)',
       'Design FAD = Sub-total x Safety Factor',
       '',
-      'Receiver tank (CAGI method):',
+      'Compressor motor (ISO 1217):',
+      'Isentropic power = (n/(n-1)) x Pa x Q x [(P2/Pa)^((n-1)/n) - 1], n = 1.4',
+      'Motor kW = isentropic / 0.85 (compressor) / 0.93 (motor), / duty cycle 0.70 (loaded 70% of the time), x Safety Factor',
+      '',
+      'Receiver tank (CAGI draw-down, compressor stopped):',
       'V (m3) = (Q x t x Pa) / (P1 - P2)',
-      'Q = compressor FAD (m3/min), t = 1 min, Pa = 1.01 bar(a)',
-      'P1 = cut-in pressure (bar(a)), P2 = working pressure (bar(a))',
+      'Q = demand FAD (m3/min), t = 1 min, Pa = 1.013 bar(a)',
+      'P1 = cut-out = working pressure (bar(a)), P2 = cut-in = 0.5 bar below it (bar(a))',
+      '',
+      'Distribution main:',
+      'Sized on the Design FAD: velocity <= 8 m/s (6 m/s on runs over 50 m) and pressure drop <= 0.1 bar (Darcy-Weisbach)',
     ],
     fields: [
-      { name: 'Tool / Equipment list', tip: 'Add every pneumatic tool that will be connected. Use the rated CFM from the tool nameplate or manufacturer spec. For unknown tools, use Custom and enter the CFM directly.' },
+      { name: 'Pneumatic Tools / Equipment', tip: 'Add every pneumatic tool that will be connected. Use the rated CFM from the tool nameplate or manufacturer spec. For unknown tools, use Custom and enter the CFM directly.' },
       { name: 'Working Pressure (bar(g))', tip: 'Pressure at the point of use. Most pneumatic tools work at 6-7 bar(g). Spray painting needs 4-5 bar(g). Sand blasting needs 6-8 bar(g).' },
       { name: 'Diversity Factor (ratio)', tip: 'Fraction of tools actually running at the same time. For a workshop: 0.5-0.7. For an assembly line: 0.7-0.9. Use 0.7 if unsure.' },
       { name: 'Safety Factor (ratio)', tip: '1.25 = 25% margin for future expansion and peaks. Always apply at least 1.20. Use 1.50 for systems expected to grow significantly.' },
@@ -358,7 +365,7 @@ const GUIDES = {
       'FAD (Free Air Delivery) is the compressor output in cubic feet per minute at standard atmospheric conditions (not at working pressure).',
       'Duty cycle is the fraction of time a tool is actually consuming air during operation. Impact wrench: ~25% (intermittent). Sand blaster: ~50% (continuous).',
       'Receiver tank stores air to handle peak demand without the compressor cycling too frequently. Larger tank = fewer starts per hour = longer compressor life.',
-      'Distribution pipe is sized at 8 m/s velocity. For long runs (>50 m), consider 6 m/s to limit pressure drop.',
+      'Distribution pipe is sized at 8 m/s velocity, 6 m/s for runs over 50 m, and no more than 0.1 bar drop across the network. Each 1 bar of drop costs about 7% more compressor power. Leave the length blank only for a short header; the velocity limit then governs.',
       'Standard compressor HP sizes available in PH: 1, 2, 3, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 75, 100 HP.',
       'Compressed air quality (ISO 8573): specify air dryer and filtration class depending on application: painting and food require higher quality than general workshop use.',
     ],
@@ -11942,7 +11949,8 @@ function renderAirReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Distribution Pipe</div>
           <div class="res-value">${results.recommended_pipe_mm} mm</div>
-          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">Nominal diameter @ 8 m/s</div>
+          ${results.pipe_velocity_limit_ms ? `<div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.pipe_velocity_ms} m/s (limit ${results.pipe_velocity_limit_ms}), drop ${results.pipe_dp_bar} bar (limit ${results.pipe_dp_limit_bar})</div>` : ''}
+          ${results.pipe_velocity_limit_ms ? '' : `<div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">Nominal diameter @ 8 m/s</div>`}
         </div>
       </div>
     </div>

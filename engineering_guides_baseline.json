@@ -3,6 +3,7 @@
  "note": "guides whose fields match their form exactly - a guide on this list that fails again is a regression",
  "passing": [
   "Clean Agent Suppression",
+  "Compressed Air",
   "Duct Sizing (Equal Friction)",
   "Harmonic Distortion",
   "Hoist Capacity",
