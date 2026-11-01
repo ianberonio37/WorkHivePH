@@ -171,7 +171,13 @@ def _select_tube(
     """
     Select smallest ASTM B280 ACR tube within velocity limits and ΔT_eq budget.
     Returns sizing dict.
+
+    ★THE BUDGET WAS COMPUTED AND NEVER USED (2026-11-01, found once the form's line lengths reached this engine): the loop
+    returned the first tube inside the velocity limits whatever its ΔT_eq, so a 60 m suction line kept a 19.05 mm tube at
+    2.04 K against the 1 K budget. Now: the smallest tube inside the velocity limits that also meets the budget; if none
+    does (a very long run), the velocity-valid tube with the least drop, still flagged dt_ok False.
     """
+    fits = []
     for od_mm in ACR_OD_MM:
         id_m = _acr_id(od_mm) / 1000
         A    = math.pi * (id_m / 2) ** 2
@@ -189,7 +195,7 @@ def _select_tube(
         # ΔT equivalent - ASHRAE: ΔP / (dpdt_sat × 1000)
         dt_eq  = dp_pa / (dpdt_kPaK * 1000)
 
-        return {
+        sized = {
             "od_mm":       od_mm,
             "id_mm":       round(_acr_id(od_mm), 3),
             "velocity_ms": round(v, 3),
@@ -201,6 +207,11 @@ def _select_tube(
             "dt_ok":       dt_eq <= dt_limit_K,
             "velocity_ok": vel_limits["min"] <= v <= vel_limits["max"],
         }
+        if sized["dt_ok"]:
+            return sized
+        fits.append(sized)
+    if fits:
+        return min(fits, key=lambda s: s["delta_T_eq_K"])
 
     # Fallback: largest size
     od_mm  = ACR_OD_MM[-1]
@@ -266,6 +277,27 @@ def calculate(inputs: dict) -> dict:
     discharge_len_m = float(inputs.get("discharge_length_m", 10.0))
     liquid_len_m  = float(inputs.get("liquid_length_m",  10.0))
     has_riser     = bool (inputs.get("has_suction_riser", False))
+    # ★THE FORM'S LINE SCHEDULE NEVER REACHED THE SIZING (2026-11-01, ED-I1 Refrigerant Pipe, census_calc_input_reach.py -
+    # found after the census learned shorthand keys). The page sends lines: [{name, line_type, equiv_length_m}]; this read
+    # the three *_length_m keys only, so every line was sized as 10 m whatever the run - 60 m lines gave the same answer as
+    # 15 m, and a long suction line's pressure drop (capacity loss, oil return) was never seen. Each scheduled line now sets
+    # its type's length; where two lines share a type the longest run governs (one size serves the worst run), and a
+    # "Suction: Riser" line turns the riser check on.
+    longest: dict[str, float] = {}
+    for ln in (inputs.get("lines") or []):
+        if not isinstance(ln, dict):
+            continue
+        lt = str(ln.get("line_type") or "")
+        L = float(ln.get("equiv_length_m") or 0)
+        kind = next((k for k in ("Suction", "Discharge", "Liquid") if lt.startswith(k)), None)
+        if kind is None or L <= 0:
+            continue
+        longest[kind] = max(longest.get(kind, 0.0), L)
+        if kind == "Suction" and "Riser" in lt:
+            has_riser = True
+    suction_len_m   = longest.get("Suction",   suction_len_m)
+    discharge_len_m = longest.get("Discharge", discharge_len_m)
+    liquid_len_m    = longest.get("Liquid",    liquid_len_m)
 
     # ── Refrigerant property lookup ───────────────────────────────────────────
     if refrigerant not in REFRIG_PROPS:

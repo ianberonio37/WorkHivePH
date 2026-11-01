@@ -1193113,8 +1193113,8 @@
     },
     {
       "id": "ED354",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Refrigerant Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1193167,6 +1193167,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Refrigerant Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-01] FOUND AND FIXED: the form sends lines: [{name, line_type, equiv_length_m}]; python-api/calcs/refrigerant_pipe.py read only suction/discharge/liquid_length_m (default 10 m), so every line was sized as 10 m - 60 m lines gave the same answer as 15 m. Once the lengths reached the engine they exposed a second defect: _select_tube returned the first tube inside the velocity limits whatever its ΔT_eq - the budget its docstring names was computed and never used - so a 60 m suction line kept 19.05 mm at 2.04 K against 1 K. Each line now sets its type's length (the longest run of a type governs; a riser line turns the riser check on) and the selector honours the budget (60 m suction -> 22.22 mm, 0.94 K). Oracle vector 'Refrigerant Pipe Sizing - the form's line lengths size the suction line within its budget' fails on the old engine; walked through the served path. Still flagged, for its R1 walk: the discharge line misses its ΔT budget even at 15 m because only one tube fits its velocity window. WALKED: Refrigerant Pipe Sizing: every value its form sends now reaches its engine (tools/census_calc_input_reach.py), and in the page through the Playwright MCP. HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {

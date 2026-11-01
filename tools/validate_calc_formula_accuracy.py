@@ -1577,6 +1577,23 @@ VECTORS = [
         ],
     },
     {
+        # ★THE FORM'S LINE SCHEDULE (2026-11-01, ED-I1 Refrigerant Pipe): the page sends lines[] with each run's equivalent
+        # length; the engine sized every line as 10 m, and its selector ignored the ΔT budget it computed. Fails on that engine.
+        "module": "calcs.refrigerant_pipe",
+        "calc_type": "Refrigerant Pipe Sizing - the form's line lengths size the suction line within its budget",
+        "standard": "ASHRAE Refrigeration Hbk: suction line ΔT_eq <= 1 K with oil-return velocity; Δp ∝ L",
+        "inputs": {"refrigerant": "R-410A", "capacity_kw": 10, "application": "Air Conditioning", "cond_temp_c": 45,
+                   "lines": [{"name": "Suction Line", "line_type": "Suction: Horizontal", "equiv_length_m": 60},
+                             {"name": "Discharge Line", "line_type": "Discharge", "equiv_length_m": 60},
+                             {"name": "Liquid Line", "line_type": "Liquid", "equiv_length_m": 60}]},
+        "asserts": [
+            {"path": "suction_horizontal.od_mm", "expected": 22.22, "tol": 0.01,
+             "note": "60 m: 19.05 mm gives 2.04 K (over the 1 K budget) - the next tube, 22.22 mm, gives 0.94 K at 5.9 m/s"},
+            {"path": "suction_horizontal.dt_ok", "expected": True, "tol": 0, "note": "inside the 1 K budget"},
+            {"path": "liquid.od_mm", "expected": 12.7, "tol": 0.01, "note": "60 m liquid line steps up from 9.52 mm"},
+        ],
+    },
+    {
         "module": "calcs.ahu_sizing",
         "calc_type": "AHU Sizing",
         "standard": "ASHRAE — sensible heat ṁ = Q_s/(cp·ΔT); V = ṁ/ρ (dep: psychrolib)",

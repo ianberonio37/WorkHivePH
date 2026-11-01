@@ -163,6 +163,16 @@ I1_FIXED["Compressed Air"] = (
     "own names) now sets demand = Σ CFM x qty x duty, x diversity, + leakage. Found only after the census learned the "
     "shorthand `tools,` - its first parser counted `name:` alone. Oracle vector 'Compressed Air - the form's tool list "
     "sizes the demand' fails on the old engine; walked through the served path (engineering-calc-agent).")
+I1_FIXED["Refrigerant Pipe Sizing"] = (
+    "FOUND AND FIXED: the form sends lines: [{name, line_type, equiv_length_m}]; python-api/calcs/refrigerant_pipe.py read "
+    "only suction/discharge/liquid_length_m (default 10 m), so every line was sized as 10 m - 60 m lines gave the same "
+    "answer as 15 m. Once the lengths reached the engine they exposed a second defect: _select_tube returned the first tube "
+    "inside the velocity limits whatever its ΔT_eq - the budget its docstring names was computed and never used - so a 60 m "
+    "suction line kept 19.05 mm at 2.04 K against 1 K. Each line now sets its type's length (the longest run of a type "
+    "governs; a riser line turns the riser check on) and the selector honours the budget (60 m suction -> 22.22 mm, 0.94 K). "
+    "Oracle vector 'Refrigerant Pipe Sizing - the form's line lengths size the suction line within its budget' fails on the "
+    "old engine; walked through the served path. Still flagged, for its R1 walk: the discharge line misses its ΔT budget "
+    "even at 15 m because only one tube fits its velocity window.")
 for _calc in ("Bearing Life (L10)", "HVAC Cooling Load"):
     I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py "
                        "RECORDED names the label as the reason) - the value it sends is a reference printed on the report, "
