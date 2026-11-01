@@ -259,6 +259,12 @@ ENGINE_CHECKED["Water Softener Sizing"] = (
     "resin data, ~19 kgr/ft3 at 5 lb/ft3 x 2.288), salt per regen and monthly - the engine's. FIXED: the guide named the "
     "form's Demand Input Method 'Demand Source' and had no tip for Number of People or Per Capita Use (used only By "
     "Occupancy). Read in the page by the guide prover at 390 and 1280.")
+ENGINE_CHECKED["Water Treatment System"] = (
+    "READ AGAINST python-api/calcs/water_treatment.py: peak = demand x factor / 24, filter area at 10 m/h (8 for iron), "
+    "backwash 25 m/h, chlorine by source, NaOCl 12% at 8.3 L per kg Cl2 (120 g/L available chlorine), contact tank on the "
+    "peak flow - the engine's. FIXED: the guide named fields the form does not have (Daily Demand (L/day), Turbidity "
+    "(NTU), Peak Factor) and omitted the form's Demand Input Method, Number of People and Per Capita Use; it now names the "
+    "form's six. Read in the page by the guide prover at 390 and 1280.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
