@@ -40,8 +40,11 @@ def calculate(inputs: dict) -> dict:
     # Liquid capacity: PDI GPM × 2 gal → litres (PDI G-101 §4.3)
     liquid_cap_l  = pdi_gpm * 2 * 3.78541
 
-    # Grease retention capacity: 1 lb per GPM (PDI G-101 §4.4)
-    grease_ret_kg = pdi_gpm * 0.4536
+    # Grease retention capacity: 2 lb per GPM of rated flow (PDI-G101 rating; IPC Table 1003.3.4.1 / UPC: "double the
+    # flow-through rating"; a maker's 10 GPM unit is rated 20 lb).
+    # ★HALF THE GREASE (2026-11-02, ED-G1 Grease Trap, read against the guide): this was 1 lb per GPM, so every trap's
+    # retention was reported at half its rating (15 GPM: 6.8 kg, rated 13.6) and the cleaning interval read half as long.
+    grease_ret_kg = pdi_gpm * 2 * 0.4536
 
     # Cleaning interval: based on FOG load (EPA / PPC §P-1006)
     # Clean when 25% of grease retention reached (best practice vs 50% code minimum)

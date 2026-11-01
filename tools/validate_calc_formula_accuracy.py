@@ -2033,7 +2033,7 @@ VECTORS = [
     {
         "module": "calcs.grease_trap",
         "calc_type": "Grease Trap Sizing",
-        "standard": "PDI G-101 — Q_design = Σflow·SUF → GPM → std size; 1 lb/GPM",
+        "standard": "PDI G-101 — Q_design = Σflow·SUF → GPM → std size; rated grease 2 lb/GPM",
         "inputs": {"fixtures": [{"flow_lpm": 30, "qty": 2}], "suf": 0.75, "meals_per_day": 0},
         "asserts": [
             {"path": "q_design_lpm", "expected": 45.0, "tol": 0.01,
@@ -2042,8 +2042,10 @@ VECTORS = [
              "note": "45 L/min · 0.26417 = 11.89 GPM (PDI G-101 flow method)"},
             {"path": "pdi_gpm", "expected": 15, "tol": 0,
              "note": "next PDI G-101 standard size ≥ 11.89 = 15 GPM"},
-            {"path": "grease_ret_kg", "expected": 6.8, "tol": 0.02,
-             "note": "1 lb/GPM · 15 = 15·0.4536 = 6.8 kg grease retention (PDI §4.4)"},
+            {"path": "grease_ret_kg", "expected": 13.61, "tol": 0.02,
+             "note": "PDI-G101 rating: grease capacity (lb) = 2 × flow rating (GPM) - a maker's 10 GPM unit is rated 20 lb; IPC/UPC "
+                     "'double the flow-through rating'. 15 GPM × 2 = 30 lb × 0.4536 = 13.61 kg (pinned 6.8 = 1 lb/GPM until "
+                     "2026-11-02, read off the engine)"},
         ],
     },
     {

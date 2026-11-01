@@ -161,6 +161,17 @@ ENGINE_CHECKED["Drainage Pipe Sizing"] = (
     "(was 100). Guide states the table and the WC limits; the report's override names its reason. Two vectors fail on the "
     "old engine; walked on the served page at 390: source python, 'upsized to 100 mm: 4 water closets, and UPC Table "
     "703.2 allows a 75 mm pipe at most 3 on a horizontal branch or drain'.")
+ENGINE_CHECKED["Grease Trap Sizing"] = (
+    "FOUND AND FIXED, read against python-api/calcs/grease_trap.py: the engine took grease retention as 1 lb per GPM "
+    "('PDI G-101 §4.4') - the PDI-G101 rating is twice the flow rating (a maker's 10 GPM unit is rated 20 lb; IPC/UPC "
+    "'double the flow-through rating'), so every trap's grease capacity was reported at half (15 GPM: 6.8 kg, rated 13.6) "
+    "and the oracle vector had pinned the engine's half. The page and guide cited 'PDI BH-201' 24 times - no such PDI "
+    "standard (G101 rates grease interceptors; WH-201 is water hammer arresters); the engine always said G-101. The guide "
+    "said the facility type sets a grease rate per meal (15/20/10 g) - the engine uses ~60 g FOG per meal for all, now "
+    "stated as the estimate it is; its cleaning note described 25% of the liquid capacity where the engine uses 25% of "
+    "the rated grease capacity. Field name is the form's. Vector re-derived by hand (13.61 kg) fails on the old engine; "
+    "walked on the served page at 390: source python, 'Grease retention capacity 3.63 kg (8.00 lbs)' for 4 GPM, no "
+    "BH-201 left in the report.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

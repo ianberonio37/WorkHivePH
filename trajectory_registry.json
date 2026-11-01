@@ -1174539,8 +1174539,8 @@
     },
     {
       "id": "ED207",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Grease Trap Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1174594,6 +1174594,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Grease Trap Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/grease_trap.py: the engine took grease retention as 1 lb per GPM ('PDI G-101 §4.4') - the PDI-G101 rating is twice the flow rating (a maker's 10 GPM unit is rated 20 lb; IPC/UPC 'double the flow-through rating'), so every trap's grease capacity was reported at half (15 GPM: 6.8 kg, rated 13.6) and the oracle vector had pinned the engine's half. The page and guide cited 'PDI BH-201' 24 times - no such PDI standard (G101 rates grease interceptors; WH-201 is water hammer arresters); the engine always said G-101. The guide said the facility type sets a grease rate per meal (15/20/10 g) - the engine uses ~60 g FOG per meal for all, now stated as the estimate it is; its cleaning note described 25% of the liquid capacity where the engine uses 25% of the rated grease capacity. Field name is the form's. Vector re-derived by hand (13.61 kg) fails on the old engine; walked on the served page at 390: source python, 'Grease retention capacity 3.63 kg (8.00 lbs)' for 4 GPM, no BH-201 left in the report. WALKED: Grease Trap Sizing's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T21:30:01Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

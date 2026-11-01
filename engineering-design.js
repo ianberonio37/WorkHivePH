@@ -208,7 +208,7 @@ const CALC_TYPES_UI = {
     { id: 'Drainage Pipe Sizing',      icon: '🏗️',desc: 'Drainage fixture units, pipe diameter', available: true, subcat: 'Drainage & Waste' },
     { id: 'Septic Tank Sizing',        icon: '🏭', desc: 'Tank capacity per occupancy', available: true, subcat: 'Drainage & Waste' },
     { id: 'Storm Drain / Stormwater',  icon: '🌧️',desc: "Rational Method catchment flow, Manning's: DPWH / PAGASA", available: true, subcat: 'Drainage & Waste' },
-    { id: 'Grease Trap Sizing',        icon: '🪣', desc: 'PDI BH-201 flow rate method, retention, cleaning interval', available: true, subcat: 'Drainage & Waste' },
+    { id: 'Grease Trap Sizing',        icon: '🪣', desc: 'PDI G-101 flow rate method, retention, cleaning interval', available: true, subcat: 'Drainage & Waste' },
     { id: 'Roof Drain Sizing',         icon: '🏠', desc: 'Drain body, vertical leader, horizontal leader: IPC §1106 / Philippine Plumbing Code', available: true, subcat: 'Drainage & Waste' },
     { id: 'Wastewater Treatment (STP)', icon: '♻️', desc: 'STP sizing: activated sludge, aeration, sludge: DENR DAO 2016-08', available: true, subcat: 'Drainage & Waste' },
   ],
@@ -680,10 +680,10 @@ const GUIDES = {
   },
 
   'Grease Trap Sizing': {
-    title: "Grease Trap Sizing: PDI BH-201 Flow Rate Method",
-    subtitle: "Sizes a grease trap (grease interceptor) for commercial kitchens and food service facilities using the Plumbing and Drainage Institute (PDI) BH-201 fixture flow rate method. Determines required flow rate capacity, liquid volume, grease retention capacity, and recommended cleaning interval.",
+    title: "Grease Trap Sizing: PDI G-101 Flow Rate Method",
+    subtitle: "Sizes a grease trap (grease interceptor) for commercial kitchens and food service facilities using the Plumbing and Drainage Institute (PDI) G-101 fixture flow rate method. Determines required flow rate capacity, liquid volume, grease retention capacity, and recommended cleaning interval.",
     standards: [
-      "PDI BH-201: Grease Interceptors (Plumbing and Drainage Institute)",
+      "PDI-G101: Testing and Rating Procedure for Hydromechanical Grease Interceptors (Plumbing and Drainage Institute)",
       "ASPE Data Book Vol. 2: Grease Interceptor Sizing (American Society of Plumbing Engineers)",
       "Philippine Plumbing Code (PPC): based on UPC/IPC, Section on Interceptors",
       "IAPMO/UPC Section 1015: Interceptors and Separators",
@@ -700,25 +700,25 @@ const GUIDES = {
       "PDI Standard Size = next standard size (GPM) ≥ Design GPM",
       "  PDI standard sizes: 4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100 GPM",
       "",
-      "Liquid Capacity (gallons) = PDI Size (GPM) × 2  [PDI BH-201]",
+      "Liquid Capacity (gallons) = PDI Size (GPM) × 2  [PDI G-101]",
       "Liquid Capacity (liters) = Liquid Capacity (gal) × 3.785",
       "",
-      "Grease Retention Capacity (lbs) = PDI Size (GPM) × 1  [PDI BH-201]",
+      "Grease Retention Capacity (lbs) = PDI Size (GPM) × 2  [PDI G-101 rating: twice the flow rating]",
       "Grease Retention Capacity (kg) = Grease Retention (lbs) × 0.4536",
       "",
       "Estimated Cleaning Interval (days) = (0.25 × Grease Retention kg) ÷ Daily Grease Load (kg/day)",
-      "  Daily Grease Load = Meals per Day × Grease per Meal factor (by facility type)",
+      "  Daily Grease Load = Meals per Day × 0.06 kg  (about 60 g of FOG per meal, all facility types: an estimate)",
     ],
     fields: [
-      { name: "Facility Type", tip: "Sets the Simultaneous Use Factor (SUF) and daily grease generation rate. Restaurant: SUF=0.75, ~15g grease/meal. Hotel Kitchen: SUF=0.75, ~20g/meal. Food Court: SUF=0.75, ~10g/meal. Food Processing: SUF=0.85, higher load. Institutional: SUF=0.75, ~8g/meal." },
+      { name: "Facility Type", tip: "Fills in the Simultaneous Use Factor and a typical meals-per-day: Restaurant 0.75 / 200 meals, Hotel Kitchen 0.75 / 150, Food Court 0.75 / 400, Food Processing 0.85 / 300, Institutional 0.75 / 250. Edit either value after choosing. The daily grease load is estimated at about 60 g of FOG per meal for every facility type; where the kitchen has a measured FOG load, size the cleaning interval from that instead." },
       { name: "Meals per Day", tip: "Total meal covers served daily: used to estimate daily grease load for computing cleaning interval. For food processing plants, enter daily production batches instead of meals." },
-      { name: "Fixture List", tip: "Add every kitchen fixture that will discharge through the grease trap. Only fixtures connected to the grease interceptor branch drain should be listed: general plumbing fixtures (toilets, lavatories) do not connect to grease traps. Double-check with the kitchen layout plan." },
-      { name: "Simultaneous Use Factor (SUF)", tip: "Fraction of all connected fixtures operating at the same time. PDI BH-201 default: 0.75 (75%). Higher for high-throughput industrial kitchens. Lower for small low-use pantries. Never set below 0.50 for commercial applications." },
+      { name: "Fixtures Connected to Grease Trap", tip: "Add every kitchen fixture that will discharge through the grease trap. Only fixtures connected to the grease interceptor branch drain should be listed: general plumbing fixtures (toilets, lavatories) do not connect to grease traps. Double-check with the kitchen layout plan." },
+      { name: "Simultaneous Use Factor (SUF)", tip: "Fraction of all connected fixtures operating at the same time. PDI G-101 default: 0.75 (75%). Higher for high-throughput industrial kitchens. Lower for small low-use pantries. Never set below 0.50 for commercial applications." },
     ],
     notes: [
-      "PDI BH-201 defines the flow rate method: grease trap capacity equals the design flow in GPM. A 10 GPM trap handles up to 10 GPM design flow, has 20 gallons (76L) liquid capacity and 10 lbs (4.5 kg) grease retention.",
+      "PDI G-101 defines the flow rate method: grease trap capacity equals the design flow in GPM. A 10 GPM trap handles up to 10 GPM design flow, has 20 gallons (76L) liquid capacity and 20 lbs (9.1 kg) grease retention: the rated grease capacity in pounds is twice the flow rating in GPM.",
       "DENR DAO 2016-08 limits FOG (fats, oils, grease) in effluent to 5 mg/L for Class D discharge. Without a properly sized grease interceptor, most commercial kitchens will exceed this limit.",
-      "Cleaning interval: PDI recommends cleaning when grease and solids fill 25% of the liquid capacity. For a typical restaurant, this is every 1–4 weeks. Exceeding the cleaning interval causes grease to pass through into the sewer.",
+      "Cleaning interval: this calculator schedules a clean when the trapped grease reaches 25% of the rated grease retention capacity (conservative; capped at 90 days). Gravity interceptors are commonly pumped when FOG plus solids reach 25% of the liquid depth. For a typical restaurant this is every 1 to 4 weeks; exceeding it passes grease to the sewer.",
       "Undersink grease traps (mechanical type): suitable for flow rates up to 4–10 GPM. Above 10 GPM, an in-ground gravity grease interceptor (1000L+) is required.",
       "All grease traps shall be accessible for inspection and pumping. In-ground interceptors shall have a minimum 300mm diameter access manhole for each compartment.",
       "The Philippine Plumbing Code requires a grease interceptor for every food service establishment connected to a public sewer.",
@@ -4656,7 +4656,7 @@ function renderInputForm(calcType) {
         </div>
         <div>
           <div class="field-label">Simultaneous Use Factor</div>
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">PDI BH-201 default: 0.75</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">PDI G-101 default: 0.75</div>
           <div class="input-group">
             <input aria-label="Simultaneous Use Factor" id="f-gt-suf" class="wh-input" type="number" value="0.75" min="0.50" max="1.0" step="0.01" />
             <span class="input-unit">SUF</span>
@@ -4672,7 +4672,7 @@ function renderInputForm(calcType) {
       </div>
       <div id="gt-fixture-list" style="display:flex;flex-direction:column;gap:4px;"></div>
       <div style="background:rgba(41,182,217,0.08);border:1px solid rgba(41,182,217,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
-        Method: PDI BH-201 Flow Rate Method. Q_design = Total fixture flow x SUF. PDI standard sizes: 4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100 GPM. Liquid capacity = PDI size x 2 gallons. Standards: PDI BH-201, ASPE, PPC.
+        Method: PDI G-101 Flow Rate Method. Q_design = Total fixture flow x SUF. PDI standard sizes: 4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100 GPM. Liquid capacity = PDI size x 2 gallons. Standards: PDI G-101, ASPE, PPC.
       </div>
     `;
     _gtRowId = 0;
@@ -11227,7 +11227,7 @@ function showReport() {
     } else if (_calcType === 'Septic Tank Sizing' && descEl) {
       descEl.textContent = 'Generates a septic tank cross-section showing 2-compartment layout with scum/liquid/sludge layers, inlet, outlet, leach field note and DENR BOD compliance badge per DENR DAO 2016-08 / DOH';
     } else if (_calcType === 'Grease Trap Sizing' && descEl) {
-      descEl.textContent = 'Generates a grease trap cross-section showing grease/water/sludge layers, baffles, inlet from kitchen sinks, outlet to sewer, and cleaning interval, per PDI BH-201 / Philippine Plumbing Code';
+      descEl.textContent = 'Generates a grease trap cross-section showing grease/water/sludge layers, baffles, inlet from kitchen sinks, outlet to sewer, and cleaning interval, per PDI G-101 / Philippine Plumbing Code';
     } else if (_calcType === 'Roof Drain Sizing' && descEl) {
       descEl.textContent = 'Generates a roof drain schematic showing drain bodies, vertical leaders, horizontal collector, overflow drains and flow badge per IPC §1106 / Philippine Plumbing Code';
     } else if (_calcType === 'Water Softener Sizing' && descEl) {
@@ -15664,7 +15664,7 @@ function renderGreaseTrapReport(inputs, results, narrative) {
   <div style="text-align:center;border-bottom:3px solid #0f766e;padding-bottom:16px;margin-bottom:24px;">
     <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#0f766e;font-weight:700;">Engineering Design Report</div>
     <!-- heading-allow: standalone calc report template --><h1 style="margin:8px 0 4px;font-size:24px;font-weight:800;color:#0f172a;">Grease Trap / Interceptor Sizing</h1>
-    <div style="font-size:13px;color:#64748b;">PDI BH-201 Flow Rate Method &bull; Philippine Plumbing Code &bull; DENR DAO 2016-08</div>
+    <div style="font-size:13px;color:#64748b;">PDI G-101 Flow Rate Method &bull; Philippine Plumbing Code &bull; DENR DAO 2016-08</div>
   </div>
 
   <!-- Section 1: Project Information -->
@@ -15686,14 +15686,14 @@ function renderGreaseTrapReport(inputs, results, narrative) {
   <!-- Section 2: Objective -->
   <div style="margin-bottom:20px;">
     <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Objective</h2>
-    <p style="font-size:13px;margin:0;">${narrative && narrative.objective ? escHtml(narrative.objective) : 'Size a grease trap / interceptor for the facility using the PDI BH-201 fixture flow rate method to comply with the Philippine Plumbing Code (PPC) and DENR DAO 2016-08 FOG discharge limit of 5 mg/L.'}</p>
+    <p style="font-size:13px;margin:0;">${narrative && narrative.objective ? escHtml(narrative.objective) : 'Size a grease trap / interceptor for the facility using the PDI G-101 fixture flow rate method to comply with the Philippine Plumbing Code (PPC) and DENR DAO 2016-08 FOG discharge limit of 5 mg/L.'}</p>
   </div>
 
   <!-- Section 3: References -->
   <div style="margin-bottom:20px;">
     <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">References / Standards</h2>
     <ul style="font-size:13px;margin:0;padding-left:20px;line-height:1.8;">
-      <li>PDI BH-201: Hydro-Mechanical Grease Interceptor Standard</li>
+      <li>PDI G-101: Hydro-Mechanical Grease Interceptor Standard</li>
       <li>ASPE Plumbing Engineering Design Handbook, Vol. 2</li>
       <li>Philippine Plumbing Code (PPC): Grease Trap Requirements</li>
       <li>IAPMO/UPC Section 1015: Grease Interceptors</li>
@@ -15705,7 +15705,7 @@ function renderGreaseTrapReport(inputs, results, narrative) {
   <div style="margin-bottom:20px;">
     <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Design Basis and Assumptions</h2>
     <ul style="font-size:13px;margin:0;padding-left:20px;line-height:1.8;">
-      <li>Simultaneous Use Factor (SUF): <strong>${inp.suf || 0.75}</strong> (PDI BH-201 default)</li>
+      <li>Simultaneous Use Factor (SUF): <strong>${inp.suf || 0.75}</strong> (PDI G-101 default)</li>
       <li>Design flow = Sum of fixture flows (L/min) × SUF, converted to GPM</li>
       <li>PDI standard size is next standard GPM capacity ≥ Q_design (GPM)</li>
       <li>Liquid capacity = PDI GPM × 2 gal (7.571 L per GPM)</li>
@@ -15848,8 +15848,8 @@ function renderGreaseTrapReport(inputs, results, narrative) {
   <div style="margin-bottom:28px;">
     <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;color:#0f766e;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:8px;">Design Notes</h2>
     <ul style="font-size:13px;margin:0;padding-left:20px;line-height:1.8;">
-      <li>PDI BH-201 standard sizes: 4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100 GPM.</li>
-      <li>Simultaneous Use Factor (SUF) of 0.75 is PDI BH-201 default; adjust for high-volume kitchens.</li>
+      <li>PDI G-101 standard sizes: 4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100 GPM.</li>
+      <li>Simultaneous Use Factor (SUF) of 0.75 is PDI G-101 default; adjust for high-volume kitchens.</li>
       <li>DENR DAO 2016-08 limits FOG in discharged wastewater to 5 mg/L.</li>
       <li>Domestic under-sink grease traps are not acceptable for commercial kitchen use per PPC.</li>
       <li>Large food facilities (&gt;100 GPM) should consider an outdoor concrete grease interceptor.</li>
@@ -19605,7 +19605,7 @@ async function _runDrawing() {
       const _r = _lastResults || {};
       _renderGenericSLD(svg, _buildGenericTitleBlock(_lastInputs,
         `${_orNA(_r.liquid_cap_l, 0)} L  |  ${_orNA(_r.pdi_gpm, 1)} GPM`,
-        { drawingNo:'PLMB-GT-SCH-001', drawingTitle:'Grease Trap: Cross-Section', standard:'PDI BH-201 / ASPE / Philippine Plumbing Code' }));
+        { drawingNo:'PLMB-GT-SCH-001', drawingTitle:'Grease Trap: Cross-Section', standard:'PDI G-101 / ASPE / Philippine Plumbing Code' }));
     } else if (ct === 'Roof Drain Sizing') {
       const svg = buildRoofDrainSVG(_lastInputs, _lastResults);
       const _r = _lastResults || {};
@@ -25996,7 +25996,7 @@ function buildSepticTankSVG(inputs, results) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;width:100%;height:auto;">\n  `+p.join('\n  ')+`\n</svg>`;
 }
 
-// ─── Grease Trap Sizing — PDI BH-201 / ASPE / Philippine Plumbing Code ─────────
+// ─── Grease Trap Sizing — PDI G-101 / ASPE / Philippine Plumbing Code ─────────
 function buildGreaseTrapSVG(inputs, results) {
   const W=1050,H=580,STRIP_Y=467,SPLIT_X=645;
   const r=results||{},inp=inputs||{};
@@ -26016,7 +26016,7 @@ function buildGreaseTrapSVG(inputs, results) {
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
-  p.push(_plumbT(W/2,31,`GREASE TRAP SIZING: ${capL} L  |  ${pdiGpm} GPM  |  PDI BH-201 / Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
+  p.push(_plumbT(W/2,31,`GREASE TRAP SIZING: ${capL} L  |  ${pdiGpm} GPM  |  PDI G-101 / Philippine Plumbing Code`,{sz:10.5,c:'white',w:'700'}));
   p.push(`<line x1="11" y1="43" x2="${W-11}" y2="43" stroke="${CC}" stroke-width="1.5"/><line x1="${SPLIT_X}" y1="43" x2="${SPLIT_X}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="1.2"/>`);
 
   // ── Grease trap cross-section ──
@@ -26058,7 +26058,7 @@ function buildGreaseTrapSVG(inputs, results) {
     p.push(`<line x1="25" y1="${LY+26+i*14}" x2="53" y2="${LY+26+i*14}" stroke="${c}" stroke-width="3"/>`);
     p.push(_plumbT(57,LY+30+i*14,lbl,{a:'start',sz:7.5,c:CC}));
   });
-  [`1. PDI BH-201: Tank size (GPM) based on fixtures × flow rate × retention time factor.`,
+  [`1. PDI G-101: Tank size (GPM) based on fixtures × flow rate × retention time factor.`,
    `2. Clean grease trap every ${cleanDay} days or when grease layer reaches 25% of tank depth.`,
    `3. DENR limit: FOG ≤ 100 mg/L for discharge to public sewer (DAO 2016-08).`
   ].forEach((n,i)=>p.push(_plumbT(18,LY+72+i*11,n,{a:'start',sz:6.5,c:CC})));
@@ -29834,7 +29834,7 @@ function renderBomTablePreview(items) {
             : isSD
             ? `Quantities are based on the Storm Drain / Stormwater design calculation result (Rational Method, DPWH Drainage Design Guidelines). The drain is sized for the ${_lastInputs?.return_period || ''}yr design storm: design flow ${_lastResults?.design_flow_lps || ''} L/s from ${_lastResults?.total_area_ha || ''} ha catchment (C=${_lastResults?.composite_c || ''}). Selected pipe: ${_lastResults?.d_selected_mm || ''} mm ${_lastInputs?.pipe_material || ''} at ${_lastInputs?.slope_pct || ''}% slope, full-pipe velocity ${_lastResults?.full_pipe_vel_ms || ''} m/s (${_lastResults?.velocity_check || ''}). NOTE: Pipe lengths, catch basin quantities, and manhole counts are indicative: Contractor shall quantify all items from final layout and longitudinal section drawings before procurement. CCTV inspection of all completed pipe runs is required before final acceptance per DPWH specifications.`
             : isGT
-            ? `Quantities are based on the Grease Trap Sizing design calculation result (PDI BH-201 Flow Rate Method, Philippine Plumbing Code, DENR DAO 2016-08). The specified grease trap is a PDI-rated ${_lastResults?.pdi_gpm || ''} GPM hydro-mechanical grease interceptor with a liquid holding capacity of ${_lastResults?.liquid_cap_l?.toFixed ? _lastResults.liquid_cap_l.toFixed(0) : (_lastResults?.liquid_cap_l || '')} L and grease retention of ${_lastResults?.grease_ret_kg?.toFixed ? _lastResults.grease_ret_kg.toFixed(2) : (_lastResults?.grease_ret_kg || '')} kg. Recommended cleaning interval: ${_lastResults?.clean_interval_days || ''} days. The interceptor shall be a PDI-certified hydro-mechanical unit: domestic under-sink traps are NOT acceptable for commercial kitchen use per PPC. Installation shall be inside the kitchen, as close to the discharge point as possible, accessible for maintenance. Wastewater hauled from cleaning shall be by a DENR DAO 2016-08 accredited transporter. Contractor shall submit PDI certificate, product datasheet, and LGU Sanitary Permit before installation.`
+            ? `Quantities are based on the Grease Trap Sizing design calculation result (PDI G-101 Flow Rate Method, Philippine Plumbing Code, DENR DAO 2016-08). The specified grease trap is a PDI-rated ${_lastResults?.pdi_gpm || ''} GPM hydro-mechanical grease interceptor with a liquid holding capacity of ${_lastResults?.liquid_cap_l?.toFixed ? _lastResults.liquid_cap_l.toFixed(0) : (_lastResults?.liquid_cap_l || '')} L and grease retention of ${_lastResults?.grease_ret_kg?.toFixed ? _lastResults.grease_ret_kg.toFixed(2) : (_lastResults?.grease_ret_kg || '')} kg. Recommended cleaning interval: ${_lastResults?.clean_interval_days || ''} days. The interceptor shall be a PDI-certified hydro-mechanical unit: domestic under-sink traps are NOT acceptable for commercial kitchen use per PPC. Installation shall be inside the kitchen, as close to the discharge point as possible, accessible for maintenance. Wastewater hauled from cleaning shall be by a DENR DAO 2016-08 accredited transporter. Contractor shall submit PDI certificate, product datasheet, and LGU Sanitary Permit before installation.`
             : isRD
             ? `Quantities are based on the Roof Drain Sizing design calculation result (Rational Method C=1.0, IPC Chapter 11, Philippine Plumbing Code). Design: ${_lastResults?.n_drains || ''} primary roof drain bodies (${_lastResults?.drain_size_mm || ''} mm nominal) with ${_lastResults?.drain_size_mm || ''} mm vertical leaders and ${_lastResults?.horiz_leader_mm || ''} mm horizontal leaders at ${_lastResults?.leader_slope_pct || ''}% slope. Design flow: ${_lastResults?.q_total_ls || ''} L/s at ${_lastResults?.intensity_mmhr || ''} mm/hr design rainfall. ${_lastResults?.overflow_drain_mm ? `Overflow drains: ${_lastResults.overflow_drain_mm} mm, invert +50 mm above primary drain invert (IPC §1101.7). ` : ''}Pipe material: ${_lastResults?.pipe_material || 'uPVC'}. Drain body quantities include strainer dome as standard accessory. Pipe lengths, fittings, and hanger quantities are indicative only: Contractor shall quantify from final roof drainage layout and section drawings. Roof flood test per IPC §1109 is required after installation. All materials shall comply with PPC and applicable ASTM standards (ASTM D2665 for PVC DWV, ASTM A74 for cast iron). Contractor shall submit material test reports and fitting manufacturer's product data for Engineer's approval prior to procurement.`
             : isCAir
@@ -30078,7 +30078,7 @@ function renderSowDocPreview(sections) {
     : isSDS
     ? `Storm Drain / Stormwater: ${_lastResults?.total_area_ha || ''}ha catchment, C=${_lastResults?.composite_c || ''}, ${_lastInputs?.return_period || ''}yr storm, Q=${_lastResults?.design_flow_lps || ''} L/s, ${_lastResults?.d_selected_mm || ''}mm ${_lastInputs?.pipe_material || ''} @ ${_lastInputs?.slope_pct || ''}% slope, V=${_lastResults?.full_pipe_vel_ms || ''} m/s: ${_lastResults?.velocity_check || ''}`
     : isGTS
-    ? `Grease Trap Sizing: ${_lastInputs?.facility_type || ''}, PDI ${_lastResults?.pdi_gpm || ''} GPM, Q_design=${_lastResults?.q_design_gpm?.toFixed ? _lastResults.q_design_gpm.toFixed(2) : (_lastResults?.q_design_gpm || '')} GPM, Liquid Cap ${_lastResults?.liquid_cap_l?.toFixed ? _lastResults.liquid_cap_l.toFixed(0) : (_lastResults?.liquid_cap_l || '')} L, Grease Ret ${_lastResults?.grease_ret_kg?.toFixed ? _lastResults.grease_ret_kg.toFixed(2) : (_lastResults?.grease_ret_kg || '')} kg, Clean Interval ${_lastResults?.clean_interval_days || ''} days: PDI BH-201 / PPC / DENR DAO 2016-08`
+    ? `Grease Trap Sizing: ${_lastInputs?.facility_type || ''}, PDI ${_lastResults?.pdi_gpm || ''} GPM, Q_design=${_lastResults?.q_design_gpm?.toFixed ? _lastResults.q_design_gpm.toFixed(2) : (_lastResults?.q_design_gpm || '')} GPM, Liquid Cap ${_lastResults?.liquid_cap_l?.toFixed ? _lastResults.liquid_cap_l.toFixed(0) : (_lastResults?.liquid_cap_l || '')} L, Grease Ret ${_lastResults?.grease_ret_kg?.toFixed ? _lastResults.grease_ret_kg.toFixed(2) : (_lastResults?.grease_ret_kg || '')} kg, Clean Interval ${_lastResults?.clean_interval_days || ''} days: PDI G-101 / PPC / DENR DAO 2016-08`
     : isRDS
     ? `Roof Drain Sizing: ${_lastResults?.n_drains || ''}× ${_lastResults?.drain_size_mm || ''}mm primary drains, ${_lastResults?.horiz_leader_mm || ''}mm horizontal leaders @ ${_lastResults?.leader_slope_pct || ''}% slope, Q=${_lastResults?.q_total_ls || ''} L/s @ ${_lastResults?.intensity_mmhr || ''} mm/hr${_lastResults?.overflow_drain_mm ? `, ${_lastResults.overflow_drain_mm}mm overflow drains` : ''}: IPC §1106 / PPC, ${_lastResults?.overall_status || ''}`
     : isCAir
@@ -30204,7 +30204,7 @@ ${isLight
   : isRDS
   ? `This Scope of Works is based on the Roof Drain Sizing Design Calculation (Ref: ${escHtml(calcRef)}) using the Rational Method (C = 1.0, IPC Chapter 11, Philippine Plumbing Code). The roof drainage system is designed for a total flow of ${_lastResults?.q_total_ls || ''} L/s at a design rainfall intensity of ${_lastResults?.intensity_mmhr || ''} mm/hr (PAGASA IDF data). Primary system: ${_lastResults?.n_drains || ''} roof drain body(ies) at ${_lastResults?.drain_size_mm || ''} mm nominal with ${_lastResults?.drain_size_mm || ''} mm vertical leaders and ${_lastResults?.horiz_leader_mm || ''} mm horizontal leaders at ${_lastResults?.leader_slope_pct || ''}% slope (Manning n = ${_lastResults?.manning_n || ''}). ${_lastResults?.overflow_drain_mm ? `Overflow drains: ${_lastResults.overflow_drain_mm} mm body, invert set at +50 mm above primary drain invert per IPC §1101.7.` : 'No overflow drains required: no parapet walls present.'} The Contractor shall comply with all applicable Philippine codes and standards including the Philippine Plumbing Code (PPC), IPC 2018 Chapter 11, ASPE Plumbing Engineering Design Handbook Vol. 2, PAGASA IDF rainfall data, and DOLE OSH Standards. All roof drain bodies shall comply with ASME A112.21.2M (roof drain standard); all piping materials shall comply with ASTM D2665 (uPVC DWV) or ASTM A74 (cast iron) as applicable. Roof flood test per IPC §1109 is mandatory after installation: Contractor shall submit the test report to the Engineer before final acceptance. Cleanouts shall be provided at all changes of direction and at a maximum 10 m spacing on horizontal leaders. As-built drainage layout drawing and commissioning test report shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isGTS
-  ? `This Scope of Works is based on the Grease Trap Sizing Design Calculation (Ref: ${escHtml(calcRef)}) using the PDI BH-201 Fixture Flow Rate Method. The selected grease trap is a PDI-rated ${_lastResults?.pdi_gpm || ''} GPM hydro-mechanical grease interceptor complying with the Philippine Plumbing Code (PPC), DENR DAO 2016-08 (FOG effluent limit 5 mg/L), ASPE Plumbing Engineering Design Handbook Vol. 2, and IAPMO/UPC Section 1015 (Grease Interceptors). The Contractor shall install the interceptor inside the kitchen, as close as possible to the discharge point of the grease-laden fixtures, with a properly accessible maintenance cover. Only cold-water fixtures shall be connected to the grease trap: hot water direct-discharge is not recommended as it reduces grease interception efficiency. Cleaning shall be performed every ${_lastResults?.clean_interval_days || ''} days (or earlier if fill exceeds 25% of liquid capacity), by a DENR DAO 2016-08 accredited hauler: manifests shall be retained by the Owner for DENR compliance audit. Domestic under-sink grease traps are NOT acceptable for commercial kitchen use per PPC: only PDI-certified hydro-mechanical interceptors are acceptable. The Contractor shall secure an LGU Sanitary Permit before installation. The grease interceptor unit shall carry a valid PDI certification mark and shall be installed per the manufacturer's installation instructions. As-built installation drawing, PDI certificate, hauling manifests, and O&M schedule shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
+  ? `This Scope of Works is based on the Grease Trap Sizing Design Calculation (Ref: ${escHtml(calcRef)}) using the PDI G-101 Fixture Flow Rate Method. The selected grease trap is a PDI-rated ${_lastResults?.pdi_gpm || ''} GPM hydro-mechanical grease interceptor complying with the Philippine Plumbing Code (PPC), DENR DAO 2016-08 (FOG effluent limit 5 mg/L), ASPE Plumbing Engineering Design Handbook Vol. 2, and IAPMO/UPC Section 1015 (Grease Interceptors). The Contractor shall install the interceptor inside the kitchen, as close as possible to the discharge point of the grease-laden fixtures, with a properly accessible maintenance cover. Only cold-water fixtures shall be connected to the grease trap: hot water direct-discharge is not recommended as it reduces grease interception efficiency. Cleaning shall be performed every ${_lastResults?.clean_interval_days || ''} days (or earlier if fill exceeds 25% of liquid capacity), by a DENR DAO 2016-08 accredited hauler: manifests shall be retained by the Owner for DENR compliance audit. Domestic under-sink grease traps are NOT acceptable for commercial kitchen use per PPC: only PDI-certified hydro-mechanical interceptors are acceptable. The Contractor shall secure an LGU Sanitary Permit before installation. The grease interceptor unit shall carry a valid PDI certification mark and shall be installed per the manufacturer's installation instructions. As-built installation drawing, PDI certificate, hauling manifests, and O&M schedule shall be submitted to the Owner upon project completion. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isVent
   ? `This Scope of Works is based on the Ventilation / ACH Design Calculation (Ref: ${escHtml(calcRef)}). The Contractor shall comply with all applicable Philippine codes, standards, and local authority requirements including ASHRAE 62.1, PSME, NFPA 90A, PEC 2017, and DOLE OSH Standards for workplace ventilation. Duct construction shall comply with SMACNA standards. Any deviations from this scope must be approved in writing by the Engineer before execution.`
   : isAHUS
