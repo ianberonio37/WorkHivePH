@@ -103,6 +103,17 @@ ENGINE_CHECKED["Shaft Design"] = (
     "1170, not 1035). Two oracle vectors fail on the old engine (the I1 vector's 38.70 re-derived by hand: 49.88); door "
     "page restamped (45 mm / 177.39 MPa); walked on the served page at 390: source python, 'M = 2000 N x 300 mm / 4 = "
     "150.0', 'Combined load = sqrt[(1.5 x 150.0)2 + (1 x 49.4)2] = 230.4', Goodman 39.3 governs, 40 mm selected.")
+ENGINE_CHECKED["V-Belt Drive Design"] = (
+    "FOUND AND FIXED, read against python-api/calcs/gear_belt_drive.py: the guide's 'Rated Power per Belt' had no basis "
+    "stated, and the engine's was Pd_max x sqrt(n/3000) - commented 'simplified for demonstration' - independent of the "
+    "sheave: a B belt rated 5.2 kW on 100 mm and on 200 mm alike, above even a premium catalog's figure. The form's "
+    "default (7.5 kW x 1.2, B, 125 mm, 1450 rpm) was given 2 belts. Classical belts are now rated by the ANSI/RMA equation "
+    "(Machinery's Handbook 30th, constants via Engineers Edge; cross-checked against the Dayton/Grainger 1750 rpm table, "
+    "which runs 1.35-1.4x above the standard as premium catalogs do): 3.412 kW per belt -> 3 belts; on a 100 mm sheave "
+    "5 belts. Guide states the equation and names the form's 'Driver Sheave Pitch Dia.'. Two oracle vectors fail on the "
+    "old engine; walked on the served page at 390: source python, 'Corrected power per belt = 3.414 x 0.959 x 1.004 = "
+    "3.287 kW/belt ... 2.74 -> 3 belts'. Open: the AI narrative called 7.5 kW the design power (it is 9.0); the door page's "
+    "SPB example is a narrow ISO section the classical equation does not cover (still the old estimate).")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

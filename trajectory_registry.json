@@ -1174999,8 +1174999,8 @@
     },
     {
       "id": "ED255",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - V-Belt Drive Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1175054,6 +1175054,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the V-Belt Drive Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/gear_belt_drive.py: the guide's 'Rated Power per Belt' had no basis stated, and the engine's was Pd_max x sqrt(n/3000) - commented 'simplified for demonstration' - independent of the sheave: a B belt rated 5.2 kW on 100 mm and on 200 mm alike, above even a premium catalog's figure. The form's default (7.5 kW x 1.2, B, 125 mm, 1450 rpm) was given 2 belts. Classical belts are now rated by the ANSI/RMA equation (Machinery's Handbook 30th, constants via Engineers Edge; cross-checked against the Dayton/Grainger 1750 rpm table, which runs 1.35-1.4x above the standard as premium catalogs do): 3.412 kW per belt -> 3 belts; on a 100 mm sheave 5 belts. Guide states the equation and names the form's 'Driver Sheave Pitch Dia.'. Two oracle vectors fail on the old engine; walked on the served page at 390: source python, 'Corrected power per belt = 3.414 x 0.959 x 1.004 = 3.287 kW/belt ... 2.74 -> 3 belts'. Open: the AI narrative called 7.5 kW the design power (it is 9.0); the door page's SPB example is a narrow ISO section the classical equation does not cover (still the old estimate). WALKED: V-Belt Drive Design's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T20:12:59Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

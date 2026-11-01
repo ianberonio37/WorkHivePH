@@ -1059,6 +1059,34 @@ VECTORS = [
         ],
     },
     {
+        # ★A BELT'S RATING DID NOT DEPEND ON ITS SHEAVE (2026-11-02, ED-G1 V-Belt, read against the guide): the engine
+        # rated every B belt 5.2 kW whatever its sheave ("simplified for demonstration") and gave this drive 2 belts.
+        "module": "calcs.gear_belt_drive",
+        "calc_type": "V-Belt Drive Design - the belt is rated by its small sheave (ANSI/RMA)",
+        "standard": "ANSI/RMA classical rating (Machinery's Handbook 30th): HP = d·r·[K1 − K2/d − K3(d·r)² − K4·log(d·r)] + K2·r(1 − 1/K_SR)",
+        "inputs": {"drive_type": "V-Belt", "power_kW": 7.5, "service_factor": 1.2, "driver_rpm": 1450, "driven_rpm": 720,
+                   "belt_section": "B", "driver_dia_mm": 125, "center_dist_mm": 500},
+        "asserts": [
+            {"path": "power_per_belt_kW", "expected": 3.412, "tol": 0.005,
+             "note": "d = 125/25.4 = 4.9213 in, r = 1.45, d·r = 7.1358: [1.769 − 0.88839 − 3.081e-4·50.920 − 0.3658·0.85344] "
+                     "= 0.55273 → 3.9442 hp; + 4.372·1.45·(1 − 1/1.1106) = 0.6313 → 4.5755 hp × 0.7457 = 3.412 kW"},
+            {"path": "n_belts", "expected": 3, "tol": 0,
+             "note": "9.0 kW / (3.412 × Kθ 0.959 × KL 1.004 = 3.285) = 2.74 → 3 belts (the flat 5.2 kW rating gave 2)"},
+        ],
+    },
+    {
+        "module": "calcs.gear_belt_drive",
+        "calc_type": "V-Belt Drive Design - a smaller sheave carries less per belt",
+        "standard": "ANSI/RMA classical rating: the K2/d term - the same drive on a 100 mm sheave",
+        "inputs": {"drive_type": "V-Belt", "power_kW": 7.5, "service_factor": 1.2, "driver_rpm": 1450, "driven_rpm": 720,
+                   "belt_section": "B", "driver_dia_mm": 100, "center_dist_mm": 500},
+        "asserts": [
+            {"path": "n_belts", "expected": 5, "tol": 0,
+             "note": "d = 3.937 in, d·r = 5.709: [1.769 − 1.11049 − 0.01004 − 0.27668] = 0.37179 → 2.1225 + 0.6313 = 2.754 hp "
+                     "= 2.053 kW; 9.0 / (2.053 × Kθ × KL ≈ 1.94) → 5 belts (the flat rating gave 2)"},
+        ],
+    },
+    {
         "module": "calcs.ups_sizing",
         "calc_type": "UPS Sizing",
         "standard": "IEEE 1184:2006 battery Ah + IEEE 446 80% sizing + VRLA DC-bus tiers",

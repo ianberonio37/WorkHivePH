@@ -160,6 +160,36 @@ def _spur_gear(module_mm: float, N_pinion: int, N_gear: int,
     }
 
 
+# ─── Classical V-belt power rating (ANSI/RMA, as given in Machinery's Handbook 30th ed.) ─────────────────────────
+# hp per belt at 180° wrap: HP = d·r·[K1 − K2/d − K3·(d·r)² − K4·log10(d·r)] + K2·r·(1 − 1/K_SR)
+#   d = small-sheave pitch diameter (in), r = faster-shaft rpm / 1000, K_SR = speed-ratio factor (D/d).
+# Constants as reproduced by Engineers Edge (engineersedge.com, classical V-belt horsepower equations, citing
+# Machinery's Handbook 30th ed. / ANSI-RMA); cross-checked 2026-11-02 against the Dayton/Grainger catalog table at
+# 1750 rpm - the standard equation sits 1.35-1.4x under the premium catalog figures (B 5.0 in: 4.60 vs 6.16 hp), the
+# relation a maker's "ratings exceed RMA standards" note describes.
+RMA_CLASSICAL_K: dict[str, tuple[float, float, float, float]] = {
+    "A (13)": (1.004, 1.652, 1.547e-4, 0.2126),
+    "B (17)": (1.769, 4.372, 3.081e-4, 0.3658),
+    "C (22)": (3.325, 12.07, 5.828e-4, 0.6886),
+    "D (32)": (7.160, 43.21, 1.384e-4, 1.454),
+}
+RMA_KSR = [(1.01, 1.0000), (1.04, 1.0112), (1.07, 1.0226), (1.10, 1.0344), (1.14, 1.0463), (1.20, 1.0586),
+           (1.27, 1.0711), (1.39, 1.0840), (1.64, 1.0972)]   # above 1.64: 1.1106
+
+
+def _rma_rated_hp(section: str, d_small_in: float, rpm_fast: float, sheave_ratio: float) -> float | None:
+    """Rated hp per classical V-belt at 180° wrap, or None for a section the equation does not cover."""
+    k = RMA_CLASSICAL_K.get(section)
+    if not k or d_small_in <= 0 or rpm_fast <= 0:
+        return None
+    K1, K2, K3, K4 = k
+    r = rpm_fast / 1000
+    dr = d_small_in * r
+    base = dr * (K1 - K2 / d_small_in - K3 * dr ** 2 - K4 * math.log10(dr))
+    ksr = next((f for lim, f in RMA_KSR if sheave_ratio <= lim), 1.1106)
+    return max(base, 0.0) + K2 * r * (1 - 1 / ksr)
+
+
 def _vbelt(power_kW: float, n_driver_rpm: float, n_driven_rpm: float,
            centre_dist_mm: float, section: str = "B (17)",
            service_factor: float = 1.2, d_driver_mm: float = 150) -> dict:
@@ -190,9 +220,20 @@ def _vbelt(power_kW: float, n_driver_rpm: float, n_driven_rpm: float,
     else:
         C_theta = 0.69 + (theta_s - 90)  / 30 * 0.13
 
-    # Design power per belt from section rating (linear approximation)
-    # Pd_belt ≈ Pd_max × (n_driver / 3000)^0.5  - simplified for demonstration
-    P_belt_kW = bd["Pd_max_kW"] * math.sqrt(n_driver_rpm / 3000) * C_theta
+    # ★A BELT'S RATING DID NOT DEPEND ON ITS SHEAVE (2026-11-02, ED-G1 V-Belt, read against the guide). This was
+    # Pd_max x sqrt(n / 3000) - "simplified for demonstration" - so a B belt was rated 5.2 kW on a 100 mm sheave and on a
+    # 200 mm one alike, above even a premium catalog's rating; the form's default (7.5 kW x 1.2, B, 125 mm, 1450 rpm)
+    # was given 2 belts where the standard rating (3.41 kW per belt) needs 3. Every classical rating depends on the small
+    # sheave's diameter and speed - the RMA equation above. Narrow sections keep the old estimate (the form offers A-D).
+    d_sm_mm, d_lg_mm = min(d_small_mm, d_large_mm), max(d_small_mm, d_large_mm)
+    rpm_fast = max(n_driver_rpm, n_driven_rpm)
+    rma_hp = _rma_rated_hp(section, d_sm_mm / 25.4, rpm_fast, d_lg_mm / d_sm_mm if d_sm_mm > 0 else 1.0)
+    if rma_hp is not None:
+        P_belt_kW = rma_hp * 0.7457 * C_theta
+        rating_basis = "ANSI/RMA classical V-belt rating (Machinery's Handbook): small sheave and speed"
+    else:
+        P_belt_kW = bd["Pd_max_kW"] * math.sqrt(n_driver_rpm / 3000) * C_theta
+        rating_basis = "estimate (no standard rating equation for this section)"
     P_belt_kW = max(P_belt_kW, 0.1)
 
     # Number of belts
@@ -212,6 +253,7 @@ def _vbelt(power_kW: float, n_driver_rpm: float, n_driven_rpm: float,
         "wrap_angle_deg":   round(theta_s, 1),
         "Ctheta":           round(C_theta, 3),
         "P_per_belt_kW":    round(P_belt_kW, 3),
+        "rating_basis":     rating_basis,
         "n_belts":          n_belts,
         "P_design_kW":      round(P_design, 3),
         "net_belt_pull_N":  round(F_net_N, 1),
