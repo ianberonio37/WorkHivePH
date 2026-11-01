@@ -236,6 +236,12 @@ ENGINE_CHECKED["Fire Alarm Battery"] = (
     "'fields' the form does not have (the device counts are rows of one table, with their currents in their labels) and "
     "named only three of the seven device types; it now lists all seven currents the engine uses. Read in the page by "
     "the guide prover at 390 and 1280.")
+ENGINE_CHECKED["Voltage Drop"] = (
+    "READ AGAINST python-api/calcs/voltage_drop.py: VD = (2 or sqrt3) x I x R x L, resistance only, at the 75 C operating "
+    "temperature, and the maximum run for the limit - the engine's. FIXED: the guide's resistivity note said copper "
+    "'approx 0.0220' and aluminium 0.0354 ohm.mm2/m at 75 C; the engine computes 0.01724 x (1 + 0.00393 x 55) = 0.0210 and "
+    "0.0283 x (1 + 0.00403 x 55) = 0.0346 - now stated so. The form's Phase Configuration, VD Limit and Conductor Material "
+    "had no tip. Read in the page by the guide prover at 390 and 1280.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

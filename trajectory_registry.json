@@ -1173518,8 +1173518,8 @@
     },
     {
       "id": "ED107",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Voltage Drop on engineering-design.html · solo-owner",
       "pages": [
@@ -1173573,6 +1173573,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Voltage Drop calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] READ AGAINST python-api/calcs/voltage_drop.py: VD = (2 or sqrt3) x I x R x L, resistance only, at the 75 C operating temperature, and the maximum run for the limit - the engine's. FIXED: the guide's resistivity note said copper 'approx 0.0220' and aluminium 0.0354 ohm.mm2/m at 75 C; the engine computes 0.01724 x (1 + 0.00393 x 55) = 0.0210 and 0.0283 x (1 + 0.00403 x 55) = 0.0346 - now stated so. The form's Phase Configuration, VD Limit and Conductor Material had no tip. Read in the page by the guide prover at 390 and 1280. WALKED: Voltage Drop's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T23:16:09Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
