@@ -220,6 +220,15 @@ ENGINE_CHECKED["Pressure Vessel"] = (
     "area not counted (stated). The report's steps reproduce; field names are the form's, with tips for Shell Length and "
     "No. Nozzles. The vector fails on the old engine; walked on the served page at 390 (Flat): source python, "
     "'t = d x sqrt(C x P / (S x E)) ... 39.121 mm ... 45 mm', 'A_required = 103.2 x 2.911 = 300.4 mm2 ... A_available = 50.4'.")
+ENGINE_CHECKED["Roof Drain Sizing"] = (
+    "FOUND AND FIXED, read against python-api/calcs/roof_drain.py: the engine and guide cited 'IPC 2018 Table 1106.2' "
+    "for drain capacities of 0.76 / 1.51 / 2.65 / 4.16 / 8.83 L/s (75-200 mm); the table gives 92 / 192 / 360 / 563 / "
+    "1208 gpm = 5.80 / 12.11 / 22.71 / 35.52 / 76.21 L/s (cross-checked: the Engineering Toolbox reproduction, a 4-in = "
+    "18,400 ft2 at 1 in/h worked example), so every drain and leader was oversized 2-8x; the horizontal row matched "
+    "neither Table 1106.3 nor Manning. Now IPC 1106.2 / 1106.3 (1/8 in per ft base, sqrt S). The report hard-coded the "
+    "old table and printed '125 mm <- SELECTED 2.65 x' beside the engine's 22.71 - it carries the IPC values. The oracle "
+    "vector had pinned the engine's 200 mm (re-derived: 100 mm); the door page's 200 / 200 mm restamped 75 / 75. Field "
+    "names are the form's. Walked on the served page at 390 (1000 m2): source python, '125 mm <- SELECTED 22.71 ✓'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

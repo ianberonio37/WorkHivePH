@@ -741,22 +741,22 @@ const GUIDES = {
       "  Q_total (L/s) = I (mm/hr) × A_roof (m²) / 3600",
       "  Q_each  (L/s) = Q_total / N_drains",
       "",
-      "Drain Body: smallest size with capacity ≥ Q_each  (IPC Table 1106.2 / ASPE Vol. 2)",
-      "  Capacity table: 75mm=0.76, 100mm=1.51, 125mm=2.65, 150mm=4.16, 200mm=8.83 L/s",
+      "Drain outlet / vertical leader: smallest size with capacity ≥ Q_each  (IPC Table 1106.2)",
+      "  Capacity: 75mm=5.80, 100mm=12.11, 125mm=22.71, 150mm=35.52, 200mm=76.21 L/s  (92 / 192 / 360 / 563 / 1208 gpm)",
       "",
       "Vertical Leader: same diameter as drain body (IPC §1106.3)",
       "",
-      "Horizontal Leader (Manning's, half-full flow, n = 0.011 uPVC):",
-      "  Cap at slope = Cap_1% × √(slope_pct / 1.0)",
-      "  1% base capacities: 75mm=0.95, 100mm=1.89, 125mm=3.31, 150mm=5.20, 200mm=11.04 L/s",
+      "Horizontal Leader (IPC Table 1106.3):",
+      "  Cap at slope = Cap_1/8in × √(slope_pct / 1.04)   (1/8 in per ft = 1.04 %; the table's 1/4 and 1/2 in columns follow √S)",
+      "  1/8 in per ft capacities: 75mm=2.15, 100mm=4.92, 125mm=8.77, 150mm=14.01, 200mm=30.16 L/s  (34 / 78 / 139 / 222 / 478 gpm)",
       "",
       "Overflow Drain (IPC §1101.7: required when parapet walls present):",
       "  Same body size as primary drain; invert set +50 mm above primary drain invert",
     ],
     fields: [
       { name: "Roof Drainage Area (m²)", tip: "Horizontal projection of the roof area draining to this drain system. For pitched roofs, use the plan area (horizontal projection). Include any adjacent wall area that drains onto the roof per ASPE guidance. Divide large roofs into zones: size each zone separately." },
-      { name: "Number of Primary Drains", tip: "IPC §1106.3 requires a minimum of 2 primary roof drains: no single point of failure. Larger roofs: one drain per 180–240 m² catchment zone. More drains reduce flow per drain, allowing smaller pipe sizes." },
-      { name: "Rainfall Intensity (mm/hr)", tip: "Use PAGASA IDF (Intensity-Duration-Frequency) curves for the project location. Metro Manila 10-yr, 60-min: ~100 mm/hr. Cebu: ~85 mm/hr. Davao: ~75 mm/hr. CDO: ~80 mm/hr. Baguio: ~65 mm/hr. Iloilo: ~70 mm/hr. Use 60-minute duration for roofs: short-duration peaks are absorbed by ponding on flat roofs." },
+      { name: "No. of Primary Drains", tip: "IPC §1106.3 requires a minimum of 2 primary roof drains: no single point of failure. Larger roofs: one drain per 180–240 m² catchment zone. More drains reduce flow per drain, allowing smaller pipe sizes." },
+      { name: "Design Rainfall Intensity", tip: "Use PAGASA IDF (Intensity-Duration-Frequency) curves for the project location. Metro Manila 10-yr, 60-min: ~100 mm/hr. Cebu: ~85 mm/hr. Davao: ~75 mm/hr. CDO: ~80 mm/hr. Baguio: ~65 mm/hr. Iloilo: ~70 mm/hr. Use 60-minute duration for roofs: short-duration peaks are absorbed by ponding on flat roofs." },
       { name: "Parapet Walls Present?", tip: "When parapet walls enclose the roof, overflow drains are mandatory per IPC §1101.7. Blocked primary drains without overflow protection cause roof ponding: which can exceed structural live load and cause collapse. Overflow drain invert is set 50 mm above primary drain invert to activate only under ponding conditions." },
       { name: "Horizontal Leader Slope (%)", tip: "Minimum 1% slope (1/8 in/ft per IPC). A 2% slope increases capacity by 41% (√2 factor). Maximum practical slope is typically 4% before siphonic effects occur. Match slope to available floor-to-floor height and coordination with other services." },
       { name: "Pipe Material", tip: "uPVC: Manning n = 0.011, most common for internal building leaders, lightweight, easy to cut and join. Cast Iron: n = 0.013, used for fire-rated floor penetrations or heavy-duty applications. Galv. Steel: n = 0.013, older buildings or exposed installations." },
@@ -31138,7 +31138,7 @@ function renderRoofDrainReport(inputs, r, narrative) {
       <th style="background:#0f172a;color:#fff;padding:0.4rem 0.5rem;text-align:center;">Adequate for Q_each?</th>
     </tr></thead>
     <tbody>
-      ${[[75,0.76],[100,1.51],[125,2.65],[150,4.16],[200,8.83]].map(([sz,cap]) => {
+      ${[[75,5.80],[100,12.11],[125,22.71],[150,35.52],[200,76.21]].map(([sz,cap]) => {  /* IPC Table 1106.2 (92/192/360/563/1208 gpm) - was 2-8x low until 2026-11-02 */
         const adequate = cap >= r.q_each_ls;
         const selected = sz === r.drain_size_mm;
         const bg = selected ? 'background:#dcfce7;font-weight:700;' : (adequate ? 'background:#f8fafc;' : '');

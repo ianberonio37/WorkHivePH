@@ -14,13 +14,21 @@ Improvement over TypeScript:
 
 import math
 
-# Roof drain body capacities (L/s) at 100mm head — IPC 2018 Table 1106.2 / ASPE
-RD_DRAIN_MM  = [75,   100,  125,  150,  200]
-RD_DRAIN_LS  = [0.76, 1.51, 2.65, 4.16, 8.83]
+# ★THE CAPACITIES WERE 2-8x BELOW THE CODE THEY CITED (2026-11-02, ED-G1 Roof Drain, read against the guide). "IPC 2018
+# Table 1106.2" here was 0.76 / 1.51 / 2.65 / 4.16 / 8.83 L/s for 75-200 mm; the table gives 92 / 192 / 360 / 563 / 1208 gpm
+# (5.80 / 12.11 / 22.71 / 35.52 / 76.21 L/s) - every drain and leader was oversized several times. The horizontal row
+# (0.95 L/s at 75 mm, "Manning half-full") matched neither IPC Table 1106.3 nor Manning (100 mm half-full at 1%, n 0.011,
+# is 3.05 L/s). Now the IPC tables (cross-checked against the Engineering Toolbox reproduction and a 4-in = 18,400 ft2 at
+# 1 in/h worked example), gpm x 0.06309.
+# Vertical conductor / drain outlet capacity (L/s) - IPC Table 1106.2
+RD_DRAIN_MM  = [75,   100,   125,   150,   200]
+RD_DRAIN_LS  = [5.80, 12.11, 22.71, 35.52, 76.21]
 
-# Horizontal conductor capacity at 1% slope (L/s) — Manning n=0.011, half-full
-RD_LEADER_MM = [75,   100,  125,  150,  200]
-RD_LEAD_1PCT = [0.95, 1.89, 3.31, 5.20, 11.04]
+# Horizontal storm drain capacity at 1/8 in per ft (1.0417 %) (L/s) - IPC Table 1106.3; the 1/4 and 1/2 in columns are
+# this times sqrt(2) and 2 (Manning), so other slopes scale by sqrt(S / 1.0417)
+RD_LEADER_MM = [75,   100,  125,  150,   200]
+RD_LEAD_1PCT = [2.15, 4.92, 8.77, 14.01, 30.16]
+RD_LEAD_BASE_SLOPE_PCT = 0.125 / 12 * 100
 
 MANNING_N: dict[str, float] = {
     "uPVC": 0.011, "PVC": 0.011, "HDPE": 0.011,
@@ -53,7 +61,7 @@ def calculate(inputs: dict) -> dict:
     leader_mm  = drain_mm
 
     # Horizontal conductor — capacity scales with √(slope / 1%)
-    slope_f = math.sqrt(max(slope_pct, 0.1) / 1.0)
+    slope_f = math.sqrt(max(slope_pct, 0.1) / RD_LEAD_BASE_SLOPE_PCT)
     horiz_idx = next(
         (i for i, c in enumerate(RD_LEAD_1PCT) if c * slope_f >= q_each_ls),
         len(RD_LEADER_MM) - 1

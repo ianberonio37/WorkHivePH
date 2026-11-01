@@ -1174622,8 +1174622,8 @@
     },
     {
       "id": "ED213",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Roof Drain Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1174677,6 +1174677,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Roof Drain Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/roof_drain.py: the engine and guide cited 'IPC 2018 Table 1106.2' for drain capacities of 0.76 / 1.51 / 2.65 / 4.16 / 8.83 L/s (75-200 mm); the table gives 92 / 192 / 360 / 563 / 1208 gpm = 5.80 / 12.11 / 22.71 / 35.52 / 76.21 L/s (cross-checked: the Engineering Toolbox reproduction, a 4-in = 18,400 ft2 at 1 in/h worked example), so every drain and leader was oversized 2-8x; the horizontal row matched neither Table 1106.3 nor Manning. Now IPC 1106.2 / 1106.3 (1/8 in per ft base, sqrt S). The report hard-coded the old table and printed '125 mm <- SELECTED 2.65 x' beside the engine's 22.71 - it carries the IPC values. The oracle vector had pinned the engine's 200 mm (re-derived: 100 mm); the door page's 200 / 200 mm restamped 75 / 75. Field names are the form's. Walked on the served page at 390 (1000 m2): source python, '125 mm <- SELECTED 22.71 ✓'. WALKED: Roof Drain Sizing's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T22:54:40Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

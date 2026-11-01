@@ -2120,8 +2120,12 @@ VECTORS = [
              "note": "Q = I·A/3600 = 100·500/3600 = 13.89 L/s (Rational, C=1.0 roof)"},
             {"path": "q_each_ls", "expected": 6.94, "tol": 0.02,
              "note": "13.89 / 2 drains = 6.94 L/s per drain"},
-            {"path": "drain_size_mm", "expected": 200, "tol": 0,
-             "note": "first drain body cap (8.83 L/s) ≥ 6.94 = 200 mm (IPC Table 1106.2)"},
+            {"path": "drain_size_mm", "expected": 100, "tol": 0,
+             "note": "IPC Table 1106.2: 75 mm carries 92 gpm = 5.80 L/s < 6.94; 100 mm carries 192 gpm = 12.11 L/s ≥ 6.94 → "
+                     "100 mm (pinned 200 until 2026-11-02 - read off the engine's own table, 8× below the code)"},
+            {"path": "horiz_leader_mm", "expected": 125, "tol": 0,
+             "note": "IPC Table 1106.3 at 1/8 in/ft: 100 mm 78 gpm = 4.92 L/s; at 1 % × √(1/1.0417) = 4.82 < 6.94; "
+                     "125 mm 139 gpm = 8.77 × 0.9798 = 8.59 ≥ 6.94 → 125 mm"},
         ],
     },
     {
