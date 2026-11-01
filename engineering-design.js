@@ -2417,18 +2417,18 @@ const GUIDES = {
       'PSME Code: Philippine Society of Mechanical Engineers (Refrigeration and Air Conditioning)',
     ],
     formulas: [
-      { label: 'Mass Flow Rate', eq: 'ṁ = Q_kW / h_fg   [kg/s]   h_fg = latent heat of refrigerant at evap. temp (kJ/kg)' },
-      { label: 'Volume Flow per Line', eq: 'Q_v = ṁ / ρ   [m³/s]   ρ_suction = sat. vapour + 10°C superheat; ρ_discharge = sat. vapour at T_cond; ρ_liquid = sat. liquid at T_cond' },
+      { label: 'Mass Flow Rate', eq: 'ṁ = Q_kW / RE   [kg/s]   RE = h(suction vapour, +10 K superheat) − h(liquid at T_cond): the refrigerating effect, not the latent heat; the liquid arrives at condensing enthalpy (R-410A at 5/45 °C: 158 kJ/kg against h_fg 215)' },
+      { label: 'Volume Flow per Line', eq: 'Q_v = ṁ / ρ   [m³/s]   ρ_suction = vapour at T_evap + 10 K superheat; ρ_discharge = vapour at the compressor outlet (isentropic efficiency 0.70); ρ_liquid = sat. liquid at T_cond. Properties from CoolProp 8.0.0' },
       { label: 'Pipe Velocity', eq: 'v = Q_v / A   [m/s]   A = π × ID² / 4   (ACR tube internal cross-section)' },
       { label: 'Pressure Drop (Darcy-Weisbach)', eq: 'ΔP = f × ρ × v² × L / (2 × D)   [Pa]   f from Blasius (Re ≤ 100,000) or Swamee-Jain (Re > 100,000)' },
-      { label: 'ΔT Equivalent', eq: 'ΔT_eq = ΔP / (dP/dT)_sat   [°C]   (dP/dT)_sat is refrigerant saturation slope at operating condition)' },
+      { label: 'ΔT Equivalent', eq: 'ΔT_eq = ΔP / (dP/dT)_sat   [K]   suction: slope at T_evap; discharge and liquid: slope at T_cond (R-410A 28.6 kPa/K at 5 °C, 64.4 at 45 °C). Budgets: suction 1 K, discharge and liquid 2 K' },
     ],
     fields: [
       { name: 'Refrigerant', tip: 'R-410A: current PH standard for splits. R-32: newer, lower GWP (675 vs 2088). R-22: legacy, being phased out. R-407C: R-22 drop-in retrofit. R-134a: chillers and medium-temp.' },
       { name: 'System Capacity (kW)', tip: 'Total system cooling or refrigerating capacity. 1 TR = 3.517 kW. Common: 1-HP split ≈ 2.5 kW, 5-HP ≈ 12 kW.' },
-      { name: 'Application', tip: 'Sets evaporating temperature: Air Conditioning = +5°C (comfort cooling), Low-Temp Refrigeration = −10°C (food), Freezer = −35°C (blast/storage).' },
+      { name: 'Application', tip: 'Sets evaporating temperature: Air Conditioning = +5°C (comfort cooling), Low-Temp Refrigeration = −10°C (food), Freezer = −35°C (blast/storage). A lower evaporating temperature means a smaller refrigerating effect and a less dense suction gas, so larger suction lines.' },
       { name: 'Condensing Temperature (°C)', tip: '40°C: cool night / 45°C: typical Philippine design day (35°C ambient) / 50°C: hot season or poorly ventilated plant room.' },
-      { name: 'Line Schedule', tip: 'Add each refrigerant line with type and equivalent length. Equivalent length = straight pipe + fitting equivalents. Use 1.5× straight run as a preliminary estimate or refer to ASHRAE fitting tables.' },
+      { name: 'Refrigerant Line Schedule', tip: 'Add each refrigerant line with type and equivalent length; where two lines share a type, the longest run sizes it, and a Suction: Riser line adds the 6 m/s oil-return check. Equivalent length = straight pipe + fitting equivalents. Use 1.5× straight run as a preliminary estimate or refer to ASHRAE fitting tables.' },
     ],
     notes: [
       'Suction risers (vertical, refrigerant flowing upward) require minimum 6 m/s for oil return against gravity. Where part-load operation reduces velocity below 4 m/s, install a double-riser with trap.',
@@ -15041,9 +15041,9 @@ function renderRefrigPipeReport(inputs, results, narrative) {
       <tr><td>Application</td><td>${e(app)}</td></tr>
       <tr><td>Evaporating Temperature</td><td>${e(evapTemp + ' °C')}</td></tr>
       <tr><td>Condensing Temperature</td><td>${e(condTemp + ' °C')}</td></tr>
-      <tr><td>Mass Flow Rate (ṁ)</td><td>${e(mdot + ' kg/s')}  [ṁ = Q / h_fg]</td></tr>
+      <tr><td>Mass Flow Rate (ṁ)</td><td>${e(mdot + ' kg/s')}  [ṁ = Q / RE${results.refrigerant_props?.refrigerating_effect_kJkg ? `, RE = ${results.refrigerant_props.refrigerating_effect_kJkg} kJ/kg (suction vapour minus liquid at the condensing temperature)` : ''}]</td></tr>
       <tr><td>Pipe Material</td><td>${e('ACR Copper Tube: ASTM B280, dehydrated and capped')}</td></tr>
-      <tr><td>Roughness (ε)</td><td>${e('0.0015 µm  (drawn copper tubing, ASHRAE)')}</td></tr>
+      <tr><td>Roughness (ε)</td><td>${e('0.0015 mm  (drawn copper tubing, ASHRAE)')}</td></tr>
     </table>
 
     <h2>5. VELOCITY DESIGN LIMITS (ASHRAE 2022 Refrig. Hbk Ch.1)</h2>

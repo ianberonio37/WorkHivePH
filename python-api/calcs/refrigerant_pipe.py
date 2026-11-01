@@ -5,14 +5,13 @@ Standards: ASHRAE 2022 Refrigeration Handbook Ch.1, ASTM B280 (ACR copper),
 Libraries: math (no external dep - property tables are static ASHRAE data)
 
 Method: ASHRAE velocity method
-  1.  ṁ = Q_kW / h_fg                              (mass flow, kg/s)
+  1.  ṁ = Q_kW / RE,  RE = h(suction, +10 K superheat) − h(liquid at T_cond)   (the refrigerating effect, kg/s)
   2.  Q_v = ṁ / ρ_phase                            (volume flow per phase, m³/s)
   3.  Select smallest ASTM B280 ACR tube where v is within limits
   4.  Verify Darcy-Weisbach pressure drop → convert to ΔT_eq
 
-NOTE: CoolProp is commented out (build time). Properties use static ASHRAE
-      saturation tables for R-410A, R-32, R-22, R-134a at design temperatures.
-      Accuracy ≤ 3% vs REFPROP for the covered T range.
+NOTE: CoolProp is not a runtime dependency (~200 MB). The static tables below were GENERATED with CoolProp 8.0.0
+      on 2026-11-02 (tools: the generator is described above REFRIG_PROPS) - see the ★ note there for what they replaced.
 """
 
 import math
@@ -54,6 +53,9 @@ VELOCITY_LIMITS = {
 EVAP_TEMP_MAP = {
     "Air Conditioning":           5,
     "Low-Temperature Refrigeration": -10,
+    # the form's own spelling (engineering-design.js tg-ref-app) - it never matched, so every low-temperature system
+    # was sized at the +5 °C air-conditioning condition (2026-11-02, ED-G1)
+    "Low-Temp Refrigeration":        -10,
     "Freezer":                   -35,
 }
 
@@ -71,70 +73,135 @@ COND_TEMP_DEFAULT = 45   # °C - Manila ambient, condenser design
 #   rho_vap_dis - discharge vapor density (kg/m³)
 #   rho_liq     - liquid density (kg/m³)
 
+# ★THE TABLES WERE NOT WHAT THEY SAID, AND THE MASS FLOW USED THE WRONG ENTHALPY (2026-11-02, ED-G1 Refrigerant Pipe,
+# read against the guide and checked with CoolProp 8.0.0). The old static table claimed "≤ 3% vs REFPROP"; against CoolProp
+# its suction densities were up to 40% low (R-22 at +5 °C: 14.5 vs 23.5 kg/m3), its evaporating dP/dT up to 33% low, its
+# liquid densities up to 9% low, and the mass flow was Q / h_fg - but the liquid reaching the expansion valve is at the
+# CONDENSING temperature, so the refrigerating effect is h(suction) - h(liquid at T_cond): 158 kJ/kg for R-410A at 5/45,
+# not h_fg 213. Mass flow was 1.3-1.85x low. The discharge and liquid lines also took dP/dT at the EVAPORATING
+# temperature (discharge as 0.6x of it - the curve steepens with temperature: R-410A is 64 kPa/K at 45 °C, 28.6 at 5).
+# Regenerated with tools/gen_refrigerant_props.py (CoolProp PropsSI; pip install CoolProp, run, paste): suction vapour at +10 K superheat; liquid saturated at T_cond
+# (no subcooling, the conservative mass flow); discharge vapour at the compressor outlet, isentropic efficiency 0.70;
+# dP/dT from the dew curve, +/-0.5 K. R-407C is CoolProp's pseudo-pure model (its glide is not resolved).
 REFRIG_PROPS: dict[str, dict] = {
     "R-410A": {
         "evap": {
-             5: {"h_fg_kJkg": 213.0, "rho_vap":  26.0, "dpdt_kPaK": 22.0},
-           -10: {"h_fg_kJkg": 220.0, "rho_vap":  13.0, "dpdt_kPaK": 16.5},
-           -35: {"h_fg_kJkg": 230.0, "rho_vap":   4.8, "dpdt_kPaK":  9.8},
+              5: {"h_fg_kJkg":  215.2, "rho_vap":  33.44, "dpdt_kPaK":  28.63},
+            -10: {"h_fg_kJkg":  233.0, "rho_vap":  20.63, "dpdt_kPaK":  19.79},
+            -35: {"h_fg_kJkg":  258.3, "rho_vap":   8.17, "dpdt_kPaK":   9.42},
         },
         "cond": {
-            45: {"rho_vap_dis":  82.0, "rho_liq": 885.0},
-            40: {"rho_vap_dis":  67.0, "rho_liq": 915.0},
+            40: {"rho_liq":   975.7, "dpdt_kPaK":  58.72},
+            45: {"rho_liq":   943.2, "dpdt_kPaK":  64.36},
+            50: {"rho_liq":   907.0, "dpdt_kPaK":  70.46},
         },
-        "mol_mass": 72.6,
+        "pair": {   # "evap/cond": refrigerating effect (kJ/kg) and discharge vapour density (kg/m3)
+            "5/40": {"RE_kJkg":  167.7, "rho_vap_dis":  75.94, "t_dis_c":  74.5},
+            "5/45": {"RE_kJkg":  158.2, "rho_vap_dis":  84.45, "t_dis_c":  82.5},
+            "5/50": {"RE_kJkg":  148.1, "rho_vap_dis":  93.70, "t_dis_c":  90.4},
+            "-10/40": {"RE_kJkg":  161.8, "rho_vap_dis":  70.30, "t_dis_c":  88.2},
+            "-10/45": {"RE_kJkg":  152.3, "rho_vap_dis":  78.17, "t_dis_c":  96.2},
+            "-10/50": {"RE_kJkg":  142.2, "rho_vap_dis":  86.71, "t_dis_c": 104.0},
+            "-35/40": {"RE_kJkg":  149.8, "rho_vap_dis":  61.45, "t_dis_c": 117.9},
+            "-35/45": {"RE_kJkg":  140.3, "rho_vap_dis":  68.32, "t_dis_c": 125.8},
+            "-35/50": {"RE_kJkg":  130.3, "rho_vap_dis":  75.77, "t_dis_c": 133.5},
+        },
     },
     "R-32": {
         "evap": {
-             5: {"h_fg_kJkg": 358.0, "rho_vap":  21.0, "dpdt_kPaK": 19.5},
-           -10: {"h_fg_kJkg": 370.0, "rho_vap":  11.0, "dpdt_kPaK": 14.5},
-           -35: {"h_fg_kJkg": 385.0, "rho_vap":   3.8, "dpdt_kPaK":  8.2},
+              5: {"h_fg_kJkg":  307.3, "rho_vap":  24.22, "dpdt_kPaK":  29.34},
+            -10: {"h_fg_kJkg":  330.3, "rho_vap":  14.95, "dpdt_kPaK":  20.21},
+            -35: {"h_fg_kJkg":  362.9, "rho_vap":   5.92, "dpdt_kPaK":   9.57},
         },
         "cond": {
-            45: {"rho_vap_dis":  69.0, "rho_liq": 870.0},
-            40: {"rho_vap_dis":  55.0, "rho_liq": 900.0},
+            40: {"rho_liq":   893.0, "dpdt_kPaK":  60.43},
+            45: {"rho_liq":   867.3, "dpdt_kPaK":  66.22},
+            50: {"rho_liq":   839.3, "dpdt_kPaK":  72.43},
         },
-        "mol_mass": 52.0,
+        "pair": {   # "evap/cond": refrigerating effect (kJ/kg) and discharge vapour density (kg/m3)
+            "5/40": {"RE_kJkg":  252.8, "rho_vap_dis":  50.53, "t_dis_c":  91.3},
+            "5/45": {"RE_kJkg":  242.1, "rho_vap_dis":  55.59, "t_dis_c": 101.5},
+            "5/50": {"RE_kJkg":  230.9, "rho_vap_dis":  61.03, "t_dis_c": 111.6},
+            "-10/40": {"RE_kJkg":  248.4, "rho_vap_dis":  45.41, "t_dis_c": 115.5},
+            "-10/45": {"RE_kJkg":  237.7, "rho_vap_dis":  50.02, "t_dis_c": 125.9},
+            "-10/50": {"RE_kJkg":  226.5, "rho_vap_dis":  54.97, "t_dis_c": 136.1},
+            "-35/40": {"RE_kJkg":  238.0, "rho_vap_dis":  38.01, "t_dis_c": 167.3},
+            "-35/45": {"RE_kJkg":  227.3, "rho_vap_dis":  41.95, "t_dis_c": 177.8},
+            "-35/50": {"RE_kJkg":  216.1, "rho_vap_dis":  46.19, "t_dis_c": 188.2},
+        },
     },
     "R-22": {
         "evap": {
-             5: {"h_fg_kJkg": 204.0, "rho_vap":  14.5, "dpdt_kPaK": 14.2},
-           -10: {"h_fg_kJkg": 213.0, "rho_vap":   8.0, "dpdt_kPaK": 10.5},
-           -35: {"h_fg_kJkg": 225.0, "rho_vap":   2.8, "dpdt_kPaK":  5.8},
+              5: {"h_fg_kJkg":  201.0, "rho_vap":  23.51, "dpdt_kPaK":  18.27},
+            -10: {"h_fg_kJkg":  212.8, "rho_vap":  14.58, "dpdt_kPaK":  12.54},
+            -35: {"h_fg_kJkg":  230.1, "rho_vap":   5.75, "dpdt_kPaK":   5.85},
         },
         "cond": {
-            45: {"rho_vap_dis":  48.0, "rho_liq": 1050.0},
-            40: {"rho_vap_dis":  38.0, "rho_liq": 1080.0},
+            40: {"rho_liq":  1128.5, "dpdt_kPaK":  37.41},
+            45: {"rho_liq":  1106.0, "dpdt_kPaK":  40.88},
+            50: {"rho_liq":  1082.3, "dpdt_kPaK":  44.55},
         },
-        "mol_mass": 86.5,
+        "pair": {   # "evap/cond": refrigerating effect (kJ/kg) and discharge vapour density (kg/m3)
+            "5/40": {"RE_kJkg":  164.7, "rho_vap_dis":  52.82, "t_dis_c":  78.0},
+            "5/45": {"RE_kJkg":  158.0, "rho_vap_dis":  58.62, "t_dis_c":  86.2},
+            "5/50": {"RE_kJkg":  151.1, "rho_vap_dis":  64.89, "t_dis_c":  94.3},
+            "-10/40": {"RE_kJkg":  158.5, "rho_vap_dis":  49.29, "t_dis_c":  93.7},
+            "-10/45": {"RE_kJkg":  151.8, "rho_vap_dis":  54.70, "t_dis_c": 101.9},
+            "-10/50": {"RE_kJkg":  144.9, "rho_vap_dis":  60.55, "t_dis_c": 110.0},
+            "-35/40": {"RE_kJkg":  147.0, "rho_vap_dis":  43.45, "t_dis_c": 127.6},
+            "-35/45": {"RE_kJkg":  140.3, "rho_vap_dis":  48.23, "t_dis_c": 135.8},
+            "-35/50": {"RE_kJkg":  133.4, "rho_vap_dis":  53.39, "t_dis_c": 143.9},
+        },
     },
     "R-134a": {
         "evap": {
-             5: {"h_fg_kJkg": 205.0, "rho_vap":  17.0, "dpdt_kPaK":  8.2},
-           -10: {"h_fg_kJkg": 213.0, "rho_vap":   9.2, "dpdt_kPaK":  5.8},
-           -35: {"h_fg_kJkg": 222.0, "rho_vap":   3.0, "dpdt_kPaK":  2.8},
+              5: {"h_fg_kJkg":  194.7, "rho_vap":  16.28, "dpdt_kPaK":  12.16},
+            -10: {"h_fg_kJkg":  206.0, "rho_vap":   9.57, "dpdt_kPaK":   7.92},
+            -35: {"h_fg_kJkg":  222.7, "rho_vap":   3.36, "dpdt_kPaK":   3.30},
         },
         "cond": {
-            45: {"rho_vap_dis":  57.0, "rho_liq": 1030.0},
-            40: {"rho_vap_dis":  45.0, "rho_liq": 1065.0},
+            40: {"rho_liq":  1146.7, "dpdt_kPaK":  27.26},
+            45: {"rho_liq":  1125.1, "dpdt_kPaK":  30.10},
+            50: {"rho_liq":  1102.3, "dpdt_kPaK":  33.13},
         },
-        "mol_mass": 102.0,
+        "pair": {   # "evap/cond": refrigerating effect (kJ/kg) and discharge vapour density (kg/m3)
+            "5/40": {"RE_kJkg":  154.2, "rho_vap_dis":  43.60, "t_dis_c":  62.7},
+            "5/45": {"RE_kJkg":  146.7, "rho_vap_dis":  49.49, "t_dis_c":  68.9},
+            "5/50": {"RE_kJkg":  139.0, "rho_vap_dis":  56.02, "t_dis_c":  75.0},
+            "-10/40": {"RE_kJkg":  144.8, "rho_vap_dis":  41.97, "t_dis_c":  70.3},
+            "-10/45": {"RE_kJkg":  137.2, "rho_vap_dis":  47.62, "t_dis_c":  76.4},
+            "-10/50": {"RE_kJkg":  129.6, "rho_vap_dis":  53.87, "t_dis_c":  82.4},
+            "-35/40": {"RE_kJkg":  128.4, "rho_vap_dis":  38.78, "t_dis_c":  87.9},
+            "-35/45": {"RE_kJkg":  120.9, "rho_vap_dis":  43.97, "t_dis_c":  93.9},
+            "-35/50": {"RE_kJkg":  113.2, "rho_vap_dis":  49.70, "t_dis_c":  99.7},
+        },
     },
     "R-407C": {
         "evap": {
-             5: {"h_fg_kJkg": 208.0, "rho_vap":  15.0, "dpdt_kPaK": 13.5},
-           -10: {"h_fg_kJkg": 216.0, "rho_vap":   8.5, "dpdt_kPaK": 10.0},
-           -35: {"h_fg_kJkg": 226.0, "rho_vap":   2.9, "dpdt_kPaK":  5.5},
+              5: {"h_fg_kJkg":  204.6, "rho_vap":  22.04, "dpdt_kPaK":  18.38},
+            -10: {"h_fg_kJkg":  218.4, "rho_vap":  13.12, "dpdt_kPaK":  12.18},
+            -35: {"h_fg_kJkg":  238.5, "rho_vap":   4.75, "dpdt_kPaK":   5.28},
         },
         "cond": {
-            45: {"rho_vap_dis":  50.0, "rho_liq": 1060.0},
-            40: {"rho_vap_dis":  40.0, "rho_liq": 1090.0},
+            40: {"rho_liq":  1067.8, "dpdt_kPaK":  40.39},
+            45: {"rho_liq":  1041.8, "dpdt_kPaK":  44.59},
+            50: {"rho_liq":  1014.0, "dpdt_kPaK":  49.12},
         },
-        "mol_mass": 86.2,
+        "pair": {   # "evap/cond": refrigerating effect (kJ/kg) and discharge vapour density (kg/m3)
+            "5/40": {"RE_kJkg":  161.0, "rho_vap_dis":  55.63, "t_dis_c":  69.8},
+            "5/45": {"RE_kJkg":  152.8, "rho_vap_dis":  62.70, "t_dis_c":  77.1},
+            "5/50": {"RE_kJkg":  144.3, "rho_vap_dis":  70.49, "t_dis_c":  84.2},
+            "-10/40": {"RE_kJkg":  152.9, "rho_vap_dis":  52.56, "t_dis_c":  81.0},
+            "-10/45": {"RE_kJkg":  144.6, "rho_vap_dis":  59.22, "t_dis_c":  88.2},
+            "-10/50": {"RE_kJkg":  136.1, "rho_vap_dis":  66.55, "t_dis_c":  95.2},
+            "-35/40": {"RE_kJkg":  138.1, "rho_vap_dis":  47.22, "t_dis_c": 105.9},
+            "-35/45": {"RE_kJkg":  129.8, "rho_vap_dis":  53.17, "t_dis_c": 112.8},
+            "-35/50": {"RE_kJkg":  121.3, "rho_vap_dis":  59.70, "t_dis_c": 119.7},
+        },
     },
 }
 
-COPPER_ROUGHNESS_M = 1.5e-9   # essentially smooth: 0.0015 µm = 1.5 nm
+COPPER_ROUGHNESS_M = 1.5e-6   # drawn copper tubing, 0.0015 mm (Moody / ASHRAE) - was 1.5e-9 m, 1000x too small (2026-11-02)
 
 
 def _friction_factor(Re: float, D: float) -> float:
@@ -308,15 +375,18 @@ def calculate(inputs: dict) -> dict:
     evap_props = REFRIG_PROPS[refrigerant]["evap"][evap_key]
     cond_props = REFRIG_PROPS[refrigerant]["cond"][cond_key]
 
+    pair_props = REFRIG_PROPS[refrigerant]["pair"][f"{evap_key}/{cond_key}"]
     h_fg_kJkg  = evap_props["h_fg_kJkg"]
-    rho_suc    = evap_props["rho_vap"]         # kg/m³ suction vapor
-    rho_dis    = cond_props["rho_vap_dis"]     # kg/m³ discharge vapor
+    re_kJkg    = pair_props["RE_kJkg"]         # refrigerating effect: suction vapour minus liquid at T_cond
+    rho_suc    = evap_props["rho_vap"]         # kg/m³ suction vapour, +10 K superheat
+    rho_dis    = pair_props["rho_vap_dis"]     # kg/m³ discharge vapour at the compressor outlet
     rho_liq    = cond_props["rho_liq"]         # kg/m³ liquid at condenser
-    dpdt       = evap_props["dpdt_kPaK"]       # kPa/K at evap temp
+    dpdt       = evap_props["dpdt_kPaK"]       # kPa/K at evap temp - the suction line
+    dpdt_cond  = cond_props["dpdt_kPaK"]       # kPa/K at condensing temp - the discharge and liquid lines
 
-    # ── Mass flow ─────────────────────────────────────────────────────────────
-    # ṁ = Q_kW / h_fg   (ASHRAE 2022 Refrig. Hbk Ch.1)
-    mass_flow_kgs = cooling_kw / h_fg_kJkg    # kg/s
+    # ── Mass flow ─────────────────────────────────────────────
+    # ṁ = Q_kW / RE   (ASHRAE 2022 Refrig. Hbk Ch.1 - the energy balance across the evaporator)
+    mass_flow_kgs = cooling_kw / re_kJkg       # kg/s
 
     # ── Volumetric flows per phase ─────────────────────────────────────────────
     flow_suc_m3s = mass_flow_kgs / rho_suc
@@ -344,18 +414,17 @@ def calculate(inputs: dict) -> dict:
     ) if has_riser else None
 
     # Discharge (min 5 m/s; ΔT ≤ 2 K)
-    dpdt_dis = dpdt * 0.6   # approximate dpdt at condensing temp (higher pressure)
     discharge = _select_tube(
         flow_dis_m3s,
         VELOCITY_LIMITS["Discharge"],
-        rho_dis, mu_vap, discharge_len_m, dpdt_dis, 2.0,
+        rho_dis, mu_vap, discharge_len_m, dpdt_cond, 2.0,
     )
 
     # Liquid (0.5–1.5 m/s; ΔT ≤ 2 K; liquid line uses ΔP→subcooling loss)
     liquid = _select_tube(
         flow_liq_m3s,
         VELOCITY_LIMITS["Liquid"],
-        rho_liq, mu_liq, liquid_len_m, dpdt, 2.0,
+        rho_liq, mu_liq, liquid_len_m, dpdt_cond, 2.0,
     )
 
     # ── Insulation requirement (ASHRAE 90.1) ─────────────────────────────────
@@ -396,6 +465,9 @@ def calculate(inputs: dict) -> dict:
             "evap_temp_c":      evap_key,
             "cond_temp_c":      cond_key,
             "h_fg_kJkg":        h_fg_kJkg,
+            "refrigerating_effect_kJkg": re_kJkg,
+            "t_discharge_c":    pair_props["t_dis_c"],
+            "dpdt_cond_kPaK":   dpdt_cond,
             "rho_suction_kgm3": rho_suc,
             "rho_discharge_kgm3": rho_dis,
             "rho_liquid_kgm3":  rho_liq,
@@ -414,7 +486,7 @@ def calculate(inputs: dict) -> dict:
             "evap_temp_c":     evap_key,
             "cond_temp_c":     cond_key,
         },
-        "calculation_source": "python/static-ASHRAE-tables",
+        "calculation_source": "python/static tables generated with CoolProp 8.0.0",
         "standard": "ASHRAE 2022 Refrig. Hbk Ch.1 | ASTM B280 | ASHRAE 90.1 | PSME",
 
         # ── Legacy renderer aliases (frontend renderRefrigPipeReport) ──────────

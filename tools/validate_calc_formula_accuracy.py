@@ -1796,16 +1796,33 @@ VECTORS = [
     {
         "module": "calcs.refrigerant_pipe",
         "calc_type": "Refrigerant Pipe Sizing",
-        "standard": "ASHRAE 2022 Refrig Hbk Ch.1 — ṁ = Q/h_fg; Qv = ṁ/ρ",
+        "standard": "ASHRAE 2022 Refrig Hbk Ch.1 — ṁ = Q / (h_suction − h_liquid,cond); Qv = ṁ/ρ (CoolProp 8.0.0 properties)",
         "inputs": {"cooling_kw": 10, "refrigerant": "R-410A",
                    "application": "Air Conditioning"},
         "asserts": [
-            {"path": "refrigerant_props.h_fg_kJkg", "expected": 213.0, "tol": 0,
-             "note": "R-410A latent heat at +5°C evap = 213.0 kJ/kg (ASHRAE saturation table)"},
-            {"path": "mass_flow_kgs", "expected": 0.0469, "tol": 0.0002,
-             "note": "ṁ = Q/h_fg = 10 kW / 213.0 kJ/kg = 0.0469 kg/s"},
-            {"path": "flow_suction_m3s", "expected": 0.001806, "tol": 0.00001,
-             "note": "Qv = ṁ/ρ_vap = 0.046948/26.0 = 0.001806 m³/s"},
+            {"path": "refrigerant_props.refrigerating_effect_kJkg", "expected": 158.2, "tol": 0.1,
+             "note": "CoolProp R410A: h(15 °C, P_dew(5 °C)) − h_liq(45 °C) = 158.2 kJ/kg (h_fg at 5 °C is 215.2 - the liquid "
+                     "arrives at condensing enthalpy, so h_fg overstates the effect)"},
+            {"path": "mass_flow_kgs", "expected": 0.0632, "tol": 0.0002,
+             "note": "ṁ = 10 kW / 158.2 kJ/kg = 0.0632 kg/s (pinned 0.0469 = Q/h_fg until 2026-11-02, read off the engine's own "
+                     "table - the wrong enthalpy)"},
+            {"path": "flow_suction_m3s", "expected": 0.001890, "tol": 0.00001,
+             "note": "Qv = 0.06321 / ρ 33.44 (CoolProp, +10 K superheat; the old table's 26.0 was 22% low) = 0.001890 m³/s"},
+        ],
+    },
+    {
+        # ★THE FORM'S LOW-TEMPERATURE NAME AND THE CONDENSING SLOPE (2026-11-02, ED-G1 Refrigerant Pipe): the page sends
+        # "Low-Temp Refrigeration", the engine knew "Low-Temperature Refrigeration" - every low-temp system was sized at +5 °C;
+        # and the discharge line's ΔT equivalent took 0.6 × the EVAPORATING dP/dT.
+        "module": "calcs.refrigerant_pipe",
+        "calc_type": "Refrigerant Pipe Sizing - the form's low-temp application and the condensing dP/dT",
+        "standard": "ASHRAE 2022 Refrig Hbk Ch.1 - ΔT_eq = ΔP / (dP/dT)_sat at the line's own saturation temperature",
+        "inputs": {"capacity_kw": 10, "refrigerant": "R-410A", "application": "Low-Temp Refrigeration", "cond_temp_c": 45},
+        "asserts": [
+            {"path": "evap_temp_c", "expected": -10, "tol": 0, "note": "the form's 'Low-Temp Refrigeration' is the −10 °C duty"},
+            {"path": "refrigerant_props.dpdt_cond_kPaK", "expected": 64.36, "tol": 0.05,
+             "note": "CoolProp R410A dew curve, P(45.5 °C) − P(44.5 °C) = 64.36 kPa/K (the engine used 0.6 × 19.8 = 11.9)"},
+            {"path": "mass_flow_kgs", "expected": 0.0657, "tol": 0.0002, "note": "10 / RE(−10/45) 152.3 kJ/kg = 0.0657 kg/s"},
         ],
     },
     {
@@ -1820,8 +1837,14 @@ VECTORS = [
                              {"name": "Liquid Line", "line_type": "Liquid", "equiv_length_m": 60}]},
         "asserts": [
             {"path": "suction_horizontal.od_mm", "expected": 22.22, "tol": 0.01,
-             "note": "60 m: 19.05 mm gives 2.04 K (over the 1 K budget) - the next tube, 22.22 mm, gives 0.94 K at 5.9 m/s"},
-            {"path": "suction_horizontal.dt_ok", "expected": True, "tol": 0, "note": "inside the 1 K budget"},
+             "note": "60 m: the smallest tube inside the 4-10 m/s band with the least drop; 28.58 mm would meet the budget but "
+                     "runs at 3.55 m/s, under the oil-return minimum"},
+            {"path": "suction_horizontal.delta_T_eq_K", "expected": 1.026, "tol": 0.005,
+             "note": "ID 19.68 mm, v = (10/158.2)/33.44/3.0418e-4 = 6.213 m/s, Re 340,700, Swamee-Jain f(ε 1.5 µm) 0.01493; "
+                     "ΔP = 0.01493·(60/0.01968)·33.44·6.213²/2 = 29.37 kPa; / 28.63 kPa/K = 1.026 K (re-derived 2026-11-02 - "
+                     "this vector had pinned the old engine's 0.94 K: mass flow 26% low, a frictionless tube)"},
+            {"path": "suction_horizontal.dt_ok", "expected": False, "tol": 0,
+             "note": "1.026 K is over the 1 K budget - reported, not hidden; no tube meets both the band and the budget"},
             {"path": "liquid.od_mm", "expected": 12.7, "tol": 0.01, "note": "60 m liquid line steps up from 9.52 mm"},
         ],
     },

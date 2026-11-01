@@ -125,6 +125,20 @@ ENGINE_CHECKED["Hoist Capacity"] = (
     "explains its Safety Factor field; the report's MBF and power lines reproduce. Oracle vector fails on the old engine; "
     "reeving invariant holds (2729 -> 3006 W, 1 -> 6 parts, sheave loss only); walked on the served page at 390, 4 parts: "
     "source python, 'MBF = (2045 kg / 4) x 5 = 2556.25 kg (25.08 kN)', '5451 N x 0.5333 m/s = 2907 W'.")
+ENGINE_CHECKED["Refrigerant Pipe Sizing"] = (
+    "FOUND AND FIXED, read against python-api/calcs/refrigerant_pipe.py and checked with CoolProp 8.0.0 (installed locally "
+    "for the purpose; the engine ships static tables): the mass flow was Q / h_fg - the liquid reaches the valve at "
+    "condensing enthalpy, so the refrigerating effect is h(suction) - h(liquid at T_cond): 158.2 kJ/kg for R-410A at 5/45, "
+    "not 213; mass flow 1.3-1.85x low across the table. The static table claimed '<= 3% vs REFPROP': suction densities up "
+    "to 40% low, evaporating dP/dT up to 33% low, liquid densities up to 9% low. The discharge and liquid lines took dP/dT "
+    "at the EVAPORATING temperature (discharge 0.6x of it - the curve steepens: R-410A 64.4 kPa/K at 45 C vs 28.6 at 5), "
+    "so the form's default discharge line read 2.12 K against its 2 K budget (now 0.73). The form's 'Low-Temp "
+    "Refrigeration' never matched 'Low-Temperature Refrigeration' - every low-temp system was sized at +5 C. The copper "
+    "roughness was 1.5e-9 m, 1000x too small (drawn tubing 0.0015 mm). Tables regenerated from CoolProp (suction +10 K "
+    "superheat, discharge at the compressor outlet with eta_is 0.70, liquid at T_cond, 40/45/50 C), guide and report "
+    "state the method. Two vectors fail on the old engine; two earlier vectors that had pinned engine numbers (Q/h_fg; "
+    "0.94 K) re-derived by hand. Walked on the served page at 390 (Low-Temp): source python, '-10 C', 'm = Q / RE, RE = "
+    "152.3 kJ/kg'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
