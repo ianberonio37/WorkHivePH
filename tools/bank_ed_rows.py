@@ -195,6 +195,13 @@ I1_FIXED["Hoist Capacity"] = (
     "'Hoist Capacity - the form's hoist type decides the lifting medium and the motor' fails on the old engine. WALKED in "
     "the page through the Playwright MCP (signed in, Manual Chain): 'Lifting medium: load chain rated for a working load of "
     "at least 2045 kg', 'Manual chain hoist: hand-operated, no motor to size', '4. Load chain inspection schedule per ASME B30.16'.")
+for _calc in ("Chiller System — Air Cooled", "Chiller System — Water Cooled"):
+    I1_FIXED[_calc] = (
+        "FOUND AND FIXED: both chiller forms take the manufacturer's rated IPLV / NPLV (optional); python-api/calcs/chiller.py "
+        "always checked ASHRAE 90.1 against its own estimate from the full-load COP, so a chiller whose datasheet IPLV failed "
+        "the minimum could pass on the estimate (and the reverse). An entered IPLV is the one checked now and the result says "
+        "which it was (iplv_source). Oracle vectors '<chiller>: the form's rated IPLV is the one checked' fail on the old "
+        "engine; walked through the served path (engineering-calc-agent, by curl).")
 for _calc in ("Earthing / Grounding System", "Grease Trap Sizing", "FCU Selection"):
     I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the value is descriptive and the result does not depend on it "
                        "(tools/census_calc_input_reach.py RECORDED states each reason - for FCU Selection the guide now says "

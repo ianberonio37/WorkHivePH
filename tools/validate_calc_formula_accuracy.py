@@ -683,6 +683,30 @@ VECTORS = [
         "custom": _check_chiller_thermo,
     },
     {
+        # ★THE FORM'S RATED IPLV (2026-11-02, ED-I1 Chillers): both chiller forms take the manufacturer's IPLV; the engine
+        # always checked ASHRAE 90.1 against its own estimate from the full-load COP. Fails on that engine.
+        "module": "calcs.chiller",
+        "calc_type": "Chiller System - Air Cooled: the form's rated IPLV is the one checked",
+        "standard": "ASHRAE 90.1 Table 6.8.1-3: air-cooled < 150 TR min IPLV 4.02",
+        "inputs": {"cooling_load_kW": 500, "ambient_temp_C": 35, "chw_supply_C": 7, "chw_return_C": 12, "cop": 3,
+                   "safety_factor": 1.15, "n_units": 1, "iplv": 5.0},
+        "asserts": [
+            {"path": "iplv", "expected": 5.0, "tol": 0.001, "note": "the entered 5.0, not the estimate 3.10"},
+            {"path": "iplv_check", "expected": "PASS", "tol": 0, "note": "5.0 >= 4.02 (the estimate failed)"},
+        ],
+    },
+    {
+        "module": "calcs.chiller",
+        "calc_type": "Chiller System - Water Cooled: the form's rated IPLV is the one checked",
+        "standard": "ASHRAE 90.1 Table 6.8.1-3: water-cooled centrifugal < 150 TR min IPLV 6.39",
+        "inputs": {"cooling_load_kW": 500, "chiller_type": "Centrifugal", "chw_supply_C": 7, "chw_return_C": 12,
+                   "cw_supply_C": 29, "cw_return_C": 35, "cop": 5.5, "safety_factor": 1.1, "n_units": 2, "iplv": 9.0},
+        "asserts": [
+            {"path": "iplv", "expected": 9.0, "tol": 0.001, "note": "the entered 9.0, not the estimate 5.76"},
+            {"path": "iplv_check", "expected": "PASS", "tol": 0, "note": "9.0 >= 6.39"},
+        ],
+    },
+    {
         "module": "calcs.cooling_tower",
         "calc_type": "Cooling Tower Sizing",
         "standard": "CTI — range = hot_in - cold_out; approach = cold_out - wet_bulb",

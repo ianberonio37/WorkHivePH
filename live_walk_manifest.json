@@ -93,8 +93,8 @@
  },
  "by_kind": {
   "live": 28308,
-  "prose": 74,
-  "none": 8506
+  "prose": 76,
+  "none": 8504
  },
  "open_by_family": {
   "other": 6630,
@@ -136,7 +136,7 @@
  },
  "mcp_rewalk_queue": {
   "playwright-mcp": 4064,
-  "playwright-mcp + postgres-mcp": 3892,
+  "playwright-mcp + postgres-mcp": 3890,
   "postgres-mcp": 546,
   "raw-http fetch (no JS - what a crawler receives)": 67,
   "chrome-devtools-mcp": 11,
@@ -342082,9 +342082,9 @@
   {
    "id": "ED332",
    "wave": "ED-I1",
-   "status": "specced",
-   "kind": "none",
-   "gated": false,
+   "status": "locking",
+   "kind": "prose",
+   "gated": true,
    "surface": "index.html",
    "lens": "every value the form sends reaches the engine",
    "family": "other",
@@ -342093,18 +342093,18 @@
     "D"
    ],
    "mcp": "playwright-mcp + postgres-mcp",
-   "mcp_used": false,
+   "mcp_used": true,
    "retracted_instrument": "",
-   "needs_mcp_rewalk": true,
+   "needs_mcp_rewalk": false,
    "receipt_red": false,
    "needs_w4_evidence": ""
   },
   {
    "id": "ED333",
    "wave": "ED-I1",
-   "status": "specced",
-   "kind": "none",
-   "gated": false,
+   "status": "locking",
+   "kind": "prose",
+   "gated": true,
    "surface": "index.html",
    "lens": "every value the form sends reaches the engine",
    "family": "other",
@@ -342113,9 +342113,9 @@
     "D"
    ],
    "mcp": "playwright-mcp + postgres-mcp",
-   "mcp_used": false,
+   "mcp_used": true,
    "retracted_instrument": "",
-   "needs_mcp_rewalk": true,
+   "needs_mcp_rewalk": false,
    "receipt_red": false,
    "needs_w4_evidence": ""
   },

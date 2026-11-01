@@ -204,6 +204,18 @@ def calculate(inputs: dict) -> dict:
 
     # ── IPLV ─────────────────────────────────────────────────────────────────
     iplv = _iplv(cop_spec, is_water)
+    # ★THE FORM'S RATED IPLV WAS NEVER CHECKED (2026-11-02, ED-I1 Chillers, census_calc_input_reach.py): both chiller forms
+    # take the manufacturer's rated IPLV / NPLV (optional); this always checked ASHRAE 90.1 against its own estimate from the
+    # full-load COP, so a chiller whose datasheet IPLV failed the minimum could pass on the estimate. An entered value is the
+    # one checked now, and the result says which it was.
+    _iplv_in = inputs.get("iplv")
+    try:
+        _iplv_in = float(_iplv_in) if _iplv_in not in (None, "") else 0.0
+    except (TypeError, ValueError):
+        _iplv_in = 0.0
+    iplv_source = "estimated from the full-load COP (AHRI 550/590 weights)"
+    if _iplv_in > 0:
+        iplv, iplv_source = _iplv_in, "entered (the manufacturer's rated IPLV / NPLV)"
 
     # ── ASHRAE 90.1 compliance — checked against spec COP (equipment selection) ──
     limits    = _ashrae_limits(cooling_kw, is_water)
@@ -337,6 +349,7 @@ def calculate(inputs: dict) -> dict:
         "iplv":             round(iplv, 3),
         "cop_check":        "PASS" if cop_ok else "FAIL",
         "iplv_check":       "PASS" if iplv_ok else "FAIL",
+        "iplv_source":      iplv_source,
         "cop_margin":       round(cop_spec - limits["min_COP"], 3),
         "iplv_margin":      round(iplv - limits["min_IPLV"], 3),
         "ashrae_min_cop":   limits["min_COP"],

@@ -1192006,8 +1192006,8 @@
     },
     {
       "id": "ED332",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Chiller System — Air Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1192060,12 +1192060,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Air Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED: both chiller forms take the manufacturer's rated IPLV / NPLV (optional); python-api/calcs/chiller.py always checked ASHRAE 90.1 against its own estimate from the full-load COP, so a chiller whose datasheet IPLV failed the minimum could pass on the estimate (and the reverse). An entered IPLV is the one checked now and the result says which it was (iplv_source). Oracle vectors '<chiller>: the form's rated IPLV is the one checked' fail on the old engine; walked through the served path (engineering-calc-agent, by curl). MEASURED: Chiller System — Air Cooled: every value its form sends now reaches its engine (tools/census_calc_input_reach.py) (how each row was walked is in its sentence above). HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {
       "id": "ED333",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Chiller System — Water Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1192118,6 +1192125,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Water Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED: both chiller forms take the manufacturer's rated IPLV / NPLV (optional); python-api/calcs/chiller.py always checked ASHRAE 90.1 against its own estimate from the full-load COP, so a chiller whose datasheet IPLV failed the minimum could pass on the estimate (and the reverse). An entered IPLV is the one checked now and the result says which it was (iplv_source). Oracle vectors '<chiller>: the form's rated IPLV is the one checked' fail on the old engine; walked through the served path (engineering-calc-agent, by curl). MEASURED: Chiller System — Water Cooled: every value its form sends now reaches its engine (tools/census_calc_input_reach.py) (how each row was walked is in its sentence above). HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {
