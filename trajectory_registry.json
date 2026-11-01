@@ -1192744,8 +1192744,8 @@
     },
     {
       "id": "ED344",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-I1",
       "title": "every value the form sends reaches the engine - Shaft Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1192798,6 +1192798,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Shaft Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED: the form sends shock_type (its labels give the ASME shock factors: Minor Kb 1.5, Moderate 2.0 / Kt 1.5, Heavy 3.0 / 2.0) and keyway (Yes / No); python-api/calcs/shaft_design.py applied no shock factor and chose the shoulder-fillet stress concentration whatever the form said - the form's own default (a keyed shaft under minor shock) was sized as a steady filleted one. M and T now carry the form's Kb / Kt, and a keyway selects the end-mill keyseat (Kf 2.2 / Kfs 3.0): a keyed shaft under heavy shock went 26.38 -> 38.70 mm. power_input / power_unit are echoes (the form converts HP to power_kW before sending) - recorded-only. Oracle vector 'Shaft Design - the form's keyway and shock type reach the diameter' fails on the old engine; walked through the served path (engineering-calc-agent, by curl). MEASURED: Shaft Design: every value its form sends now reaches its engine (tools/census_calc_input_reach.py) (how each row was walked is in its sentence above). HELD BY: gate calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate calc_formula_accuracy (the oracle vector named above). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc-input-reach",
+          "calc_formula_accuracy"
+        ]
       }
     },
     {

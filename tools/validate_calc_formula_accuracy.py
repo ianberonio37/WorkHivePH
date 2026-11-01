@@ -738,6 +738,21 @@ VECTORS = [
         "custom": _check_shaft_torque,
     },
     {
+        # ★THE FORM'S KEYWAY AND SHOCK (2026-11-02, ED-I1 Shaft Design): the engine applied no shock factor and chose the
+        # shoulder-fillet Kf whatever the form said. Fails on that engine.
+        "module": "calcs.shaft_design",
+        "calc_type": "Shaft Design - the form's keyway and shock type reach the diameter",
+        "standard": "ASME shock factors Kb / Kt on M and T (the form's own labels); keyseat Kf 2.2 / Kfs 3.0 (Shigley); DE-Goodman",
+        "inputs": {"power_kW": 7.5, "power_unit": "kW", "power_input": 7.5, "shaft_rpm": 1450, "transverse_load_N": 2000,
+                   "span_mm": 300, "material": "AISI 1045", "keyway": "Yes", "shock_type": "Heavy"},
+        "asserts": [
+            {"path": "Kf", "expected": 2.2, "tol": 0.001, "note": "keyway Yes -> end-mill keyseat Kf 2.2 (fillet was 2.1)"},
+            {"path": "Kfs", "expected": 3.0, "tol": 0.001, "note": "keyseat Kfs 3.0 (fillet was 1.8)"},
+            {"path": "d_min_mm", "expected": 38.7, "tol": 0.1,
+             "note": "Heavy: M x 3.0, T x 2.0 - the bending term dominates, d ~ 27.18 x ∛3 = 39 -> 38.70 mm (steady fillet: 26.38)"},
+        ],
+    },
+    {
         "module": "calcs.heat_exchanger",
         "calc_type": "Heat Exchanger",
         "standard": "TEMA — corrected LMTD = LMTD x F (multi-pass correction factor)",

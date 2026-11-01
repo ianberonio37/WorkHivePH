@@ -189,6 +189,10 @@ RECORDED: dict[str, dict[str, str]] = {
                                          "number printed on the report; the life comes from C and P, which are read"},
     "Generator Sizing": {"phase_config": "3-Phase 4-Wire (400V) or 1-Phase is printed on the report; the generator kVA, "
                                          "the motor-start dip and the fuel are computed in kVA and do not depend on it"},
+    "Shaft Design": {
+        "power_input": "the number the person typed, echoed for the report - the form converts it to power_kW (HP x 0.746) "
+                       "before sending, and power_kW is read",
+        "power_unit": "kW or HP, echoed for the report - the conversion happens in the form; power_kW is read"},
     "UPS Sizing": {"phase": "1-Phase 230V or 3-Phase is printed on the report and decides the product line; the UPS kVA "
                             "(load x growth / 80%) and the battery Ah do not depend on it"},
     "HVAC Cooling Load": {"building_type": "the form labels it 'Building Type (for permit documentation: also suggests Room "

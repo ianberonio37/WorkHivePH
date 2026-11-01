@@ -179,6 +179,14 @@ I1_FIXED["Storm Drain / Stormwater"] = (
     "(inputs.get(f\"z{zi}_area\")). Read against the engine, the zones are read: composite C = Σ A·C / Σ A = 0.62 for the "
     "form's defaults, matching the hand figure. The census now reads f-string keys (read_patterns), and oracle vector "
     "'Storm Drain - the form's catchment zones set the composite runoff coefficient' pins it.")
+I1_FIXED["Shaft Design"] = (
+    "FOUND AND FIXED: the form sends shock_type (its labels give the ASME shock factors: Minor Kb 1.5, Moderate 2.0 / Kt "
+    "1.5, Heavy 3.0 / 2.0) and keyway (Yes / No); python-api/calcs/shaft_design.py applied no shock factor and chose the "
+    "shoulder-fillet stress concentration whatever the form said - the form's own default (a keyed shaft under minor shock) "
+    "was sized as a steady filleted one. M and T now carry the form's Kb / Kt, and a keyway selects the end-mill keyseat "
+    "(Kf 2.2 / Kfs 3.0): a keyed shaft under heavy shock went 26.38 -> 38.70 mm. power_input / power_unit are echoes (the "
+    "form converts HP to power_kW before sending) - recorded-only. Oracle vector 'Shaft Design - the form's keyway and shock "
+    "type reach the diameter' fails on the old engine; walked through the served path (engineering-calc-agent, by curl).")
 for _calc in ("Bearing Life (L10)", "HVAC Cooling Load"):
     I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py "
                        "RECORDED names the label as the reason) - the value it sends is a reference printed on the report, "

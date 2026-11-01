@@ -183,6 +183,17 @@ def calculate(inputs: dict) -> dict:
     # M_midspan = F × L / 4 (point load at midspan)
     M_Nm = radial_load_N * span_m / 4
 
+    # ★THE FORM'S SHOCK AND KEYWAY NEVER REACHED THE DIAMETER (2026-11-02, ED-I1 Shaft Design, census_calc_input_reach.py).
+    # The page sends shock_type (Steady / Minor / Moderate / Heavy - its own labels give the ASME combined shock and fatigue
+    # factors Kb, Kt) and keyway (Yes / No); this applied no shock factor and chose the shoulder-fillet stress concentration
+    # whatever the form said, so a shaft under heavy shock or with a keyseat came out under-sized. The moment and torque
+    # now carry the form's Kb / Kt, and a keyway selects the table's end-mill keyseat (Kf 2.2, Kfs 3.0 - Shigley).
+    SHOCK = {"Steady": (1.0, 1.0), "Minor": (1.5, 1.0), "Moderate": (2.0, 1.5), "Heavy": (3.0, 2.0)}
+    shock_type = str(inputs.get("shock_type") or "Steady")
+    Kb_shock, Kt_shock = SHOCK.get(shock_type, (1.0, 1.0))
+    M_Nm = M_Nm * Kb_shock
+    T_Nm = T_Nm * Kt_shock
+
     # Mean + alternating components (fully reversed bending, steady torque - Shigley's)
     Ma_Nm = M_Nm     # fully reversed bending → Ma = M, Mm = 0
     Mm_Nm = 0.0
@@ -206,7 +217,9 @@ def calculate(inputs: dict) -> dict:
     reliability = float(inputs.get("reliability_pct", 90.0))
 
     # ── Stress concentration ──────────────────────────────────────────────────
-    conc_key  = str(inputs.get("stress_concentration", "Shoulder fillet (r/d=0.05)"))
+    _kw = str(inputs.get("keyway") or "")
+    conc_default = "Keyway (end-mill)" if _kw.lower().startswith("y") else "Shoulder fillet (r/d=0.05)"
+    conc_key  = str(inputs.get("stress_concentration", conc_default))
     conc_data = STRESS_CONC.get(conc_key, STRESS_CONC["Shoulder fillet (r/d=0.05)"])
     Kf   = conc_data["Kf"]
     Kfs  = conc_data["Kfs"]
