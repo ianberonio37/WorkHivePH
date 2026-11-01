@@ -172,6 +172,14 @@ ENGINE_CHECKED["Grease Trap Sizing"] = (
     "the rated grease capacity. Field name is the form's. Vector re-derived by hand (13.61 kg) fails on the old engine; "
     "walked on the served page at 390: source python, 'Grease retention capacity 3.63 kg (8.00 lbs)' for 4 GPM, no "
     "BH-201 left in the report.")
+ENGINE_CHECKED["Septic Tank Sizing"] = (
+    "READ AGAINST python-api/calcs/septic_tank.py: the guide's method is the engine's - flow = occupants x rate, liquid = "
+    "flow x retention, sludge 40 and scum 15 L/person/yr x desludging years, 1,000 L minimum, 0.30 m freeboard, 2/3 : 1/3 "
+    "compartments (hand-checked on the form's default: 3,000 + 2,400 + 900 = 6,300 L). FIXED: the guide had no tip for "
+    "the form's Wastewater Rate (the value that sets the liquid capacity), and the drawing printed 'Effluent to leach "
+    "field: X m2 required' computed from a sandy-loam soil the form never asks for, while the guide says to size the field "
+    "from a percolation test - the drawing now states the assumed soil and the test. Walked on the served page at 390: "
+    "source python, 6300 L, 'Leach field about 187.5 m2 if the soil is Sandy Loam; confirm by percolation test'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

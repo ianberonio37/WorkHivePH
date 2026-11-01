@@ -498,6 +498,7 @@ const GUIDES = {
       { name: 'Number of Occupants', tip: 'Total design population using this septic system. For residential: number of persons. For office: number of employees. For school: number of students + staff.' },
       { name: 'Retention Time (days)', tip: 'How long wastewater stays in the tank for settling. PPC minimum: 1 day for residential. 2 days for institutional. 3 days for high-strength waste (food processing, hospitals).' },
       { name: 'Desludging Interval (years)', tip: 'How often the tank will be pumped out. 3-5 years is typical for Philippine residential. Shorter interval = smaller sludge storage needed. Longer = more storage but less frequent service.' },
+      { name: 'Wastewater Rate', tip: 'Litres of wastewater per person (or per bed, student, meal) per day; the occupancy type fills a typical value - Residential 150, Office 50, School 45, Hospital 400 - and you can overwrite it with a measured or code-required figure. Daily flow = occupants x this rate, and it sets the liquid capacity.' },
       { name: 'Liquid Depth (m)', tip: 'Working liquid depth in the tank. PPC: minimum 1.2 m, maximum 2.4 m. Use 1.5 m for most designs: deeper tanks cost more to excavate and desludge.' },
       { name: 'L:W Ratio', tip: 'Length to width ratio of the tank. PPC: 2:1 to 4:1. Use 3:1 for typical designs. Longer and narrower tanks provide better solids settling than square tanks.' },
       { name: 'Number of Compartments', tip: '2-compartment tanks are required by PPC for systems serving more than 10 persons. First compartment (2/3 of volume) settles solids; second compartment (1/3) provides final settling before outlet.' },
@@ -508,7 +509,7 @@ const GUIDES = {
       'Sludge accumulation: 40 L/person/year is the standard PPC design rate for domestic sewage.',
       'Scum accumulation: 15 L/person/year is the standard allowance.',
       'Two-compartment design: first compartment = 2/3 of total volume, second = 1/3. Required when serving more than 10 persons.',
-      'DENR requires a soil absorption field (leach field) after the septic tank. Size the leach field separately based on soil percolation test results.',
+      'DENR requires a soil absorption field (leach field) after the septic tank. The drawing shows an indicative area for a sandy-loam soil (16 L/m2/day); size the actual field from a soil percolation test.',
       'For high-water-table areas (coastal Philippine towns): use an above-ground or elevated septic tank to prevent groundwater contamination.',
     ],
   },
@@ -25977,7 +25978,7 @@ function buildSepticTankSVG(inputs, results) {
   p.push(`<line x1="11" y1="${STRIP_Y}" x2="${W-11}" y2="${STRIP_Y}" stroke="${CC}" stroke-width="0.8"/>`);
   p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
   [`1. Two-compartment: Comp 1 = 2/3 liquid volume, Comp 2 = 1/3. Min L:W = 2:1 per DOH.`,
-   `2. Desludge every 3–5 years. Effluent to leach field: ${leachM2} m² required.`,
+   `2. Desludge every 3–5 years. Leach field about ${leachM2} m² if the soil is ${r.soil_type || 'sandy loam'}; confirm by percolation test.`,
    `3. DENR DAO 2016-08: BOD ≤ 50 mg/L, TSS ≤ 70 mg/L for discharge to water body.`
   ].forEach((n,i)=>p.push(_plumbT(18,LY+62+i*11,n,{a:'start',sz:6.5,c:CC})));
 
