@@ -1402,6 +1402,8 @@ const GUIDES = {
       { name: "Existing Power Factor", tip: "Current system PF. Read from energy meter, Meralco bill (monthly average PF column), or a power analyzer. Most Philippine industrial loads without PFC: 0.70–0.85. Below 0.85 triggers Meralco surcharge." },
       { name: "Target Power Factor", tip: "Desired PF after capacitor bank. Minimum 0.85 avoids Meralco surcharge. Recommended target: 0.95: balances capacitor cost vs. kVA savings. Avoid PF > 0.98 (over-correction causes voltage rise)." },
       { name: "System Voltage (V)", tip: "Line-to-line voltage. Common Philippine values: 230 V (single-phase), 400 V (3-phase LV: most common for industrial), 11 kV or 22 kV (medium-voltage feeders for large facilities)." },
+      { name: "Monthly kWh", tip: "Optional, from the electric bill. With the Meralco Rate it estimates the monthly surcharge the capacitor bank would remove. Used only when the existing power factor is below 0.85; leave 0 to skip the savings estimate." },
+      { name: "Meralco Rate", tip: "Optional, the all-in PHP per kWh from the bill. The calculator takes about 18% of it as the distribution charge (an assumption) and applies the surcharge % to that: savings = Monthly kWh × Rate × 0.18 × surcharge %. Use the actual distribution charge from your bill for a firmer figure." },
       { name: "Phases", tip: "1-phase or 3-phase. Industrial and commercial: 3-phase. Residential/small load: 1-phase. The feeder current formula differs (3ph uses √3 factor)." },
     ],
     notes: [

@@ -1173760,8 +1173760,8 @@
     },
     {
       "id": "ED129",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Power Factor Correction on engineering-design.html · solo-owner",
       "pages": [
@@ -1173815,6 +1173815,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Power Factor Correction calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] READ AGAINST python-api/calcs/power_factor_correction.py: Qc = kW·(tanφ1 − tanφ2), kVA before/after, the next standard bank and the surcharge % = (0.85 − PF)/0.85 are the engine's (Qc oracle-pinned: 100 kW, 0.75 → 0.95 = 55.32 kVAR → 60). FIXED: the form's Monthly kWh and Meralco Rate had no tip - the guide now says they only feed the savings estimate, only below PF 0.85, and that the engine takes 18% of the all-in rate as the distribution charge (an assumption, stated). Read in the page by the guide prover at 390 and 1280. WALKED: Power Factor Correction's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T22:03:33Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

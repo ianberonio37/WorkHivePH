@@ -186,6 +186,12 @@ ENGINE_CHECKED["Storm Drain / Stormwater"] = (
     "(π/4)·4^(-2/3), checked), DPWH 300 mm minimum, 0.6 m/s floor and 3.0 / 5.0 m/s ceilings by material; the form's "
     "'single' / 'composite' values are the engine's own. FIXED: the guide had no tip for the form's Area Input Method - "
     "how the zones are weighted. Read in the page by the guide prover at 390 and 1280.")
+ENGINE_CHECKED["Power Factor Correction"] = (
+    "READ AGAINST python-api/calcs/power_factor_correction.py: Qc = kW·(tanφ1 − tanφ2), kVA before/after, the next "
+    "standard bank and the surcharge % = (0.85 − PF)/0.85 are the engine's (Qc oracle-pinned: 100 kW, 0.75 → 0.95 = "
+    "55.32 kVAR → 60). FIXED: the form's Monthly kWh and Meralco Rate had no tip - the guide now says they only feed the "
+    "savings estimate, only below PF 0.85, and that the engine takes 18% of the all-in rate as the distribution charge "
+    "(an assumption, stated). Read in the page by the guide prover at 390 and 1280.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
