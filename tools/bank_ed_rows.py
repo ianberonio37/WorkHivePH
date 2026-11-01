@@ -173,6 +173,12 @@ I1_FIXED["Refrigerant Pipe Sizing"] = (
     "Oracle vector 'Refrigerant Pipe Sizing - the form's line lengths size the suction line within its budget' fails on the "
     "old engine; walked through the served path. Still flagged, for its R1 walk: the discharge line misses its ΔT budget "
     "even at 15 m because only one tube fits its velocity window.")
+I1_FIXED["Storm Drain / Stormwater"] = (
+    "MEASURED AGAIN - the row was the census's false reading: it reported the form's three catchment zones (z1..z3 area "
+    "and C) unread because its first parser could not see python-api/calcs/storm_drain.py's f-string reads "
+    "(inputs.get(f\"z{zi}_area\")). Read against the engine, the zones are read: composite C = Σ A·C / Σ A = 0.62 for the "
+    "form's defaults, matching the hand figure. The census now reads f-string keys (read_patterns), and oracle vector "
+    "'Storm Drain - the form's catchment zones set the composite runoff coefficient' pins it.")
 for _calc in ("Bearing Life (L10)", "HVAC Cooling Load"):
     I1_FIXED[_calc] = ("DECIDED, recorded on the report only: the form's own label says so (tools/census_calc_input_reach.py "
                        "RECORDED names the label as the reason) - the value it sends is a reference printed on the report, "
@@ -252,7 +258,7 @@ def main() -> int:
         else:
             continue
         if key == "I1":
-            basis = (f"[{today}] {why} WALKED: {what}, and in the page through the Playwright MCP. HELD BY: gate "
+            basis = (f"[{today}] {why} MEASURED: {what} (how each row was walked is in its sentence above). HELD BY: gate "
                      f"calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate "
                      f"calc_formula_accuracy (the oracle vector named above). pct -> {{pct}}")
             gates = ["calc-input-reach", "calc_formula_accuracy"]

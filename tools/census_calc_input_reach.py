@@ -151,6 +151,19 @@ def read_keys(module: str) -> set[str]:
         set(re.findall(r"""(?:inputs|inp|data|params)\[\s*["']([A-Za-z_0-9]+)["']\s*\]""", s))
 
 
+def read_patterns(module: str) -> list[re.Pattern]:
+    """Keys an engine reads through an f-string - storm_drain.py reads inputs.get(f"z{zi}_area") in a loop over zones
+    (2026-11-01: the first census could not see them and reported the three zones unread; the engine reads all six)."""
+    p = CALCS / f"{module}.py"
+    if not p.exists():
+        return []
+    s = p.read_text(encoding="utf-8", errors="ignore")
+    out = []
+    for tpl in re.findall(r"""(?:inputs|inp|data|params)\.get\(\s*f["']([^"']+)["']""", s):
+        rx = "^" + re.sub(r"\\\{[^}]*\\\}", "[A-Za-z0-9_]+", re.escape(tpl)) + "$"
+        out.append(re.compile(rx))
+    return out
+
 def census() -> dict:
     src, main = JS.read_text(encoding="utf-8", errors="ignore"), MAIN.read_text(encoding="utf-8", errors="ignore")
     sent, mods = sent_keys(src), engine_modules(main)
@@ -160,9 +173,10 @@ def census() -> dict:
         if not mod:
             rows.append({"calc": calc, "module": None, "unread": [], "unsent": [], "note": "no python handler"})
             continue
-        rk = read_keys(mod)
+        rk, pats = read_keys(mod), read_patterns(mod)
+        unread = sorted(k for k in keys - rk - META if not any(px.match(k) for px in pats))
         rows.append({"calc": calc, "module": mod, "sent": len(keys), "read": len(rk),
-                     "unread": sorted(k for k in keys - rk - META), "unsent": sorted(rk - keys - META)})
+                     "unread": unread, "unsent": sorted(rk - keys - META)})
     return {"calculators": len(rows), "with_unread": sum(1 for r in rows if r["unread"]),
             "unread_keys": sum(len(r["unread"]) for r in rows), "rows": rows}
 

@@ -1645,6 +1645,20 @@ VECTORS = [
         ],
     },
     {
+        # ED-I1 Storm Drain (2026-11-01): the census reported the form's three catchment zones unread - it could not see the
+        # engine's f-string reads (inputs.get(f"z{zi}_area")). Read against the engine: the zones are read. Pinned here.
+        "module": "calcs.storm_drain",
+        "calc_type": "Storm Drain - the form's catchment zones set the composite runoff coefficient",
+        "standard": "Rational Method: C = Σ A_i·C_i / Σ A_i",
+        "inputs": {"area_mode": "composite", "z1_area": 0.2, "z1_c": 0.9, "z2_area": 0.2, "z2_c": 0.35, "z3_area": 0.1,
+                   "z3_c": 0.6, "return_period": 10, "intensity_mmhr": 75, "tc_min": 15, "slope_pct": 0.5,
+                   "pipe_material": "uPVC", "manning_n": 0.011},
+        "asserts": [
+            {"path": "total_area_ha", "expected": 0.5, "tol": 0.0001, "note": "0.2 + 0.2 + 0.1 ha"},
+            {"path": "composite_c", "expected": 0.62, "tol": 0.001, "note": "(0.2x0.9 + 0.2x0.35 + 0.1x0.6) / 0.5 = 0.62"},
+        ],
+    },
+    {
         "module": "calcs.water_supply_pipe",
         "calc_type": "Water Supply Pipe Sizing",
         "standard": "PPC Hunter WFU → peak L/s (Table A-3 curve); H-W C-factor",
