@@ -1174486,8 +1174486,8 @@
     },
     {
       "id": "ED201",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Storm Drain / Stormwater on engineering-design.html · solo-owner",
       "pages": [
@@ -1174541,6 +1174541,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Storm Drain / Stormwater calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] READ AGAINST python-api/calcs/storm_drain.py: the guide's method is the engine's - Rational Q = C·i·A/360 (A in ha), composite C = Σ(Ci·Ai)/ΣAi over the form's z1..z3 zones, full-pipe Manning D = [Q·n/(0.3117·√S)]^(3/8) (0.3117 = (π/4)·4^(-2/3), checked), DPWH 300 mm minimum, 0.6 m/s floor and 3.0 / 5.0 m/s ceilings by material; the form's 'single' / 'composite' values are the engine's own. FIXED: the guide had no tip for the form's Area Input Method - how the zones are weighted. Read in the page by the guide prover at 390 and 1280. WALKED: Storm Drain / Stormwater's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-01T21:53:32Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

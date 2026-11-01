@@ -180,6 +180,12 @@ ENGINE_CHECKED["Septic Tank Sizing"] = (
     "field: X m2 required' computed from a sandy-loam soil the form never asks for, while the guide says to size the field "
     "from a percolation test - the drawing now states the assumed soil and the test. Walked on the served page at 390: "
     "source python, 6300 L, 'Leach field about 187.5 m2 if the soil is Sandy Loam; confirm by percolation test'.")
+ENGINE_CHECKED["Storm Drain / Stormwater"] = (
+    "READ AGAINST python-api/calcs/storm_drain.py: the guide's method is the engine's - Rational Q = C·i·A/360 (A in ha), "
+    "composite C = Σ(Ci·Ai)/ΣAi over the form's z1..z3 zones, full-pipe Manning D = [Q·n/(0.3117·√S)]^(3/8) (0.3117 = "
+    "(π/4)·4^(-2/3), checked), DPWH 300 mm minimum, 0.6 m/s floor and 3.0 / 5.0 m/s ceilings by material; the form's "
+    "'single' / 'composite' values are the engine's own. FIXED: the guide had no tip for the form's Area Input Method - "
+    "how the zones are weighted. Read in the page by the guide prover at 390 and 1280.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

@@ -663,6 +663,7 @@ const GUIDES = {
       '  25-yr: major drainage / flood-prone areas',
     ],
     fields: [
+      { name: 'Area Input Method', tip: 'Single Zone: one catchment area with one runoff coefficient C. Composite: up to three sub-areas, each with its own C; the calculator weights them, C = Σ(Ci × Ai) / ΣAi, and uses the total area. Use Composite when the catchment mixes roofs, paving and lawn.' },
       { name: 'Catchment Area (ha)', tip: 'Total tributary area draining to the pipe or channel. 1 hectare = 10,000 m². For a rooftop: use roof plan area. For a subdivision road: use road width × length contributing to one inlet. For a compound: use total site area × fraction draining to one outlet.' },
       { name: 'Runoff Coefficient (C)', tip: 'Ratio of runoff to rainfall. DPWH typical values: Roof / impervious paved = 0.90–0.95. Commercial area = 0.70–0.90. Residential (dense) = 0.50–0.70. Residential (sparse/lawn) = 0.25–0.50. Parks / open grass = 0.10–0.35. Use weighted average (composite C) when the catchment has mixed land uses.' },
       { name: 'Rainfall Intensity (mm/hr)', tip: 'Use PAGASA IDF curves for the project location at the design return period and time of concentration. Metro Manila 10-yr, 30-min intensity ≈ 90–110 mm/hr. For inland provinces, intensity is typically lower: consult PAGASA Synoptic Data. If no site data is available, use 75 mm/hr as a conservative default for Metro Manila 10-yr, 60-min duration.' },
