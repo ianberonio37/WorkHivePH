@@ -115,6 +115,10 @@
   "content_sha": "eb81757bffa9e9ed",
   "stamped": "2026-11-02"
  },
+ "tools/stairwell-pressurization-calculator": {
+  "content_sha": "62f49e1637258347",
+  "stamped": "2026-11-02"
+ },
  "tools/v-belt-drive-calculator": {
   "content_sha": "eece1fb2a143649b",
   "stamped": "2026-11-02"

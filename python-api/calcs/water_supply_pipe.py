@@ -61,6 +61,7 @@ FLUSH_VALVE_FIXTURES = ("Water Closet (Flush Valve)", "Urinal (Flush Valve)")
 PIPE_C_VALUES: dict[str, int] = {
     "PVC": 150, "Galvanized Steel": 120, "Cast Iron": 100,
     "Stainless Steel": 140, "HDPE": 150, "Copper": 140,
+    "PPR": 150,   # PP-R (polypropylene random) - smooth thermoplastic like PVC/HDPE; the common Philippine supply pipe
 }
 
 # ── Standard nominal pipe diameters (mm) ──────────────────────────────────────

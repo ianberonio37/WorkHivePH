@@ -6,14 +6,14 @@ Source: https://workhiveph.com/tools/stairwell-pressurization-calculator/
 
 Stairwell Pressurization Calculator
  G1+E3 
-**The Stairwell Pressurization Calculator finds the design pressure differential and total leakage area for a pressurised stairwell. Example: for two stairwells in a 10-floor office pressurised to code, Design pressure = 50 Pa, Leakage area per stairwell = 0.71 m², Doors per stairwell = 10 (per NFPA 92:2021).**
+**The Stairwell Pressurization Calculator finds the design pressure differential and total leakage area for a pressurised stairwell. Example: for two stairwells in a 10-floor office pressurised to code, Design pressure = 25 Pa, Leakage area per stairwell = 0.71 m², Doors per stairwell = 10 (per NFPA 92:2021).**
 How it works
 The calculator follows NFPA 92:2021. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Fire Protection)
 Inputs: two stairwells in a 10-floor office pressurised to code.
 ResultValue
-Design pressure50 Pa
+Design pressure25 Pa
 Leakage area per stairwell0.71 m²
 Doors per stairwell10
 Computed by WorkHive's calculation engine when this page was built; standard: NFPA 92:2021.
@@ -36,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 338af986c516fdf4 -->
+<!-- md-twin source-sha: 56696d76b09609e6 -->
