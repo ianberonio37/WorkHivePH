@@ -459,9 +459,14 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
         # shared chrome and the published-by-design set, no RPC and no function, means nothing on the page belongs to a
         # hive or a person, so there is nothing for a stranger to cross (n/a, the reads named). A public page that DOES
         # read one is judged as any page is, and its F and I wait for the prover.
-        if ctx.get("pageCls") == "public":
-            if v.get("reads") is None:
-                return "UNPROVEN", "this walk recorded no list of the page's requests, so what the page read is unknown"
+        # ★...ON ANY PAGE, AND A LIVENESS PROBE READS NOBODY'S ROWS (2026-11-03, CX-FND status.html). The status page asks
+        # ten functions for /health - each answers its build, its dependencies' ok and a latency, nothing of a hive or a
+        # person (read 2026-11-03) - and reads no relation, yet it was judged on "whose rows" because the rule above was
+        # written for the public class. The rule is about what the page ASKS for, so the class is not its condition; a
+        # function asked for anything but /health still counts as a read of someone's rows.
+        if v.get("reads") is None and ctx.get("pageCls") == "public":
+            return "UNPROVEN", "this walk recorded no list of the page's requests, so what the page read is unknown"
+        if v.get("reads") is not None:
             # every request the page made on its healthy load, whatever it answered: a tenant read REFUSED with a 401 is
             # still a page asking for someone's rows, and healthy_reads (st < 400) would hide it
             asked = sorted({x["u"].replace("/rest/v1/", "").replace("/functions/v1/", "fn:") for x in v.get("reads") or []
@@ -469,12 +474,13 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
                             and x["u"] not in ("/rest/v1/analytics_events",) and not x["u"].startswith("/functions/v1/login")})
             ch, mine = chrome_tables(), page_tables(page)
             tenant = [r for r in asked if not r.startswith("fn:") and (r not in ch or r in mine) and r not in public_by_design()]
-            fns = [r for r in asked if r.startswith("fn:")]
+            fns = [r for r in asked if r.startswith("fn:") and not r.endswith("/health")]
             if not tenant and not fns:
                 shown = ", ".join(asked[:4]) if asked else "nothing"
-                return "n/a", (f"a public page: its healthy load asked the database for {shown} - no relation that "
-                               "belongs to a hive or a person (only the shared chrome's and the published-by-design ones) - "
-                               "so it shows nothing a person must be entitled to, and there is no boundary on it to cross")
+                return "n/a", (f"{'a public page' if ctx.get('pageCls') == 'public' else 'this page'}: its healthy load "
+                               f"asked for {shown} - no relation that belongs to a hive or a person (only the shared "
+                               "chrome's, the published-by-design ones and services' /health liveness probes) - so it "
+                               "shows nothing a person must be entitled to, and there is no boundary on it to cross")
         u = h.get("u")
         if u is None:
             return "UNPROVEN", "this walk took no reading of what the page says about whose rows it shows"

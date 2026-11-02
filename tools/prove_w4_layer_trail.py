@@ -130,6 +130,11 @@ def owner_private(table: str) -> bool:
 # counts as trailed by a trigger only when a row trigger on that table fires on that operation and inserts into
 # hive_audit_log, and - for an update - covers every key the page's payload sets (the trigger's own column list, or
 # its function body when it names no columns). A payload passed as a variable earns no trigger credit.
+# ★A PLATFORM DECISION HAS ITS OWN TRAIL (2026-11-03, CX-FND platform-actions). Approving a listing, verifying a seller,
+# triaging feedback are platform staff acting across hives; trg_audit_platform_decision records each (who, what, which
+# target) in platform_audit_log, not hive_audit_log. The check only knew the hive's trail, so the page read "changes data,
+# no trail" over a trigger that writes one. Either trail counts; the coverage rule below is unchanged.
+_TRAIL_TABLES = ("hive_audit_log", "platform_audit_log")
 _OP_BIT = {"insert": 4, "delete": 8, "update": 16}
 _TRIGGERS: dict[str, list] = {}
 
@@ -141,7 +146,7 @@ def _audit_triggers(table: str) -> list:
                "(select coalesce(json_agg(attname), '[]'::json) from pg_attribute where attrelid = t.tgrelid "
                "and attnum = any(t.tgattr::int2[])))), '[]'::json) from pg_trigger t join pg_proc p on p.oid = t.tgfoid "
                "where t.tgrelid = to_regclass('public.%s') and not t.tgisinternal and t.tgenabled <> 'D' "
-               "and p.prosrc ilike '%%hive_audit_log%%'" % table)
+               "and (" + " or ".join("p.prosrc ilike '%%%%%s%%%%'" % t for t in _TRAIL_TABLES) + ")") % table
         try:
             r = subprocess.run(["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres", "-d", "postgres",
                                 "-tAc", sql], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30)
@@ -203,6 +208,45 @@ def _literal_body(src: str, open_at: int) -> str | None:
     return None
 
 
+def _variable_keys(name: str, src: str, pos: int) -> set | None:
+    """★A PAYLOAD PASSED BY NAME IS READ WHERE IT WAS BUILT (2026-11-03, CX-FND platform-actions): `.update(_patch)` names
+    no key, so three of the console's four moderation writes earned no credit from the trigger that records them. The
+    nearest preceding `const|let|var NAME =` before the write supplies the keys: an object literal, or a ternary of two
+    literals (either may be the one sent, so both count), plus every `NAME.key =` assigned between there and the write.
+    Anything else (a function's return, a spread of a spread) stays unreadable, and the write earns nothing, as before."""
+    defs = list(re.finditer(r"\b(?:const|let|var)\s+" + re.escape(name) + r"\s*=\s*", src[:pos]))
+    if not defs:
+        return None
+    start = defs[-1].end()
+    keys: set = set()
+    if src[start:start + 1] == "{":
+        body = _literal_body(src, start)
+        if body is None:
+            return None
+        keys |= _object_keys(body)
+    else:
+        m = re.match(r"[^;{}?]*\?\s*\{", src[start:pos])      # the condition may wrap onto the next line
+        if not m:
+            return None
+        open1 = start + m.end() - 1
+        b1 = _literal_body(src, open1)
+        if b1 is None:
+            return None
+        m2 = re.match(r"\s*:\s*\{", src[open1 + len(b1) + 2:pos])
+        b2 = _literal_body(src, open1 + len(b1) + 2 + m2.end() - 1) if m2 else None
+        if b2 is None:
+            return None
+        keys |= _object_keys(b1) | _object_keys(b2)
+    keys |= set(re.findall(r"\b" + re.escape(name) + r"\.([A-Za-z_][A-Za-z0-9_]*)\s*=(?!=)", src[start:pos]))
+    return keys or None
+
+
+# ★A WRITE'S OWN WHO AND WHEN ARE THE TRAIL ROW'S (2026-11-03): a trail row carries its actor and its time, so a payload's
+# stamps - updated_at, moderated_at, kyb_verified_at, moderated_by - are what every trail records about any write. A
+# trigger on every update still has to name each key that says WHAT changed; it is not asked to name the stamps.
+_STAMP = re.compile(r"(?:_at|_by)$")
+
+
 def trigger_trail(table: str, op: str, after: str, src: str = "", pos: int = 0) -> str | None:
     """The trigger that writes this write's trail, named - or None."""
     op = op.lower()
@@ -211,8 +255,13 @@ def trigger_trail(table: str, op: str, after: str, src: str = "", pos: int = 0) 
     if op in ("update", "upsert"):
         body = _literal_body(after, after.find("{")) if after.lstrip().startswith("{") else None
         if body is None:
-            return None                                 # the payload is a variable: its keys cannot be read here
-        keys = _object_keys(body)
+            var = re.match(r"\s*([A-Za-z_$][A-Za-z0-9_$]*)\s*\)", after)
+            keys = _variable_keys(var.group(1), src, pos) if var and src else None
+            if keys is None:
+                return None                             # the payload's keys cannot be read here
+            body = ""
+        else:
+            keys = _object_keys(body)
         # ★A SPREAD IS READ WHERE IT WAS BUILT (2026-10-28, project-manager): `.update({ ...payload, updated_at })`
         # names one key; the payload is the `const payload = { ... }` just above it. The nearest preceding literal of
         # that name, in the same source, supplies its keys. A spread built some other way (`const extra = done ?
@@ -233,7 +282,9 @@ def trigger_trail(table: str, op: str, after: str, src: str = "", pos: int = 0) 
                 continue
             # UPDATE OF a,b fires when ANY listed column is in the write's SET list (Postgres), so a column-scoped
             # trigger covers the write when the two overlap; a trigger on every update must name the keys it records
-            if bit == _OP_BIT["update"] and not ((keys & set(cols)) if cols else all(k in src_fn for k in keys)):
+            # a payload of stamps only is held to all of them
+            said = ({k for k in keys if not _STAMP.search(k)} or keys) if keys else keys
+            if bit == _OP_BIT["update"] and not ((keys & set(cols)) if cols else all(k in src_fn for k in said)):
                 continue
             hit = f"{name} ({'UPDATE OF ' + ','.join(cols) if cols and bit == 16 else op.upper()})"
             break
@@ -289,7 +340,7 @@ def check_page(page: str) -> tuple[str, str]:
                        f"loads or a trigger on the table writes to the audit trail")
     if by_db:
         return "ok", (f"{page} calls no trail function, and the database writes its trail: "
-                      + "; ".join(sorted(set(by_db))[:3]) + " inserts into hive_audit_log"
+                      + "; ".join(sorted(set(by_db))[:3]) + " writes the audit trail (hive_audit_log / platform_audit_log)"
                       + (f"; {', '.join(sorted(private))} is private to its owner" if private else ""))
     if hiveless and not private:
         return "n/a", (f"{page} writes only rows that belong to no hive ({', '.join(sorted(hiveless))}: no hive_id) - "

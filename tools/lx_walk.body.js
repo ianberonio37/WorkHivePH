@@ -99,7 +99,10 @@ async (mcpPage) => {
     // ★A BIBLIOGRAPHY NAMES ITS PUBLISHERS (2026-10-31, learn/joining-and-growing-your-hive): "Supabase, Row Level Security
     // documentation" in an article's Sources list is a citation, not a developer's word leaking into what the page says -
     // the jargon check reads the page minus its source lists (a <cite>, .sources-list, or the list under a Sources heading)
-    const srcEls = [...root.querySelectorAll('cite, .sources-list, [data-wh-sources]')];
+    // ...and minus a DISCLOSURE (2026-11-03, privacy-policy): "Service providers (Supabase for database, ...)" is the
+    // processor the Data Privacy Act obliges the policy to name. The page marks it [data-wh-disclosure]; a vendor's name
+    // anywhere else is still a developer's word leaking.
+    const srcEls = [...root.querySelectorAll('cite, .sources-list, [data-wh-sources], [data-wh-disclosure]')];
     root.querySelectorAll('h2, h3').forEach((hd) => {
       if (!/^(sources|references)$/i.test((hd.textContent || '').trim()) && !/^(sources|references)$/i.test(hd.id || '')) return;
       const n = hd.nextElementSibling; if (n && /^(UL|OL)$/.test(n.tagName)) srcEls.push(n);
