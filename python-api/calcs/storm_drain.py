@@ -15,6 +15,7 @@ Method: Rational Method — Q = C × i × A / 360  (m³/s, i in mm/hr, A in ha)
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # DPWH standard storm drain diameters (mm) — minimum 300 mm per DPWH Blue Book
 SD_DIAMETERS_MM = [300, 375, 450, 525, 600, 675, 750, 900, 1050, 1200, 1350, 1500]
@@ -48,6 +49,7 @@ def _kirpich_tc(length_m: float, slope_pct: float) -> float:
 
 
 # formula: storm_drain
+@discloses
 def calculate(inputs: dict) -> dict:
     area_mode      = str(inputs.get("area_mode",      "single"))
     intensity      = float(inputs.get("intensity_mmhr", 0))     # 0 = use PAGASA table
@@ -100,8 +102,7 @@ def calculate(inputs: dict) -> dict:
     d_req_mm = d_req_m * 1000.0
 
     # Select DPWH standard diameter (min 300 mm)
-    d_sel_mm = next((d for d in SD_DIAMETERS_MM if d >= max(d_req_mm, 300)),
-                    SD_DIAMETERS_MM[-1])
+    d_sel_mm = pick_at_least(SD_DIAMETERS_MM, max(d_req_mm, 300), "storm drain pipe diameter (mm)")
     d_sel_m  = d_sel_mm / 1000.0
 
     # Full-pipe capacity

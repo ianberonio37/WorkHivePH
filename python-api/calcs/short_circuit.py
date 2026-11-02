@@ -17,6 +17,7 @@ Calculates:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── IEC 60909 voltage factor c ───────────────────────────────────────────────
 # c_max for fault current calculation (conservative - use for equipment rating)
@@ -135,6 +136,7 @@ def _source_impedance(
 
 
 # formula: short_circuit_iec_60909_0
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcShortCircuit() keys.
@@ -229,7 +231,7 @@ def calculate(inputs: dict) -> dict:
     ocpd_adequate = ocpd_ka >= Isc_3ph_kA
 
     # Recommend next OCPD rating if inadequate
-    rec_ocpd = next((k for k in OCPD_KA if k >= Isc_3ph_kA), OCPD_KA[-1])
+    rec_ocpd = pick_at_least(OCPD_KA, Isc_3ph_kA, "breaker interrupting rating (kA)")
 
     # ── Impedance breakdown for engineering review ────────────────────────────
     def pct_total(z: float) -> float:

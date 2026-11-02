@@ -27,6 +27,7 @@ IEC 62040-3 topology codes:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── VRLA battery constants (IEEE 1184) ──────────────────────────────────────
 # ★THE BATTERY WAS SIZED ON ITS 20-HOUR Ah (2026-11-02, ED R1 UPS): Ah = kW x t / (V x 0.80 x 0.98) assumes a block gives
@@ -140,6 +141,7 @@ def _replacement_year(life_factor: float, rated_life_yr: float = 5.0) -> float:
 
 
 # formula: ups_sizing_ieee_1184_2006
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcUPSSizing() input keys.
@@ -196,18 +198,15 @@ def calculate(inputs: dict) -> dict:
     # Redundancy adjustment
     if redundancy == "N+1":
         n_modules     = math.ceil(load_kva / (ups_kva_min * 0.80)) + 1
-        module_kva    = next((s for s in STD_UPS_KVA if s >= ups_kva_min / n_modules),
-                              STD_UPS_KVA[-1])
+        module_kva    = pick_at_least(STD_UPS_KVA, ups_kva_min / n_modules, "UPS module (kVA)")
         rec_ups_kva   = module_kva * n_modules
         config_note   = f"N+1: {n_modules} × {module_kva} kVA modules"
     elif redundancy == "2N":
-        module_kva    = next((s for s in STD_UPS_KVA if s >= ups_kva_min),
-                              STD_UPS_KVA[-1])
+        module_kva    = pick_at_least(STD_UPS_KVA, ups_kva_min, "UPS module (kVA)")
         rec_ups_kva   = module_kva * 2
         config_note   = f"2N: 2 × {module_kva} kVA modules (full redundancy)"
     else:
-        rec_ups_kva   = next((s for s in STD_UPS_KVA if s >= ups_kva_min),
-                              STD_UPS_KVA[-1])
+        rec_ups_kva   = pick_at_least(STD_UPS_KVA, ups_kva_min, "UPS rating (kVA)")
         config_note   = f"N: {rec_ups_kva} kVA single UPS"
 
     # Loading at recommended UPS
@@ -231,7 +230,7 @@ def calculate(inputs: dict) -> dict:
     ah_energy_only = (kw_design * t_hr) / (v_dc / 1000 * DOD_VRLA * ETA_WIRE)   # the old 20-hour figure, for contrast
 
     # Select next standard Ah
-    rec_ah = next((a for a in STD_BATT_AH if a >= ah_required), STD_BATT_AH[-1])
+    rec_ah = pick_at_least(STD_BATT_AH, ah_required, "UPS battery (Ah)")
 
     # Number of battery strings (cells in parallel if Ah > single-string limit)
     # Standard: 1 string for < 200 Ah; parallel strings for higher Ah
@@ -267,7 +266,7 @@ def calculate(inputs: dict) -> dict:
     # ── Bypass and input breaker ──────────────────────────────────────────────
     std_breakers = [20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630]
     min_breaker  = input_current_a * 1.25
-    rec_breaker  = next((b for b in std_breakers if b >= min_breaker), std_breakers[-1])
+    rec_breaker  = pick_at_least(std_breakers, min_breaker, "UPS input breaker (A)")
 
     return {
         # Load

@@ -17,6 +17,7 @@ NFPA 20 key rules:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── Standard fire pump flow sizes (L/min) - NFPA 20 Table 4.26 ──────────────
 STD_PUMP_LPM = [
@@ -79,6 +80,7 @@ def _pump_curve_points(rated_flow: float, rated_pressure: float) -> list[dict]:
 
 
 # formula: fire_pump_nfpa_20_2022
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcFirePump() keys.
@@ -164,7 +166,7 @@ def calculate(inputs: dict) -> dict:
     rated_press_bar = pump_press_bar * (1 + design_margin_pct / 100)
 
     # Select next standard pump size (by flow)
-    rec_flow_lpm  = next((s for s in STD_PUMP_LPM if s >= rated_flow_lpm), STD_PUMP_LPM[-1])
+    rec_flow_lpm  = pick_at_least(STD_PUMP_LPM, rated_flow_lpm, "fire pump rated flow (L/min)")
     rec_flow_m3hr = round(rec_flow_lpm * 60 / 1000, 1)
     rec_flow_gpm  = round(rec_flow_lpm / 3.7854, 0)
 
@@ -184,7 +186,7 @@ def calculate(inputs: dict) -> dict:
     shaft_kw_max      = max(motor_kw_calc, motor_kw_overload)
     motor_input_kw    = shaft_kw_max / motor_eff if motor_eff > 0 else shaft_kw_max
     motor_kw_design   = shaft_kw_max * 1.15   # 15% margin on the largest shaft power along the curve
-    rec_motor_kw      = next((s for s in STD_PUMP_KW if s >= motor_kw_design), STD_PUMP_KW[-1])
+    rec_motor_kw      = pick_at_least(STD_PUMP_KW, motor_kw_design, "fire pump motor (kW)")
 
     # NFPA 20: diesel driver mandatory if motor > 22 kW or AHJ requires
     diesel_required = (rec_motor_kw > 22) or (driver_type == "Diesel")
@@ -194,7 +196,7 @@ def calculate(inputs: dict) -> dict:
     jockey_press_bar = rated_press_bar + JOCKEY_PRESSURE_ADD_BAR
     jockey_kw_calc   = _pump_power_kw(jockey_flow_lpm, jockey_press_bar, pump_eff, 1.0)    # shaft
     jockey_kw_design  = jockey_kw_calc * 1.25
-    rec_jockey_kw     = next((s for s in STD_PUMP_KW if s >= jockey_kw_design), STD_PUMP_KW[-1])
+    rec_jockey_kw     = pick_at_least(STD_PUMP_KW, jockey_kw_design, "jockey pump motor (kW)")
 
     # ── Pump curve (NFPA 20 three-point) ─────────────────────────────────────
     pump_curve = _pump_curve_points(rec_flow_lpm, rated_press_bar)

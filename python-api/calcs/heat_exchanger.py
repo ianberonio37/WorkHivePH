@@ -16,6 +16,7 @@ Methods:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── TEMA fouling resistances (m²·K/W) Table R-2.4 ───────────────────────────
 FOULING_FACTORS: dict[str, float] = {
@@ -206,6 +207,7 @@ def _f_correction(T_hi: float, T_ho: float, T_ci: float, T_co: float) -> tuple[f
     return F, (F >= 0.75)
 
 
+@discloses
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcHeatExchanger() keys."""
     # ── Process conditions ────────────────────────────────────────────────────
@@ -319,7 +321,7 @@ def calculate(inputs: dict) -> dict:
     n_tubes = max(n_tubes, n_next)
     h_i = tube_h_data["h_W_m2K"]
     U_clean  = _overall_U(h_i, h_o, d_i_mm, d_o_mm, k_wall, 0, 0)
-    A_std_m2 = next((s for s in STD_AREAS_M2 if s >= A_req_m2), STD_AREAS_M2[-1])
+    A_std_m2 = pick_at_least(STD_AREAS_M2, A_req_m2, "heat-exchanger area (m2)")
 
     # Shell diameter estimate (triangular pitch)
     Ds_est_mm = 1.15 * pitch_mm * math.sqrt(n_tubes)

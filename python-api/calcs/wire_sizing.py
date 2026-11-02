@@ -15,6 +15,7 @@ Calculates:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── PEC 2017 Table 310.15(B)(16) - Cu THHN/THWN at 75°C, ≤3 in conduit ─────
 # (ampacity, mm²)  - Philippine standard cable sizes
@@ -195,6 +196,7 @@ def _select_wire(
 
 
 # formula: wire_sizing_nec_2020
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcWireSizing() input keys.
@@ -264,7 +266,7 @@ def calculate(inputs: dict) -> dict:
         min_breaker, breaker_basis = design_current * 1.75, "PEC 4.40.22(A): 175% of compressor rated-load current"
     else:
         min_breaker, breaker_basis = sizing_current, "PEC 2.40.4: next standard size at or above the sizing current"
-    breaker_a = next((b for b in BREAKER_SIZES if b >= min_breaker), BREAKER_SIZES[-1])
+    breaker_a = pick_at_least(BREAKER_SIZES, min_breaker, "branch breaker (A)")
 
     # ── Wire selection ────────────────────────────────────────────────────────
     wire, tf, ff = _select_wire(sizing_current, ambient_c, num_cond)

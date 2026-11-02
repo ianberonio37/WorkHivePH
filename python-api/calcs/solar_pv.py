@@ -26,6 +26,7 @@ Calculates:
 """
 
 import math
+from ._catalog import discloses, pick_at_least, record_limit
 
 # ─── Philippine T_min (°C) - PAGASA climatological normals ───────────────────
 # IEC 62548: use coldest recorded ambient for Voc_max calculation
@@ -127,6 +128,7 @@ def _pmax_hot(pmax_w: float, temp_coeff_pct: float, t_cell_hot: float) -> float:
 
 
 # formula: solar_pv_iec_62548_2016
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcSolarPV() input keys.
@@ -228,8 +230,17 @@ def calculate(inputs: dict) -> dict:
     fuse_min_a   = 1.5 * isc_stc
     fuse_max_a   = 2.4 * isc_stc
     std_fuses    = [10, 12, 15, 20, 25, 30, 32, 40]
-    rec_fuse_a   = next((f for f in std_fuses if f >= fuse_min_a and f <= fuse_max_a),
-                        std_fuses[-1])
+    # ★NO FUSE IN THE WINDOW WAS ANSWERED WITH 40 A (2026-11-02, Wave ED): a 3 A module (window 4.5-7.2 A) was given a
+    # 40 A fuse that never opens for it, and a module above 26.7 A Isc a 40 A fuse under its 1.5 x Isc floor. The nearest
+    # listed fuse is still shown, and the answer says it is outside the window.
+    rec_fuse_a   = next((f for f in std_fuses if fuse_min_a <= f <= fuse_max_a), None)
+    if rec_fuse_a is None:
+        rec_fuse_a = std_fuses[-1] if fuse_min_a > std_fuses[-1] else std_fuses[0]
+        record_limit("string fuse (A)", fuse_min_a, rec_fuse_a,
+                     f"string fuse (A): IEC 62548 asks 1.5 x Isc = {fuse_min_a:.1f} A to 2.4 x Isc = {fuse_max_a:.1f} A, and no "
+                     f"fuse in this calculator's list ({std_fuses[0]}-{std_fuses[-1]} A) lies in that window; the "
+                     f"{rec_fuse_a} A shown does NOT comply - select from the fuse maker's range, within the module's "
+                     f"maximum series fuse rating.")
 
     # ── DC cable sizing (simplified - detailed in Wire Sizing calc) ───────────
     # Max DC current = 1.25 × Isc (IEC 62548 safety factor)
@@ -250,8 +261,7 @@ def calculate(inputs: dict) -> dict:
     # Inverter DC input power = array kWp (1:1 for grid-tied, per IEC 62109)
     # Inverter AC output ≥ 90% of DC array kWp (standard sizing ratio)
     inv_kva_min  = array_kw_stc * 0.90   # kW → kVA (unity PF for inverter output)
-    rec_inv_kva  = next((s for s in STD_INVERTER_KVA if s >= inv_kva_min),
-                        STD_INVERTER_KVA[-1])
+    rec_inv_kva  = pick_at_least(STD_INVERTER_KVA, inv_kva_min, "inverter (kVA)")
 
     # ── Off-grid battery bank ─────────────────────────────────────────────────
     batt_bank = None
@@ -267,8 +277,7 @@ def calculate(inputs: dict) -> dict:
         batt_v_bank   = _bv if _bv >= BATT_CELL_V else (48 if system_kw < 10 else 96)   # V DC bus
         batt_ah_req   = batt_kwh_req * 1000 / batt_v_bank
         std_batt_ah   = [100, 150, 200, 250]
-        rec_batt_ah   = next((a for a in std_batt_ah if a >= batt_ah_req),
-                              std_batt_ah[-1])
+        rec_batt_ah   = pick_at_least(std_batt_ah, batt_ah_req, "battery bank (Ah)")
         n_parallel    = math.ceil(batt_ah_req / rec_batt_ah)
         n_series      = int(batt_v_bank / BATT_CELL_V)
         total_cells   = n_series * n_parallel

@@ -16,6 +16,7 @@ Calculates:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── ASHRAE 90.1-2019 Table 6.8.1-3, Path A - Chiller minimum efficiency ─────
 # Format: (capacity_limit_kW, min_COP_full_load, min_IPLV). Tier breaks: 150 TR=527 kW,
@@ -154,6 +155,7 @@ def _outdoor_db(inputs: dict) -> float:
     return float(x if x is not None else 35.0)
 
 
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcChillerSystem() keys.
@@ -251,8 +253,7 @@ def calculate(inputs: dict) -> dict:
     # (360 TR installed for a 156 TR plant), and the recommendation said to procure them. Each unit is now the smallest
     # standard size that carries its share.
     q_unit_kw = cooling_kw_design / n_units
-    rec_kw = next((s for s in STD_CHILLER_KW if s >= q_unit_kw),
-                  STD_CHILLER_KW[-1])
+    rec_kw = pick_at_least(STD_CHILLER_KW, q_unit_kw, "chiller unit capacity (kW)")
     rec_tr = round(rec_kw / 3.517, 1)
 
     # ── ASHRAE 90.1 compliance — checked against spec COP (equipment selection) ──

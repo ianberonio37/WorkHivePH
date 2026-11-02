@@ -296,10 +296,12 @@
     /* !important: 18 renderers set grid-template-columns:1fr 1fr 1fr INLINE, which beats this rule - their
        25-underscore signature lines cannot shrink, so three columns pushed the page to 513 px at 390 (STP walk,
        2026-11-02). A media query adds no specificity. */
-    @media (max-width: 640px) { #report-panel .sig-block { grid-template-columns: 1fr !important; gap: 0.5rem; } }
+    /* the BOM/SOW documents carry the same inline 1fr 1fr 1fr signature grid; three unbreakable signature lines ran a 390 px
+       phone to 514 (ED-B1, 2026-11-02) - the report's phone rule now reaches them too */
+    @media (max-width: 640px) { #report-panel .sig-block, .doc-panel .sig-block { grid-template-columns: 1fr !important; gap: 0.5rem; } }
     /* a report's summary tiles (repeat(3,1fr) inline) kept three min-content columns on a phone: AHU's fan-power tile
        pushed the page to 402 px at 390. Two shrinkable columns let the labels wrap; print keeps three. */
-    @media (max-width: 640px) { #report-panel .res-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+    @media (max-width: 640px) { #report-panel .res-tiles, .doc-panel .res-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
     @media (max-width: 480px) { .toggle-btn { min-height: 44px; padding: 0.75rem 1rem; } }
     #report-panel .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
     #report-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 40px; display: inline-block; cursor: text; }
@@ -615,6 +617,9 @@
     .ed-compare-h { font-size: 0.95rem; font-weight: 700; margin: 0 0 4px; }
     .ed-compare-sub { font-size: 0.875rem; font-weight: 700; margin: 12px 0 4px; }
     .ed-compare-note { font-size: 0.875rem; line-height: 1.5; color: rgba(255,255,255,0.8); margin: 0 0 8px; }
+    /* a pick the engine could not meet from its list (exceeds_catalog): stated above the report, on the report's paper */
+    .ed-catalog-notice { border: 1.5px solid #b3261e; border-left-width: 5px; border-radius: 8px; padding: 0.6rem 0.8rem; margin: 0 0 0.9rem; background: #fdf2f1; color: #3d0d09; font-size: 0.875rem; line-height: 1.5; }
+    .ed-catalog-notice ul { margin: 0.3rem 0 0; padding-left: 1.1rem; }
     .ed-compare-scroll { overflow-x: auto; }
     .ed-compare-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; font-variant-numeric: tabular-nums; }
     .ed-compare-table th, .ed-compare-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.12); vertical-align: top; }

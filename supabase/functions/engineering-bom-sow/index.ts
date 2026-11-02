@@ -38,15 +38,35 @@ function sanitizeBomItems(items: unknown[]): unknown[] {
     if (!isFinite(q) || q <= 0) q = 1;
     if (q > 100000) q = 100000;
     q = Math.round(q * 100) / 100;
+    // a remark that only says there is none ("N/A", "None", "-") is an empty remark: printed, it reads as a broken value in
+    // every row of the procurement document (the LPS bill carried N/A in all 14 rows, 2026-11-02, ED-B1)
+    const remarks = stripNonAscii(it.remarks).trim();
     return {
       ...it,
       qty:         q,
       unit:        clean,
       description: stripNonAscii(it.description),
       specification: stripNonAscii(it.specification),
-      remarks:     stripNonAscii(it.remarks),
+      remarks:     /^(n\/?a|none|nil|-+)$/i.test(remarks) ? '' : remarks,
     };
   });
+}
+
+// ★A SIZING FIGURE IS COMPUTED HERE, NEVER BY THE MODEL (2026-11-02, ED-B1). The transformer prompt asked for an "MCCB
+// rated minimum 125% of 144.34 A" and the model wrote 125 A - a breaker below the transformer's own full-load current. A
+// prompt that hands the model arithmetic gets the model's arithmetic. Every rating a BOM line needs is computed below
+// and stated to the model as a figure; the model writes the words around it.
+// NEC 240.6(A) / PEC 2017 Art. 2.40 standard ampere ratings of fuses and inverse-time circuit breakers.
+const STD_OCPD_A = [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 125, 150, 175, 200, 225, 250, 300, 350, 400,
+  450, 500, 600, 700, 800, 1000, 1200, 1600, 2000, 2500, 3000, 4000, 5000, 6000];
+function ocpdAtLeast(amps: number): number | null {
+  if (!Number.isFinite(amps) || amps <= 0) return null;
+  return STD_OCPD_A.find((a) => a >= amps) ?? null;
+}
+// the line-to-line voltage a phase description states ("3-Phase 4-Wire (400V)"), else the given default
+function voltsOf(desc: unknown, dflt: number): number {
+  const m = String(desc ?? "").match(/(\d{3,5})\s*V/i);
+  return m ? Number(m[1]) : dflt;
 }
 
 async function callGroq(prompt: string): Promise<string> {
@@ -980,7 +1000,7 @@ async function waterTreatmentBomSowAgent(
   const naoclLpd       = results.naocl_daily_L     ?? "N/A";
   const alumDoseMg     = results.alum_dose_mg_L    ?? "N/A";
   const storageTankL   = results.storage_tank_L    ?? "N/A";
-  const pnsStatus      = results.pns_compliance_status || "REVIEW";
+  const pnsStatus      = results.pns_compliance_status || results.pns1998_status || "REVIEW";
   const trainSteps     = (results.train_steps as string[]) || [];
 
   const trainSummary = trainSteps.map((s, i) => `Step ${i+1}: ${s}`).join('; ');
@@ -1787,6 +1807,12 @@ async function pfcBomSowAgent(
   const kvaReduction  = results.kva_reduction  || "";
   const currentRedPct = results.current_reduction_pct || "";
   const meralcoPenalty= results.meralco_penalty ?? false;
+  // the bank's rated current, and the 135% that NEC 460.8(A) / PEC 2017 Art. 4.60 asks of its conductors; the breaker is
+  // the next standard rating above that (460.8(B): as low as practicable while carrying the bank)
+  const capA          = Number(selectedKvar) * 1000 / (Number(phases) === 1 ? Number(voltageV) : Math.sqrt(3) * Number(voltageV));
+  const capA135       = capA * 1.35;
+  const capBrkA       = ocpdAtLeast(capA135);
+  const capTxt        = Number.isFinite(capA) ? `${capA.toFixed(1)} A rated; 135% = ${capA135.toFixed(1)} A` : "";
 
   const prompt = `You are a Philippine electrical engineering expert (IEEE 18, IEEE 1036, PEC 2017 Art. 4.60, IEC 60831-1). Generate a professional BOM and SOW for a POWER FACTOR CORRECTION (capacitor bank) installation project.
 
@@ -1800,7 +1826,7 @@ STANDARDS: IEEE 18, IEEE 1036, PEC 2017 Article 4.60, IEC 60831-1
 
 Generate a JSON object with:
 1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Power Factor Correction Capacitor Bank (${selectedKvar} kVAR, ${voltageV}V, ${phases}-phase, IEC 60831-1 certified self-healing type, factory-installed discharge resistors per IEEE 18: terminal voltage < 50V within 5 minutes after disconnection, IP31 minimum indoor rating), Automatic Power Factor Controller / APFC (12-step microprocessor-based controller, Modbus RS-485 communication port, anti-hunting timer to prevent excessive switching cycles, LCD display showing PF, kVAR, step status), Series Detuning Reactor 7% (tuned to 189 Hz to prevent harmonic resonance with VFDs and non-linear loads: rated for 1.3x capacitor rated current, Class H insulation), Dedicated MCCB for Capacitor Feeder (molded-case circuit breaker rated at minimum 135% of capacitor rated current per PEC Art. 4.60.14 and IEEE 1036: provide time-delay characteristic to allow capacitor inrush), Capacitor Panel Enclosure (sheet metal IP31 indoor panel with busbar, din-rail, door interlock and padlock provision, nameplate, anti-condensation heater for humid environments), Copper Busbars (tinned copper, current-rated to 125% of capacitor bank rated current, insulated phase segregation, per PEC Art. 4.60), Copper Conductors: Capacitor Feeder (THHN/THWN-2 75°C copper, sized at 135% of capacitor rated current per PEC Art. 4.60.14 and IEEE 1036), Conduit System (IMC rigid metallic conduit or PVC Schedule 40 for LV, sized per PEC Table 3.10.1, with liquid-tight fittings at panel knockouts), Power Analyzer / Energy Meter (true-RMS multifunction meter with power factor, kW, kVAR, kVAh, harmonic THD display: DIN rail or panel mount), Control Transformer (240V/24V AC for APFC controller and auxiliary relay supply, VA rated to controller load + 20% margin), Earthing and Grounding Materials (copper earth bus, 16 sq.mm green/yellow earth wire, compression lugs, earth bar, bonded to capacitor bank frame and panel enclosure per PEC Art. 2.50), Cable Tray / Cable Duct (perforated cable tray or PVC duct for routing power and control cables, sized for cable fill not more than 40%), Warning Labels and Safety Signs (DANGER: CAPACITOR BANK, DISCHARGE TIME, PPE requirement labels per DOLE OSH and PEC Art. 4.60), Installation Accessories (mounting bolts, anti-vibration pads, terminal lugs, heat shrink tubing, ferrules, cable ties: complete set)
+   Include: Power Factor Correction Capacitor Bank (${selectedKvar} kVAR, ${voltageV}V, ${phases}-phase, IEC 60831-1 certified self-healing type, factory-installed discharge resistors per IEEE 18: terminal voltage < 50V within 5 minutes after disconnection, IP31 minimum indoor rating), Automatic Power Factor Controller / APFC (12-step microprocessor-based controller, Modbus RS-485 communication port, anti-hunting timer to prevent excessive switching cycles, LCD display showing PF, kVAR, step status), Series Detuning Reactor 7% (tuned to 189 Hz to prevent harmonic resonance with VFDs and non-linear loads: rated for 1.3x capacitor rated current, Class H insulation), Dedicated MCCB for Capacitor Feeder (molded-case circuit breaker ${capBrkA ?? ''} A for the ${selectedKvar} kVAR bank (${capTxt}), per NEC 460.8 / PEC 2017 Art. 4.60 and IEEE 1036: provide time-delay characteristic to allow capacitor inrush), Capacitor Panel Enclosure (sheet metal IP31 indoor panel with busbar, din-rail, door interlock and padlock provision, nameplate, anti-condensation heater for humid environments), Copper Busbars (tinned copper, current-rated to 125% of capacitor bank rated current, insulated phase segregation, per PEC Art. 4.60), Copper Conductors: Capacitor Feeder (THHN/THWN-2 75°C copper, ampacity at least ${capA135.toFixed(1)} A (135% of the bank's ${capA.toFixed(1)} A) per NEC 460.8(A) / PEC 2017 Art. 4.60 and IEEE 1036), Conduit System (IMC rigid metallic conduit or PVC Schedule 40 for LV, sized per PEC Table 3.10.1, with liquid-tight fittings at panel knockouts), Power Analyzer / Energy Meter (true-RMS multifunction meter with power factor, kW, kVAR, kVAh, harmonic THD display: DIN rail or panel mount), Control Transformer (240V/24V AC for APFC controller and auxiliary relay supply, VA rated to controller load + 20% margin), Earthing and Grounding Materials (copper earth bus, 16 sq.mm green/yellow earth wire, compression lugs, earth bar, bonded to capacitor bank frame and panel enclosure per PEC Art. 2.50), Cable Tray / Cable Duct (perforated cable tray or PVC duct for routing power and control cables, sized for cable fill not more than 40%), Warning Labels and Safety Signs (DANGER: CAPACITOR BANK, DISCHARGE TIME, PPE requirement labels per DOLE OSH and PEC Art. 4.60), Installation Accessories (mounting bolts, anti-vibration pads, terminal lugs, heat shrink tubing, ferrules, cable ties: complete set)
 
 2. "sow_sections": array of 7 sections (each: section_no, title, content)
    Write each content as a full professional paragraph starting with "The Contractor shall...": do NOT use bullet points or keyword lists. Each section must be 3–6 sentences of contractor-facing specification language.
@@ -2133,6 +2159,12 @@ async function generatorSizingBomSowAgent(
   const fuel100LHr     = results.fuel_100pct_lhr ?? "N/A";
   const fuel75LHr      = results.fuel_75pct_lhr  ?? "N/A";
   const tank8hrL       = results.tank_8hr_litres ?? "N/A";
+  // the genset's rated current at the form's own voltage (it was 415 V whatever the phase configuration said)
+  const genV           = voltsOf(phaseConfig, 400);
+  const genOnePh       = /1-?\s*phase|single/i.test(String(phaseConfig));
+  const genFLA         = Number(selectedKVA) * 1000 / (genOnePh ? genV : Math.sqrt(3) * genV);
+  const genBrkA        = ocpdAtLeast(genFLA * 1.25);
+  const genFLAtxt      = Number.isFinite(genFLA) ? genFLA.toFixed(1) : "N/A";
 
   const prompt = `You are a Philippine electrical engineering expert (PEC 2017, ISO 8528-1, NFPA 110). Generate a professional BOM and SOW for a GENERATOR SIZING and installation project.
 
@@ -2151,7 +2183,7 @@ STANDARDS: ISO 8528-1 (genset ratings), PEC 2017 Article 7 (standby systems), NF
 
 Generate a JSON object with:
 1. "bom_items": array of 18 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Diesel generator set (${selectedKVA} kVA / ${selectedKW} kW at 0.8 PF: ${phaseConfig}, 415V/240V, 60 Hz, ISO 8528-1 rated for ${application} service, DENR AO 2016-07 / Euro-3 emission-compliant diesel engine, synchronous alternator with integrated AVR ±1% voltage regulation, IP23 weather-protected enclosure), automatic transfer switch / ATS panel (4-pole motorized, current-rated at ${Math.ceil(Number(selectedKVA) * 1000 / 415 / 1.732)} A minimum for ${phaseConfig} 415V system: with open/closed/neutral positions, auto/manual/test mode, transfer time ≤ 10 s, retransfer delay timer, PEC Art. 7 compliant), main circuit breaker for genset output (MCCB, rated ≥ 125% of ${selectedKW} kW FLA, interrupt capacity ≥ 25 kA), genset control panel / annunciator (digital controller: auto start/stop, fault alarm outputs: low oil pressure, high coolant temp, overcrank, overspeed, battery failure), battery set for engine starting (maintenance-free lead-acid or VRLA, 12V/24V per manufacturer spec, sized for ≥ 10 cold cranking starts), battery charger (trickle/float type, 10A minimum, with charge status indicator), diesel day tank / base tank (${tank8hrL}L minimum capacity: 8-hr runtime per NFPA 110, UL-listed steel tank with level gauge, vent, drain valve), fuel supply piping (black steel Schedule 40, 25–50 mm diameter from bulk tank to day tank to genset, with isolation valves and flexible connector), flexible exhaust connection and muffler (residential-grade or critical-grade muffler per ambient noise requirements, stainless steel flex bellows, weather-protected exhaust termination ≥ 3 m above grade), exhaust pipe and stack (75–150 mm black steel Schedule 40, insulated where passing through occupied spaces), anti-vibration mounts / base isolation pads (4-point neoprene isolators rated for genset weight, ≤ 5 mm deflection), generator room ventilation louvers (supply and exhaust, motorized dampers, sized for 100% combustion air plus cooling air), earthing / grounding conductor (copper, 16–25 mm² to earth electrode, bonded to genset frame and ATS enclosure, PEC Art. 1.50), output power cable (THHN/THWN copper, sized for ${selectedKW} kW load at 415V: 125% continuous load factor, in EMT conduit), cable tray or conduit system (EMT/IMC, properly sized, from genset to ATS to main distribution panel), remote annunciator panel (if genset room is unmanned: fault alarms, run hours, battery status: mounted at building entrance or security desk), genset commissioning and load bank test report (factory test certificate, site acceptance test at 100% load for minimum 2 hours)
+   Include: Diesel generator set (${selectedKVA} kVA / ${selectedKW} kW at 0.8 PF: ${phaseConfig}, 415V/240V, 60 Hz, ISO 8528-1 rated for ${application} service, DENR AO 2016-07 / Euro-3 emission-compliant diesel engine, synchronous alternator with integrated AVR ±1% voltage regulation, IP23 weather-protected enclosure), automatic transfer switch / ATS panel (4-pole motorized, current-rated at ${Math.ceil(genFLA)} A minimum for the ${phaseConfig} ${genV} V system: with open/closed/neutral positions, auto/manual/test mode, transfer time ≤ 10 s, retransfer delay timer, PEC Art. 7 compliant), main circuit breaker for genset output (MCCB ${genBrkA ?? 'rated at least 125% of the rated current'} A, the next standard rating above 125% of the ${genFLAtxt} A rated current of ${selectedKVA} kVA at ${genV} V; interrupt capacity ≥ 25 kA), genset control panel / annunciator (digital controller: auto start/stop, fault alarm outputs: low oil pressure, high coolant temp, overcrank, overspeed, battery failure), battery set for engine starting (maintenance-free lead-acid or VRLA, 12V/24V per manufacturer spec, sized for ≥ 10 cold cranking starts), battery charger (trickle/float type, 10A minimum, with charge status indicator), diesel day tank / base tank (${tank8hrL}L minimum capacity: 8-hr runtime per NFPA 110, UL-listed steel tank with level gauge, vent, drain valve), fuel supply piping (black steel Schedule 40, 25–50 mm diameter from bulk tank to day tank to genset, with isolation valves and flexible connector), flexible exhaust connection and muffler (residential-grade or critical-grade muffler per ambient noise requirements, stainless steel flex bellows, weather-protected exhaust termination ≥ 3 m above grade), exhaust pipe and stack (75–150 mm black steel Schedule 40, insulated where passing through occupied spaces), anti-vibration mounts / base isolation pads (4-point neoprene isolators rated for genset weight, ≤ 5 mm deflection), generator room ventilation louvers (supply and exhaust, motorized dampers, sized for 100% combustion air plus cooling air), earthing / grounding conductor (copper, 16–25 mm² to earth electrode, bonded to genset frame and ATS enclosure, PEC Art. 1.50), output power cable (THHN/THWN copper, sized for the ${genFLAtxt} A rated current at ${genV} V: 125% continuous load factor, in EMT conduit), cable tray or conduit system (EMT/IMC, properly sized, from genset to ATS to main distribution panel), remote annunciator panel (if genset room is unmanned: fault alarms, run hours, battery status: mounted at building entrance or security desk), genset commissioning and load bank test report (factory test certificate, site acceptance test at 100% load for minimum 2 hours)
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
    Cover: Scope of Works, Design Basis (ISO 8528-1 ${application} rating, ${phaseConfig} 415V/240V 60 Hz, running demand ${runningKW} kW / ${runningKVA} kVA, design kVA ${designKVA} kVA with ${safetyFactor}× safety factor, selected ${selectedKVA} kVA genset, system loading ${loadingPct}%, starting surge ${startingKVA} kVA via ${startMethod}), Generator Set Installation (concrete inertia base or structural steel skid, anti-vibration mounts, clearances per manufacturer: minimum 1 m all sides, exhaust routing, weatherproofing for outdoor-rated enclosure), Automatic Transfer Switch (ATS) Installation (4-pole ATS wiring to utility and genset bus, normal-to-emergency transfer time ≤ 10 sec per NFPA 110 for Level 1 systems, retransfer delay, test mode, bypass provision), Fuel System (day tank installation at ${tank8hrL}L minimum, bulk fuel storage if provided, fill point, vent routing, overflow containment bund: DENR DAO 2013-22 spill containment requirements, fuel piping isolation valves, fuel level low alarm), Ventilation and Exhaust System (supply air louvers for combustion + cooling: minimum 0.1 m²/100 kW genset rating, critical-grade muffler installation, exhaust stack height and clearance from openings per DOLE OSH, noise assessment if within 30 m of occupied building), Earthing and Bonding (genset frame, ATS enclosure, neutral bonding per PEC Art. 7: single neutral bonding point, resistance ≤ 5 Ω to earth electrode, testing per PEC), Testing and Commissioning (factory test certificate review, no-load run 30 min, block load test at 25%/50%/75%/100% rated load: each step 15 min, ATS transfer and retransfer functional test, battery discharge and recharge test, fuel consumption verification, all fault alarm simulations, vibration and noise level measurement, test report sign-off by licensed PEE), Regulatory Compliance (PEC 2017 Article 7, NFPA 110 Level 1/Level 2 compliance, DOLE OSH mechanical and electrical installation permit, LGU/DENR permit for fuel storage if >200 L, as-built drawings, O&M manual, warranty registration)
 
@@ -2308,6 +2340,20 @@ async function firePumpBomSowAgent(
 
   // NFPA 20 motor rating: 115% for electric, 120% for diesel
   const isDiesel       = String(driveType).toLowerCase().includes("diesel");
+  // the engine sizes the jockey pump (about 1% of rated flow, set above the main pump's start pressure); the prompt had
+  // told the model "approx. 10% of main pump flow" and it wrote 284 L/min beside the engine's 28.4
+  const jockeyLpm      = results.jockey_flow_lpm ?? results.Q_jockey_Lmin ?? "N/A";
+  const jockeyBar      = results.jockey_pressure_bar ?? "N/A";
+  const jockeyKw       = results.jockey_motor_kW ?? "N/A";
+  // NFPA 20 §4.20: a relief valve is required where a DIESEL driver's 121% of churn plus the static suction pressure
+  // exceeds the system components' rating (175 psi = 12.07 bar, the usual listed rating). The prompt had said "set at
+  // 10% above churn pressure: NFPA 20 requirement" - a valve set above churn never opens, and that is not the rule.
+  const churnBar       = Number(results.churn_pressure_bar ?? NaN);
+  const suctionBar     = Number(suctionHead) * 0.0981;
+  const reliefNeeded   = isDiesel && Number.isFinite(churnBar) && (1.21 * churnBar + suctionBar) > 12.07;
+  const reliefText     = reliefNeeded
+    ? `required (NFPA 20 Section 4.20: diesel driver, 121% of churn ${churnBar.toFixed(2)} bar + suction ${suctionBar.toFixed(2)} bar = ${(1.21 * churnBar + suctionBar).toFixed(2)} bar exceeds the 12.07 bar component rating); set below the components' rating`
+    : `not required by NFPA 20 Section 4.20 for this ${isDiesel ? 'diesel' : 'electric'} driver (churn ${Number.isFinite(churnBar) ? churnBar.toFixed(2) : 'N/A'} bar); omit the line or mark it optional`;
   const nfpa20Pct      = isDiesel ? 120 : 115;
   const nfpa20Note     = isDiesel
     ? `Diesel drive selected: NFPA 20 requires motor rated at minimum 120% of pump BHP. Diesel backup is MANDATORY per BFP IRR for high-rise buildings and critical occupancies.`
@@ -2337,7 +2383,7 @@ STANDARDS: NFPA 20 (Stationary Fire Pumps), NFPA 13 (Sprinkler Systems: source o
 
 Generate a JSON object with:
 1. "bom_items": array of 16 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: Fire pump unit: end suction centrifugal (${flowLpm} L/min @ ${TDH} m TDH, ${recommendedHp} HP ${driveType}, UL/FM listed: NFPA 20 Section 4), pump baseplate and coupling guard (common baseplate, flexible coupling, stainless guard), electric motor: TEFC (${recommendedHp} HP, ${nfpa20Pct}% of BHP per NFPA 20, IP55 enclosure, IE3 efficiency class), diesel engine driver (if applicable: ${isDiesel ? `backup required per BFP IRR, engine HP = ${nfpa20Pct}% x BHP` : "not required for this installation: electric primary selected"}), jockey (pressure maintenance) pump (small centrifugal, approx. 10% of main pump flow, maintains system pressure to prevent false alarms), jockey pump motor (fractional HP, DOL starter), main pump suction pipe: ${pipeDia}mm ${pipeMat} Sch.40 with eccentric reducer and isolation valve (flooded suction configuration per NFPA 20), main pump discharge pipe: ${pipeDia}mm ${pipeMat} Sch.40 with concentric reducer to system main, pump discharge check valve (swing type, UL/FM listed: prevents backflow on pump shutdown), pump discharge gate valve / butterfly valve (OS&Y or LI type with tamper switch, UL/FM listed), pressure relief valve (set at 10% above churn pressure: NFPA 20 requirement), pressure gauges: suction and discharge (glycerin-filled, 0–21 bar, per NFPA 20), flow meter / test header with sight glass or ultrasonic flow meter (for periodic flow testing per NFPA 25), fire pump controller: automatic pressure-sensing type (UL listed per NFPA 20, auto-start on pressure drop, manual stop only, alarm panel with remote signal), automatic transfer switch / ATS (if diesel backup is provided: transfers power on utility failure), vibration isolation pads and anchor bolts (per pump manufacturer specification, seismic restraint if required)
+   Include: Fire pump unit: end suction centrifugal (${flowLpm} L/min @ ${TDH} m TDH, ${recommendedHp} HP ${driveType}, UL/FM listed: NFPA 20 Section 4), pump baseplate and coupling guard (common baseplate, flexible coupling, stainless guard), electric motor: TEFC (${recommendedHp} HP, ${nfpa20Pct}% of BHP per NFPA 20, IP55 enclosure, IE3 efficiency class), diesel engine driver (if applicable: ${isDiesel ? `backup required per BFP IRR, engine HP = ${nfpa20Pct}% x BHP` : "not required for this installation: electric primary selected"}), jockey (pressure maintenance) pump (${jockeyLpm} L/min at ${jockeyBar} bar, as calculated: sized to make up leakage, not to supply fire flow; maintains system pressure to prevent false starts), jockey pump motor (${jockeyKw} kW, DOL starter), main pump suction pipe: ${pipeDia}mm ${pipeMat} Sch.40 with eccentric reducer and isolation valve (flooded suction configuration per NFPA 20), main pump discharge pipe: ${pipeDia}mm ${pipeMat} Sch.40 with concentric reducer to system main, pump discharge check valve (swing type, UL/FM listed: prevents backflow on pump shutdown), pump discharge gate valve / butterfly valve (OS&Y or LI type with tamper switch, UL/FM listed), pressure relief valve (${reliefText}), pressure gauges: suction and discharge (glycerin-filled, 0–21 bar, per NFPA 20), flow meter / test header with sight glass or ultrasonic flow meter (for periodic flow testing per NFPA 25), fire pump controller: automatic pressure-sensing type (UL listed per NFPA 20, auto-start on pressure drop, manual stop only, alarm panel with remote signal), automatic transfer switch / ATS (if diesel backup is provided: transfers power on utility failure), vibration isolation pads and anchor bolts (per pump manufacturer specification, seismic restraint if required)
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
    Cover: Scope of Works, Design Basis (NFPA 20 design criteria, ${flowLpm} L/min @ ${requiredPressBar} bar, TDH=${TDH}m, ${driveType} drive, ${nfpa20Note}), Pump and Driver Installation (alignment, baseplate grouting, coupling guard, vibration isolation, NFPA 20 Section 4 clearance requirements), Piping Connections (suction eccentric reducer, discharge concentric reducer, pipe sizing per NFPA 20 velocity limits, hanger spacing, flanged connections to pump nozzles), Valves Instrumentation and Controller (OS&Y isolation valves with tamper switches, check valve, pressure gauges on suction and discharge, automatic fire pump controller per UL 218 / NFPA 20: auto-start, manual-stop-only, alarm outputs), Jockey Pump (sizing and installation, pressure setting to maintain system at ${(requiredPressBar * 100).toFixed(0)} kPa ± 35 kPa, prevent nuisance starts), Inspection Testing and Commissioning (churn/no-flow test, 100% flow test, 150% flow test at 65% pressure per NFPA 20 Section 12, pressure relief valve test, controller and ATS test, BFP acceptance inspection), Regulatory Compliance (RA 9514 Philippine Fire Code, NFPA 20 acceptance test witnessed by BFP AHJ, PRC-licensed Mechanical Engineer sign-off, O&M manual submission)
 
@@ -2528,6 +2574,10 @@ async function transformerSizingBomSowAgent(
   const VR         = results.voltage_regulation_pct ?? "N/A";
   const numUnits   = results.num_units        ?? 1;
   const loadPct    = results.loading_pct      ?? "N/A";
+  // secondary main breaker: the next standard rating at or above 125% of the secondary full-load current
+  const mccbMinA   = Number(I2) * 1.25;
+  const mccbA      = ocpdAtLeast(mccbMinA);
+  const mccbText   = mccbA ? `${mccbA} A trip (the next standard rating above 125% x ${I2} A = ${mccbMinA.toFixed(1)} A)` : `rated at least 125% of ${I2} A`;
 
   const prompt = `You are a Philippine electrical engineering expert (PEC 2017, IEC 60076, IEEE C57). Generate a professional BOM and SOW for a POWER TRANSFORMER installation project.
 
@@ -2544,7 +2594,7 @@ IMPORTANT: Use ASCII characters only. Do NOT use special characters such as supe
 
 Generate a JSON object with:
 1. "bom_items": array of 14 items (each: description, specification, qty, unit, remarks, checked: true)
-   Include: distribution transformer (rated ${ratedKva} kVA, ${v1}/${v2} V, ${phases}-phase, ${winding}, Uz = ${impPct}%, ONAN cooling, IEC 60076-1, DOE-certified, BPS standard), primary disconnecting switch (load-break switch or VCB rated for ${v1} V, fault current not less than ${IscKA} kA, primary current not less than ${I1} A), secondary main circuit breaker (MCCB rated minimum 125% of ${I2} A, IC not less than ${IscKA} kA, TPN for 3-phase), metering current transformers CT (primary: suitable for ${I1} A, accuracy Class 0.5 for metering, 5P20 for protection, qty: one set per phase), voltage transformers VT (primary: ${v1} V, secondary: 110 V, Class 0.5, for metering panel), surge arresters primary side (station class, rated for ${v1} V system, 10 kA discharge capability, IEC 60099-4), transformer earthing conductor (copper conductor 70 sq.mm bare Cu, from transformer tank to main earth bar), neutral earthing resistor NER or solid neutral earthing (per local utility requirements and system earthing philosophy), oil containment / bund wall (concrete or steel bund, 110% of transformer oil volume, with oil separator sump), transformer oil (IEC 60296 inhibited mineral oil, quantity to fill transformer tank, spare: 5% additional), outdoor transformer pad / plinth (reinforced concrete pad, 300 mm above grade, rated for transformer weight, with anchor bolts), HV and LV cable terminations (HV: heatshrink or cold-shrink termination kit for ${v1} V, LV: bolted copper bus connector for ${v2} V), fire protection (CO2 or clean agent extinguisher minimum 9 kg, plus automatic fire detection at transformer bay), commissioning and testing equipment (transformer oil test kit: dielectric strength, dissolved gas analysis; insulation resistance tester; ratio tester; spare breaker fuses)
+   Include: distribution transformer (rated ${ratedKva} kVA, ${v1}/${v2} V, ${phases}-phase, ${winding}, Uz = ${impPct}%, ONAN cooling, IEC 60076-1, DOE-certified, BPS standard), primary disconnecting switch (load-break switch or VCB rated for ${v1} V, fault current not less than ${IscKA} kA, primary current not less than ${I1} A), secondary main circuit breaker (MCCB ${mccbText}, IC not less than ${IscKA} kA, TPN for 3-phase - state this rating exactly), metering current transformers CT (primary: suitable for ${I1} A, accuracy Class 0.5 for metering, 5P20 for protection, qty: one set per phase), voltage transformers VT (primary: ${v1} V, secondary: 110 V, Class 0.5, for metering panel), surge arresters primary side (station class, rated for ${v1} V system, 10 kA discharge capability, IEC 60099-4), transformer earthing conductor (copper conductor 70 sq.mm bare Cu, from transformer tank to main earth bar), neutral earthing resistor NER or solid neutral earthing (per local utility requirements and system earthing philosophy), oil containment / bund wall (concrete or steel bund, 110% of transformer oil volume, with oil separator sump), transformer oil (IEC 60296 inhibited mineral oil, quantity to fill transformer tank, spare: 5% additional), outdoor transformer pad / plinth (reinforced concrete pad, 300 mm above grade, rated for transformer weight, with anchor bolts), HV and LV cable terminations (HV: heatshrink or cold-shrink termination kit for ${v1} V, LV: bolted copper bus connector for ${v2} V), fire protection (CO2 or clean agent extinguisher minimum 9 kg, plus automatic fire detection at transformer bay), commissioning and testing equipment (transformer oil test kit: dielectric strength, dissolved gas analysis; insulation resistance tester; ratio tester; spare breaker fuses)
 2. "sow_sections": array of 8 sections (each: section_no, title, content)
    Cover: Scope of Works (${ratedKva} kVA x ${numUnits} distribution transformer, ${v1}/${v2} V, ${phases}-phase), Design Basis (IEC 60076-1 rating, ${impPct}% impedance, fault current ${IscKA} kA at secondary, VR ${VR}%, Efficiency ${etaFl}%, loading ${loadPct}%), Civil and Structural Works (transformer pad design, cable trench, bund wall and oil separator, security fencing, outdoor lighting), Primary and Secondary Electrical Works (HV incoming connection, load-break switch installation, LV outgoing breaker, CT/VT installation, bus bars and cable terminations, PEC 2017 Art. 4.50 compliance), Earthing and Bonding (transformer neutral earthing, tank earthing, all metalwork bond to main earth bar per PEC Art. 2.50 / IEEE 80), Protection and Metering (overcurrent and earth fault protection relay settings, energy metering per WESM/distribution utility requirements, CT ratio and class verification), Testing and Commissioning (factory test certificates review, site insulation resistance test, turns ratio test, vector group check, oil sampling and dielectric test, protection relay testing and coordination study, load test at rated current, 24-hour monitoring), Regulatory and Utility Compliance (PEC 2017, DOE certificate of product registration, distribution utility interconnection requirement, Environmental Compliance Certificate for oil-filled equipment, O and M manual and as-built drawings submission to Building Official)
 
@@ -3254,7 +3304,7 @@ async function coolingTowerBomSowAgent(
   const coc          = Number(results.coc ?? inputs.coc ?? 4);
   const lgRatio      = Number(results.lg_ratio ?? inputs.lg_ratio ?? 1.2);
   const qWlps        = Number(results.q_w_lps ?? 0);
-  const qWm3hr       = Number(results.q_w_m3hr ?? 0);
+  const qWm3hr       = Number(results.q_w_m3hr ?? results.water_flow_m3hr ?? 0);
   const fanFlowCMH   = Number(results.fan_flow_CMH ?? 0);
   const fanKWstd     = Number(results.fan_kw_std ?? 0);
   const fanKWtotal   = Number(results.fan_kw_total ?? 0);
@@ -3346,7 +3396,7 @@ content: Makeup water piping shall be sized for ${makeupM3day} m³/day demand ($
 content: Fan motors (${fanKWstd} kW per cell, TEFC IE3, IP55, 3-phase 400V/60Hz) shall be installed per cooling tower manufacturer's instructions with proper belt tension or direct-drive coupling as applicable. Fan power index = ${fanKW100kw} kW per 100 kW heat rejection: ASHRAE 90.1 limit 4.0 kW/100 kW: ${isAshraePass ? "PASS. This shall be field-verified during commissioning at design conditions." : "FAIL: Contractor shall NOT energize fan motors until a high-efficiency fan assembly achieving ≤4.0 kW/100 kW is installed and confirmed by engineer."}  MCCB (3-pole, 400V, 18kA AIC) shall be installed per cell. All wiring shall be THHN 3.5mm² (3C) minimum per PEC 2017, in rigid galvanized conduit or PVC Schedule 40 in the cooling tower area (corrosive/wet environment). Electrical permit from LGU Building Official shall be obtained before any electrical works commence.
 
 6. Chemical Water Treatment and Legionella Control
-content: The Contractor shall install a complete automatic chemical dosing system per ASHRAE Guideline 12 for Legionella risk management: corrosion inhibitor, scale inhibitor, and biocide dosing pumps with chemical day tanks, wired to an automatic timer or water meter pulse; a side-stream filtration unit (10–25 micron multimedia filter, minimum 10% of system flow) to remove suspended solids that harbor Legionella biofilm; a written water safety plan (Legionella Water Management Plan) prepared by a qualified water treatment specialist before system start-up; and monthly water quality monitoring with log (pH: 7.0–8.5, conductivity at target CoC ${coc}, biocide residual per product spec, Legionella colony count < 100 CFU/L). System shall be disinfected with hyperchlorination (50 ppm free chlorine, 24-hr contact) before first commissioning and after any shutdown exceeding 7 days.
+content: The Contractor shall install a complete automatic chemical dosing system per ASHRAE Guideline 12 for Legionella risk management: corrosion inhibitor, scale inhibitor, and biocide dosing pumps with chemical day tanks, wired to an automatic timer or water meter pulse; a side-stream filtration unit (10–25 micron multimedia filter, ${(0.1 * qWm3hr).toFixed(1)} m3/h, 10% of the ${qWm3hr.toFixed(1)} m3/h circulating flow) to remove suspended solids that harbor Legionella biofilm; a written water safety plan (Legionella Water Management Plan) prepared by a qualified water treatment specialist before system start-up; and monthly water quality monitoring with log (pH: 7.0–8.5, conductivity at target CoC ${coc}, biocide residual per product spec, Legionella colony count < 100 CFU/L). System shall be disinfected with hyperchlorination (50 ppm free chlorine, 24-hr contact) before first commissioning and after any shutdown exceeding 7 days.
 
 7. Testing, Commissioning, and Performance Verification
 content: The Contractor shall conduct a CTI STD-201 thermal performance test after system stabilization (minimum 4 hours of steady-state operation at ≥75% design load). Test measurements shall include: (a) EWT: measured within ±0.5°C of ${ewt}°C; (b) LWT: measured ≤ ${(lwt + 0.5).toFixed(1)}°C; (c) WBT: measured on-site with sling psychrometer or calibrated sensor; (d) CW flow: within ±10% of ${qWm3hr} m³/h verified by clamp-on ultrasonic meter; (e) fan motor current: shall not exceed nameplate FLA of each motor; (f) fan power index: shall be ≤ 4.0 kW/100 kW per ASHRAE 90.1; (g) drift: visual check and manufacturer's drift eliminator certification ≤0.001%. TAB report and commissioning report shall be signed by a PRC-licensed Mechanical Engineer and submitted to the Owner and Engineer of Record.
@@ -3392,9 +3442,14 @@ async function boilerBomSowAgent(
   const satTemp       = results.t_sat_c ?? "N/A";
   const blowdownPct   = results.blowdown_pct  ?? "N/A";
   const blowdownKghr  = results.blowdown_kg_hr ?? "N/A";
-  const tFeedwater    = inputs.feedwater_temp ?? 80;
-  const tdsMax        = inputs.tds_max        ?? 3500;
-  const tdsMakeup     = inputs.tds_makeup     ?? 200;
+  // the form sends fw_temp_c / tds_max_ppm / tds_makeup_ppm; these read keys it never sends, so every BOM used 80 degC,
+  // 3500 ppm and 200 ppm whatever was typed (2026-11-02, ED-B1)
+  const tFeedwater    = inputs.fw_temp_c   ?? inputs.feedwater_temp ?? 80;
+  const tdsMax        = inputs.tds_max_ppm ?? inputs.tds_max        ?? 3500;
+  const tdsMakeup     = inputs.tds_makeup_ppm ?? inputs.tds_makeup  ?? 200;
+  // feed pump: at least 110% of each boiler's design steam output, as water
+  const feedKgHr      = Number(results.design_steam_demand_kg_hr ?? results.steam_demand_kg_hr ?? NaN) * 1.10 / Math.max(1, numBoilers);
+  const feedTxt       = Number.isFinite(feedKgHr) ? `${Math.ceil(feedKgHr)} kg/h (${(feedKgHr / 1000).toFixed(2)} m3/h of feedwater) per boiler, 110% of the design steam output` : "110% of the design steam output";
 
   // Hot water fields (calc emits supply_temp_c / return_temp_c / delta_t_c / system_pressure_barg)
   const supplyTemp    = results.supply_temp_c ?? inputs.supply_temp_c ?? inputs.supply_temp ?? "N/A";
@@ -3451,7 +3506,7 @@ Required items (adapt to ${boilerType} type):
 1. ${boilerType} Boiler: qty: ${numBoilers} unit: specify ${fuelType}-fired, ${qBoilerBhp} BHP (${qBoilerKw} kW) per unit, ${isSteam ? `design pressure ${designPressure} barg, ASME Sec I stamped` : `working pressure ${hwPressure} barg, ASME Sec IV stamped`}, PD 8 compliant, CE/UL listed burner
 2. Burner Assembly: qty: ${numBoilers} unit: specify forced-draft, modulating type, rated for ${fuelType}${fuelType === "Diesel" ? " (HSD, Bunker C capable)" : ""}, CE marked, integrated air-fuel ratio controller
 3. ${isSteam ? "Steam Safety Valve" : "Pressure Relief Valve (PRV)"}: qty: ${numBoilers * 2} pcs: specify ${isSteam ? `ASME Sec I stamped, set pressure ≤ ${(Number(designPressure) * 1.05 + 0.1).toFixed(1)} barg, ${safetyValve} kg/hr` : `ASME Sec IV / PD 8, set pressure ≤ ${(Number(hwPressure) + 0.5).toFixed(1)} barg, ${safetyValve} kW rated`}, spring-loaded, full-lift type
-4. ${isSteam ? "Feedwater Pump / Boiler Feed Unit" : "Circulation Pump"}: qty: ${numBoilers} set: specify ${isSteam ? `minimum 110% of maximum boiler steam output capacity, duplex pump set with standby, 316 SS impeller, variable speed drive` : `design flow ${flowLhr} L/hr, variable speed drive (VSD), TEFC motor, IE3 efficiency`}
+4. ${isSteam ? "Feedwater Pump / Boiler Feed Unit" : "Circulation Pump"}: qty: ${numBoilers} set: specify ${isSteam ? `${feedTxt}, duplex pump set with standby, 316 SS impeller, variable speed drive` : `design flow ${flowLhr} L/hr, variable speed drive (VSD), TEFC motor, IE3 efficiency`}
 5. ${isSteam ? "Deaerator / Feed Tank" : "Expansion Tank"}: qty: 1 unit: specify ${isSteam ? `spray-tray type, 30-minute hold capacity, rated for ${designPressure} barg, 316 SS internals, thermostatic vent, O₂ removal ≥ 0.005 cc/L` : `closed expansion tank, ASME stamped, pre-charge pressure per system, rated at ${hwPressure} barg`}
 6. ${isSteam ? "Steam Header / Distribution Manifold" : "Hot Water Buffer / Header Manifold"}: qty: 1 set: specify ${isSteam ? `Schedule 40 carbon steel, ${steamPipeDia} nominal, PN40 rated, flanged connections with isolation per boiler` : `Schedule 40 carbon steel, ${hwPipeDia} nominal, PN16 rated, flanged connections`}
 7. ${isSteam ? "Steam Piping" : "HW Distribution Piping"}: qty: 1 lot: specify ${isSteam ? `Schedule 40 CS pipe ${steamPipeDia} nominal, 150# class flanges, 25mm mineral wool insulation with aluminum jacket` : `Schedule 40 CS or pre-insulated pipe ${hwPipeDia} nominal, 50mm PU foam insulation, aluminum jacket`}, within boiler room
@@ -4250,7 +4305,7 @@ Per-item EXACT structure:
 (4) description="Formwork Lumber", specification="2x4 SPF kiln-dried lumber for beam side and bottom forms, span sized per ACI 347R formwork pressure", qty=${Math.round(span * 4)}, unit="board-foot"
 (5) description="Formwork Plywood", specification="19mm marine-grade plywood per PNS 196:2009, sealed and form-oiled before pour", qty=${Math.round((Number(inputs.b_mm || 300) + 2 * Number(inputs.h_mm || 500)) * span / 1000 * 10) / 10}, unit="m2"
 (6) description="Form Release Agent", specification="non-staining bond breaker per ACI 347R, biodegradable type for tropical/marine application", qty=1, unit="liter", remarks="approx 0.05 L/m2 form area"
-(7) description="Concrete Cover Spacers", specification="${results.cover_mm || 40}mm plastic concrete cover spacers (clip-on or pin-type), per ACI 318-19 Sec 20.6.1.3 minimum cover", qty=${Math.ceil(span * 4)}, unit="piece"
+(7) description="Concrete Cover Spacers", specification="${inputs.cover_mm || results.cover_mm || 40}mm plastic concrete cover spacers (clip-on or pin-type), per ACI 318-19 Sec 20.6.1.3 minimum cover", qty=${Math.ceil(span * 4)}, unit="piece"
 (8) description="Concrete Vibrator", specification="immersion poker vibrator 38 mm head, 8000 vpm minimum, per ACI 309R consolidation requirements", qty=1, unit="day", remarks="Rental"
 (9) description="Curing Compound", specification="membrane curing compound per ASTM C309 Type 1-D Class B, white-pigmented for hot weather, applied within 1 hour of finishing", qty=1, unit="liter", remarks="approx 0.2 L/m2 surface"
 (10) description="Concrete Cylinder Test Set", specification="6 cylinders 100x200mm per ASTM C31 / ASTM C39 (3 for 7-day, 3 for 28-day strength tests), accredited testing lab per DPWH-BRS", qty=1, unit="set"`
@@ -4261,7 +4316,7 @@ Per-item EXACT structure:
 (3) description="Lateral Ties", specification="${results.tie_dia_mm || 10}mm dia ASTM A615 ties, spacing not more than 16 x main bar dia or 48 x tie bar dia or column least dim, whichever smallest, per ACI 318-19 Sec 25.7.2", qty=${Math.ceil(span * 1000 / 250)}, unit="piece"
 (4) description="Column Formwork", specification="19mm marine plywood with 2x4 SPF studs and steel column clamps at 600 mm vertical spacing", qty=${Math.round(2 * (Number(inputs.b_mm || 300) + Number(inputs.h_mm || 300)) * span / 1000 * 10) / 10}, unit="m2"
 (5) description="Form Release Agent", specification="non-staining bond breaker per ACI 347R", qty=1, unit="liter"
-(6) description="Cover Spacers", specification="${results.cover_mm || 40}mm plastic, per ACI 318-19 Sec 20.6.1.3", qty=${Math.ceil(span * 8)}, unit="piece"
+(6) description="Cover Spacers", specification="${inputs.cover_mm || results.cover_mm || 40}mm plastic, per ACI 318-19 Sec 20.6.1.3", qty=${Math.ceil(span * 8)}, unit="piece"
 (7) description="Anchor Dowels (to footing)", specification="${inputs.bar_dia_mm || 20}mm dia ASTM A615, embedded into footing per ACI 318-19 development-length requirements", qty=${(inputs.n_bars || 6)}, unit="piece"
 (8) description="Concrete Vibrator", specification="immersion vibrator 25 mm head for column pour", qty=1, unit="day", remarks="Rental"
 (9) description="Curing Compound", specification="membrane curing per ASTM C309 Type 1-D Class B", qty=1, unit="liter"
@@ -4271,7 +4326,7 @@ Per-item EXACT structure:
 
   const sowMaterials = isSteel
     ? `specify ${section} wide-flange (ASTM ${grade}, Fy=${fyMPa} MPa, Fu=400 MPa, ductility class per ASTM A6), ASTM A325 high-strength bolts size ${boltSize}, AWS D1.1 E7018 electrodes, base plate ASTM A36, ASTM F1554 anchor bolts (columns only). Mill certificates and material test reports (MTR) required for the structural section`
-    : `specify ready-mix concrete f'c=${results.fc_MPa || 28} MPa per ACI 318-19, ASTM A615 deformed rebar (${inputs.rebar_grade || 'Grade 60'}, fy=${results.fy_MPa || 414} MPa), 19mm marine-grade plywood formwork per PNS 196:2009, ${results.cover_mm || 40} mm minimum concrete cover per ACI 318-19 Sec 20.6.1.3`;
+    : `specify ready-mix concrete f'c=${results.fc_MPa || 28} MPa per ACI 318-19, ASTM A615 deformed rebar (${inputs.rebar_grade || 'Grade 60'}, fy=${results.fy_MPa || 414} MPa), 19mm marine-grade plywood formwork per PNS 196:2009, ${inputs.cover_mm || results.cover_mm || 40} mm minimum concrete cover per ACI 318-19 Sec 20.6.1.3`;
 
   const sowProcedure = isSteel
     ? `${isBeam ? `shop-fabricate the ${section} beam to AISC tolerances (camber per Section M5 if span not less than 7.5 m), perform full-penetration groove welds and fillet welds per AWS D1.1 with qualified WPS/PQR, deliver to site with shipping marks per drawing` : `field-erect the ${section} column plumb within L/500, install on grouted base plate (25 mm grout bed per AISC Design Guide 1), bolt up with ${boltSize} A325 bolts torqued per RCSC turn-of-nut method or DTI washer indicator`}. Field bolting per RCSC Specification, snug-tight installation followed by ${isBeam ? '1/3 turn (slip-critical: 1/2 turn for short bolts)' : 'turn-of-nut to 2/3 turn'}. Visual weld inspection (VT) by AWS-CWI for all welds; UT/RT for full-penetration welds per AWS D1.1 Table 6.7. Surface preparation SSPC-SP6 commercial blast, primer + topcoat per spec`
@@ -4453,6 +4508,9 @@ async function heatExchangerBomSowAgent(
   const tubeLen   = Number(results.tube_length_m || 3).toFixed(1);
   const tubeMat   = String(inputs.tube_material || "Stainless Steel 316");
   const shellType = String(inputs.shell_type || "E (single pass)");
+  // a single-pass tube side has no pass partition: the prompt listed the plates anyway and the model ordered one,
+  // remarking it "may be N/A" (2026-11-02, ED-B1)
+  const multiPass = !/single[- ]pass/i.test(`${inputs.flow_config || ""} ${shellType}`);
   const uDesign   = Number(results.U_design_W_m2K || 0).toFixed(1);
   const temaClass = "R";
 
@@ -4468,7 +4526,7 @@ Overall U (design): ${uDesign} W/m²·K
 Generate a JSON object with exactly two keys:
 
 "bom_items": array of 12 objects with { "description", "specification", "unit", "qty", "remarks" }
-Cover: (1) Shell (carbon steel SA-516 Gr.70, ID ${shellID}mm), (2) Tube bundle (${nTubes} tubes × ${tubeOD}mm OD ${tubeMat} ASTM A312/B111), (3) Tubesheets (${tubeMat} or CS clad, ASME Code), (4) Baffles (25% cut, 304SS), (5) Channel and channel cover (CS), (6) Pass partition plates (carbon steel 6mm thk, welded to channel cover per TEMA RCB-9), (7) Tie rods and spacers (carbon steel 12mm dia x 1500mm, qty per TEMA RGP-1.6 baffle support), (8) ANSI flanges (inlet/outlet nozzles both sides), (9) Gaskets (spiral wound 316SS/graphite), (10) Support saddles (2 sets, CS), (11) Thermometer wells (inlet/outlet each stream), (12) Pressure gauges (0 to ${Math.ceil(Number(inputs.design_pressure_bar || 10)*2)} bar, 4 total: inlet/outlet each stream).
+Cover: (1) Shell (carbon steel SA-516 Gr.70, ID ${shellID}mm), (2) Tube bundle (${nTubes} tubes × ${tubeOD}mm OD ${tubeMat} ASTM A312/B111), (3) Tubesheets (${tubeMat} or CS clad, ASME Code), (4) Baffles (25% cut, 304SS), (5) Channel and channel cover (CS), ${multiPass ? '(6) Pass partition plates (carbon steel 6mm thk, welded to channel cover per TEMA RCB-9), ' : ''}(7) Tie rods and spacers (carbon steel 12mm dia x 1500mm, qty per TEMA RGP-1.6 baffle support), (8) ANSI flanges (inlet/outlet nozzles both sides), (9) Gaskets (spiral wound 316SS/graphite), (10) Support saddles (2 sets, CS), (11) Thermometer wells (inlet/outlet each stream), (12) Pressure gauges (0 to ${Math.ceil(Number(inputs.design_pressure_bar || 10)*2)} bar, 4 total: inlet/outlet each stream).
 
 "sow_sections": array of 6 objects with { "section_no", "title", "content" }
 Sections: 1.0 Scope (supply, install, and commission ${dutyKW}kW shell-and-tube HX per TEMA Class ${temaClass}), 2.0 Standards (TEMA 10th Ed., ASME BPVC Sec.VIII Div.1, ASME B31.3 for piping, ASME Sec.IX for welding), 3.0 Design and Fabrication (TEMA Class ${temaClass} tolerances, tube-to-tubesheet joint per TEMA §RCB-7, hydro test per UG-99), 4.0 Installation (pipe supports within 300mm of nozzles, flow direction per nameplate, expansion loop on hot side piping, insulation of hot surfaces), 5.0 Hydrostatic Testing (shell-side and tube-side tested separately at 1.3×MAWP per UG-99, AI witness required for ASME stamp), 6.0 Commissioning (flush piping before HX connection, verify flow rates per design, monitor fouling factor: clean when U drops 20% below design U=${uDesign}W/m²·K).
@@ -4717,7 +4775,16 @@ async function noiseAcousticsBomSowAgent(
   const alpha     = Number(inputs.avg_absorption_coeff || 0.15);
   // the engine's reduction to the space's own NC (room Lp less NC + 10 dBA); it was the free-field Lp less 65 for every space
   const requiredReductionDb = Number(results.reduction_to_NC_dB ?? 0);
-  const exposedWorkers = String(inputs.exposed_workers_count || 50);
+  // the form has no headcount: the agent wrote "all 50 exposed workers" (earplugs, audiometry) from a default - the
+  // scope now names every exposed worker, the count to be confirmed on site (2026-11-02, ED-B1)
+  const exposedWorkers = inputs.exposed_workers_count
+    ? `all ${String(inputs.exposed_workers_count)} exposed workers`
+    : "every exposed worker (headcount to be confirmed on site)";
+  // the PPE quantity is the headcount + 25% when the form gives one; without it the line is one set PER worker, not a
+  // multiple of a phrase (it printed "approximately NaN hearing-protection PPE sets")
+  const workerN = Number(inputs.exposed_workers_count) || 0;
+  const ppeQty  = workerN ? Math.ceil(workerN * 1.25) : 1;
+  const ppeUnit = workerN ? "set" : "set per exposed worker";
 
   const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, less-than-or-equal, greater-than-or-equal, sub/superscripts, Greek letters (alpha, sigma), middle-dot, degree symbol, or section sign. Use "x" for multiplication, "to" for ranges, "not less than" for ge, "not more than" for le, "Section" for clause references (not the section sign), "deg" for degree, "alpha" for the absorption coefficient symbol.`;
 
@@ -4758,7 +4825,7 @@ Per-item EXACT structure with description="short item name only" and specificati
 
 (8) description="Acoustic Door Seal", specification="full-perimeter door seal kit per ASTM E283 air leakage class - aluminium retainer with neoprene compression bulb on hinge and strike sides, automatic drop-down threshold seal at base (cam-operated), STC not less than 35 (ASTM E90 with door assembly); fits standard 900 x 2100 mm door slab", qty=5, unit="set", remarks="Treatment rooms / acoustic isolation booths"
 
-(9) description="Hearing Protection (PPE)", specification="ANSI S3.19 / EN 352-1 certified hearing protection - earmuffs with NRR not less than 25 dB (band-pass attenuation 125 Hz to 8 kHz) AND/OR foam-roll earplugs with NRR not less than 33 dB (single-use, polyurethane); PPE supplied for all ${exposedWorkers} exposed workers plus 25 percent spare; hearing-conservation training per DOLE D.O. 13 Section 7", qty=${Math.ceil(Number(exposedWorkers) * 1.25)}, unit="set", remarks="One earmuff plus pack of plugs per worker"
+(9) description="Hearing Protection (PPE)", specification="ANSI S3.19 / EN 352-1 certified hearing protection - earmuffs with NRR not less than 25 dB (band-pass attenuation 125 Hz to 8 kHz) AND/OR foam-roll earplugs with NRR not less than 33 dB (single-use, polyurethane); PPE supplied for ${exposedWorkers} plus 25 percent spare; hearing-conservation training per DOLE D.O. 13 Section 7", qty=${ppeQty}, unit="${ppeUnit}", remarks="One earmuff plus pack of plugs per worker"
 
 (10) description="Acoustic Absorption Panel", specification="ceiling and wall treatment - 50 mm fibreglass core (density 24 to 32 kg/m3) wrapped in fabric-faced (acoustically transparent) tile 600 mm x 600 mm or 1200 mm x 600 mm, NRC not less than 0.85 (ISO 354), Class A fire rating per ASTM E84 (flame spread 25, smoke 50), suspended from grid ceiling with anti-vibration clips", qty=200, unit="m2"
 
@@ -4766,7 +4833,7 @@ CRITICAL: Every "specification" field MUST be fully populated with the actual nu
 
 "sow_sections": array of 5 objects with { "section_no", "title", "content" }
 
-Section 1.0 Scope: state the contractor shall conduct a baseline noise survey, design and supply noise-control engineering measures, install hearing-protection PPE, and verify by post-installation re-measurement that the assessed receiver level Lp meets the target NC ${ncLimit} in the ${spaceType} per ISO 9613-2 and DOLE D.O. 13 Series 1998. Current source level Lw = ${lwDb} dB produces Lp = ${lpDb} dB at ${distM} m receiver position; required noise reduction to meet NC ${ncLimit} target is approximately ${requiredReductionDb} dB. Scope includes treatment of approximately ${Math.ceil(Number(exposedWorkers) * 1.25)} hearing-protection PPE sets for ${exposedWorkers} exposed workers plus 25 percent spare per BOM Item 9.
+Section 1.0 Scope: state the contractor shall conduct a baseline noise survey, design and supply noise-control engineering measures, install hearing-protection PPE, and verify by post-installation re-measurement that the assessed receiver level Lp meets the target NC ${ncLimit} in the ${spaceType} per ISO 9613-2 and DOLE D.O. 13 Series 1998. Current source level Lw = ${lwDb} dB produces Lp = ${lpDb} dB at ${distM} m receiver position; required noise reduction to meet NC ${ncLimit} target is approximately ${requiredReductionDb} dB. Scope includes ${workerN ? `approximately ${ppeQty} hearing-protection PPE sets for ${exposedWorkers}` : `hearing-protection PPE sets for ${exposedWorkers}`} plus 25 percent spare per BOM Item 9.
 
 Section 2.0 Standards: cite ISO 9613-2 (Attenuation of sound during propagation outdoors - General method of calculation), ISO 3745 (Determination of sound power levels - Precision methods for anechoic and hemi-anechoic rooms), ISO 266 (Preferred frequencies for measurements), IEC 61672-1 (Sound level meters - Specifications), OSHA 29 CFR 1910.95 (Occupational Noise Exposure), DOLE Department Order No. 13 Series 1998 (Health and Safety in Construction), ASHRAE Applications Handbook 2019 Chapter 8 (Sound and Vibration Control), ASTM E90 (Sound transmission loss - STC rating), ASTM E84 (surface burning), and PSME Code.
 
@@ -4774,7 +4841,7 @@ Section 3.0 Baseline Survey: measure equivalent continuous sound pressure level 
 
 Section 4.0 Noise Control Measures: implement the engineering hierarchy per ISO 11690 / DOLE D.O. 13 - first reduce at source (modify equipment, vibration isolation per BOM Item 6), then control propagation path (acoustic enclosures BOM Item 4, barriers BOM Item 5, duct silencers BOM Item 7, room absorption BOM Item 10 to achieve average alpha not less than ${alpha}), then administrative controls (work rotation, exposure-time reduction per OSHA 1910.95 Table G-16), and finally hearing-protection PPE BOM Item 9 as a LAST resort (not a substitute for engineering controls per DOLE D.O. 13 Section 7). Acoustic doors and seals BOM Item 8 required at the boundary between treated and untreated spaces.
 
-Section 5.0 Verification and Monitoring: post-installation re-measurement to confirm NC ${ncLimit} target achieved at all previously-exceeding positions; re-measure at the same instrument positions with the same calibrated meter (within 24 hours of calibration). Establish a hearing-conservation program per DOLE D.O. 13 Section 14 with annual noise dosimetry (BOM Item 3, all exposed workers, full 8-hour shift) and baseline plus annual audiometric testing for all ${exposedWorkers} exposed workers; maintain medical records for not less than 30 years per OSHA 1910.95(m). Submit baseline survey, post-control re-measurement, and audiometric program rollout plan to the Engineer for sign-off before project closeout.
+Section 5.0 Verification and Monitoring: post-installation re-measurement to confirm NC ${ncLimit} target achieved at all previously-exceeding positions; re-measure at the same instrument positions with the same calibrated meter (within 24 hours of calibration). Establish a hearing-conservation program per DOLE D.O. 13 Section 14 with annual noise dosimetry (BOM Item 3, all exposed workers, full 8-hour shift) and baseline plus annual audiometric testing for ${exposedWorkers}; maintain medical records for not less than 30 years per OSHA 1910.95(m). Submit baseline survey, post-control re-measurement, and audiometric program rollout plan to the Engineer for sign-off before project closeout.
 
 Each "content" field MUST start with "The Contractor shall..." and use ASCII text only. Return ONLY the JSON. No markdown.`;
 
@@ -4847,6 +4914,12 @@ serveObserved("engineering-bom-sow", tracedReply("engineering-bom-sow", async (r
     }
 
     let result: { bom_items: unknown[]; sow_sections: unknown[] };
+
+    // ★WHAT THE ENGINE COULD NOT MEET FROM ITS LIST IS THE SCOPE'S FIRST LINE (2026-11-02, Wave ED). An engine whose pick
+    // ran past its size list returns exceeds_catalog (python-api/calcs/_catalog.py); a BOM written from that answer would
+    // order the largest size as if it were enough. The note is added here, in the engine's words, not left to the model.
+    const _exceeds = Array.isArray((calc_results as Record<string, unknown>)?.exceeds_catalog)
+      ? ((calc_results as Record<string, unknown>).exceeds_catalog as Array<Record<string, unknown>>) : [];
 
     // Discipline router: add branches here for Pump Sizing, Electrical, etc.
     if (discipline === "Mechanical" && calc_type === "HVAC Cooling Load") {
@@ -4969,6 +5042,15 @@ serveObserved("engineering-bom-sow", tracedReply("engineering-bom-sow", async (r
     }
 
     result.bom_items = sanitizeBomItems(result.bom_items);
+    if (_exceeds.length) {
+      result.sow_sections = [{
+        section_no: "0.0",
+        title: "Design limit: above the calculator's size list",
+        content: _exceeds.map((x) => String(x.note || `${x.what}: needs ${x.needed}, largest listed ${x.largest}`)).join(" ")
+          + " The bill of materials below must not order the largest listed size as if it met this duty.",
+        checked: true,
+      }, ...(result.sow_sections || [])];
+    }
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

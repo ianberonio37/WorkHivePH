@@ -17,6 +17,7 @@ Calculates:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 try:
     from iapws import IAPWS97
@@ -68,6 +69,7 @@ def _spec_vol_lkg(temp_c: float) -> float:
 
 
 # formula: expansion_tank_ashrae_2023
+@discloses
 def calculate(inputs: dict) -> dict:
     system_type     = str(inputs.get("system_type",          "Chilled Water"))
     volume_method   = str(inputs.get("volume_method",        "Direct Entry"))
@@ -123,10 +125,7 @@ def calculate(inputs: dict) -> dict:
     required_volume_l = (V_expansion / alpha) if alpha > 0 else 9999.0
 
     # Select smallest standard tank ≥ required volume
-    selected_tank_l = next(
-        (s for s in TANK_SIZES if s >= required_volume_l),
-        TANK_SIZES[-1]
-    )
+    selected_tank_l = pick_at_least(TANK_SIZES, required_volume_l, "expansion tank volume (L)")
 
     pressure_check = ("PASS" if fill_pressure_kpa_g < max_press_kpa_g
                       else "FAIL: fill pressure exceeds max system pressure")

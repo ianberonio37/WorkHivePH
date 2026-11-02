@@ -15,6 +15,7 @@ Formulae (NFPA 92 §6.4):
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # Standard fan motor HP (IEC/NEMA frame) used in Philippine practice
 STD_HP = [0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 5.0, 7.5, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0]
@@ -43,6 +44,7 @@ def _air_density(altitude_m: float = 0.0, temp_c: float = 25.0) -> float:
 
 
 # formula: stairwell_pressurization_nfpa_92_2021
+@discloses
 def calculate(inputs: dict) -> dict:
     building_type   = str(inputs.get("building_type",      "Sprinklered"))
     n_stairwells    = int(inputs.get("n_stairwells",       1))
@@ -105,7 +107,7 @@ def calculate(inputs: dict) -> dict:
     q_fan_m3s   = q_per_m3s * safety_factor
     p_fan_kw    = (q_fan_m3s * fan_static_pa) / ((fan_eff_pct / 100.0) * 1000.0)
     p_fan_hp = p_fan_kw * 1.341
-    selected_hp = next((hp for hp in STD_HP if hp >= p_fan_hp), STD_HP[-1])
+    selected_hp = pick_at_least(STD_HP, p_fan_hp, "pressurization fan motor (hp)")
 
     return {
         "building_type":        building_type,

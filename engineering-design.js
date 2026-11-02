@@ -10839,8 +10839,23 @@ function _renderComputed(inputs, data, opts = {}) {
   } else {
     renderReport(inputs, data.results, data.narrative);
   }
+  _edCatalogNotice(data.results);
   if (!opts.fromHistory) _edTrustNarrative(data.narrative, data);   // a reopened report was rated when it was computed
   edAfterReport();
+}
+
+// ★A DUTY ABOVE THE CATALOG WAS HANDED THE LARGEST SIZE AS IF IT WERE ENOUGH (2026-11-02, Wave ED). 44 picks in 29
+// engines answered the largest size in their list when the duty was bigger than the list - a 1,000 m2 office was given
+// one 50 kW unit for an 86.6 kW design, silently. The engines now return what ran past its list (exceeds_catalog,
+// python-api/calcs/_catalog.py) and this states it above whichever report rendered, in the engine's own words.
+function _edCatalogNotice(results) {
+  const panel = document.getElementById('report-panel');
+  if (!panel) return;
+  panel.querySelector('.ed-catalog-notice')?.remove();
+  const ex = Array.isArray(results && results.exceeds_catalog) ? results.exceeds_catalog : [];
+  if (!ex.length) return;
+  const lines = ex.map((x) => '<li>' + escHtml(String(x.note || (x.what + ': needs ' + x.needed + ', largest listed ' + x.largest))) + '</li>').join('');
+  panel.insertAdjacentHTML('afterbegin', '<div class="ed-catalog-notice" role="note"><strong>Above this calculator\u2019s size list.</strong><ul>' + lines + '</ul></div>');
 }
 
 // ─── Share a calculation by link, and keep scenario A beside B (ENH-P, 2026-10-23) ─────────────────────────────────
@@ -29903,15 +29918,23 @@ function renderBomTablePreview(items) {
     ? `Machine Design: Bolt Torque (M${_lastResults?.d_mm || _lastInputs?.bolt_size_mm || ''} Grade ${_lastResults?.bolt_grade || _lastInputs?.grade || ''}, T=${_lastResults?.torque_Nm || ''}N·m, Fi=${_lastResults?.Fi_kN || ''}kN (${_lastResults?.preload_pct || ''}% Fp), SF_sep=${_lastResults?.separation_sf || ''}, ISO 898)`
     : `${whCalcLabel(_calcType)}`;
 
-  const rows = items.map((it, i) => `
+  // ★AN EDIT IN THE DOCUMENTS REACHED ONE DOWNLOAD (2026-11-02, ED-B1). These cells were inputs bound to nothing: the
+  // PDF clones this table and prints what was typed, the CSV reads _bomItems and printed what was generated - so a
+  // quantity corrected here left the two files disagreeing. Each cell now writes back to the row it shows (`items` is
+  // the checked subset, so the row is found by identity, not by position). A missing quantity shows blank, not a 1 the
+  // generator never gave; the cells are named for the bill of materials they are in.
+  const rows = items.map((it, i) => {
+    const k = escJsAttr(_bomItems.indexOf(it));
+    return `
     <tr>
       <td style="text-align:center;width:36px;">${i + 1}</td>
-      <td><input type="text" aria-label="SOW item description" value="${escHtml(it.description || '')}" /></td>
-      <td><input type="text" aria-label="SOW item specification" value="${escHtml(it.specification || '')}" /></td>
-      <td style="text-align:center;"><input type="number" aria-label="SOW item quantity" value="${it.qty ?? 1}" min="0" step="0.1" /></td>
-      <td style="text-align:center;width:50px;"><input type="text" aria-label="SOW item unit" value="${escHtml(it.unit || 'unit')}" /></td>
-      <td><input type="text" aria-label="SOW item remarks" value="${escHtml(it.remarks || '')}" /></td>
-    </tr>`).join('');
+      <td><input type="text" aria-label="BOM item ${i + 1} description" value="${escHtml(it.description || '')}" oninput="_bomItems[${k}].description=this.value" /></td>
+      <td><input type="text" aria-label="BOM item ${i + 1} specification" value="${escHtml(it.specification || '')}" oninput="_bomItems[${k}].specification=this.value" /></td>
+      <td style="text-align:center;"><input type="number" aria-label="BOM item ${i + 1} quantity" value="${it.qty ?? ''}" min="0" step="0.1" oninput="_bomItems[${k}].qty=parseFloat(this.value)||0" /></td>
+      <td style="text-align:center;width:50px;"><input type="text" aria-label="BOM item ${i + 1} unit" value="${escHtml(it.unit || 'unit')}" oninput="_bomItems[${k}].unit=this.value" /></td>
+      <td><input type="text" aria-label="BOM item ${i + 1} remarks" value="${escHtml(it.remarks || '')}" oninput="_bomItems[${k}].remarks=this.value" /></td>
+    </tr>`;
+  }).join('');
 
   document.getElementById('bom-table-preview')/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
     <div class="doc-panel" id="bom-doc-content">

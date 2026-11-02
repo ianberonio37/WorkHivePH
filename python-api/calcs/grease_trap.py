@@ -11,6 +11,7 @@ Improvement over TypeScript:
 - FOG load check against DENR DAO 2016-08 (FOG effluent limit 100 mg/L)
 - Recommended pumping frequency added (EPA / PPC §P-1006)
 """
+from ._catalog import discloses, pick_at_least
 
 # Standard PDI grease trap sizes (GPM) — PDI G-101 Table 1
 PDI_STD_GPM = [4, 6, 7, 10, 15, 20, 25, 35, 50, 75, 100]
@@ -19,6 +20,7 @@ LPM_TO_GPM = 0.26417   # 1 L/min = 0.26417 US gal/min
 
 
 # formula: grease_trap
+@discloses
 def calculate(inputs: dict) -> dict:
     fixtures   = inputs.get("fixtures", [])   # [{fixture_type, flow_lpm, qty}]
     suf        = float(inputs.get("suf",          0.75))   # Simultaneous Use Factor
@@ -35,7 +37,7 @@ def calculate(inputs: dict) -> dict:
     q_design_gpm = q_design_lpm * LPM_TO_GPM
 
     # Select next standard PDI size
-    pdi_gpm = next((g for g in PDI_STD_GPM if g >= q_design_gpm), PDI_STD_GPM[-1])
+    pdi_gpm = pick_at_least(PDI_STD_GPM, q_design_gpm, "grease interceptor (gpm, PDI G-101)")
 
     # Liquid capacity: PDI GPM × 2 gal → litres (PDI G-101 §4.3)
     liquid_cap_l  = pdi_gpm * 2 * 3.78541

@@ -13,6 +13,7 @@ NFPA 72 standby capacity method:
   Ah = (I_standby × T_standby) + (I_alarm × T_alarm/60) × safety_factor (1.25)
   Select next standard sealed lead-acid battery size ≥ Ah_required
 """
+from ._catalog import discloses, pick_at_least
 
 # Standard sealed lead-acid (VRLA/AGM) battery sizes (Ah)
 STD_AH = [1.2, 2.6, 4.5, 7, 12, 17, 18, 26, 33, 40, 55, 65, 75, 100, 120, 150, 200]
@@ -30,6 +31,7 @@ DEVICE_DEFAULTS: dict[str, dict[str, float]] = {
 
 
 # formula: fire_alarm_battery_nfpa_72_2022
+@discloses
 def calculate(inputs: dict) -> dict:
     system_voltage   = int(inputs.get("system_voltage",   24))
     standby_hours    = float(inputs.get("standby_hours",  24))   # 24h standard, 60h supervising
@@ -77,7 +79,7 @@ def calculate(inputs: dict) -> dict:
     ah_required = ah_calc * safety_factor
 
     # Select standard battery size
-    selected_ah = next((s for s in STD_AH if s >= ah_required), STD_AH[-1])
+    selected_ah = pick_at_least(STD_AH, ah_required, "standby battery (Ah)")
 
     # Battery configuration
     n_batteries   = 2 if system_voltage == 24 else 1

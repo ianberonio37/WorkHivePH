@@ -18,6 +18,7 @@ Methods:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── ASME BPVC Sec. II Part D - Allowable stress (MPa) at design temperature ─
 # S = allowable stress (MPa) at ≤ 300°F (149°C) unless noted
@@ -62,7 +63,7 @@ STD_THICKNESS_MM = [
 
 
 def _next_std(t_mm: float) -> float:
-    return next((s for s in STD_THICKNESS_MM if s >= t_mm), STD_THICKNESS_MM[-1])
+    return pick_at_least(STD_THICKNESS_MM, t_mm, "plate thickness (mm)")
 
 
 def _shell_thickness(P_MPa: float, R_mm: float, S_MPa: float, E: float) -> float:
@@ -137,6 +138,7 @@ def _nozzle_reinforcement(t_shell_mm: float, d_nozzle_mm: float,
 
 
 # formula: pressure_vessel
+@discloses
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcPressureVessel() keys."""
     # ── Design conditions ─────────────────────────────────────────────────────

@@ -14,6 +14,7 @@ Method: Ion exchange capacity method
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # Standard cation exchange resin tank sizes [dia_in, ht_in, resin_L]
 SOFTENER_TANKS: list[tuple[int, int, int]] = [
@@ -34,6 +35,7 @@ def _select_tank(resin_l: float) -> dict:
 
 
 # formula: water_softener_ansi_44
+@discloses
 def calculate(inputs: dict) -> dict:
     demand_source  = str(inputs.get("demand_source",    "direct"))
     n_people       = int(inputs.get("n_people",         0))
@@ -114,7 +116,7 @@ def calculate(inputs: dict) -> dict:
     salt_per_regen = round(selected_resin * salt_dose / 1000, 1)   # kg
     monthly_salt   = round(salt_per_regen * n_units * 30 / regen_interval, 1)
     brine_min_l    = math.ceil(monthly_salt * 3 / 1.2)             # 3-month supply, 1.2 kg/L
-    brine_tank_l   = next((s for s in BRINE_TANK_SIZES if s >= brine_min_l), BRINE_TANK_SIZES[-1])
+    brine_tank_l   = pick_at_least(BRINE_TANK_SIZES, brine_min_l, "brine tank (L)")
 
     # Rinse water
     rinse_l      = round(selected_resin * 5)                        # ~5 BV per regen

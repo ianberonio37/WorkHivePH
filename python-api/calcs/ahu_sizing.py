@@ -17,6 +17,7 @@ Calculates:
 
 import psychrolib
 import math
+from ._catalog import discloses, pick_at_least
 
 psychrolib.SetUnitSystem(psychrolib.SI)
 
@@ -116,6 +117,7 @@ MOTOR_SIZES_KW = [0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3.0, 4.0, 5.5, 7.5,
 
 
 # formula: ahu_sizing_ashrae_62
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcAHUSizing() input keys.
@@ -271,8 +273,7 @@ def calculate(inputs: dict) -> dict:
     # motor efficiency counted the motor twice (+8.7% fan power). The motor is picked per unit: it was picked for the
     # whole airflow and printed as "per unit".
     fan_motor_kw_calc = _fan_motor_kw(vol_flow_design_m3s, fan_total_static_pa, fan_eff=fan_eff, motor_eff=1.0)
-    rec_motor_kw      = next((s for s in MOTOR_SIZES_KW if s >= fan_motor_kw_calc / n_units),
-                              MOTOR_SIZES_KW[-1])
+    rec_motor_kw      = pick_at_least(MOTOR_SIZES_KW, fan_motor_kw_calc / n_units, "AHU fan motor per unit (kW)")
     nameplate_total_kw = rec_motor_kw * n_units
 
     # ── ASHRAE 90.1 fan power check (§6.5.3.1.1 Option 1, constant volume, nameplate) ──

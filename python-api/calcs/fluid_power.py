@@ -18,6 +18,7 @@ Methods:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── Standard hydraulic cylinder bore sizes (mm) ─────────────────────────────
 STD_BORE_MM = [25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 320]
@@ -98,7 +99,7 @@ def _required_bore(F_kN: float, P_bar: float) -> int:
     P_Pa = P_bar * 1e5
     D_m  = math.sqrt(4 * F_N / (math.pi * P_Pa))
     D_mm = D_m * 1000
-    return next((b for b in STD_BORE_MM if b >= D_mm), STD_BORE_MM[-1])
+    return pick_at_least(STD_BORE_MM, D_mm, "cylinder bore (mm)")
 
 
 def _pump(Vg_cm3: float, n_rpm: float, eta_vol: float = 0.95,
@@ -160,7 +161,7 @@ def _accumulator(P1_bar: float, P2_bar: float, P3_bar: float,
 
     # Standard accumulator sizes (L)
     std_acc_L = [0.5, 1, 1.5, 2, 3, 4, 6, 10, 16, 25, 32, 50, 80, 100]
-    V_rec_L   = next((s for s in std_acc_L if s >= V0_L), std_acc_L[-1])
+    V_rec_L   = pick_at_least(std_acc_L, V0_L, "accumulator (L)")
 
     return {
         "pre_charge_bar":    round(P0, 2),
@@ -205,6 +206,7 @@ def _select_pipe(Q_lpm: float, line_type: str, fluid: dict, P_bar: float) -> dic
 
 
 # formula: fluid_power_iso_4413_2010
+@discloses
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcFluidPower() keys."""
     calc_type  = str(inputs.get("calc_type", "Cylinder"))   # Cylinder / Pump / Motor / Accumulator / System
@@ -248,8 +250,7 @@ def calculate(inputs: dict) -> dict:
             # Vg [cm3/rev] = Q [L/min] * 1000 / (n [rpm] * eta_vol)
             # (1 L/min = 1000 cm3/min; divide by rpm = cm3/rev; / eta_vol = theoretical)
             Vg_req    = Q_lpm * 1000 / (n_rpm * eta_vol_p)
-            Vg_cm3    = next((s for s in STD_PUMP_DISPL_CM3 if s >= Vg_req),
-                              STD_PUMP_DISPL_CM3[-1])
+            Vg_cm3    = pick_at_least(STD_PUMP_DISPL_CM3, Vg_req, "pump displacement (cm3/rev)")
 
         pump = _pump(Vg_cm3, n_rpm, eta_vol_p, eta_mech_p, eta_motor_p, P_bar)
         results["pump"]            = pump

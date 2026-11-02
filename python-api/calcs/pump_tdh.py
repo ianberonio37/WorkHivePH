@@ -13,6 +13,7 @@ Replaces the hand-rolled Hazen-Williams TypeScript implementation with:
 from fluids import friction_factor, Reynolds
 from iapws import IAPWS97
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── Pipe roughness by material (mm) - ASHRAE 2021 Fundamentals Table 2 ───────
 PIPE_ROUGHNESS_MM: dict[str, float] = {
@@ -99,6 +100,7 @@ def _friction_head(
 
 
 # formula: pump_tdh_iso_9906
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - matches the same input keys used by the TypeScript
@@ -187,7 +189,7 @@ def calculate(inputs: dict) -> dict:
     # Next standard motor size (PEC 2017 / IEC standard sizes)
     std_kw = [0.18,0.25,0.37,0.55,0.75,1.1,1.5,2.2,3.0,4.0,5.5,7.5,
               11,15,18.5,22,30,37,45,55,75,90,110,132,160,200,250,315]
-    recommended_kw = next((s for s in std_kw if s >= motor_kw * 1.15), std_kw[-1])
+    recommended_kw = pick_at_least(std_kw, motor_kw * 1.15, "pump motor (kW)")
     recommended_hp = round(recommended_kw * 1.341, 1)
 
     # ── Velocity status ───────────────────────────────────────────────────────

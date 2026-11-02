@@ -1186818,8 +1186818,8 @@
     },
     {
       "id": "ED5",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - HVAC Cooling Load on engineering-design.html · solo-owner",
       "pages": [
@@ -1186873,12 +1186873,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the HVAC Cooling Load calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] HVAC Cooling Load's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (11 items, 15 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Cooling load is stated and the scope names ASTM; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: HVAC Cooling Load computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED11",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Ventilation / ACH on engineering-design.html · solo-owner",
       "pages": [
@@ -1186932,12 +1186939,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Ventilation / ACH calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Ventilation / ACH's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (12 items, 14 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Required ACH is stated and the scope names PEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Ventilation / ACH computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED17",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Chiller System — Air Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1186991,12 +1187005,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Air Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Chiller System — Air Cooled's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Recommended capacity is stated and the scope names ASHRAE; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Chiller System — Air Cooled computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED23",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Chiller System — Water Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1187050,12 +1187071,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Water Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Chiller System — Water Cooled's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (17 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Recommended capacity is stated and the scope names ASHRAE; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Chiller System — Water Cooled computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED29",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Cooling Tower Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1187109,12 +1187137,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Cooling Tower Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Cooling Tower Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (18 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Heat rejection is stated and the scope names CTI; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Cooling Tower Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED35",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - AHU Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1187168,12 +1187203,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the AHU Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] AHU Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (21 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Supply airflow is stated and the scope names SMACNA; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: AHU Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED41",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - FCU Selection on engineering-design.html · solo-owner",
       "pages": [
@@ -1187227,12 +1187269,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the FCU Selection calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FCU Selection's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (12 items, 6 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Selected FCU is stated and the scope names ASTM; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: FCU Selection computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED47",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Duct Sizing (Equal Friction) on engineering-design.html · solo-owner",
       "pages": [
@@ -1187286,12 +1187335,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Duct Sizing (Equal Friction) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Duct Sizing (Equal Friction)'s bill of materials and scope, generated through the page by the real engineering-bom-sow agent (12 items, 6 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Airflow is stated and the scope names SMACNA; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Duct Sizing (Equal Friction) computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED53",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Refrigerant Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1187345,12 +1187401,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Refrigerant Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Refrigerant Pipe Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (12 items, 6 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Suction line OD is stated and the scope names ASTM; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Refrigerant Pipe Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED59",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Expansion Tank Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1187404,12 +1187467,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Expansion Tank Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Expansion Tank Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (10 items, 5 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Required tank is stated and the scope names ASME; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Expansion Tank Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED65",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Pump Sizing (TDH) on engineering-design.html · solo-owner",
       "pages": [
@@ -1187463,12 +1187533,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pump Sizing (TDH) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pump Sizing (TDH)'s bill of materials and scope, generated through the page by the real engineering-bom-sow agent (14 items, 14 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Total Dynamic Head is stated and the scope names PSME; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Pump Sizing (TDH) computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED71",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1187522,12 +1187599,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pipe Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (13 items, 15 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Recommended nominal size is stated and the scope names PSME; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Pipe Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED77",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Compressed Air on engineering-design.html · solo-owner",
       "pages": [
@@ -1187581,12 +1187665,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Compressed Air calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Compressed Air's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 15 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Recommended compressor is stated and the scope names ISO; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Compressed Air computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED83",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Boiler System on engineering-design.html · solo-owner",
       "pages": [
@@ -1187640,12 +1187731,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Boiler System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Boiler System's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (17 items, 17 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Boiler capacity is stated and the scope names ASME; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Boiler System computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED89",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Load Estimation on engineering-design.html · solo-owner",
       "pages": [
@@ -1187699,12 +1187797,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Load Estimation calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Load Estimation's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (16 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Demand load is stated and the scope names NEMA; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Load Estimation computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED95",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Transformer Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1187758,12 +1187863,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Transformer Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Transformer Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Rated size is stated and the scope names IEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Transformer Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED101",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Wire Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1187817,12 +1187929,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wire Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Wire Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 7 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Design current is stated and the scope names PEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Wire Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED106",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Cable Tray Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1187876,12 +1187995,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Cable Tray Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Cable Tray Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (12 items, 7 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Selected tray width is stated and the scope names NEMA; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Cable Tray Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED111",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Voltage Drop on engineering-design.html · solo-owner",
       "pages": [
@@ -1187935,12 +1188061,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Voltage Drop calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Voltage Drop's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 7 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Voltage drop (%) is stated and the scope names PEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Voltage Drop computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED116",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Short Circuit on engineering-design.html · solo-owner",
       "pages": [
@@ -1187994,12 +1188127,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Short Circuit calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Short Circuit's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (14 items, 7 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's 3-phase fault is stated and the scope names NFPA; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Short Circuit computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED121",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Generator Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1188053,12 +1188193,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Generator Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Generator Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (18 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Recommended genset is stated and the scope names ISO; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Generator Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED127",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - UPS Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1188112,12 +1188259,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the UPS Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] UPS Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (14 items, 7 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Recommended UPS is stated and the scope names IEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: UPS Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED133",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Power Factor Correction on engineering-design.html · solo-owner",
       "pages": [
@@ -1188171,12 +1188325,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Power Factor Correction calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Power Factor Correction's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (14 items, 7 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's kVAR required is stated and the scope names IEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Power Factor Correction computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED139",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Harmonic Distortion on engineering-design.html · solo-owner",
       "pages": [
@@ -1188230,12 +1188391,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Harmonic Distortion calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Harmonic Distortion's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (12 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Current THD is stated and the scope names IEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Harmonic Distortion computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED145",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Solar PV System on engineering-design.html · solo-owner",
       "pages": [
@@ -1188289,12 +1188457,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Solar PV System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Solar PV System's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (18 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Total panels is stated and the scope names IEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Solar PV System computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED151",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Lightning Protection System (LPS) on engineering-design.html · solo-owner",
       "pages": [
@@ -1188348,12 +1188523,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Lightning Protection System (LPS) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Lightning Protection System (LPS)'s bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Rolling-sphere radius is stated and the scope names IEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Lightning Protection System (LPS) computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED157",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Earthing / Grounding System on engineering-design.html · solo-owner",
       "pages": [
@@ -1188407,12 +1188589,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Earthing / Grounding System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Earthing / Grounding System's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (12 items, 7 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Earth resistance is stated and the scope names UL; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Earthing / Grounding System computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED163",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Lighting Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1188466,12 +1188655,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Lighting Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Lighting Design's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 7 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Fixtures needed is stated and the scope names NEMA; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Lighting Design computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED169",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Water Supply Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1188525,12 +1188721,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Supply Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Supply Pipe Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 15 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Total WFU is stated and the scope names Philippine Plumbing Code; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Water Supply Pipe Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED175",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Hot Water Demand on engineering-design.html · solo-owner",
       "pages": [
@@ -1188584,12 +1188787,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hot Water Demand calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Hot Water Demand's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 14 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Daily demand is stated and the scope names ANSI; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Hot Water Demand computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED181",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Water Softener Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1188643,12 +1188853,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Softener Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Softener Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Resin required is stated and the scope names ANSI; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Water Softener Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED187",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Water Treatment System on engineering-design.html · solo-owner",
       "pages": [
@@ -1188702,12 +1188919,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Treatment System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Treatment System's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (18 items, 9 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Daily demand is stated and the scope names ANSI; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Water Treatment System computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED193",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Drainage Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1188761,12 +1188985,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Drainage Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Drainage Pipe Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 15 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Total DFU is stated and the scope names ASTM; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Drainage Pipe Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED199",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Septic Tank Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1188820,12 +1189051,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Septic Tank Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Septic Tank Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (16 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Liquid volume is stated and the scope names DENR; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Septic Tank Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED205",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Storm Drain / Stormwater on engineering-design.html · solo-owner",
       "pages": [
@@ -1188879,12 +1189117,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Storm Drain / Stormwater calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Storm Drain / Stormwater's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (16 items, 9 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Design flow is stated and the scope names DPWH; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Storm Drain / Stormwater computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED211",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Grease Trap Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1188938,12 +1189183,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Grease Trap Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Grease Trap Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (15 items, 9 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Design flow is stated and the scope names DENR; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Grease Trap Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED217",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Roof Drain Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1188997,12 +1189249,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Roof Drain Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Roof Drain Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (14 items, 7 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Drain size is stated and the scope names ASME; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Roof Drain Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED223",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Wastewater Treatment (STP) on engineering-design.html · solo-owner",
       "pages": [
@@ -1189056,12 +1189315,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wastewater Treatment (STP) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Wastewater Treatment (STP)'s bill of materials and scope, generated through the page by the real engineering-bom-sow agent (20 items, 10 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Design flow is stated and the scope names PEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Wastewater Treatment (STP) computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED229",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Fire Sprinkler Hydraulic on engineering-design.html · solo-owner",
       "pages": [
@@ -1189115,12 +1189381,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Sprinkler Hydraulic calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Sprinkler Hydraulic's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (18 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Hazard class is stated and the scope names UL; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Fire Sprinkler Hydraulic computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED235",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Fire Pump Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1189174,12 +1189447,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Pump Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Pump Sizing's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (16 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Recommended flow is stated and the scope names UL; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Fire Pump Sizing computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED241",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Stairwell Pressurization on engineering-design.html · solo-owner",
       "pages": [
@@ -1189233,12 +1189513,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Stairwell Pressurization calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Stairwell Pressurization's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (14 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Design pressure is stated and the scope names UL; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Stairwell Pressurization computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED247",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Fire Alarm Battery on engineering-design.html · solo-owner",
       "pages": [
@@ -1189292,12 +1189579,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Alarm Battery calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Alarm Battery's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (14 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Selected battery is stated and the scope names UL; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Fire Alarm Battery computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED253",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Clean Agent Suppression on engineering-design.html · solo-owner",
       "pages": [
@@ -1189351,12 +1189645,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Clean Agent Suppression calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Clean Agent Suppression's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (14 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Agent mass is stated and the scope names UL; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Clean Agent Suppression computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED259",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - V-Belt Drive Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1189410,12 +1189711,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the V-Belt Drive Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] V-Belt Drive Design's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (10 items, 5 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Number of belts is stated and the scope names ASME; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: V-Belt Drive Design computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED265",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Shaft Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1189469,12 +1189777,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Shaft Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Shaft Design's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (10 items, 5 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Shaft diameter is stated and the scope names ASTM; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Shaft Design computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED271",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Bolt Torque & Preload on engineering-design.html · solo-owner",
       "pages": [
@@ -1189528,12 +1189843,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bolt Torque & Preload calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Bolt Torque & Preload's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (10 items, 5 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Tightening torque is stated and the scope names ISO; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Bolt Torque & Preload computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED277",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Fluid Power on engineering-design.html · solo-owner",
       "pages": [
@@ -1189587,12 +1189909,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fluid Power calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fluid Power's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (14 items, 5 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Extend force is stated and the scope names IEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Fluid Power computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED283",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Bearing Life (L10) on engineering-design.html · solo-owner",
       "pages": [
@@ -1189646,12 +1189975,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bearing Life (L10) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Bearing Life (L10)'s bill of materials and scope, generated through the page by the real engineering-bom-sow agent (10 items, 5 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's L10 life is stated and the scope names ISO; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Bearing Life (L10) computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED289",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Pressure Vessel on engineering-design.html · solo-owner",
       "pages": [
@@ -1189705,12 +1190041,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pressure Vessel calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pressure Vessel's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (12 items, 6 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Shell thickness is stated and the scope names ASME; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Pressure Vessel computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED295",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Heat Exchanger on engineering-design.html · solo-owner",
       "pages": [
@@ -1189764,12 +1190107,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Heat Exchanger calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Heat Exchanger's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (11 items, 6 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Corrected LMTD is stated and the scope names TEMA; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Heat Exchanger computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED301",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Beam / Column Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1189823,12 +1190173,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Beam / Column Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Beam / Column Design's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (10 items, 5 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Moment capacity φMn is stated and the scope names ASTM; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Beam / Column Design computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED307",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Vibration Analysis on engineering-design.html · solo-owner",
       "pages": [
@@ -1189882,12 +1190239,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Vibration Analysis calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Vibration Analysis's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (10 items, 5 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Natural frequency is stated and the scope names ISO; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Vibration Analysis computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED313",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Noise / Acoustics on engineering-design.html · solo-owner",
       "pages": [
@@ -1189941,12 +1190305,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Noise / Acoustics calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Noise / Acoustics's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (10 items, 5 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Sound pressure is stated and the scope names IEC; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Noise / Acoustics computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED319",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Elevator Traffic Analysis on engineering-design.html · solo-owner",
       "pages": [
@@ -1190000,12 +1190371,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Elevator Traffic Analysis calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Elevator Traffic Analysis's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (16 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Interval is stated and the scope names ASME; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Elevator Traffic Analysis computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {
       "id": "ED325",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-B1",
       "title": "the bill of materials and scope are this result's - Hoist Capacity on engineering-design.html · solo-owner",
       "pages": [
@@ -1190059,6 +1190437,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hoist Capacity calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Hoist Capacity's bill of materials and scope, generated through the page by the real engineering-bom-sow agent (14 items, 8 sections): every value the agent reads is present in what the page sends (or recorded with its reason); no N/A or broken value; the engine's Gross load is stated and the scope names ASME; a quantity edited in the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone. WALKED: Hoist Capacity computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker, through tools/prove_engineering_boms.mjs (receipt engineering_boms_report.json, 2026-11-02T08:31:56Z). HELD BY: gate engineering-boms (ratchet engineering_boms_baseline.json; the body each agent receives is captured at the network and read against its source) and gate selection-ceiling (a size past its list is named). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-boms",
+          "selection-ceiling"
+        ]
       }
     },
     {

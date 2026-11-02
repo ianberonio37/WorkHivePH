@@ -203,6 +203,37 @@ def _check_hvac_tr_conversion(mod):
     return [(f"recommended_TR({tr}) == recommended_kW({kw})/3.517  [1 TR = 3.517 kW, ASHRAE]", ok, "")]
 
 
+def _check_hvac_unit_past_catalog(mod):
+    """ED (2026-11-02, census_selection_ceiling): the unit pick `next((s for s in AC_SIZES_KW if s >= need), SIZES[-1])`
+    gave a 1,000 m2 office (78.69 kW load, x1.1 = 86.56 kW design) the 50 kW unit - the largest listed - as its
+    recommendation, and said nothing. The answer now carries exceeds_catalog naming the unit, the 86.56 kW and the 50."""
+    base = {"floor_area": 100, "ceiling_height": 3.0, "space_type": "Office", "num_persons": 10}
+    out = []
+    small = mod.calculate(dict(base))
+    out.append((f"100 m2: no catalog note ({small.get('exceeds_catalog')})", not small.get("exceeds_catalog"), ""))
+    big = mod.calculate(dict(base, floor_area=1000))
+    ex = big.get("exceeds_catalog") or []
+    hit = next((e for e in ex if "air-conditioning unit" in e.get("what", "")), None)
+    out.append((f"1,000 m2: the 50 kW pick is named as not enough ({hit and hit.get('needed')} kW needed)",
+                bool(hit) and hit.get("largest") == 50.0 and float(hit.get("needed", 0)) > 50, ""))
+    return out
+
+
+def _check_solar_fuse_window(mod):
+    """IEC 62548: a string fuse sits between 1.5 x Isc and 2.4 x Isc. The default module (Isc 10.2 A, window 15.3-24.5 A)
+    takes the listed 20 A. A 3 A module's window (4.5-7.2 A) holds no listed fuse: the old pick answered 40 A, a fuse that
+    never opens for it; the answer now names the window it cannot meet (2026-11-02, Wave ED)."""
+    base = {"system_type": "Grid-Tied", "daily_energy_kwh": 20, "location": "Metro Manila / NCR"}
+    out = []
+    r = mod.calculate(dict(base))
+    out.append((f"Isc 10.2 A -> {r.get('recommended_fuse_A')} A in 15.3-24.5 A, no note", r.get("recommended_fuse_A") == 20 and not r.get("exceeds_catalog"), ""))
+    r3 = mod.calculate(dict(base, isc_stc=3.0))
+    hit = next((e for e in r3.get("exceeds_catalog") or [] if "string fuse" in e.get("what", "")), None)
+    out.append((f"Isc 3 A -> {r3.get('recommended_fuse_A')} A with the window named ({bool(hit)})",
+                bool(hit) and r3.get("recommended_fuse_A") != 40, ""))
+    return out
+
+
 def _check_chiller_ambient_zero(mod):
     """ED-F1 (2026-11-02): `outdoor_temp or ambient or 35.0` read a typed 0 °C as "not given". The ambient the engine
     designs on must be the one sent, at 0 as at 35."""
@@ -678,6 +709,18 @@ VECTORS = [
             {"path": "rated_pressure_bar", "expected": 7.7, "tol": 0.002,
              "note": "(7.0 - 0 m x 0.0981) x 1.10 = 7.700 bar (with the swapped 1.5 m: 7.538)"},
         ],
+    },
+    {
+        "module": "calcs.hvac_cooling_load",
+        "calc_type": "HVAC Cooling Load - a duty above the unit list is named, not handed the largest unit",
+        "standard": "a recommended size must meet the design duty; past the catalog the answer says so (exceeds_catalog)",
+        "custom": lambda mod: _check_hvac_unit_past_catalog(mod),
+    },
+    {
+        "module": "calcs.solar_pv",
+        "calc_type": "Solar PV System - a string fuse outside the IEC 62548 window is named",
+        "standard": "IEC 62548: 1.5 x Isc <= string fuse <= 2.4 x Isc",
+        "custom": lambda mod: _check_solar_fuse_window(mod),
     },
     {
         "module": "calcs.chiller",
@@ -2675,6 +2718,10 @@ VECTORS = [
              "note": "500 kW / 3.517 = 142.17 TR"},
             {"path": "mass_flow_kgs", "expected": 21.717, "tol": 0.01,
              "note": "ṁ = Q/(cp·Range) = 500000/(4186·5.5) = 21.72 kg/s (condenser flow)"},
+            # ★WATTS PRINTED AS kW (2026-11-02, ED-B1): the engine read 6,087 kW and picked the 90 kW motor for this duty
+            {"path": "pump_power_kw", "expected": 6.087, "tol": 0.005,
+             "note": "P = ρgQH/η = 995.7 x 9.81 x 0.021811 m³/s x 20 m / 0.70 = 6,087 W = 6.087 kW"},
+            {"path": "recommended_pump_kw", "expected": 7.5, "tol": 0, "note": "next IEC motor above 6.087 kW: 7.5 kW (it was 90)"},
         ],
     },
     {

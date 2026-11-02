@@ -13,6 +13,7 @@ Method: Hunter's Curve (fixture unit method) - ASPE / PSME Code
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── PSME / ASPE fixture unit values ─────────────────────────────────────────
 # Water Supply Fixture Units (WSFU) per outlet
@@ -158,6 +159,7 @@ def _select_pipe(Q_lpm: float, C: float, L_m: float) -> dict:
 
 
 # formula: domestic_water_ashrae_2021
+@discloses
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcDomesticWater() keys."""
     # ── Building parameters ───────────────────────────────────────────────────
@@ -222,7 +224,7 @@ def calculate(inputs: dict) -> dict:
     # Standard tank sizes (m³)
     std_tanks_m3 = [0.5, 1, 1.5, 2, 3, 4, 5, 7.5, 10, 15, 20, 25, 30,
                     40, 50, 75, 100]
-    rec_tank_m3 = next((t for t in std_tanks_m3 if t >= tank_m3), std_tanks_m3[-1])
+    rec_tank_m3 = pick_at_least(std_tanks_m3, tank_m3, "water storage tank (m3)")
 
     # ── Pipe sizing ───────────────────────────────────────────────────────────
     C = HW_C.get(pipe_material, 150)
@@ -247,7 +249,7 @@ def calculate(inputs: dict) -> dict:
     pump_eta = 0.65
     motor_eta = 0.92
     pump_kw = (rho * g * Q_m3s * tdh_m) / (pump_eta * motor_eta * 1000)
-    rec_pump_kw = next((s for s in PUMP_KW_SIZES if s >= pump_kw), PUMP_KW_SIZES[-1])
+    rec_pump_kw = pick_at_least(PUMP_KW_SIZES, pump_kw, "booster pump motor (kW)")
 
     # Booster needed?
     booster_needed = supply_pressure_bar < (static_head_bar + residual_pressure_bar)

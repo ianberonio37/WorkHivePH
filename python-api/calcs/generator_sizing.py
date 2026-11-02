@@ -17,6 +17,7 @@ Calculates:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── ISO 8528-1 generator classes ────────────────────────────────────────────
 # G1: ±10% V, ±5% Hz - non-critical (lighting, heating)
@@ -106,6 +107,7 @@ def _starting_kva(
 
 
 # formula: generator_sizing_iso_8528_1
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcGeneratorSizing() keys.
@@ -212,8 +214,7 @@ def calculate(inputs: dict) -> dict:
     installed_kva_needed = required_kva_governing / max(derate, 0.50)
 
     # Select next standard size
-    rec_kva = next((s for s in STD_GEN_KVA if s >= installed_kva_needed),
-                   STD_GEN_KVA[-1])
+    rec_kva = pick_at_least(STD_GEN_KVA, installed_kva_needed, "generator set (kVA)")
     rec_kw  = round(rec_kva * power_factor, 1)   # generator rated kW at 0.8 PF typical
     rec_kw_08 = round(rec_kva * 0.8, 1)          # ISO 8528 rating at 0.8 PF
 
@@ -232,7 +233,7 @@ def calculate(inputs: dict) -> dict:
     tank_litres   = fuel_lhr_75 * backup_hrs
     # Round up to standard tank sizes
     std_tanks = [200, 500, 1000, 2000, 5000, 10000, 20000, 50000]
-    rec_tank_l = next((t for t in std_tanks if t >= tank_litres), std_tanks[-1])
+    rec_tank_l = pick_at_least(std_tanks, tank_litres, "fuel tank (L)")
 
     # ── IEEE 446 loading limit check ─────────────────────────────────────────
     # Generator should not be loaded > 80% continuously

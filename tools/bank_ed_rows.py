@@ -26,9 +26,12 @@ A row is banked only when ALL hold:
      the engine call held at the network, its form refuses a blank number by name (unless the label says what a blank
      means), refuses a 0 its range forbids, sends a typed 0 where 0 is real, declares a minimum on every field and shows
      every dimensioned field's unit.
+  8. B1 rows (2026-11-02): the calculator holds in tools/prove_engineering_boms.mjs's receipt - its BOM and SOW, generated
+     through the page by the real agent, are written from what the page sends, carry no broken value, state the engine's
+     rating and a standard, keep an edited quantity in the downloaded CSV and fit a 390 px phone.
 A failing or missing row is left as it is and printed with the reason.
 
-    python tools/bank_ed_rows.py [--run [--lens G1|R1|S1|D1|F1]] [--dry]
+    python tools/bank_ed_rows.py [--run [--lens G1|R1|S1|D1|F1|B1]] [--dry]
 """
 from __future__ import annotations
 
@@ -64,6 +67,9 @@ DGATE = "engineering-drawings"
 FREPORT = ROOT / "engineering_forms_report.json"
 FPROVER = "tools/prove_engineering_forms.mjs"
 FGATE = "engineering-forms"
+BREPORT = ROOT / "engineering_boms_report.json"
+BPROVER = "tools/prove_engineering_boms.mjs"
+BGATE = "engineering-boms"
 
 # a guide read against its engine, and how - the second half of G1 that a field-name match cannot prove
 ENGINE_CHECKED = {
@@ -865,6 +871,25 @@ def main() -> int:
     fcalcs = {c["calc"]: c for c in frep.get("results") or []} if not f_problem else {}
     if f_problem:
         print(f"  form rows held: {f_problem}")
+    # the BOM walk's receipt is what a B1 row closes on (its gate makes real agent calls: ~20 min, the walker's solo bucket)
+    brep, b_problem = {}, None
+    if run("B1"):
+        ok6, last6 = bsw._run_gate(str(ROOT / BPROVER), "--gate")
+        if not ok6:
+            b_problem = f"gate {BGATE} is red ({last6})"
+    if not b_problem:
+        if not BREPORT.exists():
+            b_problem = f"no receipt at {BREPORT.name} - run {BPROVER}"
+        else:
+            brep = json.loads(BREPORT.read_text(encoding="utf-8"))
+            b_age = (datetime.now(timezone.utc) - datetime.fromisoformat(brep["generated"].replace("Z", "+00:00"))).total_seconds() / 3600
+            if b_age > MAX_AGE_H:
+                b_problem = f"the BOM receipt is {b_age:.1f} h old (limit {MAX_AGE_H}) - re-run {BPROVER}"
+            elif (brep.get("calculators") or 0) < 50:
+                b_problem = f"the BOM receipt walked {brep.get('calculators')} calculators (an --only run)"
+    bcalcs = {c["calc"]: c for c in brep.get("results") or []} if not b_problem else {}
+    if b_problem:
+        print(f"  BOM rows held: {b_problem}")
     if d_problem:
         print(f"  drawing rows held: {d_problem}")
     if s_problem:
@@ -910,6 +935,16 @@ def main() -> int:
                 continue
             why = E1_FIXED[unit]
             what = f"{unit}: the form's own default payload is answered by the Python engine (tools/census_calc_served_engine.py)"
+        elif key == "B1":
+            c = bcalcs.get(unit)
+            if not c or c.get("error") or c.get("faults"):
+                continue                                  # open: the walk names the BOM's faults in the receipt
+            why = (f"{unit}'s bill of materials and scope, generated through the page by the real engineering-bom-sow agent "
+                   f"({c.get('bomN')} items, {c.get('sowN')} sections): every value the agent reads is present in what the page "
+                   f"sends (or recorded with its reason); no N/A or broken value; the engine's "
+                   f"{(c.get('fig') or {}).get('label', 'rating')} is stated and the scope names {c.get('std')}; a quantity edited in "
+                   f"the checklist and one corrected in the documents both reach the downloaded CSV; the documents fit a 390 px phone.")
+            what = f"{unit} computed, its BOM and SOW generated, edited and downloaded inside engineering-design.html as the signed-in walker"
         elif key == "F1":
             c = fcalcs.get(unit)
             if not c or c.get("error") or not (c.get("base") or {}).get("sent") or c.get("blank") or c.get("zero") or c.get("unitless"):
@@ -959,7 +994,13 @@ def main() -> int:
             what = f"{unit}'s Guide - present, its field names exactly the form's, its text and formulas clean at both widths"
         else:
             continue
-        if key == "F1":
+        if key == "B1":
+            basis = (f"[{today}] {why} WALKED: {what}, through {BPROVER} (receipt {BREPORT.name}, {brep['generated'][:19]}Z). "
+                     f"HELD BY: gate {BGATE} (ratchet engineering_boms_baseline.json; the body each agent receives is captured at "
+                     f"the network and read against its source) and gate selection-ceiling (a size past its list is named). "
+                     f"pct -> {{pct}}")
+            gates = [BGATE, "selection-ceiling"]
+        elif key == "F1":
             basis = (f"[{today}] {why} WALKED: {what}, through {FPROVER} (receipt {FREPORT.name}, {frep['generated'][:19]}Z). "
                      f"HELD BY: gate {FGATE} (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a "
                      f"payload that swaps a typed 0, and a field with its minimum removed - each named) and gate "

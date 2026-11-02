@@ -14,6 +14,7 @@ Method:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── NSCP / ASPE Drainage Fixture Units (DFU) per outlet type ─────────────────
 # Based on IPC Table 709.1 and ASPE Data Book Vol.2 Table 1-6
@@ -245,6 +246,7 @@ def _stormwater_flow(roof_area_m2: float, C: float, i_mmhr: float) -> float:
 # ─── Main calculation ─────────────────────────────────────────────────────────
 
 # formula: sewer_drainage
+@discloses
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcSewerDrainage() keys."""
     # ── Building / system parameters ─────────────────────────────────────────
@@ -361,7 +363,7 @@ def calculate(inputs: dict) -> dict:
         sep_liquid_m3     = num_persons * 120 / 1000 * 1.5
         # Standard septic tank sizes (m³)
         std_sep = [0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 7.5, 10, 15, 20]
-        sep_recommended_m3 = next((s for s in std_sep if s >= sep_liquid_m3), std_sep[-1])
+        sep_recommended_m3 = pick_at_least(std_sep, sep_liquid_m3, "septic tank (m3)")
 
     # ── Grease interceptor sizing (NSCP / PDC) ───────────────────────────────
     # Required where commercial kitchen fixtures are present

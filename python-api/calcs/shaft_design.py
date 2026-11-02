@@ -15,6 +15,7 @@ Methods:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── Material properties (common shaft steels) ────────────────────────────────
 SHAFT_MATERIALS: dict[str, dict] = {
@@ -163,6 +164,7 @@ def _goodman(d_mm: float, Ma_Nm: float, Mm_Nm: float,
 
 
 # formula: shaft_design
+@discloses
 def calculate(inputs: dict) -> dict:
     """Main entry point - compatible with TypeScript calcShaftDesign() keys."""
     # ── Loads ─────────────────────────────────────────────────────────────────
@@ -264,7 +266,7 @@ def calculate(inputs: dict) -> dict:
         d_iter = d_min_mm
 
     # Select standard size - the next one up whose own Se still gives the design factor
-    d_std_mm = next((s for s in STD_DIAMETERS_MM if s >= d_min_mm), STD_DIAMETERS_MM[-1])
+    d_std_mm = pick_at_least(STD_DIAMETERS_MM, d_min_mm, "shaft diameter for strength (mm)")
     if d_est <= 0:
         while d_std_mm < STD_DIAMETERS_MM[-1] and _goodman(d_std_mm, Ma_Nm, Mm_Nm, Ta_Nm, Tm_Nm, Kf, Kfs,
                                                            _endurance_limit(mat, surface, d_std_mm, reliability),
@@ -326,7 +328,7 @@ def calculate(inputs: dict) -> dict:
     theta_lim_rad = math.radians(TWIST_LIMIT_DEG_M)
     d_twist_req_m = (32 * abs(T_raw_Nm) / (G_Pa * math.pi * theta_lim_rad)) ** 0.25 if (T_raw_Nm and theta_lim_rad) else 0.0
     d_twist_required_mm = d_twist_req_m * 1000
-    d_twist_std_mm = next((s for s in STD_DIAMETERS_MM if s >= d_twist_required_mm), STD_DIAMETERS_MM[-1])
+    d_twist_std_mm = pick_at_least(STD_DIAMETERS_MM, d_twist_required_mm, "shaft diameter for torsional stiffness (mm)")
 
     return {
         # Loads

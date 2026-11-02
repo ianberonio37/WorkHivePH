@@ -14,6 +14,7 @@ Replaces the hand-rolled TypeScript implementation with:
 
 import psychrolib
 import math
+from ._catalog import discloses, pick_at_least
 
 # Set SI units globally for this module
 psychrolib.SetUnitSystem(psychrolib.SI)
@@ -115,6 +116,7 @@ def _min_eer(kw: float) -> float:
 
 
 # formula: hvac_cooling_load_ashrae_62
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcHVACCoolingLoad() keys.
@@ -209,7 +211,7 @@ def calculate(inputs: dict) -> dict:
     TR_design  = round(kW_design / 3.517, 2)
 
     # Recommended unit
-    rec_kw = next((s for s in AC_SIZES_KW if s >= kW_design), AC_SIZES_KW[-1])
+    rec_kw = pick_at_least(AC_SIZES_KW, kW_design, "air-conditioning unit (kW)")
     rec_tr = round(rec_kw / 3.517, 2)
 
     # ── ASHRAE 62.1 Ventilation check ────────────────────────────────────────

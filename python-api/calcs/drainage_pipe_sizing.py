@@ -14,6 +14,7 @@ Improvement over TypeScript:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # DFU values per fixture (Philippine Plumbing Code / UPC Table 7-5)
 DRAIN_DFU: dict[str, dict] = {
@@ -61,6 +62,7 @@ MANNING_N: dict[str, float] = {
 
 
 # formula: drainage_pipe_sizing
+@discloses
 def calculate(inputs: dict) -> dict:
     fixtures     = inputs.get("fixtures", [])
     system_type  = str(inputs.get("system_type",   "Horizontal Branch"))
@@ -94,8 +96,7 @@ def calculate(inputs: dict) -> dict:
     sorted_sizes = sorted(table_raw.keys())
 
     # Smallest diameter where capacity >= totalDFU
-    recommended = next((d for d in sorted_sizes if table_raw[d] >= total_dfu),
-                       sorted_sizes[-1])
+    recommended = pick_at_least(sorted_sizes, total_dfu, "drain pipe for the fixture-unit load (DFU)", value=lambda d: table_raw[d])
 
     # UPC Table 703.2 notes c, d: water closets need 75 mm at least, and 75 mm takes no more than 3 on a horizontal
     # branch or drain (4 on a stack) - the old rule here forced 100 mm for a single water closet and called it a UPC rule

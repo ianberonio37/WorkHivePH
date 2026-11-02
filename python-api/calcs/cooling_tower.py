@@ -18,6 +18,7 @@ Calculates:
 
 import psychrolib
 import math
+from ._catalog import discloses, pick_at_least
 
 psychrolib.SetUnitSystem(psychrolib.SI)
 
@@ -101,6 +102,7 @@ PUMP_MOTOR_SIZES_KW  = [0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3.0, 4.0, 5.5, 7.5,
 
 
 # formula: cooling_tower_ashrae_2021
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcCoolingTower() input keys.
@@ -195,8 +197,7 @@ def calculate(inputs: dict) -> dict:
     # Fan static pressure for cooling tower: typically 150-300 Pa (induced draft)
     fan_static_pa  = 200   # Pa - typical induced draft tower
     fan_kw_calc    = (air_vol_m3s * fan_static_pa) / (fan_eff * 1000)
-    rec_fan_kw     = next((s for s in TOWER_MOTOR_SIZES_KW if s >= fan_kw_calc),
-                          TOWER_MOTOR_SIZES_KW[-1])
+    rec_fan_kw     = pick_at_least(TOWER_MOTOR_SIZES_KW, fan_kw_calc, "cooling tower fan motor (kW)")
     fan_hp         = round(rec_fan_kw * 1.341, 1)
 
     # ASHRAE 90.1 / CTI efficiency: gpm per fan hp - target ≥ 38 gpm/hp
@@ -204,11 +205,11 @@ def calculate(inputs: dict) -> dict:
     tower_eff_ok   = gpm_per_hp >= 38.0
 
     # ── Condenser water pump ──────────────────────────────────────────────────
-    pump_kw_calc   = (flow_lps * pump_head_m * rho_water * 9.81) / (pump_eff * 1e6)
-    # More readable form: P = rho * g * Q * H / eta (W)
-    pump_kw_calc   = (rho_water * 9.81 * flow_lps * pump_head_m) / (pump_eff * 1000)
-    rec_pump_kw    = next((s for s in PUMP_MOTOR_SIZES_KW if s >= pump_kw_calc),
-                          PUMP_MOTOR_SIZES_KW[-1])
+    # P = rho g Q H / eta, with Q = flow_lps / 1000 m3/s and P in kW = W / 1000: rho g flow_lps H / (eta 1e6).
+    # ★A SECOND LINE OVERWROTE THIS ONE with / (eta x 1000) - watts printed as kW (2026-11-02, ED-B1): 86 m3/h at 20 m
+    # read 6,695.8 kW, and the motor pick ran off the top of the list to 90 kW for a 6.7 kW duty.
+    pump_kw_calc   = (rho_water * 9.81 * flow_lps * pump_head_m) / (pump_eff * 1e6)
+    rec_pump_kw    = pick_at_least(PUMP_MOTOR_SIZES_KW, pump_kw_calc, "condenser water pump motor (kW)")
 
     # ── Make-up water calculation (CTI / ASHRAE) ──────────────────────────────
     # Evaporation loss: ~0.75% of circulating flow per 5.6°C range (ASHRAE rule)

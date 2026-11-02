@@ -13,6 +13,7 @@ Replaces the hand-rolled TypeScript implementation with:
 
 from fluids import friction_factor, Reynolds
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── Standard pipe inside diameters (mm) - for compressed air distribution ───
 PIPE_SIZES: list[dict] = [
@@ -171,6 +172,7 @@ def _select_pipe(
 
 
 # formula: compressed_air_iso_1217
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcCompressedAir() input keys.
@@ -237,7 +239,7 @@ def calculate(inputs: dict) -> dict:
     installed_kw = motor_kw * (100 / duty_cycle_pct) * safety_factor
 
     # Next standard compressor size
-    recommended_kw = next((s for s in STD_COMP_KW if s >= installed_kw), STD_COMP_KW[-1])
+    recommended_kw = pick_at_least(STD_COMP_KW, installed_kw, "compressor motor (kW)")
     recommended_hp = round(recommended_kw * 1.341, 1)
 
     # ── Receiver tank sizing - ISO 1217 ───────────────────────────────────────
@@ -253,7 +255,7 @@ def calculate(inputs: dict) -> dict:
 
     # Standard tank sizes (litres)
     std_tanks = [100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000]
-    rec_tank  = next((t for t in std_tanks if t >= V_tank * 1000), std_tanks[-1])
+    rec_tank  = pick_at_least(std_tanks, V_tank * 1000, "air receiver (L)")
 
     # ── Distribution pipe sizing ───────────────────────────────────────────────
     # ★THE MAIN WAS SIZED TO LOSE 10% OF THE PRESSURE, AT ANY SPEED (2026-11-02, ED-G1 Compressed Air, read against the

@@ -22,6 +22,7 @@ Velocity limits (SMACNA / ASHRAE 62.1):
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── Tropical air constants at 35°C, sea level (Manila design conditions) ─────
 # ASHRAE 2021 Fundamentals, standard air properties at 35°C
@@ -111,7 +112,7 @@ def _size_circular(Q_m3s: float, fr_pam: float) -> tuple[float, float]:
     D_calc = (K_TROPICAL * Q_m3s ** 1.75 / fr_pam) ** (1 / 4.75)
     # Select smallest standard size >= D_calc
     D_calc_mm = D_calc * 1000
-    D_std_mm  = next((s for s in ROUND_SIZES_MM if s >= D_calc_mm), ROUND_SIZES_MM[-1])
+    D_std_mm  = pick_at_least(ROUND_SIZES_MM, D_calc_mm, "round duct diameter (mm)")
     return D_calc, D_std_mm / 1000
 
 
@@ -396,6 +397,7 @@ def _form_segments(inputs: dict) -> dict:
 
 
 # formula: duct_sizing_ashrae_2021
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcDuctSizing() input keys.

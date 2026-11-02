@@ -19,6 +19,7 @@ Calculates:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # ─── Demand factors by load type - NEC Article 220 / PEC 2017 ────────────────
 DEMAND_FACTORS: dict[str, float] = {
@@ -60,7 +61,7 @@ PANEL_LOADING_LIMIT_PCT = 80   # % - demand load must not exceed 80% of panel ra
 
 
 def _next_breaker(amps: float) -> int:
-    return next((b for b in BREAKER_SIZES if b >= amps), BREAKER_SIZES[-1])
+    return pick_at_least(BREAKER_SIZES, amps, "branch breaker (A)")
 
 
 def _phase_label(phase_idx: int, phases: int) -> str:
@@ -71,6 +72,7 @@ def _phase_label(phase_idx: int, phases: int) -> str:
 
 
 # formula: load_schedule_nec_2020
+@discloses
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcLoadSchedule() input keys.

@@ -14,6 +14,7 @@ Method:
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 # Wire rope 6×19 IWRC EIPS minimum breaking force (kN) by diameter
 ROPE_SIZES: list[dict] = [
@@ -31,6 +32,7 @@ STD_HP = [0.5, 1, 1.5, 2, 3, 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 12
 
 
 # formula: hoist_capacity
+@discloses
 def calculate(inputs: dict) -> dict:
     rated_load_kg   = float(inputs.get("rated_load_kg",   2000))
     hook_weight_kg  = float(inputs.get("hook_weight_kg",  30))
@@ -86,7 +88,7 @@ def calculate(inputs: dict) -> dict:
     mech_eff = mech_eff_pct / 100.0
     motor_hp_calc = round(power_W / (mech_eff * 746), 2)
     motor_hp_sf   = motor_hp_calc * 1.15   # 15% service factor
-    motor_hp_std  = next((hp for hp in STD_HP if hp >= motor_hp_sf), STD_HP[-1])
+    motor_hp_std  = pick_at_least(STD_HP, motor_hp_sf, "hoist motor (hp)")
     motor_kW      = round(motor_hp_std * 0.746, 2)
     motor_note    = ""
     if is_manual:
@@ -94,7 +96,7 @@ def calculate(inputs: dict) -> dict:
         motor_note    = "Manual chain hoist: hand-operated, no motor to size."
 
     # Wire rope selection
-    selected = next((r for r in ROPE_SIZES if r["MBF"] >= MBF_kN), ROPE_SIZES[-1])
+    selected = pick_at_least(ROPE_SIZES, MBF_kN, "wire rope minimum breaking force (kN)", key="MBF")
     rope_rec  = f"{selected['dia']}, 6x19 IWRC EIPS wire rope (MBF = {selected['MBF']} kN)"
     if is_chain:
         rope_rec = (f"load chain rated for a working load of at least {gross_load_kg} kg (ASME B30.16 / the hoist maker's "

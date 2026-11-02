@@ -10,11 +10,13 @@ Method: Selects treatment train based on source quality flags
 """
 
 import math
+from ._catalog import discloses, pick_at_least
 
 STD_FILTER_DIA_MM = [400, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2400]
 
 
 # formula: water_treatment_ansi_61
+@discloses
 def calculate(inputs: dict) -> dict:
     demand_source = str(inputs.get("demand_source",   "direct"))
     n_people      = int(inputs.get("n_people",        0))
@@ -88,7 +90,7 @@ def calculate(inputs: dict) -> dict:
     filter_area_m2  = round(peak_flow_m3hr / filt_rate, 3)
     filter_dia_m    = round(math.sqrt(filter_area_m2 * 4 / math.pi), 3)
     req_dia_mm      = filter_dia_m * 1000
-    sel_dia_mm      = next((d for d in STD_FILTER_DIA_MM if d >= req_dia_mm), STD_FILTER_DIA_MM[-1])
+    sel_dia_mm      = pick_at_least(STD_FILTER_DIA_MM, req_dia_mm, "filter vessel diameter (mm)")
     sel_area_m2     = round(math.pi / 4 * (sel_dia_mm / 1000) ** 2, 4)
     actual_filt     = round(peak_flow_m3hr / sel_area_m2, 2) if sel_area_m2 > 0 else 0.0
     bw_flow_m3hr    = round(sel_area_m2 * 25, 2)
