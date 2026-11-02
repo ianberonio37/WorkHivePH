@@ -4869,10 +4869,13 @@ door example is the classical B section (6 belts). Both items wait for ED257's R
 rate-capacity table is encoded yet, so the guide now calls the figure a lower bound. A rate-correction table, taken
 from a maker's published W/cell data, is the next step.
 
-**Open on ED149 (R1):** the report gives l1 as "max(5 m, 0.5×H) per IEC 62305-3 Annex E". In the standard, l1 comes from
-Figure 3, by LPS class and soil resistivity: 5 m flat for classes III and IV, rising with resistivity for I and II. The
-form never asks for soil resistivity, so the engine assumes 100 Ω·m. No source I could verify gives the class I and II
-curve values, so they are not hard-coded. ED149 needs the figure's values and a soil-resistivity field.
+**ED149 / R1, closed for the R1 walk to confirm (2026-11-02):** l1 came from the building height, max(5 m, 0.5×H), and
+the report cited "Annex E". IEC 62305-3's l1 is its Figure 3. The values were read from DEHN's reproduction (Lightning
+Protection Guide 2014, Fig. 5.5.1.1) by measuring the lines against the axis ticks, to about ±1 m. Class III and IV are
+5 m flat. Class I runs from (500 Ω·m, 5 m) to (3000, 76.5). Class II runs from (800, 5) to (3000, 50). Past 3000 Ω·m the
+line is extended and the result says so. The form gained a Soil Resistivity field, which also feeds the rod count.
+Before it, every count assumed 100 Ω·m. An LPL I ring in 1500 Ω·m soil was given l1 = 6 m and no supplementary
+electrodes; it needs 33.6 m, and 10 supplementary electrodes of 18.63 m. Two vectors fail on the old engine.
 
 **The walk order.** `trajectory_priority.py` places these rows by what they are:
 - **T1 (6 rows), defects a person meets today:** the three built calculators whose Guide says they are not built, and the

@@ -1617,8 +1617,10 @@ const GUIDES = {
       "  perimeter = 2 × (L + W)",
       "",
       "Earth termination (IEC 62305-3 §5.4.2), by the arrangement chosen:",
-      "  l1 = max(5, 0.5 × H) m  (the calculator's simplification: IEC 62305-3 Figure 3 gives 5 m for LPL III and IV, and a",
-      "       length rising with soil resistivity for LPL I and II - check Figure 3 where the soil is above 500 ohm·m)",
+      "  l1 (IEC 62305-3 Figure 3, by LPS class and soil resistivity ρ):",
+      "    class III and IV: 5 m at any ρ",
+      "    class II: 5 m up to 800 Ω·m, then 5 + (ρ − 800) × 45 / 2200 m (50 m at 3000 Ω·m)",
+      "    class I: 5 m up to 500 Ω·m, then 5 + (ρ − 500) × 71.5 / 2500 m (76.5 m at 3000 Ω·m)",
       "  Type A: one electrode per down conductor, at least 2; vertical ≥ 0.5 × l1, radial ≥ l1",
       "  Type B: ring about 1 m outside the walls; mean radius re = √(A/π) must be ≥ l1, else supplementary electrodes",
       "          (horizontal l1 − re, or vertical (l1 − re)/2) at the down-conductor points",
@@ -1633,6 +1635,7 @@ const GUIDES = {
       { name: "Lightning Protection Level (LPL)", tip: "LPL I (highest protection, 98% efficiency): rolling sphere R=20m, mesh 5×5m: required for explosive/healthcare. LPL II (95%): R=30m, mesh 10×10m: recommended for commercial/industrial. LPL III (90%): R=45m, mesh 15×15m. LPL IV (80%): R=60m, mesh 20×20m: minimum for ordinary dwellings. If in doubt, specify one level higher than the risk assessment minimum." },
       { name: "Air Termination Method", tip: "Rolling Sphere: geometrically the most accurate: a sphere of radius R is rolled over the building; wherever it touches is unprotected. Mesh: a conductor grid on the roof intercepts direct strikes: best for flat roofs. Protection Angle: simple method using a cone of protection angle α from the tip of a Franklin rod: use only for isolated simple structures, not for complex rooftops." },
       { name: "Down Conductor Material", tip: "Copper (minimum 16 mm² solid or 25 mm² stranded): highest conductivity, recommended for permanent installation. Galvanized Steel (minimum 50 mm²): lower cost, adequate conductivity, suitable for industrial. Aluminium (minimum 25 mm²): use only where copper corrosion is a concern; never bury aluminium in concrete or soil without sleeving." },
+      { name: "Soil Resistivity (Ω·m)", tip: "Measured with a Wenner four-pole meter (IEEE 81). It sets l1 for LPL I and II (IEC 62305-3 Figure 3: longer electrodes in high-resistivity soil) and the number of rods to reach 10 Ω. Typical Philippine values: wet or marshy soil 10–100, clay or loam 100–300, sandy loam 300–500, sand 500–2000, gravel or rock 2000–10000 Ω·m." },
       { name: "Earth Termination Type", tip: "Type A (radial or vertical electrodes): minimum 2 electrodes, one per down conductor, placed symmetrically around the building: flexible for retro-fits. Type B (ring electrode or foundation electrode): a horizontal ring conductor about 1 m outside the walls at 0.5 m depth: preferred for new construction and for structures with extensive electronics or a fire risk. The calculator follows your choice: Type A sizes an electrode per down conductor; Type B sizes the ring and checks its mean radius against l1, adding supplementary electrodes when it falls short." },
     ],
     notes: [
@@ -5510,6 +5513,10 @@ function renderInputForm(calcType) {
             <button class="toggle-btn" data-val="Type B - Ring / Foundation Electrode" onclick="toggle('tg-lps-earth','Type B - Ring / Foundation Electrode')">Type B (Ring)</button>
           </div>
         </div>
+        <div>
+          <div class="field-label">Soil Resistivity</div>
+          <div class="input-group"><input aria-label="Soil Resistivity" id="f-lps-rho" class="wh-input" type="number" value="100" min="1" step="10"/><span class="input-unit">Ω·m</span></div>
+        </div>
       </div>
 
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
@@ -9347,6 +9354,7 @@ function collectInputs() {
       air_term_method:     getToggle('tg-lps-method')  || 'Rolling Sphere',
       dc_material:         getToggle('tg-lps-dc')      || 'Copper',
       earth_type:          getToggle('tg-lps-earth')   || 'Type A - Radial / Vertical Electrodes',
+      soil_resistivity_ohm_m: parseFloat(v('f-lps-rho')) || 100,
     };
   }
 
@@ -14511,7 +14519,7 @@ function renderLPSReport(inputs, results, narrative) {
         <tbody>
           <tr><td>Earth Electrode Type</td><td>${e(earthType)}</td><td>Selected per soil conditions</td></tr>
           <tr><td>Number of Electrodes</td><td>${results.earth_arrangement === 'Type B' ? `Ring ${e(results.ring_earth_m)} m${Number(nElec) > 0 ? ` + ${e(nElec)} supplementary` : ''}` : e(nElec)}</td><td>${results.earth_basis ? e(results.earth_basis) : 'One per down conductor (IEC 62305-3 &sect;5.4.2)'}</td></tr>
-          <tr><td>Minimum Electrode Length</td><td>${e(elecLen)} m</td><td>l1 = max(5 m, 0.5&times;H): a simplification; IEC 62305-3 Figure 3 gives 5 m for LPL III/IV and more in high-resistivity soil for LPL I/II</td></tr>
+          <tr><td>Minimum Electrode Length</td><td>${e(elecLen)} m</td><td>${escHtml(results.l1_basis || 'IEC 62305-3 Figure 3, by LPS class and soil resistivity')}</td></tr>
           <tr><td>Target Earth Resistance</td><td>&le; 10 &Omega; (complete ring)</td><td>IEC 62305-3 &sect;5.4: as low as practicable</td></tr>
           <tr><td>Integration with LV Earthing</td><td>Bond at main equipotential bar</td><td>PEC 2017 Art. 2.50 / IEC 62305-3 &sect;6.2</td></tr>
           <tr><td>Below-Grade Connections</td><td>Exothermic weld (Cadweld) or listed compression fitting</td><td>IEC 62305-3 &sect;5.4.3: no solder joints</td></tr>
@@ -14546,7 +14554,7 @@ function renderLPSReport(inputs, results, narrative) {
         2. Collection area Ad calculated per IEC 62305-2 Annex A for an isolated rectangular structure on flat terrain.<br>
         3. Location factor Cd assumes ${e(strType)} classification per IEC 62305-2 Table B.2. Adjust if structure is on a hill or in an urban setting with taller nearby buildings.<br>
         4. Air terminal count is an estimate; final count shall be confirmed by the LPS designer after reviewing architectural roof drawings.<br>
-        5. Earth electrode minimum length is per IEC 62305-3 Annex E for unknown soil resistivity. A soil resistivity survey (Wenner method, IEEE 81) is recommended before final earth design.<br>
+        5. The earth electrode minimum length l1 is from IEC 62305-3 Figure 3 at the soil resistivity entered (${escHtml(String(results.rho_soil_ohm_m ?? ''))} &Omega;&middot;m). A soil resistivity survey (Wenner method, IEEE 81) is recommended before the final earth design.<br>
         6. SPD class recommendations are for general reference. Final SPD selection shall be based on LPZ zone-to-zone overvoltage analysis per IEC 62305-4.<br>
         7. Separation distance calculations are not performed in this tool; the LPS installer shall compute per IEC 62305-3 &sect;6.3 using actual installation geometry.
       </div>

@@ -133,6 +133,35 @@ def _separation_distance(lpl: str, l_m: float, ki: float = 0.04) -> float:
     return k * (kc / km) * l_m
 
 
+# ★l1 CAME FROM THE BUILDING HEIGHT, NOT FROM THE SOIL (2026-11-02, ED149 R1, read against IEC 62305-3 §5.4.2): the engine
+# took l1 = max(5 m, 0.5 x H) and the report cited "Annex E". The standard's l1 is its Figure 3, by LPS class and soil
+# resistivity: 5 m flat for classes III and IV; for I and II, 5 m up to a knee and then rising linearly with rho. Values
+# read from the figure as DEHN reproduces it (Lightning Protection Guide 2014, Fig. 5.5.1.1), measured against the axis
+# ticks to about +/-1 m: class I from (500 ohm.m, 5 m) to (3000, 76.5); class II from (800, 5) to (3000, 50). The figure
+# stops at 3000 ohm.m; beyond it the line is extended and the result says so. And the form never sent the soil
+# resistivity, so every rod count assumed 100 ohm.m: it is now a form field.
+L1_FIGURE3: dict[str, tuple[float, float, float]] = {   # class: (knee rho, last rho on the figure, l1 at that rho)
+    "I":  (500.0, 3000.0, 76.5),
+    "II": (800.0, 3000.0, 50.0),
+}
+
+
+def _l1_min_m(lpl: str, rho_soil: float) -> tuple[float, str]:
+    """IEC 62305-3 Figure 3: minimum length l1 of each earth electrode, by LPS class (= LPL) and soil resistivity."""
+    cls = lpl.upper().replace("LPL", "").strip()
+    if cls not in L1_FIGURE3:
+        return 5.0, f"l1 = 5 m: LPS class {cls or 'III/IV'} is 5 m at any soil resistivity (IEC 62305-3 Figure 3)"
+    knee, last, l_last = L1_FIGURE3[cls]
+    if rho_soil <= knee:
+        return 5.0, f"l1 = 5 m: class {cls} at {rho_soil:g} ohm.m, up to {knee:g} ohm.m (IEC 62305-3 Figure 3)"
+    l1 = 5.0 + (rho_soil - knee) * (l_last - 5.0) / (last - knee)
+    basis = (f"l1 = 5 + ({rho_soil:g} - {knee:g}) x {l_last - 5.0:g} / {last - knee:g} = {l1:.1f} m: class {cls} above "
+             f"{knee:g} ohm.m (IEC 62305-3 Figure 3)")
+    if rho_soil > last:
+        basis += f" - beyond the figure's {last:g} ohm.m, extended"
+    return l1, basis
+
+
 def _earth_rod_count(rho_soil: float, rod_len_m: float, R_target: float) -> int:
     """
     Resistance of a single vertical rod: R1 = (rho/(2π×L)) × ln(4L/d)
@@ -245,7 +274,8 @@ def calculate(inputs: dict) -> dict:
     s_sep_m = _separation_distance(lpl, building_height_m)
 
     # ── Earth termination ─────────────────────────────────────────────────────
-    min_electrode_length_m = round(max(5.0, 0.5 * building_height_m), 1)
+    l1_raw, l1_basis = _l1_min_m(lpl, rho_soil)
+    min_electrode_length_m = round(l1_raw, 1)
     n_rods   = _earth_rod_count(rho_soil, rod_length_m, EARTH_R_TARGET)
     # IEC 62305-3 §5.4.2.1 Type A: an electrode at each down conductor, never fewer than two; a vertical or inclined
     # electrode is at least 0.5 x l1 long, a radial (horizontal) one at least l1.
@@ -386,6 +416,7 @@ def calculate(inputs: dict) -> dict:
 
         # Earth — renderer-compatible
         "min_electrode_length_m":  min_electrode_length_m, # renderer key
+        "l1_basis":                l1_basis,
         "n_electrodes":            n_electrodes,           # renderer key: Type A one per DC (min 2); Type B the supplementary ones
         "earth_type":              earth_type,
         "earth_arrangement":       earth_arrangement,

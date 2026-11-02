@@ -1305,7 +1305,35 @@ VECTORS = [
         "asserts": [
             {"path": "ring_earth_m", "expected": 108.0, "tol": 0.1, "note": "2·(32 + 22) = 108 m, 1 m outside each wall"},
             {"path": "ring_mean_radius_m", "expected": 14.97, "tol": 0.01, "note": "√(32·22/π) = √224.1 = 14.97 m"},
-            {"path": "n_electrodes", "expected": 0, "tol": 0, "note": "re 14.97 m ≥ l1 6 m - no supplementary electrodes"},
+            {"path": "n_electrodes", "expected": 0, "tol": 0, "note": "re 14.97 m ≥ l1 5 m (LPL II at the default 100 Ω·m, Figure 3) - no supplementary electrodes"},
+        ],
+    },
+    {
+        # ★l1 CAME FROM THE BUILDING HEIGHT (2026-11-02, ED149 R1): max(5, 0.5·H) gave 6 m for this 12 m building whatever
+        # the soil. IEC 62305-3 Figure 3 (read from DEHN LPG Fig. 5.5.1.1): class I, 5 m to 500 Ω·m, then up to 76.5 m at 3000.
+        "module": "calcs.lightning_protection",
+        "calc_type": "Lightning Protection System (LPS) - l1 by class and soil (IEC 62305-3 Figure 3)",
+        "standard": "IEC 62305-3 §5.4.2, Figure 3: class I l1 = 5 + (ρ − 500)·71.5/2500 m; re ≥ l1 or supplementary electrodes",
+        "inputs": {"building_length_m": 30, "building_width_m": 20, "building_height_m": 12, "lpl": "LPL I",
+                   "ng_location": "Metro Manila / NCR", "structure_type": "Residential", "soil_resistivity_ohm_m": 1500,
+                   "earth_type": "Type B - Ring / Foundation Electrode"},
+        "asserts": [
+            {"path": "min_electrode_length_m", "expected": 33.6, "tol": 0.05,
+             "note": "5 + (1500 − 500) × 71.5 / 2500 = 5 + 28.6 = 33.6 m (the old max(5, 0.5 × 12) = 6 m)"},
+            {"path": "suppl_electrode_horizontal_m", "expected": 18.63, "tol": 0.01,
+             "note": "re = √(32·22/π) = 14.97 m < 33.6 m: horizontal lr = l1 − re = 33.6 − 14.97 = 18.63 m"},
+        ],
+    },
+    {
+        "module": "calcs.lightning_protection",
+        "calc_type": "Lightning Protection System (LPS) - class II knee at 800 Ω·m",
+        "standard": "IEC 62305-3 Figure 3: class II l1 = 5 m to 800 Ω·m, then 5 + (ρ − 800)·45/2200 m",
+        "inputs": {"building_length_m": 30, "building_width_m": 20, "building_height_m": 12, "lpl": "LPL II",
+                   "ng_location": "Metro Manila / NCR", "structure_type": "Residential", "soil_resistivity_ohm_m": 1500,
+                   "earth_type": "Type A - Radial / Vertical Electrodes"},
+        "asserts": [
+            {"path": "min_electrode_length_m", "expected": 19.3, "tol": 0.05,
+             "note": "5 + (1500 − 800) × 45 / 2200 = 5 + 14.32 = 19.3 m; a vertical electrode needs ≥ 0.5·l1 = 9.66 m"},
         ],
     },
     {
