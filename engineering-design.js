@@ -1709,11 +1709,11 @@ const GUIDES = {
     subtitle: 'Determines the required flow, pressure, and pipe size for an automatic sprinkler system using the density/area method prescribed in NFPA 13. Used for BFP permit submissions in the Philippines.',
     standards: ['NFPA 13 (Standard for the Installation of Sprinkler Systems): latest edition adopted by BFP','BFP IRR (Bureau of Fire Protection Implementing Rules and Regulations)','National Building Code of the Philippines (PD 1096): Fire Protection Chapter','NFPA 20 (Standard for the Installation of Stationary Fire Pumps)'],
     formulas: [
-      'Q per sprinkler (L/min) = K x sqrt(P)',
-      '  K = K-factor (80 L/min/bar^0.5 standard, 115 extended coverage)',
-      '  P = operating pressure at sprinkler (bar)',
-      '',
       'Number of sprinklers = ceil(Design Area / Coverage per head)',
+      '',
+      'Q per sprinkler (L/min) = Design Density (mm/min) x Coverage per head (m2)   (the NFPA 13 density/area method)',
+      '  P at the remote head (bar) = (Q / K)^2, never below the minimum operating pressure;',
+      '  where the minimum governs, Q = K x sqrt(P_min)   (K = 80 L/min/bar^0.5 standard, 115 extended coverage)',
       '',
       'Q_sprinklers (L/min) = Q_per_head x N_sprinklers',
       'Q_total = Q_sprinklers + Hose Stream Allowance',
@@ -1722,20 +1722,24 @@ const GUIDES = {
       '  hL (bar/m) = 6.05e5 x Q^1.85 / (C^1.85 x d^4.87)',
       '  C: Black Steel = 120, CPVC = 150, Copper = 140',
       '',
-      'P_source (bar) = P_design + H_friction',
-      'Water Volume (L) = Q_total x Duration (min)',
+      'P_source (bar) = P_remote + friction x 1.30 (fittings) + elevation x 0.0981',
+      'Water Volume (L) = Q_total x Duration (min);  Duration: Light 30, Ordinary 60, Extra Hazard 1 90, Extra Hazard 2 120 min (NFPA 13 Table 19.3.3.1.2)',
     ],
     fields: [
-      { name: 'Occupancy Hazard', tip: 'NFPA 13 classification: Light (offices, hotels), Ordinary Grp 1 (parking, libraries), Ordinary Grp 2 (manufacturing, cold storage), Extra Hazard (spray painting, flammable liquid). Pre-fills density, design area, and hose allowance automatically.' },
-      { name: 'K-Factor', tip: 'Standard Response sprinklers: K=80 L/min/bar^0.5. Extended Coverage (EC): K=115. Large Drop (LD): K=161. Use K=80 for most commercial and industrial Philippine projects.' },
-      { name: 'Operating Pressure at Remote Sprinkler', tip: 'Minimum 0.7 bar (70 kPa) per NFPA 13 for standard spray sprinklers. Higher pressure improves coverage uniformity but increases pump requirements.' },
+      { name: 'Occupancy Hazard Classification', tip: 'NFPA 13 classification: Light (offices, hotels), Ordinary Grp 1 (parking, libraries), Ordinary Grp 2 (manufacturing, cold storage), Extra Hazard (spray painting, flammable liquid). Pre-fills density, design area, and hose allowance automatically.' },
+      { name: 'Sprinkler Type / K-Factor', tip: 'Standard Response sprinklers: K=80 L/min/bar^0.5. Extended Coverage (EC): K=115. Large Drop (LD): K=161. Use K=80 for most commercial and industrial Philippine projects.' },
+      { name: 'Min. Operating Pressure at Remote Head', tip: 'Minimum 0.7 bar (70 kPa) per NFPA 13 for standard spray sprinklers. Higher pressure improves coverage uniformity but increases pump requirements.' },
+      { name: 'Design Area', tip: 'The hydraulically most remote area that must flow at the design density: 139 m² for Light and Ordinary, 232 m² minimum for Extra Hazard (NFPA 13 density/area curves). A larger area at the same density is conservative.' },
+      { name: 'Design Density', tip: 'Water over the design area in mm/min (= L/min per m²): Light 4.1, Ordinary 1 6.1, Ordinary 2 8.1, Extra 1 12.2, Extra 2 16.3 (0.10 to 0.40 gpm/ft²).' },
+      { name: 'Coverage per Sprinkler Head', tip: 'Floor area each head protects, from the listed spacing: up to 18.6 m² Light, 12.1 m² Ordinary, 9.3 m² Extra Hazard for standard spray heads.' },
+      { name: 'Hose Stream Allowance', tip: 'NFPA 13 Table 19.3.3.1.2 total inside + outside hose: Light 100 gpm (379 L/min), Ordinary 250 gpm (946 L/min), Extra 500 gpm (1,893 L/min). Added to the sprinkler flow for the water supply.' },
       { name: 'Pipe Material', tip: 'Black Steel Schedule 40 (C=120): standard for Philippine industrial and commercial. CPVC (C=150): residential and light commercial. Copper (C=140): high-end or corrosive environments.' },
       { name: 'Pipe Length', tip: 'Measured from the riser connection to the most remote sprinkler head. Include bends and fittings using a 20-30% equivalent length allowance on top of straight run.' },
     ],
     notes: [
-      'Pre-filled values per NFPA 13: Light Hazard: 4.1 mm/min density, 139 m2 design area, 250 L/min hose, 30 min duration.',
-      'Ordinary Group 1: 6.1 mm/min, 139 m2, 500 L/min hose, 60 min. Ordinary Group 2: 8.1 mm/min, 139 m2, 500 L/min hose, 60 min.',
-      'Extra Hazard Group 1: 12.2 mm/min, 232 m2, 950 L/min hose, 90 min. Extra Hazard Group 2: 16.3 mm/min, 279 m2, 950 L/min hose, 120 min.',
+      'Pre-filled values per NFPA 13: Light Hazard: 4.1 mm/min density, 139 m2 design area, 379 L/min (100 gpm) hose, 30 min duration.',
+      'Ordinary Group 1: 6.1 mm/min, 139 m2, 946 L/min (250 gpm) hose, 60 min. Ordinary Group 2: 8.1 mm/min, 139 m2, 946 L/min hose, 60 min (NFPA 13 allows 60-90).',
+      'Extra Hazard Group 1: 12.2 mm/min, 232 m2, 1,893 L/min (500 gpm) hose, 90 min. Extra Hazard Group 2: 16.3 mm/min, 279 m2 (232 m2 is the curve minimum), 1,893 L/min hose, 120 min.',
       'Philippine pre-fills: Ordinary Group 1 is the correct default for most commercial and manufacturing occupancies registered with BFP.',
       'Hose stream allowance is mandatory per NFPA 13: it accounts for fire department hose connections used simultaneously with sprinkler flow.',
       'The BFP requires this calculation to be signed by a PRC-licensed Mechanical or Fire Protection Engineer before issuing an occupancy permit.',
@@ -1754,19 +1758,25 @@ const GUIDES = {
       'Pump Shaft Power (kW) = 9.81 x Q (m³/s) x TDH (m) / pump efficiency',
       'Motor Input Power (kW) = Shaft Power / motor efficiency',
       '',
-      'NFPA 20 Motor Rating:',
-      '  Electric Motor: rated power >= Shaft Power x 1.15 (115% rule)',
-      '  Diesel Engine: rated power >= Shaft Power x 1.20 (120% rule)',
+      'NFPA 20 Driver Rating:',
+      '  Shaft power is taken at the larger of the rated point and the 150% flow / 65% pressure point',
+      '  Rated power >= that shaft power x 1.15 (electric motor or diesel engine; a diesel is further derated by its maker for site heat and altitude)',
+      '  The motor efficiency turns shaft power into electrical input only - it does not raise the rating',
       '',
       'Select: next standard fire pump HP >= NFPA 20 required HP',
       '',
-      'Jockey Pump: Q = 1% of fire pump flow; P = fire pump pressure + 10%',
+      'Jockey Pump: Q = 1% of fire pump flow; P = fire pump rated pressure + 0.35 bar (5 psi)',
     ],
     fields: [
-      { name: 'Required Flow (L/min)', tip: 'Take directly from the Fire Sprinkler Hydraulic calculation: use Q_total (sprinkler flow + hose stream). Do NOT use sprinkler flow only; hose stream must be included per NFPA 13/20.' },
+      { name: 'Required System Flow', tip: 'Take directly from the Fire Sprinkler Hydraulic calculation: use Q_total (sprinkler flow + hose stream). Do NOT use sprinkler flow only; hose stream must be included per NFPA 13/20.' },
       { name: 'Required Pressure at System Connection', tip: 'Take from the Fire Sprinkler Hydraulic calc: use P_source (required source pressure). This is the pressure the pump must deliver at its discharge, before pipe losses to the sprinkler riser.' },
-      { name: 'Elevation (m)', tip: 'Vertical distance from pump centerline to the highest sprinkler connection. For buildings with multiple floors, measure to the top floor riser. Zero for single-story.' },
-      { name: 'Suction Type', tip: 'Flooded suction (pump below tank/reservoir): preferred, reduces TDH. Suction lift (pump above water source): increases TDH and risks cavitation. NFPA 20 strongly recommends flooded suction for fire pumps.' },
+      { name: 'Static Elevation (pump to highest outlet)', tip: 'Vertical distance from pump centerline to the highest sprinkler connection. For buildings with multiple floors, measure to the top floor riser. Zero for single-story.' },
+      { name: 'Suction Configuration', tip: 'Flooded suction (pump below tank/reservoir): preferred, reduces TDH. Suction lift (pump above water source): increases TDH and risks cavitation. NFPA 20 strongly recommends flooded suction for fire pumps.' },
+      { name: 'Suction Head (flooded depth)', tip: 'Water depth above the pump centreline for a flooded suction (it is credited against the required pressure), or the lift for a suction lift (it is added).' },
+      { name: 'Pipe Length (suction + discharge)', tip: 'Pump-room piping run in metres for the Hazen-Williams friction; 0 leaves friction out when the sprinkler calculation already carries it.' },
+      { name: 'Pipe Diameter', tip: 'Nominal pump piping size in mm; 0 auto-sizes it at 2.5 m/s or less.' },
+      { name: 'Pump Efficiency', tip: 'From the pump curve at the rated point, typically 65-75% for split-case fire pumps; it sets the shaft power.' },
+      { name: 'Motor Efficiency', tip: 'Motor nameplate efficiency, about 92-95%; it only turns shaft power into electrical input (for the supply cable), it does not change the motor rating.' },
       { name: 'Pipe Material', tip: 'Steel Schedule 40 (C=120): standard for fire pump suction and discharge piping in the Philippines. Cast Iron (C=100): older installations. Stainless Steel (C=140): food/pharma plants.' },
       { name: 'Drive Type', tip: 'Electric Motor: NFPA 20 requires motor rated at 115% of pump BHP. Diesel Engine: requires 120% and is mandatory as backup in high-rise buildings and critical occupancies per BFP IRR.' },
     ],
@@ -1774,7 +1784,7 @@ const GUIDES = {
       'NFPA 20 requires that the fire pump be capable of delivering 150% of rated flow at 65% of rated pressure (overload point). The selected pump curve must pass through this point.',
       'Philippine BFP requires a diesel-driven backup fire pump for buildings above 6 floors or with Extra Hazard occupancy.',
       'Standard fire pump HP sizes available in the Philippine market: 5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 200, 250, 300, 400, 500 HP.',
-      'Jockey (pressure maintenance) pump: NFPA 20: flow = 1% of fire pump rated flow, pressure = fire pump pressure + 10%. Keeps system pressurized between alarms to detect leaks.',
+      'Jockey (pressure maintenance) pump: flow = 1% of fire pump rated flow, pressure = fire pump rated pressure + 0.35 bar (5 psi), so it holds the system above the fire pump start point between alarms.',
       'Pump efficiency default: 70% for preliminary design. Motor efficiency: 90%. Update these from the actual pump curve once a vendor is selected.',
       'The fire pump must have a dedicated power supply and cannot share a circuit with other building loads: PEC and BFP IRR requirement.',
     ],
@@ -6618,7 +6628,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Hose Stream Allowance <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(auto-filled)</span></div>
           <div class="input-group">
-            <input aria-label="Hose Stream Allowance" id="f-hose" class="wh-input" type="number" value="500" min="0" />
+            <input aria-label="Hose Stream Allowance" id="f-hose" class="wh-input" type="number" value="946" min="0" />
             <span class="input-unit">L/min</span>
           </div>
         </div>
@@ -8362,11 +8372,14 @@ function applyFPSuctionDefaults(type) {
 
 function applyHazardDefaults(hazard) {
   const tbl = {
-    'Light Hazard':       { density: 4.1,  area: 139, coverage: 18.6, hose: 250  },
-    'Ordinary Group 1':   { density: 6.1,  area: 139, coverage: 12.1, hose: 500  },
-    'Ordinary Group 2':   { density: 8.1,  area: 139, coverage: 12.1, hose: 500  },
-    'Extra Hazard Grp 1': { density: 12.2, area: 232, coverage: 9.3,  hose: 950  },
-    'Extra Hazard Grp 2': { density: 16.3, area: 279, coverage: 9.3,  hose: 950  },
+    // Hose stream = NFPA 13 Table 19.3.3.1.2 total allowance, 100 / 250 / 500 gpm (it pre-filled 250 / 500 / 950 L/min,
+    // about half: every Ordinary and Extra hazard demand, tank and pump came out short). EH2 279 m2 is a point above the
+    // 0.40 gpm/ft2 curve (232 m2 minimum), kept as the conservative pre-fill.
+    'Light Hazard':       { density: 4.1,  area: 139, coverage: 18.6, hose: 379  },
+    'Ordinary Group 1':   { density: 6.1,  area: 139, coverage: 12.1, hose: 946  },
+    'Ordinary Group 2':   { density: 8.1,  area: 139, coverage: 12.1, hose: 946  },
+    'Extra Hazard Grp 1': { density: 12.2, area: 232, coverage: 9.3,  hose: 1893 },
+    'Extra Hazard Grp 2': { density: 16.3, area: 279, coverage: 9.3,  hose: 1893 },
   };
   const d = tbl[hazard];
   if (!d) return;
@@ -9738,7 +9751,7 @@ function collectInputs() {
       design_area:          parseFloat(v('f-design-area')) || 139,
       density:              parseFloat(v('f-density'))     || 6.1,
       coverage_per_head:    parseFloat(v('f-coverage'))    || 12.1,
-      hose_stream:          parseFloat(v('f-hose'))        || 500,
+      hose_stream:          parseFloat(v('f-hose'))        || 946,
       k_factor:             parseFloat(getToggle('tg-kfactor')) || 80,
       operating_pressure:   parseFloat(v('f-op-pressure')) || 0.7,
       pipe_length:          parseFloat(v('f-pipe-length')) || 30,
@@ -16643,7 +16656,7 @@ function renderFirePumpReport(inputs, results, narrative) {
   const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
-  const nfpaPct = r.drive_type === 'Diesel Engine' ? '120%' : '115%';
+  const nfpaPct = '115%';
 
   const html = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;">
@@ -16725,14 +16738,14 @@ function renderFirePumpReport(inputs, results, narrative) {
 
     <h3>4.5 Motor Input Power</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: P_motor = P_shaft / motor efficiency<br>
-      P_motor = ${r.P_shaft_kW} / ${r.motor_eff_pct / 100} = <strong>${r.P_motor_kW} kW (${r.P_motor_HP} HP)</strong>
+      Formula: P_input = P_shaft (largest along the curve) / motor efficiency<br>
+      P_input = ${r.P_shaft_max_kW ?? r.P_shaft_kW} / ${r.motor_eff_pct / 100} = <strong>${r.P_motor_kW} kW (${r.P_motor_HP} HP)</strong>
     </p>
 
     <h3>4.6 NFPA 20 Motor Rating Check</h3>
     <p style="font-size:0.82rem;color:#444;">
-      NFPA 20 requires ${escHtml(r.drive_type)} to be rated at minimum ${nfpaPct} of pump shaft BHP:<br>
-      Required motor rating = ${r.P_shaft_HP} x ${r.nfpa_factor} = <strong>${r.P_nfpa_HP} HP (${r.P_nfpa_kW} kW)</strong><br>
+      The ${escHtml(r.drive_type)} is rated at ${nfpaPct} of the largest shaft BHP along the pump curve (rated and 150% points):<br>
+      Required rating = ${r.P_shaft_max_HP ?? r.P_shaft_HP} HP x ${r.nfpa_factor} = <strong>${r.P_nfpa_HP} HP (${r.P_nfpa_kW} kW)</strong><br>
       Next standard fire pump motor size: <strong>${r.selected_HP} HP (${r.selected_kW.toFixed(1)} kW)</strong>
     </p>
 
@@ -16746,9 +16759,9 @@ function renderFirePumpReport(inputs, results, narrative) {
 
     <h3>4.8 Jockey Pump Sizing</h3>
     <p style="font-size:0.82rem;color:#444;">
-      NFPA 20: Jockey pump flow = 1% of fire pump rated flow; pressure = fire pump pressure + 10%<br>
+      Jockey pump flow = 1% of fire pump rated flow; pressure = fire pump rated pressure + 0.35 bar (5 psi)<br>
       Q_jockey = ${r.Q_Lmin} x 0.01 = <strong>${r.Q_jockey_Lmin} L/min</strong><br>
-      P_jockey = ${r.P_req_bar} x 1.10 = <strong>${r.P_jockey_bar} bar</strong><br>
+      P_jockey = ${r.P_req_bar} + 0.35 = <strong>${r.P_jockey_bar} bar</strong><br>
       Selected jockey pump motor: <strong>${r.selected_jockey_HP} HP</strong>
     </p>
 

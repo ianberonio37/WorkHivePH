@@ -262,7 +262,7 @@ CALC_DATA: dict[str, dict] = {
         "example_inputs": {"system_flow_gpm": 500, "system_pressure_psi": 100, "pipe_length": 60},
         "example_desc": "a 500 GPM / 100 psi fire-protection demand, with a 10% design margin",
         "headline": [("Recommended flow", "recommended_flow_lpm", "L/min"),
-                     ("Rated pressure", "rated_pressure_bar", "bar"), ("Motor", "motor_kw_calculated", "kW")],
+                     ("Rated pressure", "rated_pressure_bar", "bar"), ("Motor", "selected_kW", "kW")],
     },
     "generator-sizing-calculator": {
         "module": "generator_sizing", "title": "Generator Sizing Calculator", "discipline": "Electrical & Power",

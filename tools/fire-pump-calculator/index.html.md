@@ -6,7 +6,7 @@ Source: https://workhiveph.com/tools/fire-pump-calculator/
 
 Fire Pump Sizing Calculator
  G1+E3 
-**The Fire Pump Sizing Calculator picks the rated flow and pressure for a fire-protection duty per NFPA 20 pump-selection rules. Example: for a 500 GPM / 100 psi fire-protection demand, with a 10% design margin, Recommended flow = 2840 L/min, Rated pressure = 7.75 bar, Motor = 56.96 kW (per NFPA 20:2022, NFPA 13:2022, NFPA 25 and BFP IRR RA 9514).**
+**The Fire Pump Sizing Calculator picks the rated flow and pressure for a fire-protection duty per NFPA 20 pump-selection rules. Example: for a 500 GPM / 100 psi fire-protection demand, with a 10% design margin, Recommended flow = 2840 L/min, Rated pressure = 7.75 bar, Motor = 75 kW (per NFPA 20:2022, NFPA 13:2022, NFPA 25 and BFP IRR RA 9514).**
 How it works
 The calculator follows NFPA 20:2022, NFPA 13:2022, NFPA 25 and BFP IRR RA 9514. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
@@ -15,7 +15,7 @@ Inputs: a 500 GPM / 100 psi fire-protection demand, with a 10% design margin.
 ResultValue
 Recommended flow2840 L/min
 Rated pressure7.75 bar
-Motor56.96 kW
+Motor75 kW
 Computed by WorkHive's calculation engine when this page was built; standard: NFPA 20:2022, NFPA 13:2022, NFPA 25 and BFP IRR RA 9514.
 How to use this calculator
 Read the worked example. It uses a 500 GPM / 100 psi fire-protection demand, with a 10% design margin and shows every number in the method.
@@ -36,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 7eb2b59ee579cda6 -->
+<!-- md-twin source-sha: 699c4825f3e74372 -->

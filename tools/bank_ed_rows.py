@@ -470,6 +470,27 @@ ENGINE_CHECKED["Boiler System"] = (
     "Field names are the form's (Load Input Mode, Steam Pressure (gauge), Boiler Efficiency, Makeup Water TDS, plus the "
     "hot-water fields). Walked on the served page at 390 (2,000 kg/h steam): blowdown 177.5 kg/h, makeup 2,677.5 kg/h = "
     "steam + blowdown, no sideways scroll.")
+ENGINE_CHECKED["Fire Sprinkler Hydraulic"] = (
+    "FOUND AND FIXED, read against python-api/calcs/fire_sprinkler.py and NFPA 13: the density/area method itself is right "
+    "(per-head flow = max(density x coverage, K sqrt(P_min))). Three defects around it: (1) the water supply was 60 min for "
+    "every hazard - NFPA 13 Table 19.3.3.1.2 is Light 30, Ordinary 60-90, Extra 90-120 (the guide's 30/60/60/90/120): an "
+    "Extra Hazard tank 1/3 to 1/2 short of water, Light doubled; (2) the form's hazard labels ('Ordinary Group 1', 'Extra "
+    "Hazard Grp 1') matched none of the engine's keys, so every one fell to the Light row; (3) the FORM pre-filled hose "
+    "streams of 250 / 500 / 950 L/min where NFPA 13 requires 100 / 250 / 500 gpm (379 / 946 / 1,893 L/min) - every Ordinary "
+    "and Extra system's demand, tank and pump short by about half the allowance (input default and fallback 500 too). The "
+    "guide carried the same wrong hose figures and a K.sqrt(P)-only flow; now the engine's method and NFPA's numbers; names "
+    "are the form's. The vector fails on the old engine; walked on the served page at 390 (Extra Hazard 1 from its "
+    "pre-fill): hose 1893, '2836.5 + 1893 = 4729.5 L/min', 'Duration ... 90 minutes', '425.65 m3', no sideways scroll.")
+ENGINE_CHECKED["Fire Pump Sizing"] = (
+    "FOUND AND FIXED, read against python-api/calcs/fire_pump.py: the guide's 'rated power >= Shaft Power x 1.15' - the "
+    "engine took Q.dP / (pump eff x MOTOR eff), the electrical INPUT, as the shaft power, then x 1.15: every driver ~9% "
+    "over the rule, and the report printed that input as 'Shaft power'. Now shaft = Q.dP / pump eff at the larger of the "
+    "rated and 150% points, rating = that x 1.15, input = shaft / motor eff. The report's aliases did not reproduce its "
+    "lines ('Required = shaft HP x nfpa_factor' where the factor was the churn 140%; 'P_motor = shaft / eff' printing the "
+    "1.15 figure; diesel labelled 120% where the engine applies 1.15; jockey '+10%' where the engine adds 0.35 bar). All now "
+    "the engine's. Door page 'Motor' now the selected 75 kW (it printed the input 56.96). The vector fails on the old "
+    "engine; walked on the served page at 390 (1900 L/min, 7.0 bar): 'P_shaft = 51.35 kW', '68.8 HP x 1.15 = 79.2 HP', "
+    "'75.0 kW', 'P_jockey = 7.594 + 0.35', no sideways scroll.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

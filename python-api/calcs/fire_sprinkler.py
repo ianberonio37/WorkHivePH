@@ -56,6 +56,15 @@ OCCUPANCY_MAP: dict[str, str] = {
 }
 
 # ─── Sprinkler K-factors (L/min per bar^0.5) - NFPA 13 Table 6.2.3.1 ─────────
+# NFPA 13 Table 19.3.3.1.2 water supply duration (min): Light 30, Ordinary 60-90, Extra 90-120 (the guide's picks)
+DURATION_MIN: dict[str, float] = {
+    "Light Hazard":            30,
+    "Ordinary Hazard Group 1": 60,
+    "Ordinary Hazard Group 2": 60,
+    "Extra Hazard Group 1":    90,
+    "Extra Hazard Group 2":    120,
+}
+
 K_FACTORS: dict[str, float] = {
     "K50  (Standard Response 1/2\" orifice)":  50.0,
     "K80  (Large Orifice 17/32\" orifice)":    80.0,
@@ -161,6 +170,16 @@ def calculate(inputs: dict) -> dict:
     hazard_key   = str  (inputs.get("occupancy_hazard")
                      or  inputs.get("hazard_class")
                      or  OCCUPANCY_MAP.get(occupancy, "Light Hazard"))
+    # The form sends "Ordinary Group 1" / "Extra Hazard Grp 1"; the tables are keyed "Ordinary Hazard Group 1" - every
+    # Ordinary and Extra hazard fell to the Light row (and now would to a 60 min duration). Normalised to the table keys.
+    _hk = hazard_key.lower()
+    _grp = "2" if "2" in _hk else "1"
+    if "ordinary" in _hk:
+        hazard_key = f"Ordinary Hazard Group {_grp}"
+    elif "extra" in _hk:
+        hazard_key = f"Extra Hazard Group {_grp}"
+    elif "light" in _hk:
+        hazard_key = "Light Hazard"
     hazard       = HAZARD_CLASS.get(hazard_key, HAZARD_CLASS["Light Hazard"])
 
     density      = float(inputs.get("density_mm_min")  or inputs.get("density")   or hazard["density_mm_min"])
@@ -222,6 +241,7 @@ def calculate(inputs: dict) -> dict:
     # ── Total design flow ─────────────────────────────────────────────────────
     q_sprinklers_lpm = q_per_sprinkler_lpm * n_sprinklers
     q_total_lpm      = q_sprinklers_lpm + hose_lpm
+    duration_min     = float(inputs.get("duration_min") or DURATION_MIN.get(hazard_key, 60))
     q_total_m3hr     = q_total_lpm * 60 / 1000
     q_total_lps      = q_total_lpm / 60
 
@@ -352,7 +372,11 @@ def calculate(inputs: dict) -> dict:
         "hazard":              hazard_key,
         "pipe_dia":            feed_pipe.get("nominal_mm", branch_pipe.get("nominal_mm", "-")),
         "velocity":            branch_pipe.get("velocity_ms", 0),
-        "water_volume_L":      round(q_total_lpm * 60, 0),
-        "water_volume_m3":     round(q_total_lpm * 60 / 1000, 2),
-        "duration":            60,   # NFPA 13 minimum 60-min water supply
+        # ★EVERY HAZARD GOT A 60-MINUTE SUPPLY (2026-11-02, ED-G1 Fire Sprinkler, read against the guide): NFPA 13 Table
+        # 19.3.3.1.2 sets the water supply duration by hazard - Light 30 min, Ordinary 60-90, Extra 90-120 - and the guide
+        # gives Light 30, OH 60, EH1 90, EH2 120. A 60 min tank left Extra Hazard 1/3 to 1/2 short of water and doubled
+        # Light. The duration is the hazard's now (an entered duration_min still wins).
+        "water_volume_L":      round(q_total_lpm * duration_min, 0),
+        "water_volume_m3":     round(q_total_lpm * duration_min / 1000, 2),
+        "duration":            duration_min,
     }

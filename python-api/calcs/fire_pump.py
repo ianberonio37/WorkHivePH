@@ -172,10 +172,16 @@ def calculate(inputs: dict) -> dict:
     overload_bar = rated_press_bar * 0.65   # 150% flow point minimum
 
     # ── Motor / driver sizing ─────────────────────────────────────────────────
-    motor_kw_calc = _pump_power_kw(rec_flow_lpm, rated_press_bar, pump_eff, motor_eff)
+    # ★THE MOTOR WAS RATED ON ITS OWN INPUT (2026-11-02, ED-G1 Fire Pump, read against the guide: "rated power >= Shaft
+    # Power x 1.15"). A motor's rating is the shaft power it delivers; this took Q.dP / (pump eff x MOTOR eff) - the
+    # electrical input - as the shaft power, then x 1.15: every driver ~9% over the guide's rule, and the report printed
+    # that input as "Shaft power". Shaft = Q.dP / pump efficiency; the motor efficiency only turns it into input kW.
+    motor_kw_calc = _pump_power_kw(rec_flow_lpm, rated_press_bar, pump_eff, 1.0)            # shaft, rated point
     # NFPA 20 §9.5.2: motor must be non-overloading at 150% flow and rated pressure
-    motor_kw_overload = _pump_power_kw(rec_flow_lpm * 1.5, rated_press_bar * 0.65, pump_eff, motor_eff)
-    motor_kw_design   = max(motor_kw_calc, motor_kw_overload) * 1.15   # 15% service factor
+    motor_kw_overload = _pump_power_kw(rec_flow_lpm * 1.5, rated_press_bar * 0.65, pump_eff, 1.0)  # shaft, 150% point
+    shaft_kw_max      = max(motor_kw_calc, motor_kw_overload)
+    motor_input_kw    = shaft_kw_max / motor_eff if motor_eff > 0 else shaft_kw_max
+    motor_kw_design   = shaft_kw_max * 1.15   # 15% margin on the largest shaft power along the curve
     rec_motor_kw      = next((s for s in STD_PUMP_KW if s >= motor_kw_design), STD_PUMP_KW[-1])
 
     # NFPA 20: diesel driver mandatory if motor > 22 kW or AHJ requires
@@ -184,7 +190,7 @@ def calculate(inputs: dict) -> dict:
     # ── Jockey pump ───────────────────────────────────────────────────────────
     jockey_flow_lpm  = rec_flow_lpm * JOCKEY_FLOW_PCT / 100
     jockey_press_bar = rated_press_bar + JOCKEY_PRESSURE_ADD_BAR
-    jockey_kw_calc   = _pump_power_kw(jockey_flow_lpm, jockey_press_bar, pump_eff, motor_eff)
+    jockey_kw_calc   = _pump_power_kw(jockey_flow_lpm, jockey_press_bar, pump_eff, 1.0)    # shaft
     jockey_kw_design  = jockey_kw_calc * 1.25
     rec_jockey_kw     = next((s for s in STD_PUMP_KW if s >= jockey_kw_design), STD_PUMP_KW[-1])
 
@@ -290,11 +296,17 @@ def calculate(inputs: dict) -> dict:
         "P_req_m":         round(rated_press_bar / 0.0981, 1),
         "TDH_bar":         round(rated_press_bar, 3),
         "TDH_m":           round(rated_press_bar / 0.0981, 1),
-        "P_motor_kW":      round(motor_kw_design, 2),
-        "P_nfpa_kW":       rec_motor_kw,
+        # Report aliases: P_motor = the electrical input (shaft / motor eff); P_nfpa = the required rating (largest shaft
+        # power x 1.15); selected = the standard size. They had been input x 1.15, the standard size, and a "factor" that
+        # was the churn percentage (140) - so the report's "shaft x 140" never reproduced its own line.
+        "P_motor_kW":      round(motor_input_kw, 2),
+        "P_nfpa_kW":       round(motor_kw_design, 2),
         "P_shaft_kW":      round(motor_kw_calc, 2),
-        "P_motor_HP":      round(motor_kw_design / 0.746, 1),
-        "P_nfpa_HP":       round(rec_motor_kw / 0.746, 1),
+        "P_shaft_max_kW":  round(shaft_kw_max, 2),
+        "P_input_kW":      round(motor_input_kw, 2),
+        "P_motor_HP":      round(motor_input_kw / 0.746, 1),
+        "P_nfpa_HP":       round(motor_kw_design / 0.746, 1),
+        "P_shaft_max_HP":  round(shaft_kw_max / 0.746, 1),
         "P_shaft_HP":      round(motor_kw_calc / 0.746, 1),
         "P_jockey_bar":    round(jockey_press_bar, 3),
         "P_overload":      round(overload_bar, 3),
@@ -314,7 +326,8 @@ def calculate(inputs: dict) -> dict:
         "elev_m":          elevation_m,
         "pipe_material":   pipe_mat_disp,
         "velocity":        round(q_m3s / (math.pi * (pipe_dia_mm / 1000) ** 2 / 4), 2),
-        "nfpa_factor":     round(churn_bar / rated_press_bar * 100, 0),
+        "nfpa_factor":     1.15,
+        "churn_pct":       round(churn_bar / rated_press_bar * 100, 0),
         "pipe_dia":        pipe_dia_mm,   # nominal mm - the form's, or auto-sized at <= 2.5 m/s (it was a fixed 100)
         "inputs_used": {
             "C":           C_hw,

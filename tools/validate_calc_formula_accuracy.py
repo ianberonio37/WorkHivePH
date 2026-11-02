@@ -603,6 +603,24 @@ VECTORS = [
         "custom": _check_hvac_tr_conversion,
     },
     {
+        # ★EVERY HAZARD GOT 60 MINUTES OF WATER; THE FORM'S HAZARD LABELS MISSED THE TABLE (2026-11-02, ED-G1 Fire Sprinkler).
+        "module": "calcs.fire_sprinkler",
+        "calc_type": "Fire Sprinkler Hydraulic - Extra Hazard 1 from the form, 90 minutes of water",
+        "standard": "NFPA 13 Table 19.3.3.1.2 (hose 500 gpm, 90-120 min for Extra Hazard); q = max(density x coverage, K sqrt(P_min))",
+        "inputs": {"occupancy_hazard": "Extra Hazard Grp 1", "design_area": 232, "density": 12.2,
+                   "coverage_per_head": 9.3, "hose_stream": 1893, "k_factor": 80, "operating_pressure": 0.7},
+        "asserts": [
+            {"path": "hazard_class", "expected": "Extra Hazard Group 1", "tol": 0,
+             "note": "the form's 'Extra Hazard Grp 1' is the table's Extra Hazard Group 1 (it fell to the Light row)"},
+            {"path": "q_per_sprinkler_lpm", "expected": 113.5, "tol": 0.05,
+             "note": "12.2 mm/min x 9.3 m² = 113.46 L/min per head; P = (113.46/80)² = 2.011 bar > 0.7 minimum, so density governs"},
+            {"path": "q_total_lpm", "expected": 4729.5, "tol": 0.2,
+             "note": "ceil(232/9.3) = 25 heads x 113.46 = 2,836.5 + 1,893 hose (500 gpm) = 4,729.5 L/min"},
+            {"path": "water_volume_m3", "expected": 425.65, "tol": 0.1,
+             "note": "4,729.5 L/min x 90 min = 425.66 m³ (60 min gave 283.8 - a third short)"},
+        ],
+    },
+    {
         "module": "calcs.fire_sprinkler",
         "calc_type": "Fire Sprinkler Hydraulic",
         "standard": "NFPA 13 — area-density method (fixed hazard density + additive total demand)",
@@ -613,6 +631,25 @@ VECTORS = [
         "calc_type": "Pipe Sizing (fittings + report rows)",
         "standard": "ASHRAE Ch.22 — fittings as equivalent length L_eq = L(1 + allowance/100); Darcy-Weisbach gradient",
         "custom": _check_pipe_fittings_and_rows,
+    },
+    {
+        # ★THE MOTOR WAS RATED ON ITS OWN INPUT (2026-11-02, ED-G1 Fire Pump). Fails on that engine (55.40 / 63.71 kW).
+        "module": "calcs.fire_pump",
+        "calc_type": "Fire Pump Sizing - the driver rated on shaft power",
+        "standard": "Guide / NFPA 20: rated power >= shaft power x 1.15; shaft = Q.dP / pump efficiency",
+        "inputs": {"required_flow": 1900, "required_pressure": 7.0, "elevation": 0, "suction_type": "Flooded",
+                   "suction_head": 1.5, "pipe_material": "Steel", "driver_type": "Electric",
+                   "pump_efficiency": 70, "motor_efficiency": 92},
+        "asserts": [
+            {"path": "recommended_flow_lpm", "expected": 2840, "tol": 0, "note": "1900 x 1.10 = 2090 L/min -> the 750 gpm (2840 L/min) pump"},
+            {"path": "rated_pressure_bar", "expected": 7.538, "tol": 0.002,
+             "note": "(7.0 - 1.5 m flooded x 0.0981) x 1.10 = 6.853 x 1.10 = 7.538 bar"},
+            {"path": "P_shaft_kW", "expected": 50.97, "tol": 0.02,
+             "note": "2840/60000 m³/s x 753,800 Pa / 0.70 = 0.047333 x 753,800 / 0.70 = 50.97 kW (the 150% point: x 0.975 = 49.7, less)"},
+            {"path": "P_nfpa_kW", "expected": 58.62, "tol": 0.02, "note": "50.97 x 1.15 = 58.62 kW required (it was 50.97/0.92 x 1.15 = 63.71)"},
+            {"path": "P_motor_kW", "expected": 55.40, "tol": 0.02, "note": "electrical input = 50.97 / 0.92 = 55.40 kW"},
+            {"path": "selected_kW", "expected": 75, "tol": 0, "note": "next standard motor above 58.62 kW: 75 kW"},
+        ],
     },
     {
         "module": "calcs.fire_pump",
