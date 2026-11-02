@@ -417,6 +417,17 @@ ENGINE_CHECKED["Earthing / Grounding System"] = (
     "third GEC table; it and the report now print the engine's, and its names are the form's. Vectors fail on the old "
     "engine; walked on the served page at 390 (ring, 95 mm2 service): '6.216 Ohm', 'IEEE 142 Table 4-5', '38 mm2 (2 "
     "AWG)', no sideways scroll. Door page restamped (4.19 Ohm).")
+ENGINE_CHECKED["Lighting Design"] = (
+    "FOUND AND FIXED, read against python-api/calcs/lighting_design.py: the lumen method itself matches the guide (N = "
+    "E.A/(F.CU.LLF), RCR from the mounting height above the 0.85 m work plane, CU interpolated, rows x columns layout). "
+    "But the form's space types ('Office', 'Conference Room', 'Corridor', ...) matched none of the LPD table's keys "
+    "('Office - general', ...), so every form calculation was checked against the 15 W/m2 fallback - and that table, "
+    "labelled 90.1-2019, is an older edition (office 11.0 W/m2 = 1.02 W/ft2). The form's spaces now take ASHRAE 90.1-2019 "
+    "Table 9.6.1 (search-confirmed: open office 0.61, enclosed office > 250 ft2 0.66, corridor 0.41; the others from the "
+    "same table, = IECC 2021 C405.3.2(2)). The report printed the LPD and never its limit or verdict - it does now. The "
+    "guide's CU list (0.72/0.62/...) was not the engine's (0.70/0.63/...); its names are the form's. The vector fails on "
+    "the old engine (15 W/m2, PASS); walked on the served page at 390 (form defaults): 'Limit: 7.1 W/m2 ... FAIL' for 36 "
+    "W / 3,200 lm panels, no sideways scroll.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

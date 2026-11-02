@@ -71,6 +71,24 @@ ASHRAE_LPD: dict[str, float] = {
     "Emergency egress":            1.0,
 }
 
+# ★THE FORM'S SPACES NEVER MET THIS TABLE (2026-11-02, ED-G1 Lighting, read against the guide). The page sends "Office",
+# "Conference Room", "Corridor", "Toilet", "Warehouse", "Production Floor", "School / Classroom", "Retail"; the table
+# above is keyed "Office - general" etc., so every form calculation was checked against the 15 W/m2 fallback - and the
+# table itself is an older edition than the 2019 it names (office 11.0 W/m2 = 1.02 W/ft2). The form's spaces now take
+# ASHRAE 90.1-2019 Table 9.6.1 (= IECC 2021 C405.3.2(2)), W/ft2 x 10.764: office enclosed <= 250 ft2 0.74, > 250 ft2
+# 0.66; corridor 0.41; conference 0.97; restroom 0.63; classroom 0.71; retail sales 1.05; warehouse medium-to-bulky
+# storage 0.33; manufacturing low bay (< 25 ft) 0.86.
+FT2 = 10.7639
+FORM_LPD_2019: dict[str, float] = {
+    "Conference Room":    0.97 * FT2,
+    "Corridor":           0.41 * FT2,
+    "Toilet":             0.63 * FT2,
+    "Warehouse":          0.33 * FT2,
+    "Production Floor":   0.86 * FT2,
+    "School / Classroom": 0.71 * FT2,
+    "Retail":             1.05 * FT2,
+}
+
 # ─── Common luminaire types ───────────────────────────────────────────────────
 # initial_lumens = total output of the fixture
 LUMINAIRE_TYPES: dict[str, dict] = {
@@ -221,7 +239,16 @@ def calculate(inputs: dict) -> dict:
     # ── Power calculations ────────────────────────────────────────────────────
     total_watts    = n_actual * watts_per_fix
     lpd_actual     = total_watts / A if A > 0 else 0      # W/m²
-    lpd_limit      = ASHRAE_LPD.get(space_type, 15.0)     # W/m²
+    if space_type == "Office":
+        lpd_limit = (0.74 if A <= 250 / FT2 else 0.66) * FT2          # enclosed office, by size
+        lpd_basis = "ASHRAE 90.1-2019 Table 9.6.1: office, enclosed " + ("<= 250 ft2 (0.74 W/ft2)" if A <= 250 / FT2 else "> 250 ft2 (0.66 W/ft2)")
+    elif space_type in FORM_LPD_2019:
+        lpd_limit = FORM_LPD_2019[space_type]
+        lpd_basis = f"ASHRAE 90.1-2019 Table 9.6.1: {space_type} ({lpd_limit / FT2:.2f} W/ft2)"
+    else:
+        lpd_limit = ASHRAE_LPD.get(space_type, 15.0)
+        lpd_basis = "space-by-space table (older edition values)" if space_type in ASHRAE_LPD else "no table row: 15 W/m2 default"
+    lpd_limit      = round(lpd_limit, 2)
     lpd_ok         = lpd_actual <= lpd_limit
 
     # ── Annual energy estimate ────────────────────────────────────────────────
@@ -291,6 +318,7 @@ def calculate(inputs: dict) -> dict:
         "lpd_actual_W_m2":     round(lpd_actual, 2),
         "lpd_W_m2":            round(lpd_actual, 2),
         "lpd_limit_W_m2":      lpd_limit,
+        "lpd_basis":           lpd_basis,
         "lpd_ok":              lpd_ok,
 
         # Energy

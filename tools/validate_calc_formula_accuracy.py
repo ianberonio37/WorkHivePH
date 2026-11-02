@@ -1835,6 +1835,22 @@ VECTORS = [
         ],
     },
     {
+        # ★THE FORM'S SPACE TYPES NEVER MET THE LPD TABLE (2026-11-02, ED-G1 Lighting): every form calculation was checked
+        # against the 15 W/m2 fallback. Fails on that engine.
+        "module": "calcs.lighting_design",
+        "calc_type": "Lighting Design - the form's office checked against ASHRAE 90.1-2019",
+        "standard": "IES lumen method; ASHRAE 90.1-2019 Table 9.6.1 office enclosed > 250 ft2: 0.66 W/ft2",
+        "inputs": {"space_type": "Office", "room_len_m": 10, "room_wid_m": 8, "ceiling_ht_m": 3.0, "target_lux": 500,
+                   "fixture_type": "LED Panel 600x600", "lumens_per_fix": 3200, "watts_per_fix": 36, "llf": 0.80},
+        "asserts": [
+            {"path": "lpd_limit_W_m2", "expected": 7.1, "tol": 0.01,
+             "note": "80 m² = 861 ft² > 250: enclosed office 0.66 W/ft² x 10.764 = 7.10 W/m² (it took the 15 W/m² fallback: the form's 'Office' matched no key)"},
+            {"path": "lpd_actual_W_m2", "expected": 13.5, "tol": 0.01,
+             "note": "RCR = 5 x 2.15 x 18 / 80 = 2.419, CU = 0.63 - 0.419 x 0.06 = 0.6049; N = 40,000 / (3200 x 0.6049 x 0.80) = 25.8 -> 26 -> a 6 x 5 grid = 30 x 36 W = 1080 W / 80 m² = 13.5 W/m²"},
+            {"path": "lpd_ok", "expected": False, "tol": 0, "note": "13.5 > 7.10: 89 lm/W panels cannot meet 90.1-2019 (the old check passed it against 15)"},
+        ],
+    },
+    {
         "module": "calcs.lighting_design",
         "calc_type": "Lighting Design",
         "standard": "IES Zonal Cavity — RCR = 5·h_rc·(L+W)/(L·W); LLF = LLD·LDD",

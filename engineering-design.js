@@ -1266,15 +1266,19 @@ const GUIDES = {
     ],
     fields: [
       { name: 'Space Type', tip: 'Pre-fills the IES recommended illuminance (lux) and LLF automatically. Override the lux value if needed.' },
-      { name: 'Floor Area (m2)', tip: 'Internal floor area of the space being lit.' },
-      { name: 'Room Length & Width (m)', tip: 'Used to calculate the Room Cavity Ratio (RCR). If only floor area is known, assume a square room (L = W = sqrt(A)).' },
+      { name: 'Room Length', tip: 'Inside length in metres. With the width it gives the floor area and the Room Cavity Ratio (RCR); if only the area is known, use a square room (L = W = sqrt(A)).' },
+      { name: 'Room Width', tip: 'Inside width in metres.' },
+      { name: 'Required Illuminance', tip: 'Target maintained illuminance in lux; the Space Type fills a default (office 500, conference 300, corridor 100, toilet 150, warehouse 150, production 300, classroom 400, retail 500).' },
+      { name: 'Lumens per Fixture', tip: 'The luminaire output from its datasheet (not the bare LED chips). The Luminaire Type fills a typical value.' },
+      { name: 'Wattage per Fixture', tip: 'Luminaire input power, driver included. With the count it sets the lighting power density checked against ASHRAE 90.1.' },
       { name: 'Ceiling Height (m)', tip: 'Floor to ceiling. Default 3.0 m.' },
       { name: 'Luminaire Type', tip: 'Pre-fills the lumen output per fixture. Standard LED panel (600x600mm): 3200 lm. LED batten (1200mm): 2200 lm. LED high bay (150W): 18000 lm. Fluorescent T8 2x36W: 5400 lm.' },
-      { name: 'Maintenance (LLF)', tip: '0.80 = clean office/commercial. 0.75 = typical commercial/school. 0.70 = industrial/dirty environment.' },
+      { name: 'Maintenance Factor (LLF)', tip: '0.80 = clean office/commercial. 0.75 = typical commercial/school. 0.70 = industrial/dirty environment.' },
     ],
     notes: [
       'IES minimum illuminance (PEC/DOLE): Office general = 500 lux. Conference room = 300 lux. Corridor = 100 lux. Toilet = 150 lux. Warehouse = 150 lux. Production floor = 300-500 lux. Fine inspection = 1000 lux.',
-      'CU (Coefficient of Utilization) depends on RCR and reflectance values. This calc uses IES typical values: RCR 1-2 = 0.72, RCR 3-4 = 0.62, RCR 5-6 = 0.54, RCR 7-8 = 0.46, RCR 9-10 = 0.40.',
+      'CU (Coefficient of Utilization) depends on RCR and reflectance values. This calc interpolates a typical direct luminaire at 70/50/20% reflectances: RCR 0 = 0.78, 1 = 0.70, 2 = 0.63, 3 = 0.57, 4 = 0.52, 5 = 0.47, 6 = 0.43, 7 = 0.39, 8 = 0.36, 9 = 0.33, 10 = 0.31. Use the manufacturer CU table for the final layout.',
+      'The fixtures are laid out on a full rows x columns grid, so the installed count can exceed N. The lighting power density (installed W / area) is checked against ASHRAE 90.1-2019 Table 9.6.1: office enclosed 0.74 W/ft² (≤ 250 ft²) or 0.66, conference 0.97, corridor 0.41, toilet 0.63, classroom 0.71, retail 1.05, warehouse 0.33, production (low bay) 0.86 W/ft² (× 10.764 = W/m²). Low-efficacy fixtures fail it: aim for 120+ lm/W.',
       'LED panels are the standard choice for Philippine office and commercial projects. High bay LEDs for industrial spaces (ceiling > 6 m).',
       'Diversity: actual layouts may require more fixtures to eliminate dark zones: add 10-15% to calculated N as a practical allowance.',
       'Philippine grid voltage is 230V / 60 Hz. Verify fixture compatibility before specification.',
@@ -16893,6 +16897,7 @@ function renderLightingDesignReport(inputs, results, narrative) {
         <p><strong>Step 5: Electrical Load</strong></p>
         <p style="margin-left:1rem;">Total lighting load = N × W/fixture = ${r.N_fixtures} × ${inputs.watts_per_fix} W = <strong>${r.total_watts} W (${r.total_kW} kW)</strong></p>
         <p style="margin-left:1rem;">Lighting power density = ${r.total_watts} W / ${r.floor_area_m2} m² = <strong>${r.lpd_W_m2} W/m²</strong></p>
+        ${r.lpd_limit_W_m2 != null ? `<p style="margin-left:1rem;">Limit: <strong>${r.lpd_limit_W_m2} W/m²</strong> (${escHtml(r.lpd_basis || 'ASHRAE 90.1')}): <strong style="color:${r.lpd_ok ? '#2e7d32' : '#b71c1c'};">${r.lpd_ok ? 'PASS' : 'FAIL: use higher-efficacy luminaires or fewer fixtures'}</strong></p>` : ''}
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">

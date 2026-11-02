@@ -1174157,8 +1174157,8 @@
     },
     {
       "id": "ED159",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Lighting Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1174212,6 +1174212,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Lighting Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/lighting_design.py: the lumen method itself matches the guide (N = E.A/(F.CU.LLF), RCR from the mounting height above the 0.85 m work plane, CU interpolated, rows x columns layout). But the form's space types ('Office', 'Conference Room', 'Corridor', ...) matched none of the LPD table's keys ('Office - general', ...), so every form calculation was checked against the 15 W/m2 fallback - and that table, labelled 90.1-2019, is an older edition (office 11.0 W/m2 = 1.02 W/ft2). The form's spaces now take ASHRAE 90.1-2019 Table 9.6.1 (search-confirmed: open office 0.61, enclosed office > 250 ft2 0.66, corridor 0.41; the others from the same table, = IECC 2021 C405.3.2(2)). The report printed the LPD and never its limit or verdict - it does now. The guide's CU list (0.72/0.62/...) was not the engine's (0.70/0.63/...); its names are the form's. The vector fails on the old engine (15 W/m2, PASS); walked on the served page at 390 (form defaults): 'Limit: 7.1 W/m2 ... FAIL' for 36 W / 3,200 lm panels, no sideways scroll. WALKED: Lighting Design's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T02:55:03Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
