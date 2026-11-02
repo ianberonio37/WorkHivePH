@@ -45,7 +45,10 @@ async function walk(browser, page, vpName, vp) {
   try {
     await pg.goto(ORIGIN + '/', { waitUntil: 'domcontentloaded' });
     await pg.waitForTimeout(800);
-    await pg.goto(ORIGIN + urlOf(page), { waitUntil: 'domcontentloaded' });
+    const resp = await pg.goto(ORIGIN + urlOf(page), { waitUntil: 'domcontentloaded' });
+    // ★A 404 IS NOT A PAGE WITH NO ANCHORS (2026-11-02): /feedback/ had no local alias and answered Werkzeug's Not Found,
+    // which this walk read as NO ANCHORS and passed. A page that does not answer 200 is not graded at all.
+    if (!resp || resp.status() !== 200) return { vp: vpName, shape: 'ERROR', error: `the page answered ${resp ? resp.status() : 'nothing'}, not 200` };
     await pg.waitForTimeout(1500);
     // in-page links whose target exists, visible, not the bare "#"
     const hrefs = await pg.evaluate(() => [...document.querySelectorAll('a[href^="#"]')].filter((a) => {

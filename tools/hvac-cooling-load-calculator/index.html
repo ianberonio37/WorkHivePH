@@ -20,7 +20,12 @@
                       padding: 1.25rem 1.35rem 0.5rem; margin: 1.5rem 0; }   /* 24px: on the 8-pt scale (R1 flagged 28px) */
   .prose-wh section > h2:first-child { margin-top: 0.25rem; }
   .prose-wh section > [data-table-scroll] { margin-bottom: 1rem; }
-</style>
+    /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
+       extrabold) is wider than the phone, and a word overflows its box without the box growing - no layout test sees it,
+       the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
+    h1, h2, h3, h4 { overflow-wrap: break-word; hyphens: auto; }
+    p, li, dd, dt, blockquote, figcaption, summary { overflow-wrap: break-word; }   /* a bare URL in a sentence, too */
+  </style>
 <title>HVAC Cooling Load Calculator: Free Online + Worked Example | WorkHive</title>
 <meta name="description" content="The HVAC Cooling Load Calculator estimates the cooling load (kW and tons of refrigeration) for a space from area, occupancy, equipment, and climate. Free online, with a worked example. Built for Philippine plants by WorkHive.">
 <meta name="robots" content="index, follow">
@@ -180,6 +185,9 @@
     .author-card .meta p:first-child { font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.95rem; margin-bottom: 2px; }
     .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(244,246,250,0.5); }
     nav a.nav-link { font-size: 0.95rem; color: rgba(244,246,250,0.82); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 0.25rem; } @media (max-width: 400px) { nav.flex { gap: 0.5rem; } } /* control-within-viewport (2026-09-05): at the floor viewport the gap-6 nav pushed 'Sign Up Free' 3px past the edge */ /* 44px targets + Lc 60 at 14px (F1/K2/Z3/C5, 2026-09-05) */ header a, footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; } nav a.nav-link:hover { color: var(--wh-cloud,#F4F6FA); }
+    /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the header row and its nav WRAP - the links drop under the
+       logo instead of running the page sideways. At normal sizes nothing moves: a row only wraps when it does not fit. */
+    header > div:has(> nav) { flex-wrap: wrap; row-gap: 0.5rem; } header nav:has(> a.nav-link) { flex-wrap: wrap; row-gap: 0.25rem; }
     .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.55); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; } .breadcrumb a:hover { color: var(--wh-orange,#F7A21B); }
     .breadcrumb span { margin: 0 8px; }
@@ -281,7 +289,7 @@
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-11-02">2 Nov 2026</time></p>
-    <div class="flex items-center gap-6">
+    <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
       <a href="/?signin=1" class="hover:text-white/60 transition-colors">Sign In</a>

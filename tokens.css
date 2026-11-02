@@ -8,6 +8,13 @@
    gate FAILS if any token here is missing or re-valued. Pages reference these as
    var(--wh-orange) etc.; raw brand hex on the glass is ratcheted down by L3.
    ============================================================================ */
+/* ── A word that cannot fit breaks (OWN text grows, 2026-11-02) ──────────────────────────────────────────
+   At 200% text on a 390 px phone (WCAG 1.4.4) one long word in a heading or a sentence is wider than the screen, and a
+   word overflows its box without the box growing, so the page scrolls sideways and no box test sees why ("spreadsheet"
+   at 60px). break-word acts ONLY on a word that cannot fit, so nothing moves at normal sizes; headings also hyphenate. */
+h1, h2, h3, h4 { overflow-wrap: break-word; hyphens: auto; }
+p, li, dd, dt, label, legend, figcaption, blockquote, summary { overflow-wrap: break-word; }
+
 /* ── Form-control typeface inheritance ──────────────────────────────────────
    Browsers do NOT inherit font-family into form controls: the UA stylesheet hands
    <button>/<input>/<select>/<textarea> its own default (Arial on Chrome/Windows).

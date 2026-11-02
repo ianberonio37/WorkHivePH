@@ -83,7 +83,9 @@
     .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; } /* Arc-W focal: heading ≥2.3× body median (was 1.5rem/1.83×) */
     .page-header p { font-size: 0.75rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 0.25rem; }
     .ctx-pill { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; font-weight: 600; color: var(--wh-blue);
-      background: rgba(41,182,217,0.1); border: 1px solid rgba(41,182,217,0.25); border-radius: 999px; padding: 0.25rem 0.5rem; margin-top: 0.5rem; }
+      background: rgba(41,182,217,0.1); border: 1px solid rgba(41,182,217,0.25); border-radius: 999px; padding: 0.25rem 0.5rem; margin-top: 0.5rem;
+      /* the hive name may wrap: at 200% text (OWN text grows 2026-11-02) one line of it was 544px on a 390 phone */
+      max-width: 100%; white-space: normal !important; overflow-wrap: anywhere; }
 
     /* ── Offline banner ── */
     #offline-banner { display: none; background: rgba(247,162,27,0.15); border: 1px solid rgba(247,162,27,0.4);
@@ -383,8 +385,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            selector - the first cut of this rule was silently overridden and the 320 re-walk still read 119px. -->
       <style>@media (max-width: 360px) { #btn-photo, #btn-file { min-width: 100% !important; } }</style>
       <div style="display:flex;flex-wrap:wrap;gap:0.6rem;">
-        <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);white-space:nowrap;" data-i="rz_take_photos">📷 Take photos</button>
-        <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);white-space:nowrap;" data-i="rz_choose_files">📁 Choose files</button>
+        <button class="btn btn-ghost" id="btn-photo" type="button" style="flex:1;min-width:calc(50% - 0.6rem);white-space:normal;" data-i="rz_take_photos">📷 Take photos</button>
+        <button class="btn btn-ghost" id="btn-file" type="button" style="flex:1;min-width:calc(50% - 0.6rem);white-space:normal;" data-i="rz_choose_files">📁 Choose files</button>
       </div>
       <input type="file" id="file-photo" aria-label="Take or choose photos of your resume or certificates" accept="image/*" capture="environment" multiple style="display:none;" />
       <input type="file" id="file-any" aria-label="Choose a PDF, Word, Excel, text, or image file to import" accept="image/*,application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.txt,.md,text/plain,text/markdown,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;" />

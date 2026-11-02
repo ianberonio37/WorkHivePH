@@ -96,8 +96,10 @@
       transition: transform 0.15s, border-color 0.15s;
     }
     .disc-card:active { transform: scale(0.98); }
-    .disc-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
-    .disc-card-name { font-size: 0.9rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
+    /* wraps: at 200% text (WCAG 1.4.4, OWN text grows 2026-11-02) the name and the "Lv 3 / 5" badge ran a 390 phone 31px
+       sideways; the badge now drops under the name, and a long name breaks inside its card */
+    .disc-card-header { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+    .disc-card-name { font-size: 0.9rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 0.5rem; min-width: 0; overflow-wrap: anywhere; }
     .disc-icon { font-size: 18px; line-height: 1; display: inline-block; vertical-align: -0.15em; }
     .disc-level-badge {
       font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.5rem;

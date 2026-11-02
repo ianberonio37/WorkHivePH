@@ -138,6 +138,16 @@
     .sources-list { list-style: none; padding: 0; }
     .sources-list li { overflow-wrap: anywhere; word-break: break-word; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.85); font-size: 0.95rem; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
+      /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the top bar's row and its links WRAP, and the row's fixed
+       h-14 becomes a minimum, so the links drop under the logo instead of running the page sideways or clipping. At normal
+       sizes nothing moves: a row only wraps when it does not fit, and 3.5rem is the height it had. */
+    body > nav > div:first-child { flex-wrap: wrap; row-gap: 0.5rem; height: auto; min-height: 3.5rem; }
+    body > nav > div:first-child > div { flex-wrap: wrap; row-gap: 0.25rem; justify-content: flex-end; }
+      /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
+       extrabold) is wider than the phone, and a word overflows its box without the box growing - no layout test sees it,
+       the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
+    h1, h2, h3, h4 { overflow-wrap: break-word; hyphens: auto; }
+    p, li, dd, dt, blockquote, figcaption, summary { overflow-wrap: break-word; }   /* a bare URL in a sentence, too */
   </style>
 <!-- WorkHive GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ENMGLTFR2J"></script>

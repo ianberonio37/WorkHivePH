@@ -281,7 +281,9 @@
       const done = have >= want;
       // The unmet ones are what she can act on; a met one still earns its line, because "2 of 3 done"
       // is a different feeling from a list of failures, and both numbers are true.
-      return acc + `<li style="display:flex;gap:8px;align-items:baseline;margin:4px 0;">
+      // flex-wrap: at 200% text (WCAG 1.4.4, OWN text grows 2026-11-02) "30 of 5 needed" beside its label was wider than a
+      // 390 phone and ran the page 37px sideways; the count now drops under its label when the two do not fit
+      return acc + `<li style="display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;margin:4px 0;">
         <span aria-hidden="true" style="flex:0 0 auto;color:${done ? 'var(--wh-green, #4ADE80)' : 'var(--wh-orange-light, #FDB94A)'};">${done ? '✓' : '•'}</span>
         <span style="${_SR}">${esc(done ? T('Done.', 'Tapos na.') : T('Not yet.', 'Hindi pa.'))}</span>
         <span style="flex:1 1 auto;">${esc(label)}</span>

@@ -139,15 +139,16 @@
     "feedback/index.html"
    ],
    "local_scripts": [
+    "offline-banner.js",
     "vendor/supabase-js-2.110.0.min.js",
     "wh-feedback-fab.js",
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 2480,
-   "class_tokens": 106,
-   "bytes": 8941,
-   "classes_in_sheet": 72,
+   "harvested_tokens": 2796,
+   "class_tokens": 114,
+   "bytes": 9599,
+   "classes_in_sheet": 75,
    "non_utility_classes": [
     "active",
     "arrow",
@@ -160,10 +161,14 @@
     "kind-chip",
     "lbl",
     "nav-link",
+    "offline",
+    "online",
     "open",
     "opt",
     "pill",
     "pill-orange",
+    "show",
+    "slow",
     "status-",
     "status-pill",
     "vote-btn",
@@ -184,6 +189,8 @@
     "wh-fb-stars",
     "wh-fb-submit",
     "wh-fb-textarea",
+    "wh-offline-banner",
+    "wh-offline-banner-open",
     "wh-skip-link",
     "wh-source-chip",
     "wh-sources",
@@ -558,5 +565,5 @@
    ]
   }
  },
- "generated": "2026-10-27T10:20:33.665Z"
+ "generated": "2026-11-02T10:01:48.636Z"
 }

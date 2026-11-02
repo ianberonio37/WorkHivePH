@@ -1089014,7 +1089014,7 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on feedback/index.html with a receipt"
       },
-      "basis": "[2026-11-02] pct -> 60. WALKED: feedback/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:03:39Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "basis": "[2026-11-02] CORRECTED: the reading this row was first banked on was taken on the local server's 404 page - /feedback/ had no alias in test-data-seeder/app.py, so the walk saw Werkzeug's 'Not Found' and read it as NO ANCHORS. Alias added; re-walked on the real page (2026-11-02T10:00:00Z): phone-390 LEFT (1 jump, +0 entries) | desktop-1280 LEFT (1 jump, +0 entries). The row stands on this reading.\n[2026-11-02] pct -> 60. WALKED: feedback/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:03:39Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
       "artifacts": {
         "gates": [
           "own_anchor_back"

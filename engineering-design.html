@@ -673,7 +673,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <div data-i="p_designcalculationtool_b1ec" class="text-xs" style="color:rgba(255,255,255,0.80);">Design Calculation Tool</div>
         </div>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <button class="page-tab active" data-tab="calculator" onclick="switchTab('calculator')" data-i="ed_calc">Calculator</button>
         <button class="page-tab" data-tab="history" onclick="switchTab('history')" data-i="ed_hist">History</button>
         <button class="page-tab" data-tab="guide" onclick="switchTab('guide')" data-i="ed_guide">Guide</button>
@@ -748,7 +748,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
         <!-- Step 3: Inputs -->
         <div class="card p-5" id="step3-card" style="opacity:0.5;pointer-events:none;">
-          <div class="flex items-center justify-between gap-2 mb-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div data-i="p_stepprojectinputs_731e" class="text-xs font-600" style="color:var(--wh-orange-text);text-transform:uppercase;letter-spacing:0.08em;">Step 3: Project &amp; Inputs</div>
             <!-- A-6 (deep-arc P6): scoped SI/IP units toggle — converts DIMENSIONAL inputs only
                  (length/area/temp/pressure/mass/flow); electrical + dimensionless + ambiguous kW

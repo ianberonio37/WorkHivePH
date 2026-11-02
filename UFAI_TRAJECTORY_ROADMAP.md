@@ -5033,6 +5033,38 @@ teeth strip `@discloses` and find all 30 again. Two oracle vectors pin it: the c
 
 **B1 is held for the agent, not one sample of it.** The BOM's words are a model's. The gate ratchets on grounding, edit and fit, which are deterministic, and on content after one regeneration. It is skip_if_fast, because a full walk is 55 agent calls (about 20 minutes on the free-tier chain).
 
+**After Wave ED: the remaining queue (2026-11-02).** With every ED lens banked, the open rows were BRH-AC (5), OWN (392),
+KA-V (45), KA-E (3), KA-R (1), BRH445 and OWN62. Each was checked rather than assumed:
+- **BRH509-513** are TRUE in production (read through the Supabase MCP): standards chunks 781/781 embedded, standards
+  41/41, persona 434/434, voice 11/11, the embedding outbox 179 done with 0 pending. They lock on one assistant
+  question asked on production. That is a production write from a production account, so it is Ian's gate. (An
+  earlier note called it "one paid model call"; the assistant runs on the free-tier chain.) The 33 knowledge rows in
+  the old nomic space stay as Ian left them: their requeue was declined.
+- **BRH445** (pg_net in public) needs the Supabase dashboard (supabase_admin owns it; migrations cannot drop it), and
+  **OWN62** locks when the founder console is walked on production. Both are Ian's.
+- **KA-R KA2** (feedback/) and 21 more public pages: the repository already carries the visible Last-updated line and
+  the current twin; production serves the older page. They close with the frontend push.
+- **KA-E**, 3 of 3 banked. The sources answered 403 to the crawler and WebFetch (Search Engine Land), or refused TLS
+  (DebugBear). Read in a real browser, both Search Engine Land chunks turned out to hold the site's sidebar headlines,
+  and the SEO roadmap had cited one as "Reddit/Wikipedia dominance re-confirmed": the article argues the opposite.
+  The chunks were re-distilled from the articles, the roadmap line corrected, the technical floor re-anchored on
+  Google's technical requirements, and night_crawler's summary no longer counts a failed re-fetch as "refreshed".
+- **OWN browser Back** on public pages, 119 of 119 banked (`tools/bank_own_rows.py`, new: these lenses had provers
+  and no banker). The shared jump handler had landed on 2026-10-27; privacy-policy and terms-of-service never loaded
+  its script, so their skip link added an entry. `prove_anchor_back.mjs --teeth` stops the handler and three articles
+  trap Back again.
+- **OWN text grows / colours taken away** (272 rows), in progress. `prove_text_grows.mjs` gained teeth and the gate
+  `own_text_grows`. The first pages fail at phone-390 with every font-size doubled; forced colours pass. The fixes so
+  far are the shared chrome, each with its generator: the public header (99 pages), the scaffolded articles' top bar
+  (19), the footer link row (36), and an unbreakable address. Per page: integrations' tabs and steps, engineering-design's
+  tab row and units row, and achievements' domain grid (minmax(0, 1fr)).
+  The failures with no culprit were one long word in a large heading. A word overflows its box without the box growing,
+  so no rect test sees it; a bisect found it ("spreadsheet" in a 60px H1). overflow-wrap: break-word now applies to
+  headings and running text (tokens.css for app pages, the head style of 120 public pages and both generators). The
+  local server had no /feedback/ alias, so both walks measured a 404, and the anchor row banked on it was re-walked and
+  corrected. Both provers now refuse a page that does not answer 200.
+- **KA-V** (45) closes on Ian's monthly 45-prompt sheet (`geo_sov_audit.py --score`), never a paid API.
+
 **ED149 / R1, closed for the R1 walk to confirm (2026-11-02):** l1 came from the building height, max(5 m, 0.5×H), and
 the report cited "Annex E". IEC 62305-3's l1 is its Figure 3. The values were read from DEHN's reproduction (Lightning
 Protection Guide 2014, Fig. 5.5.1.1) by measuring the lines against the axis ticks, to about ±1 m. Class III and IV are

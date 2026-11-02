@@ -191,7 +191,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:0.75rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Plant / IoT</span>
         </div>
       </div>
-      <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
+      <!-- wraps and may shrink: at 200% text the Refresh button and the role pill side by side were 474px in a 374px header -->
+      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem; min-width:0; max-width:100%;">
         <!-- A1: a monitoring board's primary action is re-pulling the latest sync/gateway state.
              Filled so the 5-second scan lands on one clear CTA; a real reload, not a dead button. -->
         <button type="button" onclick="whPcRefresh()" data-i="pc_refresh_cta" style="min-height:44px; display:inline-flex; align-items:center; gap:0.35rem; padding:0.5rem 1rem; border:1px solid transparent; border-radius:8px; background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); color:var(--wh-navy); font-family:'Poppins',sans-serif; font-weight:700; font-size:0.75rem; cursor:pointer;">↻ Refresh</button>

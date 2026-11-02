@@ -83,6 +83,9 @@
        their spacing-exception size on purpose - see .tmp/fix_public_pages_floor.py. */
     nav a.nav-link { font-size: 0.875rem; color: rgba(244,246,250,0.65); font-weight: 500;
       display: inline-flex; align-items: center; min-height: 44px; }
+    /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the header row and its nav WRAP - the links drop under the
+       logo instead of running the page sideways. At normal sizes nothing moves: a row only wraps when it does not fit. */
+    header > div:has(> nav) { flex-wrap: wrap; row-gap: 0.5rem; } header nav:has(> a.nav-link) { flex-wrap: wrap; row-gap: 0.25rem; }
     nav a.nav-link:hover { color: var(--wh-cloud,#F4F6FA); }
     .breadcrumb { font-size: 0.875rem; color: rgba(244,246,250,0.55); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; }
@@ -90,6 +93,11 @@
     .breadcrumb span { margin: 0 8px; }
     .dti-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.35); border-radius: 999px; padding: 8px 18px; font-size: 0.875rem; color: var(--wh-orange-light,#FDB94A); font-weight: 600; }
     .dti-badge svg { flex-shrink: 0; }
+      /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
+       extrabold) is wider than the phone, and a word overflows its box without the box growing - no layout test sees it,
+       the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
+    h1, h2, h3, h4 { overflow-wrap: break-word; hyphens: auto; }
+    p, li, dd, dt, blockquote, figcaption, summary { overflow-wrap: break-word; }   /* a bare URL in a sentence, too */
   </style>
   <script>
     // Local dev URL bridge v2 (same as all WorkHive pages)
@@ -209,7 +217,7 @@
   <li><strong data-i="p_object_2883">Object</strong> to specific uses of your data.</li>
   <li><strong data-i="p_fileacomplaint_9b3f">File a complaint</strong> with the National Privacy Commission if you believe your rights have been violated.</li>
 </ul>
-<p>To exercise any of these rights, email <a href="mailto:admin@workhiveph.com">admin@workhiveph.com</a> with the subject line "Data Rights Request".</p>
+<p>To exercise any of these rights, email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> with the subject line "Data Rights Request".</p>
 
 <h2 data-i="p_cookiesandanalytics_9285">Cookies and analytics</h2>
 <!-- T165 (2026-08-25): the previous paragraph said "when we add web analytics in the future, this
@@ -225,7 +233,7 @@
 <p>Material changes to this Privacy Policy will be announced on the platform and at <a href="/learn/">workhiveph.com/learn/</a> at least 30 days before they take effect. The "Last updated" date at the top of this page reflects the most recent revision.</p>
 
 <h2 data-i="p_contact_b374">Contact</h2>
-<p>Email <a href="mailto:admin@workhiveph.com">admin@workhiveph.com</a> for any privacy question. The data controller is WorkHive Engineering Services (DTI Business Name 8080496), operated by Ian Lumayno Beronio.</p>
+<p>Email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> for any privacy question. The data controller is WorkHive Engineering Services (DTI Business Name 8080496), operated by Ian Lumayno Beronio.</p>
 </div>
   </div>
 </article></main>
@@ -233,7 +241,7 @@
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-25">25 Aug 2026</time></p>
-    <div class="flex items-center gap-6">
+    <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a data-i="p_home_70f8" href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a data-i="p_learn_b048" href="/learn/" class="hover:text-white/60 transition-colors">Learn</a>
       <a data-i="p_about_6b21" href="/about/" class="hover:text-white/60 transition-colors">About</a>

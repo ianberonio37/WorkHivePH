@@ -3187,6 +3187,17 @@ def terms_alias(rest):
     return workhive_file(f"terms-of-service/{rest}" if rest else "terms-of-service/")
 
 
+@app.route("/feedback/", defaults={"rest": ""})
+@app.route("/feedback/<path:rest>")
+def feedback_alias(rest):
+    """Alias /feedback/* to /workhive/feedback/* for production-URL parity.
+
+    2026-11-02 (OWN walks): this route did not exist - the T156 gap again, one directory over. /feedback/ answered
+    Werkzeug's "404 Not Found", so the anchor-Back walk read that 404 as a page with NO ANCHORS and passed it, and the
+    text-grows walk measured the 404's h1. Every public directory with an index.html now has its alias."""
+    return workhive_file(f"feedback/{rest}" if rest else "feedback/")
+
+
 # ---------- WorkHive proxy routes ----------
 
 def _rewrite(content: str) -> str:

@@ -188,7 +188,9 @@ async function open(browser, page, vpName) {
   const ctx = await browser.newContext({ ...VIEWPORTS[vpName], serviceWorkers: 'block', timezoneId: 'Asia/Manila' });
   if (isApp(page)) await assertSignedIn(signIn(ctx));
   const pg = await ctx.newPage();
-  await pg.goto(urlOf(page), { waitUntil: 'domcontentloaded', timeout: 30000 });
+  const resp = await pg.goto(urlOf(page), { waitUntil: 'domcontentloaded', timeout: 30000 });
+  // a page that does not answer 200 is not graded (2026-11-02: /feedback/ was measured as Werkzeug's 404 for a while)
+  if (!resp || resp.status() !== 200) return { ctx, pg, bad: `${page} answered ${resp ? resp.status() : 'nothing'}, not 200 - UNGRADED` };
   await pg.waitForTimeout(isApp(page) ? 6000 : 2200);
   if (TEETH) await pg.evaluate(() => (document.querySelector('main') || document.body).insertAdjacentHTML('beforeend',
     '<div id="wh-teeth" style="white-space:nowrap;font-size:15px;line-height:1.2">A planted line that fits at its size only</div>'));
@@ -204,7 +206,8 @@ function layoutFindings(a, b) {
 }
 
 async function grow(browser, page, vpName) {
-  const { ctx, pg } = await open(browser, page, vpName);
+  const { ctx, pg, bad } = await open(browser, page, vpName);
+  if (bad) { await ctx.close().catch(() => {}); return { vp: vpName, ok: null, why: bad }; }
   try {
     const a = await pg.evaluate(measure);
     if (a.nControls === 0 && a.textLen < 40) return { vp: vpName, ok: null, why: 'nothing rendered - UNGRADED' };
@@ -231,7 +234,8 @@ async function grow(browser, page, vpName) {
 }
 
 async function forced(browser, helper, page, vpName) {
-  const { ctx, pg } = await open(browser, page, vpName);
+  const { ctx, pg, bad } = await open(browser, page, vpName);
+  if (bad) { await ctx.close().catch(() => {}); return { vp: vpName, ok: null, why: bad }; }
   try {
     // a warm pass first: reveal-on-scroll content must be revealed before the baseline reads its ink
     const H = await pg.evaluate(() => Math.min(document.documentElement.scrollHeight, 40000));

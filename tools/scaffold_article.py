@@ -261,6 +261,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .faq-item .faq-answer {{ margin-top: 0; padding: 0 20px 16px; color: rgba(244,246,250,0.78); font-size: 0.97rem; line-height: 1.7; }}
     .sources-list {{ list-style: none; padding: 0; }}
     .sources-list li {{ padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.65); font-size: 0.9rem; }}
+    /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the top bar's row and its links WRAP, and the row's fixed
+       h-14 becomes a minimum, so the links drop under the logo instead of running the page sideways or clipping. At normal
+       sizes nothing moves: a row only wraps when it does not fit, and 3.5rem is the height it had. */
+    body > nav > div:first-child {{ flex-wrap: wrap; row-gap: 0.5rem; height: auto; min-height: 3.5rem; }}
+    body > nav > div:first-child > div {{ flex-wrap: wrap; row-gap: 0.25rem; justify-content: flex-end; }}
+    /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
+       extrabold) is wider than the phone, and a word overflows its box without the box growing - no layout test sees it,
+       the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
+    h1, h2, h3, h4 {{ overflow-wrap: break-word; hyphens: auto; }}
+    p, li, dd, dt, blockquote, figcaption, summary {{ overflow-wrap: break-word; }}   /* a bare URL in a sentence, too */
   </style>
 <link rel="stylesheet" href="/wh-tw-pub-article.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->
 </head>

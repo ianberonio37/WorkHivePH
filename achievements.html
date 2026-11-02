@@ -158,7 +158,9 @@
       gap: 0.65rem;
       margin-bottom: 0.25rem;
     }
-    @media (max-width: 520px) { .domain-grid { grid-template-columns: repeat(2, 1fr); } }
+    /* minmax(0, 1fr): a 1fr track never shrinks below its content, so at 200% text (WCAG 1.4.4, OWN text grows 2026-11-02)
+       "Guardian" and a no-wrap XP line ran two cards 179px past a 390 phone. The cards now hold their half, and the words wrap. */
+    @media (max-width: 520px) { .domain-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 340px) { .domain-grid { grid-template-columns: 1fr; } }
 
     .domain-card {
@@ -167,7 +169,7 @@
       border-radius: 1rem; padding: 0.9rem 0.75rem 0.75rem;
       cursor: pointer; transition: border-color 0.2s, transform 0.15s;
       display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
-      text-align: center; position: relative;
+      text-align: center; position: relative; min-width: 0;
     }
     .domain-card:active { transform: scale(0.97); }
     .domain-card.expanded { border-color: rgba(247,162,27,0.3); }
@@ -175,7 +177,7 @@
     .domain-badge-wrap { padding-bottom: 10px; flex-shrink: 0; }
     .domain-name {
       font-size: 0.8rem; font-weight: 700; line-height: 1.25;
-      color: rgba(255,255,255,0.9);
+      color: rgba(255,255,255,0.9); overflow-wrap: anywhere;
     }
     .domain-tier-label {
       font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.80);
@@ -194,7 +196,7 @@
     }
     .xp-text {
       font-size: 0.75rem; color:rgba(255,255,255,0.80);
-      white-space: nowrap;
+      white-space: normal; overflow-wrap: anywhere;
     }
 
     /* Expanded events */

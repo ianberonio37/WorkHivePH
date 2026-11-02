@@ -83,6 +83,9 @@
        their spacing-exception size on purpose - see .tmp/fix_public_pages_floor.py. */
     nav a.nav-link { font-size: 0.875rem; color: rgba(244,246,250,0.65); font-weight: 500;
       display: inline-flex; align-items: center; min-height: 44px; }
+    /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the header row and its nav WRAP - the links drop under the
+       logo instead of running the page sideways. At normal sizes nothing moves: a row only wraps when it does not fit. */
+    header > div:has(> nav) { flex-wrap: wrap; row-gap: 0.5rem; } header nav:has(> a.nav-link) { flex-wrap: wrap; row-gap: 0.25rem; }
     nav a.nav-link:hover { color: var(--wh-cloud,#F4F6FA); }
     .breadcrumb { font-size: 0.875rem; color: rgba(244,246,250,0.55); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; }
@@ -90,6 +93,11 @@
     .breadcrumb span { margin: 0 8px; }
     .dti-badge { display: inline-flex; align-items: center; gap: 10px; background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.35); border-radius: 999px; padding: 8px 18px; font-size: 0.875rem; color: var(--wh-orange-light,#FDB94A); font-weight: 600; }
     .dti-badge svg { flex-shrink: 0; }
+      /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
+       extrabold) is wider than the phone, and a word overflows its box without the box growing - no layout test sees it,
+       the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
+    h1, h2, h3, h4 { overflow-wrap: break-word; hyphens: auto; }
+    p, li, dd, dt, blockquote, figcaption, summary { overflow-wrap: break-word; }   /* a bare URL in a sentence, too */
   </style>
   <script>
     // Local dev URL bridge v2 (same as all WorkHive pages)
@@ -166,7 +174,7 @@
     <p data-i="p_terms_a55a" class="pill mb-4">Terms</p>
     <h1 data-i="p_termsofservice_0c8a" class="text-3xl sm:text-4xl lg:text-[2.7rem] font-black leading-[1.15] tracking-[-0.02em] mb-5">Terms of Service</h1>
     <p class="text-sm text-white/60 mb-8">Last updated <time datetime="2026-05-17">17 May 2026</time></p>
-    <div class="prose-wh"><p>By using WorkHive, you agree to these terms. Plain language; if any clause is unclear, email <a href="mailto:admin@workhiveph.com">admin@workhiveph.com</a> and we will explain.</p>
+    <div class="prose-wh"><p>By using WorkHive, you agree to these terms. Plain language; if any clause is unclear, email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> and we will explain.</p>
 
 <h2 data-i="p_whatworkhiveis_e1c3">What WorkHive is</h2>
 <p>WorkHive is a free industrial intelligence platform operated by WorkHive Engineering Services (DTI Business Name 8080496), a sole proprietorship registered in the Philippines and owned by Ian Lumayno Beronio. The platform provides digital tools for industrial maintenance, reliability, engineering design, and AI-assisted work for Filipino industrial workers.</p>
@@ -185,12 +193,12 @@
   <li data-i="p_youareresponsibleforthesecur_79a9">You are responsible for the security of your password.</li>
   <li data-i="p_youmaynotimpersonateanotherp_b3c5">You may not impersonate another person or organization.</li>
   <li data-i="p_youmaynotshareyouraccountwit_4e43">You may not share your account with others; each worker should have their own account so that platform records correctly attribute entries.</li>
-  <li>If you discover unauthorized access to your account, notify us immediately at <a href="mailto:admin@workhiveph.com">admin@workhiveph.com</a>.</li>
+  <li>If you discover unauthorized access to your account, notify us immediately at <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a>.</li>
 </ul>
 
 <h2 data-i="p_yourdataandcontent_54d0">Your data and content</h2>
 <p>You retain ownership of all data and content you enter into WorkHive (logbook entries, asset records, skill matrix evidence, etc.). WorkHive owns the platform software, branding, and aggregated anonymous analytics. You grant WorkHive a limited license to store, process, and display your data in order to deliver the platform features to you and your hive members.</p>
-<p>You may request an export of your data or the deletion of your account at any time by emailing <a href="mailto:admin@workhiveph.com">admin@workhiveph.com</a> with the subject line "Data Rights Request". We handle these by hand today rather than through a button in the app; once a deletion is processed, your personal data is purged per the <a data-i="p_privacypolicy_9db1" href="/privacy-policy/">Privacy Policy</a>.</p>
+<p>You may request an export of your data or the deletion of your account at any time by emailing <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> with the subject line "Data Rights Request". We handle these by hand today rather than through a button in the app; once a deletion is processed, your personal data is purged per the <a data-i="p_privacypolicy_9db1" href="/privacy-policy/">Privacy Policy</a>.</p>
 
 <h2 data-i="p_acceptableuse_009a">Acceptable use</h2>
 <p data-i="p_youagreenottouseworkhiveto_3eee">You agree NOT to use WorkHive to:</p>
@@ -222,13 +230,13 @@
 <p>We may update these terms from time to time. Material changes will be announced on the platform at least 30 days before they take effect. Your continued use after the effective date constitutes acceptance of the updated terms.</p>
 
 <h2 data-i="p_termination_2ee8">Termination</h2>
-<p>You may stop using WorkHive at any time, and request deletion of your account by emailing <a href="mailto:admin@workhiveph.com">admin@workhiveph.com</a> with the subject line "Data Rights Request". We may suspend or terminate accounts that violate these terms or applicable laws, with reasonable notice where practical.</p>
+<p>You may stop using WorkHive at any time, and request deletion of your account by emailing <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> with the subject line "Data Rights Request". We may suspend or terminate accounts that violate these terms or applicable laws, with reasonable notice where practical.</p>
 
 <h2 data-i="p_governinglaw_4676">Governing law</h2>
 <p data-i="p_thesetermsaregovernedbythela_450b">These terms are governed by the laws of the Republic of the Philippines. Any disputes will be subject to the jurisdiction of the courts of the Philippines.</p>
 
 <h2 data-i="p_contact_b374">Contact</h2>
-<p>Email <a href="mailto:admin@workhiveph.com">admin@workhiveph.com</a> with any question about these terms. Owner: WorkHive Engineering Services (DTI Business Name 8080496), Ian Lumayno Beronio, sole proprietor.</p>
+<p>Email <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a> with any question about these terms. Owner: WorkHive Engineering Services (DTI Business Name 8080496), Ian Lumayno Beronio, sole proprietor.</p>
 </div>
   </div>
 </article></main>
@@ -236,7 +244,7 @@
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
-    <div class="flex items-center gap-6">
+    <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a data-i="p_home_70f8" href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a data-i="p_learn_b048" href="/learn/" class="hover:text-white/60 transition-colors">Learn</a>
       <a data-i="p_about_6b21" href="/about/" class="hover:text-white/60 transition-colors">About</a>

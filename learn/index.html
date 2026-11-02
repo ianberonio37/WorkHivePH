@@ -4,7 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="theme-color" content="#F7A21B" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <style>/* P-program 2026-09-05: T3/T4 + 44px list links (F1/K2) */ html{overscroll-behavior:contain} body,a,button,input,select{touch-action:manipulation} main li a, main .card a{display:inline-block;min-height:44px;padding:12px 0}</style>
+  <style>/* P-program 2026-09-05: T3/T4 + 44px list links (F1/K2) */ html{overscroll-behavior:contain} body,a,button,input,select{touch-action:manipulation} main li a, main .card a{display:inline-block;min-height:44px;padding:12px 0}    /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
+       extrabold) is wider than the phone, and a word overflows its box without the box growing - no layout test sees it,
+       the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
+    h1, h2, h3, h4 { overflow-wrap: break-word; hyphens: auto; }
+    p, li, dd, dt, blockquote, figcaption, summary { overflow-wrap: break-word; }   /* a bare URL in a sentence, too */
+  </style>
   <title>Learn | WorkHive</title>
   <meta name="description" content="Free guides on industrial maintenance for Philippine plants: OEE, MTBF, shift handover, digital logbook rollout, PM strategy, and more. Written for the plant floor." />
   <meta name="keywords" content="industrial maintenance guides Philippines, free OEE calculator, MTBF guide, shift handover template, digital logbook, PM strategy, maintenance learning hub" />
@@ -80,7 +85,13 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E");
       background-size: 80px 92px;
     }
+    /* one shrinkable column below 640px: the grid had none there, so its implicit track sized to the widest card's content -
+       408px at 200% text on a 390 phone (WCAG 1.4.4, OWN text grows 2026-11-02). The tag stays as topic_post.py anchors on it. */
+    #lh-grid { grid-template-columns: minmax(0, 1fr); }
+    /* the pill keeps its one line (below); the ROW it sits in wraps, so at 200% text the read-time drops under it */
+    .article-card .flex:has(> .pill) { flex-wrap: wrap; row-gap: 0.4rem; }
     .article-card {
+      min-width: 0; overflow-wrap: break-word;
       background: rgba(31,46,69,0.55);
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 16px;
@@ -134,6 +145,9 @@
     #lh-empty { display: none; }
     #lh-empty.show { display: block; }
     nav a.nav-link { font-size: 0.9rem; color: rgba(244,246,250,0.82); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 0.25rem; } @media (max-width: 400px) { nav.flex { gap: 0.5rem; } } /* control-within-viewport (2026-09-05): at the floor viewport the gap-6 nav pushed 'Sign Up Free' 3px past the edge */ @media (max-width: 360px) { nav.flex { gap: 0.25rem; } } /* ...and with Poppins loaded the five links still ran 7px past 320 (control-within-viewport, 2026-10-13): 4px gaps between 44px targets keep every link */ /* 44px targets + Lc 60 at 14px (F1/K2/Z3/C5, 2026-09-05) */ header a, footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+    /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the header row and its nav WRAP - the links drop under the
+       logo instead of running the page sideways. At normal sizes nothing moves: a row only wraps when it does not fit. */
+    header > div:has(> nav) { flex-wrap: wrap; row-gap: 0.5rem; } header nav:has(> a.nav-link) { flex-wrap: wrap; row-gap: 0.25rem; }
     nav a.nav-link:hover { color: var(--wh-cloud,#F4F6FA); }
   </style>
   <script>
@@ -789,7 +803,7 @@
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-08-24">24 Aug 2026</time></p>
-    <div class="flex items-center gap-6">
+    <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors">Home</a>
       <a href="/#faq" class="hover:text-white/60 transition-colors">FAQ</a>
       <a href="/?signup=1" class="hover:text-white/60 transition-colors" data-i="jointhehive">Join the Hive</a>

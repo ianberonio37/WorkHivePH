@@ -83,6 +83,9 @@
        their spacing-exception size on purpose - see .tmp/fix_public_pages_floor.py. */
     nav a.nav-link { font-size: 0.875rem; color: rgba(244,246,250,0.65); font-weight: 500;
       display: inline-flex; align-items: center; min-height: 44px; }
+    /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the header row and its nav WRAP - the links drop under the
+       logo instead of running the page sideways. At normal sizes nothing moves: a row only wraps when it does not fit. */
+    header > div:has(> nav) { flex-wrap: wrap; row-gap: 0.5rem; } header nav:has(> a.nav-link) { flex-wrap: wrap; row-gap: 0.25rem; }
     nav a.nav-link:hover { color: var(--wh-cloud,#F4F6FA); }
     .breadcrumb { font-size: 0.875rem; color: rgba(244,246,250,0.55); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(244,246,250,0.55); text-decoration: none; }
@@ -93,6 +96,11 @@
     /* the two qualifiers lifted out of the pill (see the note at the badge): caption weight, not a
        second badge, and indented to the pill's own text so they read as belonging to it */
     .dti-sub { font-size: 0.8125rem; color: rgba(253,185,74,0.78); font-weight: 500; margin-left: 18px; }
+      /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
+       extrabold) is wider than the phone, and a word overflows its box without the box growing - no layout test sees it,
+       the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
+    h1, h2, h3, h4 { overflow-wrap: break-word; hyphens: auto; }
+    p, li, dd, dt, blockquote, figcaption, summary { overflow-wrap: break-word; }   /* a bare URL in a sentence, too */
   </style>
   <script>
     // Local dev URL bridge v2 (same as all WorkHive pages)
@@ -204,7 +212,7 @@
 <p>WorkHive serves the full Filipino industrial workforce: field technicians, operators, helpers, reliability engineers, design engineers, project engineers, supervisors, planners, plant managers, operations managers, suppliers, contractors, new engineering graduates entering the labor market, and existing workers expanding capabilities with AI. We are not a tool only for maintenance technicians; we are a tool for every role on the industrial floor and in the engineering office.</p>
 
 <h2>Contact</h2>
-<p>For partnerships, press, association memberships, or general inquiries: <a href="mailto:admin@workhiveph.com">admin@workhiveph.com</a>.</p>
+<p>For partnerships, press, association memberships, or general inquiries: <a href="mailto:admin@workhiveph.com" style="overflow-wrap:anywhere;">admin@workhiveph.com</a>.</p>
 <p>For technical questions about the platform: open the AI Work Assistant in your hive, or email the same address.</p>
 </div>
   </div>
@@ -213,7 +221,7 @@
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-4xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>© 2026 WorkHive Platform · workhiveph.com · Last updated <time datetime="2026-05-17">17 May 2026</time></p>
-    <div class="flex items-center gap-6">
+    <div class="flex items-center gap-6" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors" data-i="home">Home</a>
       <a href="/learn/" class="hover:text-white/60 transition-colors" data-i="learn">Learn</a>
       <a href="/about/" class="hover:text-white/60 transition-colors">About</a>

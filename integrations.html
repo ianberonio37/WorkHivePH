@@ -76,7 +76,9 @@
     .page { max-width: 760px; margin: 0 auto; padding: 1.5rem 1rem; }
 
     /* Step indicator */
-    .steps { display: flex; align-items: center; gap: 0; margin-bottom: 2rem; }
+    /* 200% text at 390 (WCAG 1.4.4, OWN text grows 2026-11-02): five uppercase steps at double size need ~600px; the row
+       wraps instead of running the page 241px sideways. At normal sizes it fits on one line and nothing moves. */
+    .steps { display: flex; flex-wrap: wrap; align-items: center; gap: 0; row-gap: 0.5rem; margin-bottom: 2rem; }
     .step-dot { display: flex; align-items: center; gap: 0; flex: 1; }
     .step-dot:last-child { flex: 0; }
     .step-num {
@@ -153,6 +155,7 @@
     .source-card {
       background: var(--card); border: 2px solid rgba(255,255,255,0.07);
       border-radius: 12px; padding: 20px 16px; text-align: center; cursor: pointer;
+      min-width: 0; overflow-wrap: break-word; /* a long name breaks inside its card at 200% text (OWN text grows) */
       transition: border-color .15s var(--wh-ease-out, ease-out), background-color .15s var(--wh-ease-out, ease-out), transform .15s var(--wh-ease-out, ease-out);
     }
     .source-card:hover { border-color: rgba(247,162,27,0.3); background: rgba(247,162,27,0.04); }
@@ -463,7 +466,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- Mode tabs -->
   <!-- the tab rail is an inset line the active tab's underline paints over, not a border the tabs sit pressed against (K, 2026-10-15) -->
-  <div style="display:flex; gap:8px; margin-bottom:1.5rem; box-shadow:inset 0 -1px 0 var(--border);">
+  <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:1.5rem; box-shadow:inset 0 -1px 0 var(--border);">
     <button id="tab-import" type="button" class="wh-toggle int-tab active" onclick="switchTab('import')" style="border-bottom-color:var(--gold); color:var(--gold);" translate="no" data-i="importfile">Import File</button>
     <button id="tab-sync" type="button" class="wh-toggle int-tab" onclick="switchTab('sync')" style="color:rgba(255,255,255,0.80);" translate="no" data-i="livesync">Live Sync</button>
     <button id="tab-api" type="button" class="wh-toggle int-tab" onclick="switchTab('api')" style="color:rgba(255,255,255,0.80);" translate="no">API Keys</button>
