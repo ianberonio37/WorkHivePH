@@ -491,6 +491,24 @@ ENGINE_CHECKED["Fire Pump Sizing"] = (
     "the engine's. Door page 'Motor' now the selected 75 kW (it printed the input 56.96). The vector fails on the old "
     "engine; walked on the served page at 390 (1900 L/min, 7.0 bar): 'P_shaft = 51.35 kW', '68.8 HP x 1.15 = 79.2 HP', "
     "'75.0 kW', 'P_jockey = 7.594 + 0.35', no sideways scroll.")
+ENGINE_CHECKED["Stairwell Pressurization"] = (
+    "FOUND AND FIXED, read against python-api/calcs/stairwell_pressurization.py: the NFPA 92 method matches the guide "
+    "(Q = Cd.A.sqrt(2.dP/rho), door leakage per Table B.1, the door-force lever arm). But the guide says 'each stairwell is "
+    "pressurized independently by its own fan', and the report says 'N fans, each rated at Q per stairwell with a "
+    "selected-HP motor' - the motor was picked for the TOTAL design flow of all stairwells (and the 'each fan' airflow "
+    "carried no safety factor): two stairwells got 7.5 HP each where 5 HP serves. Each fan now carries one stairwell x 1.20 "
+    "and its motor is picked for that (the total stays reported). Guide names are the form's; its formulas now state the "
+    "wall leakage, site density and per-fan margin. The vector (hand ISA density) fails on the old engine; walked on the "
+    "served page at 390 (2 stairwells, 10 floors): 'Q_fan = 3.044 x 1.2 = 3.653 m3/s; P = 2.44 kW', '5 HP per fan (2 "
+    "fans)', no sideways scroll.")
+ENGINE_CHECKED["Fluid Power"] = (
+    "READ AGAINST python-api/calcs/fluid_power.py: the engine is right - delivered flow Q = Vg.n.eta_vol, hydraulic "
+    "power Q.dP/600, shaft = P_hyd / (eta_vol x eta_mech), bore from sqrt(4F/(pi.P)), Boyle accumulator with P0 = 0.9 "
+    "P-min. The guide was not: it put both efficiencies into the HYDRAULIC power and divided by them again for the motor. "
+    "The report's working printed shaft = P_hyd / 0.92 (the engine divides by 0.95 x 0.92) and a fixed 0.92 motor "
+    "efficiency whatever the form sent - it now prints the engine's eta_vol, eta_mech and eta_motor. Guide names are the "
+    "form's (System Flow, Cylinder Stroke, Bore, Acc. P-min / P-max, Fluid Vol.). Walked on the served page at 390 (form "
+    "defaults): '16.53 / (0.95 x 0.92) = 18.913 kW', '18.913 / 0.92 = 20.558 kW', no sideways scroll.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

@@ -121,6 +121,7 @@ def _pump(Vg_cm3: float, n_rpm: float, eta_vol: float = 0.95,
         "torque_Nm":      round(torque_Nm, 2),
         "eta_vol":        eta_vol,
         "eta_mech":       eta_mech,
+        "eta_motor":      eta_motor,   # for the report's working (it printed a fixed 0.92 whatever the form sent)
     }
 
 

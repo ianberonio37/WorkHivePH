@@ -98,7 +98,12 @@ def calculate(inputs: dict) -> dict:
     door_force_ok    = f_total_n <= 133.0
 
     # Fan motor power
-    p_fan_kw = (q_design_m3s * fan_static_pa) / ((fan_eff_pct / 100.0) * 1000.0)
+    # ★ONE MOTOR FOR EVERY STAIRWELL'S AIR (2026-11-02, ED-G1 Stairwell, read against the guide: "Each stairwell is
+    # pressurized independently by its own fan"). The report says "N fans, each rated at Q per stairwell ... with a
+    # selected-HP motor", but the motor was picked for the TOTAL design flow of all stairwells - two stairwells each got
+    # a motor for both. Each fan now carries one stairwell's flow x the safety factor, and its motor is picked for that.
+    q_fan_m3s   = q_per_m3s * safety_factor
+    p_fan_kw    = (q_fan_m3s * fan_static_pa) / ((fan_eff_pct / 100.0) * 1000.0)
     p_fan_hp = p_fan_kw * 1.341
     selected_hp = next((hp for hp in STD_HP if hp >= p_fan_hp), STD_HP[-1])
 
@@ -137,7 +142,10 @@ def calculate(inputs: dict) -> dict:
         "door_force_ok":        door_force_ok,
         "fan_static_Pa":        fan_static_pa,
         "fan_eff_pct":          fan_eff_pct,
+        "Q_fan_m3s":            round(q_fan_m3s, 3),
+        "Q_fan_CMH":            round(q_fan_m3s * 3600.0, 1),
         "P_fan_kW":             round(p_fan_kw, 2),
+        "P_fan_total_kW":       round(p_fan_kw * n_stairwells, 2),
         "P_fan_HP":             round(p_fan_hp, 2),
         "selected_HP":          selected_hp,
     }

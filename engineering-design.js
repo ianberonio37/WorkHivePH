@@ -1817,15 +1817,22 @@ const GUIDES = {
       '  Lever arm factor = W / (2 x (W - d))',
       '  NFPA 92 maximum: 133 N (30 lbf)',
       '',
-      'Fan motor power: P_kW = Q (m³/s) x static pressure (Pa) / (fan efficiency x 1000)',
+      'A_total = doors x door leakage + floors x 36 m² of wall x 0.0009 (NFPA 92 wall leakage, a 12 m stair perimeter x 3 m floor)',
+      'rho at the site: ISA pressure at the altitude / (287 x (T + 273.15)): 1.162 kg/m³ at 15 m and 30°C',
+      'Each stairwell has its own fan: Q_fan = Q x 1.20 (20% margin, NFPA 92 A.6.4)',
+      'Fan motor power (each fan): P_kW = Q_fan (m³/s) x static pressure (Pa) / (fan efficiency x 1000), next standard HP',
     ],
     fields: [
       { name: 'Building Type', tip: 'Sprinklered: minimum 12.5 Pa differential (NFPA 92 Section 6.4). Non-sprinklered: minimum 25 Pa. Higher pressure means more air, larger fan: but watch the door opening force limit of 133 N.' },
-      { name: 'Number of Stairwells', tip: 'Each stairwell is pressurized independently by its own fan. A typical 2-stairwell building needs 2 pressurization fans.' },
-      { name: 'Number of Floors Served', tip: 'The pressurization fan must overcome leakage through all floor-level doors simultaneously. More floors = more leakage area = more airflow required.' },
-      { name: 'Door Fit', tip: 'Average (0.039 m²): standard Philippine construction quality. Tight (0.019 m²): well-fitted with brush seals. Loose (0.052 m²): older buildings. Use Average unless door specifications are confirmed.' },
+      { name: 'No. of Stairwells', tip: 'Each stairwell is pressurized independently by its own fan. A typical 2-stairwell building needs 2 pressurization fans.' },
+      { name: 'No. of Floors Served', tip: 'The pressurization fan must overcome leakage through all floor-level doors simultaneously. More floors = more leakage area = more airflow required.' },
+      { name: 'Doors per Floor', tip: 'Stair doors on each floor (usually 1). Every closed door leaks; the airflow scales with the total door count.' },
+      { name: 'Door Fit / Seal Quality', tip: 'Average (0.039 m²): standard Philippine construction quality. Tight (0.019 m²): well-fitted with brush seals. Loose (0.052 m²): older buildings. Use Average unless door specifications are confirmed.' },
+      { name: 'Door Width', tip: 'Stair door leaf width in metres (0.9 m typical). It sets the door area and the lever arm of the opening-force check.' },
+      { name: 'Door Height', tip: 'Door leaf height in metres (2.1 m typical).' },
       { name: 'Design Pressure Differential', tip: 'Pre-filled based on building type. Do not exceed 87 Pa: above this the door opening force exceeds 133 N (NFPA 92 limit) and occupants may be trapped during evacuation.' },
       { name: 'Fan Static Pressure', tip: 'Total static pressure the fan must overcome in the ductwork. 300-500 Pa is typical for stairwell pressurization. Higher if the supply duct is long or has many fittings.' },
+      { name: 'Fan Efficiency', tip: 'Fan total efficiency at the duty point, about 55-65% for the axial and centrifugal fans used here; the motor power is the air power divided by it.' },
     ],
     notes: [
       'NFPA 92 design pressure range: 12.5 Pa min (sprinklered) or 25 Pa min (non-sprinklered), 87 Pa max. The tool checks both limits and flags if out of range.',
@@ -2741,8 +2748,9 @@ const GUIDES = {
       'Cylinder retract force: F = P × A_rod  where A_rod = π×(D²−d²)/4',
       'Cylinder speed: v = Q / A  (m/s)',
       'Pump flow: Q = Vg × n × η_vol  (L/min)',
-      'Hydraulic power: P_hyd = Q × ΔP / (60 × η_pump × η_motor)  (kW)',
-      'Motor input power: P_motor = P_hyd / (η_pump × η_motor)  (kW)',
+      'Hydraulic power: P_hyd = Q (L/min) × ΔP (bar) / 600  (kW)  - the power in the oil, no efficiency in it',
+      'Pump shaft power: P_shaft = P_hyd / (η_vol × η_mech)  (kW)   (Q is already the delivered flow, so η_vol counts once here)',
+      'Motor input power: P_motor = P_shaft / η_motor  (kW)   (form defaults η_vol 0.95, η_mech 0.92, η_motor 0.92)',
       'Accumulator (Boyle\'s law): V₀ = V_fluid / (P₀/P₁ − P₀/P₂)  where P₀ = 0.9 × P₁',
       'Pipe velocity: v = Q / A : limits: ≤4 m/s pressure, ≤2 m/s return, ≤1 m/s suction',
       'Reynolds number: Re = ρ × v × D / μ: laminar <2300, turbulent >4000',
@@ -2752,8 +2760,12 @@ const GUIDES = {
       { name: 'System Pressure (bar)', tip: 'Operating pressure. Philippine industrial standard: 140–210 bar for general machinery, up to 350 bar for presses. All components must be rated above this.' },
       { name: 'Cylinder Force Required (kN)', tip: 'Required push force (extend stroke). The calculator auto-selects the minimum standard bore (ISO 6020/6022 series) to achieve this at the system pressure.' },
       { name: 'Hydraulic Fluid', tip: 'ISO VG 46 is the most common industrial grade for 30–50°C operating temperature. VG 32 for cooler climates or high-speed pumps. Water-glycol for fire-resistant applications.' },
-      { name: 'Accumulator P-min / P-max', tip: 'P-min = minimum pressure where accumulator must still deliver flow. P-max = system relief valve setting. Pre-charge (N₂) = 0.9 × P-min per ISO 4413.' },
-      { name: 'Usable Fluid Volume (L)', tip: 'Volume of hydraulic oil the accumulator must deliver between P-min and P-max. Determines accumulator gas volume V₀ via Boyle\'s law.' },
+      { name: 'Acc. P-min', tip: 'Minimum pressure at which the accumulator must still deliver oil, in bar. Pre-charge (N₂) = 0.9 × P-min per ISO 4413.' },
+      { name: 'Acc. P-max (0=sys)', tip: 'Maximum accumulator pressure in bar, normally the relief setting; 0 takes the system pressure.' },
+      { name: 'Fluid Vol. (acc.)', tip: 'Oil the accumulator must deliver between P-min and P-max, in litres. It sets the gas volume V₀ by Boyle\'s law.' },
+      { name: 'System Flow', tip: 'Pump delivery in L/min. It sets the cylinder speeds (v = Q / A) and the pipe sizes by the ISO 4413 velocity limits.' },
+      { name: 'Cylinder Stroke', tip: 'Stroke in mm; with the bore it gives the cylinder volume and the extend / retract times.' },
+      { name: 'Bore (0 = auto-select)', tip: 'Cylinder bore in mm; 0 picks the smallest ISO 6020/6022 bore that gives the required force at the system pressure.' },
       { name: 'Pump Speed (RPM)', tip: 'Drive motor speed. Most axial piston pumps run at 1450 or 1500 RPM (50Hz). Gear pumps can run up to 3000 RPM but are noisier.' },
     ],
     notes: [
@@ -16587,8 +16599,8 @@ function renderStairwellPressReport(inputs, results, narrative) {
     <h3>4.6 Fan Motor Sizing</h3>
     <p style="font-size:0.82rem;color:#444;">
       Formula: P_kW = Q (m³/s) × static pressure (Pa) / (fan efficiency × 1000)<br>
-      P = ${r.Q_design_m3s} × ${r.fan_static_Pa} / (${r.fan_eff_pct / 100} × 1000) = ${r.P_fan_kW} kW (${r.P_fan_HP} HP)<br>
-      <strong>Selected fan motor: ${r.selected_HP} HP</strong>
+      Each fan: Q_fan = ${r.Q_per_stairwell_m3s} × ${r.safety_factor} = ${r.Q_fan_m3s ?? r.Q_design_m3s} m³/s; P = ${r.Q_fan_m3s ?? r.Q_design_m3s} × ${r.fan_static_Pa} / (${r.fan_eff_pct / 100} × 1000) = ${r.P_fan_kW} kW (${r.P_fan_HP} HP)<br>
+      <strong>Selected fan motor: ${r.selected_HP} HP per fan (${r.N_stairwells} fan${r.N_stairwells > 1 ? 's' : ''})</strong>
     </p>
 
     <h2>5. Results Summary</h2>
@@ -16615,17 +16627,17 @@ function renderStairwellPressReport(inputs, results, narrative) {
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Parameter</th><th>Value</th></tr>
       <tr><td>Number of Fans Required</td><td class="num">${r.N_stairwells} fan(s): one per stairwell</td></tr>
-      <tr><td>Airflow per Fan</td><td class="num">${r.Q_per_CMH} m³/h (${r.Q_per_stairwell_m3s} m³/s)</td></tr>
+      <tr><td>Airflow per Fan (with 20% SF)</td><td class="num">${r.Q_fan_CMH ?? r.Q_per_CMH} m³/h (${r.Q_fan_m3s ?? r.Q_per_stairwell_m3s} m³/s)</td></tr>
       <tr style="font-weight:700;background:#fffbf0;"><td>Total System Airflow (with 20% SF)</td><td class="num">${r.Q_design_CMH} m³/h (${r.Q_design_m3s} m³/s)</td></tr>
       <tr><td>Design Pressure Differential</td><td class="num">${r.delta_P_Pa} Pa</td></tr>
       <tr><td>Fan Static Pressure</td><td class="num">${r.fan_static_Pa} Pa</td></tr>
-      <tr><td>Fan Motor Power</td><td class="num">${r.P_fan_kW} kW / ${r.P_fan_HP} HP</td></tr>
+      <tr><td>Fan Motor Power (each fan)</td><td class="num">${r.P_fan_kW} kW / ${r.P_fan_HP} HP</td></tr>
       <tr style="font-weight:700;background:#fffbf0;"><td>Selected Fan Motor Size</td><td class="num">${r.selected_HP} HP</td></tr>
       <tr><td>Door Opening Force</td><td class="num" style="color:${r.door_force_ok ? '#2e7d32' : '#b71c1c'}">${r.F_total_N} N (NFPA 92 limit: 133 N): ${r.door_force_ok ? 'PASS' : 'FAIL: reduce deltaP'}</td></tr>
     </table>
 
     <h2>7. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide ${r.N_stairwells} pressurization fan(s), each rated at ${r.Q_per_CMH} m³/h at ${r.fan_static_Pa} Pa static pressure with a ${r.selected_HP} HP motor.\n2. Design pressure differential of ${r.delta_P_Pa} Pa is ${r.delta_P_ok ? 'within' : 'OUTSIDE'} NFPA 92 limits (${r.delta_P_min}–${r.delta_P_max} Pa).\n3. Door opening force of ${r.F_total_N} N is ${r.door_force_ok ? 'acceptable (below 133 N limit)' : 'UNACCEPTABLE: exceeds 133 N. Reduce design pressure or specify door closers rated below 45 N.'}.\n4. Pressurization fans must be connected to emergency power (generator or UPS) per BFP IRR: they are part of the building fire safety system.\n5. For buildings with elevator shafts adjacent to stairwells, add 0.056 m² leakage per elevator door level to the total leakage area and recheck airflow.\n6. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the building permit application for high-rise or fire-protected occupancies.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Provide ${r.N_stairwells} pressurization fan(s), each rated at ${r.Q_fan_CMH ?? r.Q_per_CMH} m³/h at ${r.fan_static_Pa} Pa static pressure with a ${r.selected_HP} HP motor.\n2. Design pressure differential of ${r.delta_P_Pa} Pa is ${r.delta_P_ok ? 'within' : 'OUTSIDE'} NFPA 92 limits (${r.delta_P_min}–${r.delta_P_max} Pa).\n3. Door opening force of ${r.F_total_N} N is ${r.door_force_ok ? 'acceptable (below 133 N limit)' : 'UNACCEPTABLE: exceeds 133 N. Reduce design pressure or specify door closers rated below 45 N.'}.\n4. Pressurization fans must be connected to emergency power (generator or UPS) per BFP IRR: they are part of the building fire safety system.\n5. For buildings with elevator shafts adjacent to stairwells, add 0.056 m² leakage per elevator door level to the total leakage area and recheck airflow.\n6. Submit this calculation to the Bureau of Fire Protection (BFP) as part of the building permit application for high-rise or fire-protected occupancies.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
@@ -32782,8 +32794,8 @@ function renderFluidPowerReport(inputs, r, narrative) {
       Delivered flow: Q<sub>actual</sub> = V<sub>g,std</sub> &times; n &times; &eta;<sub>vol</sub> / 1000
       = ${Vg} &times; ${pumpRpm} &times; 0.95 / 1000 = <strong>${pump.Q_lpm} L/min</strong><br>
       Hydraulic power: P<sub>hyd</sub> = Q &times; &Delta;P / 600 = ${pump.Q_lpm} L/min &times; ${pBar} bar / 600 = <strong>${pump.P_hydraulic_kW} kW</strong><br>
-      Shaft power: P<sub>shaft</sub> = P<sub>hyd</sub> / &eta;<sub>mech</sub> = ${pump.P_hydraulic_kW} / 0.92 = <strong>${pump.P_shaft_kW} kW</strong><br>
-      Motor input: P<sub>motor</sub> = P<sub>shaft</sub> / &eta;<sub>motor</sub> = ${pump.P_shaft_kW} / 0.92 = <strong>${pump.P_motor_kW} kW</strong>
+      Shaft power: P<sub>shaft</sub> = P<sub>hyd</sub> / (&eta;<sub>vol</sub> &times; &eta;<sub>mech</sub>) = ${pump.P_hydraulic_kW} / (${pump.eta_vol ?? 0.95} &times; ${pump.eta_mech ?? 0.92}) = <strong>${pump.P_shaft_kW} kW</strong><br>
+      Motor input: P<sub>motor</sub> = P<sub>shaft</sub> / &eta;<sub>motor</sub> = ${pump.P_shaft_kW} / ${pump.eta_motor ?? 0.90} = <strong>${pump.P_motor_kW} kW</strong>
     </p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>

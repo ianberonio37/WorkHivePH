@@ -1139,6 +1139,23 @@ VECTORS = [
         ],
     },
     {
+        # ★ONE MOTOR FOR EVERY STAIRWELL'S AIR (2026-11-02, ED-G1 Stairwell). Fails on that engine (7.5 HP each).
+        "module": "calcs.stairwell_pressurization",
+        "calc_type": "Stairwell Pressurization - each stairwell's own fan",
+        "standard": "NFPA 92: Q = Cd.A.sqrt(2.dP/rho) per stairwell; fan = Q x 1.20; P = Q.dp_s / eta",
+        "inputs": {"building_type": "Sprinklered", "n_stairwells": 2, "n_floors": 10, "doors_per_floor": 1,
+                   "door_fit": "Average", "delta_P": 25, "fan_static_pressure": 400, "fan_efficiency": 60},
+        "asserts": [
+            {"path": "A_total_m2", "expected": 0.714, "tol": 0.001, "note": "10 doors x 0.039 + 10 floors x 36 m² x 0.0009 = 0.390 + 0.324"},
+            {"path": "air_density_kg_m3", "expected": 1.1623, "tol": 0.0005,
+             "note": "15 m ASL: 101,325 x (1 - 0.0065 x 15/288.15)^5.2559 = 101,145 Pa; / (287.058 x 303.15 K) = 1.1623"},
+            {"path": "Q_per_stairwell_m3s", "expected": 3.044, "tol": 0.002, "note": "0.65 x 0.714 x sqrt(2 x 25 / 1.1623) = 0.4641 x 6.5588 = 3.044 m³/s"},
+            {"path": "Q_fan_m3s", "expected": 3.653, "tol": 0.002, "note": "each fan: 3.044 x 1.20 = 3.653 m³/s (13,150 m³/h)"},
+            {"path": "P_fan_kW", "expected": 2.44, "tol": 0.01, "note": "3.653 x 400 Pa / (0.60 x 1000) = 2.435 kW = 3.27 HP each"},
+            {"path": "selected_HP", "expected": 5.0, "tol": 0, "note": "5 HP per fan (it picked 7.5 HP for both stairwells' air)"},
+        ],
+    },
+    {
         "module": "calcs.stairwell_pressurization",
         "calc_type": "Stairwell Pressurization",
         "standard": "NFPA 92 §6.5.1.1 — door force lever-arm formula",
