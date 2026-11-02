@@ -1402,8 +1402,26 @@ VECTORS = [
              "note": "20 kVA → 10–40 kVA tier → 192 V (16×12V) per IEEE 1184"},
             {"path": "ieee1184.kW_design", "expected": 10.638, "tol": 0.005,
              "note": "kW_design = load_kW / η_UPS = 10/0.94 = 10.638"},
-            {"path": "required_Ah", "expected": 70.7, "tol": 0.2,
-             "note": "Ah = (10.638×1.0h) / (192/1000 × 0.80 DOD × 0.98 η_wire) = 70.7"},
+            {"path": "required_Ah", "expected": 89.5, "tol": 0.2,
+             "note": "P_block = 10,638 / 0.98 / 16 = 678.4 W; at 60 min a GP12170 block holds 161 W / 17 Ah = 9.471 W/Ah; 678.4 / 9.471 × 1.25 = 89.5 Ah (re-derived 2026-11-02: the energy-only 70.7 took the 20-hour Ah)"},
+        ],
+    },
+    {
+        # ★THE BATTERY WAS SIZED ON ITS 20-HOUR Ah (2026-11-02, ED R1 UPS): energy-only Ah treats a 15-minute discharge as if
+        # the block gave its 20-hour capacity; it gives about half (CSB GP12170: 395 W x 0.25 h = 98.75 Wh of 204 Wh nominal).
+        "module": "calcs.ups_sizing",
+        "calc_type": "UPS Sizing - a 15-minute battery from the constant-power table (IEEE 1184)",
+        "standard": "IEEE 1184 constant-power sizing: Ah = P_block / (W per Ah at t) × 1.25; CSB GP12170 table, 1.75 V/cell",
+        "inputs": {"load_kw": 50, "power_factor": 0.90, "backup_minutes": 15,
+                   "topology": "Online Double-Conversion", "ambient_temp_c": 25, "ups_efficiency": 0.95},
+        "asserts": [
+            {"path": "ieee1184.P_block_W", "expected": 2685.3, "tol": 0.2,
+             "note": "50 / 0.95 = 52.632 kW; / 0.98 = 53.706 kW; / 20 blocks (240 V bus for a 100 kVA UPS) = 2,685.3 W"},
+            {"path": "required_Ah", "expected": 144.5, "tol": 0.2,
+             "note": "395 W / 17 Ah = 23.235 W/Ah at 15 min; 2,685.3 / 23.235 × 1.25 = 144.5 Ah (the energy-only 69.9 Ah would run about 7 minutes)"},
+            {"path": "recommended_Ah", "expected": 150, "tol": 0, "note": "next standard size ≥ 144.5"},
+            {"path": "backup_minutes_actual", "expected": 16.0, "tol": 0.1,
+             "note": "150 / 1.25 = 120 Ah at end of life → 22.378 W/Ah; log-log between 15 min (23.235) and 30 min (15.706): slope −1.770; 15 × (22.378/23.235)^−1.770 = 16.0 min"},
         ],
     },
     {

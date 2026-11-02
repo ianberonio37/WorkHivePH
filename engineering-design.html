@@ -297,6 +297,9 @@
        25-underscore signature lines cannot shrink, so three columns pushed the page to 513 px at 390 (STP walk,
        2026-11-02). A media query adds no specificity. */
     @media (max-width: 640px) { #report-panel .sig-block { grid-template-columns: 1fr !important; gap: 0.5rem; } }
+    /* a report's summary tiles (repeat(3,1fr) inline) kept three min-content columns on a phone: AHU's fan-power tile
+       pushed the page to 402 px at 390. Two shrinkable columns let the labels wrap; print keeps three. */
+    @media (max-width: 640px) { #report-panel .res-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
     @media (max-width: 480px) { .toggle-btn { min-height: 44px; padding: 0.75rem 1rem; } }
     #report-panel .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
     #report-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 40px; display: inline-block; cursor: text; }

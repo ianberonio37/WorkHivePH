@@ -29,7 +29,18 @@ IEC 62040-3 topology codes:
 import math
 
 # ─── VRLA battery constants (IEEE 1184) ──────────────────────────────────────
-DOD_VRLA      = 0.80    # depth of discharge design limit
+# ★THE BATTERY WAS SIZED ON ITS 20-HOUR Ah (2026-11-02, ED R1 UPS): Ah = kW x t / (V x 0.80 x 0.98) assumes a block gives
+# its 20-hour capacity at any rate. A VRLA block discharged in 15 minutes gives about half of it. CSB's GP12170
+# (17 Ah @ 20 h) sustains 395 W per block for 15 min to 1.75 V/cell: 98.75 Wh, 48% of its nominal 204 Wh. So a
+# 15-minute UPS battery was about half the size it needs, and its "actual autonomy" check passed on the same assumption.
+# IEEE 1184 sizes a UPS battery from the maker's constant-power table at the backup time. The table below is CSB GP12170
+# (datasheet RA240531, constant-power discharge, W per 12 V block at 25 C to 1.75 V/cell), scaled per Ah of 20-hour
+# capacity. It stands for a general-purpose AGM block; the final selection uses the chosen maker's own table.
+RATE_REF_AH   = 17.0
+RATE_T_MIN    = [5, 10, 15, 30, 60, 90, 120, 180, 300, 480, 600, 1200]
+RATE_W_BLOCK  = [677, 493, 395, 267, 161.0, 119.0, 95.3, 67.9, 43.2, 27.9, 22.4, 10.9]
+AGING_FACTOR  = 1.25    # IEEE 1184 / IEEE 485: replace at 80% of rated capacity, so size for 1 / 0.80
+DOD_VRLA      = 0.80    # kept for the energy cross-check only (= 1 / AGING_FACTOR)
 ETA_WIRE      = 0.98    # battery cable efficiency
 CELL_VOLTAGE  = 12.0    # V per VRLA monobloc cell (standard 12V block)
 
@@ -87,6 +98,29 @@ def _dc_bus(ups_kva: float) -> dict:
         if ups_kva <= tier["max_kva"]:
             return tier
     return DC_BUS_TIERS[-1]
+
+
+def _w_per_ah(t_min: float) -> float:
+    """Constant power per Ah of 20-hour capacity a VRLA block sustains for t_min to 1.75 V/cell (log-log between the
+    table's times; outside them the nearest end, which is conservative below 5 min and above 20 h)."""
+    T, W = RATE_T_MIN, RATE_W_BLOCK
+    t = min(max(t_min, T[0]), T[-1])
+    for i in range(len(T) - 1):
+        if T[i] <= t <= T[i + 1]:
+            f = (math.log(t) - math.log(T[i])) / (math.log(T[i + 1]) - math.log(T[i]))
+            return math.exp(math.log(W[i]) + f * (math.log(W[i + 1]) - math.log(W[i]))) / RATE_REF_AH
+    return W[-1] / RATE_REF_AH
+
+
+def _runtime_min(w_per_ah: float) -> float:
+    """The inverse: how long a block lasts at w_per_ah (W per Ah of 20-hour capacity), log-log, extended at both ends."""
+    T, W = RATE_T_MIN, [w / RATE_REF_AH for w in RATE_W_BLOCK]
+    if w_per_ah <= 0:
+        return float("inf")
+    i = 0 if w_per_ah >= W[0] else (len(T) - 2 if w_per_ah <= W[-1] else
+                                     next(k for k in range(len(T) - 1) if W[k] >= w_per_ah >= W[k + 1]))
+    slope = (math.log(T[i + 1]) - math.log(T[i])) / (math.log(W[i + 1]) - math.log(W[i]))
+    return math.exp(math.log(T[i]) + slope * (math.log(w_per_ah) - math.log(W[i])))
 
 
 def _battery_life_factor(ambient_c: float) -> float:
@@ -189,20 +223,24 @@ def calculate(inputs: dict) -> dict:
     kw_design  = load_kw / eta_ups
     t_hr       = backup_mins / 60
 
-    # Ah = (kW_design × t_h) / (V_dc/1000 × DOD × η_wire)
-    ah_required = (kw_design * t_hr) / (v_dc / 1000 * DOD_VRLA * ETA_WIRE)
+    # IEEE 1184, constant power: each 12 V block carries P_block = kW_design / eta_wire / blocks for the backup time,
+    # and the block's Ah (20-hour) is P_block / (W per Ah it sustains for that time) x the 1.25 aging factor.
+    p_block_w   = kw_design * 1000 / ETA_WIRE / n_cells
+    w_per_ah    = _w_per_ah(backup_mins)
+    ah_required = p_block_w / w_per_ah * AGING_FACTOR
+    ah_energy_only = (kw_design * t_hr) / (v_dc / 1000 * DOD_VRLA * ETA_WIRE)   # the old 20-hour figure, for contrast
 
     # Select next standard Ah
     rec_ah = next((a for a in STD_BATT_AH if a >= ah_required), STD_BATT_AH[-1])
-
-    # Actual backup time at recommended Ah
-    actual_backup_h = (rec_ah * v_dc / 1000 * DOD_VRLA * ETA_WIRE) / kw_design
-    actual_backup_min = actual_backup_h * 60
 
     # Number of battery strings (cells in parallel if Ah > single-string limit)
     # Standard: 1 string for < 200 Ah; parallel strings for higher Ah
     strings = math.ceil(ah_required / max(rec_ah, 1))
     strings = max(strings, 1)
+
+    # Actual backup time at the selected bank, at end of life (80% of rated): the power each block carries, over its Ah
+    actual_backup_min = _runtime_min(p_block_w / strings / (rec_ah / AGING_FACTOR))
+    actual_backup_h   = actual_backup_min / 60
 
     # Total battery count
     total_cells = n_cells * strings
@@ -274,9 +312,16 @@ def calculate(inputs: dict) -> dict:
             "t_hr":        round(t_hr, 4),
             "V_dc":        v_dc,
             "DOD":         DOD_VRLA,
+            "aging_factor": AGING_FACTOR,
             "eta_UPS":     eta_ups,
             "eta_wire":    ETA_WIRE,
-            "Ah_formula":  f"({round(kw_design,3)} × {round(t_hr,4)}) / ({v_dc}/1000 × {DOD_VRLA} × {ETA_WIRE})",
+            "P_block_W":   round(p_block_w, 1),
+            "W_per_Ah":    round(w_per_ah, 4),
+            "Ah_energy_only": round(ah_energy_only, 1),
+            "Ah_formula":  (f"{round(p_block_w, 1)} W per block / {round(w_per_ah, 3)} W/Ah at {backup_mins:g} min "
+                            f"× {AGING_FACTOR} = {round(ah_required, 1)} Ah"),
+            "rate_basis":  ("CSB GP12170 constant-power table (RA240531), 1.75 V/cell at 25 °C, scaled per Ah of 20-hour "
+                            "capacity - use the selected maker's own table for the final battery"),
         },
 
         # Electrical

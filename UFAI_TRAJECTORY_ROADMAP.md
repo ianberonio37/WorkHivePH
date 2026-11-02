@@ -4864,10 +4864,15 @@ against seven cases. The door page's "SPB" was not a section key: the engine dre
 rating (4 belts where B's ANSI/RMA rating needs 6). An unknown section now resolves to B once, rating included, and the
 door example is the classical B section (6 belts). Both items wait for ED257's R1 walk; R1 has no prover yet.
 
-**Open on UPS (R1):** the battery Ah is a 20-hour-rate figure. A VRLA battery delivers well below its 20-hour Ah at a
-5 to 30 minute discharge, and IEEE 1184 sizes from the maker's constant-power (W per cell) tables. No verified
-rate-capacity table is encoded yet, so the guide now calls the figure a lower bound. A rate-correction table, taken
-from a maker's published W/cell data, is the next step.
+**UPS / R1, closed for the R1 walk to confirm (2026-11-02):** the battery Ah was energy only, kW × t / (V × 0.80 × 0.98),
+which reads every block at its 20-hour capacity. A VRLA block gives about half of that in a 15-minute discharge. The
+engine now sizes from a published constant-power table: CSB GP12170, datasheet RA240531, W per 12 V block to 1.75 V/cell
+at 25 °C (677 W at 5 min, 395 W at 15 min, 161 W at 60 min per 17 Ah). The table is scaled per Ah of 20-hour capacity
+and multiplied by the IEEE 1184 aging factor of 1.25, with log-log interpolation in time. The autonomy check inverts the
+same table. A 50 kW, 15-minute UPS now needs 144.5 Ah, not 69.9, and the old figure would have run about 7 minutes. The
+guide says the final battery comes from the chosen maker's own table. The walk also found the UPS report's signature
+row, and AHU's summary tiles, running past a 390 px phone (403 and 402 px). Gate `report-grids-reflow` now holds every
+fixed multi-column grid in the report renderers.
 
 **ED149 / R1, closed for the R1 walk to confirm (2026-11-02):** l1 came from the building height, max(5 m, 0.5×H), and
 the report cited "Annex E". IEC 62305-3's l1 is its Figure 3. The values were read from DEHN's reproduction (Lightning

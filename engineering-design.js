@@ -1547,11 +1547,14 @@ const GUIDES = {
       '',
       'Battery Ah Required (IEC 62040-3 / IEEE 1184):',
       '  kW_design = load kW / η_UPS   (the power the inverter draws from the battery)',
-      '  Ah = (kW_design × t_backup_h) / (V_dc × DOD × η_wire)   (η_UPS is applied once, in kW_design)',
-      '  Where: DOD = 0.80  (the end-of-life margin: 1 / 0.80 = the IEEE 1184 aging factor 1.25)',
+      '  P_block = kW_design / η_wire / number of 12 V blocks   (the constant power each block carries)',
+      '  Ah = P_block / (W per Ah the block sustains for the backup time) × 1.25   (IEEE 1184 constant-power sizing)',
+      '  Where: W per Ah = a VRLA block\u2019s constant-power rating at that time to 1.75 V/cell, per Ah of 20-hour capacity',
+      '         (CSB GP12170 table: 677 W at 5 min, 395 W at 15 min, 267 W at 30 min, 161 W at 60 min per 17 Ah block)',
+      '         1.25 = the IEEE 1184 aging factor (replace at 80% of rated capacity)',
       '         η_UPS = UPS inverter efficiency (0.94–0.98)',
-      '  This Ah is a 20-hour-rate figure and a LOWER BOUND: at a 5–30 minute discharge a VRLA battery delivers well below',
-      '  its 20-hour Ah. Choose the battery from the maker\u2019s constant-power (W per cell) table for the backup time (IEEE 1184).',
+      '  A block discharged in 15 minutes gives about half its 20-hour Ah, so an energy-only Ah (kW × t / V) is about half',
+      '  the battery a 15-minute UPS needs. Confirm against the chosen maker\u2019s own constant-power table.',
       '         η_wire = 0.98  (battery cable efficiency)',
       '         V_dc = DC bus voltage (auto-selected by UPS kVA range)',
       '',
@@ -1580,7 +1583,7 @@ const GUIDES = {
     ],
     notes: [
       'UPS loading limit: ≤ 80% of rated kVA per IEEE 446. Operating above 80% raises internal temperature, reduces MTBF, and leaves no headroom for load additions.',
-      'VRLA battery DOD: IEC 62040-3 and IEEE 1184 recommend 80% maximum depth of discharge. Exceeding 80% DOD consistently shortens service life below the rated 3–5 year figure.',
+      'VRLA battery capacity depends on the discharge rate: the 20-hour Ah on the label is not available in a 5–30 minute UPS discharge. IEEE 1184 sizes from the maker\u2019s constant-power table at the backup time, with a 1.25 aging factor so the battery still holds the load at 80% of its rated capacity.',
       'Battery life in Philippine climate: VRLA batteries in float service typically last 3–5 years. Ambient temperature above 25°C halves battery life every 10°C above reference per IEEE 1184: plan replacement budget at Year 3 for installations in unconditioned spaces.',
       'Topology IEC classification: VFI = Voltage and Frequency Independent (online double-conversion). VI = Voltage Independent (line interactive). VFD = Voltage and Frequency Dependent (offline/standby). The UPS nameplate or datasheet must state the IEC class for permit submission.',
       'PEC 2017 Article 7 requires an approved listing and a dedicated branch circuit for UPS units serving emergency loads. A PRC-licensed Electrical Engineer must sign and seal the sizing calculation for building permit submission.',
@@ -5405,7 +5408,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.75rem;">
-        IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC 2017 Art. 7. Ah = (kW × t_h) / (V_dc × DOD × η). DC bus auto-selected by kVA. Loading ≤ 80% recommended. DOD = 0.80 for VRLA.
+        IEC 62040-3 / IEEE 446 / IEEE 1184 / PEC 2017 Art. 7. Battery Ah from a VRLA constant-power table at the backup time × 1.25 aging. DC bus auto-selected by kVA. Loading ≤ 80% recommended.
       </div>
     `;
     addUPSLoadRow('Servers / IT Equipment', 3000, 0.9, 2);
@@ -12905,7 +12908,7 @@ function renderPFCReport(inputs, results, narrative) {
 
     <h2>7. RESULTS SUMMARY</h2>
     <div class="result-highlight">
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+      <div class="res-tiles" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
         <div>
           <div class="res-label">Required kVAR</div>
           <div class="res-value">${e(kvarRequired)} kVAR</div>
@@ -12943,7 +12946,7 @@ function renderPFCReport(inputs, results, narrative) {
     <p>${e(narrative?.recommendations || `Install a ${selectedKvar} kVAR capacitor bank (or APFC panel) at the main distribution board. The capacitor bank shall comply with IEEE 18 and IEC 60831-1. Include discharge resistors to reduce terminal voltage to below 50V within 5 minutes after disconnection per IEEE 18. Protect with a dedicated fused disconnect or MCCB sized at 135% of capacitor rated current. If the load includes variable-frequency drives (VFDs) or other harmonic-generating equipment, specify a 7% series detuning reactor to prevent capacitor overload due to harmonic resonance. Verify achieved PF with a power analyzer or clamp meter under full load conditions after installation.`)}</p>
 
     <!-- SIGNATURE BLOCK -->
-    <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
@@ -13108,7 +13111,7 @@ function renderCableTrayReport(inputs, results, narrative) {
 
     <h2>8. RESULTS SUMMARY</h2>
     <div class="result-highlight">
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+      <div class="res-tiles" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
         <div>
           <div class="res-label">Selected Tray Width</div>
           <div class="res-value">${e(selWidth)} mm</div>
@@ -13146,7 +13149,7 @@ function renderCableTrayReport(inputs, results, narrative) {
     <p>${e(narrative?.recommendations || `Provide a ${selWidth} mm wide × ${depthMm} mm deep ${trayType} cable tray (NEMA VE 1 Load Class ${nemaClass}, hot-dip galvanized steel per NEMA VE 1 for indoor/industrial use or stainless steel for corrosive environments). Support at ${spanM} m centres on structural brackets anchored to walls or columns. ${deratingApplies ? `Actual fill (${fillActual}%) exceeds the ${trayType === 'Solid Bottom' ? '40%' : '30%'} threshold: apply 80% derating factor to all power conductor ampacities per NEC 392.80 (NEC 310.15). Verify that each conductor\'s derated ampacity equals or exceeds the design current.` : `Actual fill (${fillActual}%) does not exceed the ${trayType === 'Solid Bottom' ? '40%' : '30%'} threshold: no ampacity derating required.`} Separate power cables from control and instrumentation cables using a tray divider or separate tray per NEMA VE 2 to minimize EMI. Provide cover for outdoor sections or where physical damage is possible. All cable tray installation by a licensed master electrician under a PRC-licensed Electrical Engineer. A signed and sealed calculation must be submitted for building permit.`)}</p>
 
     <!-- SIGNATURE BLOCK -->
-    <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
@@ -13261,7 +13264,7 @@ function renderUPSSizingReport(inputs, results, narrative) {
       <tr><td>Design Backup Time</td><td>${e(backupMin)} minutes</td></tr>
       <tr><td>Growth Factor</td><td>${e(growthFactor)} × connected load</td></tr>
       <tr><td>UPS Inverter Efficiency</td><td>${e(Math.round(Number(upsEff) * 100))}%</td></tr>
-      <tr><td>Battery DOD (VRLA per IEEE 1184)</td><td>80% maximum depth of discharge</td></tr>
+      <tr><td>Battery Sizing Basis (IEEE 1184)</td><td>Constant-power rating at the backup time, × 1.25 aging factor</td></tr>
       <tr><td>Battery Cell Type</td><td>VRLA (Valve-Regulated Lead-Acid), 12V nominal per cell</td></tr>
     </table>
 
@@ -13313,10 +13316,10 @@ function renderUPSSizingReport(inputs, results, narrative) {
       <tr><td>1</td><td>Design Load (kW)</td><td class="num">${e(designKW)}</td><td>kW at full design load</td></tr>
       <tr><td>2</td><td>Backup Time Required</td><td class="num">${e(backupMin)}</td><td>minutes</td></tr>
       <tr><td>3</td><td>Battery DC Bus Voltage</td><td class="num">${e(battV)}</td><td>V: ${e(cellsInSeries)} × 12V cells in series</td></tr>
-      <tr><td>4</td><td>VRLA DOD (IEEE 1184)</td><td class="num">0.80</td><td>80% max depth of discharge</td></tr>
+      <tr><td>4</td><td>Power per 12 V block (kW &divide; &eta;<sub>wire</sub> &divide; blocks)</td><td class="num">${e(results.ieee1184?.P_block_W ?? '')}</td><td>W, constant for the backup time</td></tr>
       <tr><td>5</td><td>UPS Efficiency</td><td class="num">${e(Math.round(Number(upsEff)*100))}%</td><td>Inverter/charger combined</td></tr>
       <tr><td>6</td><td>Wire Efficiency</td><td class="num">98%</td><td>2% cable loss allowance</td></tr>
-      <tr><td>7</td><td>Ah = (kW × t_h) / (V_dc × DOD × η_UPS × η_wire)</td><td class="num">${e(ahRequired)}</td><td>Ah required</td></tr>
+      <tr><td>7</td><td>Ah = P<sub>block</sub> &divide; (W per Ah at ${e(backupMin)} min = ${e(results.ieee1184?.W_per_Ah ?? '')}) &times; 1.25 aging</td><td class="num">${e(ahRequired)}</td><td>Ah (20-hour) required; ${e(results.ieee1184?.rate_basis ?? '')}</td></tr>
       <tr class="total-row"><td>8</td><td><strong>Selected Standard Battery Ah</strong></td>
         <td class="num"><strong>${e(selectedAh)} Ah</strong></td>
         <td><strong>Next standard size ≥ ${e(ahRequired)} Ah</strong></td>
@@ -13366,7 +13369,7 @@ function renderUPSSizingReport(inputs, results, narrative) {
     <p>${e(narrative?.recommendations || `Install a ${selectedKVA} kVA ${topology} UPS (IEC 62040-3 ${topology === 'Online (Double-Conversion)' ? 'VFI-SS-111' : topology === 'Line Interactive' ? 'VI-SS-111' : 'VFD-SS-111'}) at the proposed location. System loading is ${loadingPct}%: within the IEEE 446 recommended ≤ 80% limit. Battery bank: ${battConfig}, rated backup ${runtimeMin} minutes at design load. Provide a static bypass module to allow UPS maintenance without interrupting supply to critical loads. Input supply shall be from a dedicated ${inputBreakerA}A MCCB circuit; do not share with other loads. Commission with a full-load battery discharge test per IEC 62040-3 and verify actual runtime ≥ ${backupMin} minutes before handover. Plan battery replacement at Year 3 for unconditioned equipment rooms or Year 5 for air-conditioned spaces per IEEE 1184 life expectancy guidance. A PRC-licensed Electrical Engineer must sign and seal this calculation for building permit submission.`)}</p>
 
     <!-- SIGNATURE BLOCK -->
-    <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e(WORKER_NAME || '')}</div>
@@ -14745,7 +14748,7 @@ function renderDuctSizingReport(inputs, results, narrative) {
     <p>${e(narrative?.recommendations || `1. Duct sizes shown are CALCULATED sizes: round up to the nearest standard duct dimension before procurement. Verify all dimensions fit within the available ceiling plenum depth.\n2. Velocity limit check: ${segResults.some(s => s.vel_check !== 'OK') ? 'WARNING: one or more segments exceed the ASHRAE 62.1 / SMACNA velocity limit. Increase duct size or reduce airflow.' : 'All segments are within ASHRAE 62.1 velocity limits.'}\n3. The fan static pressure of ${fanStaticPa} Pa covers duct straight runs + fittings allowance only. Add AHU internal pressure drop (cooling coil, filters, heating coil: typically 200–500 Pa) and terminal device pressure drop (50–150 Pa each) when specifying the fan.\n4. All ductwork shall be constructed to the appropriate SMACNA pressure class. Leakage testing per SMACNA Air Duct Leakage Test Manual is required for mains at ≥ 1 in. w.g. (250 Pa).\n5. A Testing, Adjusting, and Balancing (TAB) report confirming design airflows at all diffusers (within ±10%) is required before building final acceptance.`)}</p>
 
     <!-- SIGNATURE BLOCK -->
-    <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e(typeof WORKER_NAME !== 'undefined' ? WORKER_NAME : '')}</div>
@@ -15286,7 +15289,7 @@ function renderRefrigPipeReport(inputs, results, narrative) {
     <p>${e(narrative?.recommendations || `1. All ACR copper tubing shall conform to ASTM B280: verify pipe is marked "ACR" and is dehydrated/capped before installation. Do NOT use plumbing-grade (Type L/K) copper.\n2. Suction line insulation: minimum 19 mm closed-cell elastomeric foam (ASTM C534) on all suction lines to prevent condensation and limit heat gain: install before pressure testing.\n3. Oil traps: provide a P-trap at the base of each suction vertical riser and at intervals of 6 m on long vertical risers per ASHRAE recommendations.\n4. Nitrogen purge brazing: all brazed joints shall be made under a dry nitrogen purge (OFN) to prevent copper oxide scale: scale contamination is a leading cause of TXV and compressor failure.\n5. Pressure test at 1.1× maximum allowable working pressure (dry nitrogen), then evacuate to ≤ 500 microns before refrigerant charging.\n6. Refrigerant charge by weight per manufacturer specification, corrected for actual line set length. Record charge weight on the equipment nameplate tag.\n7. Lines flagged WARN require re-sizing or system redesign before procurement.`)}</p>
 
     <!-- SIGNATURE BLOCK -->
-    <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;">${e(typeof WORKER_NAME !== 'undefined' ? WORKER_NAME : '')}</div>
@@ -18255,7 +18258,7 @@ function renderBoilerSteamReport(inputs, r, narrative) {
       <tr><td>Specific volume vg</td><td class="num">${r.v_g_m3_kg} m³/kg</td></tr>
     </table>
     <h2>2. Boiler Output</h2>
-    <div class="result-highlight" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin:1rem 0;">
+    <div class="result-highlight res-tiles" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin:1rem 0;">
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Heat Duty</div><div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.duty_kW} kW</div><div style="font-size:0.75rem;color:#555;">${r.BHP} BHP</div></div>
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Steam Output</div><div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.m_steam_kgh} kg/hr</div><div style="font-size:0.75rem;color:#555;">${r.m_steam_kgs} kg/s</div></div>
       <div style="text-align:center;padding:1rem;border:1px solid #ddd;border-radius:0.5rem;"><div style="font-size:0.78rem;color:#777;">Fuel Consumption</div><div style="font-size:1.6rem;font-weight:800;color:#162032;">${r.m_fuel_kgh} kg/hr</div><div style="font-size:0.75rem;color:#555;">η = ${(r.boiler_efficiency*100).toFixed(0)}%</div></div>
@@ -19139,7 +19142,7 @@ function renderAHUSizingReport(inputs, results, narrative) {
     </table>
 
     <h2>Step 8: Summary of Results</h2>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin:1rem 0;">
+    <div class="res-tiles" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin:1rem 0;">
       <div class="result-highlight">
         <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">Selected AHU Size</div>
         <div style="font-size:1.4rem;font-weight:800;color:#1a1a1a;">${r.nominal_AHU_CMH_each} <span style="font-size:0.75rem;">CMH each</span></div>
@@ -19176,7 +19179,7 @@ function renderAHUSizingReport(inputs, results, narrative) {
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `Select an AHU rated at ${r.nominal_AHU_CMH_each} m³/h (${r.n_units} unit${r.n_units>1?'s':''}) with a cooling coil capacity of not less than ${r.Q_coil_total_kW} kW (${r.Q_coil_TR} TR) at CHW conditions of ${r.chw_supply_C}°C/${r.chw_return_C}°C. Fan motor shall be ${r.fan_hp_std} HP with variable frequency drive (VFD) for part-load energy savings. Chilled water coil face velocity shall not exceed 2.5 m/s to prevent condensate carryover. Provide minimum ${r.oa_pct_used}% outside air with motorized damper and actuator. Install pre-filter (G4) and bag filter (F7) in sequence. Fan power shall be verified not to exceed ${r.ashrae_fan_max} W/(L/s) per ASHRAE 90.1.`)}</p>
 
     <!-- SIGNATURE BLOCK -->
-    <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+    <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div>
         <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
           <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">PREPARED BY</div>
@@ -30438,7 +30441,7 @@ ${isLight
       </div>
 
       <!-- SIGNATURE BLOCK: all fields editable -->
-      <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
+      <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
         <div>
           <div style="margin-top:2.5rem;border-top:1px solid #999;padding-top:0.3rem;">
             <div style="font-size:0.78rem;font-weight:700;color:#1a1a1a;">
@@ -30536,7 +30539,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
     </div>
 
     <!-- Summary Metrics -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin-bottom:1.5rem;">
+    <div class="res-tiles" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin-bottom:1.5rem;">
       ${[
         ['Heat Rejection', `${r.q_rejection_kw} kW`, `${r.q_rejection_tr} TR`],
         ['Circ. Water Flow', `${r.q_w_lps} L/s`, `${r.q_w_m3hr} m³/hr`],
