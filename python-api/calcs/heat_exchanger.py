@@ -282,46 +282,44 @@ def calculate(inputs: dict) -> dict:
     Rd_i = FOULING_FACTORS.get(fouling_cold, 0.0002)   # tube-side (cold)
     Rd_o = FOULING_FACTORS.get(fouling_hot,  0.0002)   # shell-side (hot)
 
-    # ── Tube-side h (cold fluid inside tubes) ────────────────────────────────
-    # Initial estimate: assume 100 tubes per pass
-    n_tubes_est = 100
-    tube_h_data = _tube_side_h(m_cold, n_tubes_est, n_tube_passes, d_i_mm, cold_props)
-    h_i = tube_h_data["h_W_m2K"]
-
-    # ── Shell-side h (hot fluid, Kern method simplified) ─────────────────────
-    # De = 1.10/pitch × (pitch² − 0.917 d_o²)  for triangular pitch
+    # ★U WAS COMPUTED FOR A 100-TUBE BUNDLE, WHATEVER THE EXCHANGER CAME TO (2026-11-02, ED-G1 Heat Exchanger, read against
+    # the guide: "n_tubes = A_required / (pi.do.L)" from "A = Q / (U.F.dTlm)"). Both film coefficients took the velocities
+    # of an assumed 100 tubes (shell diameter from them too); the area that U gave then needed, say, 423 tubes - a quarter
+    # of the velocity, a much lower h - and only the printed Re was redone, never U or the area: large exchangers were
+    # sized on a U they cannot reach. The tube count, the film coefficients, U and the area now converge together.
     De_mm = 1.10 / d_o_mm * (pitch_mm**2 - 0.917 * d_o_mm**2) if d_o_mm > 0 else d_o_mm
     De_mm = max(De_mm, 5.0)
-
-    # Estimate shell diameter from n_tubes
-    n_tubes_shell = n_tubes_est
-    Ds_mm = 1.15 * pitch_mm * math.sqrt(n_tubes_shell)   # triangular rough estimate
-    # Shell cross-section area at baffle: As = Ds × C' × B / pitch
     C_prime = pitch_mm - d_o_mm   # clearance
-    B_mm    = 0.25 * Ds_mm        # baffle spacing = 25% of Ds
-    As_m2   = Ds_mm / 1000 * C_prime / 1000 * B_mm / 1000 / (pitch_mm / 1000)
-    Gs      = m_hot / As_m2 if As_m2 > 0 else 0   # kg/m²·s
-    Re_s    = Gs * (De_mm / 1000) / hot_props["mu"]
     Pr_s    = hot_props["Cp"] * 1000 * hot_props["mu"] / hot_props["k"]
-    # Kern j-factor: jH ≈ 0.36 Re^−0.44 (simplified for baffled shell)
-    jH      = 0.36 * Re_s**(-0.44) if Re_s > 0 else 0.01
-    Nu_s    = jH * Re_s * Pr_s**(1/3)
-    h_o     = Nu_s * hot_props["k"] / (De_mm / 1000) if De_mm > 0 else 1000
-
-    # ── Overall U ────────────────────────────────────────────────────────────
-    U_design = _overall_U(h_i, h_o, d_i_mm, d_o_mm, k_wall, Rd_i, Rd_o)
-    # Clean U (no fouling)
-    U_clean  = _overall_U(h_i, h_o, d_i_mm, d_o_mm, k_wall, 0, 0)
-
-    # ── Required area ─────────────────────────────────────────────────────────
-    A_req_m2 = Q_duty * 1000 / (U_design * lmtd_corr) if (U_design * lmtd_corr) > 0 else 999
-    A_std_m2 = next((s for s in STD_AREAS_M2 if s >= A_req_m2), STD_AREAS_M2[-1])
-
-    # ── Number of tubes ───────────────────────────────────────────────────────
     A_per_tube = math.pi * d_o_mm / 1000 * tube_length_m
-    n_tubes    = math.ceil(A_req_m2 / A_per_tube) if A_per_tube > 0 else 0
-    # Correct tube-side h with actual tube count
-    tube_h_data = _tube_side_h(m_cold, max(n_tubes, 1), n_tube_passes, d_i_mm, cold_props)
+
+    def _size(n_t: int):
+        th = _tube_side_h(m_cold, max(n_t, 1), n_tube_passes, d_i_mm, cold_props)
+        # Shell-side h (hot fluid, Kern method simplified); De = 1.10/pitch × (pitch² − 0.917 d_o²), triangular pitch
+        ds = 1.15 * pitch_mm * math.sqrt(max(n_t, 1))     # triangular rough estimate
+        b  = 0.25 * ds                                     # baffle spacing = 25% of Ds
+        a_s = ds / 1000 * C_prime / 1000 * b / 1000 / (pitch_mm / 1000)
+        gs  = m_hot / a_s if a_s > 0 else 0
+        re_s = gs * (De_mm / 1000) / hot_props["mu"]
+        j_h  = 0.36 * re_s**(-0.44) if re_s > 0 else 0.01   # Kern j-factor (simplified, baffled shell)
+        h_out = j_h * re_s * Pr_s**(1/3) * hot_props["k"] / (De_mm / 1000) if De_mm > 0 else 1000
+        u_d = _overall_U(th["h_W_m2K"], h_out, d_i_mm, d_o_mm, k_wall, Rd_i, Rd_o)
+        a_r = Q_duty * 1000 / (u_d * lmtd_corr) if (u_d * lmtd_corr) > 0 else 999
+        n_new = math.ceil(a_r / A_per_tube) if A_per_tube > 0 else 0
+        return th, h_out, u_d, a_r, n_new, re_s, ds
+
+    n_tubes = 100
+    for _ in range(60):
+        tube_h_data, h_o, U_design, A_req_m2, n_next, Re_s, Ds_mm = _size(n_tubes)
+        if abs(n_next - n_tubes) <= 1:
+            break
+        n_tubes = max(1, round((n_tubes + n_next) / 2))     # damped: velocity and area pull opposite ways
+    n_tubes = max(n_tubes, n_next)                          # the bundle must hold the area U asks for
+    tube_h_data, h_o, U_design, A_req_m2, n_next, Re_s, Ds_mm = _size(n_tubes)
+    n_tubes = max(n_tubes, n_next)
+    h_i = tube_h_data["h_W_m2K"]
+    U_clean  = _overall_U(h_i, h_o, d_i_mm, d_o_mm, k_wall, 0, 0)
+    A_std_m2 = next((s for s in STD_AREAS_M2 if s >= A_req_m2), STD_AREAS_M2[-1])
 
     # Shell diameter estimate (triangular pitch)
     Ds_est_mm = 1.15 * pitch_mm * math.sqrt(n_tubes)
@@ -337,7 +335,7 @@ def calculate(inputs: dict) -> dict:
         f"A_required = {round(A_req_m2,2)} m² → recommended standard size {A_std_m2} m².",
         f"n_tubes ≈ {n_tubes} × {d_o_mm}mm OD × {tube_length_m}m (estimated).",
         f"Estimated shell ID ≈ {round(Ds_est_mm,0)} mm (triangular pitch {round(pitch_mm,1)}mm).",
-        f"Tube-side Re = {tube_h_data['Re']} ({'LAMINAR - use Sieder-Tate' if tube_h_data['laminar'] else 'turbulent - Dittus-Boelter'}).",
+        f"Tube-side Re = {tube_h_data['Re']} ({'LAMINAR - use Sieder-Tate' if tube_h_data['laminar'] else ('TRANSITION (4,000-10,000) - add tube passes to raise the velocity' if tube_h_data['Re'] < 10000 else 'turbulent - Dittus-Boelter')}).",
         f"NTU = {round(NTU,3)}, ε = {round(epsilon,3)}, Cr = {round(Cr,3)}.",
         "TEMA class R (severe service) or C (general) - specify on data sheet.",
         "Heat balance check: " + ('PASS' if heat_balance_ok else 'WARN - hot/cold duties differ > 10%'),

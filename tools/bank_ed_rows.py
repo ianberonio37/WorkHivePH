@@ -509,6 +509,17 @@ ENGINE_CHECKED["Fluid Power"] = (
     "efficiency whatever the form sent - it now prints the engine's eta_vol, eta_mech and eta_motor. Guide names are the "
     "form's (System Flow, Cylinder Stroke, Bore, Acc. P-min / P-max, Fluid Vol.). Walked on the served page at 390 (form "
     "defaults): '16.53 / (0.95 x 0.92) = 18.913 kW', '18.913 / 0.92 = 20.558 kW', no sideways scroll.")
+ENGINE_CHECKED["Heat Exchanger"] = (
+    "FOUND AND FIXED, read against python-api/calcs/heat_exchanger.py: the guide's chain A = Q/(U.F.dTlm), n_tubes = A / "
+    "(pi.do.L) - but both film coefficients (and the shell diameter) were computed for an ASSUMED 100-tube bundle, and "
+    "only the printed Re was redone at the resulting tube count, never U or the area: a 3 MW water/water exchanger was "
+    "sized at 423 tubes / 75.78 m2 on a U of 1,312 W/m2K taken at 100 tubes' velocity, where its own geometry gives U "
+    "779.5 and needs 711 tubes / 127.56 m2 - 40% short. The tube count, h_i, h_o, U and the area now converge together "
+    "(damped fixed point). The tube Re in the transition zone (4,000-10,000) is now labelled so, not 'turbulent'. The "
+    "guide said F came from the shell type (the engine computes it from P and R since Arc Q); its names are the form's. "
+    "The vector is a CONSISTENCY lock (tube count holds the area; Re is at that tube count), stated as such - U itself "
+    "rests on the fluid table and the Kern j-fit; it fails on the old engine. Walked on the served page at 390 (3 MW): "
+    "'U_design = 779.5', 'A_required = 127.56 m2', 'n_tubes = 711', no sideways scroll.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

@@ -944,6 +944,25 @@ VECTORS = [
         ],
     },
     {
+        # ★U WAS FOR A 100-TUBE BUNDLE (2026-11-02, ED-G1 Heat Exchanger). A CONSISTENCY lock, not an independent hand
+        # value: U comes from the fluid table and the Kern j-factor fit. What is checked by hand is that the answer agrees
+        # with itself - the tube count holds the area, and the velocity behind U is the one of that tube count. The old
+        # engine gave 423 tubes / 75.78 m² from a U taken at 100 tubes (Re for 423 printed beside it).
+        "module": "calcs.heat_exchanger",
+        "calc_type": "Heat Exchanger - the tube count, film coefficients, U and area agree",
+        "standard": "A = Q / (U.F.dTlm); n = A / (pi.do.L); tube Re = G.di/mu at that n (Kern)",
+        "inputs": {"duty_kW": 3000, "hot_inlet_C": 90, "hot_outlet_C": 60, "hot_flowrate_kgs": 24,
+                   "cold_inlet_C": 25, "cold_outlet_C": 55, "cold_flowrate_kgs": 24, "tube_length_m": 3.0},
+        "asserts": [
+            {"path": "n_tubes", "expected": 711, "tol": 1,
+             "note": "127.56 m² / (pi x 0.01905 x 3.0 = 0.17954 m² per tube) = 710.5 -> 711 (the old engine: 423, on a U from 100 tubes)"},
+            {"path": "Re_tube", "expected": 7283, "tol": 15,
+             "note": "355 tubes per pass x pi x 0.01483²/4 = 0.06132 m²; G = 24 / 0.06132 = 391.4 kg/m²s; Re = 391.4 x 0.01483 / 7.97e-4 = 7,283 - the velocity U was computed at"},
+            {"path": "A_required_m2", "expected": 127.56, "tol": 0.5,
+             "note": "the converged area at U 779.5 W/m²K (it was 75.78 m² at a U of 1,312 taken from 100 tubes - 40% short)"},
+        ],
+    },
+    {
         "module": "calcs.heat_exchanger",
         "calc_type": "Heat Exchanger",
         "standard": "TEMA — corrected LMTD = LMTD x F (multi-pass correction factor)",

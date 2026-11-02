@@ -1175593,8 +1175593,8 @@
     },
     {
       "id": "ED291",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Heat Exchanger on engineering-design.html · solo-owner",
       "pages": [
@@ -1175648,6 +1175648,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Heat Exchanger calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/heat_exchanger.py: the guide's chain A = Q/(U.F.dTlm), n_tubes = A / (pi.do.L) - but both film coefficients (and the shell diameter) were computed for an ASSUMED 100-tube bundle, and only the printed Re was redone at the resulting tube count, never U or the area: a 3 MW water/water exchanger was sized at 423 tubes / 75.78 m2 on a U of 1,312 W/m2K taken at 100 tubes' velocity, where its own geometry gives U 779.5 and needs 711 tubes / 127.56 m2 - 40% short. The tube count, h_i, h_o, U and the area now converge together (damped fixed point). The tube Re in the transition zone (4,000-10,000) is now labelled so, not 'turbulent'. The guide said F came from the shell type (the engine computes it from P and R since Arc Q); its names are the form's. The vector is a CONSISTENCY lock (tube count holds the area; Re is at that tube count), stated as such - U itself rests on the fluid table and the Kern j-fit; it fails on the old engine. Walked on the served page at 390 (3 MW): 'U_design = 779.5', 'A_required = 127.56 m2', 'n_tubes = 711', no sideways scroll. WALKED: Heat Exchanger's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T04:05:16Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
