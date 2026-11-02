@@ -1172774,8 +1172774,8 @@
     },
     {
       "id": "ED37",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - FCU Selection on engineering-design.html · solo-owner",
       "pages": [
@@ -1172829,6 +1172829,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the FCU Selection calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/fcu_selection.py: the guide's 'Q_design = sum(room load x qty) x diversity' with the load 'per FCU unit' - the engine selected each FCU for the row load and multiplied flow and connected kW by qty, but summed the REQUIRED total without qty: four 3.5 kW units read 3.5 kW required and 2.98 kW design against 16.8 kW connected - the plant load handed on was a quarter of the room's. Now load x qty: 14.0 / 11.9 kW. The form's room header said only 'Load (kW)' - now 'Load per FCU (kW)'. Guide field names are the form's (CHW Supply Temp, CHW Return Temp, Room / Zone Schedule). The vector fails on the old engine; walked on the served page at 390 (one room, 3.5 kW x 4): source python, 'DESIGN LOAD (DF=0.85) 11.90 kW 3.38 TR', header 'Load per FCU (kW)'. WALKED: FCU Selection's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T00:46:38Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

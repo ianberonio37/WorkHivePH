@@ -2437,9 +2437,10 @@ const GUIDES = {
     fields: [
       { name: 'Pipe System', tip: '2-Pipe (Cooling Only): single chilled water circuit, no heating. 4-Pipe (Cooling + Heating): separate CHW and HHW coils: used in offices and hotels where heating is required seasonally. This calculator selects the FCU and sizes its cooling side; size the heating coil of a 4-pipe unit separately.' },
       { name: 'Mounting Type', tip: 'Ceiling Cassette: exposed ceiling, 4-way blow: most common in Philippines commercial. Concealed Ceiling: ducted FCU above false ceiling: quieter, cleaner look. Floor-Mounted: under window sill. Wall-Mounted: high wall unit.' },
-      { name: 'CHW Supply / Return (°C)', tip: 'Standard: 7°C supply / 12°C return (ΔT=5°C). Higher ΔT (6–8°C) reduces pipe size and pump energy but needs larger coil. Coordinate ΔT with chiller plant designer.' },
+      { name: 'CHW Supply Temp', tip: 'Chilled water entering the FCU coils, usually 7°C. Lower supply raises coil capacity and dehumidification but costs chiller efficiency.' },
+      { name: 'CHW Return Temp', tip: 'Chilled water leaving the coils, usually 12°C (ΔT = 5°C). Higher ΔT (6–8°C) cuts the flow and pipe size and pump energy but needs a larger coil. Coordinate ΔT with the chiller plant.' },
       { name: 'Diversity Factor', tip: 'Not all rooms peak simultaneously. ASHRAE: 0.70–0.90 for commercial. 0.85 is typical for offices. Hospitals/hotels with 24/7 occupancy: 0.90–0.95.' },
-      { name: 'Room Schedule', tip: 'Enter each room or zone with area, design cooling load per FCU unit (kW), and number of FCUs. The calculator selects the smallest standard FCU tier that meets the load and computes CHW flow per unit.' },
+      { name: 'Room / Zone Schedule', tip: 'Enter each room or zone with area, design cooling load per FCU unit (kW), and number of FCUs; the room load is load × qty. The calculator selects the smallest standard FCU tier that meets the load and computes CHW flow per unit.' },
     ],
     notes: [
       'FCU nominal capacity is at standard rating conditions: 7°C CHW supply, 27°C DB / 19°C WB entering air. Apply 10% capacity derating for critical spaces or if entering air conditions are more extreme.',
@@ -5771,7 +5772,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Room / Zone Schedule</div>
         <div style="display:grid;grid-template-columns:2fr 65px 80px 55px 28px;gap:0.35rem;margin-bottom:0.35rem;font-size:0.75rem;color:rgba(255,255,255,0.6);padding:0 0.25rem;">
-          <div>Room / Zone Name</div><div style="text-align:center;">Area (m²)</div><div style="text-align:center;">Load (kW)</div><div style="text-align:center;">Qty</div><div></div>
+          <div>Room / Zone Name</div><div style="text-align:center;">Area (m²)</div><div style="text-align:center;">Load per FCU (kW)</div><div style="text-align:center;">Qty</div><div></div>
         </div>
         <div id="fcu-room-list" style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.5rem;"></div>
         <button class="btn-ghost text-sm py-2 px-4" onclick="addFCURoomRow()">+ Add Room</button>

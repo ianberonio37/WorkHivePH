@@ -163,7 +163,12 @@ def calculate(inputs: dict) -> dict:
             total_conn_kw += z.get("fcu_capacity_kW", 0) * qty
             total_chw_lps += fcu_flow_lps * qty
 
-        total_req_kw  = sum(float(rm.get("cooling_load_kw", 0)) for rm in rooms_input)
+        # ★THE PLANT TOTAL COUNTED ONE FCU PER ROOM (2026-11-02, ED-G1 FCU, read against the guide): each row's load is per
+        # FCU (the guide: "design cooling load per FCU unit"; the selection sizes every unit for it and multiplies flow and
+        # connected kW by qty), but the required total summed the loads without qty - four 3.5 kW units read 3.5 kW required,
+        # 2.98 kW design, against 16.8 kW connected. The plant load handed to the chiller was a quarter of the room's.
+        total_req_kw  = sum(float(rm.get("cooling_load_kw", 0) or rm.get("load_kw", 0)) * max(1, int(rm.get("qty", 1)))
+                            for rm in rooms_input)
         total_des_kw  = total_req_kw * diversity
         nps_mm, vel_ms = _pipe_nps_from_flow(total_chw_lps)
 

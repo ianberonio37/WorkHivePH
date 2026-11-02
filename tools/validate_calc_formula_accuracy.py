@@ -911,6 +911,19 @@ VECTORS = [
         ],
     },
     {
+        # ★THE PLANT TOTAL COUNTED ONE FCU PER ROOM (2026-11-02, ED-G1 FCU, read against the guide): the row load is per FCU,
+        # but the required total ignored qty. Fails on that engine.
+        "module": "calcs.fcu_selection",
+        "calc_type": "FCU Selection - the room schedule total is load per FCU x qty",
+        "standard": "Q_design = Σ(load per FCU × qty) × diversity (the guide's Total Design Load)",
+        "inputs": {"rooms": [{"room_name": "Office", "area_m2": 50, "cooling_load_kw": 3.5, "qty": 4}],
+                   "diversity_factor": 0.85, "chw_supply_c": 7, "chw_return_c": 12},
+        "asserts": [
+            {"path": "total_required_kw", "expected": 14.0, "tol": 0.01, "note": "4 × 3.5 kW = 14.0 kW (the old total read 3.5)"},
+            {"path": "total_design_kw", "expected": 11.9, "tol": 0.01, "note": "14.0 × 0.85 diversity = 11.9 kW (old 2.98)"},
+        ],
+    },
+    {
         "module": "calcs.ups_sizing",
         "calc_type": "UPS Sizing",
         "standard": "IEEE 1184 — load_kVA = load_kW / PF; recommended UPS >= minimum kVA",

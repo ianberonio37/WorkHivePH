@@ -300,6 +300,14 @@ ENGINE_CHECKED["Cooling Tower Sizing"] = (
     "its note put a 1,000 TR plant's makeup at 25-35 m3/day at CoC 4 - the engine gives ~160 m3/day (evaporating ~120), "
     "about 7x more; CoC 3 adds ~12%, not 25%. Field names are the form's (EWT / LWT / WBT). Read in the page by the guide "
     "prover at 390 and 1280; the figures stated were run on the engine (4,220 kW: 117 / 160 / 179 m3/day).")
+ENGINE_CHECKED["FCU Selection"] = (
+    "FOUND AND FIXED, read against python-api/calcs/fcu_selection.py: the guide's 'Q_design = sum(room load x qty) x "
+    "diversity' with the load 'per FCU unit' - the engine selected each FCU for the row load and multiplied flow and "
+    "connected kW by qty, but summed the REQUIRED total without qty: four 3.5 kW units read 3.5 kW required and 2.98 kW "
+    "design against 16.8 kW connected - the plant load handed on was a quarter of the room's. Now load x qty: 14.0 / 11.9 "
+    "kW. The form's room header said only 'Load (kW)' - now 'Load per FCU (kW)'. Guide field names are the form's (CHW "
+    "Supply Temp, CHW Return Temp, Room / Zone Schedule). The vector fails on the old engine; walked on the served page "
+    "at 390 (one room, 3.5 kW x 4): source python, 'DESIGN LOAD (DF=0.85) 11.90 kW 3.38 TR', header 'Load per FCU (kW)'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
