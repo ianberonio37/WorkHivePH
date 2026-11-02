@@ -281,7 +281,7 @@ def calculate(inputs: dict) -> dict:
 
     # PEC 2017 voltage drop limits
     circuit_type = str(inputs.get("circuit_type", "branch"))   # branch / feeder
-    vd_limit_pct = 3.0 if circuit_type == "branch" else 2.0
+    vd_limit_pct = 2.0 if "feeder" in circuit_type.lower() else 3.0   # "Branch Circuit" read as a feeder before
     vd_ok = vd["vd_pct"] <= vd_limit_pct or not length_given
 
     # If VD exceeds limit, find minimum size that satisfies VD
@@ -374,7 +374,9 @@ def calculate(inputs: dict) -> dict:
 
         # Voltage drop (with governing size)
         "vd_volts":             final_vd["vd_volts"],
-        "vd_pct":               final_vd["vd_pct"],
+        # ★NO LENGTH, NO VOLTAGE DROP (ED R1, 2026-11-02): without a cable length the drop was computed at an assumed 30 m
+        # and returned as if measured, beside vd_checked False - a figure no run of this cable produced.
+        "vd_pct":               final_vd["vd_pct"] if length_given else None,
         "vd_limit_pct":         vd_limit_pct,
         "vd_ok":                (final_vd["vd_pct"] <= vd_limit_pct) if length_given else None,
         "vd_checked":           length_given,

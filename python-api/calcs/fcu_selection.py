@@ -187,10 +187,14 @@ def calculate(inputs: dict) -> dict:
             # Room-level results
             "rooms":               room_results,
             # Single-zone aliases (for diagram / narrative)
-            "fcu_capacity_kW":     round(total_conn_kw / max(total_units, 1), 2),
+            # ★AN AVERAGE IS NOT A UNIT (ED R1, 2026-11-02): this was connected kW / units - 7.17 kW for rooms that took 7.0,
+            # 10.5 and 4.2 kW models, beside "selected FCU-1000". One model across the rooms: its capacity; mixed: None.
+            "fcu_capacity_kW":     (room_results[0]["selected_kw"] if room_results and len({r["selected_model"] for r in room_results}) == 1 else None),
             "fcu_airflow_m3hr":    room_results[0]["airflow_cmh"] if room_results else 0,
             "chw_flow_lps_total":  round(total_chw_lps, 3),
-            "selected_fcu":        room_results[0]["selected_model"] if room_results else "—",
+            "selected_fcu":        ((room_results[0]["selected_model"] if len({r["selected_model"] for r in room_results}) == 1
+                                     else "mixed: " + ", ".join(sorted({r["selected_model"] for r in room_results})))
+                                    if room_results else "—"),
             "selected_kw":         room_results[0]["selected_kw"] if room_results else 0,
             "qty":                 total_units,
             "room_name":           f"{len(rooms_input)} zones",

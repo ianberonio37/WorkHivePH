@@ -346,6 +346,7 @@ def calculate(inputs: dict) -> dict:
         "Se_MPa":            round(Se, 2),
 
         # Sizing
+        "n_design":              n_design,
         "d_min_mm":          round(d_min_mm, 2),
         "d_standard_mm":     d_std_mm,
         "d_used_mm":         d_used,

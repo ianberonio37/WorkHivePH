@@ -4874,6 +4874,23 @@ guide says the final battery comes from the chosen maker's own table. The walk a
 row, and AHU's summary tiles, running past a 390 px phone (403 and 402 px). Gate `report-grids-reflow` now holds every
 fixed multi-column grid in the report renderers.
 
+**R1 has a prover (2026-11-02): `tools/prove_engineering_reports.mjs`, gate `engineering-reports`.** For each
+calculator it takes the served Python handler's answer on the form's own payload (`tools/ed_report_cases.py`). It
+renders the report through the live path (`_renderComputed`, with no AI narrative) and reads it at phone-390, at
+desktop-1280 and on paper (print media at A4 width). It checks that the report states each headline figure the engine
+computed, that no figure is broken, that the report fits the phone and that it prints whole. Its first run passed 46 of
+55, and every one of the nine was a real fault:
+- Solar printed 66.5 m² of roof, from a ×1.15 alias, for the engine's ×1.3 figure of 75.1 m².
+- The Shaft report worked its own ASME elliptic diameter (25.6 mm) and never showed the engine's DE-Goodman Se, σ or nf.
+- Short Circuit never stated its fault MVA, and labelled its peak "1.8 × Isc".
+- The chiller kW/TR and the cooling-tower effectiveness appeared only in the drawings.
+- The air-cooled chiller's reference row cited a minimum COP of 2.84 under a check judged at 2.96.
+- FCU called an average of 7.0, 10.5 and 4.2 kW units the unit capacity.
+- Wire returned a voltage drop at an assumed 30 m while saying it was not checked.
+
+All 55 now read true, held by the ratchet `engineering_reports_baseline.json`. The headline check is not yet "every
+figure": the R1 rows bank when the walk holds and the report's working has been read against its engine, as G1 did.
+
 **ED149 / R1, closed for the R1 walk to confirm (2026-11-02):** l1 came from the building height, max(5 m, 0.5×H), and
 the report cited "Annex E". IEC 62305-3's l1 is its Figure 3. The values were read from DEHN's reproduction (Lightning
 Protection Guide 2014, Fig. 5.5.1.1) by measuring the lines against the axis ticks, to about ±1 m. Class III and IV are

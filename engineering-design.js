@@ -12727,7 +12727,7 @@ function renderSolarPVReport(inputs, results, narrative) {
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">7a</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Voc at T_min: Voc_max = ${e(inputs.panel_voc || 49.5)} × (1 + (${e(results.temp_coeff_voc ?? inputs.temp_coeff_voc ?? -0.29)}/100) × (${e(results.t_min_c ?? inputs.t_min_c ?? 18)} − 25))</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.voc_max || 0)} V</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">7b</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">String Config: ⌊1000 V / ${e(results.voc_max || 0)} V⌋ = at most ${e(results.max_panels_per_string ?? results.panels_per_string ?? 0)} panels/string; ${e(results.num_strings || 0)} equal strings of ${e(results.panels_per_string || 0)} (string Voc ${e(results.voc_string_cold_V || 0)} V)</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(results.panels_per_string || 0)}S × ${e(results.num_strings || 0)}P</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">8</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Annual Yield = ${e(results.actual_array_kwp || 0)} kWp × ${e(results.psh_hr || inputs.psh_hr || 4.5)} h × 365 × ${e(results.system_efficiency || 0)}</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.annual_yield_kwh || 0)} kWh/yr</td></tr>
-      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">9</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Roof Area = ${e(results.panel_qty || 0)} panels × ${e(inputs.panel_area_m2 || 1.7)} m²/panel × 1.15 spacing</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.total_roof_area_m2 || 0)} m²</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">9</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Roof Area = ${e(results.panel_qty || 0)} panels × ${e(inputs.panel_area_m2 || 1.7)} m²/panel × 1.3 (inter-row spacing and access)</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.total_roof_area_m2 || 0)} m²</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">10</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">CO₂ Reduction = ${e(results.annual_yield_kwh || 0)} kWh × ${e(results.grid_ef_kg_kwh ?? 0.6836)} kg CO₂/kWh</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.co2_reduction_kg || 0)} kg/yr</td></tr>
     </table>
 
@@ -17109,6 +17109,7 @@ function renderShortCircuitReport(inputs, results, narrative) {
         <p><strong>Step 6: Asymmetrical Peak Fault Current</strong></p>
         <p style="margin-left:1rem;">κ = 1.02 + 0.98 × e^(−3R/X) = <strong>${r.kappa ?? ''}</strong> (R/X = ${r.R_total_ohm && r.X_total_ohm ? (r.R_total_ohm / r.X_total_ohm).toFixed(3) : ''})</p>
         <p style="margin-left:1rem;">ip = κ × √2 × Isc = ${r.kappa ?? ''} × 1.4142 × ${r.Isc_kA} = <strong>${r.Ipeak_kA} kA peak</strong> (IEC 60909-0 peak short-circuit current)</p>
+        <p style="margin-left:1rem;">Fault level S = √3 × V × Isc = 1.7321 × ${inputs.voltage_ll} V × ${r.Isc_kA} kA = <strong>${r.fault_MVA ?? ''} MVA</strong></p>
 
         <p><strong>Step 7: Breaker IC Verification</strong></p>
         <p style="margin-left:1rem;">IC_installed = ${inputs.breaker_ic_kA} kA | Isc_available = ${r.Isc_kA} kA</p>
@@ -17129,7 +17130,7 @@ function renderShortCircuitReport(inputs, results, narrative) {
         <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
           <div style="font-size:0.75rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Peak Asymmetrical</div>
           <div style="font-size:1.8rem;font-weight:800;color:#29B6D9;">${r.Ipeak_kA} kA</div>
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.72);">1.8 × Isc (IEC 60909)</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.72);">κ√2 × Isc = ${(Number(r.Ipeak_kA) / Number(r.Isc_kA || 1)).toFixed(2)} × Isc (IEC 60909)</div>
         </div>
         <div style="background:#1F2E45;color:#fff;padding:1rem;border-radius:0.75rem;text-align:center;">
           <div style="font-size:0.75rem;color:rgba(255,255,255,0.8);text-transform:uppercase;margin-bottom:0.25rem;">Total Z at Panel</div>
@@ -17785,6 +17786,14 @@ function renderShaftDesignReport(inputs, results, narrative) {
       d<sub>min</sub> (ASME elliptic) = <strong>${r.d_min_mm} mm</strong>
     </p>
     ${r.d_min_goodman_mm ? `<p style="font-size:0.83rem;color:#333;"><strong>Cross-check (Shigley DE-Goodman fatigue):</strong> d<sub>min</sub> = ${r.d_min_goodman_mm} mm (includes Kf, Kfs stress concentration factors). Governing minimum: <strong>${Math.max(Number(r.d_min_mm), Number(r.d_min_goodman_mm)).toFixed(1)} mm</strong>.</p>` : ''}
+    ${results.Se_MPa != null ? `<h2>5b. Fatigue: Shigley DE-Goodman (the engine's sizing)</h2>
+    <p style="font-size:0.83rem;color:#333;">
+      Design loads: M<sub>a</sub> = K<sub>b</sub> &times; M = ${results.Kb ?? ''} &times; ${Number(results.bending_moment_Nm ?? 0).toFixed(1)} = ${results.design_moment_Nm} N&middot;m (reversed bending); T<sub>m</sub> = ${results.design_torque_Nm} N&middot;m (steady torque)<br>
+      Corrected endurance limit (Marin factors on S'<sub>e</sub> = 0.5 S<sub>ut</sub>): S<sub>e</sub> = <strong>${results.Se_MPa} MPa</strong> at d = ${results.d_used_mm} mm<br>
+      Stress concentration: K<sub>f</sub> = ${results.Kf}, K<sub>fs</sub> = ${results.Kfs} (keyseat)<br>
+      d = [ (16 n / &pi;) (2 K<sub>f</sub> M<sub>a</sub> / S<sub>e</sub> + &radic;3 K<sub>fs</sub> T<sub>m</sub> / S<sub>ut</sub>) ]<sup>1/3</sup>, design factor n = ${results.n_design ?? 2}, &rarr; d<sub>min</sub> = <strong>${results.d_min_mm} mm</strong><br>
+      At ${results.d_used_mm} mm: &sigma;<sub>a</sub> = ${results.sigma_a_MPa} MPa, &sigma;<sub>m</sub> = ${results.sigma_m_MPa} MPa; n<sub>f</sub> (Goodman) = <strong>${results.nf_goodman}</strong>, n<sub>y</sub> (yield) = <strong>${results.ny_yield}</strong>
+    </p>` : ''}
     <p style="font-size:0.83rem;color:#333;"><strong>Standard shaft diameter selected: <strong>${r.d_std_mm} mm</strong> (next standard size ≥ governing d<sub>min</sub>)</strong></p>
 
     <h2>6. Angle of Twist Check</h2>
@@ -17824,7 +17833,7 @@ function renderShaftDesignReport(inputs, results, narrative) {
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Solid circular cross-section shaft.\n2. Simply supported beam model for bending: transverse load applied at midspan between the two bearing supports.\n3. Shock factors Kb = ${r.Kb} and Kt = ${r.Kt} per ASME B106.1M Table for ${inputs.shock_type.toLowerCase()} shock loading.\n4. Allowable shear stress Ss = ${inputs.keyway === 'Yes' ? '0.18' : '0.30'} × Sut = ${r.Ss_allow_MPa} MPa (${inputs.keyway === 'Yes' ? 'keyway present: ASME B106.1M reduction applied' : 'no keyway'}).\n5. Shear modulus G = 80 GPa for steel.\n6. Bending moment simplified to F×L/4 (point load at midspan). If the load is applied at a different location, revise M accordingly.`)}</p>
 
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify ${twistOk ? r.d_std_mm : d_twist_std_mm} mm diameter ${inputs.material} solid shaft (cold-drawn round bar)${twistOk ? '' : `: UPSIZED from strength-only minimum ${r.d_std_mm} mm to satisfy 1°/m angle-of-twist limit (required d ≥ ${d_twist_required_mm} mm)`}. Strength-only minimum: ${r.d_min_mm} mm.\n2. ${inputs.keyway === 'Yes' ? `Design keyway per ASME B17.1: key width = d/4, key height = d/6, key length ≥ 1.5d.${n_key > 0 ? ` Computed key shear safety factor n_key = ${n_key.toFixed(2)} ${key_ok ? '(meets 1.5 minimum).' : '(BELOW 1.5 minimum per ASME B17.1: increase key length, use higher-grade key material, or upsize shaft to lower torque-induced shear stress).'}` : ''}` : 'No keyway: use shrink fit or interference fit for hub attachment. Verify fit tolerance per ISO 286.'}\n3. Angle of twist: ${r.twist_deg_per_m}°/m: ${twistOk ? 'within ASME limit of 0.5–1.0°/m.' : `EXCEEDS ASME 1°/m limit by ${(Number(r.twist_deg_per_m) / 1.0).toFixed(1)}x. Required diameter ≥ ${d_twist_required_mm} mm (next standard: ${d_twist_std_mm} mm).`}\n4. Verify shaft critical speed${ncritRpm > 0 ? ` (computed: ${ncritRpm.toLocaleString()} RPM)` : ''}: operating speed must be below 75% of the first critical (whirling) speed and above 125% if running supercritical.\n5. Source ${inputs.material} round bar from a PNS/ASTM-certified supplier per ASTM A108 (cold-drawn) or DIN 1652. Verify mill certificate Sut (≥ ${r.Sut_MPa} MPa) before fabrication.\n6. Apply tolerance per ISO 286: bearing seats h6, coupling fits k6, keyway tolerance JS9. Surface finish Ra ≤ 1.6 μm at bearing journals; Ra ≤ 3.2 μm elsewhere.\n7. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a fabrication basis.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. Specify ${twistOk ? r.d_std_mm : d_twist_std_mm} mm diameter ${inputs.material} solid shaft (cold-drawn round bar)${twistOk ? '' : `: UPSIZED from strength-only minimum ${r.d_std_mm} mm to satisfy 1°/m angle-of-twist limit (required d ≥ ${d_twist_required_mm} mm)`}. Strength minimum: ${r.d_min_goodman_mm ? Math.max(Number(r.d_min_mm), Number(r.d_min_goodman_mm)).toFixed(1) : r.d_min_mm} mm (the larger of the DE-Goodman fatigue and ASME elliptic sizes).\n2. ${inputs.keyway === 'Yes' ? `Design keyway per ASME B17.1: key width = d/4, key height = d/6, key length ≥ 1.5d.${n_key > 0 ? ` Computed key shear safety factor n_key = ${n_key.toFixed(2)} ${key_ok ? '(meets 1.5 minimum).' : '(BELOW 1.5 minimum per ASME B17.1: increase key length, use higher-grade key material, or upsize shaft to lower torque-induced shear stress).'}` : ''}` : 'No keyway: use shrink fit or interference fit for hub attachment. Verify fit tolerance per ISO 286.'}\n3. Angle of twist: ${r.twist_deg_per_m}°/m: ${twistOk ? 'within ASME limit of 0.5–1.0°/m.' : `EXCEEDS ASME 1°/m limit by ${(Number(r.twist_deg_per_m) / 1.0).toFixed(1)}x. Required diameter ≥ ${d_twist_required_mm} mm (next standard: ${d_twist_std_mm} mm).`}\n4. Verify shaft critical speed${ncritRpm > 0 ? ` (computed: ${ncritRpm.toLocaleString()} RPM)` : ''}: operating speed must be below 75% of the first critical (whirling) speed and above 125% if running supercritical.\n5. Source ${inputs.material} round bar from a PNS/ASTM-certified supplier per ASTM A108 (cold-drawn) or DIN 1652. Verify mill certificate Sut (≥ ${r.Sut_MPa} MPa) before fabrication.\n6. Apply tolerance per ISO 286: bearing seats h6, coupling fits k6, keyway tolerance JS9. Surface finish Ra ≤ 1.6 μm at bearing journals; Ra ≤ 3.2 μm elsewhere.\n7. A PRC-licensed Mechanical Engineer must sign and seal this document before use as a fabrication basis.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">
@@ -18401,6 +18410,7 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
     <h3>Step 7: ASHRAE 90.1 COP Compliance Check (${escHtml(inputs.chiller_type)})</h3>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Design COP</th><td>${inputs.cop}</td></tr>
+      <tr><th>Power per TR</th><td>${results.kW_per_TR ?? ''} kW/TR (3.517 / COP)</td></tr>
       <tr><th>ASHRAE 90.1 Minimum COP</th><td>${r.ashrae_min_cop} (${escHtml(r.ashrae_tier || inputs.chiller_type)}: each ${r.nominal_kW_each} kW unit)</td></tr>
       <tr><th>COP Margin</th><td>${r.cop_margin >= 0 ? '+' : ''}${r.cop_margin}</td></tr>
       <tr>
@@ -18545,7 +18555,7 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
 
     <h2>References / Standards</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
-      <tr><th>ASHRAE 90.1</th><td>Energy Standard for Buildings: min COP: 2.84 (&lt;528 kW), 2.80 (≥528 kW): min IPLV: 3.50 (&lt;528 kW), 3.45 (≥528 kW)</td></tr>
+      <tr><th>ASHRAE 90.1</th><td>Energy Standard for Buildings, 2019 Table 6.8.1-3 Path A, air-cooled: min COP 2.96 and IPLV 4.02 below 150 TR (10.1 / 13.7 EER); 2.96 and 4.10 at 150 TR and above (10.1 / 14.0 EER)</td></tr>
       <tr><th>AHRI 550/590</th><td>Performance Rating of Water-Chilling and Heat Pump Water-Heating Packages: IPLV/NPLV rating methodology (weighted avg at 100/75/50/25% load)</td></tr>
       <tr><th>ASHRAE 15</th><td>Safety Standard for Refrigeration Systems: refrigerant charge limits, ventilation, leak detection</td></tr>
       <tr><th>ASHRAE Handbook: HVAC Systems</th><td>Chiller selection, condenser airflow, chilled water system design</td></tr>
@@ -18608,6 +18618,7 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
     <h3>Step 7: ASHRAE 90.1 COP Compliance Check</h3>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Design COP</th><td>${inputs.cop}</td></tr>
+      <tr><th>Power per TR</th><td>${results.kW_per_TR ?? ''} kW/TR (3.517 / COP)</td></tr>
       <tr><th>ASHRAE 90.1 Minimum COP</th><td>${r.ashrae_min_cop} (air-cooled, ${(r.ashrae_tier_kW ?? r.nominal_kW_each) >= 528 ? '≥528 kW' : '<528 kW'} unit)</td></tr>
       <tr><th>COP Margin</th><td>${r.cop_margin >= 0 ? '+' : ''}${r.cop_margin}</td></tr>
       <tr>
@@ -30547,6 +30558,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
         ['Fan Airflow / Cell', `${r.fan_flow_CMH_cell} m³/hr`, `${r.n_cells} cell(s)`],
         ['Fan Motor / Cell', `${r.fan_kw_per_cell} kW calc.`, `${r.fan_kw_std} kW (std)`],
         ['Approach / Range', `${r.approach_c}°C / ${r.range_c}°C`, 'approach / range'],
+        ['Effectiveness', `${r.effectiveness ?? ''}`, 'range / (range + approach)'],
       ].map(([label, val, sub]) => `
         <div style="background:#f5f7ff;border:1px solid #dde;border-radius:0.6rem;padding:0.7rem 0.85rem;">
           <div style="font-size:0.75rem;color:#555;margin-bottom:0.2rem;">${escHtml(label)}</div>

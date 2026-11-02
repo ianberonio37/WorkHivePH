@@ -376,7 +376,9 @@ def calculate(inputs: dict) -> dict:
         "system_efficiency":   round(perf_ratio, 3),
         "t_min_c":             t_min_c,
         "temp_coeff_voc":      tc_voc,
-        "total_roof_area_m2":  round(array_area_m2 * 1.15, 1),   # 15% extra for spacing
+        # ★ONE ROOF AREA (ED R1, 2026-11-02): this alias was array x 1.15 while roof_area_required_m2 is array x 1.3 - the
+        # report and the BOM printed 66.5 m2 for the array the door page called 75.1. One figure, the 1.3 it documents.
+        "total_roof_area_m2":  round(roof_area_m2, 1),
         # Per-panel Voc at T_min, as the report's formula reads (it was the whole string's voltage)
         "voc_max":             round(voc_cold, 2),
         "co2_reduction_kg":    round(co2_offset_kg_yr, 0),
