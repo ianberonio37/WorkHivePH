@@ -79,7 +79,12 @@ def calculate(inputs: dict) -> dict:
             xy_basis = "tapered roller, about 15 deg contact: e = 0.40; P = Fr up to e, then 0.4 Fr + 1.5 Fa"
 
     P_kN = round(X * Fr_kN + Y * Fa_kN, 2)
-    C_over_P = round(C_kN / P_kN, 2) if P_kN > 0 else 0.0
+    # ED-F1 (2026-11-02): with Fr and Fa both 0 the life read L10 = 0 h and FAIL - an unloaded bearing has no rating
+    # life to compute (and runs below the minimum load ISO 281 assumes). Refuse it in words instead of a false FAIL.
+    if P_kN <= 0:
+        raise ValueError("The bearing carries no load: radial load (Fr) and axial load (Fa) are both 0, so the L10 "
+                         "life is not defined. Enter the load it carries.")
+    C_over_P = round(C_kN / P_kN, 2)
 
     L10_Mrev = round(C_over_P ** p_exp, 2)
     L10h     = round(L10_Mrev * 1e6 / (60.0 * speed_rpm)) if speed_rpm > 0 else 0

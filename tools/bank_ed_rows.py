@@ -22,9 +22,13 @@ A row is banked only when ALL hold:
   6. D1 rows (2026-11-02): the calculator is drawn and passes in tools/prove_engineering_drawings.mjs's receipt - the
      drawing (the page's own _runDrawing) states the engine's headline figures, every number in its labels and title block
      traces to the engine's answer or the builder's own constants, and it fits a 390 px phone.
+  7. F1 rows (2026-11-02): the calculator holds in tools/prove_engineering_forms.mjs's receipt - walked field by field with
+     the engine call held at the network, its form refuses a blank number by name (unless the label says what a blank
+     means), refuses a 0 its range forbids, sends a typed 0 where 0 is real, declares a minimum on every field and shows
+     every dimensioned field's unit.
 A failing or missing row is left as it is and printed with the reason.
 
-    python tools/bank_ed_rows.py [--run] [--dry]
+    python tools/bank_ed_rows.py [--run [--lens G1|R1|S1|D1|F1]] [--dry]
 """
 from __future__ import annotations
 
@@ -57,6 +61,9 @@ SGATE = "engineering-saved-reports"
 DREPORT = ROOT / "engineering_drawings_report.json"
 DPROVER = "tools/prove_engineering_drawings.mjs"
 DGATE = "engineering-drawings"
+FREPORT = ROOT / "engineering_forms_report.json"
+FPROVER = "tools/prove_engineering_forms.mjs"
+FGATE = "engineering-forms"
 
 # a guide read against its engine, and how - the second half of G1 that a field-name match cannot prove
 ENGINE_CHECKED = {
@@ -767,8 +774,10 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", action="store_true", help="re-run the gate first; a red gate banks nothing")
     ap.add_argument("--dry", action="store_true")
+    ap.add_argument("--lens", default=None, help="with --run, re-run only this lens's gate (the others' receipts are read as they are)")
     a = ap.parse_args()
-    if a.run:
+    run = lambda lens: a.run and (not a.lens or a.lens == lens)   # noqa: E731
+    if run("G1"):
         ok, last = bsw._run_gate(str(ROOT / PROVER), "--gate")
         if not ok:
             print(f"gate {GATE} is red ({last}) - nothing banked")
@@ -788,7 +797,7 @@ def main() -> int:
     calcs = {c["calc"]: c for c in rep.get("calcs") or []} if not receipt_problem else {}
     # the report receipt is what an R1 row closes on (re-run with --run, like the guide gate)
     rrep, r_problem = {}, None
-    if a.run:
+    if run("R1"):
         ok2, last2 = bsw._run_gate(str(ROOT / RPROVER), "--gate")
         if not ok2:
             r_problem = f"gate {RGATE} is red ({last2})"
@@ -805,7 +814,7 @@ def main() -> int:
     rcalcs = {c["calc"]: c for c in rrep.get("calcs") or []} if not r_problem else {}
     # the saved-and-reopened receipt is what an S1 row closes on
     srep, s_problem = {}, None
-    if a.run:
+    if run("S1"):
         ok3, last3 = bsw._run_gate(str(ROOT / SPROVER), "--gate")
         if not ok3:
             s_problem = f"gate {SGATE} is red ({last3})"
@@ -822,7 +831,7 @@ def main() -> int:
     scalcs = {c["calc"]: c for c in srep.get("calcs") or []} if not s_problem else {}
     # the drawing receipt is what a D1 row closes on
     drep, d_problem = {}, None
-    if a.run:
+    if run("D1"):
         ok4, last4 = bsw._run_gate(str(ROOT / DPROVER), "--gate")
         if not ok4:
             d_problem = f"gate {DGATE} is red ({last4})"
@@ -837,6 +846,25 @@ def main() -> int:
             elif d_age > MAX_AGE_H:
                 d_problem = f"the drawing receipt is {d_age:.1f} h old (limit {MAX_AGE_H}) - re-run {DPROVER}"
     dcalcs = {c["calc"]: c for c in drep.get("calcs") or []} if not d_problem else {}
+    # the form walk's receipt is what an F1 row closes on
+    frep, f_problem = {}, None
+    if run("F1"):
+        ok5, last5 = bsw._run_gate(str(ROOT / FPROVER), "--gate")
+        if not ok5:
+            f_problem = f"gate {FGATE} is red ({last5})"
+    if not f_problem:
+        if not FREPORT.exists():
+            f_problem = f"no receipt at {FREPORT.name} - run {FPROVER}"
+        else:
+            frep = json.loads(FREPORT.read_text(encoding="utf-8"))
+            f_age = (datetime.now(timezone.utc) - datetime.fromisoformat(frep["generated"].replace("Z", "+00:00"))).total_seconds() / 3600
+            if frep.get("teeth"):
+                f_problem = "the form receipt is a --teeth run"
+            elif f_age > MAX_AGE_H:
+                f_problem = f"the form receipt is {f_age:.1f} h old (limit {MAX_AGE_H}) - re-run {FPROVER}"
+    fcalcs = {c["calc"]: c for c in frep.get("results") or []} if not f_problem else {}
+    if f_problem:
+        print(f"  form rows held: {f_problem}")
     if d_problem:
         print(f"  drawing rows held: {d_problem}")
     if s_problem:
@@ -882,6 +910,16 @@ def main() -> int:
                 continue
             why = E1_FIXED[unit]
             what = f"{unit}: the form's own default payload is answered by the Python engine (tools/census_calc_served_engine.py)"
+        elif key == "F1":
+            c = fcalcs.get(unit)
+            if not c or c.get("error") or not (c.get("base") or {}).get("sent") or c.get("blank") or c.get("zero") or c.get("unitless"):
+                continue                                  # open: the walk names the field and its fault in the receipt
+            why = (f"{unit}'s form, walked field by field ({c.get('fields')} numeric fields): each blank is refused before "
+                   f"Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's "
+                   f"range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every "
+                   f"field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped "
+                   f"a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw.")
+            what = f"{unit} selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network"
         elif key == "D1":
             c = dcalcs.get(unit)
             if not c or not c.get("shown") or not c.get("ok"):
@@ -921,7 +959,13 @@ def main() -> int:
             what = f"{unit}'s Guide - present, its field names exactly the form's, its text and formulas clean at both widths"
         else:
             continue
-        if key == "D1":
+        if key == "F1":
+            basis = (f"[{today}] {why} WALKED: {what}, through {FPROVER} (receipt {FREPORT.name}, {frep['generated'][:19]}Z). "
+                     f"HELD BY: gate {FGATE} (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a "
+                     f"payload that swaps a typed 0, and a field with its minimum removed - each named) and gate "
+                     f"calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> {{pct}}")
+            gates = [FGATE, "calc_formula_accuracy"]
+        elif key == "D1":
             basis = (f"[{today}] {why} WALKED: {what}, through {DPROVER} (receipt {DREPORT.name}, {drep['generated'][:19]}Z). "
                      f"HELD BY: gate {DGATE} (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by "
                      f"1.37 - the engine's own are then absent). pct -> {{pct}}")

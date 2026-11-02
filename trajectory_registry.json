@@ -1175983,8 +1175983,8 @@
     },
     {
       "id": "ED2",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - HVAC Cooling Load on engineering-design.html · solo-owner",
       "pages": [
@@ -1176038,12 +1176038,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the HVAC Cooling Load calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] HVAC Cooling Load's form, walked field by field (8 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: HVAC Cooling Load selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED8",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Ventilation / ACH on engineering-design.html · solo-owner",
       "pages": [
@@ -1176097,12 +1176104,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Ventilation / ACH calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Ventilation / ACH's form, walked field by field (3 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Ventilation / ACH selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED14",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Chiller System — Air Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1176156,12 +1176170,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Air Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Chiller System — Air Cooled's form, walked field by field (3 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Chiller System — Air Cooled selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED20",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Chiller System — Water Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1176215,12 +1176236,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Water Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Chiller System — Water Cooled's form, walked field by field (3 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Chiller System — Water Cooled selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED26",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Cooling Tower Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1176274,12 +1176302,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Cooling Tower Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Cooling Tower Sizing's form, walked field by field (1 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Cooling Tower Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED32",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - AHU Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1176333,12 +1176368,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the AHU Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] AHU Sizing's form, walked field by field (4 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: AHU Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED38",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - FCU Selection on engineering-design.html · solo-owner",
       "pages": [
@@ -1176392,12 +1176434,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the FCU Selection calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FCU Selection's form, walked field by field (12 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: FCU Selection selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED44",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Duct Sizing (Equal Friction) on engineering-design.html · solo-owner",
       "pages": [
@@ -1176451,12 +1176500,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Duct Sizing (Equal Friction) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Duct Sizing (Equal Friction)'s form, walked field by field (8 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Duct Sizing (Equal Friction) selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED50",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Refrigerant Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1176510,12 +1176566,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Refrigerant Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Refrigerant Pipe Sizing's form, walked field by field (4 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Refrigerant Pipe Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED56",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Expansion Tank Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1176569,12 +1176632,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Expansion Tank Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Expansion Tank Sizing's form, walked field by field (5 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Expansion Tank Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED62",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Pump Sizing (TDH) on engineering-design.html · solo-owner",
       "pages": [
@@ -1176628,12 +1176698,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pump Sizing (TDH) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pump Sizing (TDH)'s form, walked field by field (10 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Pump Sizing (TDH) selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED68",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1176687,12 +1176764,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pipe Sizing's form, walked field by field (5 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Pipe Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED74",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Compressed Air on engineering-design.html · solo-owner",
       "pages": [
@@ -1176746,12 +1176830,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Compressed Air calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Compressed Air's form, walked field by field (8 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Compressed Air selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED80",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Boiler System on engineering-design.html · solo-owner",
       "pages": [
@@ -1176805,12 +1176896,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Boiler System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Boiler System's form, walked field by field (8 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Boiler System selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED86",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Load Estimation on engineering-design.html · solo-owner",
       "pages": [
@@ -1176864,12 +1176962,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Load Estimation calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Load Estimation's form, walked field by field (9 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Load Estimation selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED92",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Transformer Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1176923,12 +1177028,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Transformer Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Transformer Sizing's form, walked field by field (7 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Transformer Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED98",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Wire Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1176982,12 +1177094,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wire Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Wire Sizing's form, walked field by field (4 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Wire Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED103",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Cable Tray Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1177041,12 +1177160,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Cable Tray Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Cable Tray Sizing's form, walked field by field (7 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Cable Tray Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED108",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Voltage Drop on engineering-design.html · solo-owner",
       "pages": [
@@ -1177100,12 +1177226,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Voltage Drop calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Voltage Drop's form, walked field by field (4 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Voltage Drop selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED113",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Short Circuit on engineering-design.html · solo-owner",
       "pages": [
@@ -1177159,12 +1177292,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Short Circuit calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Short Circuit's form, walked field by field (2 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Short Circuit selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED118",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Generator Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1177218,12 +1177358,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Generator Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Generator Sizing's form, walked field by field (11 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Generator Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED124",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - UPS Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1177277,12 +1177424,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the UPS Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] UPS Sizing's form, walked field by field (9 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: UPS Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED130",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Power Factor Correction on engineering-design.html · solo-owner",
       "pages": [
@@ -1177336,12 +1177490,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Power Factor Correction calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Power Factor Correction's form, walked field by field (3 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Power Factor Correction selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED136",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Harmonic Distortion on engineering-design.html · solo-owner",
       "pages": [
@@ -1177395,12 +1177556,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Harmonic Distortion calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Harmonic Distortion's form, walked field by field (8 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Harmonic Distortion selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED142",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Solar PV System on engineering-design.html · solo-owner",
       "pages": [
@@ -1177454,12 +1177622,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Solar PV System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Solar PV System's form, walked field by field (8 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Solar PV System selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED148",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Lightning Protection System (LPS) on engineering-design.html · solo-owner",
       "pages": [
@@ -1177513,12 +1177688,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Lightning Protection System (LPS) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Lightning Protection System (LPS)'s form, walked field by field (4 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Lightning Protection System (LPS) selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED154",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Earthing / Grounding System on engineering-design.html · solo-owner",
       "pages": [
@@ -1177572,12 +1177754,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Earthing / Grounding System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Earthing / Grounding System's form, walked field by field (1 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Earthing / Grounding System selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED160",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Lighting Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1177631,12 +1177820,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Lighting Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Lighting Design's form, walked field by field (6 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Lighting Design selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED166",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Water Supply Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1177690,12 +1177886,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Supply Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Supply Pipe Sizing's form, walked field by field (7 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Water Supply Pipe Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED172",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Hot Water Demand on engineering-design.html · solo-owner",
       "pages": [
@@ -1177749,12 +1177952,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hot Water Demand calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Hot Water Demand's form, walked field by field (10 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Hot Water Demand selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED178",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Water Softener Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1177808,12 +1178018,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Softener Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Softener Sizing's form, walked field by field (5 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Water Softener Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED184",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Water Treatment System on engineering-design.html · solo-owner",
       "pages": [
@@ -1177867,12 +1178084,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Treatment System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Treatment System's form, walked field by field (4 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Water Treatment System selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED190",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Drainage Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1177926,12 +1178150,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Drainage Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Drainage Pipe Sizing's form, walked field by field (3 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Drainage Pipe Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED196",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Septic Tank Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1177985,12 +1178216,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Septic Tank Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Septic Tank Sizing's form, walked field by field (6 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Septic Tank Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED202",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Storm Drain / Stormwater on engineering-design.html · solo-owner",
       "pages": [
@@ -1178044,12 +1178282,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Storm Drain / Stormwater calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Storm Drain / Stormwater's form, walked field by field (6 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Storm Drain / Stormwater selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED208",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Grease Trap Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1178103,12 +1178348,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Grease Trap Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Grease Trap Sizing's form, walked field by field (3 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Grease Trap Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED214",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Roof Drain Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1178162,12 +1178414,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Roof Drain Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Roof Drain Sizing's form, walked field by field (3 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Roof Drain Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED220",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Wastewater Treatment (STP) on engineering-design.html · solo-owner",
       "pages": [
@@ -1178221,12 +1178480,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wastewater Treatment (STP) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Wastewater Treatment (STP)'s form, walked field by field (6 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Wastewater Treatment (STP) selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED226",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Fire Sprinkler Hydraulic on engineering-design.html · solo-owner",
       "pages": [
@@ -1178280,12 +1178546,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Sprinkler Hydraulic calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Sprinkler Hydraulic's form, walked field by field (6 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Fire Sprinkler Hydraulic selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED232",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Fire Pump Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1178339,12 +1178612,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Pump Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Pump Sizing's form, walked field by field (8 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Fire Pump Sizing selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED238",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Stairwell Pressurization on engineering-design.html · solo-owner",
       "pages": [
@@ -1178398,12 +1178678,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Stairwell Pressurization calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Stairwell Pressurization's form, walked field by field (8 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Stairwell Pressurization selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED244",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Fire Alarm Battery on engineering-design.html · solo-owner",
       "pages": [
@@ -1178457,12 +1178744,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Alarm Battery calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Alarm Battery's form, walked field by field (9 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Fire Alarm Battery selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED250",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Clean Agent Suppression on engineering-design.html · solo-owner",
       "pages": [
@@ -1178516,12 +1178810,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Clean Agent Suppression calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Clean Agent Suppression's form, walked field by field (6 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Clean Agent Suppression selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED256",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - V-Belt Drive Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1178575,12 +1178876,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the V-Belt Drive Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] V-Belt Drive Design's form, walked field by field (4 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: V-Belt Drive Design selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED262",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Shaft Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1178634,12 +1178942,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Shaft Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Shaft Design's form, walked field by field (4 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Shaft Design selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED268",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Bolt Torque & Preload on engineering-design.html · solo-owner",
       "pages": [
@@ -1178693,12 +1179008,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bolt Torque & Preload calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Bolt Torque & Preload's form, walked field by field (2 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Bolt Torque & Preload selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED274",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Fluid Power on engineering-design.html · solo-owner",
       "pages": [
@@ -1178752,12 +1179074,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fluid Power calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fluid Power's form, walked field by field (9 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Fluid Power selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED280",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Bearing Life (L10) on engineering-design.html · solo-owner",
       "pages": [
@@ -1178811,12 +1179140,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bearing Life (L10) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Bearing Life (L10)'s form, walked field by field (5 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Bearing Life (L10) selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED286",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Pressure Vessel on engineering-design.html · solo-owner",
       "pages": [
@@ -1178870,12 +1179206,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pressure Vessel calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pressure Vessel's form, walked field by field (7 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Pressure Vessel selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED292",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Heat Exchanger on engineering-design.html · solo-owner",
       "pages": [
@@ -1178929,12 +1179272,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Heat Exchanger calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Heat Exchanger's form, walked field by field (8 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Heat Exchanger selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED298",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Beam / Column Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1178988,12 +1179338,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Beam / Column Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Beam / Column Design's form, walked field by field (8 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Beam / Column Design selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED304",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Vibration Analysis on engineering-design.html · solo-owner",
       "pages": [
@@ -1179047,12 +1179404,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Vibration Analysis calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Vibration Analysis's form, walked field by field (7 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Vibration Analysis selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED310",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Noise / Acoustics on engineering-design.html · solo-owner",
       "pages": [
@@ -1179106,12 +1179470,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Noise / Acoustics calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Noise / Acoustics's form, walked field by field (11 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Noise / Acoustics selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED316",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Elevator Traffic Analysis on engineering-design.html · solo-owner",
       "pages": [
@@ -1179165,12 +1179536,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Elevator Traffic Analysis calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Elevator Traffic Analysis's form, walked field by field (7 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Elevator Traffic Analysis selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {
       "id": "ED322",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-F1",
       "title": "the form refuses what it cannot compute - Hoist Capacity on engineering-design.html · solo-owner",
       "pages": [
@@ -1179224,6 +1179602,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hoist Capacity calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Hoist Capacity's form, walked field by field (4 numeric fields): each blank is refused before Calculate in a sentence that names the field, unless its label says what a blank means; a 0 the field's range forbids is refused by name; a typed 0 where 0 is real reaches the engine as 0, not a default; every field declares its minimum and every dimensioned field shows its unit. The page's range check had skipped a blank and the payload read `|| default`, so a cleared field computed with a number nobody saw. WALKED: Hoist Capacity selected inside engineering-design.html as the signed-in walker, Calculate pressed per field with the engine call held at the network, through tools/prove_engineering_forms.mjs (receipt engineering_forms_report.json, 2026-11-02T07:35:51Z). HELD BY: gate engineering-forms (ratchet engineering_forms_baseline.json; teeth plant a quiet optional marker, a payload that swaps a typed 0, and a field with its minimum removed - each named) and gate calc_formula_accuracy (four engines that swapped a 0 are pinned by vectors). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "calc_formula_accuracy",
+          "engineering-forms"
+        ]
       }
     },
     {

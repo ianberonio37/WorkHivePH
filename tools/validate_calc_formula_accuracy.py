@@ -203,6 +203,31 @@ def _check_hvac_tr_conversion(mod):
     return [(f"recommended_TR({tr}) == recommended_kW({kw})/3.517  [1 TR = 3.517 kW, ASHRAE]", ok, "")]
 
 
+def _check_chiller_ambient_zero(mod):
+    """ED-F1 (2026-11-02): `outdoor_temp or ambient or 35.0` read a typed 0 °C as "not given". The ambient the engine
+    designs on must be the one sent, at 0 as at 35."""
+    out = []
+    for amb in (0, 35):
+        r = mod.calculate({"cooling_load_kw": 350, "chiller_type": "Air-Cooled Scroll", "outdoor_temp": amb})
+        got = r.get("outdoor_db_c", r.get("cw_supply_c"))
+        out.append((f"outdoor_temp {amb} -> the engine's ambient {got}", got is not None and abs(float(got) - amb) < 0.01, ""))
+    return out
+
+
+def _check_bearing_unloaded(mod):
+    """ED-F1 (2026-11-02): with Fr = Fa = 0 the engine printed L10 = 0 h and FAIL. It now refuses in words; pure axial
+    load (Fr 0, Fa > 0) still computes."""
+    out = []
+    try:
+        mod.calculate({"bearing_type": "Ball", "C_kN": 25.5, "Fr_kN": 0, "Fa_kN": 0, "speed_rpm": 1450, "reliability_pct": 90})
+        out.append(("Fr = Fa = 0 is refused", False, "it computed"))
+    except ValueError as e:
+        out.append((f"Fr = Fa = 0 is refused: {str(e)[:60]}", "no load" in str(e), ""))
+    r = mod.calculate({"bearing_type": "Ball", "C_kN": 25.5, "Fr_kN": 0, "Fa_kN": 2.0, "speed_rpm": 1450, "reliability_pct": 90})
+    out.append((f"pure axial (Fr 0, Fa 2) computes: P = {r.get('P_kN')} kN > 0", float(r.get("P_kN") or 0) > 0, ""))
+    return out
+
+
 def _check_pipe_fittings_and_rows(mod):
     """Walked 2026-10-09 (KCW41283): the Pipe Sizing report printed "undefined" in every cell of its 5.2 comparison
     table, the person's Fittings Allowance was never read (the engine read a key no caller sends), and "Equivalent Pipe
@@ -213,7 +238,8 @@ def _check_pipe_fittings_and_rows(mod):
     base = {"flow_rate": 10, "pipe_length": 10, "service_type": "Chilled Water", "pipe_material": "PVC",
             "fluid_temp_c": 7, "fluid_density": 999}
     out = []
-    for pct in (20, 40):
+    # 0 (ED-F1, 2026-11-02): a straight run with no fittings - `or 20` put 20% back over it, L_eq 12 m for a 10 m pipe
+    for pct in (0, 20, 40):
         r = mod.calculate(dict(base, fittings_allowance=pct))
         want = 10 * (1 + pct / 100)
         out.append((f"fittings_allowance={pct}% -> equiv_length {r.get('equiv_length')} == 10 x (1 + {pct}/100) = {want}",
@@ -621,10 +647,49 @@ VECTORS = [
         ],
     },
     {
+        # ★A TYPED 0 WAS SWAPPED FOR THE HAZARD TABLE'S HOSE (2026-11-02, ED-F1). Fails on `or hazard["hose_lpm"]` (4729.5).
+        "module": "calcs.fire_sprinkler",
+        "calc_type": "Fire Sprinkler Hydraulic - a hose allowance of 0 is the person's figure",
+        "standard": "NFPA 13 Table 19.3.3.1.2: total demand = sprinkler demand + the hose allowance the design carries",
+        "inputs": {"occupancy_hazard": "Extra Hazard Grp 1", "design_area": 232, "density": 12.2,
+                   "coverage_per_head": 9.3, "hose_stream": 0, "k_factor": 80, "operating_pressure": 0.7},
+        "asserts": [
+            {"path": "hose_stream_lpm", "expected": 0, "tol": 0, "note": "0 L/min as typed (the engine put 1,893 back)"},
+            {"path": "q_total_lpm", "expected": 2836.5, "tol": 0.2,
+             "note": "25 heads x 12.2 x 9.3 = 2,836.5 L/min + 0 hose (it was 4,729.5 with the table's 500 gpm)"},
+            {"path": "water_volume_m3", "expected": 255.29, "tol": 0.1, "note": "2,836.5 L/min x 90 min = 255.29 m³"},
+        ],
+    },
+    {
         "module": "calcs.fire_sprinkler",
         "calc_type": "Fire Sprinkler Hydraulic",
         "standard": "NFPA 13 — area-density method (fixed hazard density + additive total demand)",
         "custom": _check_sprinkler_nfpa13,
+    },
+    {
+        # ★A TYPED 0 SUCTION HEAD WAS 1.5 m (2026-11-02, ED-F1). Fails on `or 1.5` (7.538 bar, the vector below's figure).
+        "module": "calcs.fire_pump",
+        "calc_type": "Fire Pump Sizing - no flooded suction is 0 m, not 1.5",
+        "standard": "NFPA 20: the pump makes up the required pressure less the suction head it is given",
+        "inputs": {"required_flow": 1900, "required_pressure": 7.0, "elevation": 0, "suction_type": "Flooded",
+                   "suction_head": 0, "pipe_material": "Steel", "driver_type": "Electric",
+                   "pump_efficiency": 70, "motor_efficiency": 92},
+        "asserts": [
+            {"path": "rated_pressure_bar", "expected": 7.7, "tol": 0.002,
+             "note": "(7.0 - 0 m x 0.0981) x 1.10 = 7.700 bar (with the swapped 1.5 m: 7.538)"},
+        ],
+    },
+    {
+        "module": "calcs.chiller",
+        "calc_type": "Chiller System - Air Cooled: an ambient of 0 °C stays 0",
+        "standard": "air-cooled condenser: entering air = the ambient dry-bulb the design gives",
+        "custom": lambda mod: _check_chiller_ambient_zero(mod),
+    },
+    {
+        "module": "calcs.bearing_life",
+        "calc_type": "Bearing Life (L10) - an unloaded bearing is refused, not failed",
+        "standard": "ISO 281: L10 = (C/P)^p is defined for P > 0",
+        "custom": lambda mod: _check_bearing_unloaded(mod),
     },
     {
         "module": "calcs.pipe_sizing",

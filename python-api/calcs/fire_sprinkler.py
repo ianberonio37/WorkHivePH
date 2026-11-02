@@ -184,7 +184,11 @@ def calculate(inputs: dict) -> dict:
 
     density      = float(inputs.get("density_mm_min")  or inputs.get("density")   or hazard["density_mm_min"])
     design_area  = float(inputs.get("design_area_m2")  or inputs.get("design_area") or hazard["area_m2"])
-    hose_lpm     = float(inputs.get("hose_stream_lpm") or inputs.get("hose_stream") or hazard["hose_lpm"])
+    # ★A TYPED 0 IS A HOSE ALLOWANCE (ED-F1, 2026-11-02). `a or b or hazard` read 0 as "not given" and put the
+    # hazard class's figure back, so a system the person said draws no hose stream was sized for 946 L/min more.
+    # The person's figure stands; a figure under the hazard table is named in the field notes, not replaced.
+    _hose        = next((x for x in (inputs.get("hose_stream_lpm"), inputs.get("hose_stream")) if x not in (None, "")), None)
+    hose_lpm     = float(_hose if _hose is not None else hazard["hose_lpm"])
 
     # ── Sprinkler parameters ──────────────────────────────────────────────────
     k_label      = str  (inputs.get("k_factor_label",  "K80  (Large Orifice 17/32\" orifice)"))
@@ -283,7 +287,9 @@ def calculate(inputs: dict) -> dict:
     # ── BFP / NFPA 13 field notes ────────────────────────────────────────────
     field_notes = [
         f"Hazard class: {hazard_key} - density {density} mm/min over {design_area} m² design area.",
-        f"Hose stream allowance: {hose_lpm} L/min per NFPA 13.",
+        (f"Hose stream allowance: {hose_lpm} L/min per NFPA 13." if hose_lpm >= hazard["hose_lpm"] else
+         f"Hose stream allowance: {hose_lpm} L/min as entered - below the {hazard['hose_lpm']} L/min NFPA 13 "
+         f"tabulates for {hazard_key}; confirm the reduced allowance with the AHJ."),
         f"Minimum residual pressure at most remote sprinkler: "
         f"{MIN_RESIDUAL_BAR} bar (7.5 psi) - {'PASS' if min_pressure_ok else 'FAIL: increase pump pressure'}.",
         "Hydraulic remote area must be the most hydraulically demanding area (highest elevation, longest run).",

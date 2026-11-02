@@ -194,7 +194,9 @@ def calculate(inputs: dict) -> dict:
     service     = SERVICE_ALIASES.get(service, service)
     # ★THE FORM SENDS fittings_allowance (2026-10-09, walked KCW41283). This read only fittings_allowance_pct, which no
     # caller sends, so every report used 20% whatever the person typed. The legacy key still counts when it is the one given.
-    fittings_pct= float(inputs.get("fittings_allowance", inputs.get("fittings_allowance_pct", 20)) or 20)
+    # ED-F1 (2026-11-02): `or 20` then put 20% back over a typed 0 (a straight run with no fittings).
+    _fa         = inputs.get("fittings_allowance", inputs.get("fittings_allowance_pct"))
+    fittings_pct= float(_fa if _fa not in (None, "") else 20)
 
     if flow_lpm <= 0:
         raise ValueError("Flow rate must be greater than 0 L/min.")

@@ -148,6 +148,12 @@ def _ashrae_limits(capacity_kw: float, is_water: bool, chiller_type: str = "") -
 
 
 # formula: chiller_ashrae_90
+def _outdoor_db(inputs: dict) -> float:
+    # ED-F1 (2026-11-02): `a or b or 35.0` put 35 degC back over a typed 0. The person's figure stands.
+    x = next((v for v in (inputs.get("outdoor_temp"), inputs.get("ambient_temp_C")) if v not in (None, "")), None)
+    return float(x if x is not None else 35.0)
+
+
 def calculate(inputs: dict) -> dict:
     """
     Main entry point - compatible with TypeScript calcChillerSystem() keys.
@@ -185,9 +191,9 @@ def calculate(inputs: dict) -> dict:
         cw_supply_c  = float(inputs.get("cw_supply_c") or inputs.get("cw_supply_C") or 29.5)
         cw_return_c  = float(inputs.get("cw_return_c") or inputs.get("cw_return_C") or 35.0)
         cw_delta_t   = cw_return_c - cw_supply_c
-        outdoor_db_c = float(inputs.get("outdoor_temp") or inputs.get("ambient_temp_C") or 35.0)
+        outdoor_db_c = _outdoor_db(inputs)
     else:
-        outdoor_db_c = float(inputs.get("outdoor_temp") or inputs.get("ambient_temp_C") or 35.0)
+        outdoor_db_c = _outdoor_db(inputs)
         cw_supply_c  = outdoor_db_c   # air-cooled: ambient dry-bulb
         cw_return_c  = outdoor_db_c + 10.0   # rough hot-air leaving temp
         cw_delta_t   = 10.0

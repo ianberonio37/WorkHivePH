@@ -114,7 +114,9 @@ def calculate(inputs: dict) -> dict:
 
     redundancy    = str  (inputs.get("redundancy",       "Duplex"))
     elevation_m   = float(inputs.get("elevation")        or inputs.get("suction_lift_m")          or 0.0)
-    suction_head_m = float(inputs.get("suction_head")    or inputs.get("suction_head_m_input")     or 1.5)
+    # ★A TYPED 0 IS A SUCTION HEAD (ED-F1, 2026-11-02): `or 1.5` gave a pump with no flooded suction 1.5 m it does not have.
+    _sh            = next((x for x in (inputs.get("suction_head"), inputs.get("suction_head_m_input")) if x not in (None, "")), None)
+    suction_head_m = float(_sh if _sh is not None else 1.5)
     suction_bar   = float(inputs.get("suction_pressure_bar", 0.0))
 
     # Pipe parameters

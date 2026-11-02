@@ -3339,14 +3339,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Floor Area</div>
           <div class="input-group">
-            <input aria-label="0" id="f-floor-area" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="Floor Area" id="f-floor-area" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
           <div class="field-label">Ceiling Height</div>
           <div class="input-group">
-            <input aria-label="3.0" id="f-ceiling" class="wh-input" type="number" placeholder="3.0" value="3.0" min="0" step="0.1" />
+            <input aria-label="Ceiling Height" id="f-ceiling" class="wh-input" type="number" placeholder="3.0" value="3.0" min="0.1" step="0.1" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -3356,14 +3356,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Wall Area <span style="color:var(--wh-text-faint);font-size:0.75rem;">(leave blank = auto)</span></div>
           <div class="input-group">
-            <input aria-label="Auto" id="f-wall-area" class="wh-input" type="number" placeholder="Auto" min="0" />
+            <input data-optional="1" aria-label="Wall Area" id="f-wall-area" class="wh-input" type="number" placeholder="Auto" min="0" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
           <div class="field-label">Glass / Window Area <span style="color:var(--wh-text-faint);font-size:0.75rem;">(blank = 20%)</span></div>
           <div class="input-group">
-            <input aria-label="Auto" id="f-glass-area" class="wh-input" type="number" placeholder="Auto" min="0" />
+            <input data-optional="1" aria-label="Glass / Window Area" id="f-glass-area" class="wh-input" type="number" placeholder="Auto" min="0" />
             <span class="input-unit">m²</span>
           </div>
         </div>
@@ -3374,14 +3374,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">No. of Persons</div>
           <div class="input-group">
-            <input aria-label="0" id="f-persons" class="wh-input" type="number" placeholder="0" min="0" value="10" />
+            <input aria-label="No. of Persons" id="f-persons" class="wh-input" type="number" placeholder="0" min="0" value="10" />
             <span class="input-unit">pax</span>
           </div>
         </div>
         <div>
           <div class="field-label">Equipment Load</div>
           <div class="input-group">
-            <input aria-label="0" id="f-equip" class="wh-input" type="number" placeholder="0" min="0" value="2" step="0.5" />
+            <input aria-label="Equipment Load" id="f-equip" class="wh-input" type="number" placeholder="0" min="0" value="2" step="0.5" />
             <span class="input-unit">kW</span>
           </div>
         </div>
@@ -3475,14 +3475,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Floor Area</div>
           <div class="input-group">
-            <input aria-label="0" id="f-floor-area" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="Floor Area" id="f-floor-area" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">m²</span>
           </div>
         </div>
         <div>
           <div class="field-label">Ceiling Height</div>
           <div class="input-group">
-            <input aria-label="3.0" id="f-ceiling" class="wh-input" type="number" placeholder="3.0" value="3.0" min="0" step="0.1" />
+            <input aria-label="Ceiling Height" id="f-ceiling" class="wh-input" type="number" placeholder="3.0" value="3.0" min="0.1" step="0.1" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -3492,7 +3492,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">No. of Persons <span style="color:var(--wh-text-faint);font-size:0.75rem;">(0 for unoccupied / exhaust-only spaces)</span></div>
         <div class="input-group" style="max-width:160px;">
-          <input aria-label="0" id="f-persons" class="wh-input" type="number" placeholder="0" min="0" value="10" />
+          <input aria-label="No. of Persons" id="f-persons" class="wh-input" type="number" placeholder="0" min="0" value="10" />
           <span class="input-unit">pax</span>
         </div>
       </div>
@@ -3530,14 +3530,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Flow Rate (Q)</div>
           <div class="input-group">
-            <input aria-label="0" id="f-flow-rate" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="Flow Rate (Q)" id="f-flow-rate" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">L/min</span>
           </div>
         </div>
         <div>
           <div class="field-label">Static Head</div>
           <div class="input-group">
-            <input aria-label="0" id="f-static-head" class="wh-input" type="number" placeholder="0" min="0" step="0.5" />
+            <input aria-label="Static Head" id="f-static-head" class="wh-input" type="number" placeholder="0" min="0" step="0.5" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -3548,14 +3548,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Total Pipe Length <span style="color:var(--wh-text-faint);font-size:0.75rem;">(suction + discharge)</span></div>
           <div class="input-group">
-            <input aria-label="0" id="f-pipe-length" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="Total Pipe Length" id="f-pipe-length" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Pipe Diameter <span style="color:var(--wh-text-faint);font-size:0.75rem;">(0 = auto)</span></div>
+          <div class="field-label">Pipe Diameter <span style="color:var(--wh-text-faint);font-size:0.75rem;">(0 or blank = auto)</span></div>
           <div class="input-group">
-            <input aria-label="Auto" id="f-pipe-dia" class="wh-input" type="number" placeholder="Auto" min="0" value="0" />
+            <input data-optional="1" aria-label="Pipe Diameter" id="f-pipe-dia" class="wh-input" type="number" placeholder="Auto" min="0" value="0" />
             <span class="input-unit">mm</span>
           </div>
         </div>
@@ -3576,14 +3576,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Suction Head <span style="color:var(--wh-text-faint);font-size:0.75rem;">(+ flooded, - lift)</span></div>
           <div class="input-group">
-            <input aria-label="0" id="f-suction-head" class="wh-input" type="number" placeholder="0" step="0.5" value="0" />
+            <input aria-label="Suction Head" id="f-suction-head" class="wh-input" type="number" placeholder="0" min="-10" step="0.5" value="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Discharge Pressure Head <span style="color:var(--wh-text-faint);font-size:0.75rem;">(system back-pressure)</span></div>
           <div class="input-group">
-            <input aria-label="0" id="f-pressure-head" class="wh-input" type="number" placeholder="0" min="0" step="0.5" value="0" />
+            <input aria-label="Discharge Pressure Head" id="f-pressure-head" class="wh-input" type="number" placeholder="0" min="0" step="0.5" value="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -3618,7 +3618,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Fluid Density <span style="color:var(--wh-text-faint);font-size:0.75rem;">(auto-filled by fluid type)</span></div>
         <div class="input-group" style="max-width:160px;">
-          <input aria-label="Fluid Density" id="f-fluid-density" class="wh-input" type="number" value="1000" min="0" />
+          <input aria-label="Fluid Density" id="f-fluid-density" class="wh-input" type="number" value="1000" min="0.1" />
           <span class="input-unit">kg/m³</span>
         </div>
       </div>
@@ -3669,14 +3669,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Steam Demand</div>
             <div class="input-group">
-              <input aria-label="500" id="f-steam-demand" class="wh-input" type="number" placeholder="500" min="0" />
+              <input aria-label="Steam Demand" id="f-steam-demand" class="wh-input" type="number" placeholder="500" min="0" />
               <span class="input-unit">kg/hr</span>
             </div>
           </div>
           <div>
             <div class="field-label">Number of Boilers</div>
             <div class="input-group">
-              <input aria-label="1" id="f-num-boilers" class="wh-input" type="number" placeholder="1" min="1" value="1" />
+              <input aria-label="Number of Boilers" id="f-num-boilers" class="wh-input" type="number" placeholder="1" min="1" value="1" />
               <span class="input-unit">units</span>
             </div>
           </div>
@@ -3687,14 +3687,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Required Heat Load</div>
             <div class="input-group">
-              <input aria-label="300" id="f-heat-load" class="wh-input" type="number" placeholder="300" min="0" />
+              <input aria-label="Required Heat Load" id="f-heat-load" class="wh-input" type="number" placeholder="300" min="0" />
               <span class="input-unit">kW</span>
             </div>
           </div>
           <div>
             <div class="field-label">Number of Boilers</div>
             <div class="input-group">
-              <input aria-label="1" id="f-num-boilers-b" class="wh-input" type="number" placeholder="1" min="1" value="1" />
+              <input aria-label="Number of Boilers" id="f-num-boilers-b" class="wh-input" type="number" placeholder="1" min="1" value="1" />
               <span class="input-unit">units</span>
             </div>
           </div>
@@ -3705,14 +3705,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Steam Pressure (gauge)</div>
             <div class="input-group">
-              <input aria-label="7" id="f-steam-pressure" class="wh-input" type="number" placeholder="7" min="0" max="40" step="0.5" />
+              <input aria-label="Steam Pressure (gauge)" id="f-steam-pressure" class="wh-input" type="number" placeholder="7" min="0" max="40" step="0.5" />
               <span class="input-unit">bar g</span>
             </div>
           </div>
           <div>
             <div class="field-label">Feedwater Temperature</div>
             <div class="input-group">
-              <input aria-label="80" id="f-fw-temp" class="wh-input" type="number" placeholder="80" min="0" max="150" />
+              <input aria-label="Feedwater Temperature" id="f-fw-temp" class="wh-input" type="number" placeholder="80" min="0" max="150" />
               <span class="input-unit">°C</span>
             </div>
           </div>
@@ -3723,14 +3723,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Makeup Water TDS</div>
             <div class="input-group">
-              <input aria-label="200" id="f-tds-makeup" class="wh-input" type="number" placeholder="200" min="0" />
+              <input aria-label="Makeup Water TDS" id="f-tds-makeup" class="wh-input" type="number" placeholder="200" min="0" />
               <span class="input-unit">ppm</span>
             </div>
           </div>
           <div>
             <div class="field-label">Max Boiler Water TDS</div>
             <div class="input-group">
-              <input aria-label="3000" id="f-tds-max" class="wh-input" type="number" placeholder="3000" min="100" />
+              <input aria-label="Max Boiler Water TDS" id="f-tds-max" class="wh-input" type="number" placeholder="3000" min="100" />
               <span class="input-unit">ppm</span>
             </div>
           </div>
@@ -3746,14 +3746,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Supply Temperature</div>
             <div class="input-group">
-              <input aria-label="80" id="f-hw-supply" class="wh-input" type="number" placeholder="80" min="40" max="95" />
+              <input aria-label="Supply Temperature" id="f-hw-supply" class="wh-input" type="number" placeholder="80" min="40" max="95" />
               <span class="input-unit">°C</span>
             </div>
           </div>
           <div>
             <div class="field-label">Return Temperature</div>
             <div class="input-group">
-              <input aria-label="60" id="f-hw-return" class="wh-input" type="number" placeholder="60" min="20" max="90" />
+              <input aria-label="Return Temperature" id="f-hw-return" class="wh-input" type="number" placeholder="60" min="20" max="90" />
               <span class="input-unit">°C</span>
             </div>
           </div>
@@ -3763,14 +3763,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">Hot Water Flow Rate</div>
             <div class="input-group">
-              <input aria-label="5000" id="f-hw-flow" class="wh-input" type="number" placeholder="5000" min="0" />
+              <input aria-label="Hot Water Flow Rate" id="f-hw-flow" class="wh-input" type="number" placeholder="5000" min="0" />
               <span class="input-unit">L/hr</span>
             </div>
           </div>
           <div>
             <div class="field-label">Number of Boilers</div>
             <div class="input-group">
-              <input aria-label="1" id="f-num-boilers-hw" class="wh-input" type="number" placeholder="1" min="1" value="1" />
+              <input aria-label="Number of Boilers" id="f-num-boilers-hw" class="wh-input" type="number" placeholder="1" min="1" value="1" />
               <span class="input-unit">units</span>
             </div>
           </div>
@@ -3781,14 +3781,14 @@ function renderInputForm(calcType) {
           <div>
             <div class="field-label">System Working Pressure</div>
             <div class="input-group">
-              <input aria-label="3" id="f-hw-pressure" class="wh-input" type="number" placeholder="3" min="0.5" max="10" step="0.5" />
+              <input aria-label="System Working Pressure" id="f-hw-pressure" class="wh-input" type="number" placeholder="3" min="0.5" max="10" step="0.5" />
               <span class="input-unit">bar g</span>
             </div>
           </div>
           <div>
             <div class="field-label">Safety Factor</div>
             <div class="input-group">
-              <input aria-label="1.25" id="f-safety-factor-hw" class="wh-input" type="number" placeholder="1.25" min="1.0" max="2.0" step="0.05" />
+              <input aria-label="Safety Factor" id="f-safety-factor-hw" class="wh-input" type="number" placeholder="1.25" min="1.0" max="2.0" step="0.05" />
               <span class="input-unit">x</span>
             </div>
           </div>
@@ -3810,14 +3810,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Boiler Efficiency</div>
           <div class="input-group">
-            <input aria-label="82" id="f-boiler-eff" class="wh-input" type="number" placeholder="82" min="50" max="98" />
+            <input aria-label="Boiler Efficiency" id="f-boiler-eff" class="wh-input" type="number" placeholder="82" min="50" max="98" />
             <span class="input-unit">%</span>
           </div>
         </div>
         <div id="blr-safety-steam-wrap">
           <div class="field-label">Safety Factor</div>
           <div class="input-group">
-            <input aria-label="1.25" id="f-safety-factor" class="wh-input" type="number" placeholder="1.25" min="1.0" max="2.0" step="0.05" />
+            <input aria-label="Safety Factor" id="f-safety-factor" class="wh-input" type="number" placeholder="1.25" min="1.0" max="2.0" step="0.05" />
             <span class="input-unit">x</span>
           </div>
         </div>
@@ -3858,14 +3858,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Flow Rate (Q)</div>
           <div class="input-group">
-            <input aria-label="0" id="f-flow-rate" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="Flow Rate (Q)" id="f-flow-rate" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">L/min</span>
           </div>
         </div>
         <div>
           <div class="field-label">Pipe Length</div>
           <div class="input-group">
-            <input aria-label="0" id="f-pipe-length" class="wh-input" type="number" placeholder="0" min="0" />
+            <input aria-label="Pipe Length" id="f-pipe-length" class="wh-input" type="number" placeholder="0" min="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -3893,7 +3893,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Fluid Density <span style="color:var(--wh-text-faint);font-size:0.75rem;">(auto by service)</span></div>
           <div class="input-group">
-            <input aria-label="Fluid Density" id="f-fluid-density" class="wh-input" type="number" value="1000" min="0" />
+            <input aria-label="Fluid Density" id="f-fluid-density" class="wh-input" type="number" value="1000" min="0.1" />
             <span class="input-unit">kg/m³</span>
           </div>
         </div>
@@ -4696,17 +4696,17 @@ function renderInputForm(calcType) {
         </div>
         <div class="grid grid-cols-3 gap-2 mb-2">
           <div style="font-size:0.78rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;">Paved / Roof</div>
-          <div><input id="f-sd-z1-area" aria-label="Paved / Roof area in hectares" class="wh-input" type="number" value="0.2" min="0" step="0.01" /></div>
+          <div><input data-optional="1" id="f-sd-z1-area" aria-label="Paved / Roof area in hectares (blank = zone excluded)" class="wh-input" type="number" value="0.2" min="0" step="0.01" /></div>
           <div><input id="f-sd-z1-c" aria-label="Paved / Roof runoff coefficient" class="wh-input" type="number" value="0.90" min="0.05" max="1.0" step="0.01" /></div>
         </div>
         <div class="grid grid-cols-3 gap-2 mb-2">
           <div style="font-size:0.78rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;">Landscaped</div>
-          <div><input id="f-sd-z2-area" aria-label="Landscaped area in hectares" class="wh-input" type="number" value="0.2" min="0" step="0.01" /></div>
+          <div><input data-optional="1" id="f-sd-z2-area" aria-label="Landscaped area in hectares (blank = zone excluded)" class="wh-input" type="number" value="0.2" min="0" step="0.01" /></div>
           <div><input id="f-sd-z2-c" aria-label="Landscaped runoff coefficient" class="wh-input" type="number" value="0.35" min="0.05" max="1.0" step="0.01" /></div>
         </div>
         <div class="grid grid-cols-3 gap-2 mb-2">
           <div style="font-size:0.78rem;color:rgba(255,255,255,0.7);display:flex;align-items:center;">Other</div>
-          <div><input id="f-sd-z3-area" aria-label="Other zone area in hectares" class="wh-input" type="number" value="0.1" min="0" step="0.01" /></div>
+          <div><input data-optional="1" id="f-sd-z3-area" aria-label="Other zone area in hectares (blank = zone excluded)" class="wh-input" type="number" value="0.1" min="0" step="0.01" /></div>
           <div><input id="f-sd-z3-c" aria-label="Other zone runoff coefficient" class="wh-input" type="number" value="0.60" min="0.05" max="1.0" step="0.01" /></div>
         </div>
       </div>
@@ -4861,7 +4861,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Roof Drainage Area</div>
           <div class="input-group">
-            <input aria-label="0" id="f-roof-area" class="wh-input" type="number" placeholder="0" min="0" step="1" />
+            <input aria-label="Roof Drainage Area" id="f-roof-area" class="wh-input" type="number" placeholder="0" min="0" step="1" />
             <span class="input-unit">m²</span>
           </div>
         </div>
@@ -4998,7 +4998,7 @@ function renderInputForm(calcType) {
           <div>
             <div style="font-size:0.78rem;color:rgba(255,255,255,0.45);margin-bottom:0.3rem;">Motor Size</div>
             <div class="input-group">
-              <input aria-label="0 = no large motor" id="f-gen-motor-hp" class="wh-input" type="number" value="0" min="0" step="1" placeholder="0 = no large motor" />
+              <input data-optional="1" aria-label="Largest Motor (DOL Start) <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(0 or blank = none)</span>" id="f-gen-motor-hp" class="wh-input" type="number" value="0" min="0" step="1" placeholder="0 = no large motor" />
               <span class="input-unit">HP</span>
             </div>
           </div>
@@ -5112,7 +5112,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Voc Temp. Coefficient <span style="color:var(--wh-text-faint);font-size:0.75rem;">(negative for mono/poly)</span></div>
           <div class="input-group">
-            <input aria-label="Voc Temp. Coefficient" id="f-pv-temp-coeff" class="wh-input" type="number" value="-0.29" min="-0.50" max="0" step="0.01" />
+            <input aria-label="Voc Temp. Coefficient" id="f-pv-temp-coeff" class="wh-input" type="number" value="-0.29" min="-0.50" max="-0.01" step="0.01" />
             <span class="input-unit">%/°C</span>
           </div>
         </div>
@@ -5242,14 +5242,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Monthly kWh <span style="color:var(--wh-text-faint);font-size:0.75rem;">(optional: for savings est.)</span></div>
           <div class="input-group">
-            <input aria-label="e.g. 15000" id="f-pfc-kwh" class="wh-input" type="number" value="" placeholder="e.g. 15000" min="0" step="100" />
+            <input data-optional="1" aria-label="Monthly kWh" id="f-pfc-kwh" class="wh-input" type="number" value="" placeholder="e.g. 15000" min="0" step="100" />
             <span class="input-unit">kWh/mo</span>
           </div>
         </div>
         <div>
           <div class="field-label">Meralco Rate <span style="color:var(--wh-text-faint);font-size:0.75rem;">(optional)</span></div>
           <div class="input-group">
-            <input aria-label="e.g. 11.50" id="f-pfc-rate" class="wh-input" type="number" value="" placeholder="e.g. 11.50" min="0" step="0.10" />
+            <input data-optional="1" aria-label="Meralco Rate" id="f-pfc-rate" class="wh-input" type="number" value="" placeholder="e.g. 11.50" min="0" step="0.10" />
             <span class="input-unit">₱/kWh</span>
           </div>
         </div>
@@ -5614,11 +5614,11 @@ function renderInputForm(calcType) {
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div>
             <div class="field-label">Plate Width <span style="color:var(--wh-text-faint);font-size:0.75rem;">(m)</span></div>
-            <input aria-label="e.g. 0.6" id="f-eg-pw" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
+            <input aria-label="Plate Width" id="f-eg-pw" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
           </div>
           <div>
             <div class="field-label">Plate Height <span style="color:var(--wh-text-faint);font-size:0.75rem;">(m)</span></div>
-            <input aria-label="e.g. 0.6" id="f-eg-ph" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
+            <input aria-label="Plate Height" id="f-eg-ph" class="wh-input" type="number" value="0.6" min="0.1" step="0.1" placeholder="e.g. 0.6" />
           </div>
         </div>
       </div>
@@ -5628,7 +5628,7 @@ function renderInputForm(calcType) {
         <div class="grid grid-cols-2 gap-3 mb-4">
           <div>
             <div class="field-label">Ring Mean Diameter <span style="color:var(--wh-text-faint);font-size:0.75rem;">(m)</span></div>
-            <input aria-label="e.g. 10 m" id="f-eg-ringd" class="wh-input" type="number" value="10" min="0.5" step="0.5" placeholder="e.g. 10 m" />
+            <input aria-label="Ring Mean Diameter" id="f-eg-ringd" class="wh-input" type="number" value="10" min="0.5" step="0.5" placeholder="e.g. 10 m" />
           </div>
           <div>
             <div class="field-label">Conductor Diameter <span style="color:var(--wh-text-faint);font-size:0.75rem;">(mm)</span></div>
@@ -6695,7 +6695,7 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Pipe Length (riser to remote head)</div>
           <div class="input-group">
-            <input aria-label="30" id="f-pipe-length" class="wh-input" type="number" placeholder="30" min="1" />
+            <input aria-label="Pipe Length (riser to remote head)" id="f-pipe-length" class="wh-input" type="number" placeholder="30" min="1" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -6735,14 +6735,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Required System Flow</div>
           <div class="input-group">
-            <input aria-label="e.g. 1250" id="f-req-flow" class="wh-input" type="number" placeholder="e.g. 1250" min="1" />
+            <input aria-label="Required System Flow" id="f-req-flow" class="wh-input" type="number" placeholder="e.g. 1250" min="1" />
             <span class="input-unit">L/min</span>
           </div>
         </div>
         <div>
           <div class="field-label">Required Pressure at System Connection</div>
           <div class="input-group">
-            <input aria-label="e.g. 7.5" id="f-req-pressure" class="wh-input" type="number" placeholder="e.g. 7.5" min="0.1" step="0.1" />
+            <input aria-label="Required Pressure at System Connection" id="f-req-pressure" class="wh-input" type="number" placeholder="e.g. 7.5" min="0.1" step="0.1" />
             <span class="input-unit">bar</span>
           </div>
         </div>
@@ -6752,14 +6752,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Static Elevation (pump to highest outlet)</div>
           <div class="input-group">
-            <input aria-label="0" id="f-elevation" class="wh-input" type="number" placeholder="0" min="0" step="0.5" value="0" />
+            <input aria-label="Static Elevation (pump to highest outlet)" id="f-elevation" class="wh-input" type="number" placeholder="0" min="0" step="0.5" value="0" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
           <div class="field-label">Pipe Length (suction + discharge)</div>
           <div class="input-group">
-            <input aria-label="20" id="f-fp-pipe-length" class="wh-input" type="number" placeholder="20" min="1" value="20" />
+            <input aria-label="Pipe Length (suction + discharge)" id="f-fp-pipe-length" class="wh-input" type="number" placeholder="20" min="1" value="20" />
             <span class="input-unit">m</span>
           </div>
         </div>
@@ -6777,14 +6777,14 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label" id="suction-head-label">Suction Head (flooded depth)</div>
           <div class="input-group">
-            <input aria-label="1.5" id="f-suction-head" class="wh-input" type="number" placeholder="1.5" min="0" step="0.5" value="1.5" />
+            <input aria-label="Suction Head (flooded depth)" id="f-suction-head" class="wh-input" type="number" placeholder="1.5" min="0" step="0.5" value="1.5" />
             <span class="input-unit">m</span>
           </div>
         </div>
         <div>
-          <div class="field-label">Pipe Diameter <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(0 = auto)</span></div>
+          <div class="field-label">Pipe Diameter <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(0 or blank = auto)</span></div>
           <div class="input-group">
-            <input aria-label="0" id="f-fp-pipe-dia" class="wh-input" type="number" placeholder="0" min="0" value="0" />
+            <input data-optional="1" aria-label="Pipe Diameter" id="f-fp-pipe-dia" class="wh-input" type="number" placeholder="0" min="0" value="0" />
             <span class="input-unit">mm</span>
           </div>
         </div>
@@ -6881,9 +6881,9 @@ function renderInputForm(calcType) {
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div>
-          <div class="field-label">Design Concentration</div>
+          <div class="field-label">Design Concentration <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">(0 or blank = the agent’s standard)</span></div>
           <div class="input-group">
-            <input aria-label="0 = use default" id="f-ca-conc" class="wh-input" type="number" value="0" min="0" max="50" step="0.5" placeholder="0 = use default" />
+            <input data-optional="1" aria-label="Design Concentration" id="f-ca-conc" class="wh-input" type="number" value="0" min="0" max="50" step="0.5" placeholder="0 = use default" />
             <span class="input-unit">%</span>
           </div>
         </div>
@@ -7108,7 +7108,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">(from HVAC Cooling Load calc or measured demand)</span></div>
         <div class="input-group">
-          <input aria-label="Total Cooling Load (kW) (from HVAC Cooling Load calc or measured demand)" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
+          <input aria-label="Total Cooling Load (kW) (from HVAC Cooling Load calc or measured demand)" id="f-cooling-load" class="wh-input" type="number" placeholder="e.g. 350" min="1" step="1" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -7191,7 +7191,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">from AHRI 550/590 chiller datasheet: leave blank if not yet available</span></div>
         <div class="input-group">
-          <input aria-label="e.g. 6.5" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 6.5" min="1.0" max="15.0" step="0.01" />
+          <input data-optional="1" aria-label="IPLV / NPLV" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 6.5" min="1.0" max="15.0" step="0.01" />
           <span class="input-unit">-</span>
         </div>
         <div style="font-size:0.75rem;color:var(--wh-text-faint);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: Centrifugal 6.28 / 7.19 / 8.27 (by size) · Screw 5.32 / 5.86 · Scroll 5.32 · Recip 4.32</div>
@@ -7216,7 +7216,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">(from HVAC Cooling Load calc or measured demand)</span></div>
         <div class="input-group">
-          <input aria-label="Total Cooling Load (kW) (from HVAC Cooling Load calc or measured demand)" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
+          <input aria-label="Total Cooling Load (kW) (from HVAC Cooling Load calc or measured demand)" id="f-cooling-load" class="wh-input" type="number" placeholder="e.g. 350" min="1" step="1" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -7280,7 +7280,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">IPLV / NPLV <span style="color:rgba(255,255,255,0.6);font-size:0.75rem;">from AHRI 550/590 chiller datasheet: leave blank if not yet available</span></div>
         <div class="input-group">
-          <input aria-label="e.g. 3.6" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 3.6" min="1.0" max="10.0" step="0.01" />
+          <input data-optional="1" aria-label="IPLV / NPLV" id="f-iplv" class="wh-input" type="number" placeholder="e.g. 3.6" min="1.0" max="10.0" step="0.01" />
           <span class="input-unit">-</span>
         </div>
         <div style="font-size:0.75rem;color:var(--wh-text-faint);margin-top:0.25rem;">ASHRAE 90.1-2019 min IPLV: 3.50 (&lt;150 TR) · 3.45 (≥150 TR)</div>
@@ -7317,7 +7317,7 @@ function renderInputForm(calcType) {
       <div class="mb-4">
         <div class="field-label">Total Cooling Load (kW) <span style="color:#F7A21B;font-size:0.75rem;">(zone/AHU served area, from HVAC Cooling Load calc)</span></div>
         <div class="input-group">
-          <input aria-label="Total Cooling Load (kW) (zone/AHU served area, from HVAC Cooling Load calc)" id="f-cooling-load" class="wh-input" type="number" value="0" min="1" step="1" />
+          <input aria-label="Total Cooling Load (kW) (zone/AHU served area, from HVAC Cooling Load calc)" id="f-cooling-load" class="wh-input" type="number" placeholder="e.g. 350" min="1" step="1" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -7471,7 +7471,7 @@ function renderInputForm(calcType) {
       <div id="ct-direct-row" class="mb-4">
         <div class="field-label">Heat Rejection Load <span style="color:#F7A21B;font-size:0.75rem;">(total heat rejected by tower)</span></div>
         <div class="input-group">
-          <input aria-label="Heat Rejection Load (total heat rejected by tower)" id="f-q-rejection" class="wh-input" type="number" value="0" min="1" step="10" />
+          <input aria-label="Heat Rejection Load (total heat rejected by tower)" id="f-q-rejection" class="wh-input" type="number" placeholder="e.g. 420" min="1" step="10" />
           <span class="input-unit">kW</span>
         </div>
       </div>
@@ -8047,18 +8047,18 @@ function renderInputForm(calcType) {
         <div>
           <div class="field-label">Hot Side: Inlet / Outlet</div>
           <div style="display:flex;gap:0.5rem;">
-            <div class="input-group" style="flex:1;"><input aria-label="Hot Side: Inlet / Outlet" id="f-hot-in" class="wh-input" type="number" value="90"/><span class="input-unit">°C in</span></div>
-            <div class="input-group" style="flex:1;"><input aria-label="Hot Side: Inlet / Outlet" id="f-hot-out" class="wh-input" type="number" value="60"/><span class="input-unit">°C out</span></div>
+            <div class="input-group" style="flex:1;"><input aria-label="Hot side inlet temperature" id="f-hot-in" class="wh-input" type="number" min="-50" value="90"/><span class="input-unit">°C in</span></div>
+            <div class="input-group" style="flex:1;"><input aria-label="Hot side outlet temperature" id="f-hot-out" class="wh-input" type="number" min="-50" value="60"/><span class="input-unit">°C out</span></div>
           </div>
-          <div class="input-group" style="margin-top:0.4rem;"><input id="f-hot-flow" aria-label="Hot side mass flow rate" class="wh-input" type="number" value="10" step="0.1"/><span class="input-unit">kg/s</span></div>
+          <div class="input-group" style="margin-top:0.4rem;"><input id="f-hot-flow" aria-label="Hot side mass flow rate" class="wh-input" type="number" value="10" min="0.01" step="0.1"/><span class="input-unit">kg/s</span></div>
         </div>
         <div>
           <div class="field-label">Cold Side: Inlet / Outlet</div>
           <div style="display:flex;gap:0.5rem;">
-            <div class="input-group" style="flex:1;"><input aria-label="Cold Side: Inlet / Outlet" id="f-cold-in" class="wh-input" type="number" value="25"/><span class="input-unit">°C in</span></div>
-            <div class="input-group" style="flex:1;"><input aria-label="Cold Side: Inlet / Outlet" id="f-cold-out" class="wh-input" type="number" value="55"/><span class="input-unit">°C out</span></div>
+            <div class="input-group" style="flex:1;"><input aria-label="Cold side inlet temperature" id="f-cold-in" class="wh-input" type="number" min="-50" value="25"/><span class="input-unit">°C in</span></div>
+            <div class="input-group" style="flex:1;"><input aria-label="Cold side outlet temperature" id="f-cold-out" class="wh-input" type="number" min="-50" value="55"/><span class="input-unit">°C out</span></div>
           </div>
-          <div class="input-group" style="margin-top:0.4rem;"><input id="f-cold-flow" aria-label="Cold side mass flow rate" class="wh-input" type="number" value="8" step="0.1"/><span class="input-unit">kg/s</span></div>
+          <div class="input-group" style="margin-top:0.4rem;"><input id="f-cold-flow" aria-label="Cold side mass flow rate" class="wh-input" type="number" value="8" min="0.01" step="0.1"/><span class="input-unit">kg/s</span></div>
         </div>
       </div>
       <div class="mb-4">
@@ -8194,7 +8194,7 @@ function renderInputForm(calcType) {
         <div><div class="field-label">Cylinder Stroke</div><div class="input-group"><input aria-label="Cylinder Stroke" id="f-stroke-mm" class="wh-input" type="number" value="200" min="10"/><span class="input-unit">mm</span></div></div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
-        <div><div class="field-label">Bore (0 = auto-select)</div><div class="input-group"><input aria-label="Bore" id="f-bore-mm" class="wh-input" type="number" value="0" min="0"/><span class="input-unit">mm</span></div></div>
+        <div><div class="field-label">Bore (0 or blank = auto-select)</div><div class="input-group"><input data-optional="1" aria-label="Bore" id="f-bore-mm" class="wh-input" type="number" value="0" min="0"/><span class="input-unit">mm</span></div></div>
         <div><div class="field-label">Pump Speed</div><div class="input-group"><input aria-label="Pump Speed" id="f-pump-rpm" class="wh-input" type="number" value="1450" min="300"/><span class="input-unit">RPM</span></div></div>
       </div>
       <div class="grid grid-cols-3 gap-3 mb-4">
@@ -8528,7 +8528,7 @@ function addUseRow(defaultType = 'Hotel Room', defaultQty = 10, defaultCount = 1
       <span class="input-unit" style="font-size:0.75rem;">/day</span>
     </div>
     <div class="input-group" style="min-width:0;" id="hw-rate-wrap-${id}">
-      <input id="hw-rate-${id}" aria-label="Hot water rate" class="wh-input py-2" type="number" value="${HW_USE_RATES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
+      <input id="hw-rate-${id}" aria-label="Hot water rate" class="wh-input py-2" type="number" value="${HW_USE_RATES[defaultType]||0}" min="0.1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">L</span>
     </div>
     <button onclick="document.getElementById('hw-use-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
@@ -8548,7 +8548,7 @@ function toggleCustomRate(id) {
     inp.readOnly = true;
     inp.style.opacity = '0.6';
   } else {
-    inp.value    = 0;
+    inp.value    = '';
     inp.readOnly = false;
     inp.style.opacity = '1';
   }
@@ -8572,7 +8572,7 @@ function addDrainFixtureRow(defaultType = 'Water Closet', defaultQty = 1) {
       <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;" id="drain-dfu-wrap-${id}">
-      <input id="drain-dfu-${id}" aria-label="Drain DFU" class="wh-input py-2" type="number" value="${DRAIN_DFU_VALUES[defaultType]||0}" min="0" style="padding:0.5rem 0.4rem;" />
+      <input id="drain-dfu-${id}" aria-label="Drain DFU" class="wh-input py-2" type="number" value="${DRAIN_DFU_VALUES[defaultType]||0}" min="0.5" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">DFU</span>
     </div>
     <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);text-align:center;" id="drain-total-${id}">x${defaultQty}</div>
@@ -8633,7 +8633,7 @@ function addGTFixtureRow(defaultType = 'Single Kitchen Sink', defaultFlow = 7.6,
       ${GT_FIXTURE_OPTIONS.map(t => `<option value="${t}"${t===defaultType?' selected':''}>${t}</option>`).join('')}
     </select>
     <div class="input-group" style="min-width:0;">
-      <input id="gt-flow-${id}" aria-label="Gas tool flow" class="wh-input py-2" type="number" value="${defaultFlow}" min="0" step="0.1" style="padding:0.5rem 0.4rem;" />
+      <input id="gt-flow-${id}" aria-label="Fixture flow" class="wh-input py-2" type="number" value="${defaultFlow}" min="0.1" step="0.1" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">L/m</span>
     </div>
     <div class="input-group" style="min-width:0;">
@@ -8770,7 +8770,7 @@ function addCTCableRow(defaultType = 'Power', defaultOD = 25, defaultQty = 1, de
       <span class="input-unit" style="font-size:0.75rem;">qty</span>
     </div>
     <div class="input-group" style="min-width:0;">
-      <input id="ct-w-${id}" aria-label="Conduit weight" class="wh-input py-2" type="number" value="${defaultWeight}" min="0" step="0.01" placeholder="auto" style="padding:0.5rem 0.4rem;" />
+      <input data-optional="1" id="ct-w-${id}" aria-label="Conduit weight" class="wh-input py-2" type="number" value="${defaultWeight}" min="0.01" step="0.01" placeholder="auto" style="padding:0.5rem 0.4rem;" />
       <span class="input-unit" style="font-size:0.75rem;">kg/m</span>
     </div>
     <button onclick="document.getElementById('ct-cable-row-${escJsAttr(id)}').remove()" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);border-radius:0.4rem;color:rgba(220,50,50,0.8);width:28px;height:28px;cursor:pointer;font-size:0.9rem;flex-shrink:0;">x</button>
@@ -9123,6 +9123,11 @@ function applyRoomDefaults(roomFunc) {
 // ─── Collect inputs from form ─────────────────────────────────────────────────
 function collectInputs() {
   const v = id => document.getElementById(id)?.value || '';
+  // ★A TYPED 0 IS A NUMBER (ED-F1, 2026-11-02). `parseFloat(v(id)) || D` reads 0 as "nothing typed" and sends D, so
+  // a straight pipe with no fittings went in at 20%, a hoist with no sling at 15 kg, a pure-torsion shaft at 2,000 N. n0
+  // keeps any finite number, 0 included; D is reached only by a blank, which the page now refuses by name unless the
+  // field's label says what a blank means. Where 0 is impossible the field declares a minimum above it instead.
+  const n0 = (id, d) => { const x = parseFloat(v(id)); return Number.isFinite(x) ? x : d; };
   const base = {
     project_name:   v('f-project') || 'Untitled Room',
     floor_area:     parseFloat(v('f-floor-area')) || 0,
@@ -9141,8 +9146,8 @@ function collectInputs() {
       insulation:         getToggle('tg-insulation'),
       glass_type:         getToggle('tg-glass'),
       window_orientation: getToggle('tg-orientation') || 'Mixed',
-      outdoor_temp:       parseFloat(v('f-outdoor-temp')) || 35,
-      indoor_temp:        parseFloat(v('f-indoor-temp'))  || 24,
+      outdoor_temp:       n0('f-outdoor-temp', 35),
+      indoor_temp:        n0('f-indoor-temp', 24),
     };
   }
 
@@ -9202,7 +9207,7 @@ function collectInputs() {
       panel_wp:        parseFloat(getToggle('tg-pv-wp') || '450'),
       panel_voc:       parseFloat(v('f-pv-voc'))        || 49.5,
       temp_coeff_voc:  parseFloat(v('f-pv-temp-coeff')) || -0.29,
-      t_min_c:         parseFloat(v('f-pv-tmin'))       || 18,
+      t_min_c:         n0('f-pv-tmin', 18),
       panel_area_m2:   parseFloat(v('f-pv-panel-area')) || 1.7,
       derating_pct:    parseFloat(v('f-pv-derating'))   || 80,
       inverter_eff_pct: parseFloat(v('f-pv-inv-eff'))  || 96,
@@ -9275,9 +9280,9 @@ function collectInputs() {
       volume_method:      volMethod,
       system_kw:          parseFloat(v('f-et-kw'))       || 100,
       system_volume_L:    parseFloat(v('f-et-vol'))       || 500,
-      fill_temp_c:        parseFloat(v('f-et-fill-temp')) || 20,
+      fill_temp_c:        n0('f-et-fill-temp', 20),
       max_temp_c:         parseFloat(v('f-et-max-temp'))  || 18,
-      static_head_m:      parseFloat(v('f-et-head'))      || 10,
+      static_head_m:      n0('f-et-head', 10),
       max_pressure_kpa_g: parseFloat(v('f-et-maxpress'))  || 400,
     };
   }
@@ -9538,8 +9543,8 @@ function collectInputs() {
       n_people:          parseFloat(v('f-wt-n-people'))   || 0,
       per_capita_lpd:    parseFloat(v('f-wt-per-capita')) || 200,
       raw_source:        getToggle('tg-wt-source')        || 'Deep Well / Bore',
-      turbidity_ntu:     parseFloat(v('f-wt-turb'))       || 10,
-      iron_mg:           parseFloat(v('f-wt-iron'))       || 0.5,
+      turbidity_ntu:     n0('f-wt-turb', 10),
+      iron_mg:           n0('f-wt-iron', 0.5),
       bacteria_concern:  getToggle('tg-wt-bacteria')      || 'yes',
       intended_use:      getToggle('tg-wt-use')           || 'Potable',
       peak_factor:       parseFloat(v('f-wt-peak'))       || 1.5,
@@ -9555,7 +9560,7 @@ function collectInputs() {
       n_people:        parseFloat(v('f-n-people'))        || 50,
       per_capita_lpd:  parseFloat(v('f-per-capita'))      || 200,
       inlet_hardness:  parseFloat(v('f-inlet-hardness'))  || 200,
-      target_hardness: parseFloat(v('f-target-hardness')) || 17,
+      target_hardness: n0('f-target-hardness', 17),
       regen_interval:  parseFloat(v('f-regen-interval'))  || 3,
       salt_dose_gL:    parseFloat(v('f-salt-dose'))       || 80,
       n_units:         parseInt(getToggle('tg-ws-units')  || '1'),
@@ -9597,7 +9602,7 @@ function collectInputs() {
       recovery_hours:  parseFloat(v('f-recovery-hrs'))   || 2,
       peak_fraction:   parseFloat(v('f-peak-fraction'))  || 0.25,
       storage_factor:  parseFloat(v('f-storage-factor')) || 1.25,
-      pipe_loss_pct:   parseFloat(v('f-pipe-loss'))      || 10,
+      pipe_loss_pct:   n0('f-pipe-loss', 10),
       uses,
     };
   }
@@ -9617,9 +9622,9 @@ function collectInputs() {
       supply_type:         getToggle('tg-supply-type') || 'Cold and Hot',
       pipe_material:       getToggle('tg-pipe-mat') || 'PVC',
       pipe_length:         parseFloat(v('f-pipe-length'))    || 0,
-      fittings_allowance:  parseFloat(v('f-fittings'))       || 20,
-      supply_pressure:     parseFloat(v('f-supply-press'))   || 350,
-      min_pressure:        parseFloat(v('f-min-press'))      || 70,
+      fittings_allowance:  n0('f-fittings', 20),
+      supply_pressure:     n0('f-supply-press', 350),
+      min_pressure:        n0('f-min-press', 70),
       fixtures,
     };
   }
@@ -9640,7 +9645,7 @@ function collectInputs() {
       diversity_factor:  parseFloat(v('f-diversity'))        || 0.70,
       safety_factor:     parseFloat(v('f-safety'))           || 1.25,
       pipe_length:       parseFloat(v('f-pipe-length'))      || 0,
-      leakage_allowance: parseFloat(v('f-leakage'))          || 10,
+      leakage_allowance: n0('f-leakage', 10),
       tools,
     };
   }
@@ -9671,12 +9676,12 @@ function collectInputs() {
       steam_demand_kg_hr:  isSteamMode ? (parseFloat(v('f-steam-demand')) || 0) : 0,
       heat_load_kw:        !isSteamMode ? (parseFloat(v('f-heat-load'))   || 0) : 0,
       num_boilers:         parseFloat(isSteamMode ? v('f-num-boilers') : v('f-num-boilers-b')) || 1,
-      steam_pressure_barg: parseFloat(v('f-steam-pressure')) || 7,
-      fw_temp_c:           parseFloat(v('f-fw-temp'))        || 80,
+      steam_pressure_barg: n0('f-steam-pressure', 7),
+      fw_temp_c:           n0('f-fw-temp', 80),
       fuel_type:           getToggle('tg-fuel')              || 'LPG',
       efficiency_pct:      parseFloat(v('f-boiler-eff'))     || 82,
       safety_factor:       parseFloat(v('f-safety-factor'))  || 1.25,
-      tds_makeup_ppm:      parseFloat(v('f-tds-makeup'))     || 200,
+      tds_makeup_ppm:      n0('f-tds-makeup', 200),
       tds_max_ppm:         parseFloat(v('f-tds-max'))        || 3000,
     };
   }
@@ -9689,7 +9694,7 @@ function collectInputs() {
       secondary_voltage:  parseFloat(v('f-xfmr-v2'))       || 400,
       phases:             parseInt(getToggle('tg-xfmr-phases') || '3'),
       impedance_pct:      parseFloat(v('f-xfmr-imp'))      || 5.0,
-      spare_capacity_pct: parseFloat(v('f-xfmr-spare'))    || 25,
+      spare_capacity_pct: n0('f-xfmr-spare', 25),
       load_power_factor:  parseFloat(v('f-xfmr-pf'))       || 0.85,
       num_units:          parseInt(v('f-xfmr-units'))       || 1,
       winding_connection: getToggle('tg-xfmr-winding')     || 'Delta-Star (Dyn11)',
@@ -9698,12 +9703,12 @@ function collectInputs() {
 
   if (_calcType === 'Harmonic Distortion') {
     const harmonics = [
-      { order: 3,  current_pct: parseFloat(v('f-h3'))  || 0 },
-      { order: 5,  current_pct: parseFloat(v('f-h5'))  || 0 },
-      { order: 7,  current_pct: parseFloat(v('f-h7'))  || 0 },
-      { order: 11, current_pct: parseFloat(v('f-h11')) || 0 },
-      { order: 13, current_pct: parseFloat(v('f-h13')) || 0 },
-    ].filter(h => h.current_pct > 0);
+      { order: 3,  current_pct: n0('f-h3', 0) },
+      { order: 5,  current_pct: n0('f-h5', 0) },
+      { order: 7,  current_pct: n0('f-h7', 0) },
+      { order: 11, current_pct: n0('f-h11', 0) },
+      { order: 13, current_pct: n0('f-h13', 0) },
+    ];   // a typed 0 is a harmonic that is not there: kept as 0, it adds nothing to THD or K
     return {
       project_name:             v('f-project') || 'Harmonic Analysis',
       fundamental_current_a:    parseFloat(v('f-harm-i1'))  || 100,
@@ -9720,8 +9725,8 @@ function collectInputs() {
       agent_type:                getToggle('tg-ca-agent') || 'FK-5-1-12',
       hazard_volume_m3:          parseFloat(v('f-ca-vol'))   || 100,
       num_zones:                 parseInt(v('f-ca-zones'))   || 1,
-      temperature_c:             parseFloat(v('f-ca-temp'))  || 20,
-      altitude_m:                parseFloat(v('f-ca-alt'))   || 15,
+      temperature_c:             n0('f-ca-temp', 20),
+      altitude_m:                n0('f-ca-alt', 15),
       design_concentration_pct:  parseFloat(v('f-ca-conc'))  || 0,
       safety_factor:             parseFloat(v('f-ca-sf'))    || 1.10,
     };
@@ -9734,9 +9739,9 @@ function collectInputs() {
       pipe_length:         parseFloat(v('f-pipe-length'))   || 0,
       service_type:        getToggle('tg-service')          || 'General Water',
       pipe_material:       getToggle('tg-pipe-mat')         || 'PVC',
-      fittings_allowance:  parseFloat(v('f-fittings'))      || 20,
+      fittings_allowance:  n0('f-fittings', 20),
       fluid_density:       parseFloat(v('f-fluid-density')) || 1000,
-      fluid_temp_c:        parseFloat(v('f-fluid-temp'))    || 20,
+      fluid_temp_c:        n0('f-fluid-temp', 20),
     };
   }
 
@@ -9748,11 +9753,11 @@ function collectInputs() {
       pipe_length:         parseFloat(v('f-pipe-length'))    || 0,
       pipe_diameter:       parseFloat(v('f-pipe-dia'))       || 0,
       pipe_material:       getToggle('tg-pipe-mat')          || 'PVC',
-      suction_head:        parseFloat(v('f-suction-head'))   || 0,
+      suction_head:        n0('f-suction-head', 0),
       pressure_head:       parseFloat(v('f-pressure-head'))  || 0,
       pump_efficiency:     parseFloat(v('f-pump-eff'))       || 70,
       motor_efficiency:    parseFloat(v('f-motor-eff'))      || 90,
-      fittings_allowance:  parseFloat(v('f-fittings'))       || 20,
+      fittings_allowance:  n0('f-fittings', 20),
       fluid_type:          getToggle('tg-fluid')             || 'Water',
       fluid_density:       parseFloat(v('f-fluid-density'))  || 1000,
     };
@@ -9782,7 +9787,7 @@ function collectInputs() {
       elevation:          parseFloat(v('f-elevation'))       || 0,
       pipe_length:        parseFloat(v('f-fp-pipe-length'))  || 20,
       suction_type:       getToggle('tg-suction-type')       || 'Flooded Suction',
-      suction_head:       parseFloat(v('f-suction-head'))    || 1.5,
+      suction_head:       n0('f-suction-head', 1.5),
       pipe_diameter:      parseFloat(v('f-fp-pipe-dia'))     || 0,
       pipe_material:      getToggle('tg-fp-mat')             || 'Steel',
       drive_type:         getToggle('tg-drive-type')         || 'Electric Motor',
@@ -9798,7 +9803,7 @@ function collectInputs() {
       design_area:          parseFloat(v('f-design-area')) || 139,
       density:              parseFloat(v('f-density'))     || 6.1,
       coverage_per_head:    parseFloat(v('f-coverage'))    || 12.1,
-      hose_stream:          parseFloat(v('f-hose'))        || 946,
+      hose_stream:          n0('f-hose', 946),
       k_factor:             parseFloat(getToggle('tg-kfactor')) || 80,
       operating_pressure:   parseFloat(v('f-op-pressure')) || 0.7,
       pipe_length:          parseFloat(v('f-pipe-length')) || 30,
@@ -9831,7 +9836,7 @@ function collectInputs() {
       bolt_grade:     getToggle('tg-bolt-grade')              || '8.8',
       nut_factor:     parseFloat(getToggle('tg-nut-factor'))  || 0.15,
       preload_pct:    parseFloat(getToggle('tg-preload-pct')) || 75,
-      ext_load_kN:    parseFloat(v('f-ext-load'))             || 50,
+      ext_load_kN:    n0('f-ext-load', 50),
       n_bolts:        parseFloat(v('f-n-bolts'))              || 8,
     };
   }
@@ -9846,7 +9851,7 @@ function collectInputs() {
       power_unit:       powerUnit,
       power_input:      rawPower,
       shaft_rpm:        parseFloat(v('f-shaft-rpm'))         || 1450,
-      transverse_load_N:parseFloat(v('f-transverse-load'))   || 2000,
+      transverse_load_N:n0('f-transverse-load', 2000),
       span_mm:          parseFloat(v('f-span'))              || 300,
       material:         getToggle('tg-shaft-mat')            || 'AISI 1045',
       keyway:           getToggle('tg-keyway')               || 'Yes',
@@ -9861,8 +9866,8 @@ function collectInputs() {
       bearing_type:    getToggle('tg-bearing-type')             || 'Ball',
       C_kN:            parseFloat(v('f-C-rating'))              || 25.5,
       speed_rpm:       parseFloat(v('f-speed-rpm'))             || 1450,
-      Fr_kN:           parseFloat(v('f-Fr'))                    || 5.0,
-      Fa_kN:           parseFloat(v('f-Fa'))                    || 0,
+      Fr_kN:           n0('f-Fr', 5.0),
+      Fa_kN:           n0('f-Fa', 0),
       reliability_pct: parseFloat(getToggle('tg-reliability'))  || 90,
       required_life_h: parseFloat(v('f-required-life'))         || 25000,
     };
@@ -9892,8 +9897,8 @@ function collectInputs() {
       project_name:    v('f-project')                          || 'Untitled Hoist System',
       hoist_type:      getToggle('tg-hoist-type')              || 'Wire Rope Electric',
       rated_load_kg:   parseFloat(v('f-rated-load'))           || 2000,
-      hook_weight_kg:  parseFloat(v('f-hook-weight'))          || 30,
-      sling_weight_kg: parseFloat(v('f-sling-weight'))         || 15,
+      hook_weight_kg:  n0('f-hook-weight', 30),
+      sling_weight_kg: n0('f-sling-weight', 15),
       lift_height_m:   parseFloat(v('f-lift-height'))          || 6,
       lift_speed_mpm:  parseFloat(getToggle('tg-lift-speed'))  || 8,
       n_parts:         parseFloat(getToggle('tg-n-parts'))     || 1,
@@ -10015,15 +10020,15 @@ function collectInputs() {
       project_name:        v('f-project')                           || 'Untitled Pressure Vessel',
       vessel_type:         getToggle('tg-vessel-type')              || 'Cylindrical',
       design_pressure_bar: parseFloat(v('f-design-pressure'))       || 10,
-      design_temperature_C: parseFloat(v('f-design-temp'))          || 150,
+      design_temperature_C: n0('f-design-temp', 150),
       inner_diameter_mm:   parseFloat(v('f-inner-dia'))             || 800,
       shell_length_mm:     parseFloat(v('f-shell-length'))          || 2000,
       head_type:           getToggle('tg-head-type')                || 'Ellipsoidal (2:1)',
       material:            getToggle('tg-pv-material')              || 'SA-516 Gr.70 (Carbon Steel)',
       joint_efficiency:    getToggle('tg-joint-eff')                || 'Full radiography (Type 1)',
-      corrosion_mm:        parseFloat(v('f-corrosion-mm'))          || 1.6,
+      corrosion_mm:        n0('f-corrosion-mm', 1.6),
       nozzle_diameter_mm:  parseFloat(v('f-nozzle-dia'))            || 100,
-      n_nozzles:           parseFloat(v('f-n-nozzles'))             || 2,
+      n_nozzles:           n0('f-n-nozzles', 2),
     };
   }
 
@@ -10031,10 +10036,10 @@ function collectInputs() {
     return {
       project_name:       v('f-project')                            || 'Untitled Heat Exchanger',
       duty_kW:            parseFloat(v('f-hx-duty'))                || 500,
-      hot_inlet_C:        parseFloat(v('f-hot-in'))                 || 90,
-      hot_outlet_C:       parseFloat(v('f-hot-out'))                || 60,
-      cold_inlet_C:       parseFloat(v('f-cold-in'))                || 25,
-      cold_outlet_C:      parseFloat(v('f-cold-out'))               || 55,
+      hot_inlet_C:        n0('f-hot-in', 90),
+      hot_outlet_C:       n0('f-hot-out', 60),
+      cold_inlet_C:       n0('f-cold-in', 25),
+      cold_outlet_C:      n0('f-cold-out', 55),
       hot_flowrate_kgs:   parseFloat(v('f-hot-flow'))               || 10,
       cold_flowrate_kgs:  parseFloat(v('f-cold-flow'))              || 8,
       flow_config:        getToggle('tg-hx-config')                 || 'Counterflow',
@@ -10056,9 +10061,9 @@ function collectInputs() {
       power_kW:              parseFloat(v('f-vib-power'))           || 15,
       machine_class:         getToggle('tg-machine-class')          || 'Class II (15–300 kW, rigid foundation)',
       // the isolator type sets k and zeta in the engine (k = m.g / its rated static deflection); there is no stiffness field
-      imbalance_mass_kg:     parseFloat(v('f-imbalance-mass'))      || 0.1,
+      imbalance_mass_kg:     n0('f-imbalance-mass', 0.1),
       rotor_mass_kg:         parseFloat(v('f-rotor-mass'))          || 50,
-      eccentricity_mm:       parseFloat(v('f-eccentricity'))        || 5,
+      eccentricity_mm:       n0('f-eccentricity', 5),
       measured_velocity_mm_s: parseFloat(v('f-vib-measured'))       || 0,
       isolator_type:         getToggle('tg-isolator')               || 'Rubber mount (medium)',
     };
@@ -10085,7 +10090,7 @@ function collectInputs() {
     return {
       project_name:   v('f-project')                                || 'Untitled Noise Assessment',
       calc_type:      getToggle('tg-noise-type')                    || 'Room',
-      source_Lw_dB:   parseFloat(v('f-lw'))                        || 90,
+      source_Lw_dB:   n0('f-lw', 90),
       distance_m:     parseFloat(v('f-noise-dist'))                 || 5,
       directivity_Q:  parseFloat(getToggle('tg-directivity'))       || 2,
       space_type:     getToggle('tg-noise-space')                   || 'Open-plan office',
@@ -10201,18 +10206,29 @@ async function runCalculation() {
       return true;
     };
     const _bad = [];
+    const _name = (el) => String((document.querySelector('label[for="' + el.id + '"]') || {}).textContent
+      || el.getAttribute('aria-label') || el.placeholder || el.id).replace(/\s+/g, ' ').trim().replace(/[:*]$/, '');
+    const _form = document.getElementById('input-form-area');
     document.querySelectorAll('input[type=number]').forEach((el) => {
-      if (!_visible(el) || el.value === '') return;
+      // a read-only or disabled field holds the page's own figure (a fixture's table DFU), not something typed
+      if (!_visible(el) || el.readOnly || el.disabled) return;
+      if (el.value === '') {
+        // ★A BLANK WAS COMPUTED WITH A NUMBER NOBODY SAW (ED-F1, 2026-11-02). This check skipped a blank, and the
+        // payload read it as `|| default` - so a cleared field on 55 forms (312 fields) computed, saved and printed with a
+        // value the person never typed and never saw. A blank is now refused by name, unless the field's label says what a
+        // blank means (data-optional: "blank = auto", "(optional)"). A browser blanks text typed into a number field too.
+        if (el.validity && el.validity.badInput) _bad.push(_name(el) + ' is not a number (enter digits only)');
+        else if (_form && _form.contains(el) && !el.hasAttribute('data-optional')) _bad.push(_name(el) + ' is empty: enter a value');
+        return;
+      }
       const v = Number(el.value);
       if (!Number.isFinite(v)) return;
       const hasMin = el.min !== '' && el.min != null;
       const hasMax = el.max !== '' && el.max != null;
       if ((hasMin && v < Number(el.min)) || (hasMax && v > Number(el.max))) {
-        const lbl = (document.querySelector('label[for="' + el.id + '"]') || {}).textContent
-          || el.getAttribute('aria-label') || el.placeholder || el.id;
         const range = hasMin && hasMax ? Number(el.min) + ' to ' + Number(el.max)
           : hasMax ? 'at most ' + Number(el.max) : 'at least ' + Number(el.min);
-        _bad.push(String(lbl).replace(/\s+/g, ' ').trim().replace(/[:*]$/, '') + ' must be ' + range + ' (you entered ' + v + ')');
+        _bad.push(_name(el) + ' must be ' + range + ' (you entered ' + v + ')');
       }
     });
     if (_bad.length) { showToast(_bad[0], 6000); return; }
@@ -10440,8 +10456,8 @@ async function runCalculation() {
       showToast('Please enter the dynamic load rating (C) from the bearing catalog.');
       return;
     }
-    if (!inputs.Fr_kN || inputs.Fr_kN <= 0) {
-      showToast('Please enter the radial load (Fr).');
+    if (!(inputs.Fr_kN > 0) && !(inputs.Fa_kN > 0)) {
+      showToast('Enter the radial load (Fr) or the axial load (Fa): with both at 0 the bearing carries no load and has no L10 life.', 6000);
       return;
     }
   } else if (_calcType === 'V-Belt Drive Design') {
