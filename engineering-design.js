@@ -1168,31 +1168,35 @@ const GUIDES = {
     subtitle: 'Selects the minimum conductor size that safely carries the design current based on PEC ampacity tables, with correction factors for conduit fill, ambient temperature, and motor loads.',
     standards: ['Philippine Electrical Code (PEC) 2017: Article 3.10 (Conductors for General Wiring)','PEC Table 3.10.1 (Allowable Ampacities: Copper)','PEC Table 3.10.14 (Correction Factors for Ambient Temp)','PEC Article 4.30 (Motors)'],
     formulas: [
-      'Design Current (A) = Connected Load (W) / (Voltage x PF x sqrt(3))  [3-phase]',
-      'Design Current (A) = Connected Load (W) / (Voltage x PF)            [1-phase]',
+      'Load current (A) = P / (√3 × V × PF)  [3-phase]      P / (V × PF)  [1-phase]',
       '',
-      'For motors: Design Current = Nameplate FLA x 1.25  (PEC Art. 4.30)',
+      'Sizing current = load current × 1.25 for motor, HVAC compressor, lighting and other continuous loads (PEC 2.10.19, 4.30.22); × 1.00 for a general load',
       '',
-      'Corrected Ampacity = Table Ampacity x Temp Factor x Conduit Fill Factor',
+      'Corrected ampacity = Table ampacity × temperature factor × conduit fill factor',
+      'Select: smallest conductor whose corrected ampacity ≥ sizing current',
+      '  2.0 / 3.5 / 5.5 mm² may carry a breaker of at most 15 / 20 / 30 A (PEC 2.40.4(D)); a larger breaker steps the wire up',
       '',
-      'Select: smallest conductor where Corrected Ampacity >= Design Current',
-      '',
-      'Breaker size: round up to next standard size',
-      'Standard breaker sizes (A): 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200 A',
+      'Breaker (next standard size at or above):',
+      '  general and continuous loads: the sizing current (PEC 2.40.4)',
+      '  motor: 250% of the motor current, inverse-time breaker (PEC 4.30.52, next standard size up)',
+      '  HVAC compressor: 175% of the rated-load current (PEC 4.40.22(A))',
+      'Standard breaker sizes (A): 15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 125, 150, 175, 200, 225, 250 ...',
     ],
     fields: [
       { name: 'Load Type', tip: 'Motors need 125% design current per PEC. Continuous loads (>3 hours) also need 125% conductor rating. Resistive loads (heaters) use 100%. Lighting: 100%.' },
-      { name: 'Load Power (W or VA)', tip: 'Nameplate watts or VA. For motors: use HP: the tool converts using standard motor FLA tables. For HVAC: use compressor nameplate FLA directly.' },
-      { name: 'Conductor Type', tip: 'THHN/THWN-2: 75°C rating, most common in Philippine conduit wiring. Use 75°C column from PEC Table 3.10.1 for all standard installations.' },
-      { name: 'Conduit Fill', tip: 'Number of current-carrying conductors in the conduit. 1-3: no derating. 4-6: multiply ampacity by 0.80. 7-9: x0.70. 10-20: x0.50. PEC Table 3.10.15.' },
-      { name: 'Ambient Temperature (°C)', tip: 'For THHN at 30°C: factor = 1.00 (no correction). At 35°C: 0.94. At 40°C: 0.87. At 45°C: 0.82. Philippine outdoor conduit runs often see 40-45°C.' },
+      { name: 'Load Power (W or VA)', tip: 'The electrical input power in watts. For a motor that is its rated output divided by its efficiency (7.5 kW at 90% = 8,330 W); the current is P / (√3·V·PF). The calculator has no motor FLA table: check the result against the nameplate FLA.' },
+      { name: 'Phase Configuration', tip: 'Single-phase (230 V) or three-phase (400 V / 230 V between lines in most Philippine services). Three-phase divides the power by √3·V.' },
+      { name: 'System Voltage', tip: 'Line-to-line voltage for three-phase, line-to-neutral (or line-to-line on a 230 V two-wire service) for single-phase.' },
+      { name: 'Power Factor', tip: 'Motors 0.80-0.88 at full load, electronic and LED loads 0.90-0.95, resistive heaters 1.0.' },
+      { name: 'Conductors in Conduit (current-carrying)', tip: 'Number of current-carrying conductors in the conduit (the range is read at its upper end). 1-3: no derating. 4-6: multiply ampacity by 0.80. 7-9: x0.70. 10-20: x0.50. PEC Table 3.10.15.' },
+      { name: 'Ambient Temperature (°C)', tip: 'For THHN at 30°C: factor = 1.00 (no correction). At 35°C: 0.94. At 40°C: 0.88. At 45°C: 0.82. Philippine outdoor conduit runs often see 40-45°C.' },
     ],
     notes: [
-      'PEC Table 3.10.1 Copper THHN/THWN-2 at 75°C: 2.0mm2=20A, 3.5mm2=25A, 5.5mm2=35A, 8.0mm2=50A, 14mm2=65A, 22mm2=85A, 30mm2=100A, 38mm2=115A, 50mm2=135A, 60mm2=150A, 80mm2=175A, 100mm2=200A.',
+      'PEC Table 3.10.1 Copper THW/THWN-2, 75°C column (the calculator uses it for THHN too, as 75°C terminals require): 2.0mm2=20A, 3.5mm2=25A, 5.5mm2=35A, 8.0mm2=50A, 14mm2=65A, 22mm2=85A, 30mm2=100A, 38mm2=115A, 50mm2=135A, 60mm2=150A, 80mm2=175A, 100mm2=200A; larger sizes take the rating of the largest NEC conductor not bigger than them (125=230, 150=255, 200=310, 250=335, 325=420, 400=475, 500=520).',
       'Minimum wire size in Philippine practice: 2.0 mm2 for 15A branch circuits, 3.5 mm2 for 20A. Never specify below 2.0 mm2 for power circuits.',
       'Ground wire (EGC) size is separate from phase conductor: sized per PEC Table 3.16. Typically one size smaller than phase conductor.',
-      'Motor branch circuit: conductor must be rated at minimum 125% of motor FLA. Breaker is sized at 250% of FLA for inverse time breakers (PEC Article 4.30.52).',
-      'Voltage drop is NOT automatically satisfied by ampacity compliance. Always run a separate voltage drop check, especially for runs longer than 30 m.',
+      'Motor branch circuit: conductor must be rated at minimum 125% of motor FLA. The calculator sizes the inverse-time breaker at 250% of FLA, the most PEC 4.30.52 allows, so the motor can start; overload protection is the starter relay, set at 115-125% of FLA.',
+      'Voltage drop is NOT checked here (the form takes no cable length): ampacity compliance does not satisfy it. Run the Voltage Drop calculator for the actual run, especially beyond 30 m.',
     ],
   },
 
@@ -15469,7 +15473,7 @@ function renderWireSizingReport(inputs, results, narrative) {
       <td class="num">${r.temp_factor}</td>
       <td class="num">${r.fill_factor}</td>
       <td class="num">${r.corrected_ampacity}</td>
-      <td class="num" style="color:${r.adequate ? '#2e7d32' : '#b71c1c'};">${r.adequate ? 'OK' : 'Undersized'}</td>
+      <td class="num" style="color:${r.adequate ? '#2e7d32' : '#b71c1c'};">${escHtml(r.status || (r.adequate ? 'OK' : 'Undersized'))}</td>
     </tr>`).join('');
 
   const html = `
@@ -15477,7 +15481,7 @@ function renderWireSizingReport(inputs, results, narrative) {
       <strong>Tip:</strong> Click any underlined field to edit before downloading.
     </div>
     <!-- heading-allow: standalone calc report template --><h1 style="font-size:1.1rem;font-weight:700;margin:0 0 0.15rem;">WIRE SIZING CALCULATION: AMPACITY METHOD</h1>
-    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">PEC Table 3.10.1: Copper THHN/THWN-2 at 75°C</div>
+    <div style="font-size:0.8rem;color:#555;margin-bottom:1rem;">PEC Table 3.10.1: Copper THHN/THWN-2 at 75°C${results.vd_checked === false ? ' · voltage drop not checked (no cable length): run the Voltage Drop calculator' : ''}</div>
 
     <h2>1. PROJECT INFORMATION</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
@@ -15497,7 +15501,7 @@ function renderWireSizingReport(inputs, results, narrative) {
       <tr><td>Load Power</td><td class="num">${results.power_w}</td><td>W</td></tr>
       <tr><td>Power Factor</td><td class="num">${results.power_factor}</td><td></td></tr>
       <tr><td>Computed Load Current (I = P / ${results.phase === 'Three-phase' ? '√3 × V' : 'V'} / PF)</td><td class="num">${results.load_current}</td><td>A</td></tr>
-      <tr><td>Design Current (with demand multiplier ${results.demand_multiplier}x)</td><td class="num"><strong>${results.design_current}</strong></td><td>A</td></tr>
+      <tr><td>Sizing Current (load current × ${results.demand_multiplier})</td><td class="num"><strong>${results.sizing_current_a ?? results.design_current}</strong></td><td>A</td></tr>
       <tr><td>Ambient Temperature</td><td class="num">${results.ambient_temp}</td><td>°C</td></tr>
       <tr><td>Temperature Correction Factor</td><td class="num">${results.temp_factor}</td><td></td></tr>
       <tr><td>Conduit Fill Group</td><td colspan="2">${escHtml(results.conduit_fill)} conductors → factor ${results.fill_factor}</td></tr>
@@ -15520,9 +15524,9 @@ function renderWireSizingReport(inputs, results, narrative) {
     <div class="result-highlight">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
         <div>
-          <div class="res-label">Design Current</div>
-          <div class="res-value">${results.design_current} A</div>
-          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.demand_multiplier}x multiplier applied</div>
+          <div class="res-label">Sizing Current</div>
+          <div class="res-value">${results.sizing_current_a ?? results.design_current} A</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${results.load_current} A × ${results.demand_multiplier}</div>
         </div>
         <div>
           <div class="res-label">Recommended Wire</div>
@@ -15537,7 +15541,7 @@ function renderWireSizingReport(inputs, results, narrative) {
         <div>
           <div class="res-label">Recommended Breaker</div>
           <div class="res-value">${results.recommended_breaker_A} A</div>
-          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">next standard size</div>
+          <div style="font-size:0.78rem;color:#595959;margin-top:0.1rem;">${escHtml(results.breaker_basis || 'next standard size')}</div>
         </div>
       </div>
     </div>

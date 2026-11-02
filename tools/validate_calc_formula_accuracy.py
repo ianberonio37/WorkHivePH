@@ -662,6 +662,47 @@ VECTORS = [
         ],
     },
     {
+        # ★OVER-RATED METRIC SIZES, A MOTOR BREAKER AT 125%, NO SMALL-CONDUCTOR LIMIT (2026-11-02, ED-G1 Wire Sizing).
+        "module": "calcs.wire_sizing",
+        "calc_type": "Wire Sizing - a 15 A load needs a 20 A breaker, which 2.0 mm² may not carry",
+        "standard": "PEC 2.40.4(D): 2.0 / 3.5 / 5.5 mm² at most 15 / 20 / 30 A",
+        "inputs": {"load_type": "General Load", "phase": "Single-phase", "voltage": 230, "power_w": 3000,
+                   "power_factor": 0.85, "ambient_temp": 30, "conduit_fill": "1-3", "wire_length_m": 10},
+        "asserts": [
+            {"path": "design_current_a", "expected": 15.35, "tol": 0.01, "note": "3000 / (230 x 0.85) = 15.345 A"},
+            {"path": "recommended_breaker_a", "expected": 20, "tol": 0, "note": "next standard size at or above 15.35 A = 20 A"},
+            {"path": "recommended_size_mm2", "expected": 3.5, "tol": 0,
+             "note": "2.0 mm² (20 A) carries the current but may hold only a 15 A breaker: 3.5 mm² (the old engine left 2.0 mm² on 20 A; a 10 m run, so voltage drop does not decide it)"},
+        ],
+    },
+    {
+        "module": "calcs.wire_sizing",
+        "calc_type": "Wire Sizing - a motor breaker is sized to start the motor",
+        "standard": "PEC 4.30.52: inverse-time breaker up to 250% of FLA, next standard size up (Exc. 1)",
+        "inputs": {"load_type": "Motor (continuous)", "phase": "Three-phase", "voltage": 400, "power_w": 7500,
+                   "power_factor": 0.85, "ambient_temp": 30, "conduit_fill": "1-3"},
+        "asserts": [
+            {"path": "design_current_a", "expected": 12.74, "tol": 0.01, "note": "7500 / (√3 x 400 x 0.85) = 12.736 A"},
+            {"path": "recommended_breaker_a", "expected": 40, "tol": 0,
+             "note": "250% x 12.736 = 31.84 A -> 40 A (the old 125% gave 20 A, which trips on a 6-8x FLA start)"},
+            {"path": "recommended_size_mm2", "expected": 2.0, "tol": 0, "note": "125% x 12.736 = 15.92 A <= 20 A; 2.40.4(D) does not apply to motor circuits"},
+        ],
+    },
+    {
+        "module": "calcs.wire_sizing",
+        "calc_type": "Wire Sizing - a 110 kW feeder on the PEC ampacity rows",
+        "standard": "PEC Table 3.10.1.16, 75 °C: 80 mm² 175 A, 100 mm² 200 A",
+        "inputs": {"load_type": "General Load", "phase": "Three-phase", "voltage": 400, "power_w": 110000,
+                   "power_factor": 0.9, "ambient_temp": 35, "conduit_fill": "1-3"},
+        "asserts": [
+            {"path": "design_current_a", "expected": 176.41, "tol": 0.01, "note": "110000 / (√3 x 400 x 0.9) = 176.41 A"},
+            {"path": "recommended_size_mm2", "expected": 100.0, "tol": 0,
+             "note": "80 mm²: 175 x 0.94 = 164.5 < 176.41; 100 mm²: 200 x 0.94 = 188.0 (the old 80 mm² at 200 A was the 3/0 AWG rating, 85 mm²)"},
+            {"path": "corrected_ampacity", "expected": 188.0, "tol": 0.05,
+             "note": "the report's 'Corrected Ampacity' is 200 x 0.94 x 1.00 = 188.0 (it printed the table's 200)"},
+        ],
+    },
+    {
         "module": "calcs.generator_sizing",
         "calc_type": "Generator Sizing",
         "standard": "NFPA 110 — kVA = kW / power factor; recommended genset >= installed requirement",
@@ -2472,7 +2513,7 @@ VECTORS = [
             {"path": "temp_factor", "expected": 0.94, "tol": 0.001,
              "note": "PEC Table 310.15(B)(2)(a) at 35°C ambient (75°C conductor) = 0.94"},
             {"path": "wire_mm2", "expected": 50.0, "tol": 0,
-             "note": "smallest where ampacity·0.94 ≥ 125: 50 mm² (150 A·0.94=141 ≥ 125; 38mm²→122 fails)"},
+             "note": "smallest where ampacity·0.94 ≥ 125: 50 mm² (PEC 135 A·0.94 = 126.9 ≥ 125; 38 mm² 115·0.94 = 108.1 fails) - re-derived 2026-11-02 from the old over-rated 150 A"},
         ],
     },
     {

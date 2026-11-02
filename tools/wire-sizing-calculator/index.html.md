@@ -6,7 +6,7 @@ Source: https://workhiveph.com/tools/wire-sizing-calculator/
 
 Wire Sizing Calculator
  G1+E3 
-**The Wire Sizing Calculator picks the conductor size (mm²) for a load, applying continuous-load, temperature, and conduit-fill derating plus a voltage-drop check. Example: for a 50 kW 3-phase 400 V feeder, 40 m long, at 35 °C ambient, at 0.85 power factor, Design current = 84.9 A, Sizing current = 106.13 A, Conductor size = 30 mm², Derated ampacity = 108.1 A, Voltage drop = 0.94 %, Voltage-drop limit = 2 %, Breaker = 125 A (per PEC 2017, NEC 2020, IEC 60364-5-52 and IEC 60228).**
+**The Wire Sizing Calculator picks the conductor size (mm²) for a load, applying continuous-load, temperature, and conduit-fill derating plus a voltage-drop check. Example: for a 50 kW 3-phase 400 V feeder, 40 m long, at 35 °C ambient, at 0.85 power factor, Design current = 84.9 A, Sizing current = 106.13 A, Conductor size = 38 mm², Derated ampacity = 108.1 A, Voltage drop = 0.75 %, Voltage-drop limit = 2 %, Breaker = 125 A (per PEC 2017, NEC 2020, IEC 60364-5-52 and IEC 60228).**
 How it works
 The calculator follows PEC 2017, NEC 2020, IEC 60364-5-52 and IEC 60228. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
@@ -15,9 +15,9 @@ Inputs: a 50 kW 3-phase 400 V feeder, 40 m long, at 35 °C ambient, at 0.85 powe
 ResultValue
 Design current84.9 A
 Sizing current106.13 A
-Conductor size30 mm²
+Conductor size38 mm²
 Derated ampacity108.1 A
-Voltage drop0.94 %
+Voltage drop0.75 %
 Voltage-drop limit2 %
 Breaker125 A
 Computed by WorkHive's calculation engine when this page was built; standard: PEC 2017, NEC 2020, IEC 60364-5-52 and IEC 60228.
@@ -40,4 +40,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: ee2123e9936e580a -->
+<!-- md-twin source-sha: 59badf2c3d8a4c9f -->

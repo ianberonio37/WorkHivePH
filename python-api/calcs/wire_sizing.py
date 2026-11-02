@@ -18,27 +18,37 @@ import math
 
 # ─── PEC 2017 Table 310.15(B)(16) - Cu THHN/THWN at 75°C, ≤3 in conduit ─────
 # (ampacity, mm²)  - Philippine standard cable sizes
+# ★THE METRIC SIZES WERE RATED ABOVE LARGER CONDUCTORS (2026-11-02, ED-G1 Wire Sizing, read against the guide's PEC rows).
+# Each metric size carried the NEC rating of the NEXT-LARGER AWG/kcmil conductor: 30 mm2 at 115 A (2 AWG, 33.6 mm2), 60 mm2
+# at 175 A (2/0, 67.4 mm2), 100 mm2 at 230 A (4/0, 107 mm2) - and 125 mm2 at 270 A where 250 kcmil (127 mm2, larger) is
+# rated 255 A. Over-rating a conductor undersizes it. 2.0-100 mm2 are now the PEC rows the guide quotes (75 C column,
+# 2.0 mm2 = 20 A as PEC prints it); above 100 mm2 each size takes the NEC 310.16 75 C rating of the largest conductor
+# that does not exceed it (125 -> 4/0 230, 150 -> 250 kcmil 255, 200 -> 350 kcmil 310, 250 -> 400 kcmil 335, 325 ->
+# 600 kcmil 420, 400 -> 750 kcmil 475, 500 -> 900 kcmil 520).
 AMPACITY_TABLE: list[dict] = [
-    {"mm2":   2.0, "ampacity":  18},
+    {"mm2":   2.0, "ampacity":  20},
     {"mm2":   3.5, "ampacity":  25},
     {"mm2":   5.5, "ampacity":  35},
     {"mm2":   8.0, "ampacity":  50},
-    {"mm2":  14.0, "ampacity":  70},
-    {"mm2":  22.0, "ampacity":  95},
-    {"mm2":  30.0, "ampacity": 115},
-    {"mm2":  38.0, "ampacity": 130},
-    {"mm2":  50.0, "ampacity": 150},
-    {"mm2":  60.0, "ampacity": 175},
-    {"mm2":  80.0, "ampacity": 200},
-    {"mm2": 100.0, "ampacity": 230},
-    {"mm2": 125.0, "ampacity": 270},
-    {"mm2": 150.0, "ampacity": 300},
-    {"mm2": 200.0, "ampacity": 360},
-    {"mm2": 250.0, "ampacity": 405},
-    {"mm2": 325.0, "ampacity": 480},
-    {"mm2": 400.0, "ampacity": 540},
-    {"mm2": 500.0, "ampacity": 620},
+    {"mm2":  14.0, "ampacity":  65},
+    {"mm2":  22.0, "ampacity":  85},
+    {"mm2":  30.0, "ampacity": 100},
+    {"mm2":  38.0, "ampacity": 115},
+    {"mm2":  50.0, "ampacity": 135},
+    {"mm2":  60.0, "ampacity": 150},
+    {"mm2":  80.0, "ampacity": 175},
+    {"mm2": 100.0, "ampacity": 200},
+    {"mm2": 125.0, "ampacity": 230},
+    {"mm2": 150.0, "ampacity": 255},
+    {"mm2": 200.0, "ampacity": 310},
+    {"mm2": 250.0, "ampacity": 335},
+    {"mm2": 325.0, "ampacity": 420},
+    {"mm2": 400.0, "ampacity": 475},
+    {"mm2": 500.0, "ampacity": 520},
 ]
+
+# PEC 2.40.4(D) small-conductor rule: the overcurrent device on these sizes may not exceed (not for motor circuits)
+SMALL_CONDUCTOR_MAX_OCPD = {2.0: 15, 3.5: 20, 5.5: 30}
 
 # ─── Temperature correction factors - PEC 2017 Table 310.15(B)(2)(a) ─────────
 # For 75°C rated conductors (THHN/THWN-2)
@@ -207,7 +217,10 @@ def calculate(inputs: dict) -> dict:
     voltage_v    = float(inputs.get("voltage",        230))
     phases       = int  (inputs.get("phases", 3 if "Three" in _phase else 1))
     power_factor = float(inputs.get("power_factor",   0.85))
-    length_m     = float(inputs.get("wire_length_m",  30))
+    # The form takes no cable length: voltage drop is the Voltage Drop calculator's job (the guide says so). A hidden
+    # 30 m run used to upsize the wire without a word on the report; it now applies only when a length is given.
+    length_given = inputs.get("wire_length_m") not in (None, "")
+    length_m     = float(inputs.get("wire_length_m") or 30)
     ambient_c    = float(inputs.get("ambient_temp_c", inputs.get("ambient_temp", 35)))   # Manila typical
     _fill        = str(inputs.get("conduit_fill") or "")
     num_cond     = int  (inputs.get("conductors_in_conduit",
@@ -238,8 +251,27 @@ def calculate(inputs: dict) -> dict:
     # PEC 2017 continuous load rule: size for 125% if load is continuous
     sizing_current = design_current * (1.25 if is_continuous else 1.0)
 
+    # ── Breaker sizing ───────────────────────────────────────────────────────
+    # ★A MOTOR BREAKER AT 125% TRIPS ON STARTING (2026-11-02, ED-G1 Wire Sizing; the guide: "Breaker is sized at 250% of
+    # FLA for inverse time breakers (PEC 4.30.52)"). Every breaker was the next size above 125% of the current; a motor's
+    # inrush (6-8x FLA) trips that on every start. Motor branch circuits: inverse-time breaker at 250% of FLA, next standard
+    # size up (4.30.52 Exc. 1); hermetic compressors 175% (4.40.22(A)). Other loads: >= the sizing current.
+    is_motor      = "Motor" in _lt
+    is_compressor = "Compressor" in _lt
+    if is_motor:
+        min_breaker, breaker_basis = design_current * 2.50, "PEC 4.30.52: inverse-time breaker at 250% of motor FLA"
+    elif is_compressor:
+        min_breaker, breaker_basis = design_current * 1.75, "PEC 4.40.22(A): 175% of compressor rated-load current"
+    else:
+        min_breaker, breaker_basis = sizing_current, "PEC 2.40.4: next standard size at or above the sizing current"
+    breaker_a = next((b for b in BREAKER_SIZES if b >= min_breaker), BREAKER_SIZES[-1])
+
     # ── Wire selection ────────────────────────────────────────────────────────
     wire, tf, ff = _select_wire(sizing_current, ambient_c, num_cond)
+    # PEC 2.40.4(D): 2.0 / 3.5 / 5.5 mm2 may carry a breaker of at most 15 / 20 / 30 A (motor circuits excepted, 2.40.4(G))
+    if not (is_motor or is_compressor):
+        while wire["mm2"] in SMALL_CONDUCTOR_MAX_OCPD and breaker_a > SMALL_CONDUCTOR_MAX_OCPD[wire["mm2"]]:
+            wire = AMPACITY_TABLE[AMPACITY_TABLE.index(wire) + 1]
     mm2 = wire["mm2"]
     base_ampacity = wire["ampacity"]
     derated_ampacity = round(base_ampacity * tf * ff, 1)
@@ -250,7 +282,7 @@ def calculate(inputs: dict) -> dict:
     # PEC 2017 voltage drop limits
     circuit_type = str(inputs.get("circuit_type", "branch"))   # branch / feeder
     vd_limit_pct = 3.0 if circuit_type == "branch" else 2.0
-    vd_ok = vd["vd_pct"] <= vd_limit_pct
+    vd_ok = vd["vd_pct"] <= vd_limit_pct or not length_given
 
     # If VD exceeds limit, find minimum size that satisfies VD
     vd_wire = wire
@@ -274,10 +306,6 @@ def calculate(inputs: dict) -> dict:
         design_current, governing_mm2, length_m, voltage_v, phases, power_factor
     )
 
-    # ── Breaker sizing (NEC/PEC 240.4) ───────────────────────────────────────
-    # Breaker ≥ sizing_current; next standard size up
-    min_breaker = sizing_current
-    breaker_a = next((b for b in BREAKER_SIZES if b >= min_breaker), BREAKER_SIZES[-1])
 
     # ── Conduit size (rough guide - PEC Table C.1, 40% fill) ─────────────────
     # Conduit ID needed = √(n × conductor_OD² / 0.40) - simplified with OD estimate
@@ -296,6 +324,26 @@ def calculate(inputs: dict) -> dict:
         (size for size, id_mm in conduit_std if id_mm >= cond_id_req),
         conduit_std[-1][0]
     )
+
+    # ── The report's size comparison: two sizes either side of the one that governs ──
+    # ★THE REPORT NEVER RENDERED (2026-11-02, ED-G1 Wire Sizing, walked): size_comparison was a sentence and the report
+    # maps it as rows - "TypeError: .map is not a function", "Could not generate the report" on every calculation since
+    # this engine began serving the form. It is the rows now, each with why it is or is not enough.
+    gi = AMPACITY_TABLE.index(governing_wire)
+    size_rows = []
+    for w in AMPACITY_TABLE[max(gi - 2, 0): gi + 3]:
+        corr = round(w["ampacity"] * tf * ff, 1)
+        if w["mm2"] >= governing_mm2:
+            status = "OK"
+        elif corr < sizing_current:
+            status = "Undersized"
+        elif w["mm2"] in SMALL_CONDUCTOR_MAX_OCPD and breaker_a > SMALL_CONDUCTOR_MAX_OCPD[w["mm2"]]:
+            status = f"Max {SMALL_CONDUCTOR_MAX_OCPD[w['mm2']]} A breaker"
+        else:
+            status = "Voltage drop"
+        size_rows.append({"size_mm2": w["mm2"], "ampacity_table": w["ampacity"], "temp_factor": round(tf, 2),
+                          "fill_factor": round(ff, 2), "corrected_ampacity": corr, "adequate": status == "OK",
+                          "status": status, "recommended": w["mm2"] == governing_mm2})
 
     # ── kVA and kW from design current ───────────────────────────────────────
     if phases == 3:
@@ -328,7 +376,8 @@ def calculate(inputs: dict) -> dict:
         "vd_volts":             final_vd["vd_volts"],
         "vd_pct":               final_vd["vd_pct"],
         "vd_limit_pct":         vd_limit_pct,
-        "vd_ok":                final_vd["vd_pct"] <= vd_limit_pct,
+        "vd_ok":                (final_vd["vd_pct"] <= vd_limit_pct) if length_given else None,
+        "vd_checked":           length_given,
         "R_ohm":                final_vd["R_ohm"],
         "X_ohm":                final_vd["X_ohm"],
         "Z_ohm":                final_vd["Z_ohm"],
@@ -336,6 +385,7 @@ def calculate(inputs: dict) -> dict:
         # Breaker
         "min_breaker_a":        round(min_breaker, 1),
         "recommended_breaker_a": breaker_a,
+        "breaker_basis":        breaker_basis,
 
         # Conduit
         "recommended_conduit_mm": rec_conduit,
@@ -359,7 +409,8 @@ def calculate(inputs: dict) -> dict:
 
         # ── Renderer aliases ───────────────────────────────────────────────────
         "size_mm2":              governing_wire["mm2"],
-        "corrected_ampacity":    governing_wire["ampacity"],
+        # "Corrected" is the table ampacity after the temperature and fill factors (it printed the table value)
+        "corrected_ampacity":    round(governing_wire["ampacity"] * tf * ff, 1),
         "temp_factor":           tf,
         "adequate":              True,
         "recommended":           f"{governing_wire['mm2']} mm² Cu THHN",
@@ -371,11 +422,12 @@ def calculate(inputs: dict) -> dict:
         "conduit_fill":          f"{num_cond} conductors - fill factor {ff:.2f}",
         # Field name aliases for renderer
         "voltage":               voltage_v,
-        "phase":                 phases,
+        "phase":                 "Three-phase" if phases == 3 else "Single-phase",
         "power_w":               round(load_kw_calc * 1000, 1),
         "recommended_size_mm2":  governing_wire["mm2"],
-        "recommended_ampacity":  governing_wire["ampacity"],
+        "recommended_ampacity":  round(governing_wire["ampacity"] * tf * ff, 1),
+        "table_ampacity":        governing_wire["ampacity"],
         "recommended_breaker_A": breaker_a,
-        "load_type":             circuit_type,
-        "size_comparison":       f"{governing_wire['mm2']} mm² governs (ampacity criterion)",
+        "load_type":             _lt or circuit_type,
+        "size_comparison":       size_rows,
     }

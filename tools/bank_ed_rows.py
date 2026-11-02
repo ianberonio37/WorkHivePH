@@ -380,6 +380,20 @@ ENGINE_CHECKED["HVAC Cooling Load"] = (
     "(630, re-derived to 504); walked on the served page at 390: 'Q_walls = 0.45 x 96 x 9 = 388.8 W', 'Q_glass = (5.9 x "
     "24 x 11) + (24 x 0.87 x 350) = 1,557.6 + 7,308', 'design 18,883.5', no sideways scroll. Door page restamped "
     "(38.87 kW / 11.05 TR).")
+ENGINE_CHECKED["Wire Sizing"] = (
+    "FOUND AND FIXED, read against python-api/calcs/wire_sizing.py and walked: (1) the report NEVER RENDERED on this "
+    "engine - size_comparison was a sentence the report maps as rows ('TypeError: .map is not a function', 'Could not "
+    "generate the report' on every calculation since the engine began serving the form; it would have reached production "
+    "at M5); now rows with a status each. (2) The ampacity table rated each metric size at the next-LARGER AWG conductor "
+    "(30 mm2 115 A = 2 AWG 33.6 mm2; 100 mm2 230 A = 4/0 107 mm2; 125 mm2 270 A above 250 kcmil's 255) - now the guide's "
+    "PEC rows to 100 mm2, above that the rating of the largest NEC conductor not bigger. (3) Every breaker at 125%: a "
+    "motor's trips on starting - now 250% for motors (PEC 4.30.52), 175% compressors (4.40.22). (4) No PEC 2.40.4(D) "
+    "small-conductor limit (2.0 mm2 left on a 20 A breaker). (5) A hidden 30 m voltage-drop check upsized wires the form "
+    "never asked about - now only with a length, and the report says it is unchecked. (6) 'Corrected Ampacity' printed the "
+    "table value; 'Phase' printed 3; the 'with multiplier' current was without it. Guide: no motor FLA table exists (the "
+    "tip said so), 40 C factor 0.88 not 0.87, names are the form's. Three hand vectors fail on the old engine (2.0 mm2 on "
+    "20 A, a 20 A motor breaker, 80 mm2 for 176 A); walked on the served page at 390 (7.5 kW motor): renders, 'Sizing "
+    "Current 15.92 A', '40 A PEC 4.30.52', no sideways scroll. Door page restamped (38 mm2 / 0.75%).")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
