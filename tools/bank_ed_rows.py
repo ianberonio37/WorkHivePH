@@ -394,6 +394,19 @@ ENGINE_CHECKED["Wire Sizing"] = (
     "tip said so), 40 C factor 0.88 not 0.87, names are the form's. Three hand vectors fail on the old engine (2.0 mm2 on "
     "20 A, a 20 A motor breaker, 80 mm2 for 176 A); walked on the served page at 390 (7.5 kW motor): renders, 'Sizing "
     "Current 15.92 A', '40 A PEC 4.30.52', no sideways scroll. Door page restamped (38 mm2 / 0.75%).")
+ENGINE_CHECKED["Solar PV System"] = (
+    "FOUND AND FIXED, read against python-api/calcs/solar_pv.py: (1) the heat was counted twice - the array kWp already "
+    "divides by the derating (which holds the 5-15% heat loss), then the panels were counted on a hot-cell Pmax (450 Wp "
+    "-> 385 W): every array ~17% over; now STC Wp as the guide says. (2) Strings were filled to the cold-Voc maximum (33 "
+    "panels -> 2 x 19 = 38); now equal strings as short as the count allows (2 x 17), the maximum kept as "
+    "max_panels_per_string. The door page's '100 kWp' example had been sold as 121.6 kWp; now 100.8. (3) CO2 used 0.522, "
+    "no DOE figure (the guide said 0.72) - now DOE NGEF 2015-2017 combined margin for solar, Luzon-Visayas 0.6836 / "
+    "Mindanao 0.7859. (4) The off-grid battery NEVER reached the report: battery_kwh / battery_ah read keys the bank never "
+    "had - every off-grid report printed 0 kWh and 0 Ah. (5) 'Inverter Capacity' printed the kVA x 0.9; 'Voc_max' was the "
+    "whole string's voltage beside a per-panel formula. (6) The fallback PSH table differed from the page's. The guide's "
+    "string rule used STC Voc, its battery omitted the 0.85 round trip, and its names are now the form's. Hand vectors fail "
+    "on the old engine; walked on the served page at 390 (off-grid Davao): '94.12 kWh', '1960.8 Ah @ 48 V', '0.7859 (DOE "
+    "NGEF ... Mindanao)', no sideways scroll. Door page restamped (252 panels / 100.8 kWp / 629 m2).")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

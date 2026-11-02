@@ -6,19 +6,19 @@ Source: https://workhiveph.com/tools/solar-pv-calculator/
 
 Solar PV System Calculator
  G1+E3 
-**The Solar PV System Calculator finds the panel count, array size, and roof area for a target PV capacity, with string sizing. Example: for a 100 kWp grid-tie solar array in Manila, Total panels = 304 panels, Array size = 121.6 kWp, Roof area = 758.8 m² (per IEC 62548:2016, IEC 61215, IEC 62109, PEC 2017 Art.6.90 and PAGASA).**
+**The Solar PV System Calculator finds the panel count, array size, and roof area for a target PV capacity, with string sizing. Example: for a 100 kWp grid-tie solar array in Manila, Total panels = 252 panels, Array size = 100.8 kWp, Roof area = 629 m² (per IEC 62548:2016, IEC 61215, IEC 62109, PEC 2017 Art.6.90 and PAGASA).**
 How it works
 The calculator follows IEC 62548:2016, IEC 61215, IEC 62109, PEC 2017 Art.6.90 and PAGASA. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 Plan an off-grid solar power station
 List what the station will power and where it is. The planner adds up the daily energy, sizes the battery, panels, inverter and charge controller step by step, and estimates the cost. It runs on this page: nothing you enter is sent anywhere, and no account is needed.
-Worked example: for a 100 kWp grid-tie solar array in Manila, Total panels = 304 panels, Array size = 121.6 kWp, Roof area = 758.8 m². [Every number is in the worked example below](#worked).
+Worked example: for a 100 kWp grid-tie solar array in Manila, Total panels = 252 panels, Array size = 100.8 kWp, Roof area = 629 m². [Every number is in the worked example below](#worked).
 I2: reserved block 
 Worked example (Electrical & Power)
 Inputs: a 100 kWp grid-tie solar array in Manila.
 ResultValue
-Total panels304 panels
-Array size121.6 kWp
-Roof area758.8 m²
+Total panels252 panels
+Array size100.8 kWp
+Roof area629 m²
 Computed by WorkHive's calculation engine when this page was built; standard: IEC 62548:2016, IEC 61215, IEC 62109, PEC 2017 Art.6.90 and PAGASA.
 How to use this calculator
 Plan an off-grid station on this page: list the appliances, choose your nearest place and the days without sun, and read each step from the daily energy to the cost.
@@ -39,4 +39,4 @@ Where these figures come from
 Worked example computed when this page was built · the planner calculates on your device from what you enter · no live data
  /wh-sources
 
-<!-- md-twin source-sha: d5134476327f08b1 -->
+<!-- md-twin source-sha: f4cb9554494832e7 -->

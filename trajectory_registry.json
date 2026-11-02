@@ -1173962,8 +1173962,8 @@
     },
     {
       "id": "ED141",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Solar PV System on engineering-design.html · solo-owner",
       "pages": [
@@ -1174017,6 +1174017,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Solar PV System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/solar_pv.py: (1) the heat was counted twice - the array kWp already divides by the derating (which holds the 5-15% heat loss), then the panels were counted on a hot-cell Pmax (450 Wp -> 385 W): every array ~17% over; now STC Wp as the guide says. (2) Strings were filled to the cold-Voc maximum (33 panels -> 2 x 19 = 38); now equal strings as short as the count allows (2 x 17), the maximum kept as max_panels_per_string. The door page's '100 kWp' example had been sold as 121.6 kWp; now 100.8. (3) CO2 used 0.522, no DOE figure (the guide said 0.72) - now DOE NGEF 2015-2017 combined margin for solar, Luzon-Visayas 0.6836 / Mindanao 0.7859. (4) The off-grid battery NEVER reached the report: battery_kwh / battery_ah read keys the bank never had - every off-grid report printed 0 kWh and 0 Ah. (5) 'Inverter Capacity' printed the kVA x 0.9; 'Voc_max' was the whole string's voltage beside a per-panel formula. (6) The fallback PSH table differed from the page's. The guide's string rule used STC Voc, its battery omitted the 0.85 round trip, and its names are now the form's. Hand vectors fail on the old engine; walked on the served page at 390 (off-grid Davao): '94.12 kWh', '1960.8 Ah @ 48 V', '0.7859 (DOE NGEF ... Mindanao)', no sideways scroll. Door page restamped (252 panels / 100.8 kWp / 629 m2). WALKED: Solar PV System's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T02:34:09Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

@@ -952,6 +952,43 @@ VECTORS = [
         "custom": _check_solar_pv,
     },
     {
+        # ★THE HEAT COUNTED TWICE + STRINGS FILLED TO THE MAXIMUM + A CO2 FACTOR NO DOE TABLE HAS (2026-11-02, ED-G1 Solar PV)
+        "module": "calcs.solar_pv",
+        "calc_type": "Solar PV System - the array the demand needs, in equal strings",
+        "standard": "Guide: kWp = E / (PSH x derating x inverter); panels at STC Wp; IEC 62548 cold Voc; DOE NGEF 2015-2017",
+        "inputs": {"system_type": "Grid-Tied", "location": "Metro Manila", "psh_hr": 4.5, "daily_energy_kwh": 50,
+                   "panel_wp": 450, "panel_voc": 49.5, "temp_coeff_voc": -0.29, "t_min_c": 18, "panel_area_m2": 1.7,
+                   "derating_pct": 80, "inverter_eff_pct": 96},
+        "asserts": [
+            {"path": "required_array_kwp", "expected": 14.47, "tol": 0.01, "note": "50 / (4.5 x 0.80 x 0.96) = 50 / 3.456 = 14.468 kWp"},
+            {"path": "total_panels", "expected": 34, "tol": 0,
+             "note": "ceil(14468 / 450) = 33 at STC (the hot-cell Pmax counted the heat a second time); ceil(33/19) = 2 strings of ceil(33/2) = 17 = 34 (it built 2 x 19 = 38)"},
+            {"path": "array_kWp", "expected": 15.3, "tol": 0.01, "note": "34 x 450 W = 15.3 kWp"},
+            {"path": "energy_day_kWh", "expected": 52.88, "tol": 0.01, "note": "15.3 x 4.5 x 0.768 = 52.88 kWh/day against the 50 asked"},
+            {"path": "co2_offset_kg_yr", "expected": 13194, "tol": 2,
+             "note": "52.88 x 365 = 19,301 kWh x 0.6836 (DOE NGEF 2015-2017, Luzon-Visayas combined margin for solar) = 13,194 kg (it used 0.522)"},
+            {"path": "max_panels_per_string", "expected": 19, "tol": 0,
+             "note": "Voc_cold = 49.5 x (1 + 0.0029 x 7) = 50.505 V; floor(1000 / 50.505) = 19"},
+        ],
+    },
+    {
+        "module": "calcs.solar_pv",
+        "calc_type": "Solar PV System - the off-grid battery reaches the report; Mindanao's grid factor",
+        "standard": "Battery kWh = E x days / (DoD x 0.85); DOE NGEF 2015-2017 Mindanao combined margin 0.7859",
+        "inputs": {"system_type": "Off-Grid", "location": "Davao", "psh_hr": 4.9, "daily_energy_kwh": 20, "panel_wp": 450,
+                   "panel_voc": 49.5, "temp_coeff_voc": -0.29, "t_min_c": 18, "panel_area_m2": 1.7, "derating_pct": 80,
+                   "inverter_eff_pct": 96, "autonomy_days": 2, "dod_pct": 50, "battery_voltage": 48},
+        "asserts": [
+            {"path": "battery_kwh", "expected": 94.12, "tol": 0.01,
+             "note": "the report's battery figure: 20 x 2 / (0.50 x 0.85) = 94.12 kWh (the alias read a key the bank never had: 0)"},
+            {"path": "battery_ah", "expected": 1960.8, "tol": 0.1, "note": "94,118 Wh / 48 V = 1,960.8 Ah"},
+            {"path": "inverter_kw", "expected": 5, "tol": 0,
+             "note": "20 / (4.9 x 0.768) = 5.315 kWp -> 12 panels = 5.4 kWp; 0.9 x 5.4 = 4.86 -> 5 kVA, printed as its rating (it printed 4.5)"},
+            {"path": "co2_reduction_kg", "expected": 5829, "tol": 2,
+             "note": "5.4 x 4.9 x 0.768 x 365 = 7,417 kWh x 0.7859 (Mindanao) = 5,829 kg"},
+        ],
+    },
+    {
         # ★THE FORM'S BATTERY (2026-10-31, ED-I1 Solar PV): the page (and its off-grid planner) sends dod_pct and
         # battery_voltage; the engine fixed DoD at 0.80 and chose 48 / 96 V itself. Every assert fails on that engine.
         "module": "calcs.solar_pv",
@@ -1046,8 +1083,8 @@ VECTORS = [
         "asserts": [
             {"path": "iec62548.voc_cold", "expected": 104.93, "tol": 0.05,
              "note": "Voc_max = 100*(1+(-0.29/100)*(8-25)) = 104.93 V"},
-            {"path": "panels_per_string", "expected": 9, "tol": 0,
-             "note": "floor(1000/104.93) = 9 (STC would over-count to 10 -> inverter overvolt)"},
+            {"path": "max_panels_per_string", "expected": 9, "tol": 0,
+             "note": "floor(1000/104.93) = 9 (STC would over-count to 10 -> inverter overvolt); the strings built may be shorter (re-pathed 2026-11-02: panels_per_string is now the length used)"},
         ],
     },
     {

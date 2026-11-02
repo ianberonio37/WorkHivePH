@@ -45,18 +45,26 @@ T_MIN_DEFAULT = 18.0   # Metro Manila conservative baseline
 
 # ─── Philippine Peak Sun Hours (PSH) by location - PVGIS / PAGASA ────────────
 # PSH = daily solar irradiance (kWh/m2/day) at optimal tilt angle
+# The form fills PSH from its own location table and sends it; this fallback had different figures (Davao 5.2 where
+# the page and its guide say 4.9) - it is now the page's table, so a caller without psh_hr gets the same answer.
 PSH_PHILIPPINES: dict[str, float] = {
-    "Baguio":        3.8,   # cloud cover reduces PSH
+    "Baguio":        4.2,
     "Metro Manila":  4.5,
-    "Batangas":      4.8,
-    "Legazpi":       4.2,
-    "Tacloban":      4.6,
-    "CDO":           5.0,
-    "Cebu":          5.1,
-    "Davao":         5.2,
-    "Iloilo":        5.0,
-    "Zamboanga":     5.3,
+    "Batangas":      4.6,
+    "Legazpi":       4.4,
+    "Tacloban":      4.5,
+    "CDO":           4.6,
+    "Cebu":          4.8,
+    "Davao":         4.9,
+    "Iloilo":        4.7,
+    "Zamboanga":     4.9,
 }
+MINDANAO = ("Davao", "CDO", "Zamboanga")
+# DOE National Grid Emission Factor 2015-2017, combined margin for wind and solar (tCO2/MWh = kg/kWh). The engine used
+# 0.522, which is no DOE figure (the guide said 0.72, the Luzon-Visayas operating margin): a solar project displaces the
+# combined margin - Luzon-Visayas 0.6836, Mindanao 0.7859.
+GRID_EF_LV       = 0.6836
+GRID_EF_MINDANAO = 0.7859
 PSH_DEFAULT = 4.5   # Metro Manila
 
 # ─── Standard STC module parameters (typical 400Wp monocrystalline) ───────────
@@ -181,9 +189,21 @@ def calculate(inputs: dict) -> dict:
     # Pmax derating at hot cell temperature
     pmax_hot_w   = _pmax_hot(pmax_w, tc_pmax, t_cell_hot)
     # Total panels needed
-    total_panels = math.ceil((system_kw * 1000) / pmax_hot_w)
+    # ★THE HEAT WAS COUNTED TWICE (2026-11-02, ED-G1 Solar PV, read against the guide: "Panels = ceil(kWp x 1000 / Panel
+    # Wp)"). system_kw is already daily / (PSH x derating x inverter), and the derating is the losses INCLUDING the
+    # temperature loss (the guide's tip: heat 5-15% of the 75-85%); dividing again by a hot-cell Pmax (400 Wp -> 342 W at
+    # 66 C) oversized every array ~17% and its yield past the demand. Panels are counted at their STC rating.
+    total_panels = math.ceil((system_kw * 1000) / pmax_w)
     # Strings in parallel
     strings_parallel = math.ceil(total_panels / panels_per_string)
+    # Equal strings, each as short as the count allows (it filled every string to the cold-Voc maximum: 33 panels
+    # became 2 x 19 = 38, 15% over the array). The cold-Voc limit stays the ceiling, the MPPT minimum the floor.
+    max_per_string    = panels_per_string
+    panels_per_string = math.ceil(total_panels / strings_parallel)
+    while panels_per_string < max_per_string and vmp_hot * panels_per_string < inv_vdc_min:
+        panels_per_string += 1
+    vmp_string_hot = vmp_hot * panels_per_string
+    mppt_ok        = vmp_string_hot >= inv_vdc_min
     # Actual total panels (rounded to full strings)
     total_panels = strings_parallel * panels_per_string
     # Actual array peak power at STC
@@ -223,8 +243,8 @@ def calculate(inputs: dict) -> dict:
     # Specific yield (kWh/kWp/yr) - performance benchmark
     specific_yield  = energy_yr_kwh / max(array_kw_stc, 1)
 
-    # CO2 offset (kg/yr) - Philippine grid emission factor: 0.522 kg CO2/kWh (DOE 2022)
-    co2_offset_kg_yr = energy_yr_kwh * 0.522
+    grid_ef          = GRID_EF_MINDANAO if location in MINDANAO else GRID_EF_LV
+    co2_offset_kg_yr = energy_yr_kwh * grid_ef
 
     # ── Inverter sizing ───────────────────────────────────────────────────────
     # Inverter DC input power = array kWp (1:1 for grid-tied, per IEC 62109)
@@ -269,6 +289,7 @@ def calculate(inputs: dict) -> dict:
     return {
         # Array sizing
         "panels_per_string":      panels_per_string,
+        "max_panels_per_string":  max_per_string,      # IEC 62548 cold-Voc ceiling: floor(V_inv,max / Voc_cold)
         "strings_parallel":       strings_parallel,
         "total_panels":           total_panels,
         "array_kWp":              round(array_kw_stc, 2),
@@ -346,14 +367,23 @@ def calculate(inputs: dict) -> dict:
         "actual_array_kwp":    round(array_kw_stc, 2),
         "required_array_kwp":  round(system_kw, 2),
         "annual_yield_kwh":    round(energy_yr_kwh, 0),
-        "inverter_kw":         round(rec_inv_kva * 0.90, 2),
+        # The recommended inverter's rating (unity-PF output); it printed kVA x 0.9 - 13.5 kW for a 15 kVA unit.
+        "inverter_kw":         rec_inv_kva,
+        "dc_ac_ratio":         round(array_kw_stc / rec_inv_kva, 2) if rec_inv_kva else None,
+        "grid_ef_kg_kwh":      grid_ef,
+        "grid_ef_basis":       "DOE NGEF 2015-2017, " + ("Mindanao" if location in MINDANAO else "Luzon-Visayas") + " combined margin for solar",
         "psh_hr":              psh,
         "system_efficiency":   round(perf_ratio, 3),
         "t_min_c":             t_min_c,
         "temp_coeff_voc":      tc_voc,
         "total_roof_area_m2":  round(array_area_m2 * 1.15, 1),   # 15% extra for spacing
-        "voc_max":             round(voc_string_cold, 2),
+        # Per-panel Voc at T_min, as the report's formula reads (it was the whole string's voltage)
+        "voc_max":             round(voc_cold, 2),
         "co2_reduction_kg":    round(co2_offset_kg_yr, 0),
-        "battery_ah":          batt_bank.get("capacity_ah") if batt_bank else None,
-        "battery_kwh":         batt_bank.get("energy_kwh") if batt_bank else None,
+        # ★THE BATTERY NEVER REACHED THE REPORT (2026-11-02, ED-G1 Solar PV): these read "capacity_ah" / "energy_kwh", keys the
+        # bank never had - every off-grid report printed 0 kWh and 0 Ah.
+        "battery_ah":          batt_bank.get("required_Ah") if batt_bank else None,
+        "battery_kwh":         batt_bank.get("required_kwh") if batt_bank else None,
+        "battery_recommended": (f"{batt_bank['strings_parallel']} x {batt_bank['recommended_Ah']} Ah strings of "
+                                f"{batt_bank['cells_in_series']} x 12 V") if batt_bank else None,
     }

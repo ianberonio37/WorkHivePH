@@ -103,6 +103,10 @@
   "content_sha": "16ae5093874ab32b",
   "stamped": "2026-11-02"
  },
+ "tools/solar-pv-calculator": {
+  "content_sha": "eb81757bffa9e9ed",
+  "stamped": "2026-11-02"
+ },
  "tools/wire-sizing-calculator": {
   "content_sha": "491a229babb9b691",
   "stamped": "2026-11-02"

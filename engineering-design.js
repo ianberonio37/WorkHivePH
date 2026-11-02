@@ -1337,6 +1337,7 @@ const GUIDES = {
     ],
     formulas: [
       "Required Array Power (kWp) = Daily Energy (kWh/day) / (PSH × Derating × Inverter Eff.)",
+      "  The derating already holds the heat loss (5-15% of it): the panels are then counted at their STC Wp",
       "",
       "Philippine Peak Sun Hours (PSH) by location:",
       "  Metro Manila: 4.5 h/day   Cebu: 4.8 h/day    Davao: 4.9 h/day",
@@ -1345,34 +1346,39 @@ const GUIDES = {
       "  Cagayan de Oro: 4.6 h/day",
       "",
       "Number of Panels = ceil(Required Array kWp × 1000 / Panel Wp)",
-      "Actual Array kWp = Panels × Panel Wp / 1000",
       "",
-      "String Sizing (IEC 62548):",
-      "  Max String Voltage = 1000 V (residential/commercial, ≤500 kWp)",
-      "  Panels per String = floor(1000 V / Panel Voc)",
-      "  Strings in Parallel = ceil(Panel Count / Panels per String)",
+      "String Sizing (IEC 62548), at the coldest site temperature:",
+      "  Voc_max = Voc × (1 + (Voc temp. coeff / 100) × (T_min − 25))",
+      "  Most panels per string = floor(1000 V / Voc_max)",
+      "  Strings = ceil(Panels / most per string);  each string = ceil(Panels / Strings)  (equal strings, as short as the count allows, never below the inverter MPPT minimum)",
+      "  Actual Array kWp = Strings × panels per string × Panel Wp / 1000",
       "",
-      "Inverter Capacity (kW) ≈ Actual Array kWp × 1.0  (1:1 DC/AC ratio, typical)",
+      "Inverter: next standard size ≥ 0.90 × Actual Array kWp  (DC/AC ratio about 1.1)",
       "",
       "Annual Energy Yield (kWh/yr) = Actual kWp × PSH × 365 × Derating × Inverter Eff.",
       "",
       "Battery Bank (Off-Grid / Hybrid only):",
-      "  Battery Energy (kWh) = Daily Energy × Autonomy Days / DoD",
-      "  Battery Capacity (Ah) = Battery Energy × 1000 / System Voltage",
+      "  Battery Energy (kWh) = Daily Energy × Autonomy Days / (DoD × 0.85 round-trip efficiency)",
+      "  Battery Capacity (Ah) = Battery Energy × 1000 / Battery Voltage",
       "",
-      "Required Roof Area (m²) = Panel Count × Panel Area (≈1.7 m² standard)",
+      "Required Roof Area (m²) = Panel Count × Panel Area × 1.15  (spacing)",
       "",
-      "CO₂ Reduction (kg/yr) = Annual Yield × 0.72 kg CO₂/kWh  (Philippine grid factor)",
+      "CO₂ Reduction (kg/yr) = Annual Yield × grid factor  (DOE NGEF 2015-2017, combined margin for solar: Luzon-Visayas 0.6836, Mindanao 0.7859 kg/kWh)",
     ],
     fields: [
       { name: "System Type", tip: "Grid-Tied: panels + inverter connected to Meralco/utility grid, excess exported via net metering. Off-Grid: battery bank required, no utility connection. Hybrid: grid-tied with battery backup for critical loads." },
-      { name: "Location / Peak Sun Hours", tip: "PSH (Peak Sun Hours) is the daily equivalent full-sun hours for your location. Philippine values range from 4.2 (Baguio highlands) to 4.9 (Davao/Zamboanga). Select your city or enter a custom value from PAGASA solar irradiance data." },
+      { name: "Location", tip: "PSH (Peak Sun Hours) is the daily equivalent full-sun hours for your location. Philippine values range from 4.2 (Baguio highlands) to 4.9 (Davao/Zamboanga). Select your city or enter a custom value from PAGASA solar irradiance data." },
+      { name: "Peak Sun Hours (PSH)", tip: "Filled from the location (see the table above); overwrite it with a PAGASA or PVGIS figure for your site. The array scales inversely with it." },
+      { name: "Voc Temp. Coefficient", tip: "From the panel datasheet, in %/°C (about -0.25 to -0.30 for mono PERC). Voc RISES in the cold, so the string is sized at the coldest morning." },
+      { name: "Min. Site Temp.", tip: "The coldest ambient the array will see: about 18°C in the lowlands, 8-10°C in Baguio. It sets the most panels a string may hold under the 1000 V limit." },
+      { name: "Panel Area", tip: "Module area in m² from the datasheet (about 1.7 m² for 60-cell, 2.0-2.6 m² for 72/144-cell). Roof area = panels × area × 1.15." },
       { name: "Daily Energy Demand (kWh/day)", tip: "Total electrical energy consumed per day. Read this from your electric bill (monthly kWh / 30) or sum all load wattages × hours of use. A typical Philippine household: 10-20 kWh/day. Office: 50-200 kWh/day." },
       { name: "Panel Wp Rating", tip: "Rated peak power of each solar panel in watts-peak (Wp). Common sizes: 300 Wp, 400 Wp, 450 Wp, 550 Wp. Higher Wp panels require fewer panels for the same array capacity: preferred for roof-area-limited sites." },
       { name: "Panel Voc", tip: "Open-circuit voltage of the panel (from the datasheet). Used to compute string sizing: how many panels can be connected in series without exceeding the 1000 V DC string voltage limit per IEC 62548 / PEC Art. 6." },
-      { name: "System Derating Factor", tip: "Accounts for real-world losses: soiling (dust), wiring resistance, module mismatch, temperature derating (Philippine heat reduces panel output ≈5-15%), and other system losses. Typical: 75-85%. PVsyst default: 80%." },
+      { name: "System Derating", tip: "Accounts for real-world losses: soiling (dust), wiring resistance, module mismatch, temperature derating (Philippine heat reduces panel output ≈5-15%), and other system losses. Typical: 75-85%. PVsyst default: 80%." },
       { name: "Inverter Efficiency", tip: "CEC weighted efficiency of the inverter. Modern string inverters: 95-98%. Use 96% as a conservative default. Micro-inverters are slightly higher but cost more. Central inverters for large arrays: 97-98%." },
-      { name: "Battery Autonomy (Off-Grid/Hybrid)", tip: "Number of days the battery can power the load without solar generation (cloudy days). Philippines: 1 day is standard for hybrid backup. Off-grid remote sites: 2-3 days. More autonomy = larger, more expensive battery." },
+      { name: "Autonomy Days", tip: "Number of days the battery can power the load without solar generation (cloudy days). Philippines: 1 day is standard for hybrid backup. Off-grid remote sites: 2-3 days. More autonomy = larger, more expensive battery." },
+      { name: "Battery Voltage", tip: "The battery bank bus voltage: 12 / 24 V for small systems, 48 V for most homes and offices. The bank is 12 V monoblocs in series to this voltage." },
       { name: "Depth of Discharge (DoD)", tip: "Maximum fraction of battery capacity that can be used. Lithium (LiFePO4): 80-90% DoD. Sealed Lead-Acid (VRLA): 50-60% DoD. Exceeding DoD shortens battery life significantly. Default 80% suits lithium." },
     ],
     notes: [
@@ -12609,7 +12615,7 @@ function renderSolarPVReport(inputs, results, narrative) {
           <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Inverter Capacity</div>
           <div style="font-size:2rem;font-weight:800;color:#7a5200;">${e(results.inverter_kw || 0)}</div>
           <div style="font-size:0.8rem;color:#666;">kW</div>
-          <div style="font-size:0.75rem;color:#595959;margin-top:0.3rem;">DC/AC ratio ≈ 1.0</div>
+          <div style="font-size:0.75rem;color:#595959;margin-top:0.3rem;">DC/AC ratio ${e(results.dc_ac_ratio ?? 1.0)}</div>
         </div>
         <div class="result-highlight" style="background:#fef3f2;border:2px solid #ef4444;border-radius:0.5rem;padding:1rem;text-align:center;">
           <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;">Annual Yield</div>
@@ -12631,10 +12637,10 @@ function renderSolarPVReport(inputs, results, narrative) {
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">5</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Panel Count = ⌈Required kWp × 1000 / ${e(inputs.panel_wp || 450)} Wp⌉</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.panel_qty || 0)} panels</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">6</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Actual Array = ${e(results.panel_qty || 0)} × ${e(inputs.panel_wp || 450)} Wp / 1000</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.actual_array_kwp || 0)} kWp</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">7a</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Voc at T_min: Voc_max = ${e(inputs.panel_voc || 49.5)} × (1 + (${e(results.temp_coeff_voc ?? inputs.temp_coeff_voc ?? -0.29)}/100) × (${e(results.t_min_c ?? inputs.t_min_c ?? 18)} − 25))</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.voc_max || 0)} V</td></tr>
-      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">7b</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">String Config: ⌊1000 V / ${e(results.voc_max || 0)} V Voc_max⌋ = ${e(results.panels_per_string || 0)} panels/string; ⌈${e(results.panel_qty || 0)} / ${e(results.panels_per_string || 0)}⌉ = ${e(results.num_strings || 0)} strings</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(results.panels_per_string || 0)}S × ${e(results.num_strings || 0)}P</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">7b</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">String Config: ⌊1000 V / ${e(results.voc_max || 0)} V⌋ = at most ${e(results.max_panels_per_string ?? results.panels_per_string ?? 0)} panels/string; ${e(results.num_strings || 0)} equal strings of ${e(results.panels_per_string || 0)} (string Voc ${e(results.voc_string_cold_V || 0)} V)</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(results.panels_per_string || 0)}S × ${e(results.num_strings || 0)}P</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">8</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Annual Yield = ${e(results.actual_array_kwp || 0)} kWp × ${e(results.psh_hr || inputs.psh_hr || 4.5)} h × 365 × ${e(results.system_efficiency || 0)}</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.annual_yield_kwh || 0)} kWh/yr</td></tr>
-      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">9</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Roof Area = ${e(results.panel_qty || 0)} panels × ${e(inputs.panel_area_m2 || 1.7)} m²/panel</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.total_roof_area_m2 || 0)} m²</td></tr>
-      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">10</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">CO₂ Reduction = ${e(results.annual_yield_kwh || 0)} kWh × 0.72 kg CO₂/kWh</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.co2_reduction_kg || 0)} kg/yr</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">9</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">Roof Area = ${e(results.panel_qty || 0)} panels × ${e(inputs.panel_area_m2 || 1.7)} m²/panel × 1.15 spacing</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.total_roof_area_m2 || 0)} m²</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">10</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;">CO₂ Reduction = ${e(results.annual_yield_kwh || 0)} kWh × ${e(results.grid_ef_kg_kwh ?? 0.6836)} kg CO₂/kWh</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.co2_reduction_kg || 0)} kg/yr</td></tr>
     </table>
 
     <!-- Battery section (Off-Grid / Hybrid) -->
@@ -12645,7 +12651,7 @@ function renderSolarPVReport(inputs, results, narrative) {
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Autonomy Days</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(inputs.autonomy_days || 1)} day(s)</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Depth of Discharge (DoD)</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(inputs.dod_pct || 80)} %</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">System Voltage</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;">${e(inputs.battery_voltage || 48)} V DC</td></tr>
-      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Required Battery Energy</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.battery_kwh || 0)} kWh</td></tr>
+      <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Required Battery Energy (E × days / (DoD × 0.85))</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.battery_kwh || 0)} kWh</td></tr>
       <tr><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;color:#555;">Required Battery Capacity</td><td style="padding:0.4rem 0.5rem;border-bottom:1px solid #eee;text-align:right;font-weight:700;">${e(results.battery_ah || 0)} Ah @ ${e(inputs.battery_voltage || 48)} V</td></tr>
     </table>` : ''}
 
@@ -12668,7 +12674,7 @@ function renderSolarPVReport(inputs, results, narrative) {
       <div>• DOE Department Circular DC2015-07-0012: Net Metering Program Rules (systems ≤100 kWp)</div>
       <div>• IEC 61730 / IEC 61215: PV Module Safety and Performance Certification</div>
       <div>• IEEE 1547: Standard for Interconnection of Distributed Energy Resources</div>
-      <div>• Philippine Grid Emission Factor: 0.72 kg CO₂/kWh (DOE)</div>
+      <div>• Philippine Grid Emission Factor: ${e(results.grid_ef_kg_kwh ?? 0.6836)} kg CO₂/kWh (${e(results.grid_ef_basis || 'DOE NGEF 2015-2017')})</div>
     </div>
 
     <!-- Signature block -->
