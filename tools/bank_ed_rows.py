@@ -407,6 +407,16 @@ ENGINE_CHECKED["Solar PV System"] = (
     "string rule used STC Voc, its battery omitted the 0.85 round trip, and its names are now the form's. Hand vectors fail "
     "on the old engine; walked on the served page at 390 (off-grid Davao): '94.12 kWh', '1960.8 Ah @ 48 V', '0.7859 (DOE "
     "NGEF ... Mindanao)', no sideways scroll. Door page restamped (252 panels / 100.8 kWp / 629 m2).")
+ENGINE_CHECKED["Earthing / Grounding System"] = (
+    "FOUND AND FIXED, read against python-api/calcs/earthing_grounding.py and IEEE 142 Table 4-5: (1) the rod formula put "
+    "the DIAMETER where Dwight's ln(4L/a) takes the radius - 11% optimistic (3 m x 16 mm in 100 Ohm-m: 29.8 for 33.5 "
+    "Ohm); the oracle vector had pinned the 29.8. (2) The ring 'Sunde' formula ln(8D/d) - 2 gave a 10 m ring 3.54 Ohm, "
+    "below a solid 10 m surface disc (rho/2D = 5) - impossible; now IEEE 142's [ln(8D/d) + ln(4D/s)] at the 0.75 m "
+    "minimum burial: 6.22 Ohm. (3) The GEC table gave 6 mm2 for a 35 mm2 service and 16 mm2 up to 95 mm2 - NEC 250.66 by "
+    "the service conductor's area, as PEC sizes: 35 -> 14 mm2, 95 -> 38 mm2. The guide carried the same formulas and a "
+    "third GEC table; it and the report now print the engine's, and its names are the form's. Vectors fail on the old "
+    "engine; walked on the served page at 390 (ring, 95 mm2 service): '6.216 Ohm', 'IEEE 142 Table 4-5', '38 mm2 (2 "
+    "AWG)', no sideways scroll. Door page restamped (4.19 Ohm).")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

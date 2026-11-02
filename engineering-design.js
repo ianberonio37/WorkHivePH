@@ -1634,40 +1634,44 @@ const GUIDES = {
       "IEEE 142-2007 (Green Book): Recommended Practice for Grounding of Industrial and Commercial Power Systems",
     ],
     formulas: [
-      "Rod Electrode Resistance (Dwight Formula):",
-      "  R = (rho / 2*pi*L) x [ln(4L/d) - 1]",
-      "  rho = soil resistivity (Ohm*m)   L = rod length (m)   d = rod diameter (m)",
+      "Rod Electrode Resistance (Dwight, IEEE 142 Table 4-5):",
+      "  R = (rho / 2*pi*L) x [ln(4L/a) - 1]  =  (rho / 2*pi*L) x [ln(8L/d) - 1]",
+      "  rho = soil resistivity (Ohm*m)   L = rod length (m)   a = rod RADIUS, d = rod diameter (m)",
       "",
       "Plate Electrode Resistance:",
       "  R = rho / (4r)   where r = sqrt(A/pi) = equivalent radius of plate",
       "  A = plate face area (m^2) = width * height",
       "",
-      "Ring (Loop) Electrode Resistance (Sunde Formula):",
-      "  R = (rho / 2*pi^2*D) x [ln(8D/d) - 2]",
-      "  D = mean diameter of ring (m)   d = conductor diameter (m)",
+      "Ring (Loop) Electrode Resistance (IEEE 142 Table 4-5):",
+      "  R = (rho / 2*pi^2*D) x [ln(8D/d) + ln(4D/s)]",
+      "  D = mean diameter of ring (m)   d = conductor diameter (m)   s = 2 x burial depth (0.75 m minimum per PEC 2.50.53(F), so s = 1.5 m)",
       "",
       "Parallel Electrodes (simplified, spacing > 2x depth):",
       "  R_N = R_single / N",
       "  N = number of electrodes",
       "",
-      "GEC Sizing (PEC Table 2.50.66 / NEC Table 250.66):",
-      "  Service conductor <= 35 mm2  -> GEC 8 mm2",
-      "  Service conductor <= 50 mm2  -> GEC 10 mm2",
-      "  Service conductor <= 70 mm2  -> GEC 16 mm2",
-      "  Service conductor <= 95 mm2  -> GEC 25 mm2",
-      "  Service conductor <= 120 mm2 -> GEC 35 mm2",
-      "  Service conductor <= 240 mm2 -> GEC 50 mm2",
+      "GEC Sizing (PEC 2.50.66 / NEC Table 250.66, copper, by the service conductor's area):",
+      "  up to 33.6 mm2 (2 AWG)        -> GEC 8.0 mm2 (8 AWG)",
+      "  up to 53.5 mm2 (1/0)          -> GEC 14 mm2 (6 AWG)",
+      "  up to 85 mm2 (3/0)            -> GEC 22 mm2 (4 AWG)",
+      "  up to 177 mm2 (350 kcmil)     -> GEC 38 mm2 (2 AWG)",
+      "  up to 304 mm2 (600 kcmil)     -> GEC 60 mm2 (1/0)",
+      "  up to 557 mm2 (1100 kcmil)    -> GEC 80 mm2 (2/0)",
+      "  larger                         -> GEC 100 mm2 (3/0)",
     ],
     fields: [
       { name: "System Type", tip: "Residential/Commercial: 10 Ohm limit per PEC 2017 Art. 2.50 / NEC 250.53. Industrial: 5 Ohm limit per PEC 2017 Art. 2.50.56 and IEEE 142 Green Book. Substation: 1 Ohm limit per IEEE 80. Telecommunications: 5 Ohm per IEC 62305 and DOST/NTC requirements." },
       { name: "Electrode Type", tip: "Rod: driven vertically into earth. Most common for buildings. Standard Philippine practice uses 16mm diameter copper-bonded steel rod, 2.4m or 3m long. Plate: buried horizontally, typically 600x600mm copper plate at 1m depth. Ring: bare copper conductor (usually 50mm2) laid in a trench around the building perimeter, used in substation earthing grids." },
       { name: "Soil Resistivity", tip: "Measured in Ohm*m. Typical Philippine values: Wet/marshy soil 10-100; Clay/loam 100-300; Sandy loam 300-500; Sand 500-2000; Gravel/rocky 2000-10000. For critical installations, conduct a 4-pin Wenner soil resistivity test per IEEE 81 before design." },
-      { name: "Number of Electrodes", tip: "If a single electrode does not meet the resistance limit, add more in parallel (well-separated, spacing > 2x electrode depth or length). For N identical electrodes with adequate spacing: R_N = R_single / N." },
+      { name: "Number of Parallel Electrodes", tip: "If a single electrode does not meet the resistance limit, add more in parallel (well-separated, spacing > 2x electrode depth or length). For N identical electrodes with adequate spacing: R_N = R_single / N." },
       { name: "Rod Length (m)", tip: "Standard lengths: 1.5m, 2.4m, 3.0m, 4.5m. Longer rods reach deeper, wetter soil layers and achieve lower resistance. Philippine BFP/LGU permits generally require minimum 2.4m rod length for buildings. Deep-driven rods (6m+) are used in high-resistivity soil areas." },
       { name: "Rod Diameter (mm)", tip: "Standard: 16mm copper-bonded steel rod (most common in Philippine practice). Solid copper rods: 12mm or 16mm. Galvanized steel: 16mm or 20mm. Larger diameter reduces resistance only slightly; length is the dominant factor." },
-      { name: "Plate Width / Height (m)", tip: "Standard plate: 0.6m x 0.6m (0.36 m2). Larger plates lower resistance. Plate must be buried at least 0.5m below grade and in a permanently moist soil layer. Copper plate is preferred for Philippine coastal and industrial sites." },
-      { name: "Ring Diameter (m)", tip: "For building foundation ring electrodes, use the perimeter of the building foundation loop. For substation earthing grids, use the larger of the transformer yard dimensions. A 10m diameter ring (31m circumference) is typical for a small substation." },
-      { name: "Service Conductor Size (mm2)", tip: "The largest ungrounded (phase) conductor entering the service. Used to size the grounding electrode conductor per PEC Table 2.50.66. For example: 35mm2 service conductor requires 8mm2 GEC; 95mm2 service conductor requires 25mm2 GEC." },
+      { name: "Plate Width", tip: "Plate width in metres. Standard plate: 0.6m x 0.6m (0.36 m2); larger plates lower resistance (R = rho / 4r, r = the radius of a disc of the same area). Bury it at least 0.5 m below grade in permanently moist soil." },
+      { name: "Plate Height", tip: "Plate height in metres; with the width it sets the plate area and its equivalent radius." },
+      { name: "Ring Mean Diameter", tip: "For building foundation ring electrodes, use the perimeter of the building foundation loop. For substation earthing grids, use the larger of the transformer yard dimensions. A 10m diameter ring (31m circumference) is typical for a small substation." },
+      { name: "Conductor Diameter", tip: "Diameter of the ring conductor in mm: 50 mm2 bare copper is about 9 mm, 70 mm2 about 11 mm. The ring is taken at the 0.75 m minimum burial depth." },
+      { name: "Largest Service Conductor", tip: "The largest ungrounded (phase) conductor entering the service. Used to size the grounding electrode conductor per PEC Table 2.50.66. For example: 35mm2 service conductor requires 8mm2 GEC; 95mm2 service conductor requires 25mm2 GEC." },
+      { name: "System Voltage", tip: "Recorded on the report for the permit documentation; the electrode resistance and the GEC do not depend on it." },
     ],
     notes: [
       "Resistance limits: 10 Ohm for residential/commercial (PEC Art. 2.50), 5 Ohm for industrial (IEEE 142 Green Book), 1 Ohm for substations (IEEE 80). Always check the AHJ (Authority Having Jurisdiction) requirement for the specific project.",
@@ -14170,10 +14174,10 @@ function renderEarthingReport(inputs, results, narrative) {
     : `Ring/Loop (D=${ringDia} m, conductor d=${ringCond} mm)`;
 
   const formulaLine = elecType === 'Rod'
-    ? `R = (rho / 2&pi;L) &times; [ln(4L/d) &minus; 1] &nbsp; [Dwight, 1936]`
+    ? `R = (rho / 2&pi;L) &times; [ln(8L/d) &minus; 1] &nbsp; [Dwight, IEEE 142; = ln(4L/a) &minus; 1 with a the rod radius]`
     : elecType === 'Plate'
     ? `r = sqrt(A/&pi;); &nbsp; R = rho / (4r) &nbsp; [Plate electrode]`
-    : `R = (rho / 2&pi;&sup2;D) &times; [ln(8D/d) &minus; 2] &nbsp; [Sunde, 1968]`;
+    : `R = (rho / 2&pi;&sup2;D) &times; [ln(8D/d) + ln(4D/s)], s = 1.5 m (0.75 m burial) &nbsp; [IEEE 142 Table 4-5]`;
 
   const parallelRow = numElec > 1
     ? `<tr><td>Parallel Electrode Resistance (${numElec} electrodes)</td><td>${e(Number(rParallel).toFixed(3))} &Omega;</td></tr>`
@@ -14248,7 +14252,7 @@ function renderEarthingReport(inputs, results, narrative) {
     </table>
 
     <h3>4.2 Grounding Electrode Conductor (GEC) Sizing</h3>
-    <p>GEC minimum cross-section per PEC 2017 Table 2.50.66 based on service conductor size:</p>
+    <p>GEC minimum cross-section per PEC 2.50.66 / NEC Table 250.66, by the area of the largest service conductor:</p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Parameter</th><th>Value</th></tr>
       <tr><td>Service Conductor Size</td><td>${e(svcCond)} mm&#178;</td></tr>

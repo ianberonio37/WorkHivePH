@@ -6,14 +6,14 @@ Source: https://workhiveph.com/tools/earthing-grounding-calculator/
 
 Earthing / Grounding Calculator
  G1+E3 
-**The Earthing / Grounding Calculator finds the earth-electrode resistance and grounding-conductor size for a system, checked against the limit. Example: for four 3 m rods in 50 Ω·m soil for a TN-S system, Earth resistance = 3.73 Ω, Allowable limit = 10 Ω, Compliance = PASS (per PEC 2017 Art. 2.50 and IEC 60364-5-54).**
+**The Earthing / Grounding Calculator finds the earth-electrode resistance and grounding-conductor size for a system, checked against the limit. Example: for four 3 m rods in 50 Ω·m soil for a TN-S system, Earth resistance = 4.19 Ω, Allowable limit = 10 Ω, Compliance = PASS (per PEC 2017 Art. 2.50 and IEC 60364-5-54).**
 How it works
 The calculator follows PEC 2017 Art. 2.50 and IEC 60364-5-54. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Electrical & Power)
 Inputs: four 3 m rods in 50 Ω·m soil for a TN-S system.
 ResultValue
-Earth resistance3.73 Ω
+Earth resistance4.19 Ω
 Allowable limit10 Ω
 CompliancePASS
 Computed by WorkHive's calculation engine when this page was built; standard: PEC 2017 Art. 2.50 and IEC 60364-5-54.
@@ -36,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 9156a2a32a578651 -->
+<!-- md-twin source-sha: 83a8f75488e4d7dd -->

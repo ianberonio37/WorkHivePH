@@ -1174092,8 +1174092,8 @@
     },
     {
       "id": "ED153",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Earthing / Grounding System on engineering-design.html · solo-owner",
       "pages": [
@@ -1174147,6 +1174147,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Earthing / Grounding System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/earthing_grounding.py and IEEE 142 Table 4-5: (1) the rod formula put the DIAMETER where Dwight's ln(4L/a) takes the radius - 11% optimistic (3 m x 16 mm in 100 Ohm-m: 29.8 for 33.5 Ohm); the oracle vector had pinned the 29.8. (2) The ring 'Sunde' formula ln(8D/d) - 2 gave a 10 m ring 3.54 Ohm, below a solid 10 m surface disc (rho/2D = 5) - impossible; now IEEE 142's [ln(8D/d) + ln(4D/s)] at the 0.75 m minimum burial: 6.22 Ohm. (3) The GEC table gave 6 mm2 for a 35 mm2 service and 16 mm2 up to 95 mm2 - NEC 250.66 by the service conductor's area, as PEC sizes: 35 -> 14 mm2, 95 -> 38 mm2. The guide carried the same formulas and a third GEC table; it and the report now print the engine's, and its names are the form's. Vectors fail on the old engine; walked on the served page at 390 (ring, 95 mm2 service): '6.216 Ohm', 'IEEE 142 Table 4-5', '38 mm2 (2 AWG)', no sideways scroll. Door page restamped (4.19 Ohm). WALKED: Earthing / Grounding System's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T02:45:36Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

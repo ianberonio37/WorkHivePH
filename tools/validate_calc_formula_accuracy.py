@@ -1717,15 +1717,29 @@ VECTORS = [
     {
         "module": "calcs.earthing_grounding",
         "calc_type": "Earthing / Grounding System",
-        "standard": "IEC 60364-5-54 / Dwight 1936 — R = (ρ/2πL)·[ln(4L/d)−1]",
+        "standard": "IEEE 142 Table 4-5 / Dwight 1936 — R = (ρ/2πL)·[ln(4L/a)−1], a = rod RADIUS",
         "inputs": {"electrode_type": "Rod", "soil_resistivity": 100, "rod_length_m": 3.0,
                    "rod_dia_mm": 16, "num_electrodes": 1,
                    "system_type": "Residential / Commercial"},
         "asserts": [
-            {"path": "r_single_ohm", "expected": 29.816, "tol": 0.02,
-             "note": "(100/2π·3)·[ln(4·3/0.016)−1] = 5.305·[ln(750)−1] = 29.82 Ω (Dwight rod)"},
+            {"path": "r_single_ohm", "expected": 33.493, "tol": 0.02,
+             "note": "(100/2π·3)·[ln(4·3/0.008)−1] = 5.3052·[ln(1500)−1] = 5.3052·6.3132 = 33.49 Ω - a is the 8 mm RADIUS (re-derived 2026-11-02: this pinned 29.82, the diameter put in for the radius)"},
             {"path": "r_limit_ohm", "expected": 10.0, "tol": 0,
              "note": "Residential/Commercial earth-resistance limit = 10 Ω (IEEE 142 / PEC)"},
+        ],
+    },
+    {
+        # ★THE RING READ LOWER THAN A SOLID DISC; THE GEC SMALLER THAN NEC 250.66 (2026-11-02, ED-G1 Earthing)
+        "module": "calcs.earthing_grounding",
+        "calc_type": "Earthing / Grounding System - ring electrode and GEC",
+        "standard": "IEEE 142 Table 4-5 ring: ρ/(2π²D)·[ln(8D/d) + ln(4D/s)]; NEC 250.66 / PEC 2.50.66",
+        "inputs": {"electrode_type": "Ring", "soil_resistivity": 100, "ring_dia_m": 10, "ring_cond_dia_mm": 10,
+                   "num_electrodes": 1, "system_type": "Residential / Commercial", "service_cond_mm2": 95},
+        "asserts": [
+            {"path": "r_single_ohm", "expected": 6.216, "tol": 0.005,
+             "note": "100/(2π²·10) = 0.50661; ln(8·10/0.010) = 8.98720; burial 0.75 m (PEC 2.50.53(F) minimum): s = 1.5, ln(40/1.5) = 3.28341; 0.50661 × 12.27061 = 6.216 Ω (it read 3.54, below a solid 10 m disc's ρ/2D = 5 Ω)"},
+            {"path": "gec_mm2", "expected": 38, "tol": 0,
+             "note": "95 mm² is larger than 3/0 (85.0 mm²), within 350 kcmil (177.3): NEC 250.66 -> 2 AWG GEC = PEC 38 mm² (it gave 16)"},
         ],
     },
     {

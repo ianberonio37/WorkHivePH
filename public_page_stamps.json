@@ -75,6 +75,10 @@
   "content_sha": "6b3f963bba2cad0a",
   "stamped": "2026-11-02"
  },
+ "tools/earthing-grounding-calculator": {
+  "content_sha": "e8681de144670fa0",
+  "stamped": "2026-11-02"
+ },
  "tools/elevator-traffic-calculator": {
   "content_sha": "f3db80ca0ef5f99d",
   "stamped": "2026-11-02"
