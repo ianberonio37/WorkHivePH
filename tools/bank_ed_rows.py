@@ -283,6 +283,15 @@ ENGINE_CHECKED["Generator Sizing"] = (
     "Load Schedule, Largest Motor (DOL Start), System Configuration, Overall Power Factor), and the starting-method field "
     "the form never had is gone. The vector fails on the old engine; walked on the served page at 390 (10 hp): source "
     "python, 'Next standard size >= 73.14 kVA -> 75 kVA'.")
+ENGINE_CHECKED["UPS Sizing"] = (
+    "READ AGAINST python-api/calcs/ups_sizing.py (its load schedule, backup, growth and efficiency were wired earlier "
+    "the same day - ED-I1): kVA = design VA / 0.80, kW_design = load / eta, Ah = kW_design x t / (V_dc x 0.80 x 0.98), "
+    "DC bus by kVA. FIXED: the guide divided by eta_UPS a second time in the Ah formula (the engine applies it once, in "
+    "kW_design), called the 0.80 a depth of discharge without saying it is the IEEE 1184 aging margin, and named a "
+    "'Load VA and PF' field the form does not have (it is the Load Schedule) with no tip for UPS Efficiency. It now says "
+    "the Ah is a 20-hour-rate LOWER BOUND - a VRLA battery delivers well below that at a 5-30 min discharge; select from "
+    "the maker's W/cell table (IEEE 1184). OPEN: the engine has no rate-capacity correction (no verified table encoded). "
+    "Read in the page by the guide prover at 390 and 1280.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
