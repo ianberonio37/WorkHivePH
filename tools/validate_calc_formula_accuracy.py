@@ -712,7 +712,23 @@ VECTORS = [
                    "safety_factor": 1.15, "n_units": 1, "iplv": 5.0},
         "asserts": [
             {"path": "iplv", "expected": 5.0, "tol": 0.001, "note": "the entered 5.0, not the estimate 3.10"},
-            {"path": "iplv_check", "expected": "PASS", "tol": 0, "note": "5.0 >= 4.02 (the estimate failed)"},
+            {"path": "iplv_check", "expected": "PASS", "tol": 0, "note": "5.0 >= 4.10 (575 kW design: one 633 kW unit, the >= 150 TR tier; the estimate failed)"},
+        ],
+    },
+    {
+        # ★EACH UNIT WAS SIZED FOR THE WHOLE PLANT (2026-11-02, ED-G1 Chiller Air Cooled): fails on that engine (2 x 633 kW).
+        "module": "calcs.chiller",
+        "calc_type": "Chiller System - Air Cooled: each unit carries its share",
+        "standard": "Guide: units share the design load; ASHRAE 90.1 tier by the unit's rated size; airflow = Q_rej/(rho.cp.dT)",
+        "inputs": {"cooling_load_kW": 500, "ambient_temp_C": 35, "chw_supply_C": 7, "chw_return_C": 12, "cop": 3.0,
+                   "safety_factor": 1.10, "n_units": 2},
+        "asserts": [
+            {"path": "Q_per_unit_kW", "expected": 275.0, "tol": 0.01, "note": "500 x 1.10 = 550 kW design; / 2 units = 275 kW each"},
+            {"path": "nominal_kW_each", "expected": 281, "tol": 0, "note": "smallest standard size >= 275 kW: 281 kW (246 is short)"},
+            {"path": "nominal_total_TR", "expected": 159.8, "tol": 0.05, "note": "2 x 281 / 3.517 = 2 x 79.90 = 159.8 TR installed (the old engine: 2 x 633 = 360 TR)"},
+            {"path": "ashrae_min_iplv", "expected": 4.02, "tol": 0, "note": "a 281 kW (79.9 TR) unit is in the < 150 TR tier: IPLV 13.7 EER = 4.02 COP"},
+            {"path": "Q_airflow_CMH", "expected": 218905, "tol": 1, "note": "Q_rej = 550 + 550/3.0 = 733.33 kW; / (1.2 x 1.005 x 10) = 2,640,000 / 12.06 = 218,905.5 m3/h"},
+            {"path": "cw_flow_m3hr", "expected": 218905, "tol": 1, "note": "the same fan duty (it was 733.33 x 450 = 330,000)"},
         ],
     },
     {

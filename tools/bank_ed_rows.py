@@ -330,6 +330,17 @@ ENGINE_CHECKED["Expansion Tank Sizing"] = (
     "hand-derived from IAPWS v(7) = 1.000097, v(35) = 1.005998) fails on the old engine (8 L tank, should be 12); walked "
     "on the served page at 390: 'E_w (7 C -> 35 C) = 0.00590', '118.01 L / 0.5690 = 207.58 L', no sideways scroll. The "
     "door page already entered 7 -> 35 C, so its figures stand.")
+ENGINE_CHECKED["Chiller System — Air Cooled"] = (
+    "FOUND AND FIXED, read against python-api/calcs/chiller.py: the guide's 'units share the design load equally' - the "
+    "engine picked each unit's nominal size for the WHOLE design load and installed n x that: two units for a 550 kW "
+    "design printed 'per unit 275 kW' then 'selected each 180 TR (633 kW)', 360 TR installed for a 156 TR plant, and the "
+    "recommendation said to procure them. Each unit is now the smallest standard size >= its share (281 kW, 159.8 TR "
+    "installed). The ASHRAE 90.1 tier was taken from the building load, not the chiller's rated size - now the unit's. Two "
+    "airflow figures for one fan duty (450 m3/h per kW, a 6.9 K rise, vs the report's 10 K) - one now, and the report's "
+    "working printed the 8 K condensing approach as the air rise while its number used 10 - it prints the 10 K rise now. "
+    "The guide's ASHRAE minimum was 90.1-2010's COP 2.84 / EER 9.7 - now 2019's 2.96 full load, IPLV 4.02 / 4.10. Guide "
+    "names are the form's. The vector fails on the old engine; walked on the served page at 390: '79.9 TR (281 kW) per "
+    "unit', '159.8 TR = 562.0 kW', 'dT air = 10 C', '<528 kW unit', no sideways scroll.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

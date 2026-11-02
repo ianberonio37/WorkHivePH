@@ -2172,9 +2172,13 @@ const GUIDES = {
       '  Q_rejection (kW) = Q_cooling (kW) + P_compressor (kW)  [first law of thermodynamics]',
       '  Q_rejection (TR) = Q_rejection (kW) / 3.517',
       '',
+      'Unit selection:',
+      '  Each unit = smallest standard size ≥ Q_design / number of units;  installed = units × that size',
+      '',
       'Condenser Airflow:',
       '  Q_airflow (m³/s) = Q_rejection (kW) / (rho_air × Cp_air × ΔT_condenser)',
-      '  rho_air = 1.16 kg/m³ @ 35°C  |  Cp_air = 1.006 kJ/kg·K  |  ΔT_condenser = 10–15°C (rise across condenser coil)',
+      '  rho_air = 1.2 kg/m³ (standard air, the basis fan airflow is rated on)  |  Cp_air = 1.005 kJ/kg·K  |  ΔT_air = 10 K rise across the coil',
+      '  That is about 300 m³/h per kW rejected; the manufacturer\u2019s fan data governs the final figure.',
       '  Q_airflow (CMH) = Q_airflow (m³/s) × 3600',
       '',
       'Chilled Water Flow Rate:',
@@ -2182,24 +2186,25 @@ const GUIDES = {
       '  ΔT_chw = chilled water temperature differential (typical: 5–7°C)',
       '  CHW Flow (L/min) = CHW Flow (L/s) × 60',
       '',
-      'ASHRAE 90.1 Minimum COP (air-cooled, <528 kW [<150 TR]):',
-      '  EER min = 9.7 (SI: COP min ≈ 2.84)',
-      '  IPLV/NPLV used for part-load efficiency assessment',
+      'ASHRAE 90.1-2019 Table 6.8.1-3 (Path A), by each chiller\u2019s rated size:',
+      '  Full load: EER ≥ 10.1 (COP ≥ 2.96) at any size',
+      '  IPLV: EER ≥ 13.7 (COP ≥ 4.02) below 150 TR (528 kW);  EER ≥ 14.0 (COP ≥ 4.10) at 150 TR and above',
     ],
     fields: [
-      { name: 'Cooling Load (kW)', tip: 'Total building or system cooling load in kW. Take this directly from the HVAC Cooling Load calculation. Add 10-15% for piping and pump heat gain (chilled water distribution loss).' },
-      { name: 'Ambient Design Temperature', tip: 'Outdoor dry-bulb temperature for condenser design. Philippine coastal/lowland default: 35°C. Highland (Baguio, Tagaytay): 28°C. Use the 1% design dry-bulb from ASHRAE or PAGASA for your location.' },
-      { name: 'Chilled Water Supply Temp', tip: 'Temperature of chilled water leaving the evaporator. Standard: 7°C. Low-temp (food processing): 2-5°C. Higher supply temp (e.g. 10°C for radiant cooling) improves COP but increases fan coil size.' },
-      { name: 'Chilled Water Return Temp', tip: 'Temperature of chilled water returning to the chiller. Standard delta-T: 5-7°C, so return = 12-14°C. Larger delta-T (10°C) reduces pump flow and energy but requires larger AHU coils.' },
-      { name: 'COP (Coefficient of Performance)', tip: 'Ratio of cooling output to power input. Air-cooled chillers in Philippine climate: 2.8 (35°C ambient, R-22 era) to 3.5 (inverter scroll, R-410A/R-32, 35°C). ASHRAE 90.1 minimum: COP 2.84 (EER 9.7). Modern inverter chillers: COP 3.0-4.0.' },
+      { name: 'Total Cooling Load (kW)', tip: 'Total building or system cooling load in kW. Take this directly from the HVAC Cooling Load calculation. Add 10-15% for piping and pump heat gain (chilled water distribution loss).' },
+      { name: 'Design Ambient Temperature', tip: 'Outdoor dry-bulb temperature for condenser design. Philippine coastal/lowland default: 35°C. Highland (Baguio, Tagaytay): 28°C. Use the 1% design dry-bulb from ASHRAE or PAGASA for your location.' },
+      { name: 'CHW Supply Temperature', tip: 'Temperature of chilled water leaving the evaporator. Standard: 7°C. Low-temp (food processing): 2-5°C. Higher supply temp (e.g. 10°C for radiant cooling) improves COP but increases fan coil size.' },
+      { name: 'CHW Return Temperature', tip: 'Temperature of chilled water returning to the chiller. Standard delta-T: 5-7°C, so return = 12-14°C. Larger delta-T (10°C) reduces pump flow and energy but requires larger AHU coils.' },
+      { name: 'COP (Coefficient of Performance)', tip: 'Ratio of cooling output to power input. Air-cooled chillers in Philippine climate: 2.8 (35°C ambient, R-22 era) to 3.5 (inverter scroll, R-410A/R-32, 35°C). ASHRAE 90.1-2019 minimum: COP 2.96 (EER 10.1). Modern inverter chillers: COP 3.0-4.0.' },
       { name: 'Safety / Diversity Factor', tip: 'Multiplier on the cooling load before selecting chiller capacity. Typical: 1.10-1.15 (10-15% margin). Accounts for future load growth, simultaneous demand peaks, and measurement uncertainty. Never use 1.0: there is always some uncertainty in load calculations.' },
       { name: 'Number of Chiller Units', tip: 'The chillers share the design load equally: 2 units are each sized for half, 3 units for a third. For N+1 redundancy, install one more chiller of the same size as a standby; it is not counted here. Two or more units also run better at part load.' },
+      { name: 'IPLV / NPLV', tip: 'Optional: the manufacturer\u2019s rated part-load efficiency (AHRI 550/590), as a COP. When entered it is the value checked against ASHRAE 90.1; left blank, the calculator estimates it from the full-load COP. Minimum 4.02 below 150 TR, 4.10 at 150 TR and above.' },
     ],
     notes: [
       'Air-cooled chillers reject heat directly to ambient air via condenser fans: no cooling tower required. This makes them simpler to install but less efficient than water-cooled systems at high ambient temperatures.',
       'Philippine climate is tropical (35°C design ambient): specify chillers rated at 35°C ambient. Do not use US/European catalog data at 35°C without confirming the manufacturer rated it at that condition.',
       'Refrigerant selection: R-410A (being phased out under Kigali Amendment), R-32 (lower GWP, now standard), R-454B/R-290 (next generation, lower GWP). Specify refrigerant type in the BOM for BFP and DENR compliance.',
-      'ASHRAE 90.1 minimum full-load COP for air-cooled chillers: 2.84 (EER 9.7) for units <528 kW. Check IPLV for part-load efficiency in buildings with variable occupancy (offices, malls).',
+      'ASHRAE 90.1-2019 minimum full-load COP for air-cooled chillers: 2.96 (EER 10.1) at any size; IPLV 4.02 below 150 TR and 4.10 at 150 TR and above, judged on each unit\u2019s rated size. Check IPLV for part-load efficiency in buildings with variable occupancy (offices, malls).',
       'Chiller clearance requirements: minimum 1.2 m on all sides for airflow. Air-cooled units recirculate hot condenser air if stacked or enclosed: always check airflow path in the equipment room or roof layout.',
       'For two-chiller systems: use one chiller at 50-60% load as the lead unit, stage on the second chiller when load exceeds 80%. This keeps both units operating near their best efficiency point.',
     ],
@@ -18462,8 +18467,8 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
     <h3>Step 4: Condenser Airflow Requirement</h3>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Formula</th><td>Q<sub>airflow</sub> = Q<sub>rejection</sub> / (ρ × c<sub>p</sub> × ΔT<sub>cond</sub>)</td></tr>
-      <tr><th>Air Properties</th><td>ρ = 1.2 kg/m³, c<sub>p</sub> = 1.005 kJ/(kg·K), ΔT<sub>cond</sub> = ${r.dT_cond_C}°C</td></tr>
-      <tr><th>Calculation</th><td>Q<sub>airflow</sub> = ${r.Q_rejection_kW} / (1.2 × 1.005 × ${r.dT_cond_C})</td></tr>
+      <tr><th>Air Properties</th><td>ρ = 1.2 kg/m³, c<sub>p</sub> = 1.005 kJ/(kg·K), ΔT<sub>air</sub> = ${r.dT_air_C ?? 10}°C (rise across the coil)</td></tr>
+      <tr><th>Calculation</th><td>Q<sub>airflow</sub> = ${r.Q_rejection_kW} / (1.2 × 1.005 × ${r.dT_air_C ?? 10}) × 3600</td></tr>
       <tr><th>Total Condenser Airflow</th><td><strong>${r.Q_airflow_CMH} CMH (${r.Q_airflow_CFM} CFM)</strong></td></tr>
       <tr><th>Per-Unit Condenser Airflow</th><td>${r.Q_airflow_CMH_per_unit} CMH per chiller unit</td></tr>
     </table>
@@ -18487,7 +18492,7 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
     <h3>Step 7: ASHRAE 90.1 COP Compliance Check</h3>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Design COP</th><td>${inputs.cop}</td></tr>
-      <tr><th>ASHRAE 90.1 Minimum COP</th><td>${r.ashrae_min_cop} (air-cooled, ${r.Q_design_kW >= 528 ? '≥528 kW' : '<528 kW'})</td></tr>
+      <tr><th>ASHRAE 90.1 Minimum COP</th><td>${r.ashrae_min_cop} (air-cooled, ${(r.ashrae_tier_kW ?? r.nominal_kW_each) >= 528 ? '≥528 kW' : '<528 kW'} unit)</td></tr>
       <tr><th>COP Margin</th><td>${r.cop_margin >= 0 ? '+' : ''}${r.cop_margin}</td></tr>
       <tr>
         <th>Compliance Result</th>
@@ -18503,7 +18508,7 @@ function renderChillerAirCooledReport(inputs, results, narrative) {
       const iplvBg     = r.iplv_check === 'PASS' ? '#e8f5e9' : '#ffebee';
       return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
         <tr><th>IPLV/NPLV (from AHRI 550/590 datasheet)</th><td>${r.iplv}</td></tr>
-        <tr><th>ASHRAE 90.1 Minimum IPLV</th><td>${r.ashrae_min_iplv} (air-cooled, ${r.Q_design_kW >= 528 ? '≥528 kW' : '<528 kW'})</td></tr>
+        <tr><th>ASHRAE 90.1 Minimum IPLV</th><td>${r.ashrae_min_iplv} (air-cooled, ${(r.ashrae_tier_kW ?? r.nominal_kW_each) >= 528 ? '≥528 kW' : '<528 kW'} unit)</td></tr>
         <tr><th>IPLV Margin</th><td>${r.iplv_margin >= 0 ? '+' : ''}${r.iplv_margin}</td></tr>
         <tr>
           <th>Compliance Result</th>

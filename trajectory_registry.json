@@ -1172532,8 +1172532,8 @@
     },
     {
       "id": "ED13",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Chiller System — Air Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1172587,6 +1172587,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Air Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/chiller.py: the guide's 'units share the design load equally' - the engine picked each unit's nominal size for the WHOLE design load and installed n x that: two units for a 550 kW design printed 'per unit 275 kW' then 'selected each 180 TR (633 kW)', 360 TR installed for a 156 TR plant, and the recommendation said to procure them. Each unit is now the smallest standard size >= its share (281 kW, 159.8 TR installed). The ASHRAE 90.1 tier was taken from the building load, not the chiller's rated size - now the unit's. Two airflow figures for one fan duty (450 m3/h per kW, a 6.9 K rise, vs the report's 10 K) - one now, and the report's working printed the 8 K condensing approach as the air rise while its number used 10 - it prints the 10 K rise now. The guide's ASHRAE minimum was 90.1-2010's COP 2.84 / EER 9.7 - now 2019's 2.96 full load, IPLV 4.02 / 4.10. Guide names are the form's. The vector fails on the old engine; walked on the served page at 390: '79.9 TR (281 kW) per unit', '159.8 TR = 562.0 kW', 'dT air = 10 C', '<528 kW unit', no sideways scroll. WALKED: Chiller System — Air Cooled's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T01:22:00Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

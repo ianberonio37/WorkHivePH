@@ -62,6 +62,11 @@ STD_CHILLER_KW = [
     422, 527, 633, 703, 844, 1055, 1266, 1407, 1758, 2110,
 ]
 
+# ─── Condenser air (standard air, as fan airflow is rated) ───────────────────
+AIR_RHO    = 1.2     # kg/m³
+AIR_CP     = 1.005   # kJ/(kg·K)
+AIR_RISE_K = 10.0    # K, air temperature rise across an air-cooled condenser coil
+
 # ─── Water properties ─────────────────────────────────────────────────────────
 RHO_WATER = 999.0   # kg/m³ at ~10°C
 CP_WATER  = 4186.0  # J/(kg·K)
@@ -217,16 +222,23 @@ def calculate(inputs: dict) -> dict:
     if _iplv_in > 0:
         iplv, iplv_source = _iplv_in, "entered (the manufacturer's rated IPLV / NPLV)"
 
+    # ── Standard chiller size selection ───────────────────────────────────────
+    # ★EACH UNIT WAS SIZED FOR THE WHOLE PLANT (2026-11-02, ED-G1 Chiller Air Cooled, read against the guide: "2 units are
+    # each sized for half"). The report printed the per-unit share (design / n) and then a nominal size "each" picked for
+    # the WHOLE design load, and the installed total as n x that: two units for a 550 kW design came out 2 x 633 kW
+    # (360 TR installed for a 156 TR plant), and the recommendation said to procure them. Each unit is now the smallest
+    # standard size that carries its share.
+    q_unit_kw = cooling_kw_design / n_units
+    rec_kw = next((s for s in STD_CHILLER_KW if s >= q_unit_kw),
+                  STD_CHILLER_KW[-1])
+    rec_tr = round(rec_kw / 3.517, 1)
+
     # ── ASHRAE 90.1 compliance — checked against spec COP (equipment selection) ──
-    limits    = _ashrae_limits(cooling_kw, is_water)
+    # The Table 6.8.1-3 capacity tier is the chiller's own rated size, not the building load (it was the raw load).
+    limits    = _ashrae_limits(rec_kw, is_water)
     cop_ok    = cop_spec >= limits["min_COP"]
     iplv_ok   = iplv     >= limits["min_IPLV"]
     compliant = cop_ok and iplv_ok
-
-    # ── Standard chiller size selection ───────────────────────────────────────
-    rec_kw = next((s for s in STD_CHILLER_KW if s >= cooling_kw_design),
-                  STD_CHILLER_KW[-1])
-    rec_tr = round(rec_kw / 3.517, 1)
 
     # ── Chilled water (evaporator) flow — sized for design load ─────────────
     chw_flow_kgs  = cooling_kw_design * 1000 / (CP_WATER * max(chw_delta_t, 1))
@@ -243,9 +255,10 @@ def calculate(inputs: dict) -> dict:
         cw_flow_m3hr = cw_flow_lps * 3.6                # L/s → m³/h
         cw_flow_gpm  = cw_flow_lps * 15.8508
     else:
-        # Air-cooled: airflow estimate - ~450 m³/h per kW rejection (typical)
+        # Air-cooled: the condenser air carries the rejected heat, ρ·cp·ΔT. This said 450 m³/h per kW (a 6.9 K rise)
+        # while the report's airflow used 10 K - two figures for one fan duty. Both are the 10 K one now.
         cw_flow_lps  = 0.0
-        cw_flow_m3hr = q_rejection_kw * 450
+        cw_flow_m3hr = q_rejection_kw / (AIR_RHO * AIR_CP * AIR_RISE_K) * 3600
         cw_flow_gpm  = 0.0
 
     # ── Part-load performance table ───────────────────────────────────────────
@@ -361,9 +374,11 @@ def calculate(inputs: dict) -> dict:
         "total_A_at_400V":  round(comp_kw * 1000 / (400 * 1.732 * 0.9), 1),
         "total_kVA":        round(comp_kw / 0.9, 1),
         # Air-cooled specific
-        "Q_airflow_CMH":    round(q_rejection_kw / (1.2 * 1.005 * 10) * 3600, 0),
-        "Q_airflow_CMH_per_unit": round(q_rejection_kw / (1.2 * 1.005 * 10) * 3600 / n_units, 0),
-        "Q_airflow_CFM":    round(q_rejection_kw / (1.2 * 1.005 * 10) * 3600 / 1.699, 0),
+        "Q_airflow_CMH":    round(q_rejection_kw / (AIR_RHO * AIR_CP * AIR_RISE_K) * 3600, 0),
+        "Q_airflow_CMH_per_unit": round(q_rejection_kw / (AIR_RHO * AIR_CP * AIR_RISE_K) * 3600 / n_units, 0),
+        "Q_airflow_CFM":    round(q_rejection_kw / (AIR_RHO * AIR_CP * AIR_RISE_K) * 3600 / 1.699, 0),
+        "dT_air_C":         AIR_RISE_K,   # air temperature rise across the condenser coil
+        "ashrae_tier_kW":   rec_kw,
         "Q_flow_lps":       round(chw_flow_lps, 3),
         "Q_flow_m3h":       round(chw_flow_m3hr, 2),
         "Q_flow_GPM":       round(chw_flow_lps * 15.8503, 1),
