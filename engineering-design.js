@@ -2578,7 +2578,7 @@ const GUIDES = {
       'ASCE 7-22: Minimum Design Loads and Associated Criteria',
     ],
     formulas: [
-      'Steel Beam: φMp = φ × Fy × Zx  (φ = 0.90, AISC Eq. F2-1)',
+      'Steel Beam: φMp = φ × Fy × Zx  (φ = 0.90, AISC Eq. F2-1, with the compression flange braced at ≤ Lp = 1.76 ry √(E/Fy); Zx, Ix, Iy from the AISC Shapes Database v16)',
       'Steel Beam Shear: φVn = φ × 0.6Fy × Aw  (φ = 1.00, compact web)',
       'Steel Column: Fcr = (0.658^(Fy/Fe)) × Fy  (inelastic, KL/r ≤ 4.71√E/Fy)',
       'Steel Column: Fcr = 0.877 × Fe  (elastic buckling)',
@@ -2592,20 +2592,24 @@ const GUIDES = {
     fields: [
       { name: 'Member Type', tip: 'Steel Beam/Column uses AISC 360-22 LRFD with W-sections. RC Beam/Column uses ACI 318-19 strength design.' },
       { name: 'Span / Length (m)', tip: 'Clear span for beams (centre-to-centre of supports). Unsupported length for columns.' },
-      { name: 'Mu (kN·m)', tip: 'Factored bending moment: apply load factors (1.2D + 1.6L per NSCP/ASCE 7) before entering here.' },
-      { name: 'Vu (kN)', tip: 'Factored shear force at the critical section (d from face of support for RC).' },
-      { name: 'Pu (kN)', tip: 'Factored axial load for columns. For beams under combined loading, use interaction equations.' },
-      { name: 'w (kN/m)', tip: 'Unfactored UDL used only for deflection check. Enter service-level load (not factored).' },
+      { name: 'M (kN·m)', tip: 'Factored bending moment: apply load factors (1.2D + 1.6L per NSCP/ASCE 7) before entering here.' },
+      { name: 'V (kN)', tip: 'Factored shear force at the critical section (d from face of support for RC).' },
+      { name: 'P (kN)', tip: 'Factored axial load for columns. For beams under combined loading, use interaction equations.' },
+      { name: 'UDL w (kN/m)', tip: 'Unfactored UDL used only for deflection check. Enter service-level load (not factored).' },
       { name: 'W-Section', tip: 'Select from standard W-sections available in Philippine steel supply. Zx (plastic modulus) drives bending capacity.' },
       { name: 'Steel Grade', tip: 'A36 (Fy=250MPa): general structural. A992/A572 Gr.50 (Fy=345MPa): higher strength, common for beams.' },
-      { name: 'K-factor', tip: 'Effective length factor for columns: 1.0 pinned-pinned, 0.7 fixed-pinned, 0.5 fixed-fixed, 2.0 cantilever.' },
-      { name: 'b/h (mm)', tip: 'RC cross-section width × total depth. Rule of thumb: h ≈ L/12 for beams, b ≈ 0.5h.' },
-      { name: 'Bar Dia / No. of Bars', tip: 'Main longitudinal reinforcement. Steel ratio ρ must be between ρmin=1.4/fy and ρmax ≈ 0.75ρb.' },
+      { name: 'b (mm) RC', tip: 'RC cross-section width in mm; rule of thumb b ≈ 0.5h.' },
+      { name: 'h (mm) RC', tip: 'RC total depth in mm; rule of thumb h ≈ L/12 for beams. The effective depth d is h less cover and half a bar.' },
+      { name: 'Concrete Grade (RC members)', tip: "f'c in MPa: 21 / 24 / 28 MPa for most building work, 35+ for heavier members. β₁ follows ACI 318-19 (0.85 up to 28 MPa, then 0.05 less per 7 MPa, not below 0.65)." },
+      { name: 'Rebar Grade', tip: 'fy 414 MPa (Grade 60, ASTM A615 / A706) is the Philippine standard; Grade 75 is 517 MPa.' },
+      { name: 'Bar Dia (RC members)', tip: 'Main longitudinal reinforcement. Steel ratio ρ must be between ρmin=1.4/fy and ρmax ≈ 0.75ρb.' },
+      { name: 'No. of Bars', tip: 'Count of main tension bars (beams) or longitudinal bars (columns); with the diameter it gives As or Ast.' },
     ],
     notes: [
       'DCR (Demand-to-Capacity Ratio) ≤ 1.0 means the member is adequate. DCR > 1.0 means it is overstressed: increase section or reduce load.',
       'Tension-controlled RC sections (εt ≥ 0.005) use φ = 0.90. Transition zone (0.002–0.005) uses reduced φ: calculator applies this automatically.',
-      'Steel column KL/r must not exceed 200 (AISC §E2 recommended limit).',
+      'Steel column KL/r must not exceed 200 (AISC §E2 recommended limit). The column is taken pinned-pinned (K = 1.0) about its weak axis; a fixed or cantilever column needs its own K.',
+      'The steel beam capacity is the plastic moment, which needs the compression flange braced (by a slab, deck or bracing) at no more than Lp = 1.76 ry √(E/Fy) - the report prints Lp. A beam unbraced over a longer length must also be checked for lateral-torsional buckling (AISC F2-2/F2-3), which this calculator does not do.',
       'A PRC-licensed Civil/Structural Engineer must sign and seal all structural calculations submitted for building permit in the Philippines (RA 544).',
       'This calculator covers individual member checks only: connection design, stability analysis (P-Δ), and seismic detailing require separate calculations.',
     ],
@@ -32219,6 +32223,7 @@ function renderBeamColumnReport(inputs, r, narrative) {
     <p style="font-size:0.83rem;color:#333;">
       M<sub>p</sub> = Z<sub>x</sub> &times; F<sub>y</sub> = ${ZxMm3.toLocaleString()} mm&sup3; &times; ${Fy} MPa = <strong>${(ZxMm3 * Fy / 1e6).toFixed(1)} kN.m</strong><br>
       &phi;M<sub>p</sub> = &phi;<sub>b</sub> &times; M<sub>p</sub> = ${phiB} &times; ${(ZxMm3 * Fy / 1e6).toFixed(1)} = <strong>${r.phi_Mp_kNm} kN.m</strong><br>
+      ${r.Lp_m != null ? `Plastic moment holds with the compression flange braced at &le; L<sub>p</sub> = 1.76 r<sub>y</sub> &radic;(E/F<sub>y</sub>) = <strong>${r.Lp_m} m</strong> (AISC F2-5)${r.braced_assumed ? '; this span is longer: brace it at that spacing or check lateral-torsional buckling' : ''}<br>` : ''}
       DCR<sub>M</sub> = M<sub>u</sub> / &phi;M<sub>p</sub> = ${muIn} / ${r.phi_Mp_kNm} = <strong style="color:${mOk(r.moment_ok)};">${r.DCR_moment}</strong> &nbsp; <span style="font-weight:700;color:${mOk(r.moment_ok)};">${mTxt(r.moment_ok)}${r.moment_ok ? ' (DCR not more than 1.0)' : ' (DCR exceeds 1.0 - upsize section)'}</span>
     </p>
 

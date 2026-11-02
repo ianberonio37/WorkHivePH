@@ -2048,6 +2048,21 @@ VECTORS = [
         "custom": _check_harmonic_519_individual_limits,
     },
     {
+        # ★THE CATALOGUE'S Ix / Sx / Zx WERE 2-3x THE SECTIONS' OWN (2026-11-02, ED-G1 Beam / Column). Fails on that table.
+        "module": "calcs.beam_column",
+        "calc_type": "Beam / Column Design - W360x33 on its AISC properties",
+        "standard": "AISC Shapes Database v16.0 W14x22: Zx 33.2 in³, Ix 199 in⁴; phi.Mp = 0.9.Fy.Zx; 5wL⁴/384EI",
+        "inputs": {"member_type": "Steel Beam", "steel_grade": "A992", "section": "W360x33", "span_m": 6,
+                   "Mu_kNm": 150, "Vu_kN": 100, "w_kNm": 30},
+        "asserts": [
+            {"path": "phi_Mp_kNm", "expected": 168.9, "tol": 0.2,
+             "note": "0.90 x 345 MPa x 544.1 cm³ (33.2 in³ x 16.3871) = 168.9 kN·m (the old Zx 1,210 gave 375.7: a 150 kN·m demand looked like DCR 0.40, it is 0.89)"},
+            {"path": "deflection_mm", "expected": 30.56, "tol": 0.05,
+             "note": "5 x 30 x 6⁴ / (384 x 200e6 kPa x 8,283e-8 m⁴ (199 in⁴ x 41.6231)) = 194,400 / 6.361e6 = 0.03056 m (the old Ix 18,500 gave 13.7 mm)"},
+            {"path": "deflection_ok", "expected": False, "tol": 0, "note": "30.6 mm > L/360 = 16.7 mm (it read 13.7 mm, PASS)"},
+        ],
+    },
+    {
         "module": "calcs.beam_column",
         "calc_type": "Beam / Column Design",
         "standard": "AISC 360-22 LRFD — Mp = Fy·Zx; Vn = 0.6·Fy·Aw; φb = 0.90",
@@ -2055,12 +2070,12 @@ VECTORS = [
                    "section": "W310x45", "span_m": 6, "Mu_kNm": 150,
                    "Vu_kN": 100, "w_kNm": 10},
         "asserts": [
-            {"path": "Mp_kNm", "expected": 295.0, "tol": 0.2,
-             "note": "Mp = Fy·Zx = 250 MPa · 1180 cm³ = 250·1180·1e3 N·mm = 295 kN·m"},
-            {"path": "phi_Mp_kNm", "expected": 265.5, "tol": 0.2,
-             "note": "φb·Mp = 0.90·295.0 = 265.5 kN·m (LRFD bending)"},
-            {"path": "Vn_kN", "expected": 333.3, "tol": 0.3,
-             "note": "Vn = 0.6·Fy·Aw = 0.6·250·(313·7.1 mm²) = 333.3 kN (compact web)"},
+            {"path": "Mp_kNm", "expected": 176.6, "tol": 0.2,
+             "note": "Mp = Fy·Zx = 250 MPa · 706.3 cm³ (AISC W12x30 Zx 43.1 in³ × 16.3871) = 176.6 kN·m (re-derived 2026-11-02: this pinned 295 on a Zx of 1,180 - the catalogue was 1.7x the section's own)"},
+            {"path": "phi_Mp_kNm", "expected": 158.9, "tol": 0.2,
+             "note": "φb·Mp = 0.90·176.6 = 158.9 kN·m (LRFD bending)"},
+            {"path": "Vn_kN", "expected": 309.3, "tol": 0.3,
+             "note": "Vn = 0.6·Fy·Aw = 0.6·250·(312.4·6.60 mm², AISC W12x30 d 12.3 in, tw 0.260 in) = 309.3 kN (compact web)"},
         ],
     },
     {
@@ -2103,10 +2118,10 @@ VECTORS = [
             {"path": "Iy_cm4", "expected": 845.0, "tol": 1.0,
              "note": "AISC v16.0 W310x45 (W12x30) Iy = 20.30 in⁴ × 41.6231 = 844.9 cm⁴ "
                      "(sourced from AISC, NOT the geometry formula → not a change-detector)"},
-            {"path": "KL_r", "expected": 104.2, "tol": 0.5,
-             "note": "KL/r = K·L/√(Iy/A) = 4/√(844.9/57.3 cm) = 4/0.03840 m = 104.2 (weak axis governs)"},
-            {"path": "Fcr_MPa", "expected": 156.0, "tol": 1.0,
-             "note": "104.2≤4.71√(E/Fy)=113.4 → inelastic Fcr=0.658^(345/181.9)·345 = 156.0 MPa"},
+            {"path": "KL_r", "expected": 103.6, "tol": 0.3,
+             "note": "KL/r = K·L/√(Iy/A) = 4/√(844.9/56.7 cm) = 4/0.03860 m = 103.6 (A = 8.79 in² × 6.4516; weak axis governs)"},
+            {"path": "Fcr_MPa", "expected": 157.3, "tol": 0.3,
+             "note": "103.6≤4.71√(E/Fy)=113.4 → Fe = π²·200000/103.6² = 183.8; inelastic Fcr = 0.658^(345/183.8)·345 = 157.3 MPa"},
             {"path": "phi_Pn_kN", "expected": 804.4, "tol": 2.0,
              "note": "φc·Fcr·A = 0.90·156.0·5.73e-3·1000 = 804.4 kN (exact AISC Iy; the geometry "
                      "estimate gave 719 here but OVERSTATED Iy for 8 other sections = unsafe)"},
@@ -2125,8 +2140,8 @@ VECTORS = [
         "asserts": [
             {"path": "Iy_cm4", "expected": 92.0, "tol": 1.0,
              "note": "AISC W150x13 (W6x9) Iy = 2.20 in⁴ × 41.6231 = 91.6 cm⁴ (geometry gave 126.8 = +38% unsafe)"},
-            {"path": "KL_r", "expected": 128.5, "tol": 0.5,
-             "note": "KL/r = 3/√(91.6/16.8 cm) = 3/0.02335 m = 128.5 (slender; geom Iy would understate this)"},
+            {"path": "KL_r", "expected": 130.4, "tol": 0.3,
+             "note": "KL/r = 3/√(91.6/17.3 cm) = 3/0.02301 m = 130.4 (AISC W6x9 A = 2.68 in² = 17.3 cm²; slender)"},
             {"path": "phi_Pn_kN", "expected": 158.6, "tol": 1.5,
              "note": "φc·Fcr·A with exact Iy = 158.6 kN (geometry Iy would have OVERSTATED capacity)"},
         ],

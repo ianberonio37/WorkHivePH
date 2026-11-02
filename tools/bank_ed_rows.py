@@ -520,6 +520,18 @@ ENGINE_CHECKED["Heat Exchanger"] = (
     "The vector is a CONSISTENCY lock (tube count holds the area; Re is at that tube count), stated as such - U itself "
     "rests on the fluid table and the Kern j-fit; it fails on the old engine. Walked on the served page at 390 (3 MW): "
     "'U_design = 779.5', 'A_required = 127.56 m2', 'n_tubes = 711', no sideways scroll.")
+ENGINE_CHECKED["Beam / Column Design"] = (
+    "FOUND AND FIXED, read against python-api/calcs/beam_column.py: the AISC/ACI equations match the guide, but the "
+    "W-section catalogue they read was wrong - Ix, Sx and Zx were 1.2x (W150x13) to 3.3x (W610x82) the sections' own: "
+    "W360x33 (W14x22) carried Zx 1,210 cm3 and Ix 18,500 cm4 where AISC prints 544 and 8,283 (its own d/tf/tw give "
+    "~7,980). Every steel beam's phi.Mp and stiffness were overstated two- to three-fold - the FORM'S DEFAULT beam (W310x45 "
+    "A36, Mu 180) read DCR 0.68 PASS and is 1.133 FAIL; deflection read a third. d, bf, tf, tw, A, Ix, Sx, Zx are now AISC "
+    "Shapes Database v16.0 (each row named with its imperial shape; Iy was already AISC since Arc Q and matched every "
+    "row, confirming the identification); all 19 rows sit 1.00-1.12x the thin-plate geometry. Three oracle vectors had "
+    "pinned the wrong table (Mp 295, Vn 333.3, KL/r 104.2 / 128.5) - re-derived by hand from AISC. The plastic moment now "
+    "states its condition: compression flange braced at <= Lp = 1.76 ry sqrt(E/Fy) (W14x22: 1.12 m = AISC Table 3-2's "
+    "3.67 ft), with a warning past it; the guide says LTB and K = 1.0 are outside the calculator. Names are the form's. "
+    "Walked on the served page at 390 (defaults): 'phi.Mp = 158.9', 'DCR 1.133 FAIL', 'Lp = 1.92 m', no sideways scroll.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

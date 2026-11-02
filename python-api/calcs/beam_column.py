@@ -50,29 +50,34 @@ REBAR_GRADES: dict[str, dict] = {
 # d=depth(mm), bf=flange width(mm), tf=flange thickness(mm), tw=web thickness(mm)
 # Ix=strong-axis moment of inertia(cm⁴), Iy=WEAK-axis moment of inertia(cm⁴),
 # Sx=elastic section modulus(cm³), Zx=plastic section modulus(cm³), A=area(cm²)
+# ★Ix, Sx AND Zx WERE TWO TO THREE TIMES THE SECTIONS' OWN (2026-11-02, ED-G1 Beam / Column, read against the guide's
+# "phi.Mp = phi.Fy.Zx"): W360x33 (W14x22) carried Zx 1,210 cm³ and Ix 18,500 cm⁴ where AISC prints 544 and 8,283 - its
+# own d/tf/tw give ~7,980 cm⁴. Every steel beam's bending capacity and stiffness were overstated 1.2x (W150x13) to 3.3x
+# (W610x82): a beam failing by half passed, and deflection read a third. d, bf, tf, tw, A, Ix, Sx, Zx are now AISC Shapes
+# Database v16.0 (imperial x 25.4 / 6.4516 / 41.6231 / 16.3871), each row named with its imperial shape; Iy unchanged.
 # Iy = AISC v16.0 tabulated (Iy[in⁴]×41.6231), added 2026-06-23 Arc Q — the prior
 # geometry estimate (tf·bf³/6 + web) was NON-conservative for 8 of 19 sections
 # (error −48%…+38%, e.g. W150x13/W200x19 OVERSTATED r → unsafe column capacity).
 W_SECTIONS: dict[str, dict] = {
-    "W150x13":  {"d":148,"bf":100,"tf": 7.6,"tw": 4.8,"A": 16.8,"Ix": 981,   "Iy":  91.6,"Sx": 132,"Zx": 152},
-    "W200x19":  {"d":203,"bf":102,"tf": 7.7,"tw": 6.4,"A": 24.8,"Ix":3240,   "Iy": 113.6,"Sx": 319,"Zx": 367},
-    "W200x27":  {"d":203,"bf":133,"tf": 8.9,"tw": 6.4,"A": 34.4,"Ix":4080,   "Iy": 331.7,"Sx": 402,"Zx": 454},
-    "W200x36":  {"d":203,"bf":165,"tf": 8.5,"tw": 6.2,"A": 45.9,"Ix":5150,   "Iy": 761.7,"Sx": 508,"Zx": 582},
-    "W250x25":  {"d":257,"bf":102,"tf": 8.4,"tw": 6.1,"A": 32.1,"Ix":6060,   "Iy": 148.2,"Sx": 472,"Zx": 543},
-    "W250x33":  {"d":258,"bf":146,"tf": 9.1,"tw": 6.9,"A": 42.0,"Ix":7700,   "Iy": 474.5,"Sx": 597,"Zx": 689},
-    "W250x45":  {"d":266,"bf":148,"tf":13.0,"tw": 7.6,"A": 57.4,"Ix":11400,  "Iy": 695.1,"Sx": 858,"Zx": 984},
-    "W310x33":  {"d":313,"bf":102,"tf": 8.9,"tw": 6.6,"A": 42.0,"Ix":12500,  "Iy": 194.0,"Sx": 799,"Zx": 910},
-    "W310x45":  {"d":313,"bf":166,"tf": 9.7,"tw": 7.1,"A": 57.3,"Ix":16300,  "Iy": 844.9,"Sx":1040,"Zx":1180},
-    "W310x60":  {"d":302,"bf":203,"tf":13.1,"tw": 7.5,"A": 75.9,"Ix":20400,  "Iy":1835.6,"Sx":1350,"Zx":1530},
-    "W360x33":  {"d":349,"bf":102,"tf": 8.5,"tw": 6.1,"A": 42.0,"Ix":18500,  "Iy": 291.4,"Sx":1060,"Zx":1210},
-    "W360x51":  {"d":356,"bf":171,"tf":11.6,"tw": 7.2,"A": 64.9,"Ix":31100,  "Iy": 969.8,"Sx":1750,"Zx":1980},
-    "W360x79":  {"d":354,"bf":205,"tf":16.8,"tw": 9.4,"A":100.0,"Ix":48000,  "Iy":2401.7,"Sx":2710,"Zx":3080},
-    "W410x38":  {"d":399,"bf":140,"tf": 8.8,"tw": 6.4,"A": 48.4,"Ix":31600,  "Iy": 399.2,"Sx":1584,"Zx":1800},
-    "W410x54":  {"d":403,"bf":177,"tf":10.9,"tw": 7.5,"A": 68.5,"Ix":48800,  "Iy":1019.8,"Sx":2420,"Zx":2750},
-    "W460x52":  {"d":450,"bf":152,"tf":10.8,"tw": 7.6,"A": 66.4,"Ix":55900,  "Iy": 636.8,"Sx":2490,"Zx":2820},
-    "W460x74":  {"d":457,"bf":190,"tf":14.5,"tw": 9.0,"A": 94.2,"Ix":87500,  "Iy":1669.1,"Sx":3830,"Zx":4350},
-    "W530x66":  {"d":525,"bf":165,"tf":11.4,"tw": 8.9,"A": 84.3,"Ix":102000, "Iy": 861.6,"Sx":3880,"Zx":4430},
-    "W610x82":  {"d":599,"bf":178,"tf":12.8,"tw": 9.9,"A":104.0,"Ix":179000, "Iy":1211.2,"Sx":5980,"Zx":6870},
+    "W150x13":  {"d":149.9,"bf":100.1,"tf":5.46,"tw":4.32,"A":17.3,"Ix":683,"Iy":91.6,"Sx":91.1,"Zx":102.1},   # W6x9
+    "W200x19":  {"d":202.9,"bf":101.6,"tf":6.48,"tw":5.84,"A":24.8,"Ix":1648,"Iy":113.6,"Sx":162.4,"Zx":186.8},   # W8x13
+    "W200x27":  {"d":206.8,"bf":133.3,"tf":8.38,"tw":5.84,"A":33.9,"Ix":2576,"Iy":331.7,"Sx":249.1,"Zx":278.6},   # W8x18
+    "W200x36":  {"d":201.4,"bf":165.1,"tf":10.16,"tw":6.22,"A":45.7,"Ix":3442,"Iy":761.7,"Sx":342.5,"Zx":378.5},   # W8x24
+    "W250x25":  {"d":256.5,"bf":101.9,"tf":8.38,"tw":6.10,"A":32.2,"Ix":3409,"Iy":148.2,"Sx":265.5,"Zx":306.4},   # W10x17
+    "W250x33":  {"d":259.1,"bf":146.0,"tf":9.14,"tw":6.10,"A":41.9,"Ix":4912,"Iy":474.5,"Sx":380.2,"Zx":426.1},   # W10x22
+    "W250x45":  {"d":266.7,"bf":147.6,"tf":12.95,"tw":7.62,"A":57.0,"Ix":7076,"Iy":695.1,"Sx":530.9,"Zx":599.8},   # W10x30
+    "W310x33":  {"d":312.4,"bf":102.4,"tf":10.79,"tw":6.60,"A":41.8,"Ix":6493,"Iy":194.0,"Sx":416.2,"Zx":480.1},   # W12x22
+    "W310x45":  {"d":312.4,"bf":165.6,"tf":11.18,"tw":6.60,"A":56.7,"Ix":9906,"Iy":844.9,"Sx":632.5,"Zx":706.3},   # W12x30
+    "W310x60":  {"d":302.3,"bf":203.5,"tf":13.08,"tw":7.49,"A":75.5,"Ix":12778,"Iy":1835.6,"Sx":843.9,"Zx":934.1},   # W12x40
+    "W360x33":  {"d":348.0,"bf":127.0,"tf":8.51,"tw":5.84,"A":41.9,"Ix":8283,"Iy":291.4,"Sx":475.2,"Zx":544.1},   # W14x22
+    "W360x51":  {"d":355.6,"bf":171.4,"tf":11.56,"tw":7.24,"A":64.5,"Ix":14152,"Iy":969.8,"Sx":796.4,"Zx":894.7},   # W14x34
+    "W360x79":  {"d":353.1,"bf":204.7,"tf":16.76,"tw":9.40,"A":100.6,"Ix":22518,"Iy":2401.7,"Sx":1274.9,"Zx":1427.3},   # W14x53
+    "W410x38":  {"d":398.8,"bf":139.7,"tf":8.76,"tw":6.35,"A":49.5,"Ix":12529,"Iy":399.2,"Sx":629.3,"Zx":724.3},   # W16x26
+    "W410x54":  {"d":403.9,"bf":177.5,"tf":10.92,"tw":7.49,"A":68.4,"Ix":18647,"Iy":1019.8,"Sx":925.9,"Zx":1048.8},   # W16x36
+    "W460x52":  {"d":449.6,"bf":152.4,"tf":10.79,"tw":7.62,"A":66.5,"Ix":21228,"Iy":636.8,"Sx":943.9,"Zx":1089.7},   # W18x35
+    "W460x74":  {"d":457.2,"bf":190.5,"tf":14.48,"tw":9.02,"A":94.8,"Ix":33298,"Iy":1669.1,"Sx":1456.8,"Zx":1655.1},   # W18x50
+    "W530x66":  {"d":525.8,"bf":165.1,"tf":11.43,"tw":8.89,"A":83.9,"Ix":35088,"Iy":861.6,"Sx":1337.2,"Zx":1563.3},   # W21x44
+    "W610x82":  {"d":599.4,"bf":178.1,"tf":12.83,"tw":10.03,"A":104.5,"Ix":56191,"Iy":1211.2,"Sx":1868.1,"Zx":2195.9},   # W24x55
 }
 
 # ─── LRFD resistance factors (AISC / NSCP) ───────────────────────────────────
@@ -120,6 +125,11 @@ def _steel_beam(sec: dict, Fy: float, E: float,
     delta_mm = delta_m * 1000
     limit_mm = L_m * 1000 / 360            # L/360 live load limit
 
+    # phi.Mp (AISC F2-1, yielding) holds only while the compression flange is braced at <= Lp = 1.76 ry sqrt(E/Fy) (F2-5);
+    # past that, lateral-torsional buckling lowers Mn. The form takes no bracing length, so the check says so.
+    ry_m = (sec["Iy"] / sec["A"]) ** 0.5 / 100 if sec.get("A") else 0.0
+    Lp_m = 1.76 * ry_m * (E / Fy) ** 0.5 if Fy > 0 else 0.0
+
     return {
         "Mp_kNm":      round(Mp_kNm, 1),
         "phi_Mp_kNm":  round(phi_Mp, 1),
@@ -132,6 +142,8 @@ def _steel_beam(sec: dict, Fy: float, E: float,
         "deflection_mm":   round(delta_mm, 2),
         "deflection_limit_mm": round(limit_mm, 2),
         "deflection_ok":   delta_mm <= limit_mm,
+        "Lp_m":            round(Lp_m, 2),
+        "braced_assumed":  L_m > Lp_m,
     }
 
 

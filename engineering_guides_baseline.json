@@ -3,6 +3,7 @@
  "note": "guides whose fields match their form exactly - a guide on this list that fails again is a regression",
  "passing": [
   "AHU Sizing",
+  "Beam / Column Design",
   "Bearing Life (L10)",
   "Boiler System",
   "Bolt Torque & Preload",
