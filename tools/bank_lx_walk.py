@@ -155,7 +155,11 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
             return "UNPROVEN", "a session was present at the reading, so this is not a signed-out visitor's page"
     elif not h or not h.get("session"):
         return "UNPROVEN", "not signed in at this viewport - " + "; ".join(v.get("problems") or [])[:160]
-    if h.get("chars", 0) < 120 and layer not in ("A",):
+    # ★A REFUSAL IS THE PAGE'S ANSWER, NOT AN EMPTY READING (2026-11-03, CX-FND). A non-admin on a founder page gets
+    # "Founder access only. This is an internal WorkHive page. <- Back to WorkHive": 73 characters, and the whole page this
+    # person is ever meant to see. The floor is for a page that rendered nothing (a spinner, a bare shell); a screen that
+    # says it withholds the page is read layer by layer, as every other short state screen is (CA's 600-character rule).
+    if h.get("chars", 0) < 120 and layer not in ("A",) and not (h.get("u") or {}).get("refusal"):
         return "UNPROVEN", f"the page rendered {h.get('chars')} characters - nothing to read"
     vw = h.get("vw")
     if layer == "CA":
@@ -390,14 +394,23 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
             return "n/a", "the page read nothing from a service - nothing behind it can be slow or down"
         dn = (v.get("down") or {}).get("a") or {}
         sl = v.get("slow") or {}
-        down_ok = bool(dn.get("saysFailure")) and not dn.get("blank")
+        # ★BLANK AND RECOVERED ARE MEASURED AGAINST THE PAGE'S OWN SIZE (2026-11-03, CX-FND). The walker calls a reading
+        # blank under 120 characters and the slow load recovered at 200; both assume a page with content. A founder page's
+        # whole answer to a non-admin is 73 characters, so its refused read ("could not load" and a Retry, 46 characters)
+        # read as blank, and its late load could never reach 200. For a page that is itself a short screen, blank means
+        # under half of what it normally shows, and recovered means all of it; a page of content is judged as before.
+        healthy_n = sl.get("healthyChars") or h.get("chars") or 0
+        blank = dn.get("blank")
+        if blank and healthy_n < 120 and ((v.get("down") or {}).get("chars") or 0) >= 0.5 * healthy_n:
+            blank = False
+        down_ok = bool(dn.get("saysFailure")) and not blank
         early = sl.get("early") or {}
         late = sl.get("late") or {}
         painted = (early.get("chars") or 0) >= 0.9 * (sl.get("healthyChars") or 0)   # it did not wait for the data at all
-        recovered = (late.get("chars") or 0) >= max(200, 0.6 * (sl.get("healthyChars") or 0))
+        recovered = (late.get("chars") or 0) >= max(min(200, healthy_n), 0.6 * (sl.get("healthyChars") or 0))
         slow_ok = (bool(early.get("busy") or early.get("loadingWords")) or painted) and (recovered or bool(late.get("busy")))
         txt = (f"reads refused: says \"{dn.get('saysFailure')}\", retry {dn.get('retry') or 'none'}, fake-empty "
-               f"{dn.get('fakeEmpty')}, blank {dn.get('blank')}; reads 8 s late: working sign {bool(early.get('busy') or early.get('loadingWords'))}{' (its content was already painted at 2.5 s)' if painted else ''}, "
+               f"{dn.get('fakeEmpty')}, blank {blank}; reads 8 s late: working sign {bool(early.get('busy') or early.get('loadingWords'))}{' (its content was already painted at 2.5 s)' if painted else ''}, "
                f"content {late.get('chars')} of {sl.get('healthyChars')} chars at 18 s" + ("" if recovered else (" and still visibly working" if late.get("busy") else " and no longer working")))
         if down_ok and slow_ok:
             return "ok", txt

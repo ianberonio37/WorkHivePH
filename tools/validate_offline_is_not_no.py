@@ -25,8 +25,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+# design-system joined 2026-11-03: the one founder page with no gate (the CX-FND walk read it in full as a non-admin
+# supervisor). A page listed here with no whPlatformAdminAnswer gate fails, so it cannot quietly open again.
 ADMIN_GATES = ["founder-console.html", "marketplace-admin.html", "llm-observability.html",
-               "agentic-rag-observability.html", "platform-actions.html"]
+               "agentic-rag-observability.html", "platform-actions.html", "design-system.html"]
 
 if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
     sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding="utf-8", errors="replace")

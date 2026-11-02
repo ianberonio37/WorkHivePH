@@ -65,19 +65,20 @@ async (mcpPage) => {
     // tile names inflated every page's crew vocabulary and their badge counts became the page's "figures". The
     // page's region is its <main> (every family page has one); a page without one is read whole.
     const root = document.querySelector('main, [role=main]') || document.body;
-    const atText = () => {
+    const atText = (skip) => {
       const out = [];
       const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
       let n;
       while ((n = tw.nextNode())) {
         const p = n.parentElement;
         if (!p || /^(SCRIPT|STYLE|NOSCRIPT|TEMPLATE)$/.test(p.tagName)) continue;
+        if (skip && skip(p)) continue;
         if (hiddenUp(p)) continue;
         if (!shown(p) && !srOnlyNear(p)) continue;
         const t = (n.nodeValue || '').trim();
         if (t) out.push(t);
       }
-      root.querySelectorAll('[aria-label]').forEach((e) => { if (!hiddenUp(e) && !(e.innerText || '').trim()) out.push(e.getAttribute('aria-label')); });
+      root.querySelectorAll('[aria-label]').forEach((e) => { if (!hiddenUp(e) && !(skip && skip(e)) && !(e.innerText || '').trim()) out.push(e.getAttribute('aria-label')); });
       return out.join(' ').replace(/\s+/g, ' ');
     };
     // long-list-text: PAGE_TEXT of tools/lib/long_list_text.mjs, inlined. This walk times the page's long tasks (its LB
@@ -104,7 +105,11 @@ async (mcpPage) => {
       const n = hd.nextElementSibling; if (n && /^(UL|OL)$/.test(n.tagName)) srcEls.push(n);
     });
     let jargonText = text;
-    for (const e of srcEls) { const t = (e.innerText || '').replace(/\s+/g, ' ').trim(); if (t) jargonText = jargonText.split(t).join(' '); }
+    // ★...FOR EVERY READER (2026-11-03, the same article as assistive-tech read "Supabase" again): the accessibility-tree
+    // text is joined node by node, so a source list's innerText is never a substring of it and the cut removed nothing.
+    // That reading walks the tree once more and skips the lists themselves.
+    if (at) jargonText = atText((p) => srcEls.some((e) => e.contains(p)));
+    else for (const e of srcEls) { const t = (e.innerText || '').replace(/\s+/g, ' ').trim(); if (t) jargonText = jargonText.split(t).join(' '); }
     const jargon = [];
     for (const rx of JARGON) { const m = jargonText.match(rx); if (m) jargon.push(m[0].trim().slice(0, 40)); }
     // C - figures and their window
@@ -347,7 +352,9 @@ async (mcpPage) => {
     // (AU's idle prompt and H's offline banner are induced after the healthy read.)
     // ("your first asset" / "your next job" say whose as plainly as "your asset" - one adjective may sit between, 2026-10-28)
     const SCOPE_YOURS = /\byour (?:own |first |next |new |latest )?(?:hive|team|crew|plant|site|records?|logbook|log|entries|assets?|machines?|jobs?|tasks?|projects?|listings?|shop|schedule|profile|skills?|history|account|resume|day|shift|plan|alerts?|parts?|stock|inventory|reports?|growth|xp|achievements?|badges?)\b/i;
-    const REFUSE_RX = /not visible to you|no access|don.?t have access|do not have access|not a member|no longer a member|supervisors? only|only (?:a |the |your )?supervisors?|sign in to|ask (?:its|your|the) (?:manager|supervisor|owner)|belongs to (?:another|a hive)|isn.?t yours|not yours|join (?:a|your) hive|you need a hive|without a hive|no hive yet|create (?:a|your) hive/i;
+    const REFUSE_RX = /not visible to you|no access|don.?t have access|do not have access|not a member|no longer a member|supervisors? only|only (?:a |the |your )?supervisors?|sign in to|ask (?:its|your|the) (?:manager|supervisor|owner)|belongs to (?:another|a hive)|isn.?t yours|not yours|join (?:a|your) hive|you need a hive|without a hive|no hive yet|create (?:a|your) hive|\b(?:founder|admin(?:istrator)?)s?(?: access)? only\b/i;
+    // ("Founder access only" - the founder pages' refusal to a non-admin, 2026-11-03: it is the page's answer, and the judge
+    // reads a refusal screen layer by layer instead of dropping it as "nothing to read")
     // who did what: "logged by X" / "X logged" / a record's meta line "Ben Ocampo · 2h ago"
     // the "<verb> by <Name>" form in any case ("Seen by Rosa dela Cruz" leads with a capital), the name forms case-exact
     const ATTR_BY_RX = /\b(?:logged|added|edited|updated|closed|created|completed|assigned|approved|signed off|reported|posted|recorded|scheduled|resolved|submitted|changed|removed|requested|accepted|rejected|handled|snoozed|seen|acknowledged|hidden|dismissed|marked)\s+by\s+(?:you\b|[A-Z][\w.'-]+)/i;
@@ -562,7 +569,10 @@ async (mcpPage) => {
           }
           // a visitor's identity is KEPT when the hop still holds no session (a page that signed them in would be the finding)
           const kept = anon ? !(await hasSession()) : (!!r.worker && r.worker === cell.castName);
+          // a page that refuses this person says so, and that sentence is the step's whole content (record_mcp_walk's sparse rule)
+          const refusedSaid = p === cell.page && r.u && r.u.refusal ? r.u.refusal : null;
           steps.push({ cell: cell.persona + ':' + cell.page, page: p, viewport: vp.name, chars: r.chars, identityKept: kept,
+            ...(refusedSaid ? { condition: 'refused', said: refusedSaid } : {}),
             note: p === cell.page ? 'the row\'s own page, settled' + (arrive(p) ? ', opened as ' + p + arrive(p) : '') : 'a hop on the row\'s route' });
           if (p === cell.page) V.healthy = r;
         }

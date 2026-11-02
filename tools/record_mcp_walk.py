@@ -87,8 +87,11 @@ def _sparse_wait(s: dict) -> bool:
     ★A TOLD FAILURE IS SPARSE BY DESIGN TOO (SL L4, 2026-10-21): with every read refused, the Founder Console's whole
     page is the sentence that it could not check access - 107 characters, honest, the admin still signed in. Such a step
     arrives when it carries the failure sentence it told (`said`, which the banker matched to a logged told row) and
-    kept its identity; the sign-in wall still fails, because there the identity is gone."""
-    return (s.get("condition") in ("loading", "told-failure") and bool(str(s.get("said") or "").strip())
+    kept its identity; the sign-in wall still fails, because there the identity is gone.
+    ★A REFUSAL IS SPARSE BY DESIGN TOO (CX-FND, 2026-11-03): a non-admin on a founder page gets "Founder access only.
+    This is an internal WorkHive page. <- Back to WorkHive" - 73 characters, the whole page that person is meant to see,
+    still signed in. It arrives when the walk names the refusal it read (`said`) and the person kept their identity."""
+    return (s.get("condition") in ("loading", "told-failure", "refused") and bool(str(s.get("said") or "").strip())
             and s.get("identityKept", True) is True)
 
 
@@ -362,7 +365,13 @@ def _self_test() -> int:
     wait = [{"page": "a.html", "chars": 99, "identityKept": True, "condition": "loading", "said": "Loading the action queues…"}]
     if not build_receipt("T1", "playwright-mcp", "normal", "A Worker", wait, "n", "s")["results"][0]["ok"]:
         fails.append("a 99-character loading step that names its wait must read ok")
+    refused = [{"page": "a.html", "chars": 73, "identityKept": True, "condition": "refused", "said": "Founder access only"}]
+    if not build_receipt("T1", "playwright-mcp", "normal", "A Worker", refused, "n", "s")["results"][0]["ok"]:
+        fails.append("a 73-character refusal step that names its refusal must read ok")
     for bad, why in (({"condition": "loading", "said": ""}, "a loading step that names no wait"),
+                     ({"condition": "refused", "said": ""}, "a refusal step that names no refusal"),
+                     ({"condition": "refused", "said": "Founder access only", "identityKept": False},
+                      "a refusal step that lost the person (the sign-in wall)"),
                      ({"condition": "empty", "said": "No parts yet."}, "a thin step of another condition"),
                      ({"condition": "loading", "said": "Loading…", "identityKept": False}, "a loading step that lost the person")):
         step = {"page": "a.html", "chars": 99, "identityKept": True, **bad}
