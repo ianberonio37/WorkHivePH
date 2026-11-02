@@ -308,6 +308,17 @@ ENGINE_CHECKED["FCU Selection"] = (
     "kW. The form's room header said only 'Load (kW)' - now 'Load per FCU (kW)'. Guide field names are the form's (CHW "
     "Supply Temp, CHW Return Temp, Room / Zone Schedule). The vector fails on the old engine; walked on the served page "
     "at 390 (one room, 3.5 kW x 4): source python, 'DESIGN LOAD (DF=0.85) 11.90 kW 3.38 TR', header 'Load per FCU (kW)'.")
+ENGINE_CHECKED["Elevator Traffic Analysis"] = (
+    "FOUND AND FIXED, read against python-api/calcs/elevator_traffic.py and CIBSE Guide D (Peters 2000 Eq. 9, RTT = "
+    "2.H.tv + (S+1).ts + 2.P.tp): the engine ran the full rise at rated speed, charged each stop only its door times (no "
+    "slow-down/speed-up loss ts = tf1 + tc + to - tv), skipped the main-floor stop (S, not S+1), and moved each passenger in "
+    "0.8 s one way (CIBSE 1.2 s each way). The default 12-floor, 3-car office read RTT 110.3 s / interval 36.8 s / HC 16.3%; "
+    "by CIBSE it is 147.4 s / 49.1 s / 12.7% - capacity overstated by about a third. Now the probable stops and highest "
+    "reversal floor, tf1 from the CIBSE flight-time table plus the extra floor height, P = 10.4 not rounded, and the dwell "
+    "as a floor under the transfer time. The guide said S was ~2/3 of floors and listed a Total Rise field the form lacks; "
+    "names are now the form's (Number of Floors Served, Number of Elevators, Door Open/Close Time, Dwell Time / Stop). Two "
+    "hand-derived vectors fail on the old engine; walked on the served page at 390: 'RTT = 48.8 + 73.6 + 25 = 147.4 "
+    "seconds', interval 49.1 s Adequate, no sideways scroll. Door page restamped (66.8 s / 15.6% / 133.6 s).")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

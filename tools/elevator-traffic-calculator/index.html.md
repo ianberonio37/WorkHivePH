@@ -6,16 +6,16 @@ Source: https://workhiveph.com/tools/elevator-traffic-calculator/
 
 Elevator Traffic Calculator
  G1+E3 
-**The Elevator Traffic Calculator finds the round-trip time, interval, and 5-minute handling capacity for a lift group. Example: for a 10-floor office with 300 people served by two 13-person lifts at 1.5 m/s, Interval = 48.2 s, Handling capacity = 20.7 %, Round-trip time = 96.5 s (per CIBSE Guide D:2015).**
+**The Elevator Traffic Calculator finds the round-trip time, interval, and 5-minute handling capacity for a lift group. Example: for a 10-floor office with 300 people served by two 13-person lifts at 1.5 m/s, Interval = 66.8 s, Handling capacity = 15.6 %, Round-trip time = 133.6 s (per CIBSE Guide D:2015).**
 How it works
 The calculator follows CIBSE Guide D:2015. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Vertical Transport)
 Inputs: a 10-floor office with 300 people served by two 13-person lifts at 1.5 m/s.
 ResultValue
-Interval48.2 s
-Handling capacity20.7 %
-Round-trip time96.5 s
+Interval66.8 s
+Handling capacity15.6 %
+Round-trip time133.6 s
 Computed by WorkHive's calculation engine when this page was built; standard: CIBSE Guide D:2015.
 How to use this calculator
 Read the worked example. It uses a 10-floor office with 300 people served by two 13-person lifts at 1.5 m/s and shows every number in the method.
@@ -35,4 +35,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: b85d21a2d77e74e4 -->
+<!-- md-twin source-sha: 8c236c6dcb855ded -->

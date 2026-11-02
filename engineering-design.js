@@ -1863,42 +1863,49 @@ const GUIDES = {
     subtitle: 'Determines Round Trip Time (RTT), interval between elevator arrivals, and 5-minute handling capacity (HC%) to verify whether the elevator installation meets the building\'s up-peak traffic demand.',
     standards: ['ASME A17.1: Safety Code for Elevators and Escalators','EN 81-1 / EN 81-2: Safety Rules for Construction of Elevators','CIBSE Guide D: Transportation Systems in Buildings','Philippine Electrical Code: Article on Elevators, Dumbwaiters, and Escalators','RA 10754 / BP 344: Accessibility Law (elevator requirements for PWD)'],
     formulas: [
-      'RTT  = t_flight + t_dwell_per_stop x avg_stops + t_door x 2 x avg_stops + t_load_unload',
-      '     = (2H / v) + (t_s x S) + (2 x t_d x S) + (t_l + t_u)',
+      'RTT = 2·H·tv + (S + 1)·ts + 2·P·tp     (CIBSE Guide D up-peak round trip)',
       '',
       'Where:',
-      '  H = total rise (m) = floors x floor_height',
-      '  v = rated speed (m/s)',
-      '  S = avg number of stops (estimated as ~2/3 of floors served)',
-      '  t_s = dwell time per stop (s): typical 2-4 s',
-      '  t_d = door open or close time (s): typical 2-3 s each',
-      '  t_l = loading time (s): typical 12-15 s for full car',
-      '  t_u = unloading time (s): typical 8-12 s',
+      '  N  = floors above the main floor = floors served − 1',
+      '  P  = average passengers per trip = 80% × rated capacity (a decimal, e.g. 10.4)',
+      '  S  = probable stops = N × [1 − (1 − 1/N)^P]',
+      '  H  = highest reversal floor = N − Σ (j/N)^P  for j = 1 … N−1',
+      '  tv = one floor at rated speed = floor height / v',
+      '  ts = time a stop costs = tf1 + door close + door open − tv',
+      '       tf1 = single-floor flight time (CIBSE table, 3.3 m floor: 7.0 s at 1.0 m/s, 6.0 at 1.5, 4.8 at 2.5, 4.0 at 3.5+),',
+      '       plus the extra floor height at rated speed',
+      '  tp = passenger transfer time, 1.2 s each way, so 2·P·tp moves every passenger in and out',
+      '  The (S + 1) counts the stop at the main floor as well as the S landings.',
+      '  Dwell: the doors stay open at least the dwell time at every stop, so the transfer term is',
+      '       max(2·P·tp, (S + 1) × dwell); it governs only with few passengers per stop.',
       '',
-      'Interval = RTT / N_elevators  (seconds between arrivals)',
+      'Interval = RTT / number of elevators  (seconds between departures from the main floor)',
       '',
       '5-Minute Handling Capacity (HC%):',
-      '  HC% = (N_elevators x 300s / RTT x capacity_persons) / population x 100',
+      '  HC% = (300 × P × number of elevators / RTT) / population × 100',
       '',
       'Grade of Service:',
       '  HC% >= 12% = Excellent | 11% = Good | 9% = Adequate | <8% = Poor',
       '  Interval <= 30s = Excellent | 30-40s = Good | 40-60s = Adequate | >60s = Poor',
     ],
     fields: [
-      { name: 'Number of Floors', tip: 'Total number of floors served by the elevator group, including ground floor. For example, Ground + 9 upper floors = 10 floors.' },
-      { name: 'Total Rise / Building Height', tip: 'Total vertical travel distance in meters from lowest to highest served floor. Example: 10 floors x 3.5 m = 35 m. Compute as floors_served x floor_height_m.' },
+      { name: 'Number of Floors Served', tip: 'Total number of floors served by the elevator group, including the ground (main) floor. For example, Ground + 9 upper floors = 10 floors; the round trip runs over the 9 above the main floor.' },
       { name: 'Building Population', tip: 'Total number of persons in the building during the busiest period (typically morning up-peak). For offices: 1 person per 8-10 m² of net usable floor area is a common estimate.' },
-      { name: 'Number of Elevators in Group', tip: 'Number of elevators serving the same floors in a coordinated group. Single elevators are trivially analysed: groups of 2-8 are the typical range for Philippine mid-rise to high-rise buildings.' },
+      { name: 'Number of Elevators', tip: 'Number of elevators serving the same floors in a coordinated group. Single elevators are trivially analysed: groups of 2-8 are the typical range for Philippine mid-rise to high-rise buildings.' },
       { name: 'Rated Capacity (persons)', tip: 'Design occupancy from the elevator nameplate. Common: 8 persons (630 kg), 13 persons (1000 kg), 17 persons (1275 kg). Philippine code: 1 person = 75 kg.' },
       { name: 'Rated Speed', tip: 'From elevator specification. Common: 1.0 m/s (low-rise up to 5 floors), 1.5-1.75 m/s (mid-rise 6-15 floors), 2.5-3.0 m/s (high-rise 16-30 floors), 5-10 m/s (super-high-rise).' },
-      { name: 'Floor-to-Floor Height', tip: 'Typical Philippine commercial: 3.5 m for typical office/residential. 4.0-5.0 m for ground floor retail/lobby. Use the floor-to-floor dimension from the architectural drawings.' },
+      { name: 'Floor-to-Floor Height', tip: 'Typical Philippine commercial: 3.5 m for typical office/residential. 4.0-5.0 m for ground floor retail/lobby. Use the floor-to-floor dimension from the architectural drawings. The total rise is (floors served − 1) × this height.' },
+      { name: 'Door Open Time', tip: 'Time for the doors to open fully, from the door operator data. Typical 2.0-2.5 s for a 1.1 m centre-opening door, 3.0 s for side-opening. It is lost at every stop.' },
+      { name: 'Door Close Time', tip: 'Time for the doors to close, typically 3.0 s centre-opening, 3.5-4.0 s side-opening. Slow doors are one of the largest single losses in the round trip.' },
+      { name: 'Dwell Time / Stop', tip: 'The least time the doors stay fully open at a stop (the door timer), typically 2-3 s. Passenger transfer (1.2 s per person each way) usually takes longer and then governs; the dwell decides only when few people leave at each stop.' },
       { name: 'Occupancy Type', tip: 'Drives the target interval and HC% benchmark. Office buildings have the most demanding up-peak (8-9 AM). Residential is less demanding. Hotel is spread across day. Mixed-use must be analyzed per component.' },
     ],
     notes: [
       'The 5-minute up-peak is the critical design scenario: all analysis is based on morning rush when everyone arrives at once.',
       'Typical Philippine commercial building targets: Interval <= 40 seconds, HC% >= 11%.',
       'Car loading efficiency: in practice, elevators fill to ~80% of rated capacity during busy periods. The calc uses 80% by default.',
-      'Average stops (S) is estimated at ~2/3 of served floors for the up-peak scenario: this is a CIBSE Guide D simplification.',
+      'Average stops (S) and the highest reversal floor (H) come from the CIBSE probable-stop formulas for equal floor populations; the car does not travel to the top floor on every trip.',
+      'Each stop costs more than its door times: the car slows down and speeds up again (ts above). Leaving that out understates the round trip by about a quarter and overstates the handling capacity.',
       'Round Trip Time depends heavily on door timing and dwell time: slow doors are a common cause of poor service in older Philippine buildings.',
       'For BP 344 / RA 10754 accessibility compliance: at least one elevator must have a minimum car size of 1100mm x 1400mm and accessible controls.',
       'Always submit elevator design calculations to DPWH / LGU Building Official as part of the building permit application.',
@@ -6875,7 +6882,7 @@ function renderInputForm(calcType) {
       </div>
 
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:0.25rem;">
-        Standard: ASME A17.1 / EN 81 / CIBSE Guide D. Car loading efficiency assumed at 80%. Average stops estimated per CIBSE formula. Up-peak (5-minute) scenario used throughout.
+        Standard: ASME A17.1 / EN 81 / CIBSE Guide D. Car loading efficiency assumed at 80%. Round trip per CIBSE Guide D: probable stops, highest reversal floor, the time each stop costs, and 1.2 s per passenger each way. Up-peak (5-minute) scenario used throughout.
       </div>
     `;
     setStep(4);
@@ -18775,14 +18782,15 @@ function renderElevatorTrafficReport(inputs, results, narrative) {
     <h2>4. Round Trip Time Calculation</h2>
     <p style="font-size:0.83rem;color:#333;"><strong>Formula (CIBSE Guide D):</strong></p>
     <p style="font-size:0.83rem;color:#333;">
-      RTT = t<sub>flight</sub> + (t<sub>dwell</sub> + t<sub>door open</sub> + t<sub>door close</sub>) × S + t<sub>load</sub> + t<sub>unload</sub>
+      RTT = 2·H·t<sub>v</sub> + (S + 1)·t<sub>s</sub> + 2·P·t<sub>p</sub>   (CIBSE Guide D)
     </p>
     <p style="font-size:0.83rem;color:#333;"><strong>Where:</strong></p>
     <p style="font-size:0.83rem;color:#333;">
-      t<sub>flight</sub> = 2H / v = 2 × ${r.H_m} / ${escHtml(String(inputs.speed))} = ${r.t_flight_s} s<br>
-      Average stops S = ${r.avg_stops} (CIBSE formula: n × [1 − (1 − 1/n)<sup>P</sup>])<br>
-      Stop time = (t<sub>dwell</sub> + t<sub>open</sub> + t<sub>close</sub>) × S = (${escHtml(String(inputs.t_dwell))} + ${escHtml(String(inputs.t_door_open))} + ${escHtml(String(inputs.t_door_close))}) × ${r.avg_stops} = ${r.t_stops_s} s<br>
-      t<sub>load/unload</sub> = ${r.t_load_s} s (estimated from car loading time)
+      Average stops S = ${r.avg_stops} (N × [1 − (1 − 1/N)<sup>P</sup>], N = floors above the main floor, P = ${r.effective_pax})<br>
+      Highest reversal floor H = ${r.H_reversal ?? '-'} (N − Σ(j/N)<sup>P</sup>)<br>
+      Flight = 2·H·t<sub>v</sub> = 2 × ${r.H_reversal ?? '-'} × ${r.t_v_s ?? '-'} s = ${r.t_flight_s} s (t<sub>v</sub> = floor height / speed)<br>
+      Stop time t<sub>s</sub> = t<sub>f1</sub> + t<sub>close</sub> + t<sub>open</sub> − t<sub>v</sub> = ${r.t_flight_1floor_s ?? '-'} + ${escHtml(String(inputs.t_door_close))} + ${escHtml(String(inputs.t_door_open))} − ${r.t_v_s ?? '-'} = ${r.t_stop_s ?? '-'} s; (S + 1) × t<sub>s</sub> = ${r.t_stops_s} s<br>
+      Passenger transfer = max(2·P·t<sub>p</sub>, (S + 1) × dwell) = max(${r.t_transfer_s ?? '-'}, ${(((r.avg_stops || 0) + 1) * (Number(inputs.t_dwell) || 0)).toFixed(1)}) = ${r.t_load_s} s (t<sub>p</sub> = ${r.tp_s ?? 1.2} s each way)
     </p>
     <p style="font-size:0.83rem;color:#333;"><strong>RTT = ${r.t_flight_s} + ${r.t_stops_s} + ${r.t_load_s} = <strong>${r.RTT_s} seconds</strong></strong></p>
 
@@ -18831,7 +18839,7 @@ function renderElevatorTrafficReport(inputs, results, narrative) {
     <p style="font-size:0.78rem;color:#555;margin-top:0.5rem;">Grade criteria: Interval ≤30s = Excellent, ≤40s = Good, ≤60s = Adequate, >60s = Poor. HC% ≥12% = Excellent, ≥11% = Good, ≥9% = Adequate, &lt;8% = Poor.</p>
 
     <h2>7. Assumptions</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Up-peak scenario (morning arrival) used as the critical design case.\n2. Car loading efficiency of 80% of rated capacity per CIBSE Guide D.\n3. Average stops (S) computed using CIBSE formula: S = n × [1 − (1 − 1/n)^P] where n = floors and P = effective passengers.\n4. Loading/unloading time estimated proportional to car capacity.\n5. All elevators in the group operate simultaneously under group supervisory control.\n6. Floor heights are uniform throughout the building.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Up-peak scenario (morning arrival) used as the critical design case.\n2. Car loading efficiency of 80% of rated capacity per CIBSE Guide D.\n3. Average stops S = N × [1 − (1 − 1/N)^P] and highest reversal floor H = N − Σ(j/N)^P (CIBSE Guide D, equal floor populations), N = floors above the main floor.\n4. Each stop costs the single-floor flight time plus door close and open, less one floor at speed; passenger transfer is 1.2 s per person each way, never less than the door dwell at each stop.\n5. All elevators in the group operate simultaneously under group supervisory control.\n6. Floor heights are uniform throughout the building.`)}</p>
 
     <h2>8. Recommendations</h2>
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(`1. Computed interval of ${r.interval_s} s (${intervalGrade}) and HC% of ${r.HC_pct}% (${hcGrade}): ${(intervalGrade === 'Poor' || hcGrade === 'Poor') ? 'REMEDIATION REQUIRED before building permit submission: consider increasing speed, adding an elevator to the group, or adjusting group supervisory control.' : (intervalGrade === 'Excellent' && hcGrade === 'Excellent') ? 'design exceeds CIBSE Guide D targets for the occupancy type; proceed to detailed equipment specification.' : 'acceptable for the occupancy type per CIBSE Guide D; design meets grade of service requirements.'}\n2. Install group supervisory control to optimize dispatching and minimize passenger waiting time; modern destination-dispatch systems reduce interval by 10 to 20 percent vs. up/down collective control.\n3. Specify door operator with re-opening device (light curtain or safety edge) per ASME A17.1 Section 2.11 and BP 344 accessibility requirements; reopening response time not more than 0.5 s.\n4. At least one elevator in the group must comply with BP 344 / RA 10754: minimum car size 1100 mm x 1400 mm, Braille and tactile controls, audible floor announcements, mirror at rear wall, handrail at not more than 900 mm above floor.\n5. Specify VVVF (variable-voltage variable-frequency) drive, regenerative type preferred to recover braking energy (15 to 25 percent power saving for high-rise buildings).\n6. Automatic Rescue Device (ARD) required for buildings 4 floors and above per ASME A17.1: brings car to nearest floor on mains power failure, allowing safe egress within 30 seconds.\n7. Pit equipment: spring or oil-type buffers sized per contract speed (oil buffers required for speed not less than 2.5 m/s), pit stop switch, pit lighting, sump pump in flood-prone locations.\n8. Submit elevator specifications, traffic analysis report, and Factory Acceptance Test (FAT) certificates to DPWH / LGU Building Official as part of the building permit application; ASME A17.1 acceptance inspection witnessed by OSHC-accredited elevator inspector before commissioning.\n9. Establish annual mandatory inspection program per DOLE OSHC (Department of Labor and Employment, Occupational Safety and Health Center); maintain O&M manual and log book for each elevator.\n10. A PRC-licensed Mechanical Engineer must sign and seal this document before building-permit submission.`)}</p>
@@ -27571,7 +27579,7 @@ function buildElevatorTrafficSVG(inputs, results) {
   p.push(_plumbT(18,LY+10,'LEGEND',{a:'start',sz:8,c:CC,w:'700'}));
   p.push(`<rect x="25" y="${LY+20}" width="28" height="20" fill="${ELV}" opacity="0.5" stroke="${ELV}" stroke-width="1.5" rx="2"/>`);
   p.push(_plumbT(57,LY+32,'Elevator shaft / car',{a:'start',sz:7.5,c:CC}));
-  [`1. RTT = 2 x H / v + stops x (door + load/unload). Interval = RTT / number of elevators.`,
+  [`1. RTT = 2·H·tv + (S+1)·ts + 2·P·tp (CIBSE Guide D). Interval = RTT / number of elevators.`,
    `2. Handling capacity not less than 12% of building population per 5 minutes (CIBSE Guide D / EN 81).`,
    `3. Interval not more than 30s (offices), not more than 40s (residential) for acceptable waiting experience.`
   ].forEach((n,i)=>p.push(_plumbT(18,LY+76+i*11,n,{a:'start',sz:6.5,c:CC})));
