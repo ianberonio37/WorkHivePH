@@ -131,6 +131,10 @@ def _steel_beam(sec: dict, Fy: float, E: float,
     Lp_m = 1.76 * ry_m * (E / Fy) ** 0.5 if Fy > 0 else 0.0
 
     return {
+        # the section's own properties (AISC v16), so the report prints them instead of back-solving them from phi.Mp
+        "Zx_mm3":      round(sec["Zx"] * 1000),
+        "Aw_mm2":      round(sec["d"] * sec["tw"]),
+        "Ix_mm4":      round(sec["Ix"] * 1e4),
         "Mp_kNm":      round(Mp_kNm, 1),
         "phi_Mp_kNm":  round(phi_Mp, 1),
         "Vn_kN":       round(Vn_kN, 1),

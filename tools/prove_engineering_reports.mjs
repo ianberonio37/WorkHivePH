@@ -11,6 +11,10 @@
 // desktop-1280:
 //   FIG    the report states each headline figure the engine computed (the door page's headline keys): a number in the
 //          report that IS the engine's value at the decimals the report prints, within 2% - never a rounder coincidence
+//   EVERY  every number in a figure cell (td.num, a result tile, a table's value columns) traces to the engine's answer or
+//          its inputs - at the decimals printed, within 2%, in the same unit or a stated conversion (an SI prefix, a
+//          percentage, kW <-> TR at 3.517, gauge -> absolute at 101.3 kPa) - or is a constant written in that calculator's
+//          own renderer. A figure the report computes for itself is a second, unchecked engine.
 //   BRK    no broken figure: undefined, NaN, Infinity, [object Object], null, or an unfilled ${...}
 //   SCR    nothing wider than the phone at 390
 //   PAPER  printed (print media, A4 width 794 px), the report is shown and nothing runs past the page edge - on paper a
@@ -37,7 +41,7 @@ const VIEWPORTS = [['phone-390', 390, 844], ['desktop-1280', 1280, 900]];
 const PAPER_W = 794;
 
 // render one calculator's report and read it - runs in the page
-const READ = async ({ calc, inputs, results, headline, plant }) => {
+const READ = async ({ calc, inputs, results, headline, plant, rsrc }) => {
   switchTab('calculator');
   selectCalcType(calc);
   await new Promise((r) => setTimeout(r, 150));
@@ -69,7 +73,35 @@ const READ = async ({ calc, inputs, results, headline, plant }) => {
   const missing = headline.filter(([, key]) => results[key] != null && !states(results[key])).map(([label, key]) => `${label} (${key} = ${JSON.stringify(results[key])})`);
   const absent = headline.filter(([, key]) => results[key] == null).map(([label, key]) => `${label} (${key})`);
   const broken = [...new Set(text.match(/\bundefined\b|\bNaN\b|\bInfinity\b|\[object Object\]|\bnull\b|\$\{/g) || [])];
-  return { chars: text.length, missing, absent, broken, overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+  // EVERY - the figure cells, each number traced
+  const pool = [];
+  const walk = (v) => { if (typeof v === 'number' && Number.isFinite(v)) pool.push(v);
+    else if (v && typeof v === 'object') Object.values(v).forEach(walk);
+    else if (typeof v === 'string') (v.match(/-?\d+(?:\.\d+)?/g) || []).forEach((x) => pool.push(parseFloat(x))); };
+  walk(results); walk(inputs);
+  // a power of ten is a unit prefix (mm4 <-> cm4 is 10^4, mm4 printed "x 10^6" is 10^6); kW <-> TR; gauge -> absolute
+  const conv = [-6, -4, -3, -2, -1, 1, 2, 3, 4, 6].map((p) => (x) => x * 10 ** p)
+    .concat([(x) => x, (x) => x * 3.517, (x) => x / 3.517, (x) => x + 101.3, (x) => x + 101.325]);
+  const traces = (n, d) => conv.some((f) => pool.some((v) => { const x = f(v);
+    if (Math.abs(n - x) > Math.max(0.02 * Math.abs(x), 1e-9)) return false;
+    return Math.abs(Number(x.toFixed(d)) - n) < 1e-9 || Math.abs(n - x) <= 0.5 * 10 ** -d + 1e-9; }));
+  const cells = [...panel.querySelectorAll('td.num, .res-value, td:nth-child(2), td:nth-child(3)')]
+    .map((c) => (c.innerText || '').trim()).filter((c) => /\d/.test(c));
+  const untraced = [];
+  // a standard's designation (ISO 898-1, ASME B30.2, EN 81) and a date are not figures
+  const NOT_FIGURES = /\b(?:ISO|ASME|IEC|EN|VDI|ABMA|ANSI|AISC|ACI|NFPA|PEC|ASHRAE|NSCP|ASTM|API|IEEE|CIBSE|UPC|IPC|SMACNA|TEMA|DOLE|D\.O\.|DAO|RA|PD|BS|DIN|AWS|AGMA|RMA|NEC|UL|CTI|AHRI|AMCA|NEMA|Std\.?|Table|Art\.?|Section|Sec\.)\s*[A-Z]?\d[\d.:\-]*(?:\s*Ed\.)?|\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}/g;
+  for (const cell0 of cells) {
+    const cell = cell0.replace(NOT_FIGURES, ' ');
+    for (const tok of cell.match(/-?\d[\d,]*(?:\.\d+)?/g) || []) {
+      const n = parseFloat(tok.replace(/,/g, '')), d = (tok.split('.')[1] || '').length;
+      if (Number.isInteger(n) && Math.abs(n) <= 12) continue;           // a count, a step, a row number
+      if (traces(n, d) || (rsrc && rsrc.includes(tok))) continue;       // the engine's, or the renderer's own constant
+      if (untraced.length < 6) untraced.push(`${tok} in "${cell.replace(/\s+/g, ' ').slice(0, 60)}"`);
+      else untraced.push('');
+    }
+  }
+  return { chars: text.length, missing, absent, broken, untraced: untraced.filter(Boolean), untracedCount: untraced.length,
+    overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth };
 };
 
 // on paper: print media at A4 width - the report must be shown and nothing may run past the page edge
@@ -98,6 +130,19 @@ if (!existsSync(CASES)) {
   process.exit(0);
 }
 const cases = JSON.parse(readFileSync(CASES, 'utf8'));
+// each calculator's renderer source (its constants are its own, not the engine's) - read from the History dispatcher
+const JS_SRC = readFileSync('engineering-design.js', 'utf8');
+const RENDERER = {};
+for (const m of JS_SRC.matchAll(/row\.calc_type === '([^']+)'\)\s*\{\s*(render\w+)\(/g)) RENDERER[m[1]] = m[2];
+for (const m of JS_SRC.matchAll(/_calcType === '([^']+)'\)\s*\{\s*(render\w+)\(/g)) RENDERER[m[1]] = RENDERER[m[1]] || m[2];
+RENDERER['HVAC Cooling Load'] = RENDERER['HVAC Cooling Load'] || 'renderReport';   // the default branch
+const rendererSource = (calc) => {
+  const name = RENDERER[calc];
+  const at = name ? JS_SRC.indexOf(`function ${name}(`) : -1;
+  if (at < 0) return '';
+  const next = JS_SRC.indexOf('\nfunction ', at + 10);
+  return JS_SRC.slice(at, next > 0 ? next : undefined);
+};
 const browser = await chromium.launch();
 const ctx = await browser.newContext();
 await assertSignedIn(signIn(ctx, 'supervisor'));
@@ -115,9 +160,9 @@ try {
       const c = cases[calc];
       let r;
       try {
-        r = await page.evaluate(READ, { calc, inputs: c.inputs, results: c.results, headline: c.headline, plant: TEETH });
+        r = await page.evaluate(READ, { calc, inputs: c.inputs, results: c.results, headline: c.headline, plant: TEETH, rsrc: rendererSource(calc) });
       } catch (e) {
-        r = { error: String(e.message || e).slice(0, 160), missing: [], absent: [], broken: [], overflow: 0, chars: 0 };
+        r = { error: String(e.message || e).slice(0, 160), missing: [], absent: [], broken: [], untraced: [], untracedCount: 0, overflow: 0, chars: 0 };
       }
       let paper = null;
       if (vp === 'desktop-1280') {
@@ -127,7 +172,7 @@ try {
         await page.emulateMedia({ media: 'screen' });
         await page.setViewportSize({ width: w, height: h });
       }
-      const ok = !r.error && r.chars > 400 && !r.missing.length && !r.broken.length
+      const ok = !r.error && r.chars > 400 && !r.missing.length && !r.broken.length && !r.untracedCount
         && (vp !== 'phone-390' || r.overflow <= 1) && (!paper || (paper.shown && !paper.past.length));
       results.push({ calc, vp, ...r, paper, ok });
     }
@@ -144,11 +189,12 @@ if (TEETH) {
   const caught = {
     wrongFigure: results.every((r) => r.missing.length > 0),
     brokenToken: results.every((r) => r.broken.includes('undefined')),
+    untracedFigure: results.every((r) => r.untracedCount > 0),
     tooWide: results.filter((r) => r.vp === 'phone-390').every((r) => r.overflow > 1),
   };
   const ok = Object.values(caught).every(Boolean);
   writeFileSync(REPORT, JSON.stringify({ generated: new Date().toISOString(), teeth: true, caught, ok, results }, null, 1));
-  console.log(ok ? 'TEETH ok engineering-reports: a wrong headline figure, a broken token and a block wider than the phone were each caught'
+  console.log(ok ? 'TEETH ok engineering-reports: a wrong headline figure, figures not the engine’s, a broken token and a block wider than the phone were each caught'
                  : 'BLUNT engineering-reports: ' + JSON.stringify(caught));
   process.exit(ok ? 0 : 1);
 }
@@ -161,6 +207,7 @@ for (const r of results) {
   if (!r.error && r.chars <= 400) c.faults.push(`${r.vp}: report is ${r.chars} characters`);
   if (r.missing.length) c.faults.push(`${r.vp}: does not state ${r.missing.join('; ')}`);
   if (r.broken.length) c.faults.push(`${r.vp}: broken figure ${r.broken.join(', ')}`);
+  if (r.untracedCount) c.faults.push(`${r.vp}: ${r.untracedCount} figure(s) not the engine's - ${r.untraced.join('; ')}`);
   if (r.vp === 'phone-390' && r.overflow > 1) c.faults.push(`${r.vp}: ${r.overflow}px wider than the phone`);
   if (r.paper && !r.paper.shown) c.faults.push('paper: the report is not shown in print');
   if (r.paper && r.paper.past.length) c.faults.push(`paper: runs past the A4 edge - ${r.paper.past.join(' | ')}`);

@@ -1179228,8 +1179228,8 @@
     },
     {
       "id": "ED3",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - HVAC Cooling Load on engineering-design.html · solo-owner",
       "pages": [
@@ -1179283,12 +1179283,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the HVAC Cooling Load calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] HVAC Cooling Load's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: HVAC Cooling Load's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED9",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Ventilation / ACH on engineering-design.html · solo-owner",
       "pages": [
@@ -1179342,12 +1179349,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Ventilation / ACH calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Ventilation / ACH's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Ventilation / ACH's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED15",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Chiller System — Air Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1179401,12 +1179415,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Air Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Chiller System — Air Cooled's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Chiller System — Air Cooled's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED21",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Chiller System — Water Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1179460,12 +1179481,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Water Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Chiller System — Water Cooled's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Chiller System — Water Cooled's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED27",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Cooling Tower Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1179519,12 +1179547,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Cooling Tower Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Cooling Tower Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Cooling Tower Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED33",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - AHU Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1179578,12 +1179613,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the AHU Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] AHU Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: AHU Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED39",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - FCU Selection on engineering-design.html · solo-owner",
       "pages": [
@@ -1179637,12 +1179679,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the FCU Selection calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FCU Selection's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: FCU Selection's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED45",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Duct Sizing (Equal Friction) on engineering-design.html · solo-owner",
       "pages": [
@@ -1179696,12 +1179745,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Duct Sizing (Equal Friction) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Duct Sizing (Equal Friction)'s report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Duct Sizing (Equal Friction)'s report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED51",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Refrigerant Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1179755,12 +1179811,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Refrigerant Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Refrigerant Pipe Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Refrigerant Pipe Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED57",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Expansion Tank Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1179814,12 +1179877,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Expansion Tank Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Expansion Tank Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Expansion Tank Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED63",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Pump Sizing (TDH) on engineering-design.html · solo-owner",
       "pages": [
@@ -1179873,12 +1179943,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pump Sizing (TDH) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pump Sizing (TDH)'s report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Pump Sizing (TDH)'s report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED69",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1179932,12 +1180009,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pipe Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Pipe Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED75",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Compressed Air on engineering-design.html · solo-owner",
       "pages": [
@@ -1179991,12 +1180075,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Compressed Air calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Compressed Air's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Compressed Air's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED81",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Boiler System on engineering-design.html · solo-owner",
       "pages": [
@@ -1180050,12 +1180141,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Boiler System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Boiler System's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Boiler System's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED87",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Load Estimation on engineering-design.html · solo-owner",
       "pages": [
@@ -1180109,12 +1180207,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Load Estimation calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Load Estimation's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Load Estimation's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED93",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Transformer Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1180168,12 +1180273,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Transformer Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Transformer Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Transformer Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED99",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Wire Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1180227,12 +1180339,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wire Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Wire Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Wire Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED104",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Cable Tray Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1180286,12 +1180405,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Cable Tray Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Cable Tray Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Cable Tray Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED109",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Voltage Drop on engineering-design.html · solo-owner",
       "pages": [
@@ -1180345,12 +1180471,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Voltage Drop calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Voltage Drop's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Voltage Drop's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED114",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Short Circuit on engineering-design.html · solo-owner",
       "pages": [
@@ -1180404,12 +1180537,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Short Circuit calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Short Circuit's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Short Circuit's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED119",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Generator Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1180463,12 +1180603,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Generator Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Generator Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Generator Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED125",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - UPS Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1180522,12 +1180669,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the UPS Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] UPS Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: UPS Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED131",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Power Factor Correction on engineering-design.html · solo-owner",
       "pages": [
@@ -1180581,12 +1180735,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Power Factor Correction calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Power Factor Correction's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Power Factor Correction's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED137",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Harmonic Distortion on engineering-design.html · solo-owner",
       "pages": [
@@ -1180640,12 +1180801,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Harmonic Distortion calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Harmonic Distortion's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Harmonic Distortion's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED143",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Solar PV System on engineering-design.html · solo-owner",
       "pages": [
@@ -1180699,12 +1180867,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Solar PV System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Solar PV System's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Solar PV System's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED149",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Lightning Protection System (LPS) on engineering-design.html · solo-owner",
       "pages": [
@@ -1180758,12 +1180933,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Lightning Protection System (LPS) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Lightning Protection System (LPS)'s report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Lightning Protection System (LPS)'s report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED155",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Earthing / Grounding System on engineering-design.html · solo-owner",
       "pages": [
@@ -1180817,12 +1180999,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Earthing / Grounding System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Earthing / Grounding System's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Earthing / Grounding System's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED161",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Lighting Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1180876,12 +1181065,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Lighting Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Lighting Design's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Lighting Design's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED167",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Water Supply Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1180935,12 +1181131,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Supply Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Supply Pipe Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Water Supply Pipe Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED173",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Hot Water Demand on engineering-design.html · solo-owner",
       "pages": [
@@ -1180994,12 +1181197,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hot Water Demand calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Hot Water Demand's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Hot Water Demand's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED179",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Water Softener Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1181053,12 +1181263,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Softener Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Softener Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Water Softener Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED185",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Water Treatment System on engineering-design.html · solo-owner",
       "pages": [
@@ -1181112,12 +1181329,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Treatment System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Treatment System's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Water Treatment System's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED191",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Drainage Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1181171,12 +1181395,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Drainage Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Drainage Pipe Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Drainage Pipe Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED197",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Septic Tank Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1181230,12 +1181461,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Septic Tank Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Septic Tank Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Septic Tank Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED203",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Storm Drain / Stormwater on engineering-design.html · solo-owner",
       "pages": [
@@ -1181289,12 +1181527,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Storm Drain / Stormwater calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Storm Drain / Stormwater's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Storm Drain / Stormwater's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED209",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Grease Trap Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1181348,12 +1181593,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Grease Trap Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Grease Trap Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Grease Trap Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED215",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Roof Drain Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1181407,12 +1181659,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Roof Drain Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Roof Drain Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Roof Drain Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED221",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Wastewater Treatment (STP) on engineering-design.html · solo-owner",
       "pages": [
@@ -1181466,12 +1181725,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wastewater Treatment (STP) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Wastewater Treatment (STP)'s report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Wastewater Treatment (STP)'s report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED227",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Fire Sprinkler Hydraulic on engineering-design.html · solo-owner",
       "pages": [
@@ -1181525,12 +1181791,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Sprinkler Hydraulic calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Sprinkler Hydraulic's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Fire Sprinkler Hydraulic's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED233",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Fire Pump Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1181584,12 +1181857,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Pump Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Pump Sizing's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Fire Pump Sizing's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED239",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Stairwell Pressurization on engineering-design.html · solo-owner",
       "pages": [
@@ -1181643,12 +1181923,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Stairwell Pressurization calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Stairwell Pressurization's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Stairwell Pressurization's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED245",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Fire Alarm Battery on engineering-design.html · solo-owner",
       "pages": [
@@ -1181702,12 +1181989,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Alarm Battery calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Alarm Battery's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Fire Alarm Battery's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED251",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Clean Agent Suppression on engineering-design.html · solo-owner",
       "pages": [
@@ -1181761,12 +1182055,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Clean Agent Suppression calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Clean Agent Suppression's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Clean Agent Suppression's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED257",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - V-Belt Drive Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1181820,12 +1182121,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the V-Belt Drive Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] V-Belt Drive Design's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: V-Belt Drive Design's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED263",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Shaft Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1181879,12 +1182187,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Shaft Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Shaft Design's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Shaft Design's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED269",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Bolt Torque & Preload on engineering-design.html · solo-owner",
       "pages": [
@@ -1181938,12 +1182253,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bolt Torque & Preload calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Bolt Torque & Preload's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Bolt Torque & Preload's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED275",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Fluid Power on engineering-design.html · solo-owner",
       "pages": [
@@ -1181997,12 +1182319,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fluid Power calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fluid Power's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Fluid Power's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED281",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Bearing Life (L10) on engineering-design.html · solo-owner",
       "pages": [
@@ -1182056,12 +1182385,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bearing Life (L10) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Bearing Life (L10)'s report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Bearing Life (L10)'s report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED287",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Pressure Vessel on engineering-design.html · solo-owner",
       "pages": [
@@ -1182115,12 +1182451,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pressure Vessel calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pressure Vessel's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Pressure Vessel's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED293",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Heat Exchanger on engineering-design.html · solo-owner",
       "pages": [
@@ -1182174,12 +1182517,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Heat Exchanger calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Heat Exchanger's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Heat Exchanger's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED299",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Beam / Column Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1182233,12 +1182583,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Beam / Column Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Beam / Column Design's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Beam / Column Design's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED305",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Vibration Analysis on engineering-design.html · solo-owner",
       "pages": [
@@ -1182292,12 +1182649,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Vibration Analysis calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Vibration Analysis's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Vibration Analysis's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED311",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Noise / Acoustics on engineering-design.html · solo-owner",
       "pages": [
@@ -1182351,12 +1182715,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Noise / Acoustics calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Noise / Acoustics's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Noise / Acoustics's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED317",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Elevator Traffic Analysis on engineering-design.html · solo-owner",
       "pages": [
@@ -1182410,12 +1182781,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Elevator Traffic Analysis calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Elevator Traffic Analysis's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Elevator Traffic Analysis's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED323",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-R1",
       "title": "the report reads true, on screen and on paper - Hoist Capacity on engineering-design.html · solo-owner",
       "pages": [
@@ -1182469,12 +1182847,19 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hoist Capacity calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Hoist Capacity's report: every figure cell traces to the served engine's answer, its headline figures are stated, it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were read against the engine with their units and clauses in G1 (ED rows, this wave). WALKED: Hoist Capacity's report rendered through the live path from the served Python engine's answer on the form's own payload, read through tools/prove_engineering_reports.mjs (receipt engineering_reports_report.json, 2026-11-02T06:11:43Z) at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate engineering-reports (ratchet engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) and gate engineering-guides (the G1 reading). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides",
+          "engineering-reports"
+        ]
       }
     },
     {
       "id": "ED4",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - HVAC Cooling Load on engineering-design.html · solo-owner",
       "pages": [
@@ -1182528,12 +1182913,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the HVAC Cooling Load calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] HVAC Cooling Load: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: HVAC Cooling Load saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED10",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Ventilation / ACH on engineering-design.html · solo-owner",
       "pages": [
@@ -1182587,12 +1182978,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Ventilation / ACH calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Ventilation / ACH: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Ventilation / ACH saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED16",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Chiller System — Air Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1182646,12 +1183043,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Air Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Chiller System — Air Cooled: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Chiller System — Air Cooled saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED22",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Chiller System — Water Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1182705,12 +1183108,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Water Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Chiller System — Water Cooled: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Chiller System — Water Cooled saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED28",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Cooling Tower Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1182764,12 +1183173,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Cooling Tower Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Cooling Tower Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Cooling Tower Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED34",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - AHU Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1182823,12 +1183238,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the AHU Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] AHU Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: AHU Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED40",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - FCU Selection on engineering-design.html · solo-owner",
       "pages": [
@@ -1182882,12 +1183303,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the FCU Selection calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FCU Selection: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: FCU Selection saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED46",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Duct Sizing (Equal Friction) on engineering-design.html · solo-owner",
       "pages": [
@@ -1182941,12 +1183368,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Duct Sizing (Equal Friction) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Duct Sizing (Equal Friction): saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Duct Sizing (Equal Friction) saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED52",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Refrigerant Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1183000,12 +1183433,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Refrigerant Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Refrigerant Pipe Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Refrigerant Pipe Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED58",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Expansion Tank Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1183059,12 +1183498,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Expansion Tank Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Expansion Tank Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Expansion Tank Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED64",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Pump Sizing (TDH) on engineering-design.html · solo-owner",
       "pages": [
@@ -1183118,12 +1183563,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pump Sizing (TDH) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pump Sizing (TDH): saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Pump Sizing (TDH) saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED70",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1183177,12 +1183628,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pipe Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Pipe Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED76",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Compressed Air on engineering-design.html · solo-owner",
       "pages": [
@@ -1183236,12 +1183693,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Compressed Air calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Compressed Air: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Compressed Air saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED82",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Boiler System on engineering-design.html · solo-owner",
       "pages": [
@@ -1183295,12 +1183758,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Boiler System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Boiler System: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Boiler System saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED88",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Load Estimation on engineering-design.html · solo-owner",
       "pages": [
@@ -1183354,12 +1183823,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Load Estimation calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Load Estimation: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Load Estimation saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED94",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Transformer Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1183413,12 +1183888,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Transformer Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Transformer Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Transformer Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED100",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Wire Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1183472,12 +1183953,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wire Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Wire Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Wire Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED105",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Cable Tray Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1183531,12 +1184018,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Cable Tray Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Cable Tray Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Cable Tray Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED110",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Voltage Drop on engineering-design.html · solo-owner",
       "pages": [
@@ -1183590,12 +1184083,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Voltage Drop calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Voltage Drop: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Voltage Drop saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED115",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Short Circuit on engineering-design.html · solo-owner",
       "pages": [
@@ -1183649,12 +1184148,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Short Circuit calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Short Circuit: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Short Circuit saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED120",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Generator Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1183708,12 +1184213,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Generator Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Generator Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Generator Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED126",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - UPS Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1183767,12 +1184278,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the UPS Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] UPS Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: UPS Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED132",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Power Factor Correction on engineering-design.html · solo-owner",
       "pages": [
@@ -1183826,12 +1184343,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Power Factor Correction calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Power Factor Correction: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Power Factor Correction saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED138",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Harmonic Distortion on engineering-design.html · solo-owner",
       "pages": [
@@ -1183885,12 +1184408,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Harmonic Distortion calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Harmonic Distortion: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Harmonic Distortion saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED144",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Solar PV System on engineering-design.html · solo-owner",
       "pages": [
@@ -1183944,12 +1184473,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Solar PV System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Solar PV System: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Solar PV System saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED150",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Lightning Protection System (LPS) on engineering-design.html · solo-owner",
       "pages": [
@@ -1184003,12 +1184538,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Lightning Protection System (LPS) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Lightning Protection System (LPS): saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Lightning Protection System (LPS) saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED156",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Earthing / Grounding System on engineering-design.html · solo-owner",
       "pages": [
@@ -1184062,12 +1184603,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Earthing / Grounding System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Earthing / Grounding System: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Earthing / Grounding System saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED162",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Lighting Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1184121,12 +1184668,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Lighting Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Lighting Design: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Lighting Design saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED168",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Water Supply Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1184180,12 +1184733,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Supply Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Supply Pipe Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Water Supply Pipe Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED174",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Hot Water Demand on engineering-design.html · solo-owner",
       "pages": [
@@ -1184239,12 +1184798,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hot Water Demand calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Hot Water Demand: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Hot Water Demand saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED180",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Water Softener Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1184298,12 +1184863,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Softener Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Softener Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Water Softener Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED186",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Water Treatment System on engineering-design.html · solo-owner",
       "pages": [
@@ -1184357,12 +1184928,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Treatment System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Treatment System: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Water Treatment System saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED192",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Drainage Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1184416,12 +1184993,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Drainage Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Drainage Pipe Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Drainage Pipe Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED198",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Septic Tank Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1184475,12 +1185058,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Septic Tank Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Septic Tank Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Septic Tank Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED204",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Storm Drain / Stormwater on engineering-design.html · solo-owner",
       "pages": [
@@ -1184534,12 +1185123,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Storm Drain / Stormwater calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Storm Drain / Stormwater: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Storm Drain / Stormwater saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED210",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Grease Trap Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1184593,12 +1185188,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Grease Trap Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Grease Trap Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Grease Trap Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED216",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Roof Drain Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1184652,12 +1185253,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Roof Drain Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Roof Drain Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Roof Drain Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED222",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Wastewater Treatment (STP) on engineering-design.html · solo-owner",
       "pages": [
@@ -1184711,12 +1185318,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wastewater Treatment (STP) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Wastewater Treatment (STP): saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Wastewater Treatment (STP) saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED228",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Fire Sprinkler Hydraulic on engineering-design.html · solo-owner",
       "pages": [
@@ -1184770,12 +1185383,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Sprinkler Hydraulic calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Sprinkler Hydraulic: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Fire Sprinkler Hydraulic saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED234",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Fire Pump Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1184829,12 +1185448,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Pump Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Pump Sizing: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Fire Pump Sizing saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED240",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Stairwell Pressurization on engineering-design.html · solo-owner",
       "pages": [
@@ -1184888,12 +1185513,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Stairwell Pressurization calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Stairwell Pressurization: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Stairwell Pressurization saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED246",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Fire Alarm Battery on engineering-design.html · solo-owner",
       "pages": [
@@ -1184947,12 +1185578,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Alarm Battery calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Alarm Battery: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Fire Alarm Battery saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED252",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Clean Agent Suppression on engineering-design.html · solo-owner",
       "pages": [
@@ -1185006,12 +1185643,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Clean Agent Suppression calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Clean Agent Suppression: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Clean Agent Suppression saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED258",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - V-Belt Drive Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1185065,12 +1185708,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the V-Belt Drive Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] V-Belt Drive Design: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: V-Belt Drive Design saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED264",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Shaft Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1185124,12 +1185773,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Shaft Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Shaft Design: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Shaft Design saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED270",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Bolt Torque & Preload on engineering-design.html · solo-owner",
       "pages": [
@@ -1185183,12 +1185838,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bolt Torque & Preload calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Bolt Torque & Preload: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Bolt Torque & Preload saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED276",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Fluid Power on engineering-design.html · solo-owner",
       "pages": [
@@ -1185242,12 +1185903,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fluid Power calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fluid Power: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Fluid Power saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED282",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Bearing Life (L10) on engineering-design.html · solo-owner",
       "pages": [
@@ -1185301,12 +1185968,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bearing Life (L10) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Bearing Life (L10): saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Bearing Life (L10) saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED288",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Pressure Vessel on engineering-design.html · solo-owner",
       "pages": [
@@ -1185360,12 +1186033,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pressure Vessel calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pressure Vessel: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Pressure Vessel saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED294",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Heat Exchanger on engineering-design.html · solo-owner",
       "pages": [
@@ -1185419,12 +1186098,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Heat Exchanger calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Heat Exchanger: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Heat Exchanger saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED300",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Beam / Column Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1185478,12 +1186163,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Beam / Column Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Beam / Column Design: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Beam / Column Design saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED306",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Vibration Analysis on engineering-design.html · solo-owner",
       "pages": [
@@ -1185537,12 +1186228,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Vibration Analysis calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Vibration Analysis: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Vibration Analysis saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED312",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Noise / Acoustics on engineering-design.html · solo-owner",
       "pages": [
@@ -1185596,12 +1186293,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Noise / Acoustics calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Noise / Acoustics: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Noise / Acoustics saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED318",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Elevator Traffic Analysis on engineering-design.html · solo-owner",
       "pages": [
@@ -1185655,12 +1186358,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Elevator Traffic Analysis calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Elevator Traffic Analysis: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Elevator Traffic Analysis saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {
       "id": "ED324",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-S1",
       "title": "saved, reopened from History, the same calculation - Hoist Capacity on engineering-design.html · solo-owner",
       "pages": [
@@ -1185714,6 +1186423,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hoist Capacity calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Hoist Capacity: saved through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History, its report is the one that was saved, figure for figure (the date line aside); the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest reopened onto the previous report - and now renders through the one a fresh calculation uses. WALKED: Hoist Capacity saved, reopened from History and deleted inside engineering-design.html as the signed-in walker, through tools/prove_engineering_saved_reports.mjs (receipt engineering_saved_reports_report.json, 2026-11-02T06:24:00Z). HELD BY: gate engineering-saved-reports (ratchet engineering_saved_reports_baseline.json; teeth change every figure between save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-saved-reports"
+        ]
       }
     },
     {

@@ -12,6 +12,16 @@ A row is banked only when ALL hold:
   3. G1 rows: the calculator passes in the receipt (a guide, its field names exactly the form's, its renderer clean) AND it
      is in ENGINE_CHECKED - a guide whose formulas and constants were read against python-api/calcs/<name>.py. Matching
      field names is necessary, never sufficient: G1 also asks that the guide's formulas are the engine's.
+  4. R1 rows (2026-11-02): the calculator passes in tools/prove_engineering_reports.mjs's receipt (every figure cell traces
+     to the served engine's answer, its headline figures are stated, no broken figure, it fits a phone, it prints whole on
+     A4) AND it is in ENGINE_CHECKED - its guide and report working were read against the engine with their units and
+     clauses. The prover measures the figures; the G1 reading is what covers the unit and the clause behind each.
+  5. S1 rows (2026-11-02): the calculator passes in tools/prove_engineering_saved_reports.mjs's receipt - its report, saved
+     through the page's own saveCalc() into engineering_calcs, read back from the database and reopened through History,
+     is the report that was saved, figure for figure; the walk deletes its row.
+  6. D1 rows (2026-11-02): the calculator is drawn and passes in tools/prove_engineering_drawings.mjs's receipt - the
+     drawing (the page's own _runDrawing) states the engine's headline figures, every number in its labels and title block
+     traces to the engine's answer or the builder's own constants, and it fits a 390 px phone.
 A failing or missing row is left as it is and printed with the reason.
 
     python tools/bank_ed_rows.py [--run] [--dry]
@@ -38,6 +48,15 @@ REPORT = ROOT / "engineering_guides_report.json"
 PROVER = "tools/prove_engineering_guides.mjs"
 GATE = "engineering-guides"
 MAX_AGE_H = 3
+RREPORT = ROOT / "engineering_reports_report.json"
+RPROVER = "tools/prove_engineering_reports.mjs"
+RGATE = "engineering-reports"
+SREPORT = ROOT / "engineering_saved_reports_report.json"
+SPROVER = "tools/prove_engineering_saved_reports.mjs"
+SGATE = "engineering-saved-reports"
+DREPORT = ROOT / "engineering_drawings_report.json"
+DPROVER = "tools/prove_engineering_drawings.mjs"
+DGATE = "engineering-drawings"
 
 # a guide read against its engine, and how - the second half of G1 that a field-name match cannot prove
 ENGINE_CHECKED = {
@@ -767,6 +786,63 @@ def main() -> int:
         elif age_h > MAX_AGE_H:
             receipt_problem = f"the guide receipt is {age_h:.1f} h old (limit {MAX_AGE_H}) - re-run {PROVER}"
     calcs = {c["calc"]: c for c in rep.get("calcs") or []} if not receipt_problem else {}
+    # the report receipt is what an R1 row closes on (re-run with --run, like the guide gate)
+    rrep, r_problem = {}, None
+    if a.run:
+        ok2, last2 = bsw._run_gate(str(ROOT / RPROVER), "--gate")
+        if not ok2:
+            r_problem = f"gate {RGATE} is red ({last2})"
+    if not r_problem:
+        if not RREPORT.exists():
+            r_problem = f"no receipt at {RREPORT.name} - run {RPROVER}"
+        else:
+            rrep = json.loads(RREPORT.read_text(encoding="utf-8"))
+            r_age = (datetime.now(timezone.utc) - datetime.fromisoformat(rrep["generated"].replace("Z", "+00:00"))).total_seconds() / 3600
+            if rrep.get("teeth"):
+                r_problem = "the report receipt is a --teeth run"
+            elif r_age > MAX_AGE_H:
+                r_problem = f"the report receipt is {r_age:.1f} h old (limit {MAX_AGE_H}) - re-run {RPROVER}"
+    rcalcs = {c["calc"]: c for c in rrep.get("calcs") or []} if not r_problem else {}
+    # the saved-and-reopened receipt is what an S1 row closes on
+    srep, s_problem = {}, None
+    if a.run:
+        ok3, last3 = bsw._run_gate(str(ROOT / SPROVER), "--gate")
+        if not ok3:
+            s_problem = f"gate {SGATE} is red ({last3})"
+    if not s_problem:
+        if not SREPORT.exists():
+            s_problem = f"no receipt at {SREPORT.name} - run {SPROVER}"
+        else:
+            srep = json.loads(SREPORT.read_text(encoding="utf-8"))
+            s_age = (datetime.now(timezone.utc) - datetime.fromisoformat(srep["generated"].replace("Z", "+00:00"))).total_seconds() / 3600
+            if srep.get("teeth"):
+                s_problem = "the saved-report receipt is a --teeth run"
+            elif s_age > MAX_AGE_H:
+                s_problem = f"the saved-report receipt is {s_age:.1f} h old (limit {MAX_AGE_H}) - re-run {SPROVER}"
+    scalcs = {c["calc"]: c for c in srep.get("calcs") or []} if not s_problem else {}
+    # the drawing receipt is what a D1 row closes on
+    drep, d_problem = {}, None
+    if a.run:
+        ok4, last4 = bsw._run_gate(str(ROOT / DPROVER), "--gate")
+        if not ok4:
+            d_problem = f"gate {DGATE} is red ({last4})"
+    if not d_problem:
+        if not DREPORT.exists():
+            d_problem = f"no receipt at {DREPORT.name} - run {DPROVER}"
+        else:
+            drep = json.loads(DREPORT.read_text(encoding="utf-8"))
+            d_age = (datetime.now(timezone.utc) - datetime.fromisoformat(drep["generated"].replace("Z", "+00:00"))).total_seconds() / 3600
+            if drep.get("teeth"):
+                d_problem = "the drawing receipt is a --teeth run"
+            elif d_age > MAX_AGE_H:
+                d_problem = f"the drawing receipt is {d_age:.1f} h old (limit {MAX_AGE_H}) - re-run {DPROVER}"
+    dcalcs = {c["calc"]: c for c in drep.get("calcs") or []} if not d_problem else {}
+    if d_problem:
+        print(f"  drawing rows held: {d_problem}")
+    if s_problem:
+        print(f"  saved-report rows held: {s_problem}")
+    if r_problem:
+        print(f"  report rows held: {r_problem}")
     gr = (rep.get("gr") or {}) if not receipt_problem else {}
     if receipt_problem:
         print(f"  guide rows held: {receipt_problem}")
@@ -806,6 +882,34 @@ def main() -> int:
                 continue
             why = E1_FIXED[unit]
             what = f"{unit}: the form's own default payload is answered by the Python engine (tools/census_calc_served_engine.py)"
+        elif key == "D1":
+            c = dcalcs.get(unit)
+            if not c or not c.get("shown") or not c.get("ok"):
+                continue                                  # open: the walk names the drawing's faults in the receipt
+            why = (f"{unit}'s drawing, drawn by the page's own _runDrawing from the served engine's answer, states the "
+                   f"engine's headline figures; every number in its labels and title block traces to the engine's answer, "
+                   f"its inputs or the drawing builder's own constants; it fits a 390 px phone.")
+            what = f"{unit} computed and drawn inside engineering-design.html at phone-390 and desktop-1280"
+        elif key == "S1":
+            c = scalcs.get(unit)
+            if not c or not c.get("ok"):
+                continue                                  # open: the walk names the difference in the receipt
+            why = (f"{unit}: saved through the page's own saveCalc() into engineering_calcs, read back from the database and "
+                   f"reopened through History, its report is the one that was saved, figure for figure (the date line aside); "
+                   f"the walk deleted its row. History had its own dispatcher that knew 30 of 55 calculators - the rest "
+                   f"reopened onto the previous report - and now renders through the one a fresh calculation uses.")
+            what = f"{unit} saved, reopened from History and deleted inside engineering-design.html as the signed-in walker"
+        elif key == "R1":
+            c = rcalcs.get(unit)
+            if not c or not c.get("ok"):
+                continue                                  # open: the report walk names its faults in the receipt
+            if unit not in ENGINE_CHECKED:
+                held.append((t["id"], f"{unit}: its report reads true, but its working is not yet read against the engine (G1)"))
+                continue
+            why = (f"{unit}'s report: every figure cell traces to the served engine's answer, its headline figures are stated, "
+                   f"it carries no broken figure, fits a 390 px phone and prints whole on A4; its guide and report working were "
+                   f"read against the engine with their units and clauses in G1 (ED rows, this wave).")
+            what = f"{unit}'s report rendered through the live path from the served Python engine's answer on the form's own payload"
         elif key == "G1":
             c = calcs.get(unit)
             if not c or not c.get("g1") or not c.get("renderer"):
@@ -817,7 +921,24 @@ def main() -> int:
             what = f"{unit}'s Guide - present, its field names exactly the form's, its text and formulas clean at both widths"
         else:
             continue
-        if key in ("I1", "E1"):
+        if key == "D1":
+            basis = (f"[{today}] {why} WALKED: {what}, through {DPROVER} (receipt {DREPORT.name}, {drep['generated'][:19]}Z). "
+                     f"HELD BY: gate {DGATE} (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by "
+                     f"1.37 - the engine's own are then absent). pct -> {{pct}}")
+            gates = [DGATE]
+        elif key == "S1":
+            basis = (f"[{today}] {why} WALKED: {what}, through {SPROVER} (receipt {SREPORT.name}, {srep['generated'][:19]}Z). "
+                     f"HELD BY: gate {SGATE} (ratchet engineering_saved_reports_baseline.json; teeth change every figure between "
+                     f"save and reopen, and the panel is cleared first so a reopen that renders nothing reads as nothing). "
+                     f"pct -> {{pct}}")
+            gates = [SGATE]
+        elif key == "R1":
+            basis = (f"[{today}] {why} WALKED: {what}, read through {RPROVER} (receipt {RREPORT.name}, {rrep['generated'][:19]}Z) "
+                     f"at phone-390, desktop-1280 and on paper (print media, A4 width). HELD BY: gate {RGATE} (ratchet "
+                     f"engineering_reports_baseline.json; teeth scale every figure by 1.37, plant 'undefined' and a 1400 px block) "
+                     f"and gate {GATE} (the G1 reading). pct -> {{pct}}")
+            gates = [RGATE, GATE]
+        elif key in ("I1", "E1"):
             basis = (f"[{today}] {why} MEASURED: {what} (how each row was walked is in its sentence above). HELD BY: gate "
                      f"calc-input-reach (ratchet calc_input_reach_baseline.json; teeth plant an unread key) and gate "
                      f"calc_formula_accuracy (the oracle vector named above). pct -> {{pct}}")

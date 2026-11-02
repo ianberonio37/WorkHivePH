@@ -345,6 +345,12 @@ def calculate(inputs: dict) -> dict:
         "Sy_MPa":            mat["Sy_MPa"],
         "Se_MPa":            round(Se, 2),
 
+        # ASME B106.1M cross-check (the report's section 5): Ss = min(0.30 Sy, 0.18 Sut) x 0.75 with a keyway,
+        # d^3 = (16/pi) sqrt((Kb M)^2 + (Kt T)^2) / Ss. It was recomputed in the report; the engine states it now.
+        "Ss_allow_MPa":      round(min(0.30 * mat["Sy_MPa"], 0.18 * mat["Sut_MPa"]) * (0.75 if _kw.lower().startswith("y") else 1.0), 2),
+        "d_min_asme_mm":     round((16 / math.pi * math.hypot(M_Nm, T_Nm) * 1000
+                                    / (min(0.30 * mat["Sy_MPa"], 0.18 * mat["Sut_MPa"]) * (0.75 if _kw.lower().startswith("y") else 1.0))) ** (1 / 3), 2),
+
         # Sizing
         "n_design":              n_design,
         "d_min_mm":          round(d_min_mm, 2),

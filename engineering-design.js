@@ -10638,7 +10638,7 @@ function edNarrative(n) {
   return ED_GENERIC_RECO.test(n.recommendations.trim()) ? Object.assign({}, n, { recommendations: '' }) : n;
 }
 
-function _renderComputed(inputs, data) {
+function _renderComputed(inputs, data, opts = {}) {
   data = Object.assign({}, data, { narrative: edNarrative(data.narrative) });
   _lastResults   = data.results;
   _lastNarrative = data.narrative;
@@ -10823,7 +10823,7 @@ function _renderComputed(inputs, data) {
   } else {
     renderReport(inputs, data.results, data.narrative);
   }
-  _edTrustNarrative(data.narrative, data);
+  if (!opts.fromHistory) _edTrustNarrative(data.narrative, data);   // a reopened report was rated when it was computed
   edAfterReport();
 }
 
@@ -13796,7 +13796,7 @@ function renderTransformerReport(inputs, results, narrative) {
       <tr><td style="padding:5px 8px;border:1px solid #ccc;">Efficiency at 100% Load</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.efficiency_fl_pct)} %</td></tr>
       <tr><td style="padding:5px 8px;border:1px solid #ccc;">Efficiency at 75% Load</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.efficiency_75pct)} %</td></tr>
     </table>
-    ${narrative ? `<h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">3. Engineering Assessment</h2>
+    ${(narrative?.objective || narrative?.assumptions || narrative?.recommendations) ? `<h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">3. Engineering Assessment</h2>
     <div class="narrative-block" style="background:#f8faff;border:1px solid #e0e8f0;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;">
       <p><strong>Objective:</strong> ${escHtml(narrative.objective||'')}</p>
       <p><strong>Assumptions:</strong> ${escHtml(narrative.assumptions||'')}</p>
@@ -13849,7 +13849,7 @@ function renderHarmonicReport(inputs, results, narrative) {
         <td style="padding:5px 8px;border:1px solid #ccc;text-align:center;font-weight:700;color:${h.pass?'#2e7d32':'#c62828'};">${h.pass?'PASS':'FAIL'}</td>
       </tr>`).join('')}
     </table>
-    ${narrative ? `<h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">3. Engineering Assessment</h2>
+    ${(narrative?.objective || narrative?.assumptions || narrative?.recommendations) ? `<h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">3. Engineering Assessment</h2>
     <div class="narrative-block" style="background:#f8faff;border:1px solid #e0e8f0;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;">
       <p><strong>Objective:</strong> ${escHtml(narrative.objective||'')}</p>
       <p><strong>Assumptions:</strong> ${escHtml(narrative.assumptions||'')}</p>
@@ -14209,7 +14209,7 @@ function renderCleanAgentReport(inputs, results, narrative) {
       <tr><td style="padding:5px 8px;border:1px solid #ccc;">NOAEL (No Observed Adverse Effect)</td><td style="padding:5px 8px;border:1px solid #ccc;">${e(r.noael_pct)} %</td></tr>
       <tr><td style="padding:5px 8px;border:1px solid #ccc;">Occupied Space Safety</td><td style="padding:5px 8px;border:1px solid #ccc;font-weight:700;color:${safeColor};">${r.safety_note}</td></tr>
     </table>
-    ${narrative ? `<h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">3. Engineering Assessment</h2>
+    ${(narrative?.objective || narrative?.assumptions || narrative?.recommendations) ? `<h2 style="font-size:1rem;font-weight:700;background:#1a2e4a;color:#fff;padding:0.4rem 0.75rem;border-radius:4px;margin:1rem 0 0.5rem;">3. Engineering Assessment</h2>
     <div class="narrative-block" style="background:#f8faff;border:1px solid #e0e8f0;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;">
       <p><strong>Objective:</strong> ${escHtml(narrative.objective||'')}</p>
       <p><strong>Assumptions:</strong> ${escHtml(narrative.assumptions||'')}</p>
@@ -17679,9 +17679,9 @@ function renderShaftDesignReport(inputs, results, narrative) {
   const d_min_asme_mm3 = Ss_allow > 0
     ? (16 / Math.PI) * comb / (Ss_allow * 1e6) * 1e9   // m^3 -> mm^3
     : 0;
-  const d_min_asme_mm = d_min_asme_mm3 > 0
+  const d_min_asme_mm = Number(results.d_min_asme_mm) || (d_min_asme_mm3 > 0
     ? Math.pow(d_min_asme_mm3, 1/3)
-    : 0;
+    : 0);
 
   const r = Object.assign({}, results, {
     T_Nm:            T_Nm.toFixed(1),
@@ -17760,7 +17760,7 @@ function renderShaftDesignReport(inputs, results, narrative) {
       <tr><td>Support Span (L)</td><td class="num">${escHtml(String(inputs.span_mm))} mm</td></tr>
       <tr><td>Shaft Material</td><td>${escHtml(inputs.material)}: Sut = ${r.Sut_MPa} MPa</td></tr>
       <tr><td>Keyway Present</td><td>${escHtml(inputs.keyway)}</td></tr>
-      <tr><td>Allowable Shear Stress (Ss)</td><td class="num">${r.Ss_allow_MPa} MPa (${inputs.keyway === 'Yes' ? '0.18' : '0.30'} × Sut)</td></tr>
+      <tr><td>Allowable Shear Stress (Ss)</td><td class="num">${r.Ss_allow_MPa} MPa (${0.30 * Sy <= 0.18 * Sut ? '0.30 × Sy' : '0.18 × Sut'}${keyway === 'Yes' ? ' × 0.75 keyway' : ''})</td></tr>
       <tr><td>Shock / Loading Type</td><td>${escHtml(inputs.shock_type)}</td></tr>
       <tr><td>Bending Shock Factor (Kb)</td><td class="num">${r.Kb}</td></tr>
       <tr><td>Torsion Shock Factor (Kt)</td><td class="num">${r.Kt}</td></tr>
@@ -29439,70 +29439,12 @@ function viewHistoryReport(row) {
   _lastResults   = row.results;
   _lastNarrative = row.narrative;
   _lastInputs    = row.inputs;
-  if (row.calc_type === 'Ventilation / ACH') {
-    renderVentReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Pump Sizing (TDH)') {
-    renderPumpReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Pipe Sizing') {
-    renderPipeReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Boiler System') {
-    renderBoilerReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Compressed Air') {
-    renderAirReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Water Supply Pipe Sizing') {
-    renderWaterSupplyReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Hot Water Demand') {
-    renderHotWaterReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Drainage Pipe Sizing') {
-    renderDrainageReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Septic Tank Sizing') {
-    renderSepticReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Grease Trap Sizing') {
-    renderGreaseTrapReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Roof Drain Sizing') {
-    renderRoofDrainReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Load Estimation') {
-    renderLoadReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Voltage Drop') {
-    renderVDReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Wire Sizing') {
-    renderWireSizingReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Cooling Tower Sizing') {
-    renderCoolingTowerReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Water Softener Sizing') {
-    renderWaterSoftenerReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Water Treatment System') {
-    renderWaterTreatmentReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Wastewater Treatment (STP)') {
-    renderSTPReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Storm Drain / Stormwater') {
-    renderStormDrainReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Generator Sizing') {
-    renderGeneratorReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Solar PV System') {
-    renderSolarPVReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Power Factor Correction') {
-    renderPFCReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Cable Tray Sizing') {
-    renderCableTrayReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'UPS Sizing') {
-    renderUPSSizingReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Lightning Protection System (LPS)') {
-    renderLPSReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Earthing / Grounding System') {
-    renderEarthingReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Duct Sizing (Equal Friction)') {
-    renderDuctSizingReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Refrigerant Pipe Sizing') {
-    renderRefrigPipeReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'FCU Selection') {
-    renderFCUSelectionReport(row.inputs, row.results, row.narrative);
-  } else if (row.calc_type === 'Expansion Tank Sizing') {
-    renderExpansionTankReport(row.inputs, row.results, row.narrative);
-  } else {
-    renderReport(row.inputs, row.results, row.narrative);
-  }
-  edAfterReport();
+  // ★HISTORY HAD ITS OWN DISPATCHER, AND IT KNEW 30 OF 55 CALCULATORS (2026-11-02, ED S1 - prove_engineering_saved_reports):
+  // the other 25 (chillers, AHU, transformer, short circuit, fire pump, shaft, beam, vibration, noise, elevator, hoist, ...)
+  // fell to renderReport - the HVAC template, which returns early without HVAC components - so a saved calculation
+  // reopened onto whatever report was last on screen, and the live path's alias normalisation (water softener, water
+  // treatment, ...) never ran for a saved one. History now renders through the one dispatcher a fresh calculation uses.
+  _renderComputed(row.inputs, { results: row.results, narrative: row.narrative }, { fromHistory: true });
 }
 
 async function deleteCalc(id) {
@@ -30654,7 +30596,7 @@ function renderCoolingTowerReport(inputs, results, narrative) {
     </div>
 
     <!-- Narrative -->
-    ${narrative ? `
+    ${(narrative?.objective || narrative?.assumptions || narrative?.recommendations) ? `
     <div style="margin-bottom:1.5rem;">
       <div style="font-weight:700;font-size:0.88rem;color:#1a237e;border-bottom:1px solid #c5cae9;padding-bottom:0.25rem;margin-bottom:0.5rem;">Engineering Narrative</div>
       ${narrative.objective ? `<div class="narrative-block" style="margin-bottom:0.6rem;"><div style="font-size:0.75rem;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.2rem;">Objective</div><div class="narrative-box" style="font-size:0.8rem;color:#333;line-height:1.7;background:#fafbff;border:1px solid #e0e4f0;border-radius:0.5rem;padding:0.7rem 1rem;">${escHtml(narrative.objective)}</div></div>` : ''}
@@ -32195,17 +32137,20 @@ function renderBeamColumnReport(inputs, r, narrative) {
   const muUDL_kNm = wKnm > 0 ? Math.round((wKnm * Lm * Lm / 8) * 10) / 10 : 0;
   const vuUDL_kN  = wKnm > 0 ? Math.round((wKnm * Lm / 2) * 10) / 10 : 0;
   // Zx (mm^3): Mp = phi^-1 * phi_Mp = Zx * Fy * 1e-6  (kN.m)
-  const ZxMm3 = Fy > 0 && r.phi_Mp_kNm
+  // the engine's section properties (AISC v16); a back-solve from phi.Mp only for an older saved result
+  const ZxMm3 = Number(r.Zx_mm3) || (Fy > 0 && r.phi_Mp_kNm
     ? Math.round((Number(r.phi_Mp_kNm) / phiB) / Fy * 1e6)
-    : 0;
+    : 0);
   // Aw (mm^2): phi_Vn = phi * 0.6 * Fy * Aw * 1e-3 (kN)
-  const AwMm2 = Fy > 0 && r.phi_Vn_kN
+  const AwMm2 = Number(r.Aw_mm2) || (Fy > 0 && r.phi_Vn_kN
     ? Math.round((Number(r.phi_Vn_kN) / (phiV * 0.6 * Fy)) * 1e3)
-    : 0;
+    : 0);
   // Ix (mm^4) back-derived from deflection formula: delta = 5wL^4 / (384EI) with E=200 GPa
-  const IxMm4 = wKnm > 0 && r.deflection_mm > 0
-    ? Math.round((5 * wKnm * Math.pow(Lm, 4)) / (384 * 200e9 * Number(r.deflection_mm) * 1e-3) * 1e12)
-    : 0;
+  // the engine's Ix (AISC v16); the fallback back-solve for an older saved result now takes w in N/m (it read kN/m and
+  // printed a W310x45 at 0.10 x 10^6 mm^4 - 10 cm4 - where AISC gives 9,906 cm4)
+  const IxMm4 = Number(r.Ix_mm4) || (wKnm > 0 && r.deflection_mm > 0
+    ? Math.round((5 * wKnm * 1000 * Math.pow(Lm, 4)) / (384 * 200e9 * Number(r.deflection_mm) * 1e-3) * 1e12)
+    : 0);
   const overallOk = (r.moment_ok !== false) && (r.shear_ok !== false) && (r.axial_ok !== false) && (r.deflection_ok !== false);
 
   document.getElementById('report-panel')/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
@@ -32248,7 +32193,7 @@ function renderBeamColumnReport(inputs, r, narrative) {
       ${isSteel ? `<tr><td>Section</td><td class="num"><strong>${escHtml(inputs.section || r.section)}</strong></td></tr>
       <tr><td>Steel Grade</td><td class="num">${escHtml(inputs.steel_grade)}: Fy = ${Fy} MPa, E = 200 GPa</td></tr>
       ${ZxMm3 > 0 ? `<tr><td>Plastic Section Modulus Z<sub>x</sub></td><td class="num">${ZxMm3.toLocaleString()} mm&sup3; (${(ZxMm3/1000).toFixed(0)} cm&sup3;)</td></tr>` : ''}
-      ${IxMm4 > 0 ? `<tr><td>Moment of Inertia I<sub>x</sub></td><td class="num">${(IxMm4/1e6).toFixed(2)} x 10&sup6; mm&#8308; (${(IxMm4/1e4).toFixed(0)} cm&#8308;)</td></tr>` : ''}
+      ${IxMm4 > 0 ? `<tr><td>Moment of Inertia I<sub>x</sub></td><td class="num">${(IxMm4/1e6).toFixed(2)} &times; 10<sup>6</sup> mm&#8308; (${(IxMm4/1e4).toFixed(0)} cm&#8308;)</td></tr>` : ''}
       ${AwMm2 > 0 ? `<tr><td>Web Area A<sub>w</sub> = d &times; t<sub>w</sub></td><td class="num">${AwMm2.toLocaleString()} mm&sup2;</td></tr>` : ''}` :
       `<tr><td>Section b &times; h</td><td class="num">${r.b_mm} &times; ${r.h_mm} mm</td></tr>
       <tr><td>Concrete Grade</td><td class="num">${escHtml(inputs.concrete_grade || "f'c 28 MPa")}: f'c = ${r.fc_MPa} MPa</td></tr>
@@ -32284,7 +32229,7 @@ function renderBeamColumnReport(inputs, r, narrative) {
     <p style="font-size:0.83rem;color:#333;">For a simply supported beam under UDL, midspan deflection:</p>
     <p style="font-size:0.83rem;color:#333;">
       &delta;<sub>max</sub> = 5wL&#8308; / (384 &times; E &times; I<sub>x</sub>)<br>
-      = 5 &times; ${wKnm} kN/m &times; (${Lm} m)&#8308; / (384 &times; 200,000 MPa &times; ${(IxMm4/1e6).toFixed(2)} x 10&sup6; mm&#8308;)<br>
+      = 5 &times; ${wKnm} kN/m &times; (${Lm} m)&#8308; / (384 &times; 200,000 MPa &times; ${(IxMm4/1e6).toFixed(2)} &times; 10<sup>6</sup> mm&#8308;)<br>
       = <strong>${r.deflection_mm} mm</strong> &nbsp; vs &nbsp; limit L/360 = ${Lm * 1000} / 360 = <strong>${r.deflection_limit_mm} mm</strong> &nbsp; <span style="font-weight:700;color:${mOk(r.deflection_ok)};">${mTxt(r.deflection_ok)}</span>
     </p>
 
