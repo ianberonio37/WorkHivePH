@@ -2970,6 +2970,48 @@ VECTORS = [
         ],
     },
     {
+        # ★THE FORM'S SUBSTATION CHOICE WAS NOT A LIMIT KEY (2026-11-02, form-option census): "Substation (IEEE 80)" fell back
+        # to 10 Ohm, so this grid read PASS against a 1 Ohm requirement.
+        "module": "calcs.earthing_grounding",
+        "calc_type": "Earthing - the form's 'Substation (IEEE 80)' is judged at 1 Ohm",
+        "standard": "IEEE 80 substation grounding target 1 Ohm; Dwight rod R = rho/(2 pi L)(ln(8L/d) - 1)",
+        "inputs": {"electrode_type": "Rod", "soil_resistivity": 100, "num_electrodes": 4, "system_type": "Substation (IEEE 80)",
+                   "rod_length_m": 3, "rod_dia_mm": 16},
+        "asserts": [
+            {"path": "r_parallel_ohm", "expected": 8.373, "tol": 0.005,
+             "note": "100/(2π·3) × (ln(24/0.016) − 1) = 5.3052 × 6.3132 = 33.493 Ω per rod; / 4 = 8.373 Ω"},
+            {"path": "r_limit_ohm", "expected": 1.0, "tol": 0.0001,
+             "note": "the substation target, 1 Ω (it fell back to 10 Ω and read PASS)"},
+            {"path": "pass_label", "expected": "FAIL", "tol": 0, "note": "8.373 Ω > 1 Ω"},
+        ],
+    },
+    {
+        # ★"Galvanized Steel" AND "Aluminum" WERE NOT CONDUCTOR KEYS (2026-11-02): both took copper's 16 mm2 down conductor.
+        "module": "calcs.lightning_protection",
+        "calc_type": "LPS - the form's 'Galvanized Steel' down conductor is 50 mm² (IEC 62305-3 Table 6)",
+        "standard": "IEC 62305-3 Table 6: minimum down-conductor cross-section Cu 16, Al 25, steel 50 mm²",
+        "inputs": {"building_length_m": 30, "building_width_m": 20, "building_height_m": 12, "lpl": "LPL II",
+                   "dc_material": "Galvanized Steel"},
+        "asserts": [
+            {"path": "down_conductor_mm2", "expected": 50, "tol": 0, "note": "hot-dip galvanized steel, 50 mm² (it read copper's 16)"},
+            {"path": "earth_conductor_mm2", "expected": 80, "tol": 0, "note": "steel earth conductor 80 mm²"},
+        ],
+    },
+    {
+        # ★THE DISINFECTION CHOICE CHANGED NOTHING (2026-11-02): "UV" returned a chlorine dose and a contact tank.
+        "module": "calcs.wastewater_stp",
+        "calc_type": "STP - UV disinfection sizes the reactor flow, not a chlorine dose",
+        "standard": "Chlorination 5 mg/L, 30-min contact at peak; UV reactor rated at peak flow",
+        "inputs": {"flow_source": "population", "population": 200, "per_capita_lpd": 150, "bod_influent": 220,
+                   "bod_effluent": 30, "srt_days": 8, "mlss_mg_l": 3000, "disinfection": "UV"},
+        "asserts": [
+            {"path": "naocl_lpd", "expected": 0.0, "tol": 0.0001, "note": "no hypochlorite for a UV plant (it was 5 × 30 × 0.083 = 12.5 L/day)"},
+            {"path": "contact_tank_m3", "expected": 0.0, "tol": 0.0001, "note": "no chlorine contact tank"},
+            {"path": "uv_reactor_flow_m3hr", "expected": 1.88, "tol": 0.01,
+             "note": "200 × 150 L = 30 m³/day × 1.5 peak = 45 m³/day / 24 = 1.875 m³/h"},
+        ],
+    },
+    {
         "module": "calcs.elevator_traffic",
         "calc_type": "Elevator Traffic Analysis",
         "standard": "CIBSE Guide D — RTT = 2·H·tv + (S+1)·ts + 2·P·tp (Peters 2000 Eq. 9)",

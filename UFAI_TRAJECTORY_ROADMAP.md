@@ -4891,6 +4891,18 @@ computed, that no figure is broken, that the report fits the phone and that it p
 All 55 now read true, held by the ratchet `engineering_reports_baseline.json`. The headline check is not yet "every
 figure": the R1 rows bank when the walk holds and the report's working has been read against its engine, as G1 did.
 
+**I1 by value: the census asks per choice, not only per key (2026-11-02).** `census_calc_input_reach` proves each key
+the form sends is read, but it cannot see a value the engine does not know. The vibration isolator was the first case:
+the engine read the key, yet every isolator computed as a rubber mount. `tools/census_form_option_reach.py` (gate
+`form-option-reach`) runs every toggle option against a garbage value. It found 20 choices the engines never saw:
+- Earthing's "Substation (IEEE 80)" fell back to the 10 Ω limit, so a grid of 8.4 Ω read PASS against IEEE 80's 1 Ω.
+- LPS's "Galvanized Steel" and "Aluminum" took copper's 16 mm² down conductor, where the standard asks 50 and 25 mm².
+- STP's "UV" plant was still dosed with chlorine.
+
+Fourteen are right by a rule and are recorded with their reasons. The same test on the door pages' examples, gate
+`door-examples-are-keys`, found 20 more ("Manila", "SA-516-70", "R410A", and a stairwell "Office" computed as
+unsprinklered).
+
 **ED149 / R1, closed for the R1 walk to confirm (2026-11-02):** l1 came from the building height, max(5 m, 0.5×H), and
 the report cited "Annex E". IEC 62305-3's l1 is its Figure 3. The values were read from DEHN's reproduction (Lightning
 Protection Guide 2014, Fig. 5.5.1.1) by measuring the lines against the axis ticks, to about ±1 m. Class III and IV are

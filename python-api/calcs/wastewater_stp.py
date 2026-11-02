@@ -98,9 +98,17 @@ def calculate(inputs: dict) -> dict:
     desludge_freq = f"Every {desludge_d} days ({sludge_m3_d} m3/day, 20 m3 holding)"
 
     # Disinfection (secondary effluent)
-    cl2_dose_mgl = 5.0
+    # ★THE DISINFECTION CHOICE CHANGED NOTHING (2026-11-02, form-option census): "UV" and "None" both returned a 5 mg/L
+    # hypochlorite dose and a 30-minute contact tank. Chlorination sizes those; UV sizes the reactor flow (the dose is the
+    # maker's, at the peak flow); None sizes nothing and says the coliform limit is then unverified.
+    is_cl        = "chlor" in disinfection.lower()
+    is_uv        = "uv" in disinfection.lower()
+    cl2_dose_mgl = 5.0 if is_cl else 0.0
     naocl_lpd    = round(cl2_dose_mgl * flow_m3d * 0.083, 1)  # 10% NaOCl
-    contact_m3   = round(peak_m3hr / 60.0 * 30.0, 1)           # 30-min contact at peak
+    contact_m3   = round(peak_m3hr / 60.0 * 30.0, 1) if is_cl else 0.0   # 30-min contact at peak
+    uv_flow_m3hr = round(peak_m3hr, 2) if is_uv else 0.0
+    disinfection_note = ("" if (is_cl or is_uv) else
+                         "No disinfection: the effluent's fecal coliform limit (DENR DAO 2016-08) is not addressed")
 
     # Effluent quality projection
     effluent_bod = bod_out
@@ -146,6 +154,9 @@ def calculate(inputs: dict) -> dict:
         "cl2_dose_mg_l":            cl2_dose_mgl,
         "naocl_lpd":                naocl_lpd,
         "contact_tank_m3":          contact_m3,
+        "disinfection":             disinfection,
+        "uv_reactor_flow_m3hr":     uv_flow_m3hr,
+        "disinfection_note":        disinfection_note,
         "effluent_bod":             effluent_bod,
         "effluent_tss":             effluent_tss,
         "denr_status":              denr_status,

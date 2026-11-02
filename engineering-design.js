@@ -14275,8 +14275,10 @@ function renderEarthingReport(inputs, results, narrative) {
   const passStyle  = `font-weight:700;color:${passColor};`;
   const effectiveR = numElec > 1 ? rParallel : rSingle;
 
-  const limitBasis = sysType === 'Substation / HV'
+  const limitBasis = (sysType === 'Substation / HV' || sysType === 'Substation (IEEE 80)')
     ? 'IEEE 80-2013 (substation earthing)'
+    : sysType === 'Telecommunications'
+    ? 'telecommunications earthing (5 Ohm target)'
     : sysType === 'Industrial'
     ? 'IEEE 142-2007 (industrial power systems)'
     : 'PEC 2017 Art. 2.50 (residential/commercial)';

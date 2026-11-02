@@ -257,6 +257,10 @@ def calculate(inputs: dict) -> dict:
     if building_height_m > R_sphere:
         finials_needed += 2
 
+    # The form offers the protection-angle method; its coverage (IEC 62305-3 Figure 1, angle by height per class) is not
+    # modelled - the terminal count is estimated as for the rolling sphere, and the result says so.
+    air_method_note = ("Protection angle: the terminal count is estimated as for the rolling sphere; check each terminal's "
+                       "cover against IEC 62305-3 Figure 1 for its height and class") if "angle" in air_method.lower() else ""
     # Estimated air terminals / masts for renderer
     if air_method == "Mesh":
         n_at = (mesh_cells_L + 1) + (mesh_cells_W + 1)
@@ -327,6 +331,11 @@ def calculate(inputs: dict) -> dict:
     spd_class_text = "Class I + II combination" if lpl in ["LPL I", "LPL II"] else "Class II"
 
     # ── Conductor cross-section ───────────────────────────────────────────────
+    # ★THE FORM SAYS "Aluminum" AND "Galvanized Steel"; THE TABLE SAID "Aluminium" AND "Hot-dip Galvanized Steel"
+    # (2026-11-02, form-option census): both fell back to copper's minimum - a 16 mm2 steel down conductor in the take-off,
+    # where IEC 62305-3 Table 6 requires 50 mm2 (aluminium 25). The spelling is normalised before the lookup.
+    _mat_alias = {"aluminum": "Aluminium", "galvanized steel": "Hot-dip Galvanized Steel", "galvanised steel": "Hot-dip Galvanized Steel"}
+    conductor_material = _mat_alias.get(conductor_material.strip().lower(), conductor_material)
     mat_spec = CONDUCTOR_SPECS.get(conductor_material, CONDUCTOR_SPECS["Copper"])
 
     # ── Material takeoff (approximate) ───────────────────────────────────────
@@ -417,6 +426,7 @@ def calculate(inputs: dict) -> dict:
         # Earth — renderer-compatible
         "min_electrode_length_m":  min_electrode_length_m, # renderer key
         "l1_basis":                l1_basis,
+        "air_method_note":         air_method_note,
         "n_electrodes":            n_electrodes,           # renderer key: Type A one per DC (min 2); Type B the supplementary ones
         "earth_type":              earth_type,
         "earth_arrangement":       earth_arrangement,

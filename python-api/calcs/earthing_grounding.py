@@ -29,10 +29,15 @@ GEC_TABLE: list[tuple[float, float, str]] = [
 ]
 
 # Resistance limits per system type (IEEE 142 / PEC 2017)
+# ★TWO OF THE FORM'S FOUR SYSTEM TYPES WERE NOT KEYS (2026-11-02, form-option census): the form sends "Substation (IEEE 80)"
+# and "Telecommunications"; the table held "Substation / HV" only, and R_LIMITS.get(..., 10.0) judged a substation grid
+# against 10 Ohm instead of 1 - a grid of 4 Ohm read PASS. The guide promises telecom 5 Ohm; it was 10.
 R_LIMITS: dict[str, float] = {
     "Residential / Commercial": 10.0,
     "Industrial":               5.0,
     "Substation / HV":          1.0,
+    "Substation (IEEE 80)":     1.0,
+    "Telecommunications":       5.0,
 }
 
 
