@@ -265,6 +265,14 @@ ENGINE_CHECKED["Water Treatment System"] = (
     "peak flow - the engine's. FIXED: the guide named fields the form does not have (Daily Demand (L/day), Turbidity "
     "(NTU), Peak Factor) and omitted the form's Demand Input Method, Number of People and Per Capita Use; it now names the "
     "form's six. Read in the page by the guide prover at 390 and 1280.")
+ENGINE_CHECKED["Lightning Protection System (LPS)"] = (
+    "FOUND AND FIXED, read against python-api/calcs/lightning_protection.py (the engine was corrected earlier the same day "
+    "for the Type A/B earthing - ED352): the guide's Nd dropped Cd (IEC 62305-2: N_D = N_G x A_D x C_D x 10^-6, as the "
+    "engine computes), quoted LPL efficiencies 99/97/91% where the engine and IEC use 98/95/90/80%, cited 'IEC 62305-3 "
+    "Table 7' (the report: 'Annex E') for an electrode length max(5, 0.5 H) that is the engine's own simplification of "
+    "Figure 3 - now said so, in the guide and the report - and its earthing tip predated the Type A/B behaviour. Field "
+    "names are the form's (Building Length / Width / Height, Lightning Protection Level, Custom Ng). Read in the page by "
+    "the guide prover at 390 and 1280; the earthing walk is ED352's.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

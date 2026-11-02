@@ -1560,12 +1560,12 @@ const GUIDES = {
       "  Ad = L×W + 6×H×(L+W) + 9×π×H²   [m²]",
       "",
       "Annual Strike Frequency:",
-      "  Nd = Ng × Ad × 10⁻⁶   [strikes/year]",
+      "  Nd = Ng × Ad × Cd × 10⁻⁶   [strikes/year]  (IEC 62305-2: N_D = N_G × A_D × C_D × 10⁻⁶)",
       "  where Ng = lightning flash density (flashes/km²/yr)",
       "",
       "Tolerable Strike Frequency (simplified):",
       "  Nt = 10⁻⁵ / Cd   [per year]",
-      "  Cd = structure location factor (1 for ordinary, 5 for explosive)",
+      "  Cd = the calculator's structure factor: 1 residential / commercial, 2 industrial / healthcare / critical, 5 explosive",
       "",
       "Risk Check: if Nd > Nt → LPS REQUIRED",
       "",
@@ -1573,17 +1573,24 @@ const GUIDES = {
       "  n_dc = max(2, ceil(perimeter / dc_spacing))",
       "  perimeter = 2 × (L + W)",
       "",
-      "Earth Electrode Length (IEC 62305-3 Table 7):",
-      "  min_length = max(5, 0.5 × H)   [m] per electrode",
+      "Earth termination (IEC 62305-3 §5.4.2), by the arrangement chosen:",
+      "  l1 = max(5, 0.5 × H) m  (the calculator's simplification: IEC 62305-3 Figure 3 gives 5 m for LPL III and IV, and a",
+      "       length rising with soil resistivity for LPL I and II - check Figure 3 where the soil is above 500 ohm·m)",
+      "  Type A: one electrode per down conductor, at least 2; vertical ≥ 0.5 × l1, radial ≥ l1",
+      "  Type B: ring about 1 m outside the walls; mean radius re = √(A/π) must be ≥ l1, else supplementary electrodes",
+      "          (horizontal l1 − re, or vertical (l1 − re)/2) at the down-conductor points",
     ],
     fields: [
-      { name: "Structure Dimensions (L, W, H)", tip: "Length, width, and height of the building in metres. Height H has the largest effect on collection area: a 20 m tall building has ~8× more effective catchment area than a 5 m building of the same footprint." },
+      { name: "Building Length L (m)", tip: "Plan length of the building in metres. With the width it sets the roof area, the perimeter for the down conductors and the ring earth." },
+      { name: "Building Width W (m)", tip: "Plan width of the building in metres." },
+      { name: "Building Height H (m)", tip: "Length, width, and height of the building in metres. Height H has the largest effect on collection area: a 20 m tall building has ~8× more effective catchment area than a 5 m building of the same footprint." },
       { name: "Location / Flash Density (Ng)", tip: "Lightning flash density in flashes/km²/yr. Select the Philippine region from the preset list: values are from PAGASA isoceraunic data. Use Custom for sites with a site-specific Ng from a lightning density map or PAGASA data." },
+      { name: "Custom Ng (flashes/km²/yr)", tip: "Used only when the location is Custom: the ground flash density from PAGASA or a lightning-detection network. It scales the expected strikes Nd directly." },
       { name: "Structure Type", tip: "Affects the tolerable risk threshold (Nt). Explosive/Flammable structures have the lowest tolerance (Nt = 2×10⁻⁶) and almost always require LPL I. Healthcare and critical infrastructure use Nt = 5×10⁻⁶. Residential and commercial use Nt = 1×10⁻⁵." },
-      { name: "Protection Level (LPL)", tip: "LPL I (highest protection, 99% efficiency): rolling sphere R=20m, mesh 5×5m: required for explosive/healthcare. LPL II (97%): R=30m, mesh 10×10m: recommended for commercial/industrial. LPL III (91%): R=45m, mesh 15×15m. LPL IV (80%): R=60m: minimum for ordinary dwellings. If in doubt, specify one level higher than the risk assessment minimum." },
+      { name: "Lightning Protection Level (LPL)", tip: "LPL I (highest protection, 98% efficiency): rolling sphere R=20m, mesh 5×5m: required for explosive/healthcare. LPL II (95%): R=30m, mesh 10×10m: recommended for commercial/industrial. LPL III (90%): R=45m, mesh 15×15m. LPL IV (80%): R=60m, mesh 20×20m: minimum for ordinary dwellings. If in doubt, specify one level higher than the risk assessment minimum." },
       { name: "Air Termination Method", tip: "Rolling Sphere: geometrically the most accurate: a sphere of radius R is rolled over the building; wherever it touches is unprotected. Mesh: a conductor grid on the roof intercepts direct strikes: best for flat roofs. Protection Angle: simple method using a cone of protection angle α from the tip of a Franklin rod: use only for isolated simple structures, not for complex rooftops." },
       { name: "Down Conductor Material", tip: "Copper (minimum 16 mm² solid or 25 mm² stranded): highest conductivity, recommended for permanent installation. Galvanized Steel (minimum 50 mm²): lower cost, adequate conductivity, suitable for industrial. Aluminium (minimum 25 mm²): use only where copper corrosion is a concern; never bury aluminium in concrete or soil without sleeving." },
-      { name: "Earth Termination Type", tip: "Type A (radial or vertical electrodes): minimum 2 electrodes, one per down conductor, placed symmetrically around the building: flexible for retro-fits. Type B (ring electrode or foundation electrode): a horizontal ring conductor around the perimeter of the structure at 0.5 m depth: preferred for new construction, provides the lowest and most uniform earth resistance." },
+      { name: "Earth Termination Type", tip: "Type A (radial or vertical electrodes): minimum 2 electrodes, one per down conductor, placed symmetrically around the building: flexible for retro-fits. Type B (ring electrode or foundation electrode): a horizontal ring conductor about 1 m outside the walls at 0.5 m depth: preferred for new construction and for structures with extensive electronics or a fire risk. The calculator follows your choice: Type A sizes an electrode per down conductor; Type B sizes the ring and checks its mean radius against l1, adding supplementary electrodes when it falls short." },
     ],
     notes: [
       "IEC 62305-3 requires equipotential bonding of ALL metal building elements (structural steel, roof cladding, HVAC, pipes, conduits) to the LPS. Missing bonds create side-flash hazards inside the building.",
@@ -14376,7 +14383,7 @@ function renderLPSReport(inputs, results, narrative) {
         <tbody>
           <tr><td>Earth Electrode Type</td><td>${e(earthType)}</td><td>Selected per soil conditions</td></tr>
           <tr><td>Number of Electrodes</td><td>${results.earth_arrangement === 'Type B' ? `Ring ${e(results.ring_earth_m)} m${Number(nElec) > 0 ? ` + ${e(nElec)} supplementary` : ''}` : e(nElec)}</td><td>${results.earth_basis ? e(results.earth_basis) : 'One per down conductor (IEC 62305-3 &sect;5.4.2)'}</td></tr>
-          <tr><td>Minimum Electrode Length</td><td>${e(elecLen)} m</td><td>max(5m, 0.5&times;H) per IEC 62305-3 Annex E</td></tr>
+          <tr><td>Minimum Electrode Length</td><td>${e(elecLen)} m</td><td>l1 = max(5 m, 0.5&times;H): a simplification; IEC 62305-3 Figure 3 gives 5 m for LPL III/IV and more in high-resistivity soil for LPL I/II</td></tr>
           <tr><td>Target Earth Resistance</td><td>&le; 10 &Omega; (complete ring)</td><td>IEC 62305-3 &sect;5.4: as low as practicable</td></tr>
           <tr><td>Integration with LV Earthing</td><td>Bond at main equipotential bar</td><td>PEC 2017 Art. 2.50 / IEC 62305-3 &sect;6.2</td></tr>
           <tr><td>Below-Grade Connections</td><td>Exothermic weld (Cadweld) or listed compression fitting</td><td>IEC 62305-3 &sect;5.4.3: no solder joints</td></tr>
