@@ -2402,7 +2402,8 @@ const GUIDES = {
       'PSME Code: Philippine Society of Mechanical Engineers (Hydronic Systems)',
     ],
     formulas: [
-      { label: 'Water Expansion Factor', eq: 'E_w = (v_max − v_fill) / v_fill   [dimensionless]   v = specific volume of water at temperature (L/kg) from ASHRAE/IAPWS tables' },
+      { label: 'Water Expansion Factor', eq: 'E_w = (v_high − v_low) / v_low   [dimensionless]   v = specific volume of water (L/kg, IAPWS-IF97) at the lowest and highest temperature the water will see' },
+      { label: 'Temperature Swing', eq: 'Hot water / condenser water: fill → max operating.   Chilled water: min operating (supply) → the higher of fill and the idle ambient (35°C): an idle loop warms to the plant room' },
       { label: 'Net Expansion Volume', eq: 'V_exp = V_sys × E_w   [L]' },
       { label: 'Acceptance Factor', eq: 'α = 1 − P_fill_abs / P_max_abs   (should be ≥ 0.25)' },
       { label: 'Required Tank Volume', eq: 'V_tank = V_exp / α = (V_sys × E_w) / (1 − P_fill_abs / P_max_abs)   [L]' },
@@ -2410,9 +2411,11 @@ const GUIDES = {
     ],
     fields: [
       { name: 'System Type', tip: 'Chilled Water (CHW): 6–18°C range, low expansion factor. Heating Hot Water (HHW): 60–90°C, high expansion: tank will be significantly larger. Condenser Water (CW): 25–40°C.' },
-      { name: 'System Volume (L)', tip: 'Total water content of all pipes, equipment, coils, and heat exchangers. Direct entry is most accurate. Rule of thumb: 8 L/kW for CHW, 10 L/kW for HHW, 6 L/kW for CW (ASHRAE preliminary estimate).' },
+      { name: 'System Volume Method', tip: 'Direct Entry when the water content is known (best: sum the pipe, coil and equipment volumes). Estimate from kW for an early design: 8 L/kW chilled water, 10 L/kW heating hot water, 6 L/kW condenser water.' },
+      { name: 'System Water Volume', tip: 'Total water content of all pipes, equipment, coils and heat exchangers, in litres (Direct Entry). The tank scales directly with it.' },
+      { name: 'System Capacity', tip: 'Installed plant capacity in kW (Estimate from kW). The volume is taken as capacity × the L/kW rule above; replace it with a Direct Entry volume once the piping is laid out.' },
       { name: 'Fill Temperature (°C)', tip: 'Temperature of water when the system is initially filled: typically 20°C (ambient). This is v_fill in the expansion factor formula.' },
-      { name: 'Max Operating Temperature (°C)', tip: 'Highest water temperature during system operation. For CHW this is the return temperature maximum (12–18°C). For HHW this is the supply temperature (60–90°C). Use the design maximum, not the average.' },
+      { name: 'Min Operating Temperature', tip: 'Chilled water: the CHW supply temperature, typically 6-7°C, the coldest the water gets. The calculator sizes the swing from it up to the idle ambient (35°C) or the fill, whichever is higher, because a stopped chilled-water loop warms to the plant room. For hot water and condenser water the label reads Max Operating Temperature: the supply temperature (60-90°C hot water, 32-37°C condenser).' },
       { name: 'Static Head (m)', tip: 'Vertical height of the highest point in the system above the expansion tank connection point. This sets the minimum pre-charge pressure to prevent tank bladder collapse. Example: 10-storey building at 3.5m/floor ≈ 35m.' },
       { name: 'Max System Pressure (kPa g)', tip: 'Maximum allowable working pressure at the expansion tank: set by the pressure relief valve minus 10% safety margin. Typical values: 300 kPa (low-rise), 600 kPa (mid-rise), 1000 kPa (high-rise). Must not exceed the MAWP of the weakest component (often the FCU coil at 1000 kPa).' },
     ],
@@ -2421,6 +2424,7 @@ const GUIDES = {
       'Pre-charge pressure is set at the factory to match the static head. Always verify the tank nameplate pre-charge pressure before installation: tanks shipped at 50 kPa default and must be re-charged with nitrogen to match the actual system static head.',
       'Standard bladder tank sizes (commercial): 8, 12, 18, 24, 35, 50, 60, 80, 100, 150, 200, 300, 400, 500, 750, 1000, 1500, 2000 L. Sizes above 500 L are typically floor-mounted vertical or horizontal type.',
       'For HHW systems above 80°C, verify that the selected bladder material (EPDM standard) is rated for the maximum temperature. At 90°C+, specify EPDM high-temperature or butyl rubber bladder explicitly on the specification.',
+      'Chilled water expands most when the plant is OFF: the loop warms from its 7°C supply to the plant-room ambient. Sizing only for fill (20°C) to supply gives about a fifth of the tank (a 20,000 L loop: 60 L where 300 L is needed), and the relief valve lifts on the first warm shutdown.',
       'Glycol solutions reduce water density and increase specific volume compared to pure water. For antifreeze mixes, apply a 10–15% volume correction to the calculated tank size depending on glycol concentration: this calculator assumes pure water.',
     ],
   },
@@ -14689,6 +14693,11 @@ function renderExpansionTankReport(inputs, results, narrative) {
   const vMax        = vMaxNum.toFixed(5);
   const vHighDisp   = Math.max(vFillNum, vMaxNum).toFixed(5);
   const vLowDisp    = Math.min(vFillNum, vMaxNum).toFixed(5);
+  const vHighSwing  = results.v_high != null ? Number(results.v_high).toFixed(5) : vHighDisp;
+  const vLowSwing   = results.v_low  != null ? Number(results.v_low).toFixed(5)  : vLowDisp;
+  const swingLow    = results.T_low_c  != null ? results.T_low_c  : Math.min(fillT, maxT);
+  const swingHigh   = results.T_high_c != null ? results.T_high_c : Math.max(fillT, maxT);
+  const idleAmb     = results.idle_ambient_c;
 
   const alphaColor  = alpha >= 0.25 ? '#10b981' : alpha >= 0.15 ? '#f97316' : '#ef4444';
   const pressOK     = pressCheck.startsWith('PASS');
@@ -14724,7 +14733,7 @@ function renderExpansionTankReport(inputs, results, narrative) {
     <!-- 1. Objective -->
     <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">1. Objective</h2>
     <div class="narrative-block" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:0.5rem;padding:0.9rem 1.1rem;color:#334155;">
-      ${narrative?.objective ? escHtml(narrative.objective) : `Size a closed bladder expansion tank for the ${escHtml(sysType)} system of ${escHtml(projName)}. The tank must accommodate the volumetric expansion of ${escHtml(sysVolL)} L of water as it heats from fill temperature ${fillT}°C to maximum operating temperature ${maxT}°C, while maintaining system pressure within the design range.`}
+      ${narrative?.objective ? escHtml(narrative.objective) : `Size a closed bladder expansion tank for the ${escHtml(sysType)} system of ${escHtml(projName)}. The tank must accommodate the volumetric expansion of ${escHtml(sysVolL)} L of water across its full temperature swing, ${swingLow}°C to ${swingHigh}°C${idleAmb != null && swingHigh === idleAmb ? ' (the idle loop warming to the plant-room ambient)' : ''}, while maintaining system pressure within the design range.`}
     </div>
 
     <!-- 2. Standards -->
@@ -14752,6 +14761,7 @@ function renderExpansionTankReport(inputs, results, narrative) {
       <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">System Water Volume</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${sysVolL} L</td></tr>
       <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Fill Temperature</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${fillT}°C → v = ${vFill} L/kg</td></tr>
       <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">${sysType === 'Chilled Water' ? 'Min Operating Temperature (CHW supply)' : 'Max Operating Temperature'}</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${maxT}°C → v = ${vMax} L/kg</td></tr>
+      ${idleAmb != null ? `<tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Idle Ambient (plant off)</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${idleAmb}°C: the stopped loop warms to it</td></tr>` : ''}
       <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Static Head</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${headM} m above tank</td></tr>
       <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Maximum System Pressure</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${maxPressG} kPa g (${maxPressA} kPa abs)</td></tr>
     </table>
@@ -14759,7 +14769,7 @@ function renderExpansionTankReport(inputs, results, narrative) {
     <!-- 4. Calculation -->
     <h2 style="font-size:1.05rem;font-weight:700;color:#1a3a5c;margin:1.5rem 0 0.5rem;border-bottom:1.5px solid #1a3a5c;padding-bottom:0.3rem;">4. Calculation</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table style="width:100%;border-collapse:collapse;font-size:0.87rem;">
-      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;width:55%;font-weight:600;">Water Expansion Factor E_w</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">(${vHighDisp} − ${vLowDisp}) / ${vLowDisp} = <strong>${Ew.toFixed(5)}</strong></td></tr>
+      <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;width:55%;font-weight:600;">Water Expansion Factor E_w (${swingLow}°C → ${swingHigh}°C)</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">(${vHighSwing} − ${vLowSwing}) / ${vLowSwing} = <strong>${Ew.toFixed(5)}</strong></td></tr>
       <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Net Expansion Volume</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${sysVolL} L × ${Ew.toFixed(5)} = <strong>${netExpL} L</strong></td></tr>
       <tr style="background:#f8fafc;"><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Pre-Charge Pressure</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">9.81 × ${headM} m → rounded up = <strong>${prechargeG} kPa g</strong></td></tr>
       <tr><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;font-weight:600;">Fill (Min) Pressure</td><td style="padding:0.45rem 0.75rem;border-bottom:1px solid #e5e7eb;">${prechargeG} + 15 kPa margin = <strong>${fillPressG} kPa g (${fillPressA} kPa abs)</strong></td></tr>

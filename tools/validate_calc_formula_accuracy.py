@@ -2279,6 +2279,12 @@ VECTORS = [
              "note": "precharge + 15 kPa safety = 115 kPa"},
             {"path": "acceptance_factor", "expected": 0.569, "tol": 0.002,
              "note": "α = 1 − P_fill_abs/P_max_abs = 1 − 216.3/501.3 = 0.569 (ASME VIII)"},
+            {"path": "expansion_ratio", "expected": 0.0059, "tol": 0.00005,
+             "note": "chilled water swings 7 °C (supply) → 35 °C (idle ambient, ASHRAE: the highest the stopped loop sees); IAPWS-IF97 at 0.1 MPa: v(7) = 1.000097, v(35) = 1.005998 L/kg; (1.005998 − 1.000097)/1.000097 = 0.005901. The fill-only swing 7 → 20 °C gave 0.00170"},
+            {"path": "required_volume_L", "expected": 8.30, "tol": 0.02,
+             "note": "800 L × 0.005901 = 4.720 L expansion; / α 0.568522 = 8.303 L"},
+            {"path": "selected_tank_L", "expected": 12, "tol": 0,
+             "note": "smallest standard tank ≥ 8.30 L = 12 L (the fill-only swing picked 8 L: 2.39 L required)"},
         ],
     },
     {

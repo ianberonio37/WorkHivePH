@@ -319,6 +319,17 @@ ENGINE_CHECKED["Elevator Traffic Analysis"] = (
     "names are now the form's (Number of Floors Served, Number of Elevators, Door Open/Close Time, Dwell Time / Stop). Two "
     "hand-derived vectors fail on the old engine; walked on the served page at 390: 'RTT = 48.8 + 73.6 + 25 = 147.4 "
     "seconds', interval 49.1 s Adequate, no sideways scroll. Door page restamped (66.8 s / 15.6% / 133.6 s).")
+ENGINE_CHECKED["Expansion Tank Sizing"] = (
+    "FOUND AND FIXED, read against python-api/calcs/expansion_tank.py: a chilled-water loop was sized for the swing fill "
+    "-> operating only (20 -> 7 C, E_w 0.0017), but a stopped loop warms to the plant room (ASHRAE: size between the lowest "
+    "operating and the highest ambient the system sees) - 7 -> 35 C, E_w 0.0059. A 20,000 L loop was given a 60 L tank "
+    "where it needs 300 L (207.6 L required). Chilled water now also takes the idle ambient (35 C default, returned as "
+    "idle_ambient_c with v_low / v_high and the swing). The report's E_w working was built from v_fill and v_max, which no "
+    "longer bound the swing - it now prints the engine's own v_low / v_high and an Idle Ambient row. Guide names are the "
+    "form's (System Volume Method, System Water Volume, System Capacity, Min Operating Temperature). The vector (800 L, "
+    "hand-derived from IAPWS v(7) = 1.000097, v(35) = 1.005998) fails on the old engine (8 L tank, should be 12); walked "
+    "on the served page at 390: 'E_w (7 C -> 35 C) = 0.00590', '118.01 L / 0.5690 = 207.58 L', no sideways scroll. The "
+    "door page already entered 7 -> 35 C, so its figures stand.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

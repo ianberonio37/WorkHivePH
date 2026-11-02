@@ -88,13 +88,21 @@ def calculate(inputs: dict) -> dict:
 
     # Thermal expansion uses T_high vs T_low to ensure E_w ≥ 0 regardless of
     # system type (CHW contracts on start; HHW expands; we size for the swing).
-    T_high = max(fill_temp_c, max_temp_c)
+    # ★A CHILLED-WATER SYSTEM ALSO SITS IDLE IN THE PLANT ROOM (2026-11-02, ED-G1 Expansion Tank, read against the guide).
+    # The swing was fill -> operating temperature only: 20 -> 7 C for chilled water. Idle, the loop warms to the ambient
+    # (ASHRAE: size a chilled-water tank between the lowest operating and the highest ambient the system will see) - about
+    # 35 C in a Philippine plant room - so the expansion was 7 -> 20 C (0.17%) where the system sees 7 -> 35 C (0.59%), a
+    # 20,000 L loop given a 60 L tank where it needs 300 L. Chilled water now also takes the idle ambient (default 35 C).
+    idle_ambient_c = float(inputs.get("idle_ambient_c", 35.0))
+    is_chilled = "chill" in system_type.lower() or system_type.upper().startswith("CHW")
+    T_high = max(fill_temp_c, max_temp_c, idle_ambient_c if is_chilled else -273.0)
     T_low  = min(fill_temp_c, max_temp_c)
     v_high = _spec_vol_lkg(T_high)
     v_low  = _spec_vol_lkg(T_low)
 
     # Net expansion ratio (ASHRAE 2023 HVAC S&E Ch.12 Eq.12-1)
     E_w = (v_high - v_low) / v_low
+    swing_basis = f"{T_low:g} C -> {T_high:g} C" + (" (idle ambient)" if is_chilled and T_high == idle_ambient_c else "")
     V_expansion = system_volume_l * E_w
 
     # Pre-charge pressure (gauge kPa): static head rounded up to nearest 10 kPa
@@ -132,6 +140,12 @@ def calculate(inputs: dict) -> dict:
         "v_fill":              round(v_fill,            5),
         "v_max":               round(v_max,             5),
         "expansion_ratio":     round(E_w,               5),
+        "swing_basis":         swing_basis,
+        "T_low_c":             T_low,
+        "T_high_c":            T_high,
+        "v_low":               round(v_low,             5),
+        "v_high":              round(v_high,            5),
+        "idle_ambient_c":      idle_ambient_c if is_chilled else None,
         "V_expansion_L":       round(V_expansion,       2),
         "static_head_m":       static_head_m,
         "precharge_kpa_g":     precharge_kpa_g,
