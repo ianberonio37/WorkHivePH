@@ -1172650,8 +1172650,8 @@
     },
     {
       "id": "ED25",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Cooling Tower Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1172705,6 +1172705,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Cooling Tower Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] READ AGAINST python-api/calcs/cooling_tower.py (chiller source, temperatures and cells wired earlier the same day - ED-I1): Q_rej = TR x 3.517 x (1 + 1/COP), range, approach, flow = Q / (cp x range), evaporation 0.75% per 5.6 C of range (~0.13%/C - consistent with the latent-heat ceiling cp dT / h_fg), drift 0.02%, blowdown = evap / (CoC - 1). FIXED: the guide wrote evaporation as 0.085% x Range with the range in C (that rule is per F - half the water), and its note put a 1,000 TR plant's makeup at 25-35 m3/day at CoC 4 - the engine gives ~160 m3/day (evaporating ~120), about 7x more; CoC 3 adds ~12%, not 25%. Field names are the form's (EWT / LWT / WBT). Read in the page by the guide prover at 390 and 1280; the figures stated were run on the engine (4,220 kW: 117 / 160 / 179 m3/day). WALKED: Cooling Tower Sizing's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T00:33:30Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

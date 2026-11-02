@@ -292,6 +292,14 @@ ENGINE_CHECKED["UPS Sizing"] = (
     "the Ah is a 20-hour-rate LOWER BOUND - a VRLA battery delivers well below that at a 5-30 min discharge; select from "
     "the maker's W/cell table (IEEE 1184). OPEN: the engine has no rate-capacity correction (no verified table encoded). "
     "Read in the page by the guide prover at 390 and 1280.")
+ENGINE_CHECKED["Cooling Tower Sizing"] = (
+    "READ AGAINST python-api/calcs/cooling_tower.py (chiller source, temperatures and cells wired earlier the same day - "
+    "ED-I1): Q_rej = TR x 3.517 x (1 + 1/COP), range, approach, flow = Q / (cp x range), evaporation 0.75% per 5.6 C of "
+    "range (~0.13%/C - consistent with the latent-heat ceiling cp dT / h_fg), drift 0.02%, blowdown = evap / (CoC - 1). "
+    "FIXED: the guide wrote evaporation as 0.085% x Range with the range in C (that rule is per F - half the water), and "
+    "its note put a 1,000 TR plant's makeup at 25-35 m3/day at CoC 4 - the engine gives ~160 m3/day (evaporating ~120), "
+    "about 7x more; CoC 3 adds ~12%, not 25%. Field names are the form's (EWT / LWT / WBT). Read in the page by the guide "
+    "prover at 390 and 1280; the figures stated were run on the engine (4,220 kW: 117 / 160 / 179 m3/day).")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
