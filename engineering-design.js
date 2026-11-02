@@ -2712,7 +2712,8 @@ const GUIDES = {
       'ANSI S2.19: Mechanical Vibration: Balance Quality Requirements',
     ],
     formulas: [
-      'Natural frequency: fn = (1/2π) × √(k/m)  (Hz)',
+      'Isolator stiffness: k = m × g / δst  (δst = the static deflection the isolator type is rated to take)',
+      'Natural frequency: fn = (1/2π) × √(k/m) = (1/2π) × √(g / δst)  (Hz)',
       'Damped natural frequency: fd = fn × √(1 − ζ²)',
       'Critical damping: cc = 2 × √(k × m)',
       'Frequency ratio: r = f_operating / fn',
@@ -2720,22 +2721,25 @@ const GUIDES = {
       'Transmissibility: TR = √[(1+(2ζr)²) / ((1−r²)²+(2ζr)²)]',
       'Rotating imbalance: X = (mₑ×e×ω²) / √[(k−mω²)²+(cω)²]',
       'Isolation efficiency: η = (1 − TR) × 100% : effective only when r > √2 ≈ 1.414',
-      'Balancing grade G (ISO 21940): G = e × ω  (mm/s)',
+      'Balancing grade G (ISO 21940-11): G = e_per × ω  (mm/s), with e_per = U / m_rotor = mₑ × e / m_rotor  (g·mm/kg = µm)',
+      'Permissible residual unbalance at grade G: U_per = 1000 × G × m_rotor / ω  (g·mm)',
       'V_rms = V_peak / √2 : ISO 10816 uses RMS velocity in mm/s',
     ],
     fields: [
       { name: 'Machine Mass (kg)', tip: 'Total mass of the rotating machine including motor, base, and any attached equipment. Used to compute natural frequency and critical damping.' },
       { name: 'Operating Speed (RPM)', tip: 'Running speed. The frequency ratio r = operating speed / natural speed determines whether the system is sub-resonant (r<1) or super-resonant (r>1).' },
-      { name: 'Machine Class (ISO 10816-1)', tip: 'Class I ≤15kW. Class II 15–300kW on rigid foundation. Class III >300kW rigid. Class IV >300kW flexible. Each class has different Zone A/B/C/D velocity thresholds. These are the ISO 10816-1 class limits; ISO 20816-3 (formerly 10816-3) groups machines above 15 kW differently and its limits differ.' },
-      { name: 'Isolator Type', tip: 'Rubber mounts have high damping (ζ≈0.08–0.10), good for variable-speed machines. Steel springs have low damping (ζ≈0.01): best isolation efficiency but risk resonance at start/stop. Air springs give the lowest natural frequency.' },
-      { name: 'Stiffness k (N/m)', tip: 'Combined stiffness of all isolators supporting the machine. Auto-filled when you select an isolator type. Lower stiffness → lower fn → better isolation (r further above √2).' },
+      { name: 'Power Rating (kW)', tip: 'Rated power of the machine. It is checked against the power range of the class you pick (Class I up to 15 kW, Class II 15–300 kW, Class III and IV above 300 kW), and the report flags a class that does not fit.' },
+      { name: 'ISO 10816-1 Machine Class', tip: 'Class I ≤15kW. Class II 15–300kW on rigid foundation. Class III >300kW rigid. Class IV >300kW flexible. Each class has different Zone A/B/C/D velocity thresholds. These are the ISO 10816-1 class limits; ISO 20816-3 (formerly 10816-3) groups machines above 15 kW differently and its limits differ.' },
+      { name: 'Vibration Isolator', tip: 'Each type is taken at the static deflection it is rated to carry, so its stiffness follows the machine mass: k = m·g/δst. Neoprene (rubber) mounts deflect 3–10 mm and damp well (ζ ≈ 0.06–0.10). Steel springs deflect 19–50 mm with little damping (ζ ≈ 0.01): the best isolation, but they pass slowly through resonance at start and stop. An air spring gives fn ≈ 2 Hz (62 mm equivalent). A rigid bolt-down is about 50 Hz: no isolation. Check the maker load rating per mount at the actual load.' },
       { name: 'Measured Velocity (mm/s RMS)', tip: 'Field measurement from a vibration analyser or data collector. Enter 0 to use the calculated imbalance response instead. The ISO 10816-1 class zone assessment uses this value.' },
-      { name: 'Imbalance Mass / Eccentricity', tip: 'Used to compute theoretical vibration amplitude from rotating imbalance. Eccentricity = distance from mass centre to rotation axis. Balancing grade G = e × ω (mm/s).' },
+      { name: 'Unbalance Mass (kg)', tip: 'The residual unbalance mass on the rotor. With the eccentricity it gives the unbalance U = mₑ × e (g·mm), which drives the imbalance response and the balance grade.' },
+      { name: 'Eccentricity (mm)', tip: 'Radius at which the unbalance mass sits from the rotation axis.' },
+      { name: 'Rotor Mass (kg)', tip: 'Mass of the rotating part only: rotor, shaft, impeller, coupling half. The balance grade is per kg of ROTOR, not of the whole machine: e_per = U / m_rotor, G = e_per × ω. The same 500 g·mm is G0.15 on a 500 kg rotor and G15 on a 5 kg one.' },
     ],
     notes: [
       'ISO 10816-1 class zones: A = new machine (good), B = acceptable long-term, C = short-term only (investigate), D = danger (shutdown immediately).',
       'Isolation is only effective when r > √2 ≈ 1.41 (TR < 1). Below this the isolator amplifies vibration. At r = 1 (resonance) the system is dangerous: avoid ±10% of fn.',
-      'Balancing grades: G1: turbines/compressors. G2.5: fans, pumps. G6.3: general industrial motors. G40: crankshafts without own bearings.',
+      'Balancing grades (ISO 1940-1 Table 1, carried into ISO 21940-11): G0.4 precision grinder spindles and gyroscopes; G1 grinding-machine drives; G2.5 gas and steam turbines, turbo-compressors and machine-tool drives; G6.3 fans, pump impellers, electric motor armatures and general machinery; G16 cardan shafts and crusher parts; G40 car wheels and drive shafts.',
       'These zones are acceptance and trending guidance for the machine, not a legal limit: DOLE OSH rules address the vibration a worker is exposed to, not machine severity.',
       'For variable-speed drives (VFD), check that the natural frequency fn does not fall within the normal operating speed range: set a skip frequency band in the VFD if it does.',
     ],
@@ -8129,6 +8133,7 @@ function renderInputForm(calcType) {
       <div class="grid grid-cols-2 gap-3 mb-4">
         <div><div class="field-label">Unbalance Mass</div><div class="input-group"><input aria-label="Unbalance Mass" id="f-imbalance-mass" class="wh-input" type="number" value="0.1" min="0" step="0.01"/><span class="input-unit">kg</span></div></div>
         <div><div class="field-label">Eccentricity</div><div class="input-group"><input aria-label="Eccentricity" id="f-eccentricity" class="wh-input" type="number" value="5" min="0" step="0.1"/><span class="input-unit">mm</span></div></div>
+        <div><div class="field-label">Rotor Mass</div><div class="input-group"><input aria-label="Rotor Mass" id="f-rotor-mass" class="wh-input" type="number" value="50" min="0.1" step="0.1"/><span class="input-unit">kg</span></div></div>
       </div>
       <div style="background:rgba(247,162,27,0.08);border:1px solid rgba(247,162,27,0.2);border-radius:0.75rem;padding:0.75rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.5);">
         Standards: ISO 10816-1 (classes) | ISO 20816-1 | ISO 21940-11 (balancing) | ANSI S2.19
@@ -10027,9 +10032,9 @@ function collectInputs() {
       speed_rpm:             parseFloat(v('f-vib-speed'))           || 1450,
       power_kW:              parseFloat(v('f-vib-power'))           || 15,
       machine_class:         getToggle('tg-machine-class')          || 'Class II (15–300 kW, rigid foundation)',
-      stiffness_N_m:         parseFloat(v('f-stiffness'))           || 200000,
-      damping_ratio:         parseFloat(v('f-damping'))             || 0.08,
+      // the isolator type sets k and zeta in the engine (k = m.g / its rated static deflection); there is no stiffness field
       imbalance_mass_kg:     parseFloat(v('f-imbalance-mass'))      || 0.1,
+      rotor_mass_kg:         parseFloat(v('f-rotor-mass'))          || 50,
       eccentricity_mm:       parseFloat(v('f-eccentricity'))        || 5,
       measured_velocity_mm_s: parseFloat(v('f-vib-measured'))       || 0,
       isolator_type:         getToggle('tg-isolator')               || 'Rubber mount (medium)',
@@ -27055,7 +27060,7 @@ function buildVibrationSVG(inputs, results) {
   const resRisk=Boolean(r.in_resonance_band??false);
   const resMgn=Number(r.resonance_margin_pct||0).toFixed(1);
   const xMM=Number(r.X_mm||0).toFixed(3);
-  const zoneC={A:ISO_A,B:ISO_B,C:ISO_C,D:ISO_D}[zone]||GY;
+  const zoneC={A:ISO_A,B:ISO_B,C:ISO_C,D:ISO_D}[zoneTail.charAt(0)]||GY;
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="32" fill="${CC}"/>`);
@@ -27073,14 +27078,14 @@ function buildVibrationSVG(inputs, results) {
   p.push(`<line x1="${spX}" y1="${CY+30}" x2="${spX}" y2="${spY1+10}" stroke="${CC}" stroke-width="1.5"/>`);
   for(let i=0;i<nCoils;i++){const sy=spY1+10+i*(spH-20)/nCoils;p.push(`<line x1="${spX}" y1="${sy}" x2="${i%2===0?spX-15:spX+15}" y2="${sy+(spH-20)/nCoils/2}" stroke="${CC}" stroke-width="2"/>`);}
   p.push(`<line x1="${spX}" y1="${spY2-10}" x2="${spX}" y2="${spY2}" stroke="${CC}" stroke-width="1.5"/>`);
-  p.push(_plumbT(spX-28,spY1+(spY2-spY1)/2,`k=${inp.stiffness_N_m||200000} N/m`,{sz:6.5,c:CC}));
+  p.push(_plumbT(spX-28,spY1+(spY2-spY1)/2,`k=${Math.round(Number(r.k_N_m||inp.stiffness_N_m||0))} N/m`,{sz:6.5,c:CC}));
   // Damper (right)
   const dpX=CX+40;
   p.push(`<line x1="${dpX}" y1="${CY+30}" x2="${dpX}" y2="${spY1+30}" stroke="${CC}" stroke-width="1.5"/>`);
-  p.push(`<rect x="${dpX-12}" y="${spY1+30}" width="24" height="30}" fill="${LGY}" stroke="${CC}" stroke-width="2"/>`);
+  p.push(`<rect x="${dpX-12}" y="${spY1+30}" width="24" height="30" fill="${LGY}" stroke="${CC}" stroke-width="2"/>`);
   p.push(`<rect x="${dpX-8}" y="${spY1+30}" width="16" height="22" fill="${GY}"/>`);
   p.push(`<line x1="${dpX}" y1="${spY1+60}" x2="${dpX}" y2="${spY2}" stroke="${CC}" stroke-width="1.5"/>`);
-  p.push(_plumbT(dpX+28,spY1+(spY2-spY1)/2,`ζ=${inp.damping_ratio||0.05}`,{sz:6.5,c:CC}));
+  p.push(_plumbT(dpX+28,spY1+(spY2-spY1)/2,`ζ=${r.zeta??inp.damping_ratio??0.08}`,{sz:6.5,c:CC}));
   // Ground
   p.push(`<line x1="${CX-60}" y1="${spY2}" x2="${CX+60}" y2="${spY2}" stroke="${CC}" stroke-width="3"/>`);
   for(let i=0;i<6;i++) p.push(`<line x1="${CX-55+i*22}" y1="${spY2}" x2="${CX-62+i*22}" y2="${spY2+10}" stroke="${CC}" stroke-width="1.5"/>`);
@@ -27088,7 +27093,7 @@ function buildVibrationSVG(inputs, results) {
   p.push(`<polygon points="${CX-50},${CY-25} ${CX-25},${CY-45} ${CX-50},${CY-60}" fill="${ISO_C}"/>`);
   p.push(`<line x1="${CX-40}" y1="${CY-30}" x2="${CX-40}" y2="${CY-62}" stroke="${ISO_C}" stroke-width="2.5"/>`);
   p.push(_plumbT(CX-70,CY-65,`F excit`,{sz:7,c:ISO_C,w:'700'}));
-  p.push(_plumbT(CX-70,CY-53,`${inp.excitation_freq_hz||10} Hz`,{sz:7,c:ISO_C}));
+  p.push(_plumbT(CX-70,CY-53,`${freq} Hz`,{sz:7,c:ISO_C}));
   // Frequency response chart (simplified bar chart)
   const ChX=290,ChY=80,ChW=300,ChH=200;
   p.push(`<rect x="${ChX}" y="${ChY}" width="${ChW}" height="${ChH}" fill="#f8faff" stroke="${GY}" stroke-width="1"/>`);
@@ -27096,7 +27101,7 @@ function buildVibrationSVG(inputs, results) {
   // Draw simplified MF curve
   const nPts=50;
   const mfPts=[];
-  const zeta=Number(inp.damping_ratio||0.05);
+  const zeta=Number(r.zeta??inp.damping_ratio??0.08);
   for(let i=0;i<=nPts;i++){
     const ri=i/nPts*3;
     const mfi=1/Math.sqrt(Math.pow(1-ri*ri,2)+Math.pow(2*zeta*ri,2));
@@ -32564,17 +32569,17 @@ function renderVibrationReport(inputs, r, narrative) {
   const zoneColor = r.iso_zone?.includes('Zone A') || r.iso_zone?.includes('Zone B') ? '#2e7d32' : r.iso_zone?.includes('Zone C') ? '#f57c00' : '#c62828';
   // Inputs for formula display
   const massKg     = Number(inputs.mass_kg || 500);
-  const stiffness  = Number(inputs.stiffness_N_m || 200000);
-  const dampRatio  = Number(inputs.damping_ratio || 0.05);
+  // k and zeta are the engine's (the isolator type at its rated static deflection), never a form default
+  const stiffness  = Number(r.k_N_m || inputs.stiffness_N_m || 0);
+  const dampRatio  = Number(r.zeta ?? inputs.damping_ratio ?? 0.08);
   const speedRpm   = Number(inputs.speed_rpm || 1450);
-  const fopHz      = Number(r.f_op_Hz || inputs.excitation_freq_hz || 10);
-  const eccentMm   = Number(inputs.eccentricity_mm || 0.1);
-  // Class-specific severity zones (ISO 10816-1 Annex B; ISO 10816-3 / 20816-3 use groups, not these classes)
-  const isClass1 = String(r.machine_class || inputs.machine_class || '').includes('Class I') && !String(r.machine_class || inputs.machine_class || '').includes('Class II');
-  const isClass3 = String(r.machine_class || inputs.machine_class || '').includes('Class III');
-  const zoneBC   = isClass1 ? 1.8 : isClass3 ? 4.5 : 2.8;
-  const zoneCD   = isClass1 ? 4.5 : isClass3 ? 11.0 : 7.1;
-  const zoneDmax = isClass1 ? 11.2 : isClass3 ? 28.0 : 18.0;
+  const fopHz      = Number(r.f_op_Hz || 0);
+  const eccentMm   = Number(inputs.eccentricity_mm || 5);
+  const omegaOp    = Number(r.omega_op_rad_s || 2 * Math.PI * speedRpm / 60);
+  // Class severity zones (ISO 10816-1 Annex B; ISO 10816-3 / 20816-3 use groups, not these classes) - the engine's own
+  // limits, so the table can never disagree with the zone verdict above it (it printed Class IV's 2.8/7.1/18 for Class II)
+  const zl       = r.zone_limits_mm_s || { A_B: 1.12, B_C: 2.8, C_D: 7.1 };
+  const zoneAB   = zl.A_B, zoneBC = zl.B_C, zoneCD = zl.C_D;
 
   document.getElementById('report-panel')/* xss-allow: hardcoded option list / numeric value, no user input */ .innerHTML = `
     <div class="no-print" style="background:#fff8e1;border:1px solid #F7A21B;border-radius:0.5rem;padding:0.5rem 0.75rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5a00;"><strong>Tip:</strong> Click any underlined field to edit before downloading. In the print dialog, uncheck "Headers and footers" for a clean PDF.</div>
@@ -32607,6 +32612,7 @@ function renderVibrationReport(inputs, r, narrative) {
     <h2>3. SDOF System Parameters</h2>
     <p style="font-size:0.83rem;color:#333;">For a single-degree-of-freedom spring-mass-damper system:</p>
     <p style="font-size:0.83rem;color:#333;">
+      Isolator stiffness: k = m &times; g / &delta;<sub>st</sub> = ${massKg} &times; 9.80665 / (${r.delta_st_mm} / 1000) = <strong>${stiffness} N/m</strong> (${escHtml(r.stiffness_basis || '')})<br>
       Undamped natural frequency: f<sub>n</sub> = (1/2&pi;) &times; &radic;(k/m)<br>
       = (1/2&pi;) &times; &radic;(${stiffness} / ${massKg})
       = (1/2&pi;) &times; &radic;${(stiffness/massKg).toFixed(2)}
@@ -32618,6 +32624,8 @@ function renderVibrationReport(inputs, r, narrative) {
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th style="width:50%;">Parameter</th><th>Value</th></tr>
       <tr><td>Mass m</td><td class="num">${massKg} kg</td></tr>
+      <tr><td>Isolator</td><td class="num">${escHtml(r.isolator_type || inputs.isolator_type || '')}</td></tr>
+      <tr><td>Static deflection &delta;<sub>st</sub></td><td class="num">${r.delta_st_mm} mm</td></tr>
       <tr><td>Stiffness k</td><td class="num">${stiffness} N/m</td></tr>
       <tr><td>Damping ratio &zeta;</td><td class="num">${dampRatio}</td></tr>
       <tr><td>Natural frequency f<sub>n</sub></td><td class="num"><strong>${r.fn_Hz} Hz (${r.fn_rpm} RPM)</strong></td></tr>
@@ -32662,24 +32670,27 @@ function renderVibrationReport(inputs, r, narrative) {
     <p style="font-size:0.83rem;color:#333;">ISO 10816-1 class severity zones for <strong>${escHtml(r.machine_class || 'Class II')}</strong>:</p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th style="width:30%;">Zone</th><th>RMS Velocity Range</th><th>Interpretation</th></tr>
-      <tr><td>Zone A</td><td class="num">not more than ${zoneBC} mm/s</td><td>New machine - acceptable</td></tr>
-      <tr><td>Zone B</td><td class="num">${zoneBC} to ${zoneCD} mm/s</td><td>Satisfactory for long-term operation</td></tr>
-      <tr><td>Zone C</td><td class="num">${zoneCD} to ${zoneDmax} mm/s</td><td>Unsatisfactory - corrective action required</td></tr>
-      <tr><td>Zone D</td><td class="num">more than ${zoneDmax} mm/s</td><td>Damage risk - immediate shutdown</td></tr>
+      <tr><td>Zone A</td><td class="num">not more than ${zoneAB} mm/s</td><td>New machine - acceptable</td></tr>
+      <tr><td>Zone B</td><td class="num">${zoneAB} to ${zoneBC} mm/s</td><td>Satisfactory for long-term operation</td></tr>
+      <tr><td>Zone C</td><td class="num">${zoneBC} to ${zoneCD} mm/s</td><td>Unsatisfactory - corrective action required</td></tr>
+      <tr><td>Zone D</td><td class="num">more than ${zoneCD} mm/s</td><td>Damage risk - immediate shutdown</td></tr>
     </table>
+    ${r.class_power_note ? `<p style="font-size:0.83rem;color:#c62828;font-weight:600;">${escHtml(r.class_power_note)}</p>` : ''}
 
     <h2>7. Balancing Grade (ISO 21940-11)</h2>
     <p style="font-size:0.83rem;color:#333;">
-      Permissible specific unbalance: e<sub>per</sub> = G &times; 1000 / &omega; &nbsp; (where &omega; = 2&pi; &times; n / 60 in rad/s)<br>
-      G = e &times; &omega; = ${eccentMm} mm &times; (2&pi; &times; ${speedRpm}/60) = ${eccentMm} &times; ${(2*Math.PI*speedRpm/60).toFixed(2)} rad/s = <strong>${r.G_grade_mm_s} mm/s</strong> &rarr; <strong>${escHtml(r.balance_grade)}</strong><br>
-      Common ISO 21940-11 balancing grades: G0.4 (gyroscopes, precision spindles), G1 (turbines, pumps - high precision), G2.5 (turbines, generators), G6.3 (general process machinery), G16 (drive shafts, propellers), G40 (car wheels, crankshaft drives).
+      Residual unbalance: U = m<sub>e</sub> &times; e = ${Number(inputs.imbalance_mass_kg || 0) * 1000} g &times; ${eccentMm} mm = <strong>${r.U_residual_gmm} g&middot;mm</strong><br>
+      Specific unbalance (per kg of rotor): e<sub>per</sub> = U / m<sub>rotor</sub> = ${r.U_residual_gmm} / ${r.rotor_mass_kg} = <strong>${r.e_per_um} &micro;m</strong> (g&middot;mm/kg)<br>
+      G = e<sub>per</sub> &times; &omega; = ${r.e_per_um} / 1000 mm &times; ${omegaOp.toFixed(2)} rad/s = <strong>${r.G_grade_mm_s} mm/s</strong> &rarr; within <strong>${escHtml(r.balance_grade)}</strong><br>
+      Permissible at G6.3 (fans, pumps, motors): U<sub>per</sub> = 1000 &times; 6.3 &times; m<sub>rotor</sub> / &omega; = 1000 &times; 6.3 &times; ${r.rotor_mass_kg} / ${omegaOp.toFixed(2)} = <strong>${r.U_per_G6_3_gmm} g&middot;mm</strong><br>
+      ISO 1940-1 Table 1 grades: G0.4 (precision grinder spindles, gyroscopes), G1 (grinding-machine drives), G2.5 (gas and steam turbines, turbo-compressors, machine-tool drives), G6.3 (fans, pump impellers, electric motor armatures, general machinery), G16 (cardan shafts, crusher parts), G40 (car wheels, drive shafts).
     </p>
 
     <h2>8. Assumptions</h2>
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Linear single-degree-of-freedom (SDOF) spring-mass-damper model with viscous damping; valid for primary rigid-body modes below the first internal natural frequency of the machine structure.\n2. Harmonic (sinusoidal) excitation at the operating speed; multiple harmonics and broadband excitation require separate analysis.\n3. Rigid foundation below the isolation system; foundation flexibility would lower the actual fn and increase MF.\n4. Constant mass, stiffness, and damping over the operating range; nonlinear isolators (rubber) may show 10 to 20 percent stiffness change with load and temperature.\n5. Eccentricity e = ${eccentMm} mm assumed for unbalance response; replace with measured runout or balancing-machine residual unbalance for actual machines.\n6. ISO 10816-1 class zones apply to bearing-housing measurements at the machine; for cantilevered or remote sensor placement, apply correction factors per ISO 20816-1.\n7. Resonance band defined as plus/minus 10 percent of fn; designs targeting the f_op below 75 percent of fn or above 125 percent of fn typically achieve adequate isolation.`)}</p>
 
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. ${r.zone_ok ? `Vibration severity ${r.iso_zone} - machine is within acceptable operating limits per ISO 10816-1 for the stated machine class.` : `Vibration severity ${r.iso_zone} EXCEEDS acceptable limits per ISO 10816-1 for the stated machine class - investigate root cause (unbalance, misalignment, resonance, bearing wear) and correct before continued operation.`}\n2. ${r.resonance_risk ? 'CRITICAL: operating speed is within plus/minus 10 percent of natural frequency. Change operating speed by not less than 25 percent OR change isolator stiffness to shift fn outside the resonance band before commissioning.' : `Resonance margin ${r.resonance_margin_pct} percent from fn - design clear of resonance band; no immediate concern.`}\n3. ${r.isolation_ok ? `Isolator selection is effective: TR = ${r.transmissibility} gives ${r.isolation_efficiency_pct} percent isolation. Verify deflection at rated load matches data sheet.` : 'Isolator is amplifying transmission (r below sqrt(2)). Reselect softer isolators to lower fn until r exceeds 1.414 (typically r in 2.5 to 5 range gives 85 to 95 percent isolation).'}\n4. Field-balance all rotating components to balance grade ${escHtml(r.balance_grade)} per ISO 21940-11 before commissioning. Document residual unbalance on a balancing certificate.\n5. Verify shaft alignment within plus/minus 0.05 mm TIR (angular and parallel) using laser shaft alignment kit; misalignment is the second leading cause of elevated vibration after unbalance.\n6. Capture commissioning baseline: FFT spectrum, time waveform, and severity zone classification (ISO 10816-1 class; ISO 20816-3 for machines above 15 kW) at all four bearing locations using a portable vibration analyzer. Store baseline in CMMS for monthly trending.\n7. Install permanent accelerometers per ISO 5348 (epoxy-bonded stud mount, surface flatness within 0.025 mm/m) at horizontal, vertical, and axial directions on each bearing housing. Wire to a 4 to 20 mA transmitter feeding the plant DCS/SCADA.\n8. Configure DCS alarm thresholds: alert at Zone B/C boundary (${zoneCD} mm/s), shutdown at Zone D (${zoneDmax} mm/s); enable trending to detect bearing degradation and resonance shifts over time.\n9. Schedule re-balance and alignment verification every 12 months OR after any major maintenance event (bearing replacement, coupling change, foundation grouting repair).\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the commissioning vibration baseline report before placing the machine into routine operation.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. ${r.zone_ok ? `Vibration severity ${r.iso_zone} - machine is within acceptable operating limits per ISO 10816-1 for the stated machine class.` : `Vibration severity ${r.iso_zone} EXCEEDS acceptable limits per ISO 10816-1 for the stated machine class - investigate root cause (unbalance, misalignment, resonance, bearing wear) and correct before continued operation.`}\n2. ${r.resonance_risk ? 'CRITICAL: operating speed is within plus/minus 10 percent of natural frequency. Change operating speed by not less than 25 percent OR change isolator stiffness to shift fn outside the resonance band before commissioning.' : `Resonance margin ${r.resonance_margin_pct} percent from fn - design clear of resonance band; no immediate concern.`}\n3. ${r.isolation_ok ? `Isolator selection is effective: TR = ${r.transmissibility} gives ${r.isolation_efficiency_pct} percent isolation. Verify deflection at rated load matches data sheet.` : 'Isolator is amplifying transmission (r below sqrt(2)). Reselect softer isolators to lower fn until r exceeds 1.414 (typically r in 2.5 to 5 range gives 85 to 95 percent isolation).'}\n4. Balance the rotor to the grade its machine type calls for per ISO 21940-11 (G6.3 for fans, pumps and general motors; G2.5 for turbines and turbo-compressors): at G6.3 this ${r.rotor_mass_kg} kg rotor may carry no more than ${r.U_per_G6_3_gmm} g.mm at ${speedRpm} RPM, against the ${r.U_residual_gmm} g.mm entered (G = ${r.G_grade_mm_s} mm/s). Document the residual unbalance on a balancing certificate.\n5. Verify shaft alignment within plus/minus 0.05 mm TIR (angular and parallel) using laser shaft alignment kit; misalignment is the second leading cause of elevated vibration after unbalance.\n6. Capture commissioning baseline: FFT spectrum, time waveform, and severity zone classification (ISO 10816-1 class; ISO 20816-3 for machines above 15 kW) at all four bearing locations using a portable vibration analyzer. Store baseline in CMMS for monthly trending.\n7. Install permanent accelerometers per ISO 5348 (epoxy-bonded stud mount, surface flatness within 0.025 mm/m) at horizontal, vertical, and axial directions on each bearing housing. Wire to a 4 to 20 mA transmitter feeding the plant DCS/SCADA.\n8. Configure DCS alarm thresholds: alert at the Zone B/C boundary (${zoneBC} mm/s), shutdown at the Zone C/D boundary (${zoneCD} mm/s); enable trending to detect bearing degradation and resonance shifts over time.\n9. Schedule re-balance and alignment verification every 12 months OR after any major maintenance event (bearing replacement, coupling change, foundation grouting repair).\n10. A PRC-licensed Mechanical Engineer must sign and seal this calculation and the commissioning vibration baseline report before placing the machine into routine operation.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">

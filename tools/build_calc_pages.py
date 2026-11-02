@@ -554,7 +554,7 @@ CALC_DATA: dict[str, dict] = {
         "keyword": "vibration isolation natural frequency calculator",
         "standard": "ISO 10816-1 class zones (ISO 20816-3 for machines above 15 kW)",
         "blurb": "The Vibration Isolation Calculator finds the natural frequency, frequency ratio, and resonance margin for a machine on isolators.",
-        "example_inputs": {"mass_kg": 500, "speed_rpm": 1500, "power_kW": 15, "machine_class": "Class II", "measured_velocity_mm_s": 2.8, "isolator_type": "Spring"},
+        "example_inputs": {"mass_kg": 500, "speed_rpm": 1500, "power_kW": 15, "machine_class": "Class II (15–300 kW, rigid foundation)", "measured_velocity_mm_s": 2.8, "isolator_type": "Steel spring (medium)", "rotor_mass_kg": 50},
         "example_desc": "a 500 kg machine at 1500 rpm on spring isolators",
         "headline": [("Natural frequency", "fn_Hz", "Hz"), ("Frequency ratio", "frequency_ratio_r", ""), ("Resonance margin", "resonance_margin_pct", "%")],
     },

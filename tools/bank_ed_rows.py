@@ -532,6 +532,22 @@ ENGINE_CHECKED["Beam / Column Design"] = (
     "states its condition: compression flange braced at <= Lp = 1.76 ry sqrt(E/Fy) (W14x22: 1.12 m = AISC Table 3-2's "
     "3.67 ft), with a warning past it; the guide says LTB and K = 1.0 are outside the calculator. Names are the form's. "
     "Walked on the served page at 390 (defaults): 'phi.Mp = 158.9', 'DCR 1.133 FAIL', 'Lp = 1.92 m', no sideways scroll.")
+ENGINE_CHECKED["Vibration Analysis"] = (
+    "FOUND AND FIXED, read against python-api/calcs/vibration_analysis.py: the SDOF, MF, TR and imbalance equations "
+    "match the guide, but the isolator choice never reached them - the form has no stiffness or damping field, so the "
+    "payload always sent k 200,000 N/m and zeta 0.08, and an air spring, a steel spring and a rigid mount all computed "
+    "as a medium rubber mount. The table also held one total k per type whatever the machine weighed (an air spring "
+    "under 500 kg sagged 245 mm). Each isolator is now its rated static deflection (neoprene 3-10 mm, springs 19-50 mm, "
+    "air ~62 mm, rigid 0.1 mm): k = m.g/delta_st, fn = (1/2pi) sqrt(g/delta_st). The balance grade was e x omega / 1000 "
+    "of the unbalance mass's RADIUS (the report printed '5 mm x 151.84 rad/s = 0.759'); ISO 21940-11's G = (U/m_rotor) x "
+    "omega needs the rotor mass, now a form field (500 g.mm on a 50 kg rotor at 1450 RPM: G 1.518), with U_per at G6.3, "
+    "and the grade labels follow ISO 1940-1 Table 1 (turbines G2.5, fans/pumps G6.3 - they read G0.4/G1). The report's "
+    "zone table was one class off (Class II printed Class IV's 2.8/7.1/18 under a verdict judged on 1.12/2.8/7.1); it "
+    "now prints the engine's limits. The power rating, read and never used, checks the class. The diagram's stray '}' "
+    "in an SVG height, fixed '10 Hz' excitation and never-resolving zone colour are fixed; the door page's 'Spring' was "
+    "not a key and fell back to rubber - restamped. Two vectors fail on the old engine; oracle 160/160. Walked at 390: "
+    "steel spring 'k = 196133 N/m', 'fn 3.1522 Hz', Zone A <= 1.12, 'G = 1.518 mm/s', U_per 2074.5 g.mm; 400 kW on "
+    "Class II shows the class note; no sideways scroll.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

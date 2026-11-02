@@ -6,16 +6,16 @@ Source: https://workhiveph.com/tools/vibration-isolation-calculator/
 
 Vibration Isolation Calculator
  G1+E3 
-**The Vibration Isolation Calculator finds the natural frequency, frequency ratio, and resonance margin for a machine on isolators. Example: for a 500 kg machine at 1500 rpm on spring isolators, Natural frequency = 3.18 Hz, Frequency ratio = 7.85, Resonance margin = 685.4 % (per ISO 10816-1 (class zones), ISO 20816-1, ISO 21940-11, ANSI S2.19 and Rao Mechanical Vibrations 6th Ed).**
+**The Vibration Isolation Calculator finds the natural frequency, frequency ratio, and resonance margin for a machine on isolators. Example: for a 500 kg machine at 1500 rpm on spring isolators, Natural frequency = 3.15 Hz, Frequency ratio = 7.93, Resonance margin = 693.1 % (per ISO 10816-1 (class zones), ISO 20816-1, ISO 21940-11, ANSI S2.19 and Rao Mechanical Vibrations 6th Ed).**
 How it works
 The calculator follows ISO 10816-1 (class zones), ISO 20816-1, ISO 21940-11, ANSI S2.19 and Rao Mechanical Vibrations 6th Ed. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Mechanical & Machine Design)
 Inputs: a 500 kg machine at 1500 rpm on spring isolators.
 ResultValue
-Natural frequency3.18 Hz
-Frequency ratio7.85
-Resonance margin685.4 %
+Natural frequency3.15 Hz
+Frequency ratio7.93
+Resonance margin693.1 %
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 10816-1 (class zones), ISO 20816-1, ISO 21940-11, ANSI S2.19 and Rao Mechanical Vibrations 6th Ed.
 How to use this calculator
 Read the worked example. It uses a 500 kg machine at 1500 rpm on spring isolators and shows every number in the method.
@@ -36,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 2cde22e2bc079d7c -->
+<!-- md-twin source-sha: 76085d0b0b6b2f6e -->

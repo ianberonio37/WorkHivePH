@@ -61,16 +61,33 @@ def _iso_zone(v_rms_mm_s: float, machine_class: str) -> str:
     if v_rms_mm_s <= zones["C_mm_s"]:  return "Zone C - Short-term only (investigate)"
     return "Zone D - DANGER - immediate shutdown"
 
-# ─── Common spring stiffness (N/m) for reference ─────────────────────────────
+# ─── Isolator types, by the static deflection they are rated to take ────────
+# ★THE ISOLATOR CHOICE NEVER REACHED THE ENGINE, AND ITS STIFFNESS IGNORED THE MACHINE (2026-11-02, ED-G1 Vibration,
+# read against the guide's "Stiffness k - auto-filled when you select an isolator type"): the form has no stiffness or
+# damping field, so the payload always sent 200,000 N/m and zeta 0.08 - an air spring, a steel spring and a rigid mount
+# all computed as a medium rubber mount. And the table held one total k per type whatever the machine weighed: an air
+# spring under a 500 kg machine deflected 245 mm, under 5 t, 2.45 m. Isolators are selected by the static deflection they
+# take at their rated load (ASHRAE HVAC Applications, "Noise and Vibration Control"; maker catalogues), so each type is now
+# that deflection: k = m.g / delta_st, fn = (1/2pi) sqrt(g / delta_st). Neoprene mounts 3-10 mm, steel springs 19-50 mm,
+# an air spring ~2 Hz (62 mm equivalent), a rigid bolt-down 0.1 mm (~50 Hz). An explicit stiffness_N_m still overrides.
+G_ACCEL = 9.80665
 VIBRATION_ISOLATORS: dict[str, dict] = {
-    "Rubber mount (soft)":    {"k_N_m": 50_000,   "zeta": 0.10},
-    "Rubber mount (medium)":  {"k_N_m": 200_000,  "zeta": 0.08},
-    "Rubber mount (hard)":    {"k_N_m": 500_000,  "zeta": 0.06},
-    "Steel spring (soft)":    {"k_N_m": 100_000,  "zeta": 0.01},
-    "Steel spring (medium)":  {"k_N_m": 500_000,  "zeta": 0.01},
-    "Steel spring (stiff)":   {"k_N_m": 2_000_000,"zeta": 0.005},
-    "Air spring":             {"k_N_m": 20_000,   "zeta": 0.15},
-    "Rigid mount (no isolation)": {"k_N_m": 50_000_000, "zeta": 0.02},
+    "Rubber mount (soft)":    {"delta_mm": 10.0, "zeta": 0.10},
+    "Rubber mount (medium)":  {"delta_mm": 6.0,  "zeta": 0.08},
+    "Rubber mount (hard)":    {"delta_mm": 3.0,  "zeta": 0.06},
+    "Steel spring (soft)":    {"delta_mm": 50.0, "zeta": 0.01},
+    "Steel spring (medium)":  {"delta_mm": 25.0, "zeta": 0.01},
+    "Steel spring (stiff)":   {"delta_mm": 19.0, "zeta": 0.005},
+    "Air spring":             {"delta_mm": 62.0, "zeta": 0.15},
+    "Rigid mount (no isolation)": {"delta_mm": 0.1, "zeta": 0.02},
+}
+
+# The power range each class label states (inclusive at its ends); used only to flag a class that does not fit the power.
+CLASS_POWER_KW: dict[str, tuple[float, float]] = {
+    "Class I (≤15 kW)": (0.0, 15.0),
+    "Class II (15–300 kW, rigid foundation)": (15.0, 300.0),
+    "Class III (>300 kW, rigid foundation)": (300.0, float("inf")),
+    "Class IV (>300 kW, flexible foundation)": (300.0, float("inf")),
 }
 
 
@@ -140,6 +157,10 @@ def calculate(inputs: dict) -> dict:
     speed_rpm       = float(inputs.get("speed_rpm",        1450.0))
     power_kW        = float(inputs.get("power_kW",         15.0))
     machine_class   = str  (inputs.get("machine_class",    "Class II (15–300 kW, rigid foundation)"))
+    if machine_class not in ISO10816_ZONES:
+        machine_class = "Class II (15–300 kW, rigid foundation)"
+    rotor_mass_kg   = float(inputs.get("rotor_mass_kg") or 50.0)
+    rotor_mass_kg   = min(rotor_mass_kg, mass_kg) if mass_kg > 0 else rotor_mass_kg
 
     # Imbalance parameters
     m_e_kg          = float(inputs.get("imbalance_mass_kg",  0.1))    # unbalanced mass
@@ -148,10 +169,17 @@ def calculate(inputs: dict) -> dict:
 
     # Support/isolation parameters
     isolator_key    = str  (inputs.get("isolator_type",    "Rubber mount (medium)"))
-    iso_data        = VIBRATION_ISOLATORS.get(isolator_key,
-                        VIBRATION_ISOLATORS["Rubber mount (medium)"])
-    k_Nm            = float(inputs.get("stiffness_N_m",    iso_data["k_N_m"]))
-    zeta_input      = float(inputs.get("damping_ratio",    iso_data["zeta"]))
+    if isolator_key not in VIBRATION_ISOLATORS:
+        isolator_key = "Rubber mount (medium)"
+    iso_data        = VIBRATION_ISOLATORS[isolator_key]
+    if inputs.get("stiffness_N_m"):
+        k_Nm         = float(inputs["stiffness_N_m"])
+        stiffness_basis = "stiffness entered"
+    else:
+        k_Nm         = mass_kg * G_ACCEL / (iso_data["delta_mm"] / 1000)
+        stiffness_basis = f"k = m.g / delta_st, {isolator_key} rated at {iso_data['delta_mm']:g} mm static deflection"
+    delta_st_mm     = mass_kg * G_ACCEL / k_Nm * 1000 if k_Nm > 0 else 0.0
+    zeta_input      = float(inputs.get("damping_ratio") or iso_data["zeta"])
 
     # ── Operating frequency ───────────────────────────────────────────────────
     omega_op   = speed_rpm * 2 * math.pi / 60     # rad/s
@@ -192,18 +220,36 @@ def calculate(inputs: dict) -> dict:
     # Operating should be < 0.8 fn or > 1.2 fn (avoid resonance band)
     in_resonance_band = 0.8 * fn_Hz < f_op_Hz < 1.2 * fn_Hz
 
-    # ── Balancing grade (ISO 21940-11 / ISO 1940) ────────────────────────────
-    # G = e_mm × ω (mm/s = eccentricity × angular speed)
-    G_grade = e_mm * omega_op / 1000   # m/s → mm/s for G number
-    if G_grade <= 0.4:    balance_grade = "G0.4 (precision balance - turbine rotors)"
-    elif G_grade <= 1.0:  balance_grade = "G1 (high precision - turbines, pumps)"
-    elif G_grade <= 2.5:  balance_grade = "G2.5 (normal - fans, compressors)"
-    elif G_grade <= 6.3:  balance_grade = "G6.3 (general industry - motors, pumps)"
-    elif G_grade <= 16:   balance_grade = "G16 (rough - farm machinery)"
-    else:                 balance_grade = "G40+ (very rough - crankshafts)"
+    # ── Balancing grade (ISO 21940-11 / ISO 1940-1) ──────────────────────────
+    # ★G TOOK THE UNBALANCE MASS'S RADIUS FOR THE ROTOR'S SPECIFIC UNBALANCE, AND DIVIDED BY 1000 (2026-11-02, ED-G1
+    # Vibration): G = e_mm x omega / 1000 read 0.759 mm/s for 0.1 kg at 5 mm on any rotor, and the report printed
+    # "5 mm x 151.84 rad/s = 0.759". ISO 21940-11's G = e_per x omega, where e_per = U / m_rotor is the residual unbalance
+    # per kg of ROTOR (g.mm/kg = um). The same 500 g.mm is G0.15 on a 500 kg rotor and G15 on a 5 kg one. The grade labels
+    # also put turbines at G0.4/G1 and pumps at G1/G2.5; ISO 1940-1 Table 1 has turbines at G2.5 and fans/pumps at G6.3.
+    U_residual_gmm = m_e_kg * 1000 * e_mm                        # g.mm
+    e_per_um       = U_residual_gmm / rotor_mass_kg if rotor_mass_kg > 0 else 0.0   # g.mm/kg = um
+    G_grade        = e_per_um / 1000 * omega_op                  # mm/s
+    U_per_G6_3_gmm = 6.3 * 1000 / omega_op * rotor_mass_kg if omega_op > 0 else 0.0
+    if G_grade <= 0.4:    balance_grade = "G0.4 (precision grinder spindles, gyroscopes)"
+    elif G_grade <= 1.0:  balance_grade = "G1 (grinding-machine drives)"
+    elif G_grade <= 2.5:  balance_grade = "G2.5 (gas and steam turbines, turbo-compressors, machine-tool drives)"
+    elif G_grade <= 6.3:  balance_grade = "G6.3 (fans, pump impellers, electric motor armatures, general machinery)"
+    elif G_grade <= 16:   balance_grade = "G16 (cardan shafts, crusher and agricultural machinery parts)"
+    elif G_grade <= 40:   balance_grade = "G40 (car wheels, drive shafts)"
+    else:                 balance_grade = "worse than G40 (crankshaft drives)"
+
+    # ★THE POWER RATING WAS READ AND NEVER USED (2026-11-02): it now checks the class against the power its label states.
+    lo_kw, hi_kw = CLASS_POWER_KW[machine_class]
+    class_power_note = "" if lo_kw <= power_kW <= hi_kw else (
+        f"A {power_kW:g} kW machine sits outside the {machine_class.split(' (')[0]} power range on the form "
+        f"({machine_class.split('(')[1].rstrip(')')}); the zones shown are for the class selected - check the class.")
+    zl = ISO10816_ZONES[machine_class]
 
     return {
         # SDOF
+        "k_N_m":               round(k_Nm, 1),
+        "delta_st_mm":         round(delta_st_mm, 3),
+        "stiffness_basis":     stiffness_basis,
         "fn_Hz":               sdof["fn_Hz"],
         "fn_rpm":              round(sdof["fn_Hz"] * 60, 1),
         "fd_Hz":               sdof["fd_Hz"],
@@ -240,18 +286,26 @@ def calculate(inputs: dict) -> dict:
         "iso_zone":            iso_zone,
         "zone_ok":             zone_ok,
         "machine_class":       machine_class,
+        "zone_limits_mm_s":    {"A_B": zl["A_mm_s"], "B_C": zl["B_mm_s"], "C_D": zl["C_mm_s"]},
+        "class_power_note":    class_power_note,
 
         # Balancing
+        "rotor_mass_kg":       round(rotor_mass_kg, 2),
+        "U_residual_gmm":      round(U_residual_gmm, 1),
+        "e_per_um":            round(e_per_um, 3),
         "G_grade_mm_s":        round(G_grade, 3),
         "balance_grade":       balance_grade,
+        "U_per_G6_3_gmm":      round(U_per_G6_3_gmm, 1),
 
         # Inputs
         "inputs_used": {
             "mass_kg":         mass_kg,
             "speed_rpm":       speed_rpm,
-            "stiffness_N_m":   k_Nm,
+            "stiffness_N_m":   round(k_Nm, 1),
             "damping_ratio":   zeta_input,
             "machine_class":   machine_class,
+            "power_kW":        power_kW,
+            "rotor_mass_kg":   rotor_mass_kg,
         },
         "calculation_source": "python/math",
         "standard": "ISO 10816-1 (class zones) | ISO 20816-1 | ISO 21940-11 | ANSI S2.19 | Rao Mechanical Vibrations 6th Ed.",
