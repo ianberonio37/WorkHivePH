@@ -87,8 +87,12 @@ def calculate(inputs: dict) -> dict:
     sec_depth    = 4.0
 
     # Sludge production: Px = Y_obs × BOD_removed
+    # ★THE VOLATILE SOLIDS WERE TAKEN AS THE DRY SOLIDS (2026-11-02, ED-G1 STP, read against the guide): Y_obs x BOD removed
+    # is biomass as VSS (Y is kg VSS / kg BOD); the sludge hauled is total dry solids, VSS / 0.80 (this engine's own
+    # VSS/TSS ratio) - the sludge mass, its volume at 1% DS and the desludging interval were all 20% short.
     y_obs        = Y / (1.0 + kd * srt_days)
-    sludge_kg_d  = round(y_obs * bod_removed, 1)
+    sludge_vss_d = y_obs * bod_removed
+    sludge_kg_d  = round(sludge_vss_d / mlvss_frac, 1)
     sludge_m3_d  = round(sludge_kg_d / 10.0, 2)   # at 1% DS = 10 kg/m³
     desludge_d   = round(20.0 / sludge_m3_d, 1) if sludge_m3_d > 0 else 0.0
     desludge_freq = f"Every {desludge_d} days ({sludge_m3_d} m3/day, 20 m3 holding)"

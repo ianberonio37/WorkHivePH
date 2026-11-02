@@ -2441,6 +2441,9 @@ VECTORS = [
              "note": "(BOD_in−BOD_out)·Q/1000 = 190·30/1000 = 5.7 kg/day"},
             {"path": "bod_removal_pct", "expected": 86.4, "tol": 0.1,
              "note": "(220−30)/220·100 = 86.4% BOD removal"},
+            {"path": "sludge_kg_day", "expected": 2.9, "tol": 0.05,
+             "note": "Y_obs = 0.60/(1 + 0.06·8) = 0.4054 kg VSS/kg BOD; 0.4054·5.7 = 2.311 kg VSS/day; dry solids = VSS/0.80 = 2.889 kg/day (it took the VSS as the dry solids: 2.3) (2026-11-02)"},
+            {"path": "sludge_m3_day", "expected": 0.29, "tol": 0.005, "note": "2.889 kg at 1% DS (10 kg/m³) = 0.289 m³/day"},
         ],
     },
     {

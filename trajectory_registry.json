@@ -1173253,8 +1173253,8 @@
     },
     {
       "id": "ED79",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Boiler System on engineering-design.html · solo-owner",
       "pages": [
@@ -1173308,6 +1173308,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Boiler System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] READ AGAINST python-api/calcs/boiler_system.py: blowdown % = TDS_makeup / (TDS_max - TDS_makeup) is already blowdown per kg of steam - the guide divided again by (1 - BD%); the engine takes no condensate return (all feedwater is makeup, the conservative case) while the guide subtracted one the form never asks for (its Condensate Return field does not exist); each boiler is sized for the FULL design output (one carries the plant), which the guide now says. Field names are the form's (Load Input Mode, Steam Pressure (gauge), Boiler Efficiency, Makeup Water TDS, plus the hot-water fields). Walked on the served page at 390 (2,000 kg/h steam): blowdown 177.5 kg/h, makeup 2,677.5 kg/h = steam + blowdown, no sideways scroll. WALKED: Boiler System's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T03:26:29Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
@@ -1174807,8 +1174813,8 @@
     },
     {
       "id": "ED219",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Wastewater Treatment (STP) on engineering-design.html · solo-owner",
       "pages": [
@@ -1174862,6 +1174868,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wastewater Treatment (STP) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/wastewater_stp.py (Metcalf & Eddy): the aeration volume (SRT method), oxygen demand (a.BOD + b.MLVSS.V) and blower air (O2 / (0.232 x 1.2 x 0.08 x 1440)) are right. The sludge was not: Y_obs x BOD removed is biomass as VSS, and the engine took it as the dry solids - mass, volume at 1% DS and the desludging interval all 20% short (default plant: 2.3 kg/day, every 87 days; it is 2.9 kg/day, every 69). Now VSS / 0.80 (the engine's own VSS/TSS). The guide's blower formula divided kg O2/DAY by a per-MINUTE factor (x 60 for x 1440) and its sludge formula was a different empirical one - both now the engine's; names are the form's. The vector fails on the old engine; walked on the served page at 390: '2.9 kg dry solids/day', 'Every 69.0 days'. The walk caught the page at 513 px: 18 report renderers set the signature block grid-template-columns:1fr 1fr 1fr INLINE, which beat the stylesheet's 640 px single-column rule - the rule is !important now (engineering-design.html), 390 px again. WALKED: Wastewater Treatment (STP)'s Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T03:26:29Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

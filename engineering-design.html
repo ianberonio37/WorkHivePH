@@ -293,7 +293,10 @@
        stays on-brand and clears WCAG AA 4.5:1 on the cream highlight (verified live via axe). */
     #report-panel .result-highlight .res-value { font-size: 1.3rem; font-weight: 700; color: #8a4b00; }
     #report-panel .sig-block { margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
-    @media (max-width: 640px) { #report-panel .sig-block { grid-template-columns: 1fr; gap: 0.5rem; } }
+    /* !important: 18 renderers set grid-template-columns:1fr 1fr 1fr INLINE, which beats this rule - their
+       25-underscore signature lines cannot shrink, so three columns pushed the page to 513 px at 390 (STP walk,
+       2026-11-02). A media query adds no specificity. */
+    @media (max-width: 640px) { #report-panel .sig-block { grid-template-columns: 1fr !important; gap: 0.5rem; } }
     @media (max-width: 480px) { .toggle-btn { min-height: 44px; padding: 0.75rem 1rem; } }
     #report-panel .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
     #report-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 40px; display: inline-block; cursor: text; }

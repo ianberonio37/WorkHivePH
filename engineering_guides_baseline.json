@@ -4,6 +4,7 @@
  "passing": [
   "AHU Sizing",
   "Bearing Life (L10)",
+  "Boiler System",
   "Bolt Torque & Preload",
   "Cable Tray Sizing",
   "Chiller System — Air Cooled",
@@ -43,6 +44,7 @@
   "V-Belt Drive Design",
   "Ventilation / ACH",
   "Voltage Drop",
+  "Wastewater Treatment (STP)",
   "Water Softener Sizing",
   "Water Supply Pipe Sizing",
   "Water Treatment System",

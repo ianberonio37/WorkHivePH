@@ -451,6 +451,25 @@ ENGINE_CHECKED["Hot Water Demand"] = (
     "'27.86 kW', no sideways scroll. Same commit: calcs/domestic_water.py's flush-TANK power fit overshot Hunter above "
     "~20 WSFU (100 WSFU 312.8 L/min, above its own flush-valve 255.5) - now IPC Table E103.3(3)'s tank column, with a "
     "vector that fails on the fit (163.6 vs 110.1 L/min at 50 WSFU).")
+ENGINE_CHECKED["Wastewater Treatment (STP)"] = (
+    "FOUND AND FIXED, read against python-api/calcs/wastewater_stp.py (Metcalf & Eddy): the aeration volume (SRT method), "
+    "oxygen demand (a.BOD + b.MLVSS.V) and blower air (O2 / (0.232 x 1.2 x 0.08 x 1440)) are right. The sludge was not: "
+    "Y_obs x BOD removed is biomass as VSS, and the engine took it as the dry solids - mass, volume at 1% DS and the "
+    "desludging interval all 20% short (default plant: 2.3 kg/day, every 87 days; it is 2.9 kg/day, every 69). Now VSS / "
+    "0.80 (the engine's own VSS/TSS). The guide's blower formula divided kg O2/DAY by a per-MINUTE factor (x 60 for x "
+    "1440) and its sludge formula was a different empirical one - both now the engine's; names are the form's. The "
+    "vector fails on the old engine; walked on the served page at 390: '2.9 kg dry solids/day', 'Every 69.0 days'. The "
+    "walk caught the page at 513 px: 18 report renderers set the signature block grid-template-columns:1fr 1fr 1fr "
+    "INLINE, which beat the stylesheet's 640 px single-column rule - the rule is !important now (engineering-design.html), "
+    "390 px again.")
+ENGINE_CHECKED["Boiler System"] = (
+    "READ AGAINST python-api/calcs/boiler_system.py: blowdown % = TDS_makeup / (TDS_max - TDS_makeup) is already blowdown "
+    "per kg of steam - the guide divided again by (1 - BD%); the engine takes no condensate return (all feedwater is "
+    "makeup, the conservative case) while the guide subtracted one the form never asks for (its Condensate Return field "
+    "does not exist); each boiler is sized for the FULL design output (one carries the plant), which the guide now says. "
+    "Field names are the form's (Load Input Mode, Steam Pressure (gauge), Boiler Efficiency, Makeup Water TDS, plus the "
+    "hot-water fields). Walked on the served page at 390 (2,000 kg/h steam): blowdown 177.5 kg/h, makeup 2,677.5 kg/h = "
+    "steam + blowdown, no sideways scroll.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
