@@ -732,6 +732,20 @@ VECTORS = [
         ],
     },
     {
+        # ★SCREW / SCROLL / RECIP HELD TO CENTRIFUGAL LIMITS (2026-11-02, ED-G1 Chiller Water Cooled): fails on that engine.
+        "module": "calcs.chiller",
+        "calc_type": "Chiller System - Water Cooled: a screw chiller is judged on the positive-displacement row",
+        "standard": "ASHRAE 90.1-2019 Table 6.8.1-3 Path A, water-cooled positive displacement 75-<150 TR: 0.720 kW/ton FL, 0.560 IPLV",
+        "inputs": {"cooling_load_kW": 300, "chiller_type": "Screw", "chw_supply_C": 7, "chw_return_C": 12,
+                   "cw_supply_C": 29, "cw_return_C": 35, "cop": 5.0, "safety_factor": 1.1, "n_units": 1},
+        "asserts": [
+            {"path": "nominal_kW_each", "expected": 352, "tol": 0, "note": "300 x 1.1 = 330 kW; smallest standard >= 330 = 352 kW (100.1 TR)"},
+            {"path": "ashrae_min_cop", "expected": 4.88, "tol": 0.005, "note": "75-<150 TR positive displacement: 3.5168 / 0.720 kW/ton = 4.884 (centrifugal would be 5.77)"},
+            {"path": "ashrae_min_iplv", "expected": 6.28, "tol": 0.005, "note": "3.5168 / 0.560 = 6.280"},
+            {"path": "cop_check", "expected": "PASS", "tol": 0, "note": "COP 5.0 >= 4.88: the screw chiller complies (the old engine failed it against 5.77)"},
+        ],
+    },
+    {
         "module": "calcs.chiller",
         "calc_type": "Chiller System - Water Cooled: the form's rated IPLV is the one checked",
         "standard": "ASHRAE 90.1 Table 6.8.1-3: water-cooled centrifugal < 150 TR min IPLV 6.39",

@@ -341,6 +341,18 @@ ENGINE_CHECKED["Chiller System — Air Cooled"] = (
     "The guide's ASHRAE minimum was 90.1-2010's COP 2.84 / EER 9.7 - now 2019's 2.96 full load, IPLV 4.02 / 4.10. Guide "
     "names are the form's. The vector fails on the old engine; walked on the served page at 390: '79.9 TR (281 kW) per "
     "unit', '159.8 TR = 562.0 kW', 'dT air = 10 C', '<528 kW unit', no sideways scroll.")
+ENGINE_CHECKED["Chiller System — Water Cooled"] = (
+    "FOUND AND FIXED, read against python-api/calcs/chiller.py: the form offers Centrifugal / Screw / Scroll / "
+    "Reciprocating, but every type was held to ASHRAE 90.1's centrifugal rows - a 100 TR screw chiller at COP 5.0 (Path A "
+    "minimum 4.88) was reported failing at 5.77. Water-cooled positive displacement now has its own 90.1-2019 Table "
+    "6.8.1-3 Path A rows (0.750/0.600, 0.720/0.560, 0.660/0.540, 0.610/0.520, 0.560/0.500 kW/ton; the first two "
+    "confirmed against the California Energy Commission tables). The per-unit sizing fix (ED13) applies here too. The "
+    "guide and the report's standards row printed older minimums (Centrifugal 5.00/5.55/6.10, Screw 4.45/4.90, "
+    "Scroll/Recip 3.80; IPLV 6.28/7.19/8.27...) matching neither the engine nor 2019 - both now print the 2019 rows, and "
+    "the minimum's label names the tier and the unit's rated size, not the design load. Guide names are the form's (CHW "
+    "Supply/Return Temperature, CW Supply/Return Temp, IPLV / NPLV). The vector fails on the old engine; walked on the "
+    "served page at 390 (300 kW screw, COP 5.0): '4.88 (75-<150 TR positive displacement: each 352 kW unit)', 'COP 5 vs "
+    "min 4.88', no sideways scroll.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

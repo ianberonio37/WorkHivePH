@@ -1172597,8 +1172597,8 @@
     },
     {
       "id": "ED19",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Chiller System — Water Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1172652,6 +1172652,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Water Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/chiller.py: the form offers Centrifugal / Screw / Scroll / Reciprocating, but every type was held to ASHRAE 90.1's centrifugal rows - a 100 TR screw chiller at COP 5.0 (Path A minimum 4.88) was reported failing at 5.77. Water-cooled positive displacement now has its own 90.1-2019 Table 6.8.1-3 Path A rows (0.750/0.600, 0.720/0.560, 0.660/0.540, 0.610/0.520, 0.560/0.500 kW/ton; the first two confirmed against the California Energy Commission tables). The per-unit sizing fix (ED13) applies here too. The guide and the report's standards row printed older minimums (Centrifugal 5.00/5.55/6.10, Screw 4.45/4.90, Scroll/Recip 3.80; IPLV 6.28/7.19/8.27...) matching neither the engine nor 2019 - both now print the 2019 rows, and the minimum's label names the tier and the unit's rated size, not the design load. Guide names are the form's (CHW Supply/Return Temperature, CW Supply/Return Temp, IPLV / NPLV). The vector fails on the old engine; walked on the served page at 390 (300 kW screw, COP 5.0): '4.88 (75-<150 TR positive displacement: each 352 kW unit)', 'COP 5 vs min 4.88', no sideways scroll. WALKED: Chiller System — Water Cooled's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T01:32:04Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

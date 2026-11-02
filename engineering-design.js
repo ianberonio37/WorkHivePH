@@ -2214,7 +2214,7 @@ const GUIDES = {
     title: 'Chiller System — Water Cooled (ASHRAE 90.1 / PSME Code)',
     subtitle: 'Sizes a water-cooled chiller plant: cooling capacity (TR/kW), compressor power, condenser water (CW) flow, cooling tower heat rejection, chilled water (CHW) flow, and ASHRAE 90.1 minimum COP check by chiller type (centrifugal, screw, scroll, reciprocating).',
     standards: [
-      'ASHRAE 90.1: Energy Standard for Buildings (min COP: Centrifugal 5.00–6.10, Screw 4.45–4.90, Scroll/Recip 3.80)',
+      'ASHRAE 90.1-2019 Table 6.8.1-3 (Path A): minimum full-load COP and IPLV by chiller type and each unit\u2019s rated size',
       'ASHRAE 15: Safety Standard for Refrigeration Systems (refrigerant safety, ventilation, leak detection)',
       'ASHRAE Handbook HVAC Systems and Equipment: chiller selection and cooling tower design',
       'CTI STD-201: Cooling Technology Institute standard for cooling tower performance',
@@ -2228,20 +2228,26 @@ const GUIDES = {
       'CHW Flow (L/s) = Q_design / (4.187 × ΔT_chw)',
       'CW Flow (L/s) = Q_rejection / (4.187 × ΔT_cw)',
       'Cooling Tower Capacity (TR) = Q_rejection / 3.517',
+      'Each unit = smallest standard size ≥ Q_design / number of units;  installed = units × that size',
+      'ASHRAE 90.1-2019 Path A minimum COP / IPLV, by the unit\u2019s rated size:',
+      '  Centrifugal: 5.77 / 6.39 below 300 TR; 6.28 / 6.76 300-400 TR; 6.28 / 7.03 at 400 TR and above',
+      '  Screw, scroll, reciprocating (positive displacement): 4.69 / 5.86 below 75 TR; 4.88 / 6.28 75-150 TR; 5.33 / 6.51 150-300 TR; 5.77 / 6.76 300-600 TR; 6.28 / 7.03 at 600 TR and above',
     ],
     fields: [
       { name: 'Total Cooling Load (kW)', tip: 'Building or system cooling load in kW: take from HVAC Cooling Load calculation. Add 10–15% for piping heat gain (CHW distribution losses) before entering here.' },
       { name: 'Chiller Type', tip: 'Centrifugal: best for large plants >150 TR, highest COP (5.0–7.0), common in malls, hospitals, and office towers. Screw: medium plants 50–500 TR, COP 4.5–5.5. Scroll: small plants <100 TR. Reciprocating: older type, lowest efficiency, being phased out in new designs.' },
-      { name: 'CHW Supply / Return Temp', tip: 'Standard: 7°C supply / 12°C return (5°C ΔT). High-delta: 6°C / 14°C (8°C ΔT): reduces pump flow 37%, saves pump energy. Hospital/data center: 6°C supply for dehumidification. Larger ΔT = smaller pipe, smaller pump: always design for maximum practical ΔT.' },
-      { name: 'Condenser Water Supply Temp (from cooling tower)', tip: 'CW leaving the cooling tower and entering the chiller condenser. Philippine design: 29°C (wet-bulb ~27°C, approach 2°C). Conservative: 32°C. Lower CW supply temperature = higher chiller COP. Never use CW supply below 18°C: chiller may trip on low-condensing pressure.' },
-      { name: 'Condenser Water Return Temp (to cooling tower)', tip: 'CW leaving chiller condenser and returning to cooling tower for re-cooling. Standard: CW supply + 5°C. Larger ΔT = smaller CW pump and pipe but requires larger cooling tower. Common range: 34–37°C.' },
+      { name: 'CHW Supply Temperature', tip: 'Chilled water leaving the chiller, usually 7°C; 6°C for hospitals and data centres that need dehumidification.' },
+      { name: 'CHW Return Temperature', tip: 'Standard: 7°C supply / 12°C return (5°C ΔT). High-delta: 6°C / 14°C (8°C ΔT): reduces pump flow 37%, saves pump energy. Hospital/data center: 6°C supply for dehumidification. Larger ΔT = smaller pipe, smaller pump: always design for maximum practical ΔT.' },
+      { name: 'CW Supply Temp', tip: 'CW leaving the cooling tower and entering the chiller condenser. Philippine design: 29°C (wet-bulb ~27°C, approach 2°C). Conservative: 32°C. Lower CW supply temperature = higher chiller COP. Never use CW supply below 18°C: chiller may trip on low-condensing pressure.' },
+      { name: 'CW Return Temp', tip: 'CW leaving chiller condenser and returning to cooling tower for re-cooling. Standard: CW supply + 5°C. Larger ΔT = smaller CW pump and pipe but requires larger cooling tower. Common range: 34–37°C.' },
       { name: 'COP (Coefficient of Performance)', tip: 'Water-cooled COP is much higher than air-cooled because condensing temperature is lower (water at 29–32°C vs air at 35°C+). Centrifugal: 5.5–7.0. Screw: 4.5–5.5. Scroll: 4.0–5.0. Reciprocating: 3.5–4.5. ASHRAE 90.1 minimums are stricter for water-cooled.' },
       { name: 'Safety / Diversity Factor', tip: 'Apply 1.10–1.15 (10–15% margin) to account for load uncertainty, future growth, and simultaneous demand peaks. For central plants serving multiple zones, 1.10 is typically sufficient if load calculations are well-documented.' },
       { name: 'Number of Chiller Units', tip: 'The chillers share the design load equally: 2 units are each sized for half, 3 units for a third. For N+1 redundancy, install one more chiller of the same size as a standby; it is not counted here. Two or more units also run better at part load.' },
+      { name: 'IPLV / NPLV', tip: 'Optional: the manufacturer\u2019s rated part-load efficiency (AHRI 550/590), as a COP. When entered it is the value checked against ASHRAE 90.1; left blank, the calculator estimates it from the full-load COP. The minimum depends on the chiller type and size (see the formulas).' },
     ],
     notes: [
       'Water-cooled chillers are 15–30% more efficient than air-cooled at the same capacity because condenser water (29–32°C) is cooler than outdoor air (35°C): lower condensing temperature = higher COP.',
-      'ASHRAE 90.1 COP minimums for water-cooled are much stricter: Centrifugal ≥ 5.00 (<150 TR), 5.55 (150–300 TR), 6.10 (>300 TR). Screw ≥ 4.45 (<150 TR), 4.90 (≥150 TR). Specify chillers rated at the actual CW supply temperature (29–32°C): not default 30°C/35°F catalog conditions.',
+      'ASHRAE 90.1-2019 minimums (full-load COP / IPLV) depend on the chiller type: Centrifugal: 5.77 / 6.39 below 300 TR; 6.28 / 6.76 300-400 TR; 6.28 / 7.03 at 400 TR and above. Screw, scroll, reciprocating (positive displacement): 4.69 / 5.86 below 75 TR; 4.88 / 6.28 75-150 TR; 5.33 / 6.51 150-300 TR; 5.77 / 6.76 300-600 TR; 6.28 / 7.03 at 600 TR and above. The tier is each unit\u2019s rated size, not the building load. Specify chillers rated at the actual CW supply temperature (29–32°C): not default 30°C/35°F catalog conditions.',
       'Cooling tower sizing: size the tower for Q_rejection (not Q_cooling). Q_rejection = Q_evap + W_compressor: always larger than the cooling load. A common mistake is sizing the cooling tower equal to the chiller TR rating.',
       'CW pipe sizing: design at 2.4–3.0 L/s per 100 kW (1.5–2.0 gpm/ton). CW velocity: 1.5–3.0 m/s in carbon steel pipe. Treat CW with corrosion and scale inhibitors: cooling tower water is open-loop and concentrates dissolved solids.',
       'Condenser water treatment is mandatory: biological (Legionella risk), scale, and corrosion inhibitors. ASHRAE Guideline 12 governs cooling tower water quality for Legionella prevention: this is a health code requirement in the Philippines.',
@@ -18221,7 +18227,7 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
 
     <h2>References / Standards</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
-      <tr><th>ASHRAE 90.1</th><td>Energy Standard: min COP: Centrifugal 5.00/5.55/6.10 (by size), Screw 4.45/4.90, Scroll/Recip 3.80: min IPLV: Centrifugal 6.28/7.19/8.27, Screw 5.32/5.86, Scroll 5.32, Recip 4.32</td></tr>
+      <tr><th>ASHRAE 90.1</th><td>Energy Standard, 2019 Table 6.8.1-3 Path A (full-load COP / IPLV): centrifugal 5.77/6.39 below 300 TR, 6.28/6.76 to 400 TR, 6.28/7.03 above; screw, scroll and reciprocating 4.69/5.86 below 75 TR, 4.88/6.28 to 150, 5.33/6.51 to 300, 5.77/6.76 to 600, 6.28/7.03 above. Judged on each unit\u2019s rated size.</td></tr>
       <tr><th>AHRI 550/590</th><td>Performance Rating of Water-Chilling and Heat Pump Water-Heating Packages: IPLV/NPLV rating methodology (weighted avg at 100/75/50/25% load)</td></tr>
       <tr><th>ASHRAE 15</th><td>Safety Standard for Refrigeration Systems: ventilation, leak detection, refrigerant limits</td></tr>
       <tr><th>CTI STD-201</th><td>Cooling Technology Institute: cooling tower performance testing and rating</td></tr>
@@ -18285,7 +18291,7 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
     <h3>Step 7: ASHRAE 90.1 COP Compliance Check (${escHtml(inputs.chiller_type)})</h3>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Design COP</th><td>${inputs.cop}</td></tr>
-      <tr><th>ASHRAE 90.1 Minimum COP</th><td>${r.ashrae_min_cop} (${escHtml(inputs.chiller_type)}, ${r.Q_design_kW} kW design load)</td></tr>
+      <tr><th>ASHRAE 90.1 Minimum COP</th><td>${r.ashrae_min_cop} (${escHtml(r.ashrae_tier || inputs.chiller_type)}: each ${r.nominal_kW_each} kW unit)</td></tr>
       <tr><th>COP Margin</th><td>${r.cop_margin >= 0 ? '+' : ''}${r.cop_margin}</td></tr>
       <tr>
         <th>Compliance Result</th>
@@ -18301,7 +18307,7 @@ function renderChillerWaterCooledReport(inputs, results, narrative) {
       const iplvBg     = r.iplv_check === 'PASS' ? '#e8f5e9' : '#ffebee';
       return `<!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
         <tr><th>IPLV/NPLV (from AHRI 550/590 datasheet)</th><td>${r.iplv}</td></tr>
-        <tr><th>ASHRAE 90.1 Minimum IPLV</th><td>${r.ashrae_min_iplv} (${escHtml(inputs.chiller_type)}, ${r.Q_design_kW} kW)</td></tr>
+        <tr><th>ASHRAE 90.1 Minimum IPLV</th><td>${r.ashrae_min_iplv} (${escHtml(r.ashrae_tier || inputs.chiller_type)}: each ${r.nominal_kW_each} kW unit)</td></tr>
         <tr><th>IPLV Margin</th><td>${r.iplv_margin >= 0 ? '+' : ''}${r.iplv_margin}</td></tr>
         <tr>
           <th>Compliance Result</th>

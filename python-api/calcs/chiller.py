@@ -31,6 +31,19 @@ ASHRAE_90_1_WATER: list[dict] = [
     {"max_kW": 1407, "min_COP": 6.28, "min_IPLV": 6.76,  "type": "300–<400 TR centrifugal"},
     {"max_kW": 9999, "min_COP": 6.28, "min_IPLV": 7.03,  "type": ">= 400 TR centrifugal"},
 ]
+# ★SCREW, SCROLL AND RECIPROCATING WERE HELD TO THE CENTRIFUGAL LIMITS (2026-11-02, ED-G1 Chiller Water Cooled, read
+# against the guide). The form offers four chiller types; every one was checked against the centrifugal rows, so a
+# 100 TR screw chiller at COP 5.0 (Path A minimum 4.88) was reported failing ASHRAE 90.1 at 5.77. Water-cooled positive
+# displacement has its own Path A rows (kW/ton FL / IPLV: <75 TR 0.750/0.600, 75-<150 0.720/0.560, 150-<300 0.660/0.540,
+# 300-<600 0.610/0.520, >=600 0.560/0.500; COP = 3.5168 / (kW/ton)).
+ASHRAE_90_1_WATER_PD: list[dict] = [
+    {"max_kW":  263, "min_COP": 4.69, "min_IPLV": 5.86,  "type": "< 75 TR positive displacement"},
+    {"max_kW":  527, "min_COP": 4.88, "min_IPLV": 6.28,  "type": "75–<150 TR positive displacement"},
+    {"max_kW": 1055, "min_COP": 5.33, "min_IPLV": 6.51,  "type": "150–<300 TR positive displacement"},
+    {"max_kW": 2110, "min_COP": 5.77, "min_IPLV": 6.76,  "type": "300–<600 TR positive displacement"},
+    {"max_kW": 9999, "min_COP": 6.28, "min_IPLV": 7.03,  "type": ">= 600 TR positive displacement"},
+]
+POSITIVE_DISPLACEMENT = ("screw", "scroll", "recip")
 # Air-Cooled (≥ 9 kW capacity, electrically operated) — single 150 TR break
 ASHRAE_90_1_AIR: list[dict] = [
     {"max_kW":  527, "min_COP": 2.96, "min_IPLV": 4.02,  "type": "< 150 TR air-cooled"},
@@ -122,9 +135,12 @@ def _iplv(cop_full: float, is_water: bool) -> float:
     return 1.0 / denom if denom > 0 else 0.0
 
 
-def _ashrae_limits(capacity_kw: float, is_water: bool) -> dict:
+def _ashrae_limits(capacity_kw: float, is_water: bool, chiller_type: str = "") -> dict:
     """Return ASHRAE 90.1 minimum COP and IPLV for this capacity tier."""
-    table = ASHRAE_90_1_WATER if is_water else ASHRAE_90_1_AIR
+    if is_water and any(k in chiller_type.lower() for k in POSITIVE_DISPLACEMENT):
+        table = ASHRAE_90_1_WATER_PD
+    else:
+        table = ASHRAE_90_1_WATER if is_water else ASHRAE_90_1_AIR
     for row in table:
         if capacity_kw <= row["max_kW"]:
             return row
@@ -235,7 +251,7 @@ def calculate(inputs: dict) -> dict:
 
     # ── ASHRAE 90.1 compliance — checked against spec COP (equipment selection) ──
     # The Table 6.8.1-3 capacity tier is the chiller's own rated size, not the building load (it was the raw load).
-    limits    = _ashrae_limits(rec_kw, is_water)
+    limits    = _ashrae_limits(rec_kw, is_water, chiller_type)
     cop_ok    = cop_spec >= limits["min_COP"]
     iplv_ok   = iplv     >= limits["min_IPLV"]
     compliant = cop_ok and iplv_ok
