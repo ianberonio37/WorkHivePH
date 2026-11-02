@@ -122,6 +122,10 @@ def calculate(inputs: dict) -> dict:
         "motor_hp_std":           motor_hp_std,
         "motor_kW":               motor_kW,
         "rope_recommendation":    rope_rec,
+        # the selected rope's MBF over the load on EACH part (ASME B30.2) - the drawing divided by the whole gross load,
+        # which understates the factor n-fold on a multi-part hoist
+        "rope_sf_achieved":       (round(float(selected["MBF"]) / (gross_load_kN / max(n_parts, 1)), 2)
+                                   if isinstance(selected, dict) and selected.get("MBF") and gross_load_kN > 0 and not is_chain else None),
         "rope_length_m":          rope_length_m,
         "safety_factor_check":    sf_check,
         "hoist_type":             hoist_type,

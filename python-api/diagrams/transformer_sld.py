@@ -24,6 +24,9 @@ import schemdraw
 import schemdraw.elements as elm
 import matplotlib
 matplotlib.use('Agg')
+# text as <text>, not glyph paths: a person can select and search it, a screen reader can read it, and the
+# drawing walk (tools/prove_engineering_drawings.mjs) can check its figures against the engine (2026-11-02)
+matplotlib.rcParams['svg.fonttype'] = 'none'
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import io

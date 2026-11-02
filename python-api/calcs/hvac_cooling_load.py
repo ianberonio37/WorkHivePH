@@ -257,7 +257,21 @@ def calculate(inputs: dict) -> dict:
             "q_infiltration_latent": round(q_infil_l, 1),
             "q_glass_conduction": round(q_glass_cond, 1),
             "q_glass_solar": round(q_glass_solar, 1),
+            "q_people_total": round(q_people_s + q_people_l, 1),
         },
+        # ★THE DRAWING SIZED ITS OWN AIR SIDE (ED D1, 2026-11-02): supply airflow, return air, the main duct and the
+        # electrical input were computed in the drawing with assumptions nothing else stated. They are the engine's now,
+        # assumptions named: supply air at 13 C (coil dT = indoor - 13, at least 6 K), rho.cp = 1.2 x 1006, main duct
+        # square at 2.5 m/s (rounded up to 50 mm, at least 100), electrical input at an assumed EER of 3.0.
+        **(lambda q_sa_m3s: {
+            "supply_air_temp_c": 13.0,
+            "supply_air_m3h":    round(q_sa_m3s * 3600),
+            "supply_air_cfm":    round(q_sa_m3s * 3600 / 0.5886),
+            "return_air_m3h":    max(round(q_sa_m3s * 3600) - round(oa_m3hr), 0),
+            "duct_main_mm":      max(round((q_sa_m3s / 2.5) ** 0.5 * 1000 / 50) * 50, 100),
+            "eer_assumed":       3.0,
+            "electrical_input_kw": round(rec_kw / 3.0, 1),
+        })(q_design / (1.2 * 1006 * max(indoor_db - 13.0, 6.0))),
 
         # Psychrometric state points (from psychrolib)
         "psychrometrics": {

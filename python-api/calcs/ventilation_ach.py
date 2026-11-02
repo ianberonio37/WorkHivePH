@@ -83,6 +83,7 @@ def calculate(inputs: dict) -> dict:
         "recommended_fan_cmh":  rec_fan_cmh,
         "recommended_fan_cfm":  rec_fan_cfm,
         "outdoor_air_cmh":      round(outdoor_cmh),
+        "return_air_cmh":       round(supply_cmh) - round(outdoor_cmh),   # supply less outdoor air - the drawing's RA
         "outdoor_air_cfm":      round(outdoor_cfm),
         "inputs_used": {
             "rp": rates["rp"], "ra": rates["ra"],

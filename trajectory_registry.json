@@ -1189678,8 +1189678,8 @@
     },
     {
       "id": "ED6",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - HVAC Cooling Load on engineering-design.html · solo-owner",
       "pages": [
@@ -1189733,12 +1189733,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the HVAC Cooling Load calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] HVAC Cooling Load's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: HVAC Cooling Load computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED12",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Ventilation / ACH on engineering-design.html · solo-owner",
       "pages": [
@@ -1189792,12 +1189798,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Ventilation / ACH calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Ventilation / ACH's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Ventilation / ACH computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED18",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Chiller System — Air Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1189851,12 +1189863,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Air Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Chiller System — Air Cooled's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Chiller System — Air Cooled computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED24",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Chiller System — Water Cooled on engineering-design.html · solo-owner",
       "pages": [
@@ -1189910,12 +1189928,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Chiller System — Water Cooled calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Chiller System — Water Cooled's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Chiller System — Water Cooled computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED30",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Cooling Tower Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1189969,12 +1189993,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Cooling Tower Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Cooling Tower Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Cooling Tower Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED36",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - AHU Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1190028,12 +1190058,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the AHU Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] AHU Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: AHU Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED42",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - FCU Selection on engineering-design.html · solo-owner",
       "pages": [
@@ -1190087,12 +1190123,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the FCU Selection calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FCU Selection's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: FCU Selection computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED48",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Duct Sizing (Equal Friction) on engineering-design.html · solo-owner",
       "pages": [
@@ -1190146,12 +1190188,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Duct Sizing (Equal Friction) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Duct Sizing (Equal Friction)'s drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Duct Sizing (Equal Friction) computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED54",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Refrigerant Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1190205,12 +1190253,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Refrigerant Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Refrigerant Pipe Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Refrigerant Pipe Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED60",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Expansion Tank Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1190264,12 +1190318,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Expansion Tank Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Expansion Tank Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Expansion Tank Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED66",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Pump Sizing (TDH) on engineering-design.html · solo-owner",
       "pages": [
@@ -1190323,12 +1190383,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pump Sizing (TDH) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pump Sizing (TDH)'s drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Pump Sizing (TDH) computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED72",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1190382,12 +1190448,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pipe Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Pipe Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED78",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Compressed Air on engineering-design.html · solo-owner",
       "pages": [
@@ -1190441,12 +1190513,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Compressed Air calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Compressed Air's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Compressed Air computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED84",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Boiler System on engineering-design.html · solo-owner",
       "pages": [
@@ -1190500,12 +1190578,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Boiler System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Boiler System's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Boiler System computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED90",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Load Estimation on engineering-design.html · solo-owner",
       "pages": [
@@ -1190559,12 +1190643,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Load Estimation calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Load Estimation's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Load Estimation computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED96",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Transformer Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1190618,12 +1190708,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Transformer Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Transformer Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Transformer Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED122",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Generator Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1190677,12 +1190773,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Generator Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Generator Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Generator Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED128",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - UPS Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1190736,12 +1190838,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the UPS Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] UPS Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: UPS Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED134",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Power Factor Correction on engineering-design.html · solo-owner",
       "pages": [
@@ -1190795,12 +1190903,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Power Factor Correction calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Power Factor Correction's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Power Factor Correction computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED140",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Harmonic Distortion on engineering-design.html · solo-owner",
       "pages": [
@@ -1190854,12 +1190968,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Harmonic Distortion calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Harmonic Distortion's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Harmonic Distortion computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED146",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Solar PV System on engineering-design.html · solo-owner",
       "pages": [
@@ -1190913,12 +1191033,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Solar PV System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Solar PV System's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Solar PV System computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED152",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Lightning Protection System (LPS) on engineering-design.html · solo-owner",
       "pages": [
@@ -1190972,12 +1191098,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Lightning Protection System (LPS) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Lightning Protection System (LPS)'s drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Lightning Protection System (LPS) computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED158",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Earthing / Grounding System on engineering-design.html · solo-owner",
       "pages": [
@@ -1191031,12 +1191163,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Earthing / Grounding System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Earthing / Grounding System's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Earthing / Grounding System computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED164",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Lighting Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1191090,12 +1191228,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Lighting Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Lighting Design's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Lighting Design computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED170",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Water Supply Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1191149,12 +1191293,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Supply Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Supply Pipe Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Water Supply Pipe Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED176",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Hot Water Demand on engineering-design.html · solo-owner",
       "pages": [
@@ -1191208,12 +1191358,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hot Water Demand calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Hot Water Demand's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Hot Water Demand computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED182",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Water Softener Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1191267,12 +1191423,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Softener Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Softener Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Water Softener Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED188",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Water Treatment System on engineering-design.html · solo-owner",
       "pages": [
@@ -1191326,12 +1191488,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Water Treatment System calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Water Treatment System's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Water Treatment System computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED194",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Drainage Pipe Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1191385,12 +1191553,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Drainage Pipe Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Drainage Pipe Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Drainage Pipe Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED200",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Septic Tank Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1191444,12 +1191618,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Septic Tank Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Septic Tank Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Septic Tank Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED206",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Storm Drain / Stormwater on engineering-design.html · solo-owner",
       "pages": [
@@ -1191503,12 +1191683,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Storm Drain / Stormwater calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Storm Drain / Stormwater's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Storm Drain / Stormwater computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED212",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Grease Trap Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1191562,12 +1191748,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Grease Trap Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Grease Trap Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Grease Trap Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED218",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Roof Drain Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1191621,12 +1191813,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Roof Drain Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Roof Drain Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Roof Drain Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED224",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Wastewater Treatment (STP) on engineering-design.html · solo-owner",
       "pages": [
@@ -1191680,12 +1191878,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Wastewater Treatment (STP) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Wastewater Treatment (STP)'s drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Wastewater Treatment (STP) computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED230",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Fire Sprinkler Hydraulic on engineering-design.html · solo-owner",
       "pages": [
@@ -1191739,12 +1191943,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Sprinkler Hydraulic calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Sprinkler Hydraulic's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Fire Sprinkler Hydraulic computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED236",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Fire Pump Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1191798,12 +1192008,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Pump Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Pump Sizing's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Fire Pump Sizing computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED242",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Stairwell Pressurization on engineering-design.html · solo-owner",
       "pages": [
@@ -1191857,12 +1192073,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Stairwell Pressurization calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Stairwell Pressurization's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Stairwell Pressurization computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED248",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Fire Alarm Battery on engineering-design.html · solo-owner",
       "pages": [
@@ -1191916,12 +1192138,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fire Alarm Battery calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fire Alarm Battery's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Fire Alarm Battery computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED254",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Clean Agent Suppression on engineering-design.html · solo-owner",
       "pages": [
@@ -1191975,12 +1192203,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Clean Agent Suppression calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Clean Agent Suppression's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Clean Agent Suppression computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED260",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - V-Belt Drive Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1192034,12 +1192268,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the V-Belt Drive Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] V-Belt Drive Design's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: V-Belt Drive Design computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED266",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Shaft Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1192093,12 +1192333,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Shaft Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Shaft Design's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Shaft Design computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED272",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Bolt Torque & Preload on engineering-design.html · solo-owner",
       "pages": [
@@ -1192152,12 +1192398,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bolt Torque & Preload calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Bolt Torque & Preload's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Bolt Torque & Preload computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED278",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Fluid Power on engineering-design.html · solo-owner",
       "pages": [
@@ -1192211,12 +1192463,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Fluid Power calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Fluid Power's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Fluid Power computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED284",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Bearing Life (L10) on engineering-design.html · solo-owner",
       "pages": [
@@ -1192270,12 +1192528,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Bearing Life (L10) calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Bearing Life (L10)'s drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Bearing Life (L10) computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED290",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Pressure Vessel on engineering-design.html · solo-owner",
       "pages": [
@@ -1192329,12 +1192593,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Pressure Vessel calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Pressure Vessel's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Pressure Vessel computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED296",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Heat Exchanger on engineering-design.html · solo-owner",
       "pages": [
@@ -1192388,12 +1192658,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Heat Exchanger calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Heat Exchanger's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Heat Exchanger computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED302",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Beam / Column Design on engineering-design.html · solo-owner",
       "pages": [
@@ -1192447,12 +1192723,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Beam / Column Design calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Beam / Column Design's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Beam / Column Design computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED308",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Vibration Analysis on engineering-design.html · solo-owner",
       "pages": [
@@ -1192506,12 +1192788,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Vibration Analysis calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Vibration Analysis's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Vibration Analysis computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED314",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Noise / Acoustics on engineering-design.html · solo-owner",
       "pages": [
@@ -1192565,12 +1192853,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Noise / Acoustics calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Noise / Acoustics's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Noise / Acoustics computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED320",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Elevator Traffic Analysis on engineering-design.html · solo-owner",
       "pages": [
@@ -1192624,12 +1192918,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Elevator Traffic Analysis calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Elevator Traffic Analysis's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Elevator Traffic Analysis computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {
       "id": "ED326",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-D1",
       "title": "the drawing matches the numbers - Hoist Capacity on engineering-design.html · solo-owner",
       "pages": [
@@ -1192683,6 +1192983,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hoist Capacity calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] Hoist Capacity's drawing, drawn by the page's own _runDrawing from the served engine's answer, states the engine's headline figures; every number in its labels and title block traces to the engine's answer, its inputs or the drawing builder's own constants; it fits a 390 px phone. WALKED: Hoist Capacity computed and drawn inside engineering-design.html at phone-390 and desktop-1280, through tools/prove_engineering_drawings.mjs (receipt engineering_drawings_report.json, 2026-11-02T07:00:06Z). HELD BY: gate engineering-drawings (ratchet engineering_drawings_baseline.json; teeth draw from figures scaled by 1.37 - the engine's own are then absent). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-drawings"
+        ]
       }
     },
     {

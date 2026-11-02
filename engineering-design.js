@@ -19400,7 +19400,10 @@ const PYTHON_DIAGRAM_TYPES = new Set([
   'Pump Sizing (TDH)',       // Q-H curve (in addition to the JS P&ID)
   'Harmonic Distortion',     // IEEE 519-2022 spectrum bar chart
 ]);
-const PYTHON_DIAGRAM_API = 'https://engineering-calc-api.onrender.com/diagram';
+// a page served from this machine draws from this machine's engine: the production URL alone meant every local walk
+// drew its pump, psychrometric, duct and harmonic charts from production, never from the code under test
+const PYTHON_DIAGRAM_API = /^(127\.0\.0\.1|localhost)$/.test(location.hostname)
+  ? 'http://127.0.0.1:8000/diagram' : 'https://engineering-calc-api.onrender.com/diagram';
 
 async function _callPythonDiagram(calcType, inputs, results) {
   // 30s ceiling: matplotlib SVG generation on Render free tier may cold-start;
@@ -20830,7 +20833,7 @@ function buildFirePumpPIDSvg(inputs, results) {
   const dc = [
     [`Rated (100%): ${reqFlow} L/min @ ${reqPress} bar`],
     [`Peak (150% Q): ${Math.round(reqFlow*1.5)} L/min @ ${(reqPress*0.65).toFixed(1)} bar`],
-    [`Churn (0% Q): 0 L/min @ ${(reqPress*1.21).toFixed(1)} bar max`],
+    [`Churn (0% Q): 0 L/min @ ${Number(r.churn_pressure_bar ?? reqPress * 1.40).toFixed(1)} bar max (NFPA 20: ≤ 140% rated)`],
   ];
   dc.forEach(([line], i) => p.push(T(DC_X+6, DC_Y+26+i*11, line, {a:'start', sz:7, c:CP})));
 
@@ -22272,7 +22275,8 @@ function buildChillerSVG(inputs, results, calcType) {
   const ambient   = Number(inputs?.ambient_temp_C || 35);
   const ptotKW    = Number(r.P_total_kW || 0);
   const trTotalN  = Number(r.nominal_total_TR || 0);
-  const kWperTR   = (ptotKW > 0 && trTotalN > 0) ? (ptotKW / trTotalN).toFixed(3) : Number(r.kW_per_TR || 0).toFixed(3);
+  // the engine's kW/TR (3.517 / COP at rated duty); design-load power over nominal capacity printed 0.963 for a COP-3 chiller (1.172)
+  const kWperTR   = r.kW_per_TR != null ? Number(r.kW_per_TR).toFixed(3) : ((ptotKW > 0 && trTotalN > 0) ? (ptotKW / trTotalN).toFixed(3) : '0.000');
   const proj      = String(inputs?.project_name || 'Chiller Plant');
 
   const W = 1050, H = 580, STRIP_Y = 467;
@@ -23560,7 +23564,7 @@ function buildVentilationSVG(inputs, results) {
     p.push(FanSym(RAF_X, RAF_Y, 20, GN));
     p.push(T(RAF_X, RAF_Y+28, 'RF-01', {sz:7.5, c:GN, w:'700'}));
     p.push(T(RAF_X, RAF_Y+38, 'RETURN FAN', {sz:7, c:SC}));
-    p.push(T((RM_X+RM_W+RAF_X)/2, raGrilles[0]-12, `RA = ${Math.round(supCMH - Number(oaCMH))} m³/h`, {sz:8, c:GN, w:'700'}));
+    p.push(T((RM_X+RM_W+RAF_X)/2, raGrilles[0]-12, `RA = ${r.return_air_cmh != null ? Number(r.return_air_cmh) : Math.round(supCMH - Number(oaCMH))} m³/h`, {sz:8, c:GN, w:'700'}));
 
     // Exhaust branch from return duct
     const EXH_Y = 250;
@@ -23802,7 +23806,7 @@ function buildExpansionTankSVG(inputs, results) {
   p.push(`<polygon points="${prvBX+20},${prvY-6} ${prvBX+32},${prvY} ${prvBX+20},${prvY+6}" fill="none" stroke="${ORG}" stroke-width="1.5"/>`);
   p.push(`<line x1="${prvBX+32}" y1="${prvY}" x2="${prvBX+42}" y2="${prvY}" stroke="${ORG}" stroke-width="1.5"/>`);
   // Label placed ABOVE the tank top (clear band between ISO-01 valve and tank labels column)
-  p.push(`<text x="${prvBX+5}" y="${tnkTop-3}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6.5" fill="${ORG}">PRV-01  Set: ${Math.round(maxPressG*1.15)} kPa g</text>`);
+  p.push(`<text x="${prvBX+5}" y="${tnkTop-3}" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="6.5" fill="${ORG}">PRV-01  Set: ${Number(r.relief_set_kpa_g ?? Math.round(maxPressG*1.15))} kPa g</text>`);
 
   // Tank tag labels (right of tank)
   const tLX = teeX + tnkH2 + 8;
@@ -23856,7 +23860,7 @@ function buildExpansionTankSVG(inputs, results) {
   [[`Accept. Factor α`, `${alpha.toFixed(4)}  (min 0.25)`, ALP_C],
    ['Required Volume', `${reqTankL} L`, SC], ['Selected Tank', `${selTankL} L`, SUP_C],
    ['Tank Type', 'Bladder/Diaphragm (ASME VIII)', GY],
-   ['PRV Set Pressure', `${Math.round(maxPressG*1.15)} kPa g`, ORG]].forEach(([l,v,c],i) => p.push(dataRow(l,v,c,i)));
+   ['PRV Set Pressure', `${Number(r.relief_set_kpa_g ?? Math.round(maxPressG*1.15))} kPa g`, ORG]].forEach(([l,v,c],i) => p.push(dataRow(l,v,c,i)));
 
   dy += 6;
   p.push(`<text x="${DX+DW/2}" y="${dy}" text-anchor="middle" font-family="Arial,Helvetica,Liberation Sans,sans-serif" font-size="7" fill="${GY}">V_tank = V_exp / α  |  α = 1 − P_fill(abs) / P_max(abs)</text>`);
@@ -23908,7 +23912,7 @@ function buildExpansionTankSVG(inputs, results) {
   // Notes
   const notes = [
     `1. Tank at PNPC (pump suction) per ASHRAE 2023 Ch.12: set pre-charge with system depressurised.`,
-    `2. PRV at ${Math.round(maxPressG*1.15)} kPa g (115% MAWP). ASME VIII Mfr. Data Report required before commissioning.`,
+    `2. PRV at ${Number(r.relief_set_kpa_g ?? Math.round(maxPressG*1.15))} kPa g (15% above max operating pressure, at or below the tank MAWP). ASME VIII Mfr. Data Report required before commissioning.`,
     `3. TAB contractor to verify fill pressure at ${fillPressG} kPa g and α ≥ 0.25 after commissioning.`,
   ];
   notes.forEach((note, i) => {
@@ -24212,7 +24216,7 @@ function buildCompressedAirSVG(inputs, results) {
   p.push(T(RX+28, RY-RH+39, 'Air Receiver', {a:'start', sz:6.5, c:SC}));
   // PRV on tank
   p.push(VL(RX, RY-RH+12, RY-RH, 1.5, GY));
-  p.push(T(RX, RY-RH-6, `PRV  ${Number(pressBar)*1.1.toFixed(1)} bar`, {sz:6, c:'#e65100'}));
+  p.push(T(RX, RY-RH-6, `PRV  ${(Number(pressBar) * 1.1).toFixed(1)} bar`, {sz:6, c:'#e65100'}));
   // PI on tank
   p.push(Bubble(RX+26, RY-RH+50, 'PI', '102'));
   p.push(HL(RX+20, RY-RH+50, RX+15, 1, GY));
@@ -27197,8 +27201,11 @@ function buildNoiseAcousticsSVG(inputs, results) {
   const NCrec=Number(r.NC_limit||r.NC_recommended||35).toFixed(0);
   const NCLim=Number(r.NC_limit||45).toFixed(0);
   const spType=String(r.space_type||inp.space_type||'Open Office');
-  const doleLimit=85; // DOLE 8h TWA limit
-  const doleOK=Number(LpDb)<=doleLimit;
+  // DOLE / OSHA 1910.95: 90 dBA 8-h TWA limit, 85 dBA action level - judged on the level the mode assesses (the room
+  // equation, behind the barrier, or the TWA), as the engine and the report do; it was the free-field Lp against 85
+  const doleLimit=90;
+  const assessedDb=Number(r.assessed_Lp_dB ?? LpDb);
+  const doleOK=assessedDb<=doleLimit;
   const ncOK=Number(LpDb)<=Number(NCLim)+15;
   p.push(`<rect width="${W}" height="${H}" fill="#f5f7fa"/>`);
   p.push(`<rect x="11" y="11" width="${W-22}" height="${H-22}" fill="none" stroke="${CC}" stroke-width="2"/>`);
@@ -27236,7 +27243,7 @@ function buildNoiseAcousticsSVG(inputs, results) {
   const BC_X=RX,BC_Y=RY+RH+30,BC_W=RW,BC_H=80;
   p.push(`<rect x="${BC_X}" y="${BC_Y}" width="${BC_W}" height="${BC_H}" fill="#f8faff" stroke="${GY}" stroke-width="1"/>`);
   // Bars for Lw, Lp, NC limit, DOLE limit
-  const bars=[['Lw',Number(LwDb),SND],[`Lp@${distM}m`,Number(LpDb),SFE],['NC Limit',Number(NCLim)+15,GY],['DOLE 85dB',doleLimit,'#c62828']];
+  const bars=[['Lw',Number(LwDb),SND],[`Lp@${distM}m`,Number(LpDb),SFE],['NC target dBA',Number(r.NC_target_dBA ?? Number(NCLim)+10),GY],['DOLE 90 dBA',doleLimit,'#c62828']];
   const maxDB=Math.max(120,Number(LwDb)+10);
   bars.forEach(([lbl,val,clr],i)=>{
     const bw=(BC_W/bars.length)-8;
@@ -27249,7 +27256,7 @@ function buildNoiseAcousticsSVG(inputs, results) {
   // Compliance badges
   const b1X=RX,b1Y=BC_Y+BC_H+30;
   p.push(`<rect x="${b1X}" y="${b1Y}" width="195" height="32" rx="4" fill="${doleOK?'#e8f5e9':'#ffebee'}" stroke="${doleOK?OK_C:'#c62828'}" stroke-width="1.5"/>`);
-  p.push(_plumbT(b1X+97,b1Y+14,`DOLE D.O.13: ${LpDb} dB ${doleOK?'<=':'>'} 85 dB - ${doleOK?'PASS':'FAIL'}`,{sz:8,c:doleOK?OK_C:'#c62828',w:'700'}));
+  p.push(_plumbT(b1X+97,b1Y+14,`DOLE/OSHA: ${assessedDb.toFixed(1)} dBA ${doleOK?'<=':'>'} 90 dBA TWA - ${doleOK?'PASS':'FAIL'}`,{sz:8,c:doleOK?OK_C:'#c62828',w:'700'}));
   p.push(`<rect x="${b1X+205}" y="${b1Y}" width="195" height="32" rx="4" fill="#e3f2fd" stroke="${SFE}" stroke-width="1.5"/>`);
   p.push(_plumbT(b1X+302,b1Y+14,`NC Recommended: NC-${NCrec} (${spType})`,{sz:8,c:SFE,w:'700'}));
   const LY=STRIP_Y+6;
@@ -27810,7 +27817,7 @@ function buildHoistCapacitySVG(inputs, results) {
   const _ropeMBFmatch=String(r.rope_recommendation||'').match(/MBF\s*=\s*([\d.]+)/);
   const selectedRopeMBFkN=_ropeMBFmatch?Number(_ropeMBFmatch[1]):Number(MBFkN);
   const sfApplied=Number(inp.safety_factor||5);
-  const sfAchieved=Number(grossKN)>0?(selectedRopeMBFkN/Number(grossKN)).toFixed(2):'-';
+  const sfAchieved=r.rope_sf_achieved!=null?Number(r.rope_sf_achieved).toFixed(2):(Number(grossKN)>0?(selectedRopeMBFkN/Number(grossKN)).toFixed(2):'-');
   p.push(`<line x1="${hookX+26}" y1="${(hookTopY+hookBotY)/2}" x2="${annX}" y2="${(hookTopY+hookBotY)/2}" stroke="${GY}" stroke-width="1" stroke-dasharray="3 2"/>`);
   p.push(_plumbT(annX+4,hookTopY+40,`Rope: Ø${ropeD}mm`,{a:'start',sz:7.5,c:ROPE_C,w:'700'}));
   p.push(_plumbT(annX+4,hookTopY+52,`${nParts} ${partsLabel} of line`,{a:'start',sz:7,c:ROPE_C}));
@@ -27875,16 +27882,16 @@ function buildHVACSvg(inputs, results) {
   const SA_TEMP      = 13;
   const dT_coil      = Math.max(indoorT - SA_TEMP, 6);
   const Q_sa_m3s     = qDesign / (1.2 * 1006 * dT_coil);
-  const Q_sa_m3h     = Math.round(Q_sa_m3s * 3600);
-  const Q_sa_cfm     = Math.round(Q_sa_m3h / 0.5886);
+  const Q_sa_m3h     = Number(r.supply_air_m3h) || Math.round(Q_sa_m3s * 3600);   // the engine's (13 C supply air)
+  const Q_sa_cfm     = Number(r.supply_air_cfm) || Math.round(Q_sa_m3h / 0.5886);
   const Q_oa_lps     = persons * 2.5 + area * 0.3;          // ASHRAE 62.1 office defaults
   const Q_oa_m3h     = Math.round(Q_oa_lps * 3.6);
-  const Q_ra_m3h     = Math.max(Q_sa_m3h - Q_oa_m3h, 0);
+  const Q_ra_m3h     = r.return_air_m3h != null ? Number(r.return_air_m3h) : Math.max(Q_sa_m3h - Q_oa_m3h, 0);
   const oaPct        = Math.round(Q_oa_m3h / Math.max(Q_sa_m3h, 1) * 100);
-  const duct_mm      = Math.max(Math.round(Math.sqrt(Q_sa_m3s / 2.5) * 1000 / 50) * 50, 100);
+  const duct_mm      = Number(r.duct_main_mm) || Math.max(Math.round(Math.sqrt(Q_sa_m3s / 2.5) * 1000 / 50) * 50, 100);
   const ductStr      = `${duct_mm}\u00d7${duct_mm}\u00a0mm`;
   const eer          = 3.0;
-  const elecKW       = Math.round(recKW / eer * 10) / 10;
+  const elecKW       = r.electrical_input_kw != null ? Number(r.electrical_input_kw) : Math.round(recKW / eer * 10) / 10;
 
   // ── Colors ───────────────────────────────────────────────────────────────────
   const CC='#1a2e4a', SC='#5a6a7a', AO='#F7A21B';
@@ -28045,7 +28052,7 @@ function buildHVACSvg(inputs, results) {
   // Heat gain rows
   const gains=[
     [`Walls:\u00a0${fmt(c.q_walls||0)}\u00a0W`,           `Glass:\u00a0${fmt(c.q_glass||0)}\u00a0W`],
-    [`Roof:\u00a0${fmt(c.q_roof||0)}\u00a0W`,             `People:\u00a0${fmt((c.q_people||0)+(c.q_people_latent||0))}\u00a0W`],
+    [`Roof:\u00a0${fmt(c.q_roof||0)}\u00a0W`,             `People:\u00a0${fmt(c.q_people_total ?? ((c.q_people||0)+(c.q_people_latent||0)))}\u00a0W`],
     [`Equipment:\u00a0${fmt(c.q_equipment||0)}\u00a0W`,   `Lighting:\u00a0${fmt(c.q_lighting||0)}\u00a0W`],
     [`Infiltration:\u00a0${fmt(c.q_infiltration||0)}\u00a0W`, ''],
   ];
@@ -28244,7 +28251,7 @@ function buildLightingLayoutSvg(inputs, results) {
   const lpdLimit  = LPD_LIMITS[inputs.space_type] || 12.0;
   const lpdOk     = lpd <= lpdLimit;
   const luxOk     = eActual >= tgtLux * 0.95;
-  const eMin      = eActual * 0.65;
+  const eMin      = r.E_min_est_lux != null ? Number(r.E_min_est_lux) : eActual * 0.65;   // the engine's (U0 0.65 assumed)
   const uniformity = (eMin / eActual).toFixed(2);
   const uniformOk  = Number(uniformity) >= 0.60;
 
@@ -28337,14 +28344,14 @@ function buildLightingLayoutSvg(inputs, results) {
   }
 
   // ── Illuminance grid nodes ────────────────────────────────────────────────
-  for (let rr = 0; rr < 3; rr++) {
-    for (let cc = 0; cc < 3; cc++) {
-      const nx = RM_X + eGposX[cc] * RM_W;
-      const ny = RM_Y + eGposY[rr] * RM_H;
-      const lux = eGrid[rr][cc];
-      s += `<circle cx="${nx}" cy="${ny}" r="3.5" fill="${AMB}" opacity="0.55"/>`;
-      s += `<text x="${nx}" y="${ny + 11}" text-anchor="middle" font-size="7" fill="#5a4a10">${Math.round(lux)}\u00a0lx</text>`;
-    }
+  // ★THE GRID WAS INVENTED (ED D1, 2026-11-02): nine "illuminance nodes" were E_avg x 0.63 / 0.79 / 1.0 - ratios, not a
+  // point-by-point calculation - and the corners read 366 lx under a 500 lx target. The lumen method yields an average;
+  // the drawing shows that one figure, the engine's, at the room centre.
+  {
+    const nx = RM_X + eGposX[1] * RM_W;
+    const ny = RM_Y + eGposY[1] * RM_H;
+    s += `<circle cx="${nx}" cy="${ny}" r="3.5" fill="${AMB}" opacity="0.55"/>`;
+    s += `<text x="${nx}" y="${ny + 11}" text-anchor="middle" font-size="7" fill="#5a4a10">E avg ${Math.round(eActual)}\u00a0lx</text>`;
   }
 
   // ── Fixtures ─────────────────────────────────────────────────────────────
@@ -28428,7 +28435,7 @@ function buildLightingLayoutSvg(inputs, results) {
   s += `<text x="${LP_X+137}" y="${LEG_Y + 2}" font-size="8" fill="${GRN}">Emergency (90 min)</text>`;
   // Lux node
   s += `<circle cx="${LP_X+278}" cy="${LEG_Y - 2}" r="4" fill="${AMB}" opacity="0.65"/>`;
-  s += `<text x="${LP_X+287}" y="${LEG_Y + 2}" font-size="8" fill="#5a4a10">Illuminance node (lx)</text>`;
+  s += `<text x="${LP_X+287}" y="${LEG_Y + 2}" font-size="8" fill="#5a4a10">Average illuminance (lumen method)</text>`;
   // Homerun
   s += `<line x1="${LP_X+430}" y1="${LEG_Y - 2}" x2="${LP_X+450}" y2="${LEG_Y - 2}" stroke="${ORG}" stroke-width="1.2" stroke-dasharray="4,2"/>`;
   s += `<text x="${LP_X+455}" y="${LEG_Y + 2}" font-size="8" fill="${ORG}">Circuit Homerun</text>`;

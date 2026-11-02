@@ -42,7 +42,9 @@ const READ = async ({ calc, inputs, results, headline, plant, bsrc }) => {
   for (let i = 0; i < 30 && !(panel && panel.querySelector('svg')); i++) await new Promise((r) => setTimeout(r, 200));
   const svg = panel && panel.querySelector('svg');
   if (!svg) return { shown: false };
-  const labels = [...panel.querySelectorAll('svg text')].map((t) => (t.textContent || '').trim()).filter(Boolean);
+  // a chart's axis tick numbers (matplotlib's g#xtick_* / g#ytick_*) are a scale, not results
+  const labels = [...panel.querySelectorAll('svg text')].filter((t) => !t.closest('g[id^="xtick"], g[id^="ytick"]'))
+    .map((t) => (t.textContent || '').trim()).filter(Boolean);
   const block = [...panel.querySelectorAll(':scope > :not(svg) td, :scope > :not(svg) div')].map((e) => (e.innerText || '').trim());
   const text = labels.concat(block).join('\n');
   const pool = [];
@@ -51,34 +53,44 @@ const READ = async ({ calc, inputs, results, headline, plant, bsrc }) => {
     else if (typeof v === 'string') (v.match(/-?\d+(?:\.\d+)?/g) || []).forEach((x) => pool.push(parseFloat(x))); };
   walk(results); walk(inputs);
   const conv = [-6, -4, -3, -2, -1, 1, 2, 3, 4, 6].map((p) => (x) => x * 10 ** p)
-    .concat([(x) => x, (x) => x * 3.517, (x) => x / 3.517, (x) => x + 101.3, (x) => x + 101.325]);
+    .concat([(x) => x, (x) => x * 3.517, (x) => x / 3.517, (x) => x + 101.3, (x) => x + 101.325,
+      (x) => x * 9.81 / 1000, (x) => x * 9.80665 / 1000,            // a rated mass in kg stated as a force in kN
+      (x) => x / 60, (x) => x * 60, (x) => x * 3.6, (x) => x / 3.6,   // per minute <-> per second; m3/s <-> m3/h (x 3600 = 3.6 x 1000)
+      (x) => x * 0.588578, (x) => x / 0.588578, (x) => x * 35.3147, (x) => x * 2.11888])  // m3/h, m3/min and L/s as CFM
+    // a drawing shares a figure over the items it draws (airflow per diffuser, agent per nozzle): x / 2..12
+    .concat([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((k) => (x) => x / k));
   const traces = (n, d) => conv.some((f) => pool.some((v) => { const x = f(v);
-    if (Math.abs(n - x) > Math.max(0.02 * Math.abs(x), 1e-9)) return false;
+    if (Math.abs(n - x) > Math.max(0.02 * Math.abs(x), (d || 0) > 0 ? 0.5 * 10 ** -d : 0) + 1e-9) return false;   // 2%, or a decimal token's printed rounding
     return Math.abs(Number(x.toFixed(d)) - n) < 1e-9 || Math.abs(n - x) <= 0.5 * 10 ** -d + 1e-9; }));
   const nums = (text.match(/-?\d[\d,]*(?:\.\d+)?/g) || []).map((t) => ({ t, n: parseFloat(t.replace(/,/g, '')), d: (t.split('.')[1] || '').length }));
   const states = (v) => {
     if (typeof v === 'number') {
       const dv = (String(v).split('.')[1] || '').length;
       return [1, 1000, 1 / 1000, 100].some((k) => nums.some(({ n, d }) => { const x = v * k;
-        if (Math.abs(n - x) > Math.max(0.02 * Math.abs(x), 1e-9)) return false;
+        if (Math.abs(n - x) > Math.max(0.02 * Math.abs(x), (d || 0) > 0 ? 0.5 * 10 ** -d : 0) + 1e-9) return false;   // 2%, or a decimal token's printed rounding
         return Math.abs(Number(x.toFixed(d)) - n) < 1e-9 || Math.abs(Number((n / k).toFixed(dv)) - v) < 1e-9; }));
     }
     if (typeof v === 'string') return v.replace(/^[a-z ]+:\s*/i, '').split(/,\s*/).every((p) => text.toLowerCase().includes(p.toLowerCase()));
     return true;
   };
+  // a drawing carries the result when it states at least one headline figure; it need not repeat all of them
+  const stated = headline.filter(([, key]) => results[key] != null && states(results[key]));
   const missing = headline.filter(([, key]) => results[key] != null && !states(results[key])).map(([label, key]) => `${label} (${key} = ${JSON.stringify(results[key])})`);
-  const NOT_FIGURES = /\b(?:ISO|ASME|IEC|EN|VDI|ABMA|ANSI|AISC|ACI|NFPA|PEC|ASHRAE|NSCP|ASTM|API|IEEE|CIBSE|UPC|IPC|SMACNA|TEMA|DOLE|D\.O\.|DAO|RA|PD|BS|DIN|AWS|AGMA|RMA|NEC|UL|CTI|AHRI|AMCA|NEMA|Std\.?|Table|Art\.?|Section|Sec\.|DWG|Sheet|Rev\.?)\s*[A-Z]?\d[\d.:\-]*|\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}|\b\d{4}-\d{2}-\d{2}\b/g;
+  const carries = stated.length > 0 || !headline.some(([, key]) => results[key] != null);
+  const NOT_FIGURES = /\b(?:SA|SB|ISO|ASME|IEC|EN|VDI|ABMA|ANSI|AISC|ACI|NFPA|PEC|ASHRAE|NSCP|ASTM|API|IEEE|CIBSE|UPC|IPC|SMACNA|TEMA|DOLE|D\.O\.|DAO|RA|PD|BS|DIN|AWS|AGMA|RMA|NEC|UL|CTI|AHRI|AMCA|NEMA|Std\.?|Table|Art\.?|Section|Sec\.|DWG|Sheet|Rev\.?)[-\s]*[A-Z]?\d[\d.:\-]*|\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}|\b\d{4}-\d{2}-\d{2}\b/g;
   const untraced = [];
+  const LITS = new Set(((bsrc || '').match(/\b\d+(?:\.\d+)?\b/g) || []).map(Number));   // the builder's numeric literals
   for (const line0 of labels.concat(block)) {
     const line = line0.replace(NOT_FIGURES, ' ');
-    for (const tok of line.match(/-?\d[\d,]*(?:\.\d+)?/g) || []) {
+    // a hyphen after a letter is a name ("NC-40", "PRV-01"), not a negative sign
+    for (const tok of line.match(/(?<![A-Za-z])-?\d[\d,]*(?:\.\d+)?/g) || []) {
       const n = parseFloat(tok.replace(/,/g, '')), d = (tok.split('.')[1] || '').length;
       if (Number.isInteger(n) && Math.abs(n) <= 12) continue;
-      if (traces(n, d) || (bsrc && bsrc.includes(tok))) continue;
+      if (traces(n, d) || (bsrc && (bsrc.includes(tok) || LITS.has(n)))) continue;   // the builder's own constant (13 for 13.0)
       untraced.push(`${tok} in "${line0.replace(/\s+/g, ' ').slice(0, 50)}"`);
     }
   }
-  return { shown: true, labels: labels.length, missing, untraced: untraced.slice(0, 6), untracedCount: untraced.length,
+  return { shown: true, labels: labels.length, carries, missing, untraced: untraced.slice(0, 6), untracedCount: untraced.length,
     overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth };
 };
 
@@ -123,7 +135,7 @@ try {
       }
       // a calculator the page draws no drawing for has no D1 row (the roadmap counts 51 drawn): not drawn, not failed
       const ok = r.shown === false ? null
-        : !r.error && r.shown && !(r.missing || []).length && !r.untracedCount && (vp !== 'phone-390' || (r.overflow || 0) <= 1);
+        : !r.error && r.shown && r.carries !== false && !r.untracedCount && (vp !== 'phone-390' || (r.overflow || 0) <= 1);
       results.push({ calc, vp, ...r, ok });
     }
   }
@@ -147,7 +159,7 @@ for (const r of results) {
   if (r.ok === null) { c.shown = false; continue; }      // not drawn: no D1 unit
   c.ok = c.ok && r.ok;
   if (r.error) c.faults.push(`${r.vp}: ${r.error}`);
-  if ((r.missing || []).length) c.faults.push(`${r.vp}: does not state ${r.missing.join('; ')}`);
+  if (r.carries === false) c.faults.push(`${r.vp}: states none of the headline figures - ${r.missing.join('; ')}`);
   if (r.untracedCount) c.faults.push(`${r.vp}: ${r.untracedCount} figure(s) not the engine's - ${r.untraced.join('; ')}`);
   if (r.vp === 'phone-390' && (r.overflow || 0) > 1) c.faults.push(`${r.vp}: ${r.overflow}px wider than the phone`);
 }

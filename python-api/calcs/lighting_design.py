@@ -286,6 +286,10 @@ def calculate(inputs: dict) -> dict:
 
         # Luminaire design
         "luminaire_type":      lum_key,
+        # the drawing's "E_min (est. 65% of E_avg)": the lumen method gives an average only, so the minimum is an assumed
+        # uniformity U0 = 0.65 (EN 12464-1 asks U0 >= 0.60 for offices) - stated here, with its basis, not in the drawing
+        "uniformity_assumed":  0.65,
+        "E_min_est_lux":       round(E_achieved * 0.65),
         "lamp_lumens":         lamp_lumens,
         "watts_per_fixture":   watts_per_fix,
         "N_exact":             round(N_exact, 2),

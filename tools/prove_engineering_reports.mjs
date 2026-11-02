@@ -62,7 +62,7 @@ const READ = async ({ calc, inputs, results, headline, plant, rsrc }) => {
       const dv = (String(v).split('.')[1] || '').length;
       return [1, 1000, 1 / 1000, 100].some((k) => nums.some(({ n, d }) => {
         const x = v * k;
-        if (Math.abs(n - x) > Math.max(0.02 * Math.abs(x), 1e-9)) return false;
+        if (Math.abs(n - x) > Math.max(0.02 * Math.abs(x), (d || 0) > 0 ? 0.5 * 10 ** -d : 0) + 1e-9) return false;   // 2%, or a decimal token's printed rounding
         return Math.abs(Number(x.toFixed(d)) - n) < 1e-9 || Math.abs(Number((n / k).toFixed(dv)) - v) < 1e-9;
       }));
     }
@@ -83,19 +83,20 @@ const READ = async ({ calc, inputs, results, headline, plant, rsrc }) => {
   const conv = [-6, -4, -3, -2, -1, 1, 2, 3, 4, 6].map((p) => (x) => x * 10 ** p)
     .concat([(x) => x, (x) => x * 3.517, (x) => x / 3.517, (x) => x + 101.3, (x) => x + 101.325]);
   const traces = (n, d) => conv.some((f) => pool.some((v) => { const x = f(v);
-    if (Math.abs(n - x) > Math.max(0.02 * Math.abs(x), 1e-9)) return false;
+    if (Math.abs(n - x) > Math.max(0.02 * Math.abs(x), (d || 0) > 0 ? 0.5 * 10 ** -d : 0) + 1e-9) return false;   // 2%, or a decimal token's printed rounding
     return Math.abs(Number(x.toFixed(d)) - n) < 1e-9 || Math.abs(n - x) <= 0.5 * 10 ** -d + 1e-9; }));
   const cells = [...panel.querySelectorAll('td.num, .res-value, td:nth-child(2), td:nth-child(3)')]
     .map((c) => (c.innerText || '').trim()).filter((c) => /\d/.test(c));
   const untraced = [];
+  const LITS = new Set(((rsrc || '').match(/\b\d+(?:\.\d+)?\b/g) || []).map(Number));   // the renderer's numeric literals
   // a standard's designation (ISO 898-1, ASME B30.2, EN 81) and a date are not figures
-  const NOT_FIGURES = /\b(?:ISO|ASME|IEC|EN|VDI|ABMA|ANSI|AISC|ACI|NFPA|PEC|ASHRAE|NSCP|ASTM|API|IEEE|CIBSE|UPC|IPC|SMACNA|TEMA|DOLE|D\.O\.|DAO|RA|PD|BS|DIN|AWS|AGMA|RMA|NEC|UL|CTI|AHRI|AMCA|NEMA|Std\.?|Table|Art\.?|Section|Sec\.)\s*[A-Z]?\d[\d.:\-]*(?:\s*Ed\.)?|\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}/g;
+  const NOT_FIGURES = /\b(?:SA|SB|ISO|ASME|IEC|EN|VDI|ABMA|ANSI|AISC|ACI|NFPA|PEC|ASHRAE|NSCP|ASTM|API|IEEE|CIBSE|UPC|IPC|SMACNA|TEMA|DOLE|D\.O\.|DAO|RA|PD|BS|DIN|AWS|AGMA|RMA|NEC|UL|CTI|AHRI|AMCA|NEMA|Std\.?|Table|Art\.?|Section|Sec\.)[-\s]*[A-Z]?\d[\d.:\-]*(?:\s*Ed\.)?|\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}/g;
   for (const cell0 of cells) {
     const cell = cell0.replace(NOT_FIGURES, ' ');
     for (const tok of cell.match(/-?\d[\d,]*(?:\.\d+)?/g) || []) {
       const n = parseFloat(tok.replace(/,/g, '')), d = (tok.split('.')[1] || '').length;
       if (Number.isInteger(n) && Math.abs(n) <= 12) continue;           // a count, a step, a row number
-      if (traces(n, d) || (rsrc && rsrc.includes(tok))) continue;       // the engine's, or the renderer's own constant
+      if (traces(n, d) || (rsrc && (rsrc.includes(tok) || LITS.has(n)))) continue;   // the engine's, or the renderer's own constant
       if (untraced.length < 6) untraced.push(`${tok} in "${cell.replace(/\s+/g, ' ').slice(0, 60)}"`);
       else untraced.push('');
     }

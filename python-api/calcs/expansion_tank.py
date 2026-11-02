@@ -151,6 +151,10 @@ def calculate(inputs: dict) -> dict:
         "precharge_kpa_g":     precharge_kpa_g,
         "fill_pressure_kpa_g": fill_pressure_kpa_g,
         "max_pressure_kpa_g":  max_press_kpa_g,
+        # the relief valve setting the report and the drawing print: 15% above the maximum operating pressure at the tank,
+        # never above the tank's own rating (MAWP). The drawing had called this "115% MAWP" - a relief set above MAWP is
+        # what ASME VIII UG-134 forbids; it is a margin over the OPERATING pressure.
+        "relief_set_kpa_g":    round(max_press_kpa_g * 1.15),
         "acceptance_factor":   round(alpha,             3),
         "acceptance_check":    alpha_check,
         "required_volume_L":   round(required_volume_l, 2),
