@@ -84,7 +84,9 @@
     .badge-unverified { padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; background: rgba(251,191,36,0.1); color:var(--wh-orange-text); border: 1px solid rgba(251,191,36,0.25); }
 
     /* Profile stats grid */
-    .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }   /* three tiles, three tracks: the 4th was removed with its Avg Reply tile and the count was not */
+    /* minmax(0, 1fr): at 200% text a tile's figure held its 1fr track wider than the card, and body's overflow-x:hidden
+       cut the row off unseen (OWN text grows, 2026-11-02); the tiles now keep their thirds and the figures wrap */
+    .profile-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }   /* three tiles, three tracks: the 4th was removed with its Avg Reply tile and the count was not */
     /* ★PROSE MEASURE (craft lens, 2026-09-18, MEASURED). 52ch, not 70ch: `ch` is the advance of the
        ZERO glyph and Poppins' lowercase runs ~1.37x narrower, so 70ch holds ~95 real letters and
        52ch holds ~71 - inside the 65-75 band. Measured before: three blocks at 137, 132 and 115
@@ -99,7 +101,7 @@
     .ps-next, #cw-note, #auth-gate p, .empty-state p, .seller-intro-p, .cert-note {
       max-width: 48ch;
     }
-    .pstat { text-align: center; background: rgba(0,0,0,0.2); border-radius: var(--wh-radius); padding: 0.75rem 0.375rem; }
+    .pstat { text-align: center; background: rgba(0,0,0,0.2); border-radius: var(--wh-radius); padding: 0.75rem 0.375rem; min-width: 0; overflow-wrap: anywhere; }
     /* TEXT tier, not the FILL tier -- the fourth instance of this on this page (see the seller
        initials at :67). var(--wh-orange,#F7A21B) on the dark card scores APCA Lc 59.5 against the Lc 60 floor for
        19px/800, so all three stat numbers missed by half a point while WCAG passed them at 7.56.
@@ -488,7 +490,7 @@
 
     <!-- Certifications input — admin verifies before the Certified badge shows -->
     <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
-      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
         <span class="ic ic-star" aria-hidden="true"></span>
         <h2 data-i="p_certifications_b65e" id="cert-input-label" style="font-size:0.875rem;font-weight:700;margin:0;">Certifications</h2>
         <span data-i="p_notverified_fbc0" id="cert-status-pill" style="margin-left:auto;font-size: 0.75rem;padding:0.125rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:var(--wh-steel-bright);">Not verified</span>

@@ -471,6 +471,11 @@ html { scrollbar-gutter: stable; }
    67px pill. If a pill is wider than its row the fix is the text or the row (the phone-fit prover reports the spill), never a
    second line. .tag (131 uses, some are paragraphs) is deliberately excluded. */
 .pill, .badge, .chip, [class$="-pill"], [class*="-pill "], .status-badge, .sev-chip, .presence-chip, .meta-chip, .cat-chip, .cat-badge { white-space: nowrap; }
+/* ...except the one chip that carries a sentence's worth: "P5,706.96 credits back" at 200% text (OWN text grows, 2026-11-02) is
+   wider than a phone's card, and the card's overflow:hidden cut it off. An ellipsis would hide "credits back" - the
+   meaning - so it wraps inside its container instead. The P-M rule above still holds wherever one line fits (every normal
+   size): this wraps only where no single line can fit at all, and WCAG 1.4.4 forbids losing the words. */
+.cat-chip.credits-back { white-space: normal; max-width: 100%; }
 /* every *-pill class is a pill (header-pill broke 'Read-only' at its hyphen on public-feed); *-chip is NOT generalised - see the source-chip note */
 /* NOT .wh-source-chip: it is a SENTENCE ('Live · contacts refreshed on load, history on load') - nowrap made report-sender and
    shift-brain lay their whole column out 1067px / 802px wide on a phone within minutes of the rule landing (2026-09-06). */

@@ -35,9 +35,16 @@ export const measure = () => {
   // a lost capability, and the same name under a different element is not a loss at all.
   // ★AN UNNAMED CONTROL IS EXCLUDED, not silently passed: it cannot be tracked by name, and "this
   // button has no name" is `icon_only_name`'s finding to make, not this oracle's.
+  // ★A SKIPPED ROW HAS NO innerText (2026-11-02, prove_text_grows). Long lists render off-screen rows with
+  // content-visibility (utils.js whRenderRows long:true); a row the browser skips returns "" for innerText, so at 200%
+  // text - when project-manager's four cards moved below the fold - each read as an UNNAMED control and was reported
+  // "lost". The cards were in the DOM, visible, clickable and in the accessibility tree. textContent does not depend on
+  // rendering; a genuinely hidden control is already out by `shown` below. It is the ONLY text source, so the before
+  // and after readings compare like with like (a rendered innerText against a raw textContent would differ by spacing
+  // and hidden spans, and every skipped row would read as a lost one again).
   const nameOf = (el) => {
     const img = el.querySelector && el.querySelector('img[alt]');
-    return (el.getAttribute('aria-label') || el.title || (el.innerText || '').trim()
+    return (el.getAttribute('aria-label') || el.title || (el.textContent || '').trim()
       || (img && img.alt) || el.getAttribute('name') || el.value || '').replace(/\s+/g, ' ').trim();
   };
   const CTRL = 'button, a[href], input, select, textarea, [role="button"], [role="tab"], [onclick]';
@@ -48,7 +55,18 @@ export const measure = () => {
     const shown = vis(el);
     // Reachable = inside the document's scrollable extent. A box at x=3000 on a page that only
     // scrolls to 640 is a control nobody can get to.
-    const offRight = Math.round(r.left + window.scrollX - de.scrollWidth);
+    // ★...OR INSIDE ITS OWN SCROLLER'S EXTENT (2026-11-02, prove_text_grows): the learn index's topic chips live in a
+    // horizontal strip (overflow-x:auto); at 200% text "AI" and "Platform" began past the PAGE's scroll width and read as
+    // lost, though one swipe of the strip - or one Tab, which scrolls it - reaches them. A control is unreachable only
+    // when it lies past the extent of the nearest box that can scroll it into view.
+    let scroller = null;
+    for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) {
+      const ox = getComputedStyle(n).overflowX;
+      if (ox === 'auto' || ox === 'scroll') { scroller = n; break; }
+    }
+    const offRight = scroller
+      ? Math.round(r.left - scroller.getBoundingClientRect().left + scroller.scrollLeft - scroller.scrollWidth)
+      : Math.round(r.left + window.scrollX - de.scrollWidth);
     controls[key(el)] = { shown, w: Math.round(r.width), h: Math.round(r.height), offRight };
     const n = nameOf(el).slice(0, 60);
     if (n && shown && offRight <= 4) names[n] = (names[n] || 0) + 1;

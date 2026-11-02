@@ -118,6 +118,11 @@
 
     /* ── Chips ── */
     .chips-grid { display: flex; flex-wrap: wrap; gap: 0.625rem; }
+    /* THESE .chip ARE CARDS, NOT PILLS: tokens.css holds every .chip to one line (the P-M pill rule), and this page's
+       report cards carry a name AND a sentence ("current status as of this report"). Held to one line, #main-card's
+       overflow-x:hidden cut 161px of it at 200% text (OWN text grows, 2026-11-02). The id outranks the global rule. */
+    #chips-grid .chip { white-space: normal; max-width: 100%; }
+    #chips-grid .chip-label { min-width: 0; overflow-wrap: break-word; }
     .chip {
       flex: 1 1 auto;
       min-width: calc(50% - 0.625rem);

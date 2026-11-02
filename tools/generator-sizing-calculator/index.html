@@ -25,6 +25,12 @@
        the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
     h1, h2, h3, h4 { overflow-wrap: break-word; hyphens: auto; }
     p, li, dd, dt, blockquote, figcaption, summary { overflow-wrap: break-word; }   /* a bare URL in a sentence, too */
+    /* the byline row wraps, and the author card's text column may shrink: a flex item never shrinks below its longest word
+       (break-word does not lower that floor), so an e-mail address held the card 87px past a 390 phone at 200% text */
+    .flex.items-center.gap-3.text-xs { flex-wrap: wrap; row-gap: 0.25rem; } .author-card .meta { min-width: 0; }
+    /* an FAQ question is ONE sentence: as a flex row, an <abbr> inside it became its own column ("Do I need to buy a | CMMS |
+       to start..."), which at 200% text ran a phone 196px sideways. Block text, the +/- marker floated to the right. */
+    details.faq-item summary { display: block; } details.faq-item summary::after { float: right; margin-left: 14px; }   /* outranks the later flex rule */
   </style>
 <title>Generator Sizing Calculator: Free Online + Worked Example | WorkHive</title>
 <meta name="description" content="The Generator Sizing Calculator finds the standby genset kVA for a load, accounting for the largest motor&#x27;s starting kVA surge. Free online, with a worked example. Built for Philippine plants by WorkHive.">
