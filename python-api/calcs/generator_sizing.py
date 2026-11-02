@@ -26,7 +26,7 @@ import math
 
 GEN_CLASSES: dict[str, dict] = {
     "G1": {"vdip_pct": 25, "hz_dev_pct": 5,   "description": "Non-critical (lighting, heating)"},
-    "G2": {"vdip_pct": 15, "hz_dev_pct": 2.5, "description": "General (motors, pumps, lifts)"},
+    "G2": {"vdip_pct": 20, "hz_dev_pct": 2.5, "description": "General (motors, pumps, lifts)"},   # ISO 8528-5: -20% (was 15)
     "G3": {"vdip_pct": 10, "hz_dev_pct": 0.5, "description": "Critical (hospital, UPS input, telecoms)"},
     "G4": {"vdip_pct":  5, "hz_dev_pct": 0.25,"description": "Special (precision process control)"},
 }
@@ -199,8 +199,14 @@ def calculate(inputs: dict) -> dict:
         kva_during_start  = demand_kva
         vdip_per_unit     = gen_xd_pct / 100
 
-    # ── Governing kVA (larger of steady or start) ─────────────────────────────
-    required_kva_governing = max(required_kva_steady, kva_during_start)
+    # ── Governing kVA (larger of steady, start, or the start that holds the class's voltage dip) ─────────
+    # ★THE RECOMMENDED SET FAILED ITS OWN DIP CHECK (2026-11-02, ED-G1 Generator, read against the guide): the size was the
+    # larger of steady and running-plus-start kVA, and the dip X''d x start / gen was only CHECKED - a 30 kW DOL motor got
+    # 250 kVA dipping 23.5% against the class limit, flagged and left. The set must be big enough that the largest motor's
+    # start stays within the class: gen >= X''d x start kVA / limit (G2 -20%, ISO 8528-5).
+    vdip_limit_cls = GEN_CLASSES.get(gen_class, GEN_CLASSES["G2"])["vdip_pct"]
+    kva_for_dip = (start_kva * (gen_xd_pct / 100) / (vdip_limit_cls / 100)) if largest_motor_kw > 0 else 0.0
+    required_kva_governing = max(required_kva_steady, kva_during_start, kva_for_dip)
 
     # Account for derating: installed_kVA = required / derate
     installed_kva_needed = required_kva_governing / max(derate, 0.50)
@@ -262,6 +268,7 @@ def calculate(inputs: dict) -> dict:
         # Generator sizing
         "required_kVA_steady":     round(required_kva_steady, 2),
         "motor_start_kVA":         start_kva,
+        "kVA_for_voltage_dip":     round(kva_for_dip, 2),
         "kVA_during_start":        round(kva_during_start, 2),
         "required_kVA_governing":  round(required_kva_governing, 2),
         "installed_kVA_needed":    round(installed_kva_needed, 2),

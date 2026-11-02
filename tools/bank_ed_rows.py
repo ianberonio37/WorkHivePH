@@ -273,6 +273,16 @@ ENGINE_CHECKED["Lightning Protection System (LPS)"] = (
     "Figure 3 - now said so, in the guide and the report - and its earthing tip predated the Type A/B behaviour. Field "
     "names are the form's (Building Length / Width / Height, Lightning Protection Level, Custom Ng). Read in the page by "
     "the guide prover at 390 and 1280; the earthing walk is ED352's.")
+ENGINE_CHECKED["Generator Sizing"] = (
+    "FOUND AND FIXED, read against python-api/calcs/generator_sizing.py: the guide said 'Design kVA = max(running, "
+    "starting) x safety factor'; the engine sized on the larger of steady and running-plus-start kVA and only CHECKED the "
+    "motor-start dip X''d x start kVA / gen kVA - so the set it recommended failed its own check: a 10 hp DOL motor got "
+    "62.5 kVA dipping 23.4%, a 40 hp one 250 kVA dipping 23.5%. Now the set is also sized so the dip holds the class: gen "
+    ">= X''d x start / limit; and G2 is ISO 8528-5's -20% (Cummins / Avtron tables; the engine had 15%, stricter than the "
+    "standard). 10 hp -> 75 kVA at 19.5%. The guide states the three-way sizing; field names are the form's (Connected "
+    "Load Schedule, Largest Motor (DOL Start), System Configuration, Overall Power Factor), and the starting-method field "
+    "the form never had is gone. The vector fails on the old engine; walked on the served page at 390 (10 hp): source "
+    "python, 'Next standard size >= 73.14 kVA -> 75 kVA'.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

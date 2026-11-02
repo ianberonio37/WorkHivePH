@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-01",
+ "updated": "2026-11-02",
  "note": "guides whose fields match their form exactly - a guide on this list that fails again is a regression",
  "passing": [
   "Bearing Life (L10)",
@@ -10,6 +10,7 @@
   "Drainage Pipe Sizing",
   "Duct Sizing (Equal Friction)",
   "Fire Alarm Battery",
+  "Generator Sizing",
   "Grease Trap Sizing",
   "Harmonic Distortion",
   "Hoist Capacity",

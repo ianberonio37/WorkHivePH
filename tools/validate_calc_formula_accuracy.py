@@ -895,6 +895,22 @@ VECTORS = [
         ],
     },
     {
+        # ★THE SET FAILED ITS OWN DIP CHECK (2026-11-02, ED-G1 Generator, read against the guide): the engine only flagged the
+        # largest motor's start dip, never sized for it - a 10 hp DOL motor got 62.5 kVA dipping 23.4%. Fails on that engine.
+        "module": "calcs.generator_sizing",
+        "calc_type": "Generator Sizing - the set holds the motor-start voltage dip (ISO 8528-5 G2)",
+        "standard": "ΔV = X''d × start kVA / gen kVA ≤ class limit (G2 -20%, ISO 8528-5:2018); X''d 25%",
+        "inputs": {"phase_config": "3-phase", "power_factor": 0.8, "motor_hp": 10,
+                   "loads": [{"load_type": "Lighting (General)", "quantity": 10, "watts_each": 40, "power_factor": 0.95}]},
+        "asserts": [
+            {"path": "motor_start_kVA", "expected": 58.51, "tol": 0.05,
+             "note": "10 hp = 7.46 kW; 7.46 / (0.85 · 0.90) × 6 (DOL) = 58.51 kVA"},
+            {"path": "recommended_kVA", "expected": 75, "tol": 0,
+             "note": "0.25 · 58.51 / 0.20 = 73.1 kVA → 75 kVA (the old engine: 62.5, dipping 0.25 · 58.51 / 62.5 = 23.4%)"},
+            {"path": "vdip_ok", "expected": True, "tol": 0, "note": "0.25 · 58.51 / 75 = 19.5% ≤ 20%"},
+        ],
+    },
+    {
         "module": "calcs.ups_sizing",
         "calc_type": "UPS Sizing",
         "standard": "IEEE 1184 — load_kVA = load_kW / PF; recommended UPS >= minimum kVA",

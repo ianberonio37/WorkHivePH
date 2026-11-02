@@ -1173654,8 +1173654,8 @@
     },
     {
       "id": "ED117",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Generator Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1173709,6 +1173709,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Generator Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/generator_sizing.py: the guide said 'Design kVA = max(running, starting) x safety factor'; the engine sized on the larger of steady and running-plus-start kVA and only CHECKED the motor-start dip X''d x start kVA / gen kVA - so the set it recommended failed its own check: a 10 hp DOL motor got 62.5 kVA dipping 23.4%, a 40 hp one 250 kVA dipping 23.5%. Now the set is also sized so the dip holds the class: gen >= X''d x start / limit; and G2 is ISO 8528-5's -20% (Cummins / Avtron tables; the engine had 15%, stricter than the standard). 10 hp -> 75 kVA at 19.5%. The guide states the three-way sizing; field names are the form's (Connected Load Schedule, Largest Motor (DOL Start), System Configuration, Overall Power Factor), and the starting-method field the form never had is gone. The vector fails on the old engine; walked on the served page at 390 (10 hp): source python, 'Next standard size >= 73.14 kVA -> 75 kVA'. WALKED: Generator Sizing's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T00:12:27Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
