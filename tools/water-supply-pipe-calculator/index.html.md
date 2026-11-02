@@ -6,7 +6,7 @@ Source: https://workhiveph.com/tools/water-supply-pipe-calculator/
 
 Water Supply Pipe Sizing Calculator
  G1+E3 
-**The Water Supply Pipe Sizing Calculator turns the water fixture units (WFU) into a peak flow, sizes the pipe on velocity, then checks the pressure left at the far fixture. Example: for a flush-valve supply serving 10 WCs and 8 lavatories over 40 m, on a 350 kPa supply, Total WFU = 108, Peak flow = 76.1 L/min, Recommended diameter = 32 mm, Velocity = 1.58 m/s, Residual pressure = 311.5 kPa, Minimum residual = 70 kPa (per Philippine Plumbing Code Table A-2/A-3).**
+**The Water Supply Pipe Sizing Calculator turns the water fixture units (WFU) into a peak flow, sizes the pipe on velocity, then checks the pressure left at the far fixture. Example: for a flush-valve supply serving 10 WCs and 8 lavatories over 40 m, on a 350 kPa supply, Total WFU = 108, Peak flow = 263.8 L/min, Recommended diameter = 50 mm, Velocity = 2.24 m/s, Residual pressure = 306.1 kPa, Minimum residual = 70 kPa (per Philippine Plumbing Code Table A-2/A-3).**
 How it works
 The calculator follows Philippine Plumbing Code Table A-2/A-3. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
@@ -14,10 +14,10 @@ Worked example (Plumbing & Pumps)
 Inputs: a flush-valve supply serving 10 WCs and 8 lavatories over 40 m, on a 350 kPa supply.
 ResultValue
 Total WFU108
-Peak flow76.1 L/min
-Recommended diameter32 mm
-Velocity1.58 m/s
-Residual pressure311.5 kPa
+Peak flow263.8 L/min
+Recommended diameter50 mm
+Velocity2.24 m/s
+Residual pressure306.1 kPa
 Minimum residual70 kPa
 Computed by WorkHive's calculation engine when this page was built; standard: Philippine Plumbing Code Table A-2/A-3.
 How to use this calculator
@@ -39,4 +39,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 4cbb4d9daf7bac79 -->
+<!-- md-twin source-sha: fdc2900affd0d159 -->

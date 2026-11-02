@@ -2209,6 +2209,25 @@ VECTORS = [
         ],
     },
     {
+        # ★THE HUNTER CURVE WAS A THIRD OF HUNTER'S (2026-11-02, ED-G1 Water Supply). Fails on that engine (0.85 L/s, 25 mm).
+        "module": "calcs.water_supply_pipe",
+        "calc_type": "Water Supply Pipe Sizing - a flush-tank building on Hunter's tank branch",
+        "standard": "IPC Table E103.3(3) flush tanks; Hazen-Williams hf = 10.67·L·Q^1.852/(C^1.852·D^4.87)",
+        "inputs": {"pipe_material": "PVC", "pipe_length": 30, "supply_pressure": 350, "min_pressure": 70,
+                   "fittings_allowance": 20, "fixtures": [
+                       {"fixture_type": "Water Closet (Flush Tank)", "quantity": 10},
+                       {"fixture_type": "Lavatory / Hand Sink", "quantity": 10},
+                       {"fixture_type": "Shower Head", "quantity": 5}]},
+        "asserts": [
+            {"path": "total_wfu", "expected": 50, "tol": 0, "note": "10 x 3 + 10 x 1 + 5 x 2 = 50 WFU"},
+            {"path": "peak_lps", "expected": 1.836, "tol": 0.002, "note": "flush-tank branch: 50 WFU = 29.1 gpm x 0.0630902 = 1.836 L/s (it gave 0.85)"},
+            {"path": "recommended_dia_mm", "expected": 32, "tol": 0,
+             "note": "25 mm: 1.836e-3 / 4.909e-4 = 3.74 m/s > 2.5; 32 mm: / 8.042e-4 = 2.28 m/s (it sized 25 mm)"},
+            {"path": "press_drop_kpa", "expected": 57.4, "tol": 0.2,
+             "note": "hf = 10.67 x 8.57e-6 / (10,708 x 5.25e-8) = 0.1627 m/m x 30 x 1.20 = 5.86 m x 9.81 = 57.4 kPa"},
+        ],
+    },
+    {
         "module": "calcs.water_supply_pipe",
         "calc_type": "Water Supply Pipe Sizing",
         "standard": "PPC Hunter WFU → peak L/s (Table A-3 curve); H-W C-factor",
@@ -2218,8 +2237,8 @@ VECTORS = [
         "asserts": [
             {"path": "total_wfu", "expected": 120, "tol": 0,
              "note": "ΣWFU·qty = 10·10 (WC flush-valve) + 1·20 (lavatory) = 120 (PPC Table A-2)"},
-            {"path": "peak_lps", "expected": 1.34, "tol": 0.005,
-             "note": "Hunter PPC A-3 lerp at 120 WFU: 1.22 + (20/50)·(1.52−1.22) = 1.34 L/s"},
+            {"path": "peak_lps", "expected": 4.606, "tol": 0.005,
+             "note": "flush valves present -> Hunter's flush-valve branch, IPC Table E103.3(3): 120 WFU = 73.0 gpm x 0.0630902 = 4.606 L/s (re-derived 2026-11-02: this pinned 1.34 from a curve a third of Hunter's)"},
             {"path": "C_factor", "expected": 150, "tol": 0,
              "note": "PVC Hazen-Williams coefficient C=150 (PPC Appendix A)"},
         ],

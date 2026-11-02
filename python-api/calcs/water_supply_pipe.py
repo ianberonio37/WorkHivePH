@@ -37,13 +37,25 @@ FIXTURE_UNITS: dict[str, dict] = {
     "Custom":                     {"wfu": 0,  "pfr_lpm": 0,    "type": "both"},
 }
 
-# ── Hunter's curve: WFU → peak design flow (L/s) — PPC Table A-3 ─────────────
-HUNTERS_CURVE: list[tuple[float, float]] = [
-    (1, 0.10), (2, 0.13), (3, 0.16), (5, 0.22), (10, 0.32),
-    (20, 0.50), (30, 0.65), (40, 0.76), (50, 0.85), (75, 1.05),
-    (100, 1.22), (150, 1.52), (200, 1.79), (300, 2.25), (400, 2.65),
-    (500, 3.00), (750, 3.66), (1000, 4.20), (1500, 5.00), (2000, 5.70),
+# ── Hunter's curve: WFU -> peak design flow - IPC Table E103.3(3) (gpm) ─────────
+# ★THE CURVE WAS A THIRD OF HUNTER'S (2026-11-02, ED-G1 Water Supply, read against the guide's "Hunter's Curve"): it
+# gave 10 WFU 0.32 L/s, 100 WFU 1.22 L/s, 1000 WFU 4.20 L/s - Hunter's flush-tank branch is 14.6 / 43.5 / 208 gpm
+# (0.92 / 2.74 / 13.1 L/s), and a flush-valve system peaks higher still. Every main was sized for about a third of its
+# probable demand. Both of Hunter's branches now (the flush-valve column is the one calcs/domestic_water.py carries,
+# oracle-verified); a system with any flush-valve fixture takes the flush-valve branch.
+HUNTER_TANK_GPM: list[tuple[float, float]] = [
+    (1, 3.0), (2, 5.0), (3, 6.5), (4, 8.0), (5, 9.4), (6, 10.7), (8, 12.8), (10, 14.6), (15, 17.5), (20, 19.6),
+    (25, 21.5), (30, 23.3), (40, 26.3), (50, 29.1), (60, 32.0), (80, 38.0), (100, 43.5), (120, 48.0), (140, 52.5),
+    (160, 57.0), (200, 65.0), (250, 75.0), (300, 85.0), (400, 105.0), (500, 124.0), (750, 170.0), (1000, 208.0),
+    (1500, 269.0), (2000, 325.0),
 ]
+HUNTER_VALVE_GPM: list[tuple[float, float]] = [
+    (5, 15.0), (10, 27.0), (15, 31.0), (20, 35.0), (25, 38.0), (30, 42.0), (40, 46.0), (50, 50.0), (60, 54.0),
+    (80, 61.2), (100, 67.5), (120, 73.0), (140, 77.0), (160, 81.0), (200, 90.0), (250, 101.0), (300, 108.0),
+    (400, 127.0), (500, 143.0), (750, 177.0), (1000, 208.0), (1500, 269.0), (2000, 325.0),
+]
+GPM_TO_LPS = 0.0630902
+FLUSH_VALVE_FIXTURES = ("Water Closet (Flush Valve)", "Urinal (Flush Valve)")
 
 # ── Hazen-Williams C-factors (PPC Appendix A) ─────────────────────────────────
 PIPE_C_VALUES: dict[str, int] = {
@@ -55,20 +67,21 @@ PIPE_C_VALUES: dict[str, int] = {
 PIPE_SIZES_MM = [15, 20, 25, 32, 40, 50, 65, 80, 100, 125, 150, 200, 250, 300]
 
 
-def _hunter_lps(total_wfu: float) -> float:
+def _hunter_lps(total_wfu: float, flush_valve: bool = False) -> float:
     if total_wfu <= 0:
         return 0.0
-    if total_wfu <= HUNTERS_CURVE[0][0]:
-        return HUNTERS_CURVE[0][1]
-    if total_wfu >= HUNTERS_CURVE[-1][0]:
-        return HUNTERS_CURVE[-1][1]
-    for i in range(len(HUNTERS_CURVE) - 1):
-        w0, q0 = HUNTERS_CURVE[i]
-        w1, q1 = HUNTERS_CURVE[i + 1]
-        if w0 <= total_wfu <= w1:
-            t = (total_wfu - w0) / (w1 - w0)
-            return q0 + t * (q1 - q0)
-    return 0.0
+    pts = HUNTER_VALVE_GPM if flush_valve else HUNTER_TANK_GPM
+    if total_wfu <= pts[0][0]:
+        gpm = pts[0][1]
+    elif total_wfu >= pts[-1][0]:
+        (w0, q0), (w1, q1) = pts[-2], pts[-1]
+        gpm = q1 + (q1 - q0) / (w1 - w0) * (total_wfu - w1)
+    else:
+        for (w0, q0), (w1, q1) in zip(pts, pts[1:]):
+            if w0 <= total_wfu <= w1:
+                gpm = q0 + (q1 - q0) * (total_wfu - w0) / (w1 - w0)
+                break
+    return gpm * GPM_TO_LPS
 
 
 def _hw_hf_per_m(flow_m3s: float, dia_m: float, C: float) -> float:
@@ -108,7 +121,8 @@ def calculate(inputs: dict) -> dict:
     total_wfu = sum(f["total_wfu"] for f in fixture_breakdown)
 
     # ── Hunter peak flow ──────────────────────────────────────────────────────
-    peak_lps  = _hunter_lps(total_wfu)
+    flush_valve = any(f["fixture"] in FLUSH_VALVE_FIXTURES and f["qty"] > 0 for f in fixture_breakdown)
+    peak_lps  = _hunter_lps(total_wfu, flush_valve)
     peak_lpm  = peak_lps * 60.0
     peak_m3hr = peak_lps * 3.6
     flow_m3s  = peak_lps / 1000.0
@@ -149,6 +163,7 @@ def calculate(inputs: dict) -> dict:
     return {
         "total_wfu":           total_wfu,
         "peak_lps":            round(peak_lps,  3),
+        "hunter_branch":       "flush valve" if flush_valve else "flush tank",
         "peak_lpm":            round(peak_lpm,  1),
         "peak_m3hr":           round(peak_m3hr, 2),
         "recommended_dia_mm":  rec["d_mm"],

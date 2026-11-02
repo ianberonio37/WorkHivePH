@@ -111,6 +111,10 @@
   "content_sha": "eb81757bffa9e9ed",
   "stamped": "2026-11-02"
  },
+ "tools/water-supply-pipe-calculator": {
+  "content_sha": "75be97ade180df79",
+  "stamped": "2026-11-02"
+ },
  "tools/wire-sizing-calculator": {
   "content_sha": "491a229babb9b691",
   "stamped": "2026-11-02"

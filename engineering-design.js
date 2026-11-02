@@ -928,24 +928,28 @@ const GUIDES = {
     formulas: [
       "Total WFU = sum of (WFU per fixture x quantity)",
       "",
-      "Hunter's Curve: WFU to peak flow:",
-      "Peak flow (L/s) = interpolated from HUNTERS_CURVE piecewise table",
-      "(Based on Roy B. Hunter's empirical data, adopted by UPC/PPC)",
+      "Hunter's Curve: WFU to peak flow (IPC Table E103.3(3), interpolated):",
+      "  flush-tank systems: 10 WFU = 14.6 gpm, 50 = 29.1, 100 = 43.5, 500 = 124, 1000 = 208 gpm",
+      "  flush-valve systems (any flush-valve WC or urinal): 10 WFU = 27.0 gpm, 50 = 50.0, 100 = 67.5, 500 = 143, 1000 = 208 gpm",
+      "  1 gpm = 0.0631 L/s",
+      "",
+      "Pipe: the smallest standard size that keeps the velocity at or below 2.5 m/s (0.9 m/s minimum)",
       "",
       "Pipe velocity:  V = Q / A   where A = pi x (D/2)^2",
       "Friction loss (Hazen-Williams):",
       "hf = (10.67 x L x Q^1.852) / (C^1.852 x D^4.87)",
       "",
-      "Pressure available:  P_avail = P_static - hf_total - P_min_fixture",
+      "Equivalent length = pipe length x (1 + fittings allowance)",
+      "Pressure available (kPa) = supply pressure - hf_total x 9.81;  must be ≥ the minimum residual pressure",
     ],
     fields: [
-      { name: 'Fixture List', tip: 'Add every plumbing fixture served by this supply main. WFU (Water Fixture Units) are automatically assigned from the Philippine Plumbing Code table. Use Custom only for non-standard fixtures.' },
+      { name: 'Plumbing Fixtures', tip: 'Add every plumbing fixture served by this supply main. WFU (Water Fixture Units) are automatically assigned from the Philippine Plumbing Code table. Use Custom only for non-standard fixtures.' },
       { name: 'Supply Type', tip: 'Cold and Hot = typical residential/commercial (count both cold and hot separately). Cold Only = industrial washdown, irrigation, fire suppression.' },
       { name: 'Pipe Material', tip: 'PVC C=150 (most common in PH, lowest cost). HDPE C=150 (flexible, trench-less). GI (Galvanized Iron) C=120 (older buildings). Copper C=140 (premium, corrosion resistant).' },
-      { name: 'Static Supply Pressure (m)', tip: 'Pressure at the meter or building entry point in metres of head. 1 bar = 10.2 m. Typical MWSS/LWD supply: 15-25 m. Ask the water utility or measure with a gauge.' },
-      { name: 'Pipe Length (m)', tip: 'Straight run of the main supply pipe from entry to the furthest fixture. Do not add fittings: use Fittings Allowance % for that.' },
+      { name: 'Supply Pressure (at meter)', tip: 'Pressure at the meter or building entry in kPa (1 bar = 100 kPa = 10.2 m of water). Typical MWSS / LWD supply: 150-250 kPa. Ask the water utility or measure with a gauge. Subtract 9.81 kPa per metre the water must rise.' },
+      { name: 'Total Pipe Length', tip: 'Straight run of the main supply pipe from entry to the furthest fixture. Do not add fittings: use Fittings Allowance % for that.' },
       { name: 'Fittings Allowance (%)', tip: '20% is standard for a straightforward building. Use 30-40% for systems with many bends, gate valves, or reducers. This is added as equivalent pipe length.' },
-      { name: 'Min. Fixture Pressure (m)', tip: 'Minimum operating pressure required at the highest or most remote fixture. Water closet (flush valve): 10.5 m (1.0 bar). Shower: 5.3 m (0.5 bar). Use 10.5 m if unsure.' },
+      { name: 'Min. Residual Pressure', tip: 'Minimum operating pressure in kPa at the highest or most remote fixture: flush-valve water closet about 100 kPa, shower about 55 kPa, PPC general 70 kPa (the default).' },
     ],
     notes: [
       "Hunter's Fixture Unit method is the standard in the Philippine Plumbing Code (PPC) and its UPC basis. It reflects the probability that not all fixtures operate simultaneously.",
@@ -16370,7 +16374,7 @@ function renderWaterSupplyReport(inputs, results, narrative) {
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Parameter</th><th class="num">Value</th><th>Unit</th></tr>
       <tr><td>Total Water Fixture Units (WFU)</td><td class="num">${results.total_wfu}</td><td>WFU</td></tr>
-      <tr><td>Peak Design Flow (Hunter's Curve)</td><td class="num">${results.peak_lps}</td><td>L/s</td></tr>
+      <tr><td>Peak Design Flow (Hunter's Curve${results.hunter_branch ? ', ' + escHtml(results.hunter_branch) + ' branch, IPC E103.3(3)' : ''})</td><td class="num">${results.peak_lps}</td><td>L/s</td></tr>
       <tr><td>Peak Design Flow</td><td class="num">${results.peak_lpm}</td><td>L/min</td></tr>
       <tr><td>Peak Design Flow</td><td class="num">${results.peak_m3hr}</td><td>m3/hr</td></tr>
     </table>

@@ -428,6 +428,18 @@ ENGINE_CHECKED["Lighting Design"] = (
     "guide's CU list (0.72/0.62/...) was not the engine's (0.70/0.63/...); its names are the form's. The vector fails on "
     "the old engine (15 W/m2, PASS); walked on the served page at 390 (form defaults): 'Limit: 7.1 W/m2 ... FAIL' for 36 "
     "W / 3,200 lm panels, no sideways scroll.")
+ENGINE_CHECKED["Water Supply Pipe Sizing"] = (
+    "FOUND AND FIXED, read against python-api/calcs/water_supply_pipe.py: the guide's 'Hunter's Curve' - the engine's "
+    "'PPC Table A-3' curve was about a THIRD of Hunter's (10 WFU 0.32 L/s, 100 WFU 1.22, 1000 WFU 4.20, where IPC Table "
+    "E103.3(3)'s flush-tank branch is 0.92 / 2.74 / 13.1 L/s) and had no flush-valve branch at all: every main was sized "
+    "for about a third of its probable demand. The door page's 10 flush-valve WCs drew 76.1 L/min - less than ONE "
+    "flushometer - on 32 mm; now 263.8 L/min on 50 mm. Both of Hunter's branches now (the flush-valve column is the one "
+    "calcs/domestic_water.py carries, oracle-verified; any flush-valve fixture selects it). The oracle vector had pinned "
+    "1.34 L/s from the old curve; re-derived to 4.606. The guide's pressures were in metres where the form takes kPa; its "
+    "names are the form's; the report names the branch. Vectors fail on the old engine; walked on the served page at 390 "
+    "(form defaults, 20 WFU): '1.237 L/s (flush tank branch, IPC E103.3(3))', 32 mm, no sideways scroll. Door page "
+    "restamped. Seen in passing, queued: calcs/domestic_water.py's flush-TANK power fit overshoots Hunter above ~50 WSFU "
+    "(82.6 gpm at 100 against 43.5) and crosses above its own flush-valve curve.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
