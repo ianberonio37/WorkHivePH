@@ -779,6 +779,8 @@ def cmd_refresh_stale(default_ttl: int, verbose: bool, only: str | None = None) 
     memory_dir = ms._autodetect_memory_dir()
     changed = 0
     checked = 0
+    verified = 0
+    failed: list[str] = []
     for path in sorted(EXTERNAL_DIR.glob("*.md")):
         fm = _parse_frontmatter(path)
         ttl = int(fm.get("ttl_days", default_ttl) or default_ttl)
@@ -811,6 +813,7 @@ def cmd_refresh_stale(default_ttl: int, verbose: bool, only: str | None = None) 
                     print(f"   fetch fail {u}: {e}")
         if not pages:
             print(f"   ✗ no pages re-fetched for {path.name} — left as-is")
+            failed.append(f"{path.name}: not fetched")
             continue
         combined = "\n\n".join(f"# {t}\n{md}" for (u, t, md, b) in pages)
         source_sha = hashlib.sha256(combined.encode("utf-8")).hexdigest()[:16]
@@ -818,6 +821,7 @@ def cmd_refresh_stale(default_ttl: int, verbose: bool, only: str | None = None) 
             body = path.read_text(encoding="utf-8").split("---\n", 2)[-1].lstrip("\n")
             write_chunk(slug, topic, [u for (u, _, _, _) in pages], source_sha, body, ttl)
             print("   unchanged — last_verified bumped (0 AI tokens)")
+            verified += 1
             continue
         if memory_dir:
             for (u, t, md, b) in pages:
@@ -825,6 +829,7 @@ def cmd_refresh_stale(default_ttl: int, verbose: bool, only: str | None = None) 
         body, prov, ok, why = distill_checked(topic, pages, verbose=verbose)
         if not body.strip() or not ok:
             print(f"   ✗ distill failed quality guard ({why or 'empty'}) — left as-is")
+            failed.append(f"{path.name}: {why or 'empty distill'} (a block or error page reads as no durable content)")
             continue
         old_body = path.read_text(encoding="utf-8").split("---\n", 2)[-1].lstrip("\n")
         write_chunk(slug, topic, [u for (u, _, _, _) in pages], source_sha, body, ttl)
@@ -836,7 +841,13 @@ def cmd_refresh_stale(default_ttl: int, verbose: bool, only: str | None = None) 
     if checked == 0:
         print("🌀 all external chunks are fresh — nothing to refresh.")
     else:
-        print(f"🌀 refreshed {checked} stale chunk(s); {changed} had changed content.")
+        # ★IT SAID "refreshed 3" WHEN NONE WAS (2026-11-02, KA-E): two sources answer 403 to a script and one refuses the
+        # TLS handshake, and the summary still counted all three as refreshed - read by a person as "the evidence is current".
+        # Each outcome is now counted apart, and a source that could not be re-read is named: it stays past its TTL.
+        print(f"🌀 {checked} stale chunk(s): {verified} re-verified unchanged, {changed} changed (note written), "
+              f"{len(failed)} could NOT be re-read and stay past their TTL.")
+        for f in failed:
+            print(f"   not re-read: {f}")
         reindex()
     return 0
 

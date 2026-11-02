@@ -31,8 +31,16 @@ const urlOf = (p) => '/' + p.replace(/index\.html$/, '');
 const VIEWPORTS = [['phone-390', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }],
                    ['desktop-1280', { viewport: { width: 1280, height: 800 } }]];
 
+// --teeth (2026-11-02): the shared handler (wh-i18n-lite.js whAnchorJumpsReplace) is stopped before it can run - a capture
+// listener on window halts the click on its way to document - so the browser's own default (push an entry) applies, and
+// the walk must call the same pages TRAPPED. A prover that cannot fail does not hold its rows.
+const TEETH = process.argv.includes('--teeth');
 async function walk(browser, page, vpName, vp) {
   const ctx = await browser.newContext({ ...vp, timezoneId: 'Asia/Manila' });
+  if (TEETH) await ctx.addInitScript(() => window.addEventListener('click', (e) => {
+    const a = e.target && e.target.closest && e.target.closest('a[href^="#"]');
+    if (a) e.stopPropagation();
+  }, true));
   const pg = await ctx.newPage();
   try {
     await pg.goto(ORIGIN + '/', { waitUntil: 'domcontentloaded' });
@@ -82,6 +90,17 @@ async function walk(browser, page, vpName, vp) {
 }
 
 const browser = await chromium.launch({ headless: true });
+if (TEETH) {
+  const sample = PAGES.filter((p) => p.startsWith('learn/')).slice(0, 3);
+  const runs = [];
+  for (const p of sample) runs.push({ page: p, run: await walk(browser, p, 'phone-390', VIEWPORTS[0][1]) });
+  await browser.close();
+  const trapped = runs.filter((r) => r.run.shape === 'TRAPPED').length;
+  writeFileSync(path.join(ROOT, 'anchor_back_teeth.json'), JSON.stringify({ generated: new Date().toISOString(), teeth: true, trapped, runs }, null, 1));
+  console.log(trapped === sample.length && trapped > 0 ? `TEETH ok anchor-back: with the shared handler stopped, ${trapped}/${sample.length} articles trap Back again`
+    : `BLUNT anchor-back: ${trapped}/${sample.length} trapped with the handler stopped`);
+  process.exit(trapped === sample.length && trapped > 0 ? 0 : 1);
+}
 const prior = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : { pages: {} };
 // --resume: a page that already PASSED today keeps its reading (a paused walk picks up where it stopped)
 const RESUME = args.includes('--resume');

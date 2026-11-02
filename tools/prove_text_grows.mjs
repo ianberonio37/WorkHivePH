@@ -30,7 +30,10 @@ import { measure, recoverDisclosures } from './lib/zoom_measure.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ORIGIN = process.env.WH_ORIGIN || 'http://127.0.0.1:5000';
-const OUT = path.join(ROOT, 'text_grows_report.json');
+// --teeth (2026-11-02): a no-wrap line that fits a 390 px phone at its own size and not at double is planted on the page;
+// the grow ask must call the page BAD. A prover that cannot fail does not hold the 136 rows it banks.
+const TEETH = process.argv.includes('--teeth');
+const OUT = path.join(ROOT, TEETH ? 'text_grows_teeth.json' : 'text_grows_report.json');
 const args = process.argv.slice(2);
 const opt = (k) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : null; };
 const ONE = opt('--page');
@@ -187,6 +190,8 @@ async function open(browser, page, vpName) {
   const pg = await ctx.newPage();
   await pg.goto(urlOf(page), { waitUntil: 'domcontentloaded', timeout: 30000 });
   await pg.waitForTimeout(isApp(page) ? 6000 : 2200);
+  if (TEETH) await pg.evaluate(() => (document.querySelector('main') || document.body).insertAdjacentHTML('beforeend',
+    '<div id="wh-teeth" style="white-space:nowrap;font-size:15px;line-height:1.2">A planted line that fits at its size only</div>'));
   return { ctx, pg };
 }
 
@@ -260,7 +265,7 @@ async function forced(browser, helper, page, vpName) {
 
 const browser = await chromium.launch({ headless: true });
 const hctx = await browser.newContext(); const helper = await hctx.newPage();
-const report = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : { pages: {} };
+const report = existsSync(OUT) && !TEETH ? JSON.parse(readFileSync(OUT, 'utf8')) : { pages: {} };
 report.note = 'GROW: 1.4.12 spacing + 200% (desktop: 640x400 viewport; phone: every font-size doubled, width kept). FORCED: '
   + 'forced-colors active, ink and focus read from screenshots. Every finding is differential on one page and one load.';
 for (const page of PAGES) {
@@ -285,4 +290,10 @@ const all = Object.entries(report.pages).filter(([p]) => PAGES.includes(p));
 const bad = all.flatMap(([p, v]) => ASKS.filter((a) => v[a] && v[a].pass !== true).map((a) => `${p}:${a}`));
 console.log(bad.length ? `FAIL text-grows - ${bad.length} page-ask(s) not proven: ${bad.slice(0, 12).join(' ')}`
   : `PASS text-grows - ${all.length} page(s) x ${ASKS.join('+')} at phone-390 and desktop-1280`);
+if (TEETH) {
+  const caught = all.filter(([, v]) => v.grow && v.grow.pass === false).length;
+  console.log(caught === all.length && caught > 0 ? `TEETH ok text-grows: the planted no-wrap line made ${caught}/${all.length} page(s) fail at 200%`
+    : `BLUNT text-grows: ${caught}/${all.length} page(s) caught the planted line`);
+  process.exit(caught === all.length && caught > 0 ? 0 : 1);
+}
 process.exitCode = bad.length ? 1 : 0;

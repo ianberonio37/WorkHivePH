@@ -1064823,8 +1064823,8 @@
     },
     {
       "id": "KA158",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "KA-E",
       "title": "this external source is within its TTL - external-how-ai-engines-generate-and-cite-answers · oversight",
       "pages": [
@@ -1064876,7 +1064876,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-31] RE-FETCH BLOCKED, left open to retry: Search Engine Land answers a Cloudflare challenge to the crawler; Wayback API 429. The claim resting on it (live-retrieval engines cite only what they crawl - MAXIMIZATION_ROADMAP line 116) was re-verified today in KA125, KA159 and KA175. No lever moves meanwhile; the row closes when the source answers and its change (if any) is decided.\n"
+      "basis": "[2026-11-02] SOURCE CHANGED on re-fetch - decide whether the lever moves; diff: substrate/external/_changes/external-how-ai-engines-generate-and-cite-answers.2026-11-02.md\n[2026-10-31] RE-FETCH BLOCKED, left open to retry: Search Engine Land answers a Cloudflare challenge to the crawler; Wayback API 429. The claim resting on it (live-retrieval engines cite only what they crawl - MAXIMIZATION_ROADMAP line 116) was re-verified today in KA125, KA159 and KA175. No lever moves meanwhile; the row closes when the source answers and its change (if any) is decided.\n || [2026-11-02] pct -> 60. Re-fetched by night_crawler.py --refresh-stale (verified 2026-11-02, sha 76b66fa9bf697156, ttl 30d); freshness_trip.py raises no evidence trip for it. Changes on re-fetch, each with its recorded decision: 2026-11-02: The lever stands. SEO_AEO_GEO_MAXIMIZATION_ROADMAP.md ('live-retrieval engines can only cite what they crawl') rests on this source, and the article, read whole, supports it: the retrieval-first engin. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA159",
@@ -1065748,8 +1065753,8 @@
     },
     {
       "id": "KA173",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "KA-E",
       "title": "this external source is within its TTL - external-reddit-wikipedia-what-drives-ai-recommendations · oversight",
       "pages": [
@@ -1065801,7 +1065806,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-31] RE-FETCH BLOCKED, left open to retry: Search Engine Land answers a Cloudflare challenge to the crawler; Wayback API 429. Reddit/Wikipedia dominance (MAXIMIZATION_ROADMAP line 129) was re-verified today in KA126, KA127 and KA129. No lever moves meanwhile; the row closes when the source answers and its change (if any) is decided.\n"
+      "basis": "[2026-11-02] SOURCE CHANGED on re-fetch - decide whether the lever moves; diff: substrate/external/_changes/external-reddit-wikipedia-what-drives-ai-recommendations.2026-11-02.md\n[2026-10-31] RE-FETCH BLOCKED, left open to retry: Search Engine Land answers a Cloudflare challenge to the crawler; Wayback API 429. Reddit/Wikipedia dominance (MAXIMIZATION_ROADMAP line 129) was re-verified today in KA126, KA127 and KA129. No lever moves meanwhile; the row closes when the source answers and its change (if any) is decided.\n || [2026-11-02] pct -> 60. Re-fetched by night_crawler.py --refresh-stale (verified 2026-11-02, sha 698be03c4705f57a, ttl 30d); freshness_trip.py raises no evidence trip for it. Changes on re-fetch, each with its recorded decision: 2026-11-02: The lever moves. SEO_AEO_GEO_MAXIMIZATION_ROADMAP.md section D cited this source as 'Reddit/Wikipedia dominance re-confirmed'. Read whole, the article argues the opposite as strategy: Reddit and Wikip. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA174",
@@ -1066301,8 +1066311,8 @@
     },
     {
       "id": "KA182",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "KA-E",
       "title": "this external source is within its TTL - external-technical-seo-checklist-2026-crawlability-indexi · oversight",
       "pages": [
@@ -1066354,7 +1066364,12 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
       },
-      "basis": "[2026-10-31] RE-FETCH BLOCKED, left open to retry: DebugBear's origin answers Cloudflare 'Error 1016 Origin DNS error' (HTTP 530) - the site is down, not the page. The crawlability floor it supports (MAXIMIZATION_ROADMAP line 110) was re-verified today in Google's own JavaScript SEO and AI-features pages (KA154, KA156) and the robots audit (KA175). No lever moves meanwhile; the row closes when the source answers and its change (if any) is decided.\n"
+      "basis": "[2026-11-02] SOURCE CHANGED on re-fetch - decide whether the lever moves; diff: substrate/external/_changes/external-technical-seo-checklist-2026-crawlability-indexi.2026-11-02.md\n[2026-10-31] RE-FETCH BLOCKED, left open to retry: DebugBear's origin answers Cloudflare 'Error 1016 Origin DNS error' (HTTP 530) - the site is down, not the page. The crawlability floor it supports (MAXIMIZATION_ROADMAP line 110) was re-verified today in Google's own JavaScript SEO and AI-features pages (KA154, KA156) and the robots audit (KA175). No lever moves meanwhile; the row closes when the source answers and its change (if any) is decided.\n || [2026-11-02] pct -> 60. Re-fetched by night_crawler.py --refresh-stale (verified 2026-11-02, sha 673eb89ca203c800, ttl 30d); freshness_trip.py raises no evidence trip for it. Changes on re-fetch, each with its recorded decision: 2026-11-02: The lever stands, on a better anchor. SEO_AEO_GEO_MAXIMIZATION_ROADMAP.md ('crawlability + indexability remain the floor') cited DebugBear's checklist, which no instrument can reach today (TLS refused. Gate seo-trip.",
+      "artifacts": {
+        "gates": [
+          "seo-trip"
+        ]
+      }
     },
     {
       "id": "KA183",
@@ -1088886,8 +1088901,8 @@
     },
     {
       "id": "OWN172",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - about/index.html · anon",
       "pages": [
@@ -1088937,12 +1088952,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on about/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: about/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:03:32Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN173",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - feedback/index.html · anon",
       "pages": [
@@ -1088992,12 +1089013,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on feedback/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: feedback/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:03:39Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN174",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/ai-companion-hezekiah-zaniah-personas/ind... · anon",
       "pages": [
@@ -1089047,12 +1089074,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/ai-companion-hezekiah-zaniah-personas/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/ai-companion-hezekiah-zaniah-personas/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:03:52Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN175",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/ai-quality-and-roi-stage-2-plants/index.html · anon",
       "pages": [
@@ -1089102,12 +1089135,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/ai-quality-and-roi-stage-2-plants/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/ai-quality-and-roi-stage-2-plants/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:04:05Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN176",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/ai-work-assistant-maintenance-technicians... · anon",
       "pages": [
@@ -1089157,12 +1089196,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/ai-work-assistant-maintenance-technicians/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/ai-work-assistant-maintenance-technicians/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:04:17Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN177",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/asset-brain-360-one-machine-history-phili... · anon",
       "pages": [
@@ -1089212,12 +1089257,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/asset-brain-360-one-machine-history-philippine-plant/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/asset-brain-360-one-machine-history-philippine-plant/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:04:30Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN178",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/autonomous-shift-planning-philippine-plan... · anon",
       "pages": [
@@ -1089267,12 +1089318,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/autonomous-shift-planning-philippine-plants/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/autonomous-shift-planning-philippine-plants/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:04:43Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN179",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/best-free-cmms-software-philippines/index... · anon",
       "pages": [
@@ -1089322,12 +1089379,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/best-free-cmms-software-philippines/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/best-free-cmms-software-philippines/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:04:56Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN180",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/bms-facilities-maintenance-peza-buildings... · anon",
       "pages": [
@@ -1089377,12 +1089440,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/bms-facilities-maintenance-peza-buildings/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/bms-facilities-maintenance-peza-buildings/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:05:08Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN181",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/building-asset-register-zero-budget/index... · anon",
       "pages": [
@@ -1089432,12 +1089501,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/building-asset-register-zero-budget/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/building-asset-register-zero-budget/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:05:21Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN182",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/cmms-vs-excel-spreadsheet-maintenance/ind... · anon",
       "pages": [
@@ -1089487,12 +1089562,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/cmms-vs-excel-spreadsheet-maintenance/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/cmms-vs-excel-spreadsheet-maintenance/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:05:34Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN183",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/connecting-workhive-to-sap-maximo-cmms/in... · anon",
       "pages": [
@@ -1089542,12 +1089623,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/connecting-workhive-to-sap-maximo-cmms/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/connecting-workhive-to-sap-maximo-cmms/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:05:46Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN184",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/dilo-wilo-day-planner-supervisors/index.html · anon",
       "pages": [
@@ -1089597,12 +1089684,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/dilo-wilo-day-planner-supervisors/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/dilo-wilo-day-planner-supervisors/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:05:59Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN185",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/dole-iso-audit-trail-from-logbook/index.html · anon",
       "pages": [
@@ -1089652,12 +1089745,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/dole-iso-audit-trail-from-logbook/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/dole-iso-audit-trail-from-logbook/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:06:12Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN186",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/fmea-worked-example-philippine-bottling-l... · anon",
       "pages": [
@@ -1089707,12 +1089806,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/fmea-worked-example-philippine-bottling-line/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/fmea-worked-example-philippine-bottling-line/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:06:24Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN187",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/food-beverage-plant-maintenance-philippin... · anon",
       "pages": [
@@ -1089762,12 +1089867,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/food-beverage-plant-maintenance-philippines/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/food-beverage-plant-maintenance-philippines/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:06:37Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN188",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/four-phases-maintenance-analytics-philipp... · anon",
       "pages": [
@@ -1089817,12 +1089928,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/four-phases-maintenance-analytics-philippine-plants/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/four-phases-maintenance-analytics-philippine-plants/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:06:50Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN189",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/free-engineering-calculators-philippine-p... · anon",
       "pages": [
@@ -1089872,12 +1089989,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/free-engineering-calculators-philippine-plants/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/free-engineering-calculators-philippine-plants/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:07:02Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN190",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/free-pm-checklist-templates/index.html · anon",
       "pages": [
@@ -1089927,12 +1090050,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/free-pm-checklist-templates/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/free-pm-checklist-templates/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:07:15Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN191",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/gamifying-maintenance-for-engagement/inde... · anon",
       "pages": [
@@ -1089982,12 +1090111,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/gamifying-maintenance-for-engagement/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/gamifying-maintenance-for-engagement/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:07:27Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN192",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/index.html · anon",
       "pages": [
@@ -1090037,12 +1090172,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:07:37Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN193",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/industrial-community-of-practice-philippi... · anon",
       "pages": [
@@ -1090092,12 +1090233,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/industrial-community-of-practice-philippines/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/industrial-community-of-practice-philippines/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:07:50Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN194",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/industrial-marketplace-philippine-special... · anon",
       "pages": [
@@ -1090147,12 +1090294,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/industrial-marketplace-philippine-specialists/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/industrial-marketplace-philippine-specialists/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:08:02Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN195",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/joining-and-growing-your-hive/index.html · anon",
       "pages": [
@@ -1090202,12 +1090355,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/joining-and-growing-your-hive/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/joining-and-growing-your-hive/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:08:15Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN196",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/loto-procedures-dole-oshs-template/index.... · anon",
       "pages": [
@@ -1090257,12 +1090416,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/loto-procedures-dole-oshs-template/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/loto-procedures-dole-oshs-template/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:08:28Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN197",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/maintenance-metrics-reliability-guide/ind... · anon",
       "pages": [
@@ -1090312,12 +1090477,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/maintenance-metrics-reliability-guide/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/maintenance-metrics-reliability-guide/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:08:40Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN198",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/maintenance-project-planning-template/ind... · anon",
       "pages": [
@@ -1090367,12 +1090538,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/maintenance-project-planning-template/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/maintenance-project-planning-template/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:08:53Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN199",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/maintenance-shift-handover-template/index... · anon",
       "pages": [
@@ -1090422,12 +1090599,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/maintenance-shift-handover-template/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/maintenance-shift-handover-template/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:09:05Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN200",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/mtbf-vs-mttr-for-supervisors/index.html · anon",
       "pages": [
@@ -1090477,12 +1090660,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/mtbf-vs-mttr-for-supervisors/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/mtbf-vs-mttr-for-supervisors/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:09:18Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN201",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/ofw-engineer-portable-portfolio/index.html · anon",
       "pages": [
@@ -1090532,12 +1090721,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/ofw-engineer-portable-portfolio/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/ofw-engineer-portable-portfolio/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:09:31Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN202",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/ph-industrial-benchmarks-intelligence/ind... · anon",
       "pages": [
@@ -1090587,12 +1090782,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/ph-industrial-benchmarks-intelligence/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/ph-industrial-benchmarks-intelligence/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:09:43Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN203",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/ph-plant-compliance-guide/index.html · anon",
       "pages": [
@@ -1090642,12 +1090843,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/ph-plant-compliance-guide/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/ph-plant-compliance-guide/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:09:56Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN204",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/philippine-plants-now-pay-the-highest-pow... · anon",
       "pages": [
@@ -1090697,12 +1090904,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/philippine-plants-now-pay-the-highest-power-rates/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/philippine-plants-now-pay-the-highest-power-rates/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:10:08Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN205",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/plant-alert-inbox-amc-daily-brief/index.html · anon",
       "pages": [
@@ -1090752,12 +1090965,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/plant-alert-inbox-amc-daily-brief/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/plant-alert-inbox-amc-daily-brief/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:10:21Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN206",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/power-plant-reliability-metrics-philippin... · anon",
       "pages": [
@@ -1090807,12 +1091026,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/power-plant-reliability-metrics-philippines/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/power-plant-reliability-metrics-philippines/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:10:33Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN207",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/predictive-alert-thresholds-plants/index.... · anon",
       "pages": [
@@ -1090862,12 +1091087,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/predictive-alert-thresholds-plants/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/predictive-alert-thresholds-plants/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:10:46Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN208",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/predictive-maintenance-on-a-budget-philip... · anon",
       "pages": [
@@ -1090917,12 +1091148,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/predictive-maintenance-on-a-budget-philippines/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/predictive-maintenance-on-a-budget-philippines/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:10:59Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN209",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/print-ready-maintenance-analytics-report/... · anon",
       "pages": [
@@ -1090972,12 +1091209,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/print-ready-maintenance-analytics-report/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/print-ready-maintenance-analytics-report/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:11:11Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN210",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/psme-iiee-piche-which-association-to-join... · anon",
       "pages": [
@@ -1091027,12 +1091270,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/psme-iiee-piche-which-association-to-join/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/psme-iiee-piche-which-association-to-join/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:11:24Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN211",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/ra-11285-energy-efficiency-plant-checklis... · anon",
       "pages": [
@@ -1091082,12 +1091331,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/ra-11285-energy-efficiency-plant-checklist/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/ra-11285-energy-efficiency-plant-checklist/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:11:37Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN212",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/reduce-unplanned-downtime-guide/index.html · anon",
       "pages": [
@@ -1091137,12 +1091392,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/reduce-unplanned-downtime-guide/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/reduce-unplanned-downtime-guide/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:11:50Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN213",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/reliability-centered-maintenance-philippi... · anon",
       "pages": [
@@ -1091192,12 +1091453,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/reliability-centered-maintenance-philippine-plants/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/reliability-centered-maintenance-philippine-plants/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:12:02Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN214",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/resume-builder-for-filipino-industrial-wo... · anon",
       "pages": [
@@ -1091247,12 +1091514,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/resume-builder-for-filipino-industrial-workers/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/resume-builder-for-filipino-industrial-workers/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:12:15Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN215",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/sensor-cmms-gateway-operations/index.html · anon",
       "pages": [
@@ -1091302,12 +1091575,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/sensor-cmms-gateway-operations/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/sensor-cmms-gateway-operations/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:12:28Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN216",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/skill-matrix-for-maintenance-technicians/... · anon",
       "pages": [
@@ -1091357,12 +1091636,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/skill-matrix-for-maintenance-technicians/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/skill-matrix-for-maintenance-technicians/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:12:40Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN217",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/spare-parts-inventory-philippine-plants/i... · anon",
       "pages": [
@@ -1091412,12 +1091697,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/spare-parts-inventory-philippine-plants/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/spare-parts-inventory-philippine-plants/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:12:53Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN218",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/start-digital-logbook-philippine-factory/... · anon",
       "pages": [
@@ -1091467,12 +1091758,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/start-digital-logbook-philippine-factory/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/start-digital-logbook-philippine-factory/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:13:05Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN219",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/start-digital-maintenance-guide/index.html · anon",
       "pages": [
@@ -1091522,12 +1091819,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/start-digital-maintenance-guide/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/start-digital-maintenance-guide/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:13:18Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN220",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/tesda-nc-mapping-to-skill-matrix/index.html · anon",
       "pages": [
@@ -1091577,12 +1091880,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/tesda-nc-mapping-to-skill-matrix/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/tesda-nc-mapping-to-skill-matrix/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:13:31Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN221",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/thermography-for-pm-philippine-plants/ind... · anon",
       "pages": [
@@ -1091632,12 +1091941,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/thermography-for-pm-philippine-plants/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/thermography-for-pm-philippine-plants/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:13:43Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN222",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/vibration-analysis-on-a-phone-budget/inde... · anon",
       "pages": [
@@ -1091687,12 +1092002,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/vibration-analysis-on-a-phone-budget/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/vibration-analysis-on-a-phone-budget/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:13:56Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN223",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/voice-to-text-maintenance-philippine-plan... · anon",
       "pages": [
@@ -1091742,12 +1092063,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/voice-to-text-maintenance-philippine-plant-floor/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/voice-to-text-maintenance-philippine-plant-floor/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:14:08Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN224",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/what-is-oee-how-to-calculate/index.html · anon",
       "pages": [
@@ -1091797,12 +1092124,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/what-is-oee-how-to-calculate/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/what-is-oee-how-to-calculate/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:14:21Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN225",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/what-is-workhive-complete-platform-guide/... · anon",
       "pages": [
@@ -1091852,12 +1092185,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/what-is-workhive-complete-platform-guide/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/what-is-workhive-complete-platform-guide/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:14:33Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN226",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/workhive-ai-companion-complete-capabiliti... · anon",
       "pages": [
@@ -1091907,12 +1092246,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/workhive-ai-companion-complete-capabilities/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/workhive-ai-companion-complete-capabilities/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:14:46Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN227",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/workhive-vs-maintainx-comparison/index.html · anon",
       "pages": [
@@ -1091962,12 +1092307,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/workhive-vs-maintainx-comparison/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/workhive-vs-maintainx-comparison/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:14:58Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN228",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - learn/workhive-vs-upkeep-free-cmms-comparison/i... · anon",
       "pages": [
@@ -1092017,12 +1092368,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on learn/workhive-vs-upkeep-free-cmms-comparison/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: learn/workhive-vs-upkeep-free-cmms-comparison/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:15:11Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN229",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - privacy-policy/index.html · anon",
       "pages": [
@@ -1092072,12 +1092429,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on privacy-policy/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: privacy-policy/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:26:17Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN230",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - terms-of-service/index.html · anon",
       "pages": [
@@ -1092127,12 +1092490,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on terms-of-service/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: terms-of-service/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:26:28Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN231",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/ahu-sizing-calculator/index.html · anon",
       "pages": [
@@ -1092182,12 +1092551,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/ahu-sizing-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/ahu-sizing-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:15:41Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN232",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/beam-design-calculator/index.html · anon",
       "pages": [
@@ -1092237,12 +1092612,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/beam-design-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/beam-design-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:15:51Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN233",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/bearing-life-calculator/index.html · anon",
       "pages": [
@@ -1092292,12 +1092673,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/bearing-life-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/bearing-life-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:16:02Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN234",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/boiler-steam-calculator/index.html · anon",
       "pages": [
@@ -1092347,12 +1092734,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/boiler-steam-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/boiler-steam-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:16:12Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN235",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/boiler-system-calculator/index.html · anon",
       "pages": [
@@ -1092402,12 +1092795,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/boiler-system-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/boiler-system-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:16:23Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN236",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/bolt-torque-calculator/index.html · anon",
       "pages": [
@@ -1092457,12 +1092856,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/bolt-torque-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/bolt-torque-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:16:33Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN237",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/cable-tray-sizing-calculator/index.html · anon",
       "pages": [
@@ -1092512,12 +1092917,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/cable-tray-sizing-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/cable-tray-sizing-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:16:43Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN238",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/chiller-sizing-calculator/index.html · anon",
       "pages": [
@@ -1092567,12 +1092978,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/chiller-sizing-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/chiller-sizing-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:16:53Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN239",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/clean-agent-suppression-calculator/index.... · anon",
       "pages": [
@@ -1092622,12 +1093039,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/clean-agent-suppression-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/clean-agent-suppression-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:17:04Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN240",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/compressed-air-calculator/index.html · anon",
       "pages": [
@@ -1092677,12 +1093100,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/compressed-air-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/compressed-air-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:17:14Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN241",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/cooling-tower-calculator/index.html · anon",
       "pages": [
@@ -1092732,12 +1093161,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/cooling-tower-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/cooling-tower-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:17:24Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN242",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/domestic-water-demand-calculator/index.html · anon",
       "pages": [
@@ -1092787,12 +1093222,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/domestic-water-demand-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/domestic-water-demand-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:17:34Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN243",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/drainage-pipe-sizing-calculator/index.html · anon",
       "pages": [
@@ -1092842,12 +1093283,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/drainage-pipe-sizing-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/drainage-pipe-sizing-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:17:45Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN244",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/duct-sizing-calculator/index.html · anon",
       "pages": [
@@ -1092897,12 +1093344,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/duct-sizing-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/duct-sizing-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:17:55Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN245",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/earthing-grounding-calculator/index.html · anon",
       "pages": [
@@ -1092952,12 +1093405,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/earthing-grounding-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/earthing-grounding-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:18:05Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN246",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/elevator-traffic-calculator/index.html · anon",
       "pages": [
@@ -1093007,12 +1093466,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/elevator-traffic-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/elevator-traffic-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:18:15Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN247",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/expansion-tank-calculator/index.html · anon",
       "pages": [
@@ -1093062,12 +1093527,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/expansion-tank-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/expansion-tank-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:18:25Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN248",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/fcu-selection-calculator/index.html · anon",
       "pages": [
@@ -1093117,12 +1093588,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/fcu-selection-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/fcu-selection-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:18:36Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN249",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/fire-alarm-battery-calculator/index.html · anon",
       "pages": [
@@ -1093172,12 +1093649,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/fire-alarm-battery-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/fire-alarm-battery-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:18:46Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN250",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/fire-pump-calculator/index.html · anon",
       "pages": [
@@ -1093227,12 +1093710,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/fire-pump-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/fire-pump-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:18:56Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN251",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/fire-sprinkler-calculator/index.html · anon",
       "pages": [
@@ -1093282,12 +1093771,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/fire-sprinkler-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/fire-sprinkler-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:19:07Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN252",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/generator-sizing-calculator/index.html · anon",
       "pages": [
@@ -1093337,12 +1093832,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/generator-sizing-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/generator-sizing-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:19:17Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN253",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/grease-trap-calculator/index.html · anon",
       "pages": [
@@ -1093392,12 +1093893,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/grease-trap-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/grease-trap-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:19:28Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN254",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/harmonic-distortion-calculator/index.html · anon",
       "pages": [
@@ -1093447,12 +1093954,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/harmonic-distortion-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/harmonic-distortion-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:19:38Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN255",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/heat-exchanger-calculator/index.html · anon",
       "pages": [
@@ -1093502,12 +1094015,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/heat-exchanger-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/heat-exchanger-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:19:49Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN256",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/hoist-capacity-calculator/index.html · anon",
       "pages": [
@@ -1093557,12 +1094076,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/hoist-capacity-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/hoist-capacity-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:20:00Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN257",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/hot-water-demand-calculator/index.html · anon",
       "pages": [
@@ -1093612,12 +1094137,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/hot-water-demand-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/hot-water-demand-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:20:10Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN258",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/hvac-cooling-load-calculator/index.html · anon",
       "pages": [
@@ -1093667,12 +1094198,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/hvac-cooling-load-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/hvac-cooling-load-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:20:20Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN259",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/hydraulic-cylinder-calculator/index.html · anon",
       "pages": [
@@ -1093722,12 +1094259,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/hydraulic-cylinder-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/hydraulic-cylinder-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:20:30Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN260",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/lighting-design-calculator/index.html · anon",
       "pages": [
@@ -1093777,12 +1094320,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/lighting-design-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/lighting-design-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:20:40Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN261",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/lightning-protection-calculator/index.html · anon",
       "pages": [
@@ -1093832,12 +1094381,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/lightning-protection-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/lightning-protection-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:20:50Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN262",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/load-estimation-calculator/index.html · anon",
       "pages": [
@@ -1093887,12 +1094442,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/load-estimation-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/load-estimation-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:21:01Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN263",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/load-schedule-calculator/index.html · anon",
       "pages": [
@@ -1093942,12 +1094503,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/load-schedule-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/load-schedule-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:21:11Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN264",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/mtbf-calculator/index.html · anon",
       "pages": [
@@ -1093997,12 +1094564,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/mtbf-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/mtbf-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:21:22Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN265",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/noise-acoustics-calculator/index.html · anon",
       "pages": [
@@ -1094052,12 +1094625,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/noise-acoustics-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/noise-acoustics-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:21:33Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN266",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/oee-calculator/index.html · anon",
       "pages": [
@@ -1094107,12 +1094686,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/oee-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/oee-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:21:44Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN267",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/pipe-sizing-calculator/index.html · anon",
       "pages": [
@@ -1094162,12 +1094747,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/pipe-sizing-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/pipe-sizing-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:21:54Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN268",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/power-factor-correction-calculator/index.... · anon",
       "pages": [
@@ -1094217,12 +1094808,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/power-factor-correction-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/power-factor-correction-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:22:04Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN269",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/pressure-vessel-calculator/index.html · anon",
       "pages": [
@@ -1094272,12 +1094869,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/pressure-vessel-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/pressure-vessel-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:22:14Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN270",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/pump-tdh-calculator/index.html · anon",
       "pages": [
@@ -1094327,12 +1094930,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/pump-tdh-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/pump-tdh-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:22:25Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN271",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/refrigerant-pipe-calculator/index.html · anon",
       "pages": [
@@ -1094382,12 +1094991,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/refrigerant-pipe-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/refrigerant-pipe-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:22:35Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN272",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/roof-drain-calculator/index.html · anon",
       "pages": [
@@ -1094437,12 +1095052,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/roof-drain-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/roof-drain-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:22:45Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN273",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/septic-tank-calculator/index.html · anon",
       "pages": [
@@ -1094492,12 +1095113,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/septic-tank-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/septic-tank-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:22:55Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN274",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/sewer-drainage-calculator/index.html · anon",
       "pages": [
@@ -1094547,12 +1095174,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/sewer-drainage-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/sewer-drainage-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:23:06Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN275",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/shaft-design-calculator/index.html · anon",
       "pages": [
@@ -1094602,12 +1095235,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/shaft-design-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/shaft-design-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:23:16Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN276",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/short-circuit-calculator/index.html · anon",
       "pages": [
@@ -1094657,12 +1095296,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/short-circuit-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/short-circuit-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:23:26Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN277",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/solar-pv-calculator/index.html · anon",
       "pages": [
@@ -1094712,12 +1095357,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/solar-pv-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/solar-pv-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:23:38Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN278",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/stairwell-pressurization-calculator/index... · anon",
       "pages": [
@@ -1094767,12 +1095418,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/stairwell-pressurization-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/stairwell-pressurization-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:23:48Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN279",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/storm-drain-calculator/index.html · anon",
       "pages": [
@@ -1094822,12 +1095479,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/storm-drain-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/storm-drain-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:23:58Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN280",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/transformer-sizing-calculator/index.html · anon",
       "pages": [
@@ -1094877,12 +1095540,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/transformer-sizing-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/transformer-sizing-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:24:09Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN281",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/ups-sizing-calculator/index.html · anon",
       "pages": [
@@ -1094932,12 +1095601,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/ups-sizing-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/ups-sizing-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:24:19Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN282",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/v-belt-drive-calculator/index.html · anon",
       "pages": [
@@ -1094987,12 +1095662,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/v-belt-drive-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/v-belt-drive-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:24:29Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN283",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/ventilation-ach-calculator/index.html · anon",
       "pages": [
@@ -1095042,12 +1095723,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/ventilation-ach-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/ventilation-ach-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:24:39Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN284",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/vibration-isolation-calculator/index.html · anon",
       "pages": [
@@ -1095097,12 +1095784,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/vibration-isolation-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/vibration-isolation-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:24:49Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN285",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/voltage-drop-calculator/index.html · anon",
       "pages": [
@@ -1095152,12 +1095845,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/voltage-drop-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/voltage-drop-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:24:59Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN286",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/wastewater-stp-calculator/index.html · anon",
       "pages": [
@@ -1095207,12 +1095906,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/wastewater-stp-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/wastewater-stp-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:25:10Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN287",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/water-softener-calculator/index.html · anon",
       "pages": [
@@ -1095262,12 +1095967,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/water-softener-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/water-softener-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:25:20Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN288",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/water-supply-pipe-calculator/index.html · anon",
       "pages": [
@@ -1095317,12 +1096028,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/water-supply-pipe-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/water-supply-pipe-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:25:30Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN289",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/water-treatment-calculator/index.html · anon",
       "pages": [
@@ -1095372,12 +1096089,18 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/water-treatment-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/water-treatment-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:25:41Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
       "id": "OWN290",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OWN",
       "title": "browser Back: anchor jumps do not pollute history - tools/wire-sizing-calculator/index.html · anon",
       "pages": [
@@ -1095427,6 +1096150,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the browser Back ask is proven on tools/wire-sizing-calculator/index.html with a receipt"
+      },
+      "basis": "[2026-11-02] pct -> 60. WALKED: tools/wire-sizing-calculator/index.html (phone-390, desktop-1280) through tools/prove_anchor_back.mjs (receipt anchor_back_report.json, read 2026-11-02T09:25:51Z): after its in-page jumps (contents list, FAQ, skip link) one press of Back left the page for the front page it was reached from, and each jump still landed with focus on its target. HELD BY: gate own_anchor_back.",
+      "artifacts": {
+        "gates": [
+          "own_anchor_back"
+        ]
       }
     },
     {
