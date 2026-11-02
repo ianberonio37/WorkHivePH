@@ -832,6 +832,20 @@ VECTORS = [
         ],
     },
     {
+        # ★THE FLUSH-TANK FIT CROSSED ABOVE THE FLUSH-VALVE CURVE (2026-11-02). Fails on that engine (163.6 L/min).
+        "module": "calcs.domestic_water",
+        "calc_type": "Domestic Water System - a flush-tank building on Hunter's tank branch",
+        "standard": "IPC Table E103.3(3) flush tanks: 50 WSFU = 29.1 gpm",
+        "inputs": {"fixtures": [{"fixture_type": "Water Closet (flush tank)", "quantity": 10},
+                                {"fixture_type": "Lavatory (faucet)", "quantity": 10}],
+                   "occupancy_type": "Office", "num_persons": 50, "building_floors": 5, "floor_height_m": 3.5},
+        "asserts": [
+            {"path": "total_wsfu", "expected": 50.0, "tol": 0, "note": "10 x 3 (WC flush tank) + 10 x 2 (lavatory) = 50"},
+            {"path": "peak_flow_lpm", "expected": 110.1, "tol": 0.1,
+             "note": "29.1 gpm x 3.785 = 110.1 L/min (the power fit gave 163.6; at 100 WSFU it reached 312.8, above the flush-valve curve's 255.5)"},
+        ],
+    },
+    {
         # NOTE: this custom (_check_domestic_water_flow, reads peak_flow_* fields) tests the
         # calcs.domestic_water handler, which the live API serves under "Domestic Water System"
         # — NOT "Water Supply Pipe Sizing" (that routes to calcs.water_supply_pipe → peak_* fields,
@@ -2259,6 +2273,24 @@ VECTORS = [
              "note": "2-compartment 2/3 split = round(6300·2/3) = 4200 L (PPC)"},
             {"path": "leach_field_area_m2", "expected": 187.5, "tol": 0.1,
              "note": "daily_flow/abs_rate = 3000/16 (Sandy Loam) = 187.5 m² (PPC §P-1103)"},
+        ],
+    },
+    {
+        # ★THE HEATER REHEATED THE WHOLE DAY IN THE RECOVERY TIME (2026-11-02, ED-G1 Hot Water). Fails on that engine (277 kW).
+        "module": "calcs.hot_water_demand",
+        "calc_type": "Hot Water Demand - the heater recovers the tank",
+        "standard": "Recovery from cold: P = V_tank x cp x dT / t_recovery (the form's Recovery Time definition)",
+        "inputs": {"uses": [{"use_type": "Hotel Room", "quantity": 100, "daily_count": 1}], "supply_temp": 28,
+                   "hot_temp": 60, "recovery_hours": 2, "peak_fraction": 0.25, "storage_factor": 1.25,
+                   "pipe_loss_pct": 10},
+        "asserts": [
+            {"path": "recommended_storage_L", "expected": 5000, "tol": 0,
+             "note": "100 x 135 x 1.10 = 14,850 L/day; peak hour 0.25 -> 3,712 L; x 1.25 = 4,640 L -> 5,000 L tank"},
+            {"path": "heater_kW_computed", "expected": 92.86, "tol": 0.1,
+             "note": "5,000 L x 4.1787 kJ/kg K (IAPWS at the 44 C mean) x 32 K = 668,592 kJ / 7,200 s = 92.86 kW (it reheated the whole day: 14,850 L -> 275.8 kW)"},
+            {"path": "recommended_heater_kW", "expected": 100.0, "tol": 0, "note": "next commercial size above 92.86 kW"},
+            {"path": "recovery_rate_lph", "expected": 2692, "tol": 2,
+             "note": "100 kW x 3600 / (4.1787 x 32) = 2,692 L/h of 60 C water"},
         ],
     },
     {

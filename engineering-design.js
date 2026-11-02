@@ -895,17 +895,19 @@ const GUIDES = {
       '',
       'Storage Volume (L) = Peak Hour Demand x Storage Safety Factor',
       '',
-      'Heat Energy (kJ) = m x Cp x deltaT',
-      'm = daily demand (kg), Cp = 4.186 kJ/kgC, deltaT = T_hot - T_supply',
+      'Storage tank = next standard size above the Storage Volume',
       '',
-      'Heater Power (kW) = Heat Energy (kJ) / (Recovery Time hrs x 3600)',
-      'Round up to next commercial heater size',
+      'Heater Power (kW) = Tank (L) x Cp x deltaT / (Recovery Time hrs x 3600)',
+      '  the heater reheats the tank from the cold supply in the recovery time; Cp of water at the mean temperature (about 4.18 kJ/kg C)',
+      '  deltaT = T_hot - T_supply;  round up to the next commercial heater size',
+      'Recovery rate (L/hr) = Heater kW x 3600 / (Cp x deltaT)',
+      '',
+      'Daily heat energy (kWh/day) = Daily Demand_adj x Cp x deltaT / 3600  (running cost, not heater size)',
     ],
     fields: [
-      { name: 'Use / Occupancy list', tip: 'Add each type of hot water user. Select the category (Hotel Room, Shower, etc.) and the tool auto-assigns the ASHRAE demand rate in L/use. Use "Custom" for non-standard uses and enter the rate manually.' },
-      { name: 'Daily Usage Count', tip: 'How many times per day each unit uses hot water. Hotel rooms: 1. Office washrooms: 8-12. Restaurant meals: 1 per meal served. Showers: 1-2 per person per day.' },
-      { name: 'Supply Temperature (°C)', tip: 'Incoming cold water temperature. In the Philippines, tap water is 28-30°C year-round (no seasonal variation unlike temperate countries). Default: 28°C.' },
-      { name: 'Hot Water Temperature (°C)', tip: 'Required storage temperature. 60°C is recommended by WHO to prevent Legionella growth. Some PH systems use 55°C for smaller heaters: acceptable for low-risk buildings.' },
+      { name: 'Hot Water Users / Occupancy', tip: 'Add each type of hot water user. Select the category (Hotel Room, Shower, etc.) and the tool auto-assigns the ASHRAE demand rate in L/use. Use "Custom" for non-standard uses and enter the rate manually. Each row also takes how many times a day each unit uses hot water: hotel rooms 1 (their rate is per day), office washrooms 8-12, restaurant meals 1 per meal, showers 1-2 per person.' },
+      { name: 'Supply Water Temp (cold inlet)', tip: 'Incoming cold water temperature. In the Philippines, tap water is 28-30°C year-round (no seasonal variation unlike temperate countries). Default: 28°C.' },
+      { name: 'Hot Water Setpoint', tip: 'Required storage temperature. 60°C is recommended by WHO to prevent Legionella growth. Some PH systems use 55°C for smaller heaters: acceptable for low-risk buildings.' },
       { name: 'Recovery Time (hrs)', tip: 'Hours available for the heater to reheat the tank from cold. 2 hours is standard for commercial systems. Residential systems can use 3-4 hours for a smaller heater.' },
       { name: 'Peak Hour Fraction', tip: 'Fraction of daily demand that occurs in the single busiest hour. 0.25 = 25% (typical hotel/residential). 0.30 = 30% (gym, hospital with defined shift peaks).' },
       { name: 'Storage Safety Factor', tip: '1.25 = 25% extra storage above peak hour demand. Accounts for higher-than-expected usage. Use 1.50 for critical systems (hospitals, hotels) where running out of hot water is unacceptable.' },
@@ -16229,12 +16231,12 @@ function renderHotWaterReport(inputs, results, narrative) {
       <tr><td>Total Daily Demand (adjusted)</td><td class="num">${results.total_daily_L}</td><td>L/day</td></tr>
       <tr><td>Peak Hour Demand (${Math.round((results.peak_fraction||0.25)*100)}% of daily)</td><td class="num">${results.peak_hour_L}</td><td>L/hr</td></tr>
       <tr><td>Required Storage Volume (x${results.storage_factor} safety factor)</td><td class="num">${results.storage_L_computed}</td><td>L</td></tr>
-      <tr><td colspan="3" style="padding-top:0.5rem;font-weight:600;font-size:0.82rem;">Heat Energy Calculation: Q = m × Cp × ΔT</td></tr>
-      <tr><td>Mass of water (daily demand)</td><td class="num">${results.total_daily_L}</td><td>kg</td></tr>
-      <tr><td>Specific heat of water (Cp)</td><td class="num">4.186</td><td>kJ/(kg·°C)</td></tr>
+      <tr><td colspan="3" style="padding-top:0.5rem;font-weight:600;font-size:0.82rem;">Heater: reheat the ${results.recommended_storage_L} L tank in ${results.recovery_hours} h, Q = m × Cp × ΔT</td></tr>
+      <tr><td>Mass of water (selected tank)</td><td class="num">${results.recommended_storage_L}</td><td>kg</td></tr>
+      <tr><td>Specific heat of water (Cp, at the mean temperature)</td><td class="num">${results.Cp_kJ_kgK ?? 4.186}</td><td>kJ/(kg·°C)</td></tr>
       <tr><td>Temperature rise (ΔT)</td><td class="num">${deltaT}</td><td>°C</td></tr>
-      <tr><td>Total heat energy required</td><td class="num">${results.heat_energy_kJ}</td><td>kJ</td></tr>
-      <tr><td>Total heat energy</td><td class="num">${results.heat_energy_kWh}</td><td>kWh/day</td></tr>
+      <tr><td>Heat to recover the tank</td><td class="num">${results.tank_heat_kJ ?? results.heat_energy_kJ}</td><td>kJ</td></tr>
+      <tr><td>Daily heat energy (running cost)</td><td class="num">${results.heat_energy_kWh}</td><td>kWh/day</td></tr>
       <tr class="total-row"><td><strong>Required Heater Power (${results.recovery_hours}-hr recovery)</strong></td><td class="num"><strong>${results.heater_kW_computed}</strong></td><td><strong>kW</strong></td></tr>
     </table>
 

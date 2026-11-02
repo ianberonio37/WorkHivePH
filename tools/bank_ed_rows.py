@@ -440,6 +440,17 @@ ENGINE_CHECKED["Water Supply Pipe Sizing"] = (
     "(form defaults, 20 WFU): '1.237 L/s (flush tank branch, IPC E103.3(3))', 32 mm, no sideways scroll. Door page "
     "restamped. Seen in passing, queued: calcs/domestic_water.py's flush-TANK power fit overshoots Hunter above ~50 WSFU "
     "(82.6 gpm at 100 against 43.5) and crosses above its own flush-valve curve.")
+ENGINE_CHECKED["Hot Water Demand"] = (
+    "FOUND AND FIXED, read against python-api/calcs/hot_water_demand.py: the form's Recovery Time is 'hours available "
+    "for the heater to reheat the TANK from cold', but the guide's formula and the engine heated the whole DAY's demand "
+    "in it - 100 hotel rooms (14,850 L/day) got a 277 kW heater where reheating the selected 5,000 L tank in 2 h takes "
+    "92.9 kW (the storage, peak hour x 1.25, already carries the peak hour). The heater now recovers the tank; the day's "
+    "heat is still reported, as running cost. The report's working named the daily demand as the mass and hard-coded Cp "
+    "4.186 beside the engine's IAPWS 4.1787 - both now the engine's. Guide names are the form's. The vector fails on the "
+    "old engine (275.8 kW); walked on the served page at 390 (form defaults): '1500 L tank in 2 h', '200577 kJ', "
+    "'27.86 kW', no sideways scroll. Same commit: calcs/domestic_water.py's flush-TANK power fit overshot Hunter above "
+    "~20 WSFU (100 WSFU 312.8 L/min, above its own flush-valve 255.5) - now IPC Table E103.3(3)'s tank column, with a "
+    "vector that fails on the fit (163.6 vs 110.1 L/min at 50 WSFU).")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

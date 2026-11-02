@@ -94,7 +94,13 @@ def calculate(inputs: dict) -> dict:
     heat_kj  = total_l * Cp * delta_T
     heat_kwh = heat_kj / 3600.0
 
-    heater_kw_comp = heat_kj / (recovery_hrs * 3600.0) if recovery_hrs > 0 else 0.0
+    # ★THE HEATER REHEATED THE WHOLE DAY IN THE RECOVERY TIME (2026-11-02, ED-G1 Hot Water, read against the guide). The
+    # form's Recovery Time is "hours available for the heater to reheat the TANK from cold"; the engine divided the DAY's
+    # heat by it - 100 hotel rooms (14,850 L/day) got a 277 kW heater where reheating the 5,000 L tank in 2 h takes 93 kW.
+    # The heater now recovers the selected tank; the storage (peak hour x the safety factor) already carries the peak hour.
+    # The day's heat stays reported, for the running cost.
+    tank_heat_kj   = rec_storage_l * Cp * delta_T
+    heater_kw_comp = tank_heat_kj / (recovery_hrs * 3600.0) if recovery_hrs > 0 else 0.0
     rec_heater_kw  = next((s for s in HW_HEATER_KW if s >= heater_kw_comp),
                           round(heater_kw_comp + 1))
 
@@ -115,6 +121,7 @@ def calculate(inputs: dict) -> dict:
         "recommended_storage_L":        rec_storage_l,
         "heat_energy_kJ":               round(heat_kj),
         "heat_energy_kWh":              round(heat_kwh, 1),
+        "tank_heat_kJ":                 round(tank_heat_kj),
         "heater_kW_computed":           round(heater_kw_comp, 2),
         "recommended_heater_kW":        rec_heater_kw,
         "recovery_rate_lph":            recovery_lph,

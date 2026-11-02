@@ -32,20 +32,11 @@ FIXTURE_UNITS: dict[str, dict] = {
     "Floor drain (with trap)":      {"wsfu": 0,  "private": 0,  "lpm_demand": 0},
 }
 
-# ─── Hunter's Curve - WSFU → peak flow (L/min) ────────────────────────────────
-# ASPE Data Book Vol.2 Table 1-4 (public system)
-# Approximated by piecewise power curve
-HUNTER_CURVE: list[dict] = [
-    {"wsfu_max":   1,  "a": 0.30,  "b": 0.83},
-    {"wsfu_max":   9,  "a": 0.80,  "b": 0.72},
-    {"wsfu_max":  50,  "a": 1.10,  "b": 0.69},
-    {"wsfu_max": 200,  "a": 1.80,  "b": 0.62},
-    {"wsfu_max": 999,  "a": 2.50,  "b": 0.57},
-]
+# ─── Hunter's Curve - WSFU → peak flow (L/min): IPC Table E103.3(3), both branches ─────
 
 # Hunter's curve has TWO branches (ASPE Data Book Vol.2 / IPC Table E103.3(3)): flush-TANK
 # and flush-VALVE (flushometer) systems — the latter peaks much higher at low WSFU. The
-# legacy power-law fit (HUNTER_CURVE) tracks the flush-TANK branch; a flush-VALVE system
+# legacy power-law fit (since replaced by HUNTER_TANK) tracked the flush-TANK branch; a flush-VALVE system
 # sized on it is undersized ~47% at low WSFU. (Fixed 2026-06-23 Arc Q — independently
 # sourced + adversarially verified.) Points = (WSFU, peak L/min) from the published gpm
 # curve × 3.785; the 5-WSFU anchor ≈ one flushometer's 25 gpm demand.
@@ -69,6 +60,17 @@ def _interp(pts: list, x: float) -> float:
     return pts[-1][1]
 
 
+# ★THE FLUSH-TANK FIT CROSSED ABOVE THE FLUSH-VALVE CURVE (2026-11-02, found reading Water Supply Pipe Sizing against
+# its guide): the power-law fit tracks Hunter's tank branch only to ~20 WSFU, then overshoots it - 100 WSFU gave
+# 312.8 L/min (82.6 gpm) where IPC Table E103.3(3) prints 43.5 gpm, above the flush-VALVE curve's own 67.5 (a tank
+# system cannot peak higher than a flushometer one). The tank branch is now the IPC column, as the valve branch is.
+HUNTER_TANK: list[tuple] = [(w, round(g * 3.785, 1)) for w, g in (
+    (1, 3.0), (2, 5.0), (3, 6.5), (4, 8.0), (5, 9.4), (6, 10.7), (8, 12.8), (10, 14.6), (15, 17.5), (20, 19.6),
+    (25, 21.5), (30, 23.3), (40, 26.3), (50, 29.1), (60, 32.0), (80, 38.0), (100, 43.5), (120, 48.0), (140, 52.5),
+    (160, 57.0), (200, 65.0), (250, 75.0), (300, 85.0), (400, 105.0), (500, 124.0), (750, 170.0), (1000, 208.0),
+    (1500, 269.0), (2000, 325.0))]
+
+
 def _hunter_flow(wsfu: float, has_flush_valve: bool = False) -> float:
     """Peak probable flow (L/min) from total WSFU via Hunter's Curve. Flush-VALVE
     (flushometer) systems use the dedicated HUNTER_VALVE curve (they peak far higher at
@@ -77,11 +79,7 @@ def _hunter_flow(wsfu: float, has_flush_valve: bool = False) -> float:
         return 0.0
     if has_flush_valve:
         return _interp(HUNTER_VALVE, wsfu)
-    for seg in HUNTER_CURVE:
-        if wsfu <= seg["wsfu_max"]:
-            return seg["a"] * (wsfu ** seg["b"]) * 10   # scale to L/min
-    last = HUNTER_CURVE[-1]
-    return last["a"] * (wsfu ** last["b"]) * 10
+    return _interp(HUNTER_TANK, wsfu)
 
 # ─── Pipe roughness - Hazen-Williams C factors ────────────────────────────────
 HW_C: dict[str, float] = {

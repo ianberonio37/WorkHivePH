@@ -1174287,8 +1174287,8 @@
     },
     {
       "id": "ED171",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - Hot Water Demand on engineering-design.html · solo-owner",
       "pages": [
@@ -1174342,6 +1174342,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the Hot Water Demand calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/hot_water_demand.py: the form's Recovery Time is 'hours available for the heater to reheat the TANK from cold', but the guide's formula and the engine heated the whole DAY's demand in it - 100 hotel rooms (14,850 L/day) got a 277 kW heater where reheating the selected 5,000 L tank in 2 h takes 92.9 kW (the storage, peak hour x 1.25, already carries the peak hour). The heater now recovers the tank; the day's heat is still reported, as running cost. The report's working named the daily demand as the mass and hard-coded Cp 4.186 beside the engine's IAPWS 4.1787 - both now the engine's. Guide names are the form's. The vector fails on the old engine (275.8 kW); walked on the served page at 390 (form defaults): '1500 L tank in 2 h', '200577 kJ', '27.86 kW', no sideways scroll. Same commit: calcs/domestic_water.py's flush-TANK power fit overshot Hunter above ~20 WSFU (100 WSFU 312.8 L/min, above its own flush-valve 255.5) - now IPC Table E103.3(3)'s tank column, with a vector that fails on the fit (163.6 vs 110.1 L/min at 50 WSFU). WALKED: Hot Water Demand's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T03:14:23Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {
