@@ -353,6 +353,20 @@ ENGINE_CHECKED["Chiller System — Water Cooled"] = (
     "Supply/Return Temperature, CW Supply/Return Temp, IPLV / NPLV). The vector fails on the old engine; walked on the "
     "served page at 390 (300 kW screw, COP 5.0): '4.88 (75-<150 TR positive displacement: each 352 kW unit)', 'COP 5 vs "
     "min 4.88', no sideways scroll.")
+ENGINE_CHECKED["AHU Sizing"] = (
+    "FOUND AND FIXED, read against python-api/calcs/ahu_sizing.py: (1) the guide's 'Q_design = Cooling Load x Safety "
+    "Factor' - the margin enlarged the fan and coil face, but the coil capacity, its chilled water, the dehumidification "
+    "and the AHU's rated airflow ran on the load airflow without it (a 1.10 factor left the coil ~9% short of its air); all "
+    "now at the design airflow. (2) The form's eta is the COMBINED fan + motor efficiency; the engine divided by a further "
+    "0.92 (+8.7% fan power). (3) The motor was picked for the whole airflow and printed 'per unit' (2 AHUs: a 3.0 kW motor "
+    "each where 1.1 kW serves). (4) The '90.1' limit was 1.2 W/(L/s) citing Table 10.8 (motor efficiency), the guide said "
+    "0.82 (0.0011 hp/cfm read as W/cfm): now 90.1-2019 6.5.3.1.1 Option 1, nameplate <= 1.7 W per L/s, N/A at or below 5 "
+    "hp. (5) The default outdoor air was 35 C at 80% RH (31 C dew point, 108 kJ/kg) - no Manila design condition; now 35 C "
+    "DB / 28 C WB (89.4 kJ/kg). (6) OA per person printed a fixed 10. The report's working now reproduces its numbers "
+    "(load airflow x SF; coil = m x (h_mix - h_sup); nameplate W/(L/s)); guide names are the form's. The vector (hand "
+    "psychrometrics from ASHRAE Fundamentals Ch.1) fails on the old engine (coil 89.69 vs 82.22, OA 10 vs 17.8); walked on "
+    "the served page at 390: 'Q_coil = 4.1004 x (58.05 - 38) kJ/kg = 82.23 kW', '1.1 kW per unit, 2.2 kW nameplate total', "
+    "no sideways scroll. Door page restamped on the design airflow (9157.6 CFM / 29.18 TR / 7.5 kW).")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "

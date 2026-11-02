@@ -2,6 +2,7 @@
  "updated": "2026-11-02",
  "note": "guides whose fields match their form exactly - a guide on this list that fails again is a regression",
  "passing": [
+  "AHU Sizing",
   "Bearing Life (L10)",
   "Bolt Torque & Preload",
   "Cable Tray Sizing",

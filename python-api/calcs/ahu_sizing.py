@@ -41,8 +41,12 @@ COIL_DP_PA  = 150   # Pa - typical DX or chilled water coil at 2.3 m/s
 DAMPER_DP   = 50    # Pa - OA/RA dampers
 
 # ─── ASHRAE 90.1 fan power limit (W per L/s of supply air) ───────────────────
-# Table 10.8 - simple systems ≤ 1.2 W/(L/s), VAV systems ≤ 1.6
-FAN_POWER_LIMIT_W_LPS = 1.2
+# ★THE LIMIT WAS NOT 90.1's (2026-11-02, ED-G1 AHU, read against the guide). It read "Table 10.8 - simple systems ≤ 1.2
+# W/(L/s)" (Table 10.8 is motor efficiency) and the guide said 0.82 W/(L/s) (that is 0.0011 hp/cfm read as W/cfm).
+# 90.1-2019 §6.5.3.1.1 Option 1, constant volume: fan system motor NAMEPLATE kW ≤ 0.0017 × supply L/s (VAV 0.0024),
+# required only where the system's total nameplate exceeds 5 hp (3.7 kW).
+FAN_POWER_LIMIT_W_LPS = 1.7
+FAN_POWER_THRESHOLD_KW = 3.73   # 5 hp
 
 # ─── Standard coil bypass factors (CBF) by coil rows ─────────────────────────
 CBF_BY_ROWS: dict[int, float] = {
@@ -154,7 +158,15 @@ def calculate(inputs: dict) -> dict:
     indoor_db       = float(inputs.get("indoor_temp",       inputs.get("room_temp_C",   24.0)))
     indoor_rh_pct   = float(inputs.get("indoor_rh_pct",      55.0))
     outdoor_db      = float(inputs.get("outdoor_temp",        35.0))
-    outdoor_rh_pct  = float(inputs.get("outdoor_rh_pct",      80.0))
+    # ★THE DEFAULT OUTSIDE AIR WAS A CONDITION MANILA NEVER SEES (2026-11-02, ED-G1 AHU): 35 °C at 80% RH is a 31 °C dew
+    # point and 108 kJ/kg; ASHRAE's Manila design is 34.6 °C DB / 26.5 °C MCWB, its 0.4% enthalpy about 89 kJ/kg. The
+    # form has no outdoor input, so every AHU's outside-air load was ~25% high. The default is now 35 °C DB / 28 °C WB
+    # (about 89 kJ/kg, the enthalpy design point); an explicit RH or WB still wins.
+    if inputs.get("outdoor_rh_pct") not in (None, ""):
+        outdoor_rh_pct = float(inputs["outdoor_rh_pct"])
+    else:
+        outdoor_wb_in  = min(float(inputs.get("outdoor_wb_c", 28.0)), outdoor_db)
+        outdoor_rh_pct = psychrolib.GetRelHumFromTWetBulb(outdoor_db, outdoor_wb_in, 101325) * 100
     oa_pct          = float(inputs.get("oa_pct",              20.0))  # % outside air
     face_vel_key    = str  (inputs.get("face_velocity",    "Standard"))
     coil_rows       = int  (inputs.get("coil_rows",             6))
@@ -194,12 +206,18 @@ def calculate(inputs: dict) -> dict:
     vol_flow_cfm   = vol_flow_m3s * 2118.88
 
     # Design flow with margin
-    vol_flow_design_m3s = vol_flow_m3s * (1 + design_margin / 100)
+    # ★THE SAFETY FACTOR NEVER REACHED THE COIL (2026-11-02, ED-G1 AHU, read against the guide: "Q_design = Cooling Load ×
+    # Safety Factor"). The margin enlarged the fan and the coil face, but the coil capacity, its chilled water, the
+    # dehumidification and the AHU's rated airflow were all computed on the load airflow without it: a 1.10 factor left the
+    # coil ~9% short of the air it was given. Everything the unit is selected on now runs at the design airflow.
+    vol_flow_design_m3s  = vol_flow_m3s * (1 + design_margin / 100)
+    mass_flow_design_kgs = mass_flow_kgs * (1 + design_margin / 100)
+    vol_flow_design_m3hr = vol_flow_design_m3s * 3600
 
     # ── Air changes per hour ──────────────────────────────────────────────────
     ceiling_h = float(inputs.get("ceiling_height", 3.0))
     room_vol  = floor_area_m2 * ceiling_h
-    ach       = vol_flow_m3hr / max(room_vol, 1)
+    ach       = vol_flow_design_m3hr / max(room_vol, 1)
 
     # ── Mixed air state ───────────────────────────────────────────────────────
     oa_fraction = oa_pct / 100
@@ -211,9 +229,9 @@ def calculate(inputs: dict) -> dict:
 
     # ── Coil load (mixed air → supply air state) ──────────────────────────────
     # Total coil load = mass flow * (h_mixed - h_supply)
-    coil_total_w    = mass_flow_kgs * (ma_h - sa_h)
+    coil_total_w    = mass_flow_design_kgs * (ma_h - sa_h)
     # Sensible coil = mass flow * Cp * (T_mixed - T_supply)
-    coil_sensible_w = mass_flow_kgs * cp_air * (ma_db - supply_temp_c)
+    coil_sensible_w = mass_flow_design_kgs * cp_air * (ma_db - supply_temp_c)
     coil_latent_w   = max(coil_total_w - coil_sensible_w, 0)
     coil_shr        = coil_sensible_w / max(coil_total_w, 1)
 
@@ -249,15 +267,19 @@ def calculate(inputs: dict) -> dict:
     fan_total_static_pa = form_static_pa if form_static_pa > 0 else fan_sp_pa + FILTER_DP + COIL_DP_PA + DAMPER_DP
 
     # ── Fan motor sizing ──────────────────────────────────────────────────────
-    fan_motor_kw_calc = _fan_motor_kw(vol_flow_design_m3s, fan_total_static_pa, fan_eff=fan_eff)
-    rec_motor_kw      = next((s for s in MOTOR_SIZES_KW if s >= fan_motor_kw_calc),
+    # The form's η is the COMBINED fan × motor efficiency (its label and the guide say so); dividing by a further 0.92
+    # motor efficiency counted the motor twice (+8.7% fan power). The motor is picked per unit: it was picked for the
+    # whole airflow and printed as "per unit".
+    fan_motor_kw_calc = _fan_motor_kw(vol_flow_design_m3s, fan_total_static_pa, fan_eff=fan_eff, motor_eff=1.0)
+    rec_motor_kw      = next((s for s in MOTOR_SIZES_KW if s >= fan_motor_kw_calc / n_units),
                               MOTOR_SIZES_KW[-1])
+    nameplate_total_kw = rec_motor_kw * n_units
 
-    # ── ASHRAE 90.1 fan power check ───────────────────────────────────────────
-    # Limit: 1.2 W per L/s (simple constant volume systems)
+    # ── ASHRAE 90.1 fan power check (§6.5.3.1.1 Option 1, constant volume, nameplate) ──
     flow_lps            = vol_flow_design_m3s * 1000
-    fan_power_w_lps     = (fan_motor_kw_calc * 1000) / max(flow_lps, 1)
+    fan_power_w_lps     = (nameplate_total_kw * 1000) / max(flow_lps, 1)
     fan_power_ok        = fan_power_w_lps <= FAN_POWER_LIMIT_W_LPS
+    fan_power_applies   = nameplate_total_kw > FAN_POWER_THRESHOLD_KW
 
     # ── ASHRAE 62.1 OA adequacy ───────────────────────────────────────────────
     # Required OA: Rp L/s/person + Ra L/s/m2 for the form's space type (ASHRAE 62.1 Table 6-1 - the Ventilation calculator's
@@ -269,7 +291,7 @@ def calculate(inputs: dict) -> dict:
 
     # ── Dehumidification capacity ─────────────────────────────────────────────
     # Moisture removed: m_dot * (w_mixed - w_supply)  [kg/s water]
-    dehum_kg_hr = mass_flow_kgs * (ma_w - sa_w) * 3600
+    dehum_kg_hr = mass_flow_design_kgs * (ma_w - sa_w) * 3600
 
     return {
         # Airflow
@@ -315,7 +337,7 @@ def calculate(inputs: dict) -> dict:
             "outdoor_db_c":     outdoor_db,
             "outdoor_wb_c":     round(oa_wb, 1),
             "outdoor_dp_c":     round(oa_dp, 1),
-            "outdoor_rh_pct":   outdoor_rh_pct,
+            "outdoor_rh_pct":   round(outdoor_rh_pct, 1),
             "outdoor_w_gkg":    round(oa_w * 1000, 2),
             "outdoor_h_kJkg":   round(oa_h / 1000, 2),
 
@@ -362,13 +384,24 @@ def calculate(inputs: dict) -> dict:
         "Q_design_TR":       coil_tr,
         "Q_sensible_kW":     round(coil_sensible_w / 1000, 2),
         "Q_latent_kW":       round(coil_latent_w / 1000, 2),
-        "Q_input_kW":        round(q_sensible_w / 1000, 3),  # sensible cooling load in kW
-        "Q_sa_m3s":          round(vol_flow_m3s, 4),
-        "Q_sa_CMH":          round(vol_flow_m3hr, 1),
-        "Q_sa_CMH_each":     round(vol_flow_m3hr / n_units, 1),
-        "Q_sa_CFM":          round(vol_flow_cfm, 1),
+        "Q_input_kW":        round(q_total_w / 1000, 3),     # the room load as entered (total)
+        "Q_room_sensible_kW": round(q_sensible_w / 1000, 3),
+        "Q_room_latent_kW":  round(q_latent_w / 1000, 3),
+        # The supply airflow the AHU is selected on is the design airflow (load airflow × the safety factor)
+        "Q_sa_load_m3s":     round(vol_flow_m3s, 4),
+        "Q_sa_load_CMH":     round(vol_flow_m3hr, 1),
+        "Q_sa_m3s":          round(vol_flow_design_m3s, 4),
+        "Q_sa_CMH":          round(vol_flow_design_m3hr, 1),
+        "Q_sa_CMH_each":     round(vol_flow_design_m3hr / n_units, 1),
+        "Q_sa_CFM":          round(vol_flow_design_m3s * 2118.88, 1),
         "Q_oa_CMH":          round(oa_delivered_lps * 3.6, 1),
-        "Q_ra_CMH":          round((vol_flow_m3hr - oa_delivered_lps * 3.6), 1),
+        "Q_ra_CMH":          round((vol_flow_design_m3hr - oa_delivered_lps * 3.6), 1),
+        "rho_air":           rho_air,
+        "cp_air_kJ":         round(cp_air / 1000, 3),
+        "m_design_kgs":      round(mass_flow_design_kgs, 4),
+        "h_mixed_kJkg":      round(ma_h / 1000, 2),
+        "h_supply_kJkg":     round(sa_h / 1000, 2),
+        "T_outdoor_C":       outdoor_db,
         "P_fan_kW":          round(fan_motor_kw_calc, 3),
         "P_fan_kW_each":     round(fan_motor_kw_calc / n_units, 3),
         "fan_static_pa":     fan_total_static_pa,
@@ -381,8 +414,8 @@ def calculate(inputs: dict) -> dict:
         "chw_return_C":      chw_return_c,
         "shr":               round(coil_shr, 3),
         "n_units":           n_units,
-        "nominal_AHU_CMH_total": round(vol_flow_m3hr, 1),
-        "nominal_AHU_CMH_each":  round(vol_flow_m3hr / n_units, 1),
+        "nominal_AHU_CMH_total": round(vol_flow_design_m3hr, 1),
+        "nominal_AHU_CMH_each":  round(vol_flow_design_m3hr / n_units, 1),
         "ach_actual":        round(ach, 1),
         "ceiling_height":    ceiling_h,
         "floor_area":        floor_area_m2,   # use internally computed value (defaults to 50 m²)
@@ -390,12 +423,17 @@ def calculate(inputs: dict) -> dict:
         "persons":           persons,
         "safety_factor":     round(design_margin / 100 + 1, 3),
         "oa_pct_used":       oa_pct,
-        "oa_per_person_lps": float(inputs.get("oa_per_person_lps", 10.0)),
+        # OA delivered per person (it printed a fixed 10 whatever the airflow)
+        "oa_per_person_lps": round(oa_delivered_lps / persons, 1) if persons > 0 else 0.0,
+        "fan_motor_kw_each": rec_motor_kw,
+        "fan_nameplate_total_kw": round(nameplate_total_kw, 2),
         "fan_hp_std":        round(rec_motor_kw / 0.746, 1),
-        "fan_hp_total":      round(fan_motor_kw_calc / 0.746, 1),
+        "fan_hp_total":      round(nameplate_total_kw / 0.746, 1),
         "fan_power_W_lps":   round(fan_power_w_lps, 3),
-        "fan_power_check":   "PASS" if fan_power_ok else "FAIL",
-        "ashrae_fan_max":    1.2,
+        "fan_power_check":   ("PASS" if fan_power_ok else "FAIL") if fan_power_applies else "N/A",
+        "fan_power_basis":   ("ASHRAE 90.1-2019 §6.5.3.1.1 Option 1 (constant volume): nameplate ≤ 1.7 W per L/s"
+                              + ("" if fan_power_applies else "; not required at 5 hp (3.7 kW) total nameplate or less")),
+        "ashrae_fan_max":    FAN_POWER_LIMIT_W_LPS,
         "ashrae_oa_min_lps_person": rp,
         "ashrae_oa_lps_m2":  ra,
         "space_type":        space_type,

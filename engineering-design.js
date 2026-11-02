@@ -2260,22 +2260,23 @@ const GUIDES = {
     subtitle: 'Sizes an AHU for a zone or building: supply airflow (CMH/CFM), cooling coil capacity (kW/TR), outside air (OA) volume, chilled water flow, fan motor HP, air changes per hour (ACH), and ASHRAE 90.1 fan power compliance.',
     standards: [
       'ASHRAE 62.1: Ventilation for Acceptable Indoor Air Quality (minimum OA rates)',
-      'ASHRAE 90.1: Energy Standard: fan power ≤ 0.82 W/(L/s) at design airflow',
+      'ASHRAE 90.1-2019 §6.5.3.1.1: fan system power limit (Option 1, constant volume: nameplate ≤ 1.7 W per L/s, above 5 hp)',
       'ASHRAE Handbook: HVAC Systems and Equipment: AHU selection, coil sizing, psychrometrics',
       'PSME Code: Philippine Society of Mechanical Engineers: AHU installation and duct design',
       'PGBC / BERDE: Green Building Code: indoor air quality and energy performance',
     ],
     formulas: [
-      'Q_design (kW) = Cooling Load × Safety Factor',
-      'Q_sensible (kW) = Q_design × SHR',
-      'Q_latent (kW) = Q_design × (1 − SHR)',
-      'Q_supply (m³/s) = Q_sensible / (ρ × Cp × ΔT_sa)  [ρ=1.2 kg/m³, Cp=1.005 kJ/kg·K]',
-      'T_mixed (°C) = OA% × T_outside + (1−OA%) × T_room',
-      'Q_coil (kW) = ρ × Cp × Q_supply × (T_mixed − T_supply) / SHR',
-      'CHW Flow (L/s) = Q_coil / (4.187 × ΔT_chw)',
-      'P_fan (kW) = Q_supply_m3s × ΔP_fan_Pa / (η_fan × 1000)',
-      'Fan Power Index (W/L·s) = P_fan×1000 / Q_supply_lps  [ASHRAE 90.1 max: 0.82]',
-      'ACH = Q_supply_CMH / Zone Volume (m³)',
+      'Room load:  Q_sensible = Q_input × SHR      Q_latent = Q_input − Q_sensible',
+      'Load airflow:  V = Q_sensible / (ρ × Cp × ΔT_sa)   [ρ = 1.15 kg/m³ tropical air, Cp = 1.006 kJ/kg·K, ΔT_sa = T_room − T_supply]',
+      'Design airflow:  V_design = V × Safety Factor  (the AHU, its coil, fan and outside air are all selected on this)',
+      'Mixed air:  h_mix = OA% × h_outdoor + (1 − OA%) × h_room   (outdoor 35°C DB / 28°C WB, room at 55% RH)',
+      'Coil capacity:  Q_coil = ṁ_design × (h_mix − h_supply),  ṁ_design = ρ × V_design   (supply air at 95% RH)',
+      'Coil sensible = ṁ_design × Cp × (T_mix − T_supply);  coil latent = Q_coil − sensible',
+      'CHW Flow (L/s) = Q_coil / (4.186 × ΔT_chw)',
+      'P_fan (kW) = V_design × ΔP_fan / (η × 1000)   [η = combined fan + motor efficiency]',
+      'Motor per unit = next standard size ≥ P_fan / units',
+      'ASHRAE 90.1 Option 1 (constant volume): units × motor kW × 1000 / (V_design in L/s) ≤ 1.7 W per L/s, required above 5 hp (3.7 kW) total',
+      'ACH = V_design (m³/h) / (Floor Area × Ceiling Height)',
     ],
     fields: [
       { name: 'Total Cooling Load (kW)', tip: 'Zone or AHU served-area cooling load in kW. Source from HVAC Cooling Load calculation. Include safety/diversity factor separately: do not pre-apply it to this input.' },
@@ -2284,16 +2285,21 @@ const GUIDES = {
       { name: 'Room / Zone Temperature', tip: 'Design room set-point (dry-bulb). PSME Code standard: 24°C ±1°C for comfort. Data center: 18–21°C. Hospital: 22–24°C. Production floor: 26–28°C acceptable where radiant heat sources are present.' },
       { name: 'Supply Air Temperature', tip: 'Temperature of air leaving the AHU cooling coil. Standard: 13–15°C for comfort AHU (ΔT = 9–11°C from room). Low supply temp (11–12°C) reduces airflow but risks condensation on ducts. High supply temp (16–18°C) increases airflow and duct size. 14°C is the Philippine standard for central AHUs.' },
       { name: 'Outside Air %', tip: 'ASHRAE 62.1 minimum: 15–20% for most occupied spaces. Office: minimum 10 L/s/person (about 15–20%). Server rooms: 0–5% (heat recirculation). Clean rooms: up to 100% OA. Higher OA improves air quality but increases coil load: use enthalpy recovery wheel for high OA applications.' },
-      { name: 'Fan Static Pressure (Pa)', tip: 'Total external static pressure the fan must overcome: sum of duct friction, coil DP, filter DP, damper losses. Small AHU (duct <20m): 200–350 Pa. Medium AHU (20–50m duct): 350–600 Pa. Large central AHU with long distribution: 600–900 Pa. Oversizing by 30% is typical for design margin.' },
-      { name: 'Fan + Motor Efficiency (η)', tip: 'Combined fan mechanical efficiency × motor efficiency. AMCA-rated fans: 65–75% at design point. EC (electronically commutated) motors: 85–92%. Typical design value: 0.65. For high-efficiency ECM AHU: 0.75–0.80. Never use 0.80+ unless equipment has AMCA-certified performance data at design airflow.' },
-      { name: 'CHW Supply / Return Temp', tip: 'Standard for coil: 7°C supply / 12°C return (5°C ΔT). Higher return temp (14°C, 7°C ΔT) reduces CHW flow by 28%: saves pump energy and allows smaller pipes. Match to chiller plant CHW design conditions: AHU coil must be selected to achieve design supply air temperature at specified CHW temperatures.' },
+      { name: 'Fan Total Static Pressure', tip: 'Total external static pressure the fan must overcome: sum of duct friction, coil DP, filter DP, damper losses. Small AHU (duct <20m): 200–350 Pa. Medium AHU (20–50m duct): 350–600 Pa. Large central AHU with long distribution: 600–900 Pa. Oversizing by 30% is typical for design margin.' },
+      { name: 'Fan + Motor Efficiency (η)', tip: 'Combined fan mechanical efficiency × motor efficiency: the calculator divides by this one figure and applies no further motor loss. AMCA-rated fans: 65–75% at design point. EC (electronically commutated) motors: 85–92%. Typical design value: 0.65. For high-efficiency ECM AHU: 0.75–0.80. Never use 0.80+ unless equipment has AMCA-certified performance data at design airflow.' },
+      { name: 'CHW Supply Temperature', tip: 'Chilled water entering the coil, usually 7°C (6°C where tight humidity control is needed).' },
+      { name: 'CHW Return Temperature', tip: 'Standard for coil: 7°C supply / 12°C return (5°C ΔT). Higher return temp (14°C, 7°C ΔT) reduces CHW flow by 28%: saves pump energy and allows smaller pipes. Match to chiller plant CHW design conditions: AHU coil must be selected to achieve design supply air temperature at specified CHW temperatures.' },
       { name: 'Number of AHU Units', tip: 'The AHUs share the airflow equally: 2 units each carry half, 3 units a third. For N+1 redundancy, add one more unit of the same size as a standby; it is not counted here. A zoned system usually gives each zone its own AHU sized for that zone.' },
+      { name: 'Safety / Diversity Factor', tip: 'Multiplies the load airflow: the AHU rating, coil capacity, chilled water, fan and outside air are all taken at the design airflow it gives. Typical 1.10.' },
+      { name: 'Floor Area', tip: 'Served floor area in m². With the ceiling height it gives the zone volume for ACH, and it sets the ASHRAE 62.1 area component of the outside air (Ra × area).' },
+      { name: 'Ceiling Height', tip: 'Floor-to-ceiling height in m, for the zone volume and ACH.' },
+      { name: 'Number of Occupants', tip: 'Design occupancy. Sets the ASHRAE 62.1 people component of the outside air (Rp × persons) and the outside air per person on the report.' },
     ],
     notes: [
       'Supply air temperature: standard range 13-15°C. At 14°C supply and 24°C room, ΔT = 10°C: this produces airflow of about 285 CMH per kW of sensible load. At 12°C supply (ΔT = 12°C), airflow is 237 CMH/kW: smaller ducts, but colder coil needed.',
-      'OA fraction affects coil load significantly. At 20% OA with 35°C outside air and 24°C room, mixed air temperature rises to 26.2°C instead of 24°C: this adds ~9% to coil load. At 30% OA it adds ~14%. Always recalculate coil load from mixed air, not room temperature alone.',
+      'OA fraction affects coil load significantly. At 20% OA with 35°C outside air and 24°C room, mixed air temperature rises to 26.2°C instead of 24°C, but the larger effect is the outdoor humidity: at 35°C DB / 28°C WB the outside air carries 89 kJ/kg against the room 50, so 20% OA adds about 40% to the coil. Always calculate the coil from the mixed-air enthalpy, not room temperature alone.',
       'ASHRAE 62.1 minimum ventilation: 10 L/s/person for office (plus 0.3 L/s/m² area component). Dense occupancy (lecture halls, call centers) requires more OA. Underproviding OA risks IAQ complaints, sick building syndrome, and regulatory non-compliance.',
-      'ASHRAE 90.1 fan power limit: 0.82 W/(L/s) at design airflow for simple-box AHUs. Exceeding this means either the fan static is too high (overlong or undersized ductwork) or fan efficiency is too low. EC motors and variable-speed drives help meet this limit.',
+      'ASHRAE 90.1-2019 fan power limit (§6.5.3.1.1 Option 1): fan motor nameplate ≤ 1.7 W per L/s for constant volume (2.4 for VAV), required where the system total exceeds 5 hp. Exceeding it means either the fan static is too high (overlong or undersized ductwork) or fan efficiency is too low. EC motors and variable-speed drives help meet this limit.',
       'Filter selection impacts static pressure: G4 pre-filter adds 50–80 Pa, F7 bag filter adds 80–120 Pa, HEPA adds 200–300 Pa. Select filter initial DP at clean condition: final DP at replacement is typically 2× initial. Use final DP for fan sizing.',
       'Chilled water coil face velocity: 2.0-2.5 m/s at design airflow is ideal for moisture carryover prevention. Above 2.5 m/s risks condensate droplet entrainment. Below 1.5 m/s, coil is oversized but performance is fine. Calculate face velocity = Q_supply / coil_face_area.',
     ],
@@ -18894,8 +18900,8 @@ function renderAHUSizingReport(inputs, results, narrative) {
   const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
   const r       = results;
-  const fanColor = r.fan_power_check === 'PASS' ? '#2e7d32' : '#c62828';
-  const fanBg    = r.fan_power_check === 'PASS' ? '#e8f5e9' : '#ffebee';
+  const fanColor = r.fan_power_check === 'PASS' ? '#2e7d32' : r.fan_power_check === 'N/A' ? '#455a64' : '#c62828';
+  const fanBg    = r.fan_power_check === 'PASS' ? '#e8f5e9' : r.fan_power_check === 'N/A' ? '#eceff1' : '#ffebee';
   const oaColor  = r.oa_check === 'PASS' ? '#2e7d32' : r.oa_check === 'FAIL' ? '#c62828' : '#555';
   const oaBg     = r.oa_check === 'PASS' ? '#e8f5e9' : r.oa_check === 'FAIL' ? '#ffebee' : '#f5f5f5';
 
@@ -18962,16 +18968,15 @@ function renderAHUSizingReport(inputs, results, narrative) {
     <h2>Step 1: Design Cooling Load (with Safety Factor)</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Zone Cooling Load</th><td>Q_input = ${r.Q_input_kW} kW = ${(r.Q_input_kW/3.517).toFixed(1)} TR</td></tr>
-      <tr><th>Safety Factor Applied</th><td>SF = ${r.safety_factor}</td></tr>
-      <tr><th style="background:#fffde7;">Design Cooling Load</th><td><strong>Q_design = ${r.Q_input_kW} × ${r.safety_factor} = ${r.Q_design_kW} kW (${r.Q_design_TR} TR)</strong></td></tr>
-      <tr><th>Sensible Component</th><td>Q_sensible = ${r.Q_design_kW} × ${r.shr} = <strong>${r.Q_sensible_kW} kW</strong></td></tr>
-      <tr><th>Latent Component</th><td>Q_latent = ${r.Q_design_kW} × ${(1-r.shr).toFixed(2)} = <strong>${r.Q_latent_kW} kW</strong></td></tr>
+      <tr><th>Sensible Component</th><td>Q_sensible = ${r.Q_input_kW} × ${inputs.shr} = <strong>${r.Q_room_sensible_kW ?? r.Q_input_kW} kW</strong></td></tr>
+      <tr><th>Latent Component</th><td>Q_latent = ${r.Q_input_kW} − ${r.Q_room_sensible_kW ?? r.Q_input_kW} = <strong>${r.Q_room_latent_kW ?? 0} kW</strong></td></tr>
+      <tr><th>Safety Factor Applied</th><td>SF = ${r.safety_factor}: applied to the airflow, so the coil, fan and outside air below are all at the design airflow</td></tr>
     </table>
 
     <h2>Step 2: Supply Air Quantity</h2>
     <p style="font-size:0.83rem;color:#333;">
-      Q_supply = Q_sensible / (ρ × Cp × ΔT_sa)<br>
-      Q_supply = ${r.Q_sensible_kW} / (1.2 × 1.005 × ${r.dT_sa}) = <strong>${r.Q_sa_m3s} m³/s = ${r.Q_sa_CMH} m³/h (${r.Q_sa_CFM} CFM)</strong>
+      Q_supply = Q_sensible / (ρ × Cp × ΔT_sa) = ${r.Q_room_sensible_kW ?? '-'} / (${r.rho_air ?? 1.15} × ${r.cp_air_kJ ?? 1.006} × ${r.dT_sa}) = ${r.Q_sa_load_m3s ?? '-'} m³/s<br>
+      Design airflow = ${r.Q_sa_load_m3s ?? '-'} × ${r.safety_factor} = <strong>${r.Q_sa_m3s} m³/s = ${r.Q_sa_CMH} m³/h (${r.Q_sa_CFM} CFM)</strong>
     </p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Supply Temperature Differential (ΔT)</th><td>${inputs.room_temp_C}°C − ${inputs.supply_temp_C}°C = ${r.dT_sa}°C</td></tr>
@@ -18982,7 +18987,7 @@ function renderAHUSizingReport(inputs, results, narrative) {
     <h2>Step 3: Outside Air / Mixed Air</h2>
     <p style="font-size:0.83rem;color:#333;">
       T_mixed = OA% × T_ambient + (1−OA%) × T_room<br>
-      T_mixed = ${r.oa_pct_used}% × 35 + ${100-r.oa_pct_used}% × ${inputs.room_temp_C} = <strong>${r.T_mixed}°C</strong>
+      T_mixed = ${r.oa_pct_used}% × ${r.T_outdoor_C ?? 35} + ${100-r.oa_pct_used}% × ${inputs.room_temp_C} = <strong>${r.T_mixed}°C</strong>
     </p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Outside Air Flow</th><td>Q_OA = ${r.Q_sa_CMH} × ${r.oa_pct_used}% = <strong>${r.Q_oa_CMH} m³/h (${(r.Q_oa_CMH/3.6).toFixed(1)} L/s)</strong></td></tr>
@@ -18993,9 +18998,10 @@ function renderAHUSizingReport(inputs, results, narrative) {
 
     <h2>Step 4: Cooling Coil Capacity</h2>
     <p style="font-size:0.83rem;color:#333;">
-      Sensible coil load = ρ × Cp × Q_supply × (T_mixed − T_supply)<br>
-      Q_coil,sensible = 1.2 × 1.005 × ${r.Q_sa_m3s} × (${r.T_mixed} − ${inputs.supply_temp_C}) = <strong>${r.Q_coil_sensible_kW} kW</strong><br>
-      Q_coil,total = Q_coil,sensible / SHR = ${r.Q_coil_sensible_kW} / ${r.shr} = <strong>${r.Q_coil_total_kW} kW (${r.Q_coil_TR} TR)</strong>
+      Q_coil = ṁ × (h_mixed − h_supply),  ṁ = ρ × design airflow = ${r.m_design_kgs ?? '-'} kg/s<br>
+      Q_coil = ${r.m_design_kgs ?? '-'} × (${r.h_mixed_kJkg ?? '-'} − ${r.h_supply_kJkg ?? '-'}) kJ/kg = <strong>${r.Q_coil_total_kW} kW (${r.Q_coil_TR} TR)</strong><br>
+      Q_coil,sensible = ${r.m_design_kgs ?? '-'} × ${r.cp_air_kJ ?? 1.006} × (${r.T_mixed} − ${inputs.supply_temp_C}) = <strong>${r.Q_coil_sensible_kW} kW</strong>; latent = the rest<br>
+      Outdoor ${r.T_outdoor_C ?? 35}°C DB at ${r.psychrometrics?.outdoor_rh_pct ?? '-'}% RH (${r.psychrometrics?.outdoor_wb_c ?? '-'}°C WB); room ${inputs.room_temp_C}°C at 55% RH; supply ${inputs.supply_temp_C}°C at 95% RH
     </p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Sensible Coil Load</th><td>${r.Q_coil_sensible_kW} kW</td></tr>
@@ -19005,7 +19011,7 @@ function renderAHUSizingReport(inputs, results, narrative) {
 
     <h2>Step 5: Chilled Water Flow Rate</h2>
     <p style="font-size:0.83rem;color:#333;">
-      Q_CHW = Q_coil / (Cp,w × ΔT_chw) = ${r.Q_coil_total_kW} / (4.187 × ${r.dT_chw_C}) = <strong>${r.Q_chw_lps} L/s</strong>
+      Q_CHW = Q_coil / (Cp,w × ΔT_chw) = ${r.Q_coil_total_kW} / (4.186 × ${r.dT_chw_C}) = <strong>${r.Q_chw_lps} L/s</strong>
     </p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>CHW Temperature Differential (ΔT)</th><td>${r.chw_supply_C}°C supply / ${r.chw_return_C}°C return = ${r.dT_chw_C}°C</td></tr>
@@ -19014,13 +19020,13 @@ function renderAHUSizingReport(inputs, results, narrative) {
 
     <h2>Step 6: Fan Motor Sizing</h2>
     <p style="font-size:0.83rem;color:#333;">
-      P_fan = Q_supply × ΔP_fan / (η × 1000) = ${r.Q_sa_m3s} × ${r.fan_static_Pa} / (${r.eta_fan} × 1000) = <strong>${r.P_fan_kW} kW</strong><br>
-      Fan Power Index = P_fan × 1000 / Q_supply_L/s = ${(r.Q_sa_m3s*1000).toFixed(1)} L/s → <strong>${r.fan_power_W_lps} W/(L/s)</strong>
+      P_fan = Q_supply × ΔP_fan / (η × 1000) = ${r.Q_sa_m3s} × ${r.fan_static_Pa} / (${r.eta_fan} × 1000) = <strong>${r.P_fan_kW} kW</strong> (η is the combined fan + motor efficiency)<br>
+      Fan power (ASHRAE 90.1 Option 1) = nameplate ${r.fan_nameplate_total_kw ?? '-'} kW × 1000 / ${(r.Q_sa_m3s*1000).toFixed(1)} L/s → <strong>${r.fan_power_W_lps} W/(L/s)</strong>
     </p>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th>Total Fan Motor Power</th><td>${r.P_fan_kW} kW total (${r.P_fan_kW_each} kW per unit)</td></tr>
-      <tr><th style="background:#fffde7;">Selected Fan Motor (per unit)</th><td><strong>${r.fan_hp_std} HP (${(r.fan_hp_std*0.7457).toFixed(1)} kW, ${r.n_units}× AHUs = ${r.fan_hp_total} HP total)</strong></td></tr>
-      <tr><th>ASHRAE 90.1 Fan Power Check</th><td style="background:${fanBg};color:${fanColor};font-weight:700;">${r.fan_power_W_lps} W/(L/s): limit: ${r.ashrae_fan_max} W/(L/s): ${r.fan_power_check}</td></tr>
+      <tr><th style="background:#fffde7;">Selected Fan Motor (per unit)</th><td><strong>${r.fan_motor_kw_each ?? (r.fan_hp_std*0.7457).toFixed(1)} kW (${r.fan_hp_std} HP), ${r.n_units}× AHUs = ${r.fan_nameplate_total_kw ?? '-'} kW (${r.fan_hp_total} HP) nameplate total</strong></td></tr>
+      <tr><th>ASHRAE 90.1 Fan Power Check</th><td style="background:${fanBg};color:${fanColor};font-weight:700;">${r.fan_power_W_lps} W/(L/s): limit: ${r.ashrae_fan_max} W/(L/s): ${r.fan_power_check}${r.fan_power_basis ? ` (${escHtml(r.fan_power_basis)})` : ''}</td></tr>
     </table>
 
     <h2>Step 7: Air Changes Per Hour (ACH) Check</h2>
@@ -19060,8 +19066,8 @@ function renderAHUSizingReport(inputs, results, narrative) {
       </div>
       <div class="result-highlight" style="background:${fanBg};border:1px solid ${fanColor}40;">
         <div style="font-size:0.75rem;color:#555;text-transform:uppercase;letter-spacing:0.05em;">ASHRAE 90.1 Fan Power</div>
-        <div style="font-size:1.4rem;font-weight:800;color:${fanColor};">${r.fan_power_check === 'PASS' ? 'PASS' : 'FAIL'}</div>
-        <div style="font-size:0.75rem;color:#555;">${r.fan_power_W_lps} W/L·s (max 0.82)</div>
+        <div style="font-size:1.4rem;font-weight:800;color:${fanColor};">${r.fan_power_check}</div>
+        <div style="font-size:0.75rem;color:#555;">${r.fan_power_W_lps} W/L·s (max ${r.ashrae_fan_max})</div>
       </div>
     </div>
 

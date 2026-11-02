@@ -395,7 +395,7 @@ CALC_DATA: dict[str, dict] = {
         "blurb": "The AHU Sizing Calculator finds the supply airflow, coil capacity, and fan motor for an air-handling unit from its cooling load.",
         "example_inputs": {"cooling_load_kW": 50, "supply_air_temp_c": 13, "indoor_temp": 24, "oa_pct": 15, "floor_area": 300, "persons": 40},
         "example_desc": "a 50 kW cooling load for a 300 m² space with 40 people, with a 10% design margin, at 24 °C indoor and 13 °C supply air",
-        "headline": [("Supply airflow", "supply_flow_cfm", "CFM"), ("Coil capacity", "coil_total_tr", "TR"), ("Fan motor", "recommended_motor_kw", "kW")],
+        "headline": [("Supply airflow", "Q_sa_CFM", "CFM"), ("Coil capacity", "coil_total_tr", "TR"), ("Fan motor", "recommended_motor_kw", "kW")],
     },
     "drainage-pipe-sizing-calculator": {
         "module": "drainage_pipe_sizing", "title": "Drainage Pipe Sizing Calculator", "discipline": "Plumbing & Pumps",

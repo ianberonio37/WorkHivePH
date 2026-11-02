@@ -1172727,8 +1172727,8 @@
     },
     {
       "id": "ED31",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - AHU Sizing on engineering-design.html · solo-owner",
       "pages": [
@@ -1172782,6 +1172782,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the AHU Sizing calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/ahu_sizing.py: (1) the guide's 'Q_design = Cooling Load x Safety Factor' - the margin enlarged the fan and coil face, but the coil capacity, its chilled water, the dehumidification and the AHU's rated airflow ran on the load airflow without it (a 1.10 factor left the coil ~9% short of its air); all now at the design airflow. (2) The form's eta is the COMBINED fan + motor efficiency; the engine divided by a further 0.92 (+8.7% fan power). (3) The motor was picked for the whole airflow and printed 'per unit' (2 AHUs: a 3.0 kW motor each where 1.1 kW serves). (4) The '90.1' limit was 1.2 W/(L/s) citing Table 10.8 (motor efficiency), the guide said 0.82 (0.0011 hp/cfm read as W/cfm): now 90.1-2019 6.5.3.1.1 Option 1, nameplate <= 1.7 W per L/s, N/A at or below 5 hp. (5) The default outdoor air was 35 C at 80% RH (31 C dew point, 108 kJ/kg) - no Manila design condition; now 35 C DB / 28 C WB (89.4 kJ/kg). (6) OA per person printed a fixed 10. The report's working now reproduces its numbers (load airflow x SF; coil = m x (h_mix - h_sup); nameplate W/(L/s)); guide names are the form's. The vector (hand psychrometrics from ASHRAE Fundamentals Ch.1) fails on the old engine (coil 89.69 vs 82.22, OA 10 vs 17.8); walked on the served page at 390: 'Q_coil = 4.1004 x (58.05 - 38) kJ/kg = 82.23 kW', '1.1 kW per unit, 2.2 kW nameplate total', no sideways scroll. Door page restamped on the design airflow (9157.6 CFM / 29.18 TR / 7.5 kW). WALKED: AHU Sizing's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T01:59:02Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

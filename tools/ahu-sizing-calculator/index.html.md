@@ -6,16 +6,16 @@ Source: https://workhiveph.com/tools/ahu-sizing-calculator/
 
 AHU Sizing Calculator
  G1+E3 
-**The AHU Sizing Calculator finds the supply airflow, coil capacity, and fan motor for an air-handling unit from its cooling load. Example: for a 50 kW cooling load for a 300 m² space with 40 people, with a 10% design margin, at 24 °C indoor and 13 °C supply air, Supply airflow = 8325.1 CFM, Coil capacity = 30.39 TR, Fan motor = 11 kW (per ASHRAE 62.1, ASHRAE 90.1, ASHRAE 2021 Ch.1 and SMACNA).**
+**The AHU Sizing Calculator finds the supply airflow, coil capacity, and fan motor for an air-handling unit from its cooling load. Example: for a 50 kW cooling load for a 300 m² space with 40 people, with a 10% design margin, at 24 °C indoor and 13 °C supply air, Supply airflow = 9157.6 CFM, Coil capacity = 29.18 TR, Fan motor = 7.5 kW (per ASHRAE 62.1, ASHRAE 90.1, ASHRAE 2021 Ch.1 and SMACNA).**
 How it works
 The calculator follows ASHRAE 62.1, ASHRAE 90.1, ASHRAE 2021 Ch.1 and SMACNA. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (HVAC & Cooling)
 Inputs: a 50 kW cooling load for a 300 m² space with 40 people, with a 10% design margin, at 24 °C indoor and 13 °C supply air.
 ResultValue
-Supply airflow8325.1 CFM
-Coil capacity30.39 TR
-Fan motor11 kW
+Supply airflow9157.6 CFM
+Coil capacity29.18 TR
+Fan motor7.5 kW
 Computed by WorkHive's calculation engine when this page was built; standard: ASHRAE 62.1, ASHRAE 90.1, ASHRAE 2021 Ch.1 and SMACNA.
 How to use this calculator
 Read the worked example. It uses a 50 kW cooling load for a 300 m² space with 40 people, with a 10% design margin, at 24 °C indoor and 13 °C supply air and shows every number in the method.
@@ -36,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 3198a05d7d8bb5bb -->
+<!-- md-twin source-sha: 7ea6473d2a856e49 -->
