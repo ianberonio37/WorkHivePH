@@ -349,6 +349,13 @@ def calculate(inputs: dict) -> dict:
         raw_section  = str  (inputs.get("belt_section", "B (17)"))
         SECTION_MAP  = {'A': 'A (13)', 'B': 'B (17)', 'C': 'C (22)', 'D': 'D (32)'}
         section      = SECTION_MAP.get(raw_section, raw_section)
+        # ★AN UNKNOWN SECTION TOOK B's GEOMETRY BUT NOT B's RATING (ED R1, 2026-11-02): "SPB" (the door page's example, an
+        # ISO narrow section) is not a key, so _vbelt drew B's data while the rating looked up "SPB", found no equation
+        # and fell to the old flat estimate - 4 belts where B's ANSI/RMA rating needs 6. The section is now resolved ONCE,
+        # so geometry and rating follow the same one, and the result says it was substituted.
+        if section not in VBELT_SECTIONS:
+            results["section_note"] = f"{raw_section} is not in the section table; computed as B (17)"
+            section = "B (17)"
         centre_mm    = float(inputs.get("centre_distance_mm", inputs.get("center_dist_mm", 500)))
         d_driver_mm  = float(inputs.get("driver_dia_mm", 150))
         belt_res = _vbelt(power_kW, n_driver_rpm, n_driven_rpm,

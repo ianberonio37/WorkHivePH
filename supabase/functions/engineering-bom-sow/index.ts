@@ -4705,7 +4705,8 @@ async function noiseAcousticsBomSowAgent(
   const project   = inputs.project_name    || "Noise Control Project";
   const calcMode  = String(inputs.calc_type || "Room");
   const lwDb      = Number(results.source_Lw_dB || inputs.source_Lw_dB || 90).toFixed(1);
-  const lpDb      = Number(results.Lp_at_distance_dB || 0).toFixed(1);
+  // the level the mode assesses (room equation in Room mode, behind the barrier in Barrier mode), not the free-field Lp
+  const lpDb      = Number(results.assessed_Lp_dB ?? results.Lp_at_distance_dB ?? 0).toFixed(1);
   const distM     = Number(results.distance_m || inputs.distance_m || 5).toFixed(1);
   const dose      = (results.dose as Record<string, unknown>) || {};
   const twa       = Number(dose?.TWA_dBA || 0).toFixed(1);
@@ -4714,7 +4715,8 @@ async function noiseAcousticsBomSowAgent(
   const ncLimit   = Number(results.NC_limit || 40);
   const barrierIL = Number(results.barrier_IL_dB || 0).toFixed(1);
   const alpha     = Number(inputs.avg_absorption_coeff || 0.15);
-  const requiredReductionDb = Math.max(0, Number(lpDb) - 65);  // typical NC-40 ~ 50 dBA, so reduce
+  // the engine's reduction to the space's own NC (room Lp less NC + 10 dBA); it was the free-field Lp less 65 for every space
+  const requiredReductionDb = Number(results.reduction_to_NC_dB ?? 0);
   const exposedWorkers = String(inputs.exposed_workers_count || 50);
 
   const asciiDirective = `IMPORTANT: All output text must be ASCII only. Do NOT use Unicode characters such as multiplication sign x, en-dash, em-dash, less-than-or-equal, greater-than-or-equal, sub/superscripts, Greek letters (alpha, sigma), middle-dot, degree symbol, or section sign. Use "x" for multiplication, "to" for ranges, "not less than" for ge, "not more than" for le, "Section" for clause references (not the section sign), "deg" for degree, "alpha" for the absorption coefficient symbol.`;

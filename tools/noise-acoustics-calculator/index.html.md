@@ -6,15 +6,15 @@ Source: https://workhiveph.com/tools/noise-acoustics-calculator/
 
 Noise / Acoustics Calculator
  G1+E3 
-**The Noise / Acoustics Calculator finds the sound pressure level at a distance from a source and checks it against the room's noise-criteria limit. Example: for a 95 dB machine in a 400 m² factory, measured 5 m away, Sound pressure = 73.04 dB, NC limit = 40 NC, Source power = 95 dB (per ISO 9613-2, OSHA 29 CFR 1910.95, DOLE D.O. 13, ASHRAE 2019 Ch.8 and IEC 61672-1).**
+**The Noise / Acoustics Calculator finds the sound pressure level at a distance from a source and checks it against the room's noise-criteria limit. Example: for a 95 dB machine in a 400 m² factory, measured 5 m away, Sound pressure = 83 dB, NC limit = 65 NC, Source power = 95 dB (per ISO 9613-2, OSHA 29 CFR 1910.95, DOLE D.O. 13, ASHRAE 2019 Ch.8 and IEC 61672-1).**
 How it works
 The calculator follows ISO 9613-2, OSHA 29 CFR 1910.95, DOLE D.O. 13, ASHRAE 2019 Ch.8 and IEC 61672-1. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Mechanical & Machine Design)
 Inputs: a 95 dB machine in a 400 m² factory, measured 5 m away.
 ResultValue
-Sound pressure73.04 dB
-NC limit40 NC
+Sound pressure83 dB
+NC limit65 NC
 Source power95 dB
 Computed by WorkHive's calculation engine when this page was built; standard: ISO 9613-2, OSHA 29 CFR 1910.95, DOLE D.O. 13, ASHRAE 2019 Ch.8 and IEC 61672-1.
 How to use this calculator
@@ -36,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: 4d913f4f1f356eac -->
+<!-- md-twin source-sha: bda2cb6ca702cb82 -->

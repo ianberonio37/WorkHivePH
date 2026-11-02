@@ -23,9 +23,18 @@ answer. Seven cases were exercised against the shipped function, including each 
 THE ASSERTION: the rail holds EVERY quoted figure to a source, and receives the inputs it needs to
 recognise a typed value.
 
+★A REAL NUMBER UNDER THE WRONG NAME (ED R1, 2026-11-02): the V-belt narrative called the 7.5 kW the engineer typed
+"the design power" - it is 9.0 kW, rated x service factor. 7.5 is a genuine input, so a rail that asks "does this
+number exist?" passes it. namedFigureMismatch asks the other question: a section that names a design_<quantity>
+result must quote THAT result. It is RUN here (node) against fixed cases, not pattern-matched, and the gate checks it
+is applied to all three report sections, where a misnamed figure is dropped for the report's own text.
+
 Usage: python tools/validate_narration_rail_holds_every_figure.py
 """
+import json
 import re
+import shutil
+import subprocess
 import sys
 import io
 from pathlib import Path
@@ -35,6 +44,44 @@ if sys.platform == "win32" and sys.stdout.encoding and sys.stdout.encoding.lower
 
 ROOT = Path(__file__).resolve().parent.parent
 FN = ROOT / "supabase" / "functions" / "engineering-calc-agent" / "index.ts"
+
+
+# (text, expected mismatch) against results {design_power_kW: 9.0, rated_power_kW: 7.5, design_flow_lpm: 1234.5}
+NAMED_CASES = [
+    ("To design a V-belt drive transmitting a design power of 7.5 kW from a 1450 rpm motor.", True),
+    ("The design power is 9.0 kW (7.5 kW rated x 1.2 service factor).", False),
+    ("The design power of 9 kW is carried by 3 belts.", False),
+    ("Rated power 7.5 kW; design power 9.00 kW.", False),
+    ("A design flow of 1,234.5 L/min is used.", False),
+    ("A design flow of 1,500 L/min is used.", True),
+    ("No design figures are named here; a 7.5 kW motor.", False),
+]
+
+
+def named_figure_fails(src: str) -> list[str]:
+    body = re.search(r"function namedFigureMismatch\([\s\S]*?\n\}\n", src)
+    if not body:
+        return ["namedFigureMismatch is gone - a section can call the typed 7.5 kW 'the design power' and ship"]
+    out = []
+    if not re.search(r'for \(const f of \["objective", "assumptions", "recommendations"\]\)[\s\S]{0,120}'
+                     r'namedFigureMismatch\(', src):
+        out.append("namedFigureMismatch is not applied to objective, assumptions and recommendations")
+    node = shutil.which("node")
+    if not node:
+        return out + ["node is not on PATH, so namedFigureMismatch could not be run against its cases"]
+    js = (body.group(0).replace("(text: string, results: Record<string, unknown>): boolean", "(text, results)")
+          + "\nconst r = {design_power_kW: 9.0, rated_power_kW: 7.5, design_flow_lpm: 1234.5};"
+          + "\nconst cases = " + json.dumps(NAMED_CASES) + ";"
+          + "\nconsole.log(JSON.stringify(cases.map(([t]) => namedFigureMismatch(t, r))));")
+    res = subprocess.run([node, "-e", js], capture_output=True, text=True, encoding="utf-8", timeout=60)
+    try:
+        got = json.loads(res.stdout.strip().splitlines()[-1])
+    except Exception:  # noqa: BLE001
+        return out + [f"namedFigureMismatch did not run: {(res.stderr or res.stdout)[:200]}"]
+    for (text, want), g in zip(NAMED_CASES, got):
+        if g != want:
+            out.append(f"namedFigureMismatch({text[:60]!r}) = {g}, expected {want}")
+    return out
 
 
 def main() -> int:
@@ -65,6 +112,8 @@ def main() -> int:
     if not re.search(r"narrationQuotesResult\(parsed\.narration,\s*results,\s*inputs\)", src):
         fails.append("the call site does not pass inputs, so the exemption above cannot apply")
 
+    fails += named_figure_fails(src)
+
     if fails:
         print(f"FAIL narration-rail-holds-every-figure - {len(fails)} problem(s):")
         for x in fails:
@@ -74,7 +123,7 @@ def main() -> int:
         return 1
 
     print("PASS narration-rail-holds-every-figure - every quoted figure must trace to a computed result "
-          "or a named exemption.")
+          f"or a named exemption, and a named design figure must be that figure ({len(NAMED_CASES)} cases run).")
     return 0
 
 

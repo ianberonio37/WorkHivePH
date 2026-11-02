@@ -455,9 +455,9 @@ CALC_DATA: dict[str, dict] = {
         "keyword": "industrial noise level distance calculator",
         "standard": "ISO 9613-2 | OSHA 1910.95 | DOLE D.O. 13",
         "blurb": "The Noise / Acoustics Calculator finds the sound pressure level at a distance from a source and checks it against the room's noise-criteria limit.",
-        "example_inputs": {"calc_type": "Room", "source_Lw_dB": 95, "distance_m": 5, "space_type": "Factory / Workshop", "room_surface_m2": 400, "avg_absorption_coeff": 0.15},
+        "example_inputs": {"calc_type": "Room", "source_Lw_dB": 95, "distance_m": 5, "space_type": "Manufacturing (general)", "room_surface_m2": 400, "avg_absorption_coeff": 0.15},
         "example_desc": "a 95 dB machine in a 400 m² factory, measured 5 m away",
-        "headline": [("Sound pressure", "Lp_at_distance_dB", "dB"), ("NC limit", "NC_limit", "NC"), ("Source power", "source_Lw_dB", "dB")],
+        "headline": [("Sound pressure", "assessed_Lp_dB", "dB"), ("NC limit", "NC_limit", "NC"), ("Source power", "source_Lw_dB", "dB")],
     },
     "heat-exchanger-calculator": {
         "module": "heat_exchanger", "title": "Heat Exchanger LMTD Calculator", "discipline": "Mechanical & Machine Design",
@@ -671,8 +671,8 @@ CALC_DATA: dict[str, dict] = {
         "keyword": "V-belt drive design calculator",
         "standard": "ISO 4184 | AGMA",
         "blurb": "The V-Belt Drive Calculator finds the number of belts, pulley sizes, and belt length for a power-transmission duty.",
-        "example_inputs": {"drive_type": "V-Belt", "power_kW": 15, "n_driver_rpm": 1450, "n_driven_rpm": 725, "service_factor": 1.2, "belt_section": "SPB", "driver_dia_mm": 125},
-        "example_desc": "a 15 kW V-belt drive, 1450→725 rpm (2:1), SPB section, with a 1.2 service factor, on a 125 mm driver sheave",
+        "example_inputs": {"drive_type": "V-Belt", "power_kW": 15, "n_driver_rpm": 1450, "n_driven_rpm": 725, "service_factor": 1.2, "belt_section": "B (17)", "driver_dia_mm": 125},
+        "example_desc": "a 15 kW V-belt drive, 1450→725 rpm (2:1), classical B section, with a 1.2 service factor, on a 125 mm driver sheave",
         "headline": [("Number of belts", "n_belts", "belts"), ("Driven pulley", "d_large_mm", "mm"), ("Belt length", "belt_length_mm", "mm")],
     },
     "voltage-drop-calculator": {

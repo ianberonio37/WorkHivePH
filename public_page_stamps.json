@@ -95,6 +95,10 @@
   "content_sha": "dc9ad321f2b23fe7",
   "stamped": "2026-11-02"
  },
+ "tools/noise-acoustics-calculator": {
+  "content_sha": "689f39f3ca97b07e",
+  "stamped": "2026-11-02"
+ },
  "tools/roof-drain-calculator": {
   "content_sha": "4a3da62bbcfc9c58",
   "stamped": "2026-11-02"
@@ -109,6 +113,10 @@
  },
  "tools/solar-pv-calculator": {
   "content_sha": "eb81757bffa9e9ed",
+  "stamped": "2026-11-02"
+ },
+ "tools/v-belt-drive-calculator": {
+  "content_sha": "eece1fb2a143649b",
   "stamped": "2026-11-02"
  },
  "tools/vibration-isolation-calculator": {

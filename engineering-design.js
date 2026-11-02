@@ -2803,26 +2803,34 @@ const GUIDES = {
       'Room equation: Lp = Lw + 10×log10(Q/(4πr²) + 4/R)',
       'Room constant: R = α×S / (1−α)  where α = average absorption coefficient',
       'Critical distance: rc = (1/4)×√(Q×R/π) : beyond rc, reverberant field dominates',
-      'Barrier IL (Maekawa): IL = 10×log10(3 + 20N)  where N = 2δ/λ (Fresnel number)',
-      'Path difference: δ = d_source + d_receiver − d_direct',
-      'OSHA Noise Dose: D = Σ(ti/Ti)  where Ti = permitted hours at level Li',
+      'Barrier IL (Maekawa): IL = 10×log10(3 + 20N), N = 2δ/λ (Fresnel number), λ = 340/1000 m at 1 kHz; not more than 20 dB (ISO 9613-2, single diffraction)',
+      'Path difference over the top: δ = √(d_s² + (h_b − h_s)²) + √(d_r² + (h_b − h_r)²) − √((d_s + d_r)² + (h_r − h_s)²); negative when the top is below the line of sight',
+      'OSHA Noise Dose: D = Σ(ti/Ti), Ti = 8 / 2^((Li − 90)/5) h; levels below 80 dBA are not counted (OSHA 1910.95 App. A)',
       'TWA = 16.61 × log10(D/100) + 90  (dB, 8-hr basis)',
       'dBA from octave bands: L_A = 10×log10(Σ 10^((Li + Ai)/10))  where Ai = A-weighting',
       'Logarithmic source addition: L_total = 10×log10(Σ 10^(Li/10))',
+      'Reduction to the NC target (Room mode): ΔL = Lp,room − (NC + 10) dBA',
     ],
     fields: [
-      { name: 'Sound Power Level Lw (dB)', tip: 'Lw is a property of the source: independent of distance. Manufacturers provide Lw on equipment data sheets. If only Lp at 1m is known: Lw ≈ Lp + 8 (for hemisphere, Q=2).' },
+      { name: 'Sound Power Level Lw (dB)', tip: 'Lw is a property of the source: independent of distance. Manufacturers provide Lw on equipment data sheets. If only Lp at 1 m is known: Lw ≈ Lp + 8 (hemisphere, Q = 2). Enter the A-weighted LwA: the levels are compared with dBA limits.' },
       { name: 'Calculation Mode', tip: 'Room: computes Lp at a receiver inside a room using the room equation. Barrier: computes insertion loss of an outdoor acoustic barrier. Dose: computes OSHA/DOLE 8-hour TWA from exposure profile.' },
-      { name: 'Distance to Receiver (m)', tip: 'Distance from source to measurement/assessment point. SPL drops 6 dB for every doubling of distance (point source, free field).' },
+      { name: 'Distance to Receiver (m)', tip: 'Distance from source to measurement/assessment point (Room mode). SPL drops 6 dB for every doubling of distance (point source, free field). In Barrier mode the receiver distance comes from the barrier geometry instead.' },
       { name: 'Directivity Factor Q', tip: 'Q=1: source in free field (suspended in air). Q=2: source on a hard floor (hemisphere). Q=4: source at floor-wall junction. Q=8: source at floor-wall-wall corner.' },
-      { name: 'Absorption Coefficient α', tip: 'Average room surface absorption. Hard concrete/tile room: α≈0.05. Typical office: α≈0.15. Treated room with acoustic panels: α≈0.30–0.50. Fully treated anechoic: α≈0.99.' },
+      { name: 'Avg. Absorption Coeff α', tip: 'Average room surface absorption. Hard concrete/tile room: α ≈ 0.05. Typical office: α ≈ 0.15. Treated room with acoustic panels: α ≈ 0.30–0.50. Fully treated anechoic: α ≈ 0.99.' },
+      { name: 'Total Room Surface Area (m²)', tip: 'Floor, ceiling and walls together, S in R = α·S/(1 − α). A 10 × 8 × 3 m room is 2 × (80 + 30 + 24) = 268 m².' },
       { name: 'Space Type (NC limit)', tip: 'NC (Noise Criteria) is the standard acoustic comfort rating for HVAC and room noise. Open office: NC40. Private office/conference: NC30–35. Bedroom: NC25. Manufacturing: NC65.' },
-      { name: 'Noise Level + Duration (Dose mode)', tip: 'DOLE D.O. 13: maximum 90 dBA for 8 hours. Each 5 dB increase halves the permitted exposure time (90→8hr, 95→4hr, 100→2hr). Action level is 85 dBA.' },
+      { name: 'Source→Barrier (m)', tip: 'Horizontal distance from the source to the barrier (Barrier mode). A barrier works best close to the source or close to the receiver.' },
+      { name: 'Barrier→Recv (m)', tip: 'Horizontal distance from the barrier to the receiver (Barrier mode).' },
+      { name: 'Barrier Height (m)', tip: 'Height of the barrier top above the ground. It must break the line of sight between source and receiver to give more than about 5 dB.' },
+      { name: 'Source Height (m)', tip: 'Height of the noise source above the ground (Barrier mode), typically the acoustic centre of the machine, about 1 m for a floor-mounted pump.' },
+      { name: 'Receiver Height (m)', tip: 'Height of the listener or measurement point (Barrier mode): 1.5 m for a standing person, 4 m for an upper-floor window (ISO 9613-2 uses 1.5–4 m).' },
+      { name: 'Noise Level (Dose mode)', tip: 'DOLE / OSHA: maximum 90 dBA TWA for 8 hours. Each 5 dB increase halves the permitted time (90 → 8 h, 95 → 4 h, 100 → 2 h). The action level is 85 dBA TWA. Levels below 80 dBA add no dose, and 115 dBA is the ceiling for continuous exposure.' },
+      { name: 'Exposure Duration (hr)', tip: 'Hours per day at that level. The dose is the duration over the permitted time, 8 / 2^((L − 90)/5) h; the TWA is 16.61 log10(D) + 90.' },
     ],
     notes: [
       'DOLE D.O. 13 and OSHA use a 5 dB exchange rate (dose doubles every 5 dB). The noise limit is 90 dBA TWA for 8 hours. Action level (hearing conservation program required) is 85 dBA TWA.',
       'NC rating vs dBA: NC35 ≈ 45 dBA, NC40 ≈ 50 dBA, NC50 ≈ 60 dBA. NC is measured from octave band spectrum: it is more descriptive than a single dBA value for HVAC noise.',
-      'Barrier effectiveness is limited to about 20–25 dB maximum: diffraction around the barrier edges limits performance, especially at low frequencies.',
+      'Barrier effectiveness is limited: ISO 9613-2 caps a single barrier at 20 dB, and diffraction around its ends and low frequencies lower it further. The calculator works at 1 kHz.',
       'Engineering controls (source enclosures, vibration isolation, barrier walls) must be the primary noise control method. Hearing protection (PPE) is the last resort per DOLE hierarchy of controls.',
       'A PRC-licensed Sanitary Engineer or Occupational Health and Safety Officer (OSHO) must conduct formal noise surveys for regulatory compliance in the Philippines.',
     ],
@@ -8238,6 +8246,10 @@ function renderInputForm(calcType) {
         <div><div class="field-label">Barrier Height (m)</div><input aria-label="Barrier Height" id="f-barrier-h" class="wh-input" type="number" value="3" min="0.5" step="0.5"/></div>
       </div>
       <div class="grid grid-cols-2 gap-3 mb-4">
+        <div><div class="field-label">Source Height (m)</div><input aria-label="Source Height" id="f-src-h" class="wh-input" type="number" value="1" min="0" step="0.5"/></div>
+        <div><div class="field-label">Receiver Height (m)</div><input aria-label="Receiver Height" id="f-recv-h" class="wh-input" type="number" value="1.5" min="0" step="0.5"/></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mb-4">
         <div><div class="field-label">Noise Level (Dose mode)</div><div class="input-group"><input aria-label="Noise Level" id="f-dose-level" class="wh-input" type="number" value="90" min="70" max="140"/><span class="input-unit">dBA</span></div></div>
         <div><div class="field-label">Exposure Duration</div><div class="input-group"><input aria-label="Exposure Duration" id="f-dose-hours" class="wh-input" type="number" value="8" min="0.1" max="24" step="0.5"/><span class="input-unit">hr</span></div></div>
       </div>
@@ -10071,6 +10083,9 @@ function collectInputs() {
       source_to_barrier_m:  parseFloat(v('f-d-source'))             || 10,
       barrier_to_receiver_m: parseFloat(v('f-d-recv'))              || 10,
       barrier_height_m:     parseFloat(v('f-barrier-h'))            || 3,
+      // a source or receiver at ground level is 0 m, so 0 must survive (no || default)
+      source_height_m:      Number.isFinite(parseFloat(v('f-src-h')))  ? parseFloat(v('f-src-h'))  : 1,
+      receiver_height_m:    Number.isFinite(parseFloat(v('f-recv-h'))) ? parseFloat(v('f-recv-h')) : 1.5,
       exposures: [{
         level_dBA:    parseFloat(v('f-dose-level'))                 || 90,
         duration_hr:  parseFloat(v('f-dose-hours'))                 || 8,
@@ -32887,7 +32902,18 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
   const Lp_free  = Number(r.Lp_at_distance_dB || 0);
   const NCLim    = Number(r.NC_limit || 40);
   const spType   = String(inputs.space_type || 'Open-plan office');
-  const requiredReductionDb = Math.max(0, Lp_free - 65);
+  // the reduction to the space's NC (Room mode) is the engine's: room Lp less NC + 10 dBA (it was Lp_free - 65 for every space)
+  const requiredReductionDb = Number(r.reduction_to_NC_dB || 0);
+  // the occupational check reads the level the MODE assesses - the TWA in Dose mode, else that level held for 8 h
+  const hasDose  = Object.keys(dose).length > 0;
+  const occLevel = hasDose ? dose.TWA_dBA : r.assessed_Lp_dB;
+  const occLimit  = hasDose ? !!dose.limit_exceeded : Number(occLevel) > 90;
+  const occAction = hasDose ? !!dose.action_level_exceeded : Number(occLevel) >= 85;
+  const occColor  = occLimit ? '#c62828' : occAction ? '#f57c00' : '#2e7d32';
+  const occText   = occLevel == null ? 'below the 80 dBA dose threshold: no dose counted'
+    : `${occLevel} dBA ${hasDose ? '8-hour TWA' : '(' + escHtml(r.assessed_basis || '') + ', held for 8 h)'}: ${occLimit ? 'EXCEEDS the 90 dBA limit' : occAction ? 'at or above the 85 dBA action level' : 'below the 85 dBA action level'}`;
+  const ds = Number(inputs.source_to_barrier_m || 10), dr = Number(inputs.barrier_to_receiver_m || 10);
+  const hb = Number(inputs.barrier_height_m || 3), hs = Number(inputs.source_height_m ?? 1), hr = Number(inputs.receiver_height_m ?? 1.5);
   // Formula intermediates for display
   const FourPiR2 = (4 * Math.PI * Math.pow(distM, 2)).toFixed(2);
   const QoverArea = (Qfactor / (4 * Math.PI * Math.pow(distM, 2))).toExponential(3);
@@ -32907,7 +32933,7 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
     </table>
 
     <h2>1. Objective</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To assess the sound pressure level Lp at a receiver located ${distM} m from a source of sound power Lw = ${Lw} dB with directivity factor Q = ${Qfactor} in a ${spType} of average absorption coefficient alpha = ${alpha}; to compare the assessed Lp against the DOLE D.O. 13 occupational exposure limit (85 dBA 8-hour TWA) and the ASHRAE-recommended NC rating for the space type (NC ${NCLim}); and to recommend engineering and administrative noise-control measures sufficient to bring the receiver within both limits.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.objective || `To assess the sound pressure level Lp at a receiver located ${distM} m from a source of sound power Lw = ${Lw} dB with directivity factor Q = ${Qfactor} in a ${spType} of average absorption coefficient alpha = ${alpha}; to compare the assessed Lp against the DOLE / OSHA occupational exposure limit (90 dBA 8-hour TWA, with an 85 dBA action level) and the ASHRAE-recommended NC rating for the space type (NC ${NCLim}); and to recommend engineering and administrative noise-control measures sufficient to bring the receiver within both limits.`)}</p>
 
     <h2>2. References</h2>
     <p style="font-size:0.83rem;color:#333;">ISO 9613-2: Acoustics - Attenuation of sound during propagation outdoors - General method of calculation<br>
@@ -32968,8 +32994,12 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
     ${r.barrier_IL_dB !== undefined ? `<h2>5b. Barrier Insertion Loss (Maekawa)</h2>
     <p style="font-size:0.83rem;color:#333;">For a barrier between source and receiver, Maekawa's empirical equation gives the insertion loss based on the path-length difference (Fresnel number):</p>
     <p style="font-size:0.83rem;color:#333;">
-      IL = 10 log(3 + 20N) for N &gt; 0; capped at 24 dB (practical limit for diffraction-controlled barriers)<br>
-      L<sub>p,no barrier</sub> = ${r.Lp_no_barrier_dB} dB<br>
+      Path over the top: A = &radic;(d<sub>s</sub>&sup2; + (h<sub>b</sub> - h<sub>s</sub>)&sup2;) = &radic;(${ds}&sup2; + (${hb} - ${hs})&sup2;) = ${r.barrier_path_A_m} m; B = &radic;(d<sub>r</sub>&sup2; + (h<sub>b</sub> - h<sub>r</sub>)&sup2;) = &radic;(${dr}&sup2; + (${hb} - ${hr})&sup2;) = ${r.barrier_path_B_m} m<br>
+      Direct path: d = &radic;((d<sub>s</sub> + d<sub>r</sub>)&sup2; + (h<sub>r</sub> - h<sub>s</sub>)&sup2;) = <strong>${r.barrier_d_direct_m} m</strong><br>
+      Path difference: &delta; = A + B - d = <strong>${r.barrier_delta_m} m</strong>${r.barrier_delta_m < 0 ? ' (negative: the barrier top is below the line of sight)' : ''}<br>
+      Fresnel number at 1 kHz: N = 2&delta; / &lambda; = 2 &times; ${r.barrier_delta_m} / ${r.barrier_lambda_m} = <strong>${r.fresnel_N}</strong><br>
+      IL = 10 log(3 + 20N) = ${r.barrier_IL_raw_dB} dB${r.barrier_capped ? ', capped at 20 dB (ISO 9613-2, single diffraction)' : ' (ISO 9613-2 caps a single barrier at 20 dB)'}<br>
+      L<sub>p,no barrier</sub> at d = ${r.barrier_d_direct_m} m: L<sub>w</sub> + 10 log(Q / (4&pi;d&sup2;)) = <strong>${r.Lp_no_barrier_dB} dB</strong><br>
       Insertion loss IL = <strong>${r.barrier_IL_dB} dB</strong><br>
       L<sub>p,with barrier</sub> = L<sub>p,no barrier</sub> - IL = <strong>${r.Lp_with_barrier_dB} dB</strong>
     </p>` : ''}
@@ -32977,7 +33007,7 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
     ${Object.keys(dose).length ? `<h2>5c. Occupational Noise Dose (OSHA 1910.95 / DOLE D.O. 13)</h2>
     <div style="text-align:center;padding:1.5rem;border:2px solid ${doseColor};border-radius:0.75rem;margin:1rem 0;">
       <div style="font-size:0.9rem;color:#555;">8-Hour Time-Weighted Average (TWA)</div>
-      <div style="font-size:2rem;font-weight:800;color:#162032;">${dose.TWA_dBA} dBA</div>
+      <div style="font-size:2rem;font-weight:800;color:#162032;">${dose.TWA_dBA == null ? 'below 80' : dose.TWA_dBA} dBA</div>
       <div style="font-size:0.85rem;color:#555;">Dose: ${dose.dose_pct} percent of permissible</div>
       <div style="font-size:1rem;font-weight:700;color:${doseColor};">${escHtml(dose.status)}</div>
     </div>` : ''}
@@ -32985,9 +33015,9 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
     <h2>6. Compliance Assessment</h2>
     <!-- table-name-allow: calc-report data table; context from preceding calc heading --> <table>
       <tr><th style="width:50%;">Criterion</th><th>Result</th></tr>
-      <tr><td>DOLE D.O. 13 / OSHA 1910.95 (85 dBA 8-hr TWA)</td><td class="num"><span style="font-weight:700;color:${Lp_free <= 85 ? '#2e7d32' : '#c62828'};">${Lp_free} dB ${Lp_free <= 85 ? 'not more than' : 'EXCEEDS'} 85 dBA: ${Lp_free <= 85 ? 'PASS' : 'FAIL'}</span></td></tr>
-      <tr><td>ASHRAE NC ${NCLim} (${escHtml(spType)})</td><td class="num">${room.Lp_dB ? `${room.Lp_dB} dB at receiver vs. NC ${NCLim} target (~${NCLim + 10} dBA roughly equivalent)` : 'requires octave-band measurement for NC determination'}</td></tr>
-      <tr><td>Required noise reduction to achieve NC ${NCLim}</td><td class="num"><strong>~${requiredReductionDb} dB</strong></td></tr>
+      <tr><td>DOLE D.O. 13 / OSHA 1910.95 (90 dBA 8-hr TWA limit, 85 dBA action level)</td><td class="num"><span style="font-weight:700;color:${occColor};">${occText}: ${occLimit ? 'FAIL' : 'PASS'}</span></td></tr>
+      <tr><td>ASHRAE NC ${NCLim} (${escHtml(spType)})</td><td class="num">${room.Lp_dB ? `${room.Lp_dB} dB at the receiver vs. NC ${NCLim} (~${r.NC_target_dBA ?? NCLim + 10} dBA)` : 'Room mode only (needs the room equation or an octave-band measurement)'}</td></tr>
+      <tr><td>Required noise reduction to achieve NC ${NCLim}</td><td class="num"><strong>${room.Lp_dB ? `~${requiredReductionDb} dB` : 'Room mode only'}</strong></td></tr>
     </table>
 
     <h2>7. Code Notes</h2>
@@ -32997,7 +33027,7 @@ function renderNoiseAcousticsReport(inputs, r, narrative) {
     <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.assumptions || `1. Point-source approximation; valid for source dimensions less than 1/3 of distance r. For extended sources (line, plane), apply ISO 9613-2 line-source or area-source corrections.\n2. Q = ${Qfactor} directivity factor: 1 = free-field omnidirectional, 2 = hemispherical (source on hard floor or against wall), 4 = quarter-space (source in corner), 8 = octant (source at intersection of three planes). Verify by inspection of source mounting.\n3. Average absorption alpha = ${alpha} represents area-weighted Sabine absorption across all six room surfaces; varies significantly with frequency (low alpha at low frequencies). For octave-band analysis, substitute alpha by frequency band.\n4. Room equation assumes diffuse reverberant field (energy uniformly distributed); valid for rooms with surface irregularity and not too elongated (aspect ratio not more than 3:1 in any axis).\n5. Air absorption neglected for indoor distances; for outdoor propagation more than 25 m apply ISO 9613-1 air-absorption coefficients (varies with temperature, humidity, frequency).\n6. Background noise and other sources not considered; for combined sources L_total = 10 log(sum of 10^(Lp_i/10)) per energy summation rule.\n7. NC ratings determined from octave-band Lp curve compared against NC reference curves; this assessment uses overall A-weighted Lp as a proxy. For final compliance, conduct 1/1 octave-band measurement per ASHRAE Ch 8 method.`)}</p>
 
     <h2>9. Recommendations</h2>
-    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. ${dose.limit_exceeded ? 'CRITICAL: noise exposure EXCEEDS DOLE/OSHA 85 dBA 8-hour TWA limit. Engineering controls (enclosure, source treatment, vibration isolation) are MANDATORY per DOLE D.O. 13 Section 7. PPE is secondary and not a substitute for engineering control.' : dose.action_level_exceeded ? 'Noise exposure EXCEEDS OSHA action level (85 dBA without 5 dB exchange). Implement a hearing-conservation program per DOLE D.O. 13 Section 14: noise dosimetry, baseline + annual audiometric testing, hearing-protection PPE for all exposed workers.' : `Receiver Lp = ${Lp_free} dB is within DOLE/OSHA 85 dBA limit; ${requiredReductionDb > 0 ? `however, additional ${requiredReductionDb} dB reduction needed to meet ASHRAE NC ${NCLim} target for ${spType}.` : `also meets NC ${NCLim} target.`}`}\n2. Engineering controls hierarchy per ISO 11690 / DOLE D.O. 13: (a) source modification, (b) source enclosure (BOM Item 4 - 50 mm mineral wool composite, NRC not less than 0.90 / STC not less than 35), (c) acoustic barrier (BOM Item 5 - 200 mm CMU or mass-loaded vinyl, STC not less than 35), (d) vibration isolation of source machine (BOM Item 6 - elastomeric mounts at fn = 8 to 12 Hz), (e) HVAC duct silencer (BOM Item 7 - dynamic IL not less than 25 dB at 250 Hz), (f) room absorption treatment (BOM Item 10 - increase average alpha to not less than ${Math.min(0.30, alpha + 0.15)}).\n3. Conduct full octave-band 1/1 measurement at all occupied positions during normal operation to determine measured NC rating per ASHRAE Ch 8 (compare octave-band curve against NC reference curves; report highest tangent NC). Use IEC 61672-1 Class 1 sound level meter (BOM Item 1) with NIST-traceable calibration.\n4. Hearing-conservation program (DOLE D.O. 13 Section 14): annual personal-noise dosimetry on all exposed workers (BOM Item 3), baseline + annual audiometric testing, training program with documented attendance, PPE issuance log. Maintain medical records not less than 30 years per OSHA 1910.95(m).\n5. Hearing-protection PPE selection (BOM Item 9): earmuffs NRR not less than 25 dB AND/OR foam earplugs NRR not less than 33 dB; apply NRR derating factor 0.50 (OSHA enforcement policy) when calculating effective protection. Re-issue earplugs daily; replace earmuff cushions annually.\n6. Acoustic doors and seals (BOM Item 8) at boundaries between treated and untreated spaces: full-perimeter compression seal, automatic drop-down threshold, STC not less than 35 with door slab.\n7. Re-measure post-control: confirm NC ${NCLim} target achieved at all previously-exceeding positions; document on a verification report with site plan and instrument calibration log.\n8. Establish an annual re-survey schedule per DOLE D.O. 13 to detect degradation of acoustic treatments (settled mineral wool, damaged seals, corroded barriers); accelerated re-survey if production processes or equipment change.\n9. For outdoor noise propagation calculations more than 25 m from source, apply ISO 9613-1 air-absorption coefficients (varies with temperature, humidity, frequency); for community-noise complaint investigations, refer to local environmental noise ordinance limits in addition to DOLE workplace limits.\n10. A PRC-licensed Mechanical or Environmental Engineer must sign and seal this assessment and the verification re-measurement report before placing engineering controls into routine service.`)}</p>
+    <p contenteditable="true" class="editable-field" style="font-size:0.83rem;color:#333;">${escHtml(narrative?.recommendations || `1. ${occLimit ? 'CRITICAL: the exposure EXCEEDS the DOLE/OSHA 90 dBA 8-hour TWA limit. Engineering controls (enclosure, source treatment, vibration isolation) are MANDATORY per DOLE D.O. 13 Section 7. PPE is secondary and not a substitute for engineering control.' : occAction ? 'The exposure reaches the 85 dBA action level (8-hour TWA). Implement a hearing-conservation program per DOLE D.O. 13 Section 14: noise dosimetry, baseline + annual audiometric testing, hearing-protection PPE for all exposed workers.' : `The assessed level is ${occLevel == null ? 'below the 80 dBA dose threshold' : `${occLevel} dBA, below the 85 dBA action level`}; ${room.Lp_dB ? (requiredReductionDb > 0 ? `however, a further ${requiredReductionDb} dB reduction is needed to meet ASHRAE NC ${NCLim} (~${r.NC_target_dBA} dBA) for ${spType}.` : `it also meets NC ${NCLim}.`) : 'the NC check applies in Room mode.'}`}\n2. Engineering controls hierarchy per ISO 11690 / DOLE D.O. 13: (a) source modification, (b) source enclosure (BOM Item 4 - 50 mm mineral wool composite, NRC not less than 0.90 / STC not less than 35), (c) acoustic barrier (BOM Item 5 - 200 mm CMU or mass-loaded vinyl, STC not less than 35), (d) vibration isolation of source machine (BOM Item 6 - elastomeric mounts at fn = 8 to 12 Hz), (e) HVAC duct silencer (BOM Item 7 - dynamic IL not less than 25 dB at 250 Hz), (f) room absorption treatment (BOM Item 10 - increase average alpha to not less than ${Math.min(0.30, alpha + 0.15)}).\n3. Conduct full octave-band 1/1 measurement at all occupied positions during normal operation to determine measured NC rating per ASHRAE Ch 8 (compare octave-band curve against NC reference curves; report highest tangent NC). Use IEC 61672-1 Class 1 sound level meter (BOM Item 1) with NIST-traceable calibration.\n4. Hearing-conservation program (DOLE D.O. 13 Section 14): annual personal-noise dosimetry on all exposed workers (BOM Item 3), baseline + annual audiometric testing, training program with documented attendance, PPE issuance log. Maintain medical records not less than 30 years per OSHA 1910.95(m).\n5. Hearing-protection PPE selection (BOM Item 9): earmuffs NRR not less than 25 dB AND/OR foam earplugs NRR not less than 33 dB; apply NRR derating factor 0.50 (OSHA enforcement policy) when calculating effective protection. Re-issue earplugs daily; replace earmuff cushions annually.\n6. Acoustic doors and seals (BOM Item 8) at boundaries between treated and untreated spaces: full-perimeter compression seal, automatic drop-down threshold, STC not less than 35 with door slab.\n7. Re-measure post-control: confirm NC ${NCLim} target achieved at all previously-exceeding positions; document on a verification report with site plan and instrument calibration log.\n8. Establish an annual re-survey schedule per DOLE D.O. 13 to detect degradation of acoustic treatments (settled mineral wool, damaged seals, corroded barriers); accelerated re-survey if production processes or equipment change.\n9. For outdoor noise propagation calculations more than 25 m from source, apply ISO 9613-1 air-absorption coefficients (varies with temperature, humidity, frequency); for community-noise complaint investigations, refer to local environmental noise ordinance limits in addition to DOLE workplace limits.\n10. A PRC-licensed Mechanical or Environmental Engineer must sign and seal this assessment and the verification re-measurement report before placing engineering controls into routine service.`)}</p>
 
     <div class="sig-block" style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;">
       <div style="border-top:1.5px solid #333;padding-top:0.5rem;">

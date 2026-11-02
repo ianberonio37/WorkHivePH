@@ -6,19 +6,19 @@ Source: https://workhiveph.com/tools/v-belt-drive-calculator/
 
 V-Belt Drive Calculator
  G1+E3 
-**The V-Belt Drive Calculator finds the number of belts, pulley sizes, and belt length for a power-transmission duty. Example: for a 15 kW V-belt drive, 1450→725 rpm (2:1), SPB section, with a 1.2 service factor, on a 125 mm driver sheave, Number of belts = 4 belts, Driven pulley = 250 mm, Belt length = 1597 mm (per AGMA 2001-D04, RMA IP-20, ANSI B29.1, ISO 6336 and Shigley's MED 10th Ed).**
+**The V-Belt Drive Calculator finds the number of belts, pulley sizes, and belt length for a power-transmission duty. Example: for a 15 kW V-belt drive, 1450→725 rpm (2:1), classical B section, with a 1.2 service factor, on a 125 mm driver sheave, Number of belts = 6 belts, Driven pulley = 250 mm, Belt length = 1597 mm (per AGMA 2001-D04, RMA IP-20, ANSI B29.1, ISO 6336 and Shigley's MED 10th Ed).**
 How it works
 The calculator follows AGMA 2001-D04, RMA IP-20, ANSI B29.1, ISO 6336 and Shigley's MED 10th Ed. Anything the worked example does not state uses this calculator's standard default. The interactive version shows every input and lets you change it.
 I2: reserved block 
 Worked example (Mechanical & Machine Design)
-Inputs: a 15 kW V-belt drive, 1450→725 rpm (2:1), SPB section, with a 1.2 service factor, on a 125 mm driver sheave.
+Inputs: a 15 kW V-belt drive, 1450→725 rpm (2:1), classical B section, with a 1.2 service factor, on a 125 mm driver sheave.
 ResultValue
-Number of belts4 belts
+Number of belts6 belts
 Driven pulley250 mm
 Belt length1597 mm
 Computed by WorkHive's calculation engine when this page was built; standard: AGMA 2001-D04, RMA IP-20, ANSI B29.1, ISO 6336 and Shigley's MED 10th Ed.
 How to use this calculator
-Read the worked example. It uses a 15 kW V-belt drive, 1450→725 rpm (2:1), SPB section, with a 1.2 service factor, on a 125 mm driver sheave and shows every number in the method.
+Read the worked example. It uses a 15 kW V-belt drive, 1450→725 rpm (2:1), classical B section, with a 1.2 service factor, on a 125 mm driver sheave and shows every number in the method.
 Follow the formula with your own figures: it returns Number of belts, Driven pulley, Belt length, computed per AGMA 2001-D04, RMA IP-20, ANSI B29.1, ISO 6336 and Shigley's MED 10th Ed.
 To compute interactively, open the V-Belt Drive Calculator inside WorkHive's free Engineering Design suite (link below). It runs the same method with your inputs.
 FAQ
@@ -36,4 +36,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: ef40743daa509a20 -->
+<!-- md-twin source-sha: 58addcbf306827a8 -->

@@ -1657,6 +1657,21 @@ VECTORS = [
         ],
     },
     {
+        # ★AN UNKNOWN SECTION TOOK B's GEOMETRY BUT NOT B's RATING (ED R1, 2026-11-02): the door page's "SPB" drew B's data
+        # while the rating looked up "SPB", found no equation and used the flat estimate - 4 belts where B's rating needs 6.
+        "module": "calcs.gear_belt_drive",
+        "calc_type": "Gear / Belt Drive (V-Belt) - an unknown section is computed as B, rating and all",
+        "standard": "ANSI/RMA classical V-belt rating (Machinery's Handbook) at the small sheave and speed; RMA wrap factor",
+        "inputs": {"drive_type": "V-Belt", "power_kW": 15, "n_driver_rpm": 1450, "n_driven_rpm": 725,
+                   "service_factor": 1.2, "belt_section": "SPB", "driver_dia_mm": 125},
+        "asserts": [
+            {"path": "P_per_belt_kW", "expected": 3.275, "tol": 0.003,
+             "note": "B at d = 4.921 in, r = 1.45: d·r = 7.1358; 1.769 − 4.372/4.921 − 3.081e-4·50.92 − 0.3658·log(7.1358) = 0.55268; × 7.1358 = 3.9438 + 4.372·1.45·(1 − 1/1.1106) = 0.6313 → 4.575 hp = 3.412 kW; wrap 180 − 60·125/500 = 165° → Cθ 0.96 → 3.275 kW"},
+            {"path": "n_belts", "expected": 6, "tol": 0,
+             "note": "ceil(15 × 1.2 / 3.275) = ceil(5.50) = 6 (the flat estimate under 'SPB' gave 4)"},
+        ],
+    },
+    {
         "module": "calcs.ventilation_ach",
         "calc_type": "Ventilation / ACH",
         "standard": "ASHRAE 62.1 VRP — Vbz = Rp·Pz + Ra·Az; required ACH = max(calc, min)",
@@ -2849,6 +2864,63 @@ VECTORS = [
              "note": "Lw + 10·log10(Q/(4πr²)) = 90 + 10·log10(2/(4π·25)) = 68.04 dB"},
             {"path": "combined_Lp_dB", "expected": 83.01, "tol": 0.02,
              "note": "10·log10(10^8 + 10^8) = 80 + 10·log10(2) = 83.01 dB (two equal 80 dB)"},
+        ],
+    },
+    {
+        # ★THE BARRIER HEIGHT NEVER ENTERED (2026-11-02, ED-G1 Noise, read against the guide's path difference): delta was
+        # d_s + d_r - d_sr with d_sr an input the form never sends (20), so 10 m + 10 m gave delta 0 and IL 4.77 dB for any height.
+        "module": "calcs.noise_acoustics",
+        "calc_type": "Noise / Acoustics - barrier path difference over the top (Maekawa, ISO 9613-2 cap)",
+        "standard": "Maekawa IL = 10·log10(3 + 20N), N = 2δ/λ; δ = A + B − d; ISO 9613-2 Dz ≤ 20 dB",
+        "inputs": {"calc_type": "Barrier", "source_Lw_dB": 90, "directivity_Q": 2, "source_to_barrier_m": 10,
+                   "barrier_to_receiver_m": 10, "barrier_height_m": 3, "source_height_m": 1, "receiver_height_m": 1.5},
+        "asserts": [
+            {"path": "barrier_delta_m", "expected": 0.3037, "tol": 0.0005,
+             "note": "A = √(10² + 2²) = 10.1980; B = √(10² + 1.5²) = 10.1119; d = √(20² + 0.5²) = 20.0062; δ = 0.3037 m (the old δ = 10 + 10 − 20 = 0)"},
+            {"path": "barrier_IL_dB", "expected": 15.88, "tol": 0.02,
+             "note": "N = 2 × 0.3037 / 0.34 = 1.786; IL = 10·log10(3 + 35.72) = 10·log10(38.72) = 15.88 dB (it was 4.77 at every height)"},
+            {"path": "Lp_with_barrier_dB", "expected": 40.11, "tol": 0.02,
+             "note": "at d = 20.006 m: 90 + 10·log10(2/(4π × 400.25)) = 90 − 34.005 = 55.99; − 15.88 = 40.11 dB"},
+        ],
+    },
+    {
+        "module": "calcs.noise_acoustics",
+        "calc_type": "Noise / Acoustics - a tall barrier stops at the ISO 9613-2 20 dB cap",
+        "standard": "ISO 9613-2 §7.4: Dz not more than 20 dB for single diffraction",
+        "inputs": {"calc_type": "Barrier", "source_Lw_dB": 90, "directivity_Q": 2, "source_to_barrier_m": 10,
+                   "barrier_to_receiver_m": 10, "barrier_height_m": 6, "source_height_m": 1, "receiver_height_m": 1.5},
+        "asserts": [
+            {"path": "barrier_IL_raw_dB", "expected": 24.06, "tol": 0.02,
+             "note": "A = √(100 + 25) = 11.1803; B = √(100 + 20.25) = 10.9659; δ = 22.1462 − 20.0062 = 2.1400; N = 12.588; 10·log10(3 + 251.76) = 24.06"},
+            {"path": "barrier_IL_dB", "expected": 20.0, "tol": 0.001,
+             "note": "capped at 20 dB (the report claimed a 24 dB cap the engine never applied)"},
+        ],
+    },
+    {
+        "module": "calcs.noise_acoustics",
+        "calc_type": "Noise / Acoustics - reduction to the space's own NC (room equation)",
+        "standard": "Lp = Lw + 10·log10(Q/(4πr²) + 4/R), R = αS/(1 − α); target NC + 10 dBA",
+        "inputs": {"calc_type": "Room", "source_Lw_dB": 90, "distance_m": 5, "directivity_Q": 2,
+                   "space_type": "Open-plan office", "avg_absorption_coeff": 0.15, "room_surface_m2": 200},
+        "asserts": [
+            {"path": "room.Lp_dB", "expected": 80.78, "tol": 0.02,
+             "note": "R = 0.15 × 200 / 0.85 = 35.29; 2/(4π·25) = 0.006366 + 4/35.29 = 0.113333 → 0.119699; 90 − 9.219 = 80.78 dB"},
+            {"path": "reduction_to_NC_dB", "expected": 30.8, "tol": 0.05,
+             "note": "80.78 − (NC 40 + 10 = 50 dBA) = 30.8 dB (the report took the free-field 68.04 − 65 = 3.0 for every space)"},
+        ],
+    },
+    {
+        "module": "calcs.noise_acoustics",
+        "calc_type": "Noise / Acoustics - OSHA dose: Ti = 8/2^((L − 90)/5), below 80 dBA not counted",
+        "standard": "OSHA 29 CFR 1910.95 App. A: D = Σ Ci/Ti; TWA = 16.61·log10(D) + 90",
+        "inputs": {"calc_type": "Dose", "exposures": [{"level_dBA": 100, "duration_hr": 4},
+                                                      {"level_dBA": 70, "duration_hr": 4},
+                                                      {"level_dBA": 135, "duration_hr": 0.01}]},
+        "asserts": [
+            {"path": "dose.dose_pct", "expected": 264.0, "tol": 0.1,
+             "note": "100 dBA: 4 / 2 = 2.00; 70 dBA: not counted (the old table gave 4/32 = 0.125); 135 dBA: T = 8/2^9 = 0.015625 → 0.64 (the old clamp gave 0.031 h → 0.32); D = 2.64"},
+            {"path": "dose.TWA_dBA", "expected": 97.0, "tol": 0.02,
+             "note": "16.61 × log10(2.64) + 90 = 16.61 × 0.42160 + 90 = 97.00 dBA"},
         ],
     },
     {

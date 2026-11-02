@@ -21,21 +21,18 @@ Methods:
 
 import math
 
-# ─── OSHA / DOLE permissible exposure levels ──────────────────────────────────
-# Hours permitted at each dBA level (DOLE D.O. 13 Table 1 / OSHA Table G-16)
-PERMISSIBLE_EXPOSURE: dict[float, float] = {
-    80:  32.0,
-    85:  16.0,
-    90:   8.0,
-    95:   4.0,
-    100:  2.0,
-    105:  1.0,
-    110:  0.5,
-    115:  0.25,
-    120:  0.125,
-    125:  0.063,
-    130:  0.031,
-}
+# ─── OSHA / DOLE permissible exposure ─────────────────────────────────────────
+# ★THE DOSE TABLE CLAMPED AT BOTH ENDS (2026-11-02, ED-G1 Noise, read against the guide's "D = sum(ti/Ti)"): every level
+# at or below 80 dBA was given 32 h, so 70 dBA for 8 h became a 25% dose and an 80.0 dBA TWA, and every level from
+# 130 dBA up kept 0.031 h. OSHA 29 CFR 1910.95 Appendix A: Ti = 8 / 2^((L - 90)/5) h (Table G-16 is that formula, the
+# 5 dB exchange rate the guide states), and sound below 80 dBA is not counted in the dose. DOLE's OSHS uses the same
+# 90 dBA / 8 h, 5 dB exchange; 115 dBA is the continuous-exposure ceiling (Table G-16 footnote).
+DOSE_THRESHOLD_DBA = 80.0
+CEILING_DBA = 115.0
+
+
+def _permitted_hours(level_dBA: float) -> float:
+    return 8.0 / 2 ** ((level_dBA - 90.0) / 5.0)
 
 # ─── NC curve SPL limits (dB) at octave band centre frequencies ───────────────
 # From ASHRAE 2019 Fundamentals Ch.8 Table 4
@@ -99,7 +96,7 @@ def _octave_to_dba(octave_spl: list) -> float:
 
 def _nc_rating(octave_spl: list) -> int:
     """
-    Determine NC rating: highest NC curve NOT exceeded in any octave band.
+    Determine NC rating: the LOWEST NC curve not exceeded in any octave band.
     Returns NC value (15–70) or 70+ if exceeds NC70.
     """
     for nc in sorted(NC_CURVES.keys()):
@@ -136,19 +133,33 @@ def _room_spl(Lw_dB: float, r_m: float, Q: float,
     return {"Lp_dB": round(Lp, 2), "R_m2": round(R, 2), "rc_m": round(rc, 2)}
 
 
-def _barrier_il(d_s: float, d_r: float, d_sr: float,
-                h_b: float, freq_Hz: float = 1000) -> float:
+BARRIER_CAP_DB = 20.0   # ISO 9613-2 s.7.4: Dz not more than 20 dB for single diffraction
+
+
+def _barrier_il(d_s: float, d_r: float, h_b: float, h_s: float, h_r: float,
+                freq_Hz: float = 1000) -> dict:
     """
-    Barrier insertion loss - Maekawa formula.
-    IL = 10 log10(3 + 20 N)   N = 2δ/λ   δ = path diff
-    δ = d_s + d_r - d_sr  (path length difference)
-    λ = 340 / freq
+    Barrier insertion loss - Maekawa: IL = 10 log10(3 + 20 N), N = 2 delta / lambda, lambda = 340 / f.
+    delta = path over the top - direct path:
+        A = sqrt(d_s^2 + (h_b - h_s)^2), B = sqrt(d_r^2 + (h_b - h_r)^2), d = sqrt((d_s + d_r)^2 + (h_r - h_s)^2)
+    negative when the top is below the line of sight. Capped at 20 dB (ISO 9613-2).
+
+    ★THE BARRIER HEIGHT NEVER ENTERED (2026-11-02, ED-G1 Noise, read against the guide's "delta = d_source + d_receiver
+    - d_direct"): delta was d_s + d_r - d_sr with d_sr an input the form never sends (default 20), so the form's
+    10 m + 10 m gave delta = 0 and every barrier, 0.5 m or 10 m tall, read IL = 10 log 3 = 4.77 dB. The height was
+    an unused argument. The path difference is now the geometry over the barrier's top.
     """
-    delta = d_s + d_r - d_sr
-    lam   = 340 / freq_Hz
-    N     = 2 * delta / lam if lam > 0 else 0
-    IL    = 10 * math.log10(3 + 20 * N) if N > -0.15 else 0
-    return max(IL, 0)
+    A = math.hypot(d_s, h_b - h_s)
+    B = math.hypot(d_r, h_b - h_r)
+    d = math.hypot(d_s + d_r, h_r - h_s)
+    los_h = h_s + (h_r - h_s) * d_s / (d_s + d_r) if (d_s + d_r) > 0 else h_s
+    delta = (A + B - d) if h_b >= los_h else -(A + B - d)
+    lam = 340 / freq_Hz
+    N = 2 * delta / lam if lam > 0 else 0
+    IL_raw = 10 * math.log10(3 + 20 * N) if (3 + 20 * N) > 0 else 0
+    IL = min(max(IL_raw, 0), BARRIER_CAP_DB)
+    return {"A_m": A, "B_m": B, "d_direct_m": d, "delta_m": delta, "lambda_m": lam, "N": N,
+            "IL_raw_dB": IL_raw, "IL_dB": IL, "capped": IL_raw > BARRIER_CAP_DB}
 
 
 def _twa(exposures: list) -> dict:
@@ -158,38 +169,30 @@ def _twa(exposures: list) -> dict:
     D = Σ (ti / Ti)   Ti from permissible table (interpolated)
     TWA = 16.61 × log10(D/100) + 90   (8-hr basis)
     """
-    # Ti by interpolation
-    levels = sorted(PERMISSIBLE_EXPOSURE.keys())
-
-    def T_permitted(L: float) -> float:
-        if L <= levels[0]:
-            return PERMISSIBLE_EXPOSURE[levels[0]]
-        if L >= levels[-1]:
-            return PERMISSIBLE_EXPOSURE[levels[-1]]
-        for i in range(len(levels) - 1):
-            if levels[i] <= L <= levels[i+1]:
-                # Linear interpolation in log domain
-                f = (L - levels[i]) / (levels[i+1] - levels[i])
-                T0 = math.log10(PERMISSIBLE_EXPOSURE[levels[i]])
-                T1 = math.log10(PERMISSIBLE_EXPOSURE[levels[i+1]])
-                return 10**(T0 + f * (T1 - T0))
-        return 8.0
-
-    D = sum(e["duration_hr"] / T_permitted(e["level_dBA"]) for e in exposures)
+    counted = [e for e in exposures if float(e["level_dBA"]) >= DOSE_THRESHOLD_DBA]
+    D = sum(float(e["duration_hr"]) / _permitted_hours(float(e["level_dBA"])) for e in counted)
     D_pct = D * 100
-    TWA   = 16.61 * math.log10(D_pct / 100) + 90 if D_pct > 0 else 0
-    action_level_exceeded = TWA >= 85
-    limit_exceeded        = TWA >= 90
+    TWA   = 16.61 * math.log10(D) + 90 if D > 0 else None
+    ceiling_exceeded      = any(float(e["level_dBA"]) > CEILING_DBA for e in exposures)
+    action_level_exceeded = TWA is not None and TWA >= 85
+    # 1910.95(b)(2): a mixed exposure exceeds the limit when the dose sum EXCEEDS unity; (c)(1): the action level is
+    # reached at 85 dBA TWA (a 50% dose)
+    limit_exceeded        = D > 1.0 + 1e-9 or ceiling_exceeded
 
     return {
         "dose_pct":     round(D_pct, 2),
-        "TWA_dBA":      round(TWA, 2),
+        "TWA_dBA":      round(TWA, 2) if TWA is not None else None,
         "action_level_exceeded": action_level_exceeded,
         "limit_exceeded": limit_exceeded,
-        "status": ("EXCEEDS LIMIT - engineering controls required"
+        "ceiling_exceeded": ceiling_exceeded,
+        "status": ("EXCEEDS the 115 dBA ceiling - no continuous exposure is permitted above it"
+                   if ceiling_exceeded else
+                   "EXCEEDS LIMIT (90 dBA TWA) - engineering controls required"
                    if limit_exceeded else
-                   "EXCEEDS ACTION LEVEL - hearing conservation program required"
+                   "EXCEEDS ACTION LEVEL (85 dBA TWA) - hearing conservation program required"
                    if action_level_exceeded else
+                   "Below the 80 dBA dose threshold - no dose counted"
+                   if TWA is None else
                    "Within limits"),
     }
 
@@ -204,16 +207,16 @@ def calculate(inputs: dict) -> dict:
     # ── Source level ──────────────────────────────────────────────────────────
     Lw_dB        = float(inputs.get("source_Lw_dB",      90.0))    # Sound power level
     Lp_at_1m     = float(inputs.get("Lp_at_1m_dB",        0.0))    # Alternative: SPL at 1m
+    Q_dir        = float(inputs.get("directivity_Q",        2.0))
     if Lp_at_1m > 0:
-        # Back-calculate Lw: Lw = Lp + 20log10(r) + 11  (free field, Q=2)
-        Lw_dB = Lp_at_1m + 20 * math.log10(1.0) + 8   # hemisphere
+        # Back-calculate Lw at r = 1 m: Lw = Lp - 10 log10(Q / 4pi)  (= Lp + 7.98 for Q = 2, + 10.99 for Q = 1)
+        Lw_dB = Lp_at_1m - 10 * math.log10(Q_dir / (4 * math.pi))
 
     # ── Octave band spectrum (if provided) ───────────────────────────────────
     octave_spl = inputs.get("octave_spl", None)   # 8 values at NC_FREQ
 
     # ── Distance SPL ──────────────────────────────────────────────────────────
     r_m          = float(inputs.get("distance_m",          5.0))
-    Q_dir        = float(inputs.get("directivity_Q",        2.0))
     Lp_dist      = _point_source_attenuation(Lw_dB, r_m, Q_dir)
     results["Lp_at_distance_dB"] = round(Lp_dist, 2)
     results["distance_m"]         = r_m
@@ -242,19 +245,35 @@ def calculate(inputs: dict) -> dict:
 
         results["space_type"]  = space_type
         results["NC_recommended"] = NC_RECOMMENDED.get(space_type, {})
+        # ★THE REDUCTION "TO REACH NC" WAS Lp - 65 FOR EVERY SPACE (report + BOM, 2026-11-02): an open office (NC 40,
+        # ~50 dBA) and a bedroom (NC 25, ~35 dBA) were both measured against 65. It is now the room level less the
+        # space's own NC level in dBA (NC + 10, the table's dBA_approx).
+        nc_target_dBA = NC_RECOMMENDED.get(space_type, {}).get("dBA_approx", results["NC_limit"] + 10)
+        results["NC_target_dBA"] = nc_target_dBA
+        results["reduction_to_NC_dB"] = round(max(0.0, room_data["Lp_dB"] - nc_target_dBA), 1)
 
     # ── Barrier ────────────────────────────────────────────────────────────────
     if calc_type == "Barrier":
         d_s    = float(inputs.get("source_to_barrier_m",   10.0))
         d_r    = float(inputs.get("barrier_to_receiver_m", 10.0))
-        d_sr   = float(inputs.get("source_to_receiver_m",  20.0))
         h_b    = float(inputs.get("barrier_height_m",       3.0))
+        h_s    = float(inputs.get("source_height_m",        1.0))
+        h_r    = float(inputs.get("receiver_height_m",      1.5))
         freq   = float(inputs.get("frequency_Hz",        1000.0))
 
-        il     = _barrier_il(d_s, d_r, d_sr, h_b, freq)
-        Lp_no_barrier  = round(Lp_dist, 2)
-        Lp_with_barrier = round(Lp_dist - il, 2)
-        results["barrier_IL_dB"]          = round(il, 2)
+        bar    = _barrier_il(d_s, d_r, h_b, h_s, h_r, freq)
+        # the receiver is at the barrier geometry's direct distance, not the Distance field's
+        Lp_no_barrier  = round(_point_source_attenuation(Lw_dB, bar["d_direct_m"], Q_dir), 2)
+        Lp_with_barrier = round(Lp_no_barrier - bar["IL_dB"], 2)
+        results["barrier_IL_dB"]          = round(bar["IL_dB"], 2)
+        results["barrier_IL_raw_dB"]      = round(bar["IL_raw_dB"], 2)
+        results["barrier_capped"]         = bar["capped"]
+        results["barrier_path_A_m"]       = round(bar["A_m"], 3)
+        results["barrier_path_B_m"]       = round(bar["B_m"], 3)
+        results["barrier_d_direct_m"]     = round(bar["d_direct_m"], 3)
+        results["barrier_delta_m"]        = round(bar["delta_m"], 4)
+        results["barrier_lambda_m"]       = round(bar["lambda_m"], 3)
+        results["fresnel_N"]              = round(bar["N"], 3)
         results["Lp_no_barrier_dB"]       = Lp_no_barrier
         results["Lp_with_barrier_dB"]     = Lp_with_barrier
 
@@ -269,6 +288,22 @@ def calculate(inputs: dict) -> dict:
     if sources:
         levels = [s.get("Lp_dB", 70) for s in sources]
         results["combined_Lp_dB"] = round(_add_spl(*levels), 2)
+
+    # ── The level each mode assesses (the report's compliance table reads THIS, not the free-field Lp) ──────
+    if calc_type == "Dose":
+        assessed = results["dose"]["TWA_dBA"]
+        basis = "8-hour TWA from the exposure"
+    elif calc_type == "Barrier":
+        assessed = results["Lp_with_barrier_dB"]
+        basis = "receiver level behind the barrier"
+    elif "room" in results:
+        assessed = results["room"]["Lp_dB"]
+        basis = "room equation at the receiver, direct + reverberant"
+    else:
+        assessed = round(Lp_dist, 2)
+        basis = "free-field point source at the distance"
+    results["assessed_Lp_dB"] = assessed
+    results["assessed_basis"] = basis
 
     # ── Compliance notes ──────────────────────────────────────────────────────
     code_notes = [
@@ -288,6 +323,7 @@ def calculate(inputs: dict) -> dict:
             "calc_type":   calc_type,
             "source_Lw_dB": Lw_dB,
             "distance_m":  r_m,
+            "directivity_Q": Q_dir,
         },
         "calculation_source": "python/math",
         "standard": "ISO 9613-2 | OSHA 29 CFR 1910.95 | DOLE D.O. 13 | ASHRAE 2019 Ch.8 | IEC 61672-1",

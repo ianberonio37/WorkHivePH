@@ -1625,6 +1625,25 @@ function narrationQuotesResult(
   return quotesAResult || nums.every((x) => standardNums.has(x.replace(/,/g, "")));
 }
 
+// ★A NAMED FIGURE MUST BE THAT FIGURE (ED R1, 2026-11-02): the V-belt narrative called the 7.5 kW the engineer typed
+// "the design power" - it is 9.0 kW, rated x service factor. 7.5 is a real input, so the grounding rail above passed it:
+// that rail asks whether a number exists, not whether it is the quantity the sentence names. A report section that names
+// a design_<quantity> result ("design power", "design flow") and quotes a different figure within a few words is
+// misstating the calculation; it is dropped, and the report's own deterministic text (which reads the result) takes its
+// place. A false match only ever swaps in the template, never keeps a wrong figure.
+function namedFigureMismatch(text: string, results: Record<string, unknown>): boolean {
+  for (const [key, val] of Object.entries(results || {})) {
+    const m = /^design_([a-z]+)_/i.exec(key);
+    if (!m || typeof val !== "number" || !Number.isFinite(val)) continue;
+    const re = new RegExp(`design\\s+${m[1]}\\b[^0-9]{0,24}?(\\d[\\d,]*(?:\\.\\d+)?)`, "gi");
+    for (let x = re.exec(text); x; x = re.exec(text)) {
+      const n = parseFloat(x[1].replace(/,/g, ""));
+      if (Math.abs(n - val) > Math.max(0.05, Math.abs(val) * 0.02)) return true;
+    }
+  }
+  return false;
+}
+
 async function generateReportNarrative(
   calcType: string,
   inputs: Record<string, number | string>,
@@ -1670,6 +1689,12 @@ Respond in JSON format only:
       const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
       const parsed = JSON.parse(cleaned);
       if (parsed.objective && parsed.assumptions && parsed.recommendations) {
+        for (const f of ["objective", "assumptions", "recommendations"]) {
+          if (namedFigureMismatch(String(parsed[f] ?? ""), results)) {
+            console.warn(`[engineering-calc-agent] ${calcType}: narrative ${f} misnames a design figure - the report's own text is used`);
+            parsed[f] = "";
+          }
+        }
         if (parsed.narration) parsed.narration = String(parsed.narration).trim().slice(0, 280);
         // AI-1 grounding rail: silence the spoken line if it quotes an unverifiable figure.
         if (parsed.narration && !narrationQuotesResult(parsed.narration, results, inputs)) parsed.narration = null;

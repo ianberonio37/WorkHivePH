@@ -548,6 +548,23 @@ ENGINE_CHECKED["Vibration Analysis"] = (
     "not a key and fell back to rubber - restamped. Two vectors fail on the old engine; oracle 160/160. Walked at 390: "
     "steel spring 'k = 196133 N/m', 'fn 3.1522 Hz', Zone A <= 1.12, 'G = 1.518 mm/s', U_per 2074.5 g.mm; 400 kW on "
     "Class II shows the class note; no sideways scroll.")
+ENGINE_CHECKED["Noise / Acoustics"] = (
+    "FOUND AND FIXED, read against python-api/calcs/noise_acoustics.py: the point-source, room-equation, room-constant, "
+    "critical-distance, NC-curve and A-weighting figures match the guide and ASHRAE, but the barrier height never entered: "
+    "delta was d_s + d_r - d_sr with d_sr an input the form never sends (20), so the form's 10 m + 10 m gave delta 0 and "
+    "every barrier, 0.5 m or 10 m tall, read IL = 10 log 3 = 4.77 dB. The path difference is now the geometry over the "
+    "top (A + B - d, negative below the line of sight) with source and receiver heights on the form (1 m / 1.5 m), the "
+    "receiver at the geometry's direct distance, and ISO 9613-2's 20 dB single-diffraction cap (the report claimed 24, "
+    "never applied): the default 3 m barrier is 15.88 dB. The dose table clamped at both ends - 70 dBA for 8 h was a 25% "
+    "dose / 80.0 dBA TWA, and 130+ dBA kept 0.031 h - now OSHA App. A's Ti = 8/2^((L-90)/5), below 80 not counted, the "
+    "115 dBA ceiling flagged, and the limit exceeded only when the dose exceeds unity (1910.95(b)(2)). The report judged "
+    "the FREE-FIELD Lp against '85 dBA' (the engine's limit is 90; 85 is the action level) in every mode, and its "
+    "'reduction to NC' was Lp_free - 65 for every space; it now judges the level each mode assesses (room equation / "
+    "behind the barrier / TWA) and the reduction is room Lp - (NC + 10). The BOM agent carried the same -65. The door "
+    "page's 'Factory / Workshop' was not a space key and fell back to NC 40 - now Manufacturing NC 65, room Lp 83 dB. "
+    "Four vectors fail on the old engine; oracle 164/164; guides matching their form 55/55. Walked at 390: Room '80.78 "
+    "dBA ... ~30.8 dB to NC 40', Barrier 'delta = 0.3037 m', 'IL 15.88 dB', '40.11 dB', Dose 95 dBA 8 h '200 percent', "
+    "'EXCEEDS the 90 dBA limit'; no sideways scroll.")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
