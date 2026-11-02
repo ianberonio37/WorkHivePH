@@ -87,6 +87,10 @@
   "content_sha": "e4399ee36cc138d4",
   "stamped": "2026-10-31"
  },
+ "tools/hvac-cooling-load-calculator": {
+  "content_sha": "dc9ad321f2b23fe7",
+  "stamped": "2026-11-02"
+ },
  "tools/roof-drain-calculator": {
   "content_sha": "4a3da62bbcfc9c58",
   "stamped": "2026-11-02"

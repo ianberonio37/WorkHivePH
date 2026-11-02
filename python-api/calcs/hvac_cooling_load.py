@@ -52,6 +52,18 @@ SHGC: dict[str, float] = {
     "Double":   0.40,
 }
 
+# ─── Glass U-value by glass type (W/m2·K) - ASHRAE 2021 Fundamentals Ch.15 Table 4, centre of glass ─────────
+# ★GLASS CONDUCTION USED THE WALL'S U-VALUE (2026-11-02, ED-G1 HVAC Cooling Load, read against the guide): the engine took
+# U_WALL (0.25-0.45) for the windows, where single clear glass is about 5.9 W/m2·K - glass conduction 13x low (20 m2 at
+# 11 K: 99 W where it is 1,298 W). Single clear and single tinted 5.9; double clear 2.8; the "LowE" option carries a
+# double low-e unit's SHGC (0.35), so its U is a double low-e unit's, 1.8.
+U_GLASS: dict[str, float] = {
+    "Standard": 5.9,
+    "Tinted":   5.9,
+    "Double":   2.8,
+    "LowE":     1.8,
+}
+
 # ─── Solar irradiance by orientation at Manila lat 14.6N (W/m2) ──────────────
 # Peak design values - ASHRAE 2021 Fundamentals Ch.14
 SOLAR_W: dict[str, float] = {
@@ -117,7 +129,13 @@ def calculate(inputs: dict) -> dict:
     outdoor_db    = float(inputs.get("outdoor_temp",         35))   # dry bulb °C
     indoor_db     = float(inputs.get("indoor_temp",          24))
     indoor_rh     = float(inputs.get("indoor_rh_pct",        55))   # %
-    outdoor_rh    = float(inputs.get("outdoor_rh_pct",       80))   # Manila ~80% RH
+    # The default outdoor air was 35 C at 80% RH (31 C dew point), which no Manila design condition reaches (ASHRAE: 34.6 C
+    # DB / 26.5 C MCWB). Now 35 C DB / 28 C WB, about the 0.4% enthalpy design point; an explicit RH or WB still wins.
+    if inputs.get("outdoor_rh_pct") not in (None, ""):
+        outdoor_rh = float(inputs["outdoor_rh_pct"])
+    else:
+        outdoor_rh = psychrolib.GetRelHumFromTWetBulb(
+            outdoor_db, min(float(inputs.get("outdoor_wb_c", 28.0)), outdoor_db), 101325) * 100
     insulation    = str  (inputs.get("insulation",       "Standard"))
     glass_type    = str  (inputs.get("glass_type",       "Standard"))
     orientation   = str  (inputs.get("window_orientation","Mixed"))
@@ -151,9 +169,12 @@ def calculate(inputs: dict) -> dict:
     u_roof    = U_ROOF.get(insulation, 0.50)
     cltd_wall = CLTD_WALL.get(orientation, 9.0)
 
-    q_walls   = u_wall * wall_area   * cltd_wall   # W
+    # The windows are part of the wall area; the opaque wall is what is left (it was the gross area, the glass counted twice).
+    wall_net  = max(wall_area - glass_area, 0.0)
+    q_walls   = u_wall * wall_net    * cltd_wall   # W
     q_roof    = u_roof * floor_area  * CLTD_ROOF   # W
-    q_glass_cond = u_wall * glass_area * (outdoor_db - indoor_db)  # conduction W
+    u_glass   = U_GLASS.get(glass_type, 5.9)
+    q_glass_cond = u_glass * glass_area * (outdoor_db - indoor_db)  # conduction W
     q_glass_solar = SHGC.get(glass_type, 0.87) * SOLAR_W.get(orientation, 350) * glass_area  # solar W
     q_glass   = q_glass_cond + q_glass_solar
 
@@ -233,6 +254,9 @@ def calculate(inputs: dict) -> dict:
             "q_lighting":   round(q_lighting, 1),
             "q_equipment":  round(q_equip, 1),
             "q_infiltration": round(q_infil_s, 1),
+            "q_infiltration_latent": round(q_infil_l, 1),
+            "q_glass_conduction": round(q_glass_cond, 1),
+            "q_glass_solar": round(q_glass_solar, 1),
         },
 
         # Psychrometric state points (from psychrolib)
@@ -240,7 +264,7 @@ def calculate(inputs: dict) -> dict:
             "outdoor_db_c":      outdoor_db,
             "outdoor_wb_c":      round(outdoor_wb, 1),
             "outdoor_dp_c":      round(outdoor_dp, 1),
-            "outdoor_rh_pct":    outdoor_rh,
+            "outdoor_rh_pct":    round(outdoor_rh, 1),
             "outdoor_w_gkg":     round(outdoor_w * 1000, 2),
             "outdoor_h_kJkg":    round(outdoor_h / 1000, 2),
             "indoor_db_c":       indoor_db,
@@ -275,9 +299,16 @@ def calculate(inputs: dict) -> dict:
             "delta_t":            round(outdoor_db - indoor_db, 1),
             "glass_area":         round(glass_area, 1),
             "wall_area":          round(wall_area, 1),
+            "wall_net_area":      round(wall_net, 1),
             "roof_area":          round(floor_area, 1),
             "u_wall":             u_wall,
             "u_roof":             u_roof,
+            "u_glass":            u_glass,
+            "cltd_wall":          cltd_wall,
+            "cltd_roof":          CLTD_ROOF,
+            "infiltration_ach":   ach_inf,
+            "infiltration_m3s":   round(volume * ach_inf / 3600, 4),
+            "volume_m3":          round(volume, 1),
             "shgc":               SHGC.get(glass_type, 0.87),
             "solar_irradiance":   SOLAR_W.get(orientation, 350),
             "lighting_wpm2":      LIGHTING_WPM2.get(room_fn, 12),

@@ -2628,6 +2628,27 @@ VECTORS = [
         ],
     },
     {
+        # ★GLASS CONDUCTION ON THE WALL'S U (2026-11-02, ED-G1 HVAC Cooling Load). Fails on that engine.
+        "module": "calcs.hvac_cooling_load",
+        "calc_type": "HVAC Cooling Load - glass, infiltration and outdoor air",
+        "standard": "ASHRAE Fundamentals Ch.15 (glass U 5.9 single clear) + Ch.16 infiltration (sensible + latent) + Ch.1",
+        "inputs": {"floor_area": 100, "ceiling_height": 3, "wall_area": 0, "glass_area": 0, "persons": 10,
+                   "equipment_kw": 2, "outdoor_temp": 35, "indoor_temp": 24, "insulation": "Standard",
+                   "glass_type": "Standard", "window_orientation": "Mixed", "room_function": "Office"},
+        "asserts": [
+            {"path": "components.q_glass_conduction", "expected": 1557.6, "tol": 0.1,
+             "note": "glass = 20% of √100·4·3 = 24 m²; 5.9 W/m²K (single clear) × 24 × (35 − 24) = 1557.6 W (it used the wall's 0.45: 118.8 W)"},
+            {"path": "components.q_walls", "expected": 388.8, "tol": 0.1,
+             "note": "0.45 × (120 − 24) × CLTD 9 (Mixed) = 388.8 W"},
+            {"path": "components.q_infiltration", "expected": 553.3, "tol": 0.2,
+             "note": "0.5 ACH × 300 m³ / 3600 = 0.041667 m³/s; 1.2 × 0.041667 × 1006 × 11 = 553.3 W"},
+            {"path": "components.q_infiltration_latent", "expected": 1359.6, "tol": 1.5,
+             "note": "outdoor 35 DB / 28 WB: W = 0.021119 (ASHRAE Ch.1, Pws(28) = 3.7831 kPa); room 24 °C 55%: W = 0.010244; 1.2 × 0.041667 × 2,501,000 × 0.010875 = 1359.6 W (the 80% RH default gave W 0.0286 - 2,300 W)"},
+            {"path": "q_design", "expected": 18883.5, "tol": 1.5,
+             "note": "walls 388.8 + roof 0.5·100·30 = 1500 + glass 1557.6 + 0.87·350·24 = 7308 + people 750 + lighting 1200 + equipment 2000 + infiltration 553.3 = 15,257.7 sensible; latent 550 + 1359.6; × 1.10 = 18,883.6 W"},
+        ],
+    },
+    {
         "module": "calcs.hvac_cooling_load",
         "calc_type": "HVAC Cooling Load",
         "standard": "ASHRAE CLTD — q = U·A·CLTD (sensible conduction gains)",
@@ -2636,8 +2657,8 @@ VECTORS = [
                    "insulation": "Standard", "glass_type": "Standard",
                    "window_orientation": "West"},
         "asserts": [
-            {"path": "components.q_walls", "expected": 630.0, "tol": 0.1,
-             "note": "U·A·CLTD = 0.45·100·14.0 (West) = 630 W (ASHRAE CLTD method)"},
+            {"path": "components.q_walls", "expected": 504.0, "tol": 0.1,
+             "note": "U·A_net·CLTD = 0.45·(100 − 20 glass)·14.0 (West) = 504 W (re-derived 2026-11-02: this pinned 630 on the gross area, the glass counted as wall too)"},
             {"path": "components.q_roof", "expected": 750.0, "tol": 0.1,
              "note": "U·A·CLTD_roof = 0.50·50·30.0 = 750 W"},
             {"path": "components.q_people", "expected": 375.0, "tol": 0.1,

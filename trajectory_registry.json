@@ -1172408,8 +1172408,8 @@
     },
     {
       "id": "ED1",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "ED-G1",
       "title": "the guide tells the truth about this calculator - HVAC Cooling Load on engineering-design.html · solo-owner",
       "pages": [
@@ -1172463,6 +1172463,12 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "walked on the HVAC Cooling Load calculator with a receipt, the fix landed, a gate holds it"
+      },
+      "basis": "[2026-11-02] FOUND AND FIXED, read against python-api/calcs/hvac_cooling_load.py: (1) glass conduction used the WALL U-value (0.45) - single clear glass is 5.9 W/m2K (ASHRAE Ch.15), 13x low (24 m2 at 11 K: 119 W for 1,558); U_glass is now by glass type (5.9 / 5.9 / 2.8 / 1.8). (2) Walls were the gross area, the windows counted as wall too; now net of glass. (3) The default outdoor air was 35 C at 80% RH (31 C dew point) - infiltration latent ~70% high; now 35 C DB / 28 C WB. The guide and the report's working described a different method from the engine: walls/roof U x A x DT (x1.15) where the engine uses CLTD, glass 0.57 x A x DT, equipment x0.85 diversity the engine never applied, infiltration 0.35 x V x DT sensible only, Mixed irradiance 200 against the engine's 350 (and the form label's '3.5x'), and a latent row labelled occupants-only that held infiltration too - all now the engine's method with its own numbers. Guide names are the form's. The vector (hand psychrometrics) fails on the old engine and the old gross-wall vector (630, re-derived to 504); walked on the served page at 390: 'Q_walls = 0.45 x 96 x 9 = 388.8 W', 'Q_glass = (5.9 x 24 x 11) + (24 x 0.87 x 350) = 1,557.6 + 7,308', 'design 18,883.5', no sideways scroll. Door page restamped (38.87 kW / 11.05 TR). WALKED: HVAC Cooling Load's Guide - present, its field names exactly the form's, its text and formulas clean at both widths, read through tools/prove_engineering_guides.mjs (receipt engineering_guides_report.json, 2026-11-02T02:08:52Z) after selecting the calculator inside engineering-design.html. HELD BY: gate engineering-guides (ratchet engineering_guides_baseline.json; teeth plant a ghost field, faint and small text, a hole and a flat line). pct -> 60",
+      "artifacts": {
+        "gates": [
+          "engineering-guides"
+        ]
       }
     },
     {

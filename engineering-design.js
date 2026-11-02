@@ -266,14 +266,16 @@ const GUIDES = {
     standards: ['PSME Code - Philippine Society of Mechanical Engineers','ASHRAE Fundamentals Handbook (2021)','National Building Code of the Philippines (PD 1096)'],
     formulas: [
       'Q_total = Q_walls + Q_roof + Q_glass + Q_people + Q_equipment + Q_lighting + Q_infiltration',
-      'Q_walls = U x A_wall x deltaT',
-      'Q_roof = U x A_roof x deltaT x 1.15  (solar correction factor)',
-      'Q_glass = (0.57 x A x deltaT) + (A x SHGC x I_solar)',
-      '  I_solar: N=90, S=130, E=700, W=700, Horizontal=950, Mixed=200 W/m² (ASHRAE 2021, Manila ~14.6°N)',
-      'Q_people = N x (sensible + latent) W/person',
-      'Q_equipment = kW x 1000 x 0.85  (diversity factor)',
-      'Q_lighting = W/m2 x floor area',
-      'Q_infiltration = 0.5 ACH x Volume x 0.35 x deltaT',
+      'Q_walls = U_wall x (A_wall − A_glass) x CLTD_wall   (CLTD: N 5, S 8, E 12, W 14, Mixed 9 K; the windows are not wall)',
+      'Q_roof = U_roof x A_floor x CLTD_roof   (flat concrete roof, CLTD 30 K)',
+      'Q_glass = U_glass x A_glass x (T_out − T_in)  +  A_glass x SHGC x I_solar',
+      '  U_glass: single clear or tinted 5.9, double 2.8, double low-e 1.8 W/m²K (ASHRAE 2021 Ch.15)',
+      '  I_solar: N 90, S 130, E 700, W 700, Horizontal 950, Mixed 350 W/m² (Manila ~14.6°N)',
+      'Q_people = N x (sensible + latent) W/person by room function',
+      'Q_equipment = kW x 1000   (connected kW at full output: enter the running load if equipment cycles)',
+      'Q_lighting = W/m² by room function x floor area',
+      'Q_infiltration = ρ·V̇·cp·(T_out − T_in) sensible + ρ·V̇·2501·(W_out − W_in) latent,  V̇ = 0.5 ACH x volume',
+      '  Outdoor 35°C DB / 28°C WB (W 21.1 g/kg) unless set; room 55% RH',
       'Q_design = Q_total x 1.10  (10% safety margin)',
     ],
     fields: [
@@ -281,11 +283,14 @@ const GUIDES = {
       { name: 'Ceiling Height (m)', tip: 'Floor-to-ceiling height. Default 3.0 m.' },
       { name: 'Wall Area (m2)', tip: 'Leave blank to auto-calculate: sqrt(floor area) x 4 x ceiling height.' },
       { name: 'Glass / Window Area (m2)', tip: 'Leave blank to auto-calculate as 20% of wall area.' },
-      { name: 'Window Orientation', tip: 'Direction the glazed wall primarily faces. East and West facades receive up to 700 W/m² peak solar irradiance: 3.5× higher than Mixed (200 W/m²). North receives mostly diffuse (90 W/m²). Use Mixed if windows face multiple directions or orientation is unknown. Values per ASHRAE 2021 Fundamentals Ch. 18 for Manila latitude ~14.6°N.' },
+      { name: 'Window Orientation', tip: 'Direction the glazed wall primarily faces. East and West facades receive up to 700 W/m² peak solar irradiance: 2× the Mixed figure (350 W/m²). North receives mostly diffuse (90 W/m²). Use Mixed if windows face multiple directions or orientation is unknown. Values per ASHRAE 2021 Fundamentals Ch. 18 for Manila latitude ~14.6°N.' },
       { name: 'No. of Persons', tip: 'Peak occupancy count in the space.' },
-      { name: 'Equipment Load (kW)', tip: 'Total connected electrical equipment (computers, machines, etc.).' },
-      { name: 'Insulation', tip: 'Standard = old / no insulation. Good = typical commercial. Excellent = well-insulated modern building.' },
-      { name: 'Glass Type', tip: 'Standard = clear single-pane. Tinted = tinted glass. LowE = low-emissivity coated glass (best).' },
+      { name: 'Equipment Load (kW)', tip: 'Electrical equipment in the space (computers, machines, etc.). It is counted at full output with no diversity: enter the running load if the equipment cycles.' },
+      { name: 'Wall / Roof Insulation', tip: 'Standard = old / no insulation. Good = typical commercial. Excellent = well-insulated modern building.' },
+      { name: 'Glass / Window Type', tip: 'Standard = clear single-pane (U 5.9, SHGC 0.87). Tinted = tinted single-pane (U 5.9, SHGC 0.55). LowE = double-glazed low-e (U 1.8, SHGC 0.35), the best for both conduction and sun.' },
+      { name: 'Building Type', tip: 'For the permit documentation; it also suggests a Room Function, which you can override.' },
+      { name: 'Room Function', tip: 'Sets the heat per person (sensible + latent) and the lighting density (W/m²): office 75 + 55 W and 12 W/m², retail 20 W/m², production floor 90 + 90 W.' },
+      { name: 'Climate Conditions', tip: 'Outdoor and indoor design temperatures. The outdoor humidity is taken at 28°C wet-bulb (about the Manila enthalpy design point) and the room at 55% RH.' },
       { name: 'Outdoor Temp', tip: 'Philippine design condition: 35°C for Metro Manila and most urban areas.' },
       { name: 'Indoor Temp', tip: 'Target indoor comfort temperature. 24°C is standard for office comfort.' },
     ],
@@ -3322,7 +3327,7 @@ function renderInputForm(calcType) {
 
       <!-- Window orientation toggle -->
       <div class="mb-4">
-        <div class="field-label">Window Orientation <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(East/West: 700 W/m² peak solar: 3.5× higher than Mixed)</span></div>
+        <div class="field-label">Window Orientation <span style="color:var(--wh-text-faint);font-size:0.75rem;font-weight:400;">(East/West: 700 W/m² peak solar: 2× the Mixed 350)</span></div>
         <div class="toggle-group" id="tg-orientation">
           ${['North','South','East','West','Horizontal','Mixed'].map((v,i) =>
             `<button class="toggle-btn${i===5?' active':''}" onclick="toggle('tg-orientation','${escJsAttr(v)}')">${v}</button>`
@@ -11384,24 +11389,24 @@ function renderReport(inputs, results, narrative) {
 
     <h3>4.1 Wall Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = U x A_wall x DT<br>
-      Given: U = ${results.inputs_used.u_wall} W/m2.K, A = ${results.inputs_used.wall_area} m2, DT = ${results.inputs_used.delta_t} deg C<br>
-      <strong>Q_walls = ${results.inputs_used.u_wall} x ${results.inputs_used.wall_area} x ${results.inputs_used.delta_t} = ${c.q_walls.toLocaleString()} W</strong>
+      Formula (ASHRAE CLTD method): Q = U x A_wall,net x CLTD<br>
+      Given: U = ${results.inputs_used.u_wall} W/m2.K, A = ${results.inputs_used.wall_area} − ${results.inputs_used.glass_area} glass = ${results.inputs_used.wall_net_area ?? results.inputs_used.wall_area} m2, CLTD = ${results.inputs_used.cltd_wall ?? '-'} K (${results.inputs_used.window_orientation})<br>
+      <strong>Q_walls = ${results.inputs_used.u_wall} x ${results.inputs_used.wall_net_area ?? results.inputs_used.wall_area} x ${results.inputs_used.cltd_wall ?? '-'} = ${c.q_walls.toLocaleString()} W</strong>
     </p>
 
     <h3>4.2 Roof Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = U x A_roof x DT x 1.15 (solar correction factor)<br>
-      Given: U = ${results.inputs_used.u_roof} W/m2.K, A = ${results.inputs_used.roof_area} m2, DT = ${results.inputs_used.delta_t} deg C<br>
-      <strong>Q_roof = ${results.inputs_used.u_roof} x ${results.inputs_used.roof_area} x ${results.inputs_used.delta_t} x 1.15 = ${c.q_roof.toLocaleString()} W</strong>
+      Formula (ASHRAE CLTD method): Q = U x A_roof x CLTD_roof<br>
+      Given: U = ${results.inputs_used.u_roof} W/m2.K, A = ${results.inputs_used.roof_area} m2, CLTD = ${results.inputs_used.cltd_roof ?? 30} K (flat concrete roof)<br>
+      <strong>Q_roof = ${results.inputs_used.u_roof} x ${results.inputs_used.roof_area} x ${results.inputs_used.cltd_roof ?? 30} = ${c.q_roof.toLocaleString()} W</strong>
     </p>
 
     <h3>4.3 Glass / Window Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula (ASHRAE 2021 Ch. 18): Q = (0.57 x A x DT) + (A x SHGC x I_solar)<br>
+      Formula (ASHRAE 2021 Ch. 15 / 18): Q = (U_glass x A x DT) + (A x SHGC x I_solar)<br>
       Window orientation: ${results.inputs_used.window_orientation}: design solar irradiance I_solar = ${results.inputs_used.solar_irradiance} W/m²<br>
-      Given: SHGC = ${results.inputs_used.shgc}, A_glass = ${results.inputs_used.glass_area} m²<br>
-      <strong>Q_glass = (0.57 x ${results.inputs_used.glass_area} x ${results.inputs_used.delta_t}) + (${results.inputs_used.glass_area} x ${results.inputs_used.shgc} x ${results.inputs_used.solar_irradiance}) = ${c.q_glass.toLocaleString()} W</strong>
+      Given: U_glass = ${results.inputs_used.u_glass ?? '-'} W/m2.K, SHGC = ${results.inputs_used.shgc}, A_glass = ${results.inputs_used.glass_area} m²<br>
+      <strong>Q_glass = (${results.inputs_used.u_glass ?? '-'} x ${results.inputs_used.glass_area} x ${results.inputs_used.delta_t}) + (${results.inputs_used.glass_area} x ${results.inputs_used.shgc} x ${results.inputs_used.solar_irradiance}) = ${(c.q_glass_conduction ?? 0).toLocaleString()} + ${(c.q_glass_solar ?? 0).toLocaleString()} = ${c.q_glass.toLocaleString()} W</strong>
     </p>
 
     <h3>4.4 Occupant Heat Gain</h3>
@@ -11414,9 +11419,9 @@ function renderReport(inputs, results, narrative) {
 
     <h3>4.5 Equipment Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = kW x 1000 x 0.85 (diversity factor)<br>
+      Formula: Q = kW x 1000 (counted at full output, no diversity)<br>
       Given: Equipment load = ${inputs.equipment_kw} kW<br>
-      <strong>Q_equipment = ${inputs.equipment_kw} x 1000 x 0.85 = ${c.q_equipment.toLocaleString()} W</strong>
+      <strong>Q_equipment = ${inputs.equipment_kw} x 1000 = ${c.q_equipment.toLocaleString()} W</strong>
     </p>
 
     <h3>4.6 Lighting Heat Gain</h3>
@@ -11428,9 +11433,9 @@ function renderReport(inputs, results, narrative) {
 
     <h3>4.7 Infiltration Heat Gain</h3>
     <p style="font-size:0.82rem;color:#444;">
-      Formula: Q = 0.5 ACH x Volume x 0.35 x DT<br>
-      Given: Volume = ${inputs.floor_area} x ${inputs.ceiling_height} = ${(inputs.floor_area * inputs.ceiling_height).toFixed(1)} m3<br>
-      <strong>Q_infiltration = 0.5 x ${(inputs.floor_area * inputs.ceiling_height).toFixed(1)} x 0.35 x ${results.inputs_used.delta_t} = ${c.q_infiltration.toLocaleString()} W</strong>
+      Formula: V̇ = 0.5 ACH x Volume / 3600;  Q_sensible = 1.2 x V̇ x 1006 x DT;  Q_latent = 1.2 x V̇ x 2,501,000 x (W_out − W_in)<br>
+      Given: Volume = ${inputs.floor_area} x ${inputs.ceiling_height} = ${(inputs.floor_area * inputs.ceiling_height).toFixed(1)} m3, V̇ = ${results.inputs_used.infiltration_m3s ?? '-'} m³/s, W_out = ${results.psychrometrics?.outdoor_w_gkg ?? '-'} g/kg (${results.psychrometrics?.outdoor_db_c ?? '-'}°C DB / ${results.psychrometrics?.outdoor_wb_c ?? '-'}°C WB), W_in = ${results.psychrometrics?.indoor_w_gkg ?? '-'} g/kg<br>
+      <strong>Q_infiltration = ${c.q_infiltration.toLocaleString()} W sensible + ${(c.q_infiltration_latent ?? 0).toLocaleString()} W latent</strong>
     </p>
 
     <h2>5. Results Summary</h2>
@@ -11444,7 +11449,7 @@ function renderReport(inputs, results, narrative) {
       <tr><td>4.6 Lighting</td><td class="num">${c.q_lighting.toLocaleString()}</td></tr>
       <tr><td>4.7 Infiltration</td><td class="num">${c.q_infiltration.toLocaleString()}</td></tr>
       <tr class="total-row"><td>Sensible Sub-total</td><td class="num">${results.q_sensible_total.toLocaleString()}</td></tr>
-      <tr><td>Latent Heat (occupants: ${results.inputs_used.heat_per_person.latent} W/person × ${inputs.persons} persons)</td><td class="num">${results.q_latent.toLocaleString()}</td></tr>
+      <tr><td>Latent Heat (occupants ${(c.q_people_latent ?? 0).toLocaleString()} W + infiltration ${(c.q_infiltration_latent ?? 0).toLocaleString()} W)</td><td class="num">${results.q_latent.toLocaleString()}</td></tr>
       <tr class="total-row"><td>Total Heat Gain</td><td class="num">${results.q_total.toLocaleString()}</td></tr>
       <tr class="total-row"><td>Design Heat Gain (x1.10 safety margin)</td><td class="num">${results.q_design.toLocaleString()}</td></tr>
     </table>

@@ -367,6 +367,19 @@ ENGINE_CHECKED["AHU Sizing"] = (
     "psychrometrics from ASHRAE Fundamentals Ch.1) fails on the old engine (coil 89.69 vs 82.22, OA 10 vs 17.8); walked on "
     "the served page at 390: 'Q_coil = 4.1004 x (58.05 - 38) kJ/kg = 82.23 kW', '1.1 kW per unit, 2.2 kW nameplate total', "
     "no sideways scroll. Door page restamped on the design airflow (9157.6 CFM / 29.18 TR / 7.5 kW).")
+ENGINE_CHECKED["HVAC Cooling Load"] = (
+    "FOUND AND FIXED, read against python-api/calcs/hvac_cooling_load.py: (1) glass conduction used the WALL U-value "
+    "(0.45) - single clear glass is 5.9 W/m2K (ASHRAE Ch.15), 13x low (24 m2 at 11 K: 119 W for 1,558); U_glass is now by "
+    "glass type (5.9 / 5.9 / 2.8 / 1.8). (2) Walls were the gross area, the windows counted as wall too; now net of glass. "
+    "(3) The default outdoor air was 35 C at 80% RH (31 C dew point) - infiltration latent ~70% high; now 35 C DB / 28 C "
+    "WB. The guide and the report's working described a different method from the engine: walls/roof U x A x DT (x1.15) "
+    "where the engine uses CLTD, glass 0.57 x A x DT, equipment x0.85 diversity the engine never applied, infiltration "
+    "0.35 x V x DT sensible only, Mixed irradiance 200 against the engine's 350 (and the form label's '3.5x'), and a "
+    "latent row labelled occupants-only that held infiltration too - all now the engine's method with its own numbers. "
+    "Guide names are the form's. The vector (hand psychrometrics) fails on the old engine and the old gross-wall vector "
+    "(630, re-derived to 504); walked on the served page at 390: 'Q_walls = 0.45 x 96 x 9 = 388.8 W', 'Q_glass = (5.9 x "
+    "24 x 11) + (24 x 0.87 x 350) = 1,557.6 + 7,308', 'design 18,883.5', no sideways scroll. Door page restamped "
+    "(38.87 kW / 11.05 TR).")
 ENGINE_CHECKED["Pipe Sizing"] = (
     "FOUND AND FIXED: the guide described Hazen-Williams with a temperature-corrected C per material; "
     "python-api/calcs/pipe_sizing.py is Darcy-Weisbach with Colebrook-White, absolute roughness per material and IAPWS-IF97 "
