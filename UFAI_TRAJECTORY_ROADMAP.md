@@ -5220,6 +5220,61 @@ the client can confirm payment, the hourly sweep settles it when its window clos
 reported again; both parties get a push, and the stale 'marked done' push is not re-sent. Walked live (Lucena→Manila,
 Dela Cruz→Baguio) at 390 and 1280; every row the walk wrote removed after.
 
+## §OD · The open-source design lens — Penpot as the canvas, Project Wallace as the code-side lens (Ian, 2026-11-03)
+
+Ian: *"instead of relying in figma, there are so many open source in github repos, that we can get to, do not just limit,
+be proactive ... just extend my ideas"*, then *"you control my browser ... can you just be proactive"*, then *"we have to
+extend the number of our trajectories roadmap through penpot, you have to plan the appropriate and necessary numbers to
+add for our trajectories roadmap."*
+
+**The idea, understood.** The Figma design lens was retired on 2026-10-13. Ian's seat allowed 20 metered MCP calls a month,
+and its 31 rows needed 100 to 150. The design source stayed in code (tokens.css and the shared components). That decision
+stands. What was lost was an instrument, not a goal, and open source has both halves of it:
+
+| Instrument | Repo (licence) | What it does here |
+|---|---|---|
+| Penpot, hosted MCP | penpot/penpot `mcp/` (MPL-2.0) | The canvas. Ian's account (free "Professional": "no limits"), the "WorkHive design source" file, and a "WorkHive tokens" colour library holding tokens.css's 20 colours. No call cap is published. |
+| css-analyzer | projectwallace/css-analyzer (MIT) | The code-side lens. It reads each served page's own CSS and sorts every value by what tokens.css says. |
+| odiff | dmtrKovalenko/odiff (MIT) | The pixel comparison that tells a comp and its live page apart. |
+| taste-skill v2, ui-ux-pro-max | Leonxlnx/taste-skill, nextlevelbuilder/ui-ux-pro-max-skill (MIT) | Installed as skills: app-screen art direction, and a local palette/type/UX database. |
+
+**What the code-side lens measured** (2026-11-03, 164 served files, `tools/prove_design_source_drift.py`):
+- 1,213 literals that ARE a token's value, alpha included (`rgba(255,255,255,0.80)` is `--wh-text-muted`).
+- 7,022 palette tints typed by hand.
+- 959 off-palette colours.
+- 1,349 raw font sizes and 227 raw z-indexes.
+
+The synthesis:
+- **A missing token.** The deep background `#0d1824` is hard-coded on 120 files, with its near-twin `#0f1923` on 18
+  more. No token holds it.
+- **Missing triplets.** Six palette colours are tinted by hand 50 or more times, but have no `-rgb` triplet to tint from:
+  cloud 1,450, navy-mid 730, red 199, navy 141, navy-light 77 and violet 63. So their tints *cannot* come from the
+  token.
+- **Tailwind leakage.** Tailwind's red-500, orange-400 and gray-200 have leaked in beside the platform's own colours.
+
+**The number, measured, never typed** (`tools/open_design_census.py`: population × what each unit owes − rows already
+there). 193 rows, **OD1..OD193**:
+- **OD-P (43).** A page unit's comp lives in the WorkHive Penpot file, drawn from the token library, at 390 and 1280.
+  It agrees with the live page by odiff. The units are the 41 served pages plus the two GENERATED families (the learn
+  articles and the calculator pages). Their generator is the unit, because a per-page fix is reverted by the next build.
+  The learn family carries 13 template generations, so its row closes when the regenerated family measures as one.
+- **OD-D (133).** A unit's own CSS takes its values from tokens.css, one row per drift class that is non-zero today:
+  colour 47, type scale 48, stacking 38, over 48 units (the page units, plus four hand-written stylesheets and one
+  Tailwind build).
+  - Typeface is not counted: rubric S1 already owns it, and R1 owns spacing. An OD row on those axes would duplicate a
+    CX-UX cell.
+- **OD-S (17).** The design system owns what the pages improvise:
+  - 8 missing colour tokens. These are off-palette colours on 5 or more units, with near-identical ones merged at
+    delta-E < 3. A cluster that close to an existing token is a mistyped token and stays a page row.
+  - 6 `-rgb` triplets.
+  - 3 scales: neutral overlay/shadow, type, and z-index.
+
+**Priority.** OD-D on a production page is T3, because a page that types its own red looks unlike its neighbours to the
+person working on it. OD-D on founder and public pages is T5. OD-S is T4, the design system's own health. OD-P is T6.
+
+**Held by.** The gate `design-source-drift` is a ratchet over design_source_drift_baseline.json (1,103 (file :: metric)
+counts on the first reading). Any rise fails, a new page counts from 0, and fixes lower the floor.
+
 ## §PRIORITY · The open book in the order it is worked — the less important last, and a push at each milestone (Ian, 2026-10-26)
 
 Ian, with 20,314 rows open after the day's seeding: *"we have to prioritize the open trajectories roadmap because we have

@@ -2283,6 +2283,112 @@ def engineering_design_rows(existing: list[dict], replay: bool = False) -> list[
     return rows
 
 
+# ★THE OPEN-SOURCE DESIGN LENS (OD1..; Ian, 2026-11-03: "instead of relying in figma, there are so many open source in
+# github repos ... we have to extend the number of our trajectories roadmap through penpot, you have to plan the appropriate
+# and necessary numbers to add"). The Figma lens was retired on 10-13 for a 20-call monthly quota; its open-source
+# successors are Penpot (the canvas: Ian's account, hosted MCP, no cap) and Project Wallace's css-analyzer (the code-side
+# lens, tools/prove_design_source_drift.py). One row per cell of tools/open_design_census.py, so the number is measured:
+#   OD-P  a page unit's comp in the WorkHive Penpot file, from the token library, agreeing with the live page (odiff)
+#   OD-D  a unit's own CSS takes its values from tokens.css, per drift class non-zero today (colour / type / stacking)
+#   OD-S  the design system owns what the pages improvise (a missing colour token, an -rgb triplet, a scale)
+# A generated family (the learn articles, the calculator pages) is ONE unit - its generator writes every member's CSS.
+OD_PREFIX = "OD"
+OD_PERSONA = {"production": "worker", "founder": "oversight"}
+
+
+def _od_scale_unit(scale: str) -> str:
+    m = re.search(r"(--wh-[\w-]+-rgb)", scale)
+    if m:
+        return m.group(1)
+    for head, unit in (("a neutral", "the neutral overlay + shadow scale"), ("a type scale", "the type scale"),
+                       ("a z-index", "the stacking (z-index) scale")):
+        if scale.startswith(head):
+            return unit
+    return scale[:40]
+
+
+def open_design_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per open-design census cell. replay=True returns what was SEEDED, in id order."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("od") or {}).get("kind") == "open-design"),
+                        key=lambda x: int(str(x["id"])[len(OD_PREFIX):] or 0))
+        open_design_rows.arithmetic = {}
+        return [{"wave": t["wave"], "od": t["od"]} for t in seeded]
+    import open_design_census as odc
+    from sublayer_inventory import page_classes
+    classes = {k: set(v) for k, v in page_classes().items()}
+    c = odc.census(ROOT)
+
+    def page_for(unit: str) -> str:
+        if unit.endswith(".html"):
+            return unit
+        for fam in ("learn", "tools"):
+            if unit.startswith(fam + "/"):
+                return c["family_members"][fam][0]
+        return "learn/index.html" if unit == "learn-print.css" else "index.html"
+
+    def persona_for(page: str) -> str:
+        for cls, persona in OD_PERSONA.items():
+            if page in classes.get(cls, ()):
+                return persona
+        return "anon"
+
+    rows: list[dict] = []
+
+    def add(key, lens, unit, ask, detail, closes, layers, instrument, page=None):
+        page = page or page_for(unit)
+        persona = persona_for(page)
+        pages, entry = _outcome_route(page, persona)
+        if page in pages:
+            pages = pages[:pages.index(page) + 1]
+        rows.append({
+            "wave": f"OD-{key}",
+            "title": f"{lens} - {unit} · {persona}",
+            "pages": list(pages), "layers": list(layers), "ufai": ["U"], "persona": persona, "device": "any",
+            "entry": entry, "framing": "person",
+            "story": (f"{persona} reaches {_short(page)} ({' -> '.join(_short(p) for p in pages)}): {ask}. MEASURED: "
+                      f"{detail}. Measured with {instrument}, at {' and '.join(LX_VIEWPORTS)}"),
+            "journey": {"archetype": f"OD:{key}", "stage": "operate", "vertical": HIVES[len(unit) % len(HIVES)],
+                        "pair": "", "language": "en", "moment": "present", "condition": "normal", "tier": "A",
+                        "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "od": {"kind": "open-design", "key": key, "lens": lens, "unit": unit, "page": page, "ask": ask,
+                   "detail": detail, "viewports": list(LX_VIEWPORTS), "instrument": instrument, "closes": closes},
+        })
+
+    for u in c["page_units"]:
+        add("P", "its comp lives in the WorkHive Penpot file", u,
+            "its comp is drawn in the WorkHive Penpot file from the token library (no colour outside it), at 390 and "
+            "1280, and agrees with the live page",
+            "no Penpot comp yet (the Figma lens was retired on 2026-10-13; Penpot replaced it on 2026-11-03)",
+            "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff "
+            "of its export against the live render is within threshold at both widths",
+            ["F", "LM"], "penpot-mcp + playwright-mcp + odiff")
+    names = {"colour": "its colours come from tokens.css", "type": "its font sizes come from a type scale",
+             "stacking": "its z-indexes come from a stacking scale"}
+    for d in c["OD-D"]:
+        add("D", names[d["class"]], d["unit"],
+            f"the {d['class']} values its own CSS sets are taken from tokens.css, not typed as literals",
+            f"{d['count']} hard-coded {d['class']} value(s) (Project Wallace css-analyzer)",
+            f"prove_design_source_drift reads 0 {d['class']} literals for this unit and its ratchet holds the floor",
+            ["F"], "wallace css-analyzer (tools/prove_design_source_drift.py)")
+    for s in c["OD-S"]:
+        if "token" in s:
+            add("S", "the design system owns this colour", s["token"],
+                f"the colour {s['token']} (and its {s['twins']} near-twin(s)) that {s['units']} units type by hand becomes "
+                f"a token in tokens.css, or is retired for an existing one",
+                f"off-palette on {s['units']} units", "the token exists and no unit types the literal or a near-twin",
+                ["F"], "wallace css-analyzer (tools/open_design_census.py)", page="index.html")
+        else:
+            add("S", "the design system owns this scale", _od_scale_unit(s["scale"]), f"tokens.css declares {s['scale']}",
+                f"{s['count']} hand-typed uses", "the scale exists in tokens.css and its uses read from it",
+                ["F"], "wallace css-analyzer (tools/open_design_census.py)", page="index.html")
+    open_design_rows.arithmetic = {"by_lens": Counter(r["wave"] for r in rows),
+                                   "population": {"served files": c["files"], "page units": len(c["page_units"]),
+                                                  "stylesheet units": len(c["css_units"])}}
+    return rows
+
+
 # ★THE OUTCOME WAVES (SE1.., OUT1.., JS1..; 2026-10-26) - Ian's model: the five lenses improve the person's self-efficacy and
 # the platform's system characteristics, which raise intention to use and satisfaction, which lead to usage. The population
 # is tools/trajectory_outcome_gaps.py (one place decides the size); the dependent variables join the registry as rows.
@@ -2480,6 +2586,8 @@ def main() -> int:
                     help="HS (2026-10-29): one row per empty cell of tools/hive_scale_census.py - the hive at thirty members")
     ap.add_argument("--add-engineering-design", action="store_true",
                     help="ED (2026-10-31): one row per empty cell of tools/engineering_design_census.py - each calculator")
+    ap.add_argument("--add-open-design", action="store_true",
+                    help="OD (2026-11-03): one row per cell of tools/open_design_census.py - Penpot comps, token drift, system tokens")
     ap.add_argument("--add-self-efficacy", action="store_true",
                     help="SE (2026-10-26): one row per (page, source of self-efficacy) - tools/trajectory_outcome_gaps.py")
     ap.add_argument("--add-outcomes", action="store_true",
@@ -2622,7 +2730,7 @@ def main() -> int:
         seed_missing()
         print("\n" + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
         return 0
-    if args.add_cube or args.add_own or args.add_hive_scale or args.add_engineering_design:
+    if args.add_cube or args.add_own or args.add_hive_scale or args.add_engineering_design or args.add_open_design:
         if args.add_cube:
             rows, label, prefix = cube_rows(existing, only_class=args.only_class), "CX cube", CX_PREFIX
             a = cube_rows.arithmetic
@@ -2632,6 +2740,9 @@ def main() -> int:
         elif args.add_engineering_design:
             rows, label, prefix = engineering_design_rows(existing), "ED engineering design", ED_PREFIX
             a = engineering_design_rows.arithmetic
+        elif args.add_open_design:
+            rows, label, prefix = open_design_rows(existing), "OD open-source design", OD_PREFIX
+            a = open_design_rows.arithmetic
         else:
             rows, label, prefix = own_rows(existing), "OWN own-reading", OWN_PREFIX
             a = own_rows.arithmetic

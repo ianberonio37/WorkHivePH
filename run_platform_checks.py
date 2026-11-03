@@ -14483,6 +14483,20 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # ★THE OPEN-SOURCE DESIGN-SOURCE LENS (2026-11-03, Ian: "instead of relying in figma ... open source in github
+        # repos"). Project Wallace's css-analyzer (MIT) reads each served page's own CSS and the shared stylesheets and
+        # sorts every value by what tokens.css says: a token's colour typed as a literal, a palette tint typed by hand, an
+        # off-palette colour, a raw font size or z-index. First reading: 959 off-palette, 1,213 token values typed, 7,022 hand tints, 1,349 raw
+        # font sizes over 164 files - and #0d1824 hard-coded on 120 files with no token. Same ratchet shape as the
+        # anti-slop gate: per (file :: metric), any rise fails, a new page counts from 0, fixes lower the floor.
+        "id":      "design-source-drift",
+        "script":  "tools/prove_design_source_drift.py",
+        "args":    ["--check"],
+        "label":   "design-source drift: no served page hard-codes more colours, font sizes or z-indexes than design_source_drift_baseline.json allows (Project Wallace css-analyzer vs tokens.css)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         # ★THE RULE THAT REACHES NOTHING IT RENDERS (2026-09-18). validate_css_class_existence already proves the
         # other direction - every class the JS adds with classList.add is defined somewhere in CSS, 792 calls, 0
         # missing. Nothing proved that a rule the stylesheet WRITES ever reaches markup, and that is where this

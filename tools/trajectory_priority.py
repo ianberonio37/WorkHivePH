@@ -125,6 +125,18 @@ def tier_of(r: dict, classes: dict, trip_units: set) -> tuple[int, str]:
         if measured or (ed.get("key") == "G1" and "No guide available yet" in ed.get("detail", "")):
             return 1, f"engineering design: {ed.get('lens')}"
         return 3, f"engineering design: {ed.get('lens')}"
+    od = r.get("od") or {}
+    if od:
+        # the open-source design lens (OD, 2026-11-03): a production page typing its own colours, sizes or z-indexes is a
+        # page the person works on looking unlike its neighbours (T3); the system tokens are the design system's own
+        # health (T4); founder/public drift waits with their cube (T5); the Penpot comps are the canvas mirror (T6)
+        key = od.get("key")
+        if key == "S":
+            return 4, "open design: the design system owns what the pages improvise"
+        if key == "D":
+            return (3, "open design: a production page's own CSS bypasses tokens.css") if pc == 0 else \
+                   (5, "open design: a founder or public page's own CSS bypasses tokens.css")
+        return 6, "open design: the page's comp in the WorkHive Penpot file"
     hs = r.get("hs") or {}
     if hs:
         # the hive at thirty (HS, 2026-10-29): a cluttered list, a role's actions and a lost concurrent change are what a
