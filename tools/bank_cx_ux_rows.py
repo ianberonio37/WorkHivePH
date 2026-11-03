@@ -137,7 +137,8 @@ OWNER_SOURCES = {
     "corpus":     {"file": "component_consistency_corpus.json", "tracked": True, "dims": ("S3",),
                    "needs": "run", "how": "python tools/survey_component_consistency.py  (static)"},
     "cta":        {"file": "cta_activation_report.json", "tracked": False, "dims": ("CV1",),
-                   "needs": "structure", "how": "prove_cta_activation.mjs walks its ROSTER only - add the page"},
+                   "needs": "structure", "how": "node tools/prove_cta_activation.mjs  (browser; walks its ROSTER - "
+                                                "a page off it needs adding first)"},
     "chrome":     {"file": "shared_chrome_parity.json", "tracked": True, "dims": ("S2",),
                    "needs": "run", "how": "python tools/prove_shared_chrome_parity.py --write  (static)"},
     "conversion": {"file": "page_conversion_cv.json", "tracked": True, "dims": ("CV2", "CV3"),

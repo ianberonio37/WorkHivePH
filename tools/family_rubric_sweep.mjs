@@ -91,6 +91,11 @@ const PAGES = [
   'tools/clean-agent-suppression-calculator/index.html', 'tools/compressed-air-calculator/index.html',
   'tools/cooling-tower-calculator/index.html', 'tools/domestic-water-demand-calculator/index.html',
   'tools/drainage-pipe-sizing-calculator/index.html',
+  // ★THE FOUR PUBLIC-ROOT PAGES (2026-11-04, CX-UX). about, the public roadmap, privacy and terms are served pages a
+  // visitor reaches from the landing footer, and the cube asks I1 (Core Web Vitals) and D2 (feedback < 400 ms) of each -
+  // measurements only this board takes. They were never on it, so those four cells could not close. The ratchet
+  // compares only pages in its baseline, so they join the floors on the next full sweep + --accept.
+  'about/index.html', 'feedback/index.html', 'privacy-policy/index.html', 'terms-of-service/index.html',
 ];
 
 const args = process.argv.slice(2);
@@ -578,4 +583,36 @@ const summary = {
 };
 writeFileSync(OUT, JSON.stringify({ summary, pages, perDim }, null, 2));
 console.log(`[rubric-sweep] mean=${summary.mean} · >=90: ${summary.ge90} · >=85: ${summary.ge85} · pageErrors=${summary.pageErrors} → ${OUT}`);
+// ★--merge (2026-11-04): a --page run may SPLICE the pages it just graded into the full board - only those pages,
+// only when each graded cleanly, and only pages on the board's own roster - and the board's aggregates are recomputed
+// from its pages. A page board is a scratch reading; a page the full board does not carry cannot be read per page by
+// the CX-UX banker, and re-running all ~60 pages to add four is the run this 8 GB host cannot finish. Never with --anon.
+if (args.includes('--merge') && PAGE_LIST && !ANON) {
+  const MAIN = 'family_rubric_scoreboard.json';
+  const board = JSON.parse(readFileSync(MAIN, 'utf8'));
+  const took = Object.keys(pages).filter((f) => PAGES.includes(f) && pages[f].overall !== null && pages[f].dims);
+  for (const f of took) board.pages[f] = pages[f];
+  const agg = {};
+  for (const [f, p] of Object.entries(board.pages)) {
+    for (const d of (p.dims || [])) {
+      const a = (agg[d.dim] ||= { name: (board.perDim[d.dim] || perDim[d.dim] || {}).name, pcts: [], green: 0, fail: 0, na: 0, judged: 0, failPages: [] });
+      if (d.kind === 'N/A') a.na++;
+      else if (d.kind === 'JUDGED') a.judged++;
+      else if (d.pct === null) a.na++;
+      else { a.pcts.push(d.pct); if (d.pct === 100) a.green++; else { a.fail++; a.failPages.push(`${f.replace('.html', '')} ${d.pct}`); } }
+    }
+  }
+  for (const a of Object.values(agg)) { a.mean = a.pcts.length ? Math.round(a.pcts.reduce((s, x) => s + x, 0) / a.pcts.length) : null; delete a.pcts; }
+  const ov = Object.values(board.pages).map((p) => p.overall).filter((v) => v !== null && v !== undefined);
+  board.perDim = agg;
+  Object.assign(board.summary, {
+    measuredPages: ov.length, mean: ov.length ? Math.round(ov.reduce((s, v) => s + v, 0) / ov.length) : null,
+    ge90: ov.filter((v) => v >= 90).length, ge85: ov.filter((v) => v >= 85).length,
+    pageErrors: Object.values(board.pages).reduce((s, p) => s + (p.errors ? p.errors.length : 0), 0),
+  });
+  board.summary.merged = (board.summary.merged || []).concat([{ pages: took, ranAt: summary.ranAt, identity: EMAIL }]);
+  writeFileSync(MAIN, JSON.stringify(board, null, 2));
+  const refused = Object.keys(pages).filter((f) => !took.includes(f));
+  console.log(`[rubric-sweep] --merge: ${took.length} page(s) spliced into ${MAIN}` + (refused.length ? `; NOT merged (off the roster or no clean grade): ${refused.join(', ')}` : ''));
+}
 await browser.close();
