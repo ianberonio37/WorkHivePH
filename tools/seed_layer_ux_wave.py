@@ -155,7 +155,9 @@ def _atomic_write(path: Path, text: str) -> None:
 # roster, so rebuilding the roster without them dropped 12 rows from the PLAN and moved every later LX id: the registry
 # gate failed on LX236.. rows nobody had touched. A replay's inputs must not depend on the present (the BRH/SL rule),
 # so a page deleted after seeding is still enumerated here; its rows stay in the registry as descoped history.
-REMOVED_AFTER_SEEDING = {"architecture.html", "symbol-gallery.html", "validator-catalog.html"}
+# design-system.html joined on 2026-11-03 (Ian: "retire it"), mid-M5; its rows are descoped the same way.
+REMOVED_AFTER_SEEDING = {"architecture.html", "symbol-gallery.html", "validator-catalog.html",
+                         "design-system.html"}
 
 
 def _known_pages() -> set:

@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1073-files
-source_sha: 9e2decf6a394e974
+source: memory-curated:1076-files
+source_sha: 56ba195816b1b585
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1073 durable topic files)
+## memory · curated auto-memory (1076 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=680 · project=303 · reference=90
+**By type:** feedback=680 · project=304 · reference=92
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -480,7 +480,7 @@ Entries (name · type · sha):
 - `feedback_operate_at_full_capability` · feedback · 187c49ce68044fd2
 - `feedback_ops_views_over_granted_to_anon` · feedback · 6f422d53c4a320f5
 - `feedback_outlasting_the_guard_is_not_an_ender` · feedback · da646f1097d9bcf6
-- `feedback_over_driving_8gb_host_crashed_docker_and_session` · feedback · 71d8784b011a1b55
+- `feedback_over_driving_8gb_host_crashed_docker_and_session` · feedback · dccf79724ca4de65
 - `feedback_overflow_clip_hides_real_content_loss` · feedback · a8c2bb93234f31af
 - `feedback_overloaded_word_draft_nearly_mislabelled_user_work` · feedback · c2bec0a1dc682c83
 - `feedback_p6_disposition_gate_and_double_submit` · feedback · 7dfd86aae044c473
@@ -516,6 +516,6 @@ Entries (name · type · sha):
 - `feedback_reachable_somewhere_is_not_reachable_from_here` · feedback · 9d550121ebd94ca6
 - `feedback_read_vercel_not_its_shadow` · feedback · 242b5b67e00167c9
 - `feedback_real_documents_taught_the_miner_eight_lessons` · feedback · c5842d03ea187873
-- … +573 more (all included in the fingerprint)
+- … +576 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

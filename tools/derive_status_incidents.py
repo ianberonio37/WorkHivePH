@@ -77,11 +77,40 @@ def from_automation_log() -> list[dict]:
     return incidents
 
 
+RECHECK = ROOT / "platform_health.rerun-failed.json"
+
+
+def current_board(health_path: Path = HEALTH, recheck_path: Path = RECHECK) -> dict:
+    """The board as it stands NOW: platform_health.json, with a later re-check of THAT board laid over it.
+
+    ★A RE-CHECK SUPERSEDES THE BOARD FOR THE GATES IT RE-RAN (M5, 2026-11-03). `run_platform_checks.py --rerun-failed`
+    writes platform_health.rerun-failed.json and deliberately leaves the full board's file alone. So after push 2's two
+    reds were fixed and re-run green, the board still read them FAIL, and the status page derived two OPEN incidents on
+    production for gates that were passing. A re-check counts only when it is the SAME board's (same commit) and newer
+    than it; it replaces exactly the gates it re-ran, and nothing else. The T71 validator reads this same function, so the
+    producer and its gate cannot disagree about what is red."""
+    if not health_path.exists():
+        return {}
+    h = json.loads(health_path.read_text(encoding="utf-8"))
+    if recheck_path.exists():
+        try:
+            r = json.loads(recheck_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            r = {}
+        same = r.get("commit") and r.get("commit") == h.get("commit")
+        newer = str(r.get("timestamp") or "") > str(h.get("timestamp") or "")
+        if same and newer:
+            fresh = {v.get("id"): v for v in r.get("validators", []) if v.get("id")}
+            h = dict(h, validators=[fresh.get(v.get("id"), v) for v in h.get("validators", [])],
+                     rechecked={"timestamp": r.get("timestamp"), "ids": sorted(fresh)})
+    return h
+
+
 def from_health() -> list[dict]:
     """Any validator currently red/amber is an OPEN incident — the live picture."""
     if not HEALTH.exists():
         return []
-    h = json.loads(HEALTH.read_text(encoding="utf-8"))
+    h = current_board()
     out = []
     for v in h.get("validators", []):
         st = str(v.get("status", "")).lower()

@@ -88,7 +88,10 @@ def main() -> int:
         problems_fresh.append("status_incidents.json was STALE — it did not match a fresh derivation "
                               "from the current signals (regenerate it whenever the board changes)")
     doc = json.loads(regenerated)
-    health = json.loads(HEALTH.read_text(encoding="utf-8")) if HEALTH.exists() else {}
+    # the producer's own reading of the board (a newer re-check of the same board laid over it) - one definition of "red"
+    sys.path.insert(0, str(PRODUCER.parent))
+    from derive_status_incidents import current_board  # noqa: E402
+    health = current_board(HEALTH) if HEALTH.exists() else {}
     problems = problems_fresh + check(doc, health)
     print(f"status-incidents: {doc.get('open', '?')} open · {doc.get('resolved', '?')} resolved · "
           f"{len(doc.get('incidents', []))} total")

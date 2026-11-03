@@ -618,13 +618,6 @@
    "period": "The period you picked (90 days unless you changed it), rolling to now"
   }
  ],
- "design-system.html": [
-  {
-   "sel": "#ds-root",
-   "chrome": true,
-   "why": "specimen numbers in the component catalogue - examples of how each component renders, not data"
-  }
- ],
  "founder-console.html": [
   {
    "sel": "#cp-cover",

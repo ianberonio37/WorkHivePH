@@ -1,7 +1,7 @@
 {
   "_doc": "Layer AU adoption baseline. Floors are FORWARD-ONLY from any writer (Layer F law).",
-  "generated": "2026-11-03T05:27:11.039304+00:00",
-  "functions": 39,
+  "generated": "2026-11-03T08:11:44.320846+00:00",
+  "functions": 38,
   "rows": [
     {
       "id": "AU1",

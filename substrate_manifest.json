@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-03T05:50:27.213437+00:00",
+  "generated_at": "2026-11-03T08:37:11.236111+00:00",
   "sources": 13,
   "present": 13,
   "absent": 0,
@@ -290,8 +290,8 @@
       "file": "canonical_drift_platform_report.json",
       "present": true,
       "summary": {
-        "files_scanned": 304,
-        "kpi_rendering_pages": 156,
+        "files_scanned": 303,
+        "kpi_rendering_pages": 155,
         "truth_math_pages": 0,
         "tier_a_pages": 0,
         "tier_b_pages": 0,

@@ -1,7 +1,7 @@
 {
   "summary": {
-    "pages_scanned": 39,
-    "total_links": 336,
+    "pages_scanned": 38,
+    "total_links": 332,
     "total_broken": 0,
     "baseline": 0
   },
@@ -59,11 +59,6 @@
     {
       "page": "dayplanner.html",
       "link_count": 3,
-      "broken": []
-    },
-    {
-      "page": "design-system.html",
-      "link_count": 4,
       "broken": []
     },
     {
