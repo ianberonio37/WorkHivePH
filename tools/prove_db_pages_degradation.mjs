@@ -23,7 +23,7 @@ const PAGES = [
   // tools/live_walk_manifest.py --family "degradation & state". These are the reference/static and
   // public surfaces the first roster skipped because they make few data reads - but --shared still
   // asks the question that matters for them: when the shared scripts never arrive, does the page SAY so?
-  'design-system.html', 'index.html', 'learn/index.html', 'llm-observability.html', 'marketplace.html',
+  'index.html', 'learn/index.html', 'llm-observability.html', 'marketplace.html',
   'offline-fallback.html', 'project-report.html', 'shift-brain.html', 'status.html',
 ];
 // PAGE_QUERY comes from the harness (keyed by the page's OWN parameter name)

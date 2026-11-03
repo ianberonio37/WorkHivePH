@@ -43,22 +43,12 @@
 !/wh_pm_clean.png
 
 # --- data the pages fetch at runtime (the founder dashboards, the report sender, the learn links) ----------------------
-!/api_adoption_baseline.json
-!/api_component_registry.json
-!/au_adoption_baseline.json
-!/au_component_registry.json
-!/av_adoption_baseline.json
-!/av_component_registry.json
+# (2026-11-03: the 11 component/adoption baselines left with design-system.html, the one page that fetched them)
 !/companion_ab_results.json
 !/companion_dim_baselines.json
 !/companion_eval_scorecard.json
 !/companion_optimization_proposals.json
-!/component_adoption_baseline.json
 !/component_purity_baseline.json
-!/db_adoption_baseline.json
-!/db_component_registry.json
-!/design_component_registry.json
-!/family_rubric_baseline.json
 !/family_rubric_scoreboard.json
 !/family_rubric_scoreboard.page.json
 !/field_impact_preview.json

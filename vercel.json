@@ -305,7 +305,7 @@
       ]
     },
     {
-      "source": "/(achievements.html|alert-hub.html|analytics-report.html|analytics.html|assistant.html|audit-log.html|community.html|dayplanner.html|design-system.html|founder-console.html|hive.html|llm-observability.html|marketplace-admin.html|marketplace-seller-profile.html|marketplace-seller.html|ph-intelligence.html|plant-connections.html|platform-actions.html|pm-scheduler.html|project-manager.html|project-report.html|public-feed.html|report-sender.html|shift-brain.html|voice-journal.html)",
+      "source": "/(achievements.html|alert-hub.html|analytics-report.html|analytics.html|assistant.html|audit-log.html|community.html|dayplanner.html|founder-console.html|hive.html|llm-observability.html|marketplace-admin.html|marketplace-seller-profile.html|marketplace-seller.html|ph-intelligence.html|plant-connections.html|platform-actions.html|pm-scheduler.html|project-manager.html|project-report.html|public-feed.html|report-sender.html|shift-brain.html|voice-journal.html)",
       "headers": [
         {
           "key": "Content-Security-Policy",

@@ -22,6 +22,6 @@ Loading roadmap…
 
 ## Where these figures come from
 
-Community-submitted feedback · public items, sorted by votes then newest · top 200 · loaded when you open this page
+Community-submitted feedback · public items, all time, sorted by votes then newest · top 200 · loaded when you open this page · dates in your time
 
-<!-- md-twin source-sha: 1ac33112979eb666 -->
+<!-- md-twin source-sha: 96df2ba51fdffe48 -->

@@ -2919,19 +2919,6 @@ function k7Journeys() {
       },
     },
     {
-      id: 'DS1', phase: 'K7', page: 'design-system.html', role: 'supervisor', state: 'authed-admin',
-      title: 'The admin reads the design system and presses a filter-chip specimen to see its pressed state',
-      lenses: ['R', 'J'], ufai: ['U', 'I'],
-      drive: async (page, h) => {
-        await h.goto('design-system.html');
-        await h.waitFor('#spec-chips button.filter-chip', 9000);
-        const specimens = await h.evalIn(() => document.querySelectorAll('#ds-root section, #ds-root [data-spec], #ds-root .spec').length);
-        await page.click('#spec-chips button.filter-chip:not([aria-pressed="true"])', { timeout: 4000 }).catch(() => {});
-        const pressed = await h.evalIn(() => [...document.querySelectorAll('#spec-chips button.filter-chip')].map((b) => b.textContent.trim() + ':' + b.getAttribute('aria-pressed')).join(','));
-        return { R: specimens > 0, J: /Overdue:true/.test(pressed) && /All:false/.test(pressed), T: null, C: null, X: null, evidence: { specimens, pressed }, findings: [] };
-      },
-    },
-    {
       // OPC (2026-10-22): the operator console is the live page now, holding Platform Actions' queues on its Operations tab
       id: 'FC1', phase: 'K7', page: 'founder-console.html', role: 'supervisor', state: 'authed-admin',
       title: "The admin opens the operator console and the feedback queue counts every report on the platform",

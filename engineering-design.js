@@ -12191,14 +12191,14 @@ function renderPipeReport(inputs, results, narrative) {
     ? `<span style="color:#2e7d32;font-weight:700;">ACCEPTABLE</span>`
     : `<span style="color:#b71c1c;font-weight:700;">OUT OF RANGE</span>`;
 
-  const compRows = (results.size_comparison || []).map(r => `
-    <tr style="${r.recommended ? 'background:#fffbf0;font-weight:700;' : ''}">
-      <td>${r.dia_mm} mm${r.recommended ? ' (recommended)' : ''}</td>
-      <td class="num">${r.velocity}</td>
-      <td class="num">${r.hf_per_m}</td>
-      <td class="num">${r.press_kpa_m}</td>
-      <td class="num" style="color:${r.velocity >= results.velocity_min && r.velocity <= results.velocity_max ? '#2e7d32' : '#b71c1c'};">
-        ${r.velocity >= results.velocity_min && r.velocity <= results.velocity_max ? 'OK' : r.velocity < results.velocity_min ? 'Too slow' : 'Too fast'}
+  const compRows = (results.size_comparison || []).map(row => `
+    <tr style="${row.recommended ? 'background:#fffbf0;font-weight:700;' : ''}">
+      <td>${row.dia_mm} mm${row.recommended ? ' (recommended)' : ''}</td>
+      <td class="num">${row.velocity}</td>
+      <td class="num">${row.hf_per_m}</td>
+      <td class="num">${row.press_kpa_m}</td>
+      <td class="num" style="color:${row.velocity >= results.velocity_min && row.velocity <= results.velocity_max ? '#2e7d32' : '#b71c1c'};">
+        ${row.velocity >= results.velocity_min && row.velocity <= results.velocity_max ? 'OK' : row.velocity < results.velocity_min ? 'Too slow' : 'Too fast'}
       </td>
     </tr>`).join('');
 
@@ -15483,14 +15483,14 @@ function renderVDReport(inputs, results, narrative) {
     ? `<span style="color:#2e7d32;font-weight:700;">PASS: within ${results.vd_limit}% limit</span>`
     : `<span style="color:#b71c1c;font-weight:700;">FAIL: exceeds ${results.vd_limit}% limit</span>`;
 
-  const sizeRows = (results.size_comparison || []).map(r => `
-    <tr style="${r.is_selected ? 'background:#fffbf0;font-weight:700;' : ''}">
-      <td>${r.size_mm2} mm²${r.is_selected ? ' (selected)' : ''}</td>
-      <td class="num">${r.resistance_ohm_km}</td>
-      <td class="num">${r.vd_v}</td>
-      <td class="num">${r.vd_pct}</td>
-      <td class="num" style="color:${r.pass ? '#2e7d32' : '#b71c1c'};">${r.pass ? 'PASS' : 'FAIL'}</td>
-      <td class="num">${r.max_length_m}</td>
+  const sizeRows = (results.size_comparison || []).map(row => `
+    <tr style="${row.is_selected ? 'background:#fffbf0;font-weight:700;' : ''}">
+      <td>${row.size_mm2} mm²${row.is_selected ? ' (selected)' : ''}</td>
+      <td class="num">${row.resistance_ohm_km}</td>
+      <td class="num">${row.vd_v}</td>
+      <td class="num">${row.vd_pct}</td>
+      <td class="num" style="color:${row.pass ? '#2e7d32' : '#b71c1c'};">${row.pass ? 'PASS' : 'FAIL'}</td>
+      <td class="num">${row.max_length_m}</td>
     </tr>`).join('');
 
   const html = `
@@ -15593,14 +15593,14 @@ function renderWireSizingReport(inputs, results, narrative) {
   const dateStr = now.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year:'numeric', month:'long', day:'numeric' });
   const e       = s => `<span contenteditable="true" class="editable-field">${escHtml(String(s || ''))}</span>`;
 
-  const sizeRows = (results.size_comparison || []).map(r => `
-    <tr style="${r.recommended ? 'background:#fffbf0;font-weight:700;' : ''}">
-      <td>${r.size_mm2} mm²${r.recommended ? ' (recommended)' : ''}</td>
-      <td class="num">${r.ampacity_table}</td>
-      <td class="num">${r.temp_factor}</td>
-      <td class="num">${r.fill_factor}</td>
-      <td class="num">${r.corrected_ampacity}</td>
-      <td class="num" style="color:${r.adequate ? '#2e7d32' : '#b71c1c'};">${escHtml(r.status || (r.adequate ? 'OK' : 'Undersized'))}</td>
+  const sizeRows = (results.size_comparison || []).map(row => `
+    <tr style="${row.recommended ? 'background:#fffbf0;font-weight:700;' : ''}">
+      <td>${row.size_mm2} mm²${row.recommended ? ' (recommended)' : ''}</td>
+      <td class="num">${row.ampacity_table}</td>
+      <td class="num">${row.temp_factor}</td>
+      <td class="num">${row.fill_factor}</td>
+      <td class="num">${row.corrected_ampacity}</td>
+      <td class="num" style="color:${row.adequate ? '#2e7d32' : '#b71c1c'};">${escHtml(row.status || (row.adequate ? 'OK' : 'Undersized'))}</td>
     </tr>`).join('');
 
   const html = `

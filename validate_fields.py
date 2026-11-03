@@ -14,7 +14,14 @@ if sys.platform == "win32":
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-BASE = "https://engineering-calc-api.onrender.com/calculate"
+# ★THE ENGINE THAT SHIPS WITH THE RENDERERS, NOT LAST RELEASE'S (2026-11-03, the M5 release gate). This read the keys
+# from production's Render API, which runs the engines of the PREVIOUS release until this push lands - so every release
+# that adds an engine key (vibration's k_N_m, bearing life's xy_basis) failed Layer 2a on renderers that are right, and a
+# renderer reading a key the new engine DROPPED would have passed. The contract is renderer vs engine in the same commit:
+# the local python-api container (the tree's calcs). PYTHON_API_URL points it elsewhere - production after a deploy.
+import os
+BASE = os.environ.get("PYTHON_API_URL", "http://127.0.0.1:8000").rstrip("/") + "/calculate"
+_KEY = os.environ.get("PYTHON_API_KEY", "").strip()
 
 # ── Test inputs for every Python-handled calc type ────────────────────────────
 # Field names must match what the Python handler (or its alias in main.py) accepts.
@@ -60,9 +67,11 @@ TESTS = {
     # NOTE: Python duct handler uses "sections" (not "segments" like the frontend).
     # Multi-segment duct sizing silently falls back to TypeScript via edge function.
     # This single-section test validates the Python handler directly.
+    # the page's own payload since Wave ED (ED350): a segments[] schedule. The old single-run fields
+    # returned a different result (no index_run, no roughness) than any person ever gets.
     "Duct Sizing (Equal Friction)": {
-        "flow_m3hr": 3600, "duct_length_m": 10,
-        "friction_rate_pam": 1.0, "section_type": "Supply Main",
+        "duct_shape": "Circular", "friction_rate": 1, "air_density": 1.2, "duct_material": "Galvanized Steel",
+        "segments": [{"name": "Supply Main", "flow_lps": 1000, "length_m": 10, "seg_type": "Supply Main"}],
     },
     "Refrigerant Pipe Sizing": {
         "capacity_kw": 10, "refrigerant": "R-410A", "application": "AC",
@@ -393,7 +402,7 @@ def call(calc_type, inputs):
     data = json.dumps({"calc_type": calc_type, "inputs": inputs}).encode()
     req  = urllib.request.Request(
         BASE, data=data,
-        headers={"Content-Type": "application/json"}, method="POST",
+        headers={"Content-Type": "application/json", **({"X-API-Key": _KEY} if _KEY else {})}, method="POST",
     )
     try:
         with urllib.request.urlopen(req, timeout=90) as r:

@@ -1,6 +1,6 @@
 {
   "_doc": "T1.4 unified page roster \u2014 the ONE scope artifact every page-consuming instrument is checked against (validate_page_roster.py). Regenerate with --build after adding/removing a page.",
-  "count": 158,
+  "count": 157,
   "pages": [
     {
       "path": "about/index.html",
@@ -48,10 +48,6 @@
     },
     {
       "path": "dayplanner.html",
-      "kind": "root"
-    },
-    {
-      "path": "design-system.html",
       "kind": "root"
     },
     {

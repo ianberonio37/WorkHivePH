@@ -1727,7 +1727,7 @@
         const grafanaOps = ops ? `${GRAFANA_URL}/d/${encodeURIComponent(ops.uid)}` : '';
         host.innerHTML = opcGroupFrame('dev-llm', 'LLM observability', grafanaOps, 'Open in Grafana')
           + opcGroupFrame('dev-rag', 'Agentic RAG', grafanaOps, 'Open in Grafana')
-          + opcGroupFrame('dev-ds', 'Design system', 'design-system.html', 'Open the component gallery');
+          + opcGroupFrame('dev-ds', 'Design system', '', '');
         const range = { p_from: from.toISOString(), p_to: to.toISOString() };
         const [opsRes, devRes] = await Promise.all([ops ? db.rpc(ops.fn, range) : Promise.resolve({ data: null }),
                                                     db.rpc('founder_dev_reads', range)]);
@@ -1795,7 +1795,7 @@
         { Axis: 'Rubric held in one spec', Measured: spec ? `${Object.keys(spec).filter((k) => /^[A-Z][0-9]$/.test(k)).length} dims · ${(board && board.summary && board.summary.measuredPages) || 0} pages swept` : 'The spec did not load.' },
       ];
       const p = { type: 'table', title: 'Centralization axes: measured live', unit: '', opc: 'design-system.html::centralization-axes-measured-live' };
-      return opcPanelHtml(p, rows) + '<p class="opc-note">Adoption, the first axis, is the component gallery\'s own census.</p>';
+      return opcPanelHtml(p, rows) + '<p class="opc-note">Adoption, the first axis, is the component census the gates keep (component_adoption_baseline.json).</p>';
     }
 
     // ── Refresh All ─────────────────────────────────────────────

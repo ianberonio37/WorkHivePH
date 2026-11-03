@@ -6,7 +6,7 @@ each as contracted / uncontracted / raw / unknown.
 
 ## Summary
 
-- Pages scanned:           **33**
+- Pages scanned:           **32**
 - Display anchors found:   **127**
 - Contracted ✅:           **22** (anchor maps to a registered formula)
 - **Uncontracted ⚠️:**     **1** (domain-meaningful metric, no formula registered)
@@ -47,7 +47,6 @@ each as contracted / uncontracted / raw / unknown.
 | `voice-journal.html` | 3 | 0 | 0 | 3 | 0 |
 | `founder-console.html` | 14 | 2 | 1 | 11 | 0 |
 | `index.html` | 1 | 0 | 0 | 1 | 0 |
-| `design-system.html` | 0 | 0 | 0 | 0 | 0 |
 | `llm-observability.html` | 2 | 1 | 0 | 0 | 1 |
 | `offline-fallback.html` | 0 | 0 | 0 | 0 | 0 |
 | `learn/index.html` | 1 | 0 | 0 | 1 | 0 |

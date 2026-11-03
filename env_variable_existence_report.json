@@ -1,6 +1,6 @@
 {
   "summary": {
-    "files_scanned": 202,
+    "files_scanned": 203,
     "total_refs": 400,
     "total_missing": 0,
     "baseline": 0,
@@ -493,6 +493,10 @@
     },
     {
       "file": "python-api/calcs/__init__.py",
+      "missing": []
+    },
+    {
+      "file": "python-api/calcs/_catalog.py",
       "missing": []
     },
     {

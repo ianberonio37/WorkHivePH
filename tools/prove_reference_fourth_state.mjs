@@ -12,7 +12,6 @@ import { chromium } from 'playwright';
 
 import { SEEDER, VIS_JS, SETTLE_MS } from './prover_harness.mjs';   // shared preamble (2026-09-05): checkVisibility, the settle envelope
 const PAGES = [
-  { file: 'design-system.html',     block: /design_component_registry\.json|component_purity_baseline\.json|storage_key_registry\.json|ufai-rubric-spec\.json|family_rubric_scoreboard\.json/, status: '[role="status"], .wh-source-chip, #ds-prov, #ds-axes', content: '#ds-root' },
   { file: 'llm-observability.html', block: /rest\/v1\/ai_cost_log|rest\/v1\/ai_cache/, status: '#meta, [role="status"]', content: '#by-task tbody, .grid' },
   { file: 'offline-fallback.html',  block: /x^/, status: '#net-hint, [role="status"]', content: 'main, body' },
   { file: 'agentic-rag-observability.html', block: /rest\/v1\/agentic_rag_traces/, status: '#freshness, [role="status"], .honest-empty', content: 'main, body' },   // P450 degradation is legible (2026-09-05)

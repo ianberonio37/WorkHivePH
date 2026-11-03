@@ -57,8 +57,6 @@ ANCHORS = [
     ("community.html", r">Posts so far</p>", "community's post count reads as this period's"),
     ("community.html", r">Community XP so far</p>", "community's XP reads as this period's"),
     ("achievements.html", r"'jobs done so far'", "the provider tier's job count reads as this period's"),
-    ("design-system.html", r'id="ds-root" data-wh-sample=', "design-system's specimens do not mark their numbers as samples"),
-    ("design-system.html", r"are sample values, not anyone's data", "design-system never says its specimens' numbers are samples"),
 ]
 FORBIDDEN = [
     ("pm-scheduler.html", r"PM this week`", "the due-soon line says 'this week' for a 14-day window"),
@@ -161,7 +159,6 @@ def self_test() -> int:
     expect("community's posts without 'so far' fails", mut("community.html", ">Posts so far</p>", ">Posts</p>"))
     expect("analytics' window removed fails", mut("analytics.html",
         "figure: { period: `The last ${_period} days, rolling to now`, ", "figure: { "))
-    expect("design-system's sample mark removed fails", mut("design-system.html", 'id="ds-root" data-wh-sample=', 'id="ds-root" data-x='))
     r2 = json.loads(json.dumps(reg))
     first = next(p for p in r2 if not p.startswith("_"))
     victim = next(e for e in r2[first] if not e.get("chrome"))

@@ -56,7 +56,7 @@ CLASSES = ("production", "founder", "public")
 FOUNDER_PAGES = (
     "founder-console.html", "marketplace-admin.html", "platform-actions.html", "llm-observability.html",
     "agentic-rag-observability.html",
-    "ai-quality.html", "audit-log.html", "status.html", "design-system.html",
+    "ai-quality.html", "audit-log.html", "status.html",
 )
 
 # {layer: {code: (name, ask, roster)}} - emitted in LAYER_SET order, so each SL-<layer> wave owns a contiguous id

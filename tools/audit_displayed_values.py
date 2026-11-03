@@ -69,7 +69,7 @@ PAGES = [
     "voice-journal.html", "founder-console.html", "index.html",
     # P-C "tile == DB canonical" on the reference surfaces (2026-09-05): a count or a percentage a reference
     # page paints is a displayed value too - the audit is the per-page instrument for those rows.
-    "design-system.html", "llm-observability.html",
+    "llm-observability.html",
     "offline-fallback.html", "learn/index.html",
 ]
 

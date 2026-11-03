@@ -181,8 +181,10 @@ def check(files: dict | None = None, traj: list | None = None, run_k3: bool = Tr
     for page, href in POINTERS:
         if f'href="{href}"' not in _read(page, files):
             issues.append(f"K6 {page} does not send a founder to the console ({href})")
+    # design-system.html is retired (Ian, 2026-11-03): the axes live only in the console now, and a page that is gone
+    # cannot keep a copy of them - the check holds while the file exists, so a page brought back is held again
     ds = _read("design-system.html", files)
-    if "Centralization axes: measured live" in ds or "founder-console.html#developer" not in ds:
+    if ds and ("Centralization axes: measured live" in ds or "founder-console.html#developer" not in ds):
         issues.append("K6 design-system.html measures its own copy of the centralization axes instead of pointing to the console")
     acts = _read(ACTIONS, files)
     nest = _ancestor_ids(src)

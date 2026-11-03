@@ -77,7 +77,7 @@ const PAGES = [
   // they join the floors on the next full sweep + --accept.
   'founder-console.html', 'llm-observability.html', 'platform-actions.html',
   'offline-fallback.html',
-  'design-system.html', 'analytics-report.html', 'resume.html',
+  'analytics-report.html', 'resume.html',
   // ★SUBPATH PAGES the P-program names (2026-09-05): the seeder serves them under /workhive/ (200),
   // so the board can grade them. These 14 are the calculators + the learn index that P rows
   // (P13/P29/P321, P60-P72, P308) walk; until now their only receipt was the PROD load-level

@@ -16,7 +16,7 @@ const ONLY = (() => { const i = process.argv.indexOf('--page'); return i >= 0 ? 
 // size has to run in halves to fit the background cap.
 const LIST = (() => { const i = process.argv.indexOf('--pages'); return i >= 0 ? process.argv[i + 1].split(',') : null; })();
 const PAGES = [   // the 20 P-J rows without a scripted journey (P385..P424, 2026-09-05)
-  'agentic-rag-observability.html', 'design-system.html', 'llm-observability.html', 'offline-fallback.html', 'platform-actions.html',
+  'agentic-rag-observability.html', 'llm-observability.html', 'offline-fallback.html', 'platform-actions.html',
   'learn/index.html', 'project-report.html', 'report-sender.html', 'shift-brain.html',
   'ai-quality.html', 'founder-console.html', 'marketplace-admin.html', 'plant-connections.html', 'promo-poster.html',
   'audit-log.html', 'ph-intelligence.html', 'public-feed.html',

@@ -132,7 +132,7 @@ DATA_PAGES = ["achievements.html", "agentic-rag-observability.html", "ai-quality
               "plant-connections.html", "platform-actions.html", "pm-scheduler.html", "project-manager.html",
               "project-report.html", "public-feed.html", "report-sender.html", "resume.html", "shift-brain.html",
               "skillmatrix.html"]
-STATIC_PAGES = ["about/index.html", "design-system.html", "learn/index.html", "privacy-policy/index.html", "status.html",
+STATIC_PAGES = ["about/index.html", "learn/index.html", "privacy-policy/index.html", "status.html",
                 "terms-of-service/index.html"] + [
     "learn/" + s + "/index.html" for s in (
         "ai-companion-hezekiah-zaniah-personas", "ai-quality-and-roi-stage-2-plants", "ai-work-assistant-maintenance-technicians",
@@ -151,9 +151,6 @@ STATIC_PAGES = ["about/index.html", "design-system.html", "learn/index.html", "p
         "workhive-vs-maintainx-comparison", "workhive-vs-upkeep-free-cmms-comparison")]
 # a static page that renders a list from a file the build ships: the source, and why it cannot reach a thousand rows
 STATIC_DECLARED = {
-    "design-system.html": ("design_component_registry.json", "component_adoption_baseline.json",
-                           "api_component_registry.json", "api_adoption_baseline.json",
-                           "the UI and API component catalogues the build ships - only a build grows them"),
 }
 CSS_RULE = ".wh-rows-cv>*{content-visibility:auto;contain-intrinsic-size:auto"
 NOT_CALLS = {"if", "for", "while", "switch", "return", "catch", "function", "typeof", "new", "await", "async",

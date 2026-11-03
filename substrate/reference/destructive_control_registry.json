@@ -50,11 +50,11 @@
     ],
     "engineering-design.js": [
       {
-        "line": 29096,
+        "line": 29523,
         "message_head": "Delete this calculation?"
       },
       {
-        "line": 29250,
+        "line": 29677,
         "message_head": "Remove ${label} from the BOM?"
       }
     ],
@@ -132,15 +132,15 @@
     ],
     "integrations.html": [
       {
-        "line": 1537,
+        "line": 1540,
         "message_head": "Remove everything this wizard just created? This deletes the vehicle, its PM schedule"
       },
       {
-        "line": 3113,
+        "line": 3116,
         "message_head": "Revoke this API key? Any integrations using it will stop working."
       },
       {
-        "line": 3177,
+        "line": 3180,
         "message_head": "Undo this import? This will delete the ${entityType} records from external_sync and attempt to remove the corresponding logbook/asset/invent"
       }
     ],
@@ -188,11 +188,11 @@
     ],
     "marketplace-seller.html": [
       {
-        "line": 2170,
+        "line": 2172,
         "message_head": "Delete \"${item.title}\"? This cannot be undone."
       },
       {
-        "line": 3299,
+        "line": 3301,
         "message_head": "Cancel this job? The client will be notified."
       }
     ],
@@ -316,11 +316,11 @@
     ],
     "report-sender.html": [
       {
-        "line": 1467,
+        "line": 1472,
         "message_head": "Send this report to ${_who}? This address is not a saved contact, and a sent report cannot be recalled."
       },
       {
-        "line": 1796,
+        "line": 1801,
         "message_head": "Remove ${_c && _c.name ? _c.name : 'this contact'} from your report recipients?"
       }
     ],

@@ -314,7 +314,7 @@
 // const CACHE_NAME  = 'workhive-shell-v166';  // bump 2026-07-23: Y1b OFFLINE-QUEUE ADOPTION + Z1b autofill touched SHELL pages (asset-hub/dayplanner/skillmatrix/community offline-write-queue wiring; marketplace/report-sender autocomplete) + offline-queue.js (upsert/onConflict). Without this bump PWA users keep the stale pages/queue. Re-prime cache.
 // const CACHE_NAME  = 'workhive-shell-v165';  // bump 2026-07-22: REDUNDANT-WIDGET consolidation touched shared-chrome JS (utils.js whFreshnessFooter retired; nav-hub.js "Online" pill silence-when-healthy). Without this bump PWA users keep the stale utils.js/nav-hub.js. Re-prime cache.
 // const CACHE_NAME  = 'workhive-shell-v164';  // bump 2026-07-21: PLATFORM_CENTRALIZATION — storage/RBAC/head convergence touched shared-chrome JS
-const CACHE_NAME  = 'workhive-shell-v584';  // bump 2026-11-03 (239th): M5 - the shell changed after v583: engineering-design (forms refuse a blank, the documents table writes back, the catalog ceiling notice, '-'/n/a never a silent 0), tokens.css and maturity-gate.js (200% text wraps), audit-log (checking line; a promoted supervisor's page shows), design-system (founder gate), and the app pages' text-grows fixes (integrations, achievements, plant-connections, skillmatrix, resume, report-sender, marketplace-seller).
+const CACHE_NAME  = 'workhive-shell-v584';  // bump 2026-11-03 (239th): M5 - the shell changed after v583: engineering-design (forms refuse a blank, the documents table writes back, the catalog ceiling notice, '-'/n/a never a silent 0), tokens.css and maturity-gate.js (200% text wraps), audit-log (checking line; a promoted supervisor's page shows), design-system.html retired (Ian, 2026-11-03), and the app pages' text-grows fixes (integrations, achievements, plant-connections, skillmatrix, resume, report-sender, marketplace-seller).
                                             // (Axis-3 behavioural idioms) + Axis-2 chrome purity wave (nav-hub/companion/
                                             // feedback/connectivity/etc. brand literals → var(--wh-*); tokens.css component
                                             // tier). Without this bump PWA users keep the stale chrome JS. Re-prime cache.
@@ -412,7 +412,6 @@ const SHELL_FILES = [
   '/i18n/pages/skillmatrix.fil.json',
   '/i18n/pages/status.fil.json',
   '/i18n/pages/analytics-report.fil.json',
-  '/i18n/pages/design-system.fil.json',
   '/i18n/pages/founder-console.fil.json',
   '/i18n/pages/offline-fallback.fil.json',
   // Shared chrome
