@@ -165,7 +165,7 @@
       --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: var(--wh-navy-mid, #1F2E45);
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --muted: rgba(255,255,255,0.7); /* D1 a11y: was 0.4 (~2.5:1) → 0.7 meets WCAG 1.4.3 4.5:1 */
-      --text: var(--wh-cloud); --border: rgba(255,255,255,0.07);
+      --text: var(--wh-cloud); --border: var(--wh-white-07, rgba(255,255,255,0.07));
     }
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
     .page { max-width: 1000px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
@@ -192,11 +192,11 @@
 
     table.tbl { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
     table.tbl th { text-align: left; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
-    table.tbl td { padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+    table.tbl td { padding: 9px 8px; border-bottom: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); vertical-align: top; }
     /* D1 a11y/U7 + A1: wide multi-column tables overflow the viewport on narrow screens AND at the
        768px tablet breakpoint → scroll horizontally within the card up to 820px (preserves desktop). */
     @media (max-width: 820px) { table.tbl { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; } }
-    table.tbl tr:hover td { background: rgba(255,255,255,0.02); }
+    table.tbl tr:hover td { background: var(--wh-white-02, rgba(255,255,255,0.02)); }
     .num-right { text-align: right; font-variant-numeric: tabular-nums; }
     .route-chip { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px;
       background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); }
@@ -344,7 +344,7 @@
       </table></div>
     </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>

@@ -45,7 +45,7 @@
     /* Profile card */
     .profile-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.8));
-      border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem;
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem;
     }
     /* A flex item will not shrink below its CONTENT width unless told to: min-width defaults to
        auto, so a long unbroken business name pushed this header 15px past the viewport at a real
@@ -116,7 +116,7 @@
     .pstat-lbl { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.125rem; }
 
     /* Tabs */
-    .tab-bar { display: flex; gap: 0.375rem; margin-bottom: 1.5rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; padding: 0.375rem; }
+    .tab-bar { display: flex; gap: 0.375rem; margin-bottom: 1.5rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 0.75rem; padding: 0.375rem; }
     .tab-btn { flex: 1; padding: 0.5rem; border: none; border-radius: 0.5rem; background: transparent; color: var(--wh-steel-bright); font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: background-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out); display: flex; align-items: center; justify-content: center; gap: 0.25rem; min-height: 44px; }
     .tab-btn.active { background: linear-gradient(135deg, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15), rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08)); color: var(--wh-orange); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25); }
     .tab-count { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); color:var(--wh-orange-text); border-radius: 999px; font-size: 0.75rem; padding: 0.125rem 0.375rem; font-weight: 700; }
@@ -124,14 +124,14 @@
 
     /* Status filter chips */
     .filter-row { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .filter-chip { padding: 0.25rem 0.75rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); color: var(--wh-steel-bright); font-size: 0.75rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }  /* D1 U2: min-width so a short chip ("All") still meets the 44px target. FB2 WCAG color-contrast: inactive label color page-scoped from --wh-steel var(--wh-steel-bright) (4.73:1, axe-flagged at the mobile/field-tech viewport on data-status="published"/"draft"/"removed") to #86929D (5.40:1 over rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5)/body) — same steel hue, clears 4.5:1 AA with margin. Page-scoped override; NOT editing the shared --wh-steel token. */
+    .filter-chip { padding: 0.25rem 0.75rem; border-radius: 999px; border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); color: var(--wh-steel-bright); font-size: 0.75rem; font-family: 'Poppins', sans-serif; cursor: pointer; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }  /* D1 U2: min-width so a short chip ("All") still meets the 44px target. FB2 WCAG color-contrast: inactive label color page-scoped from --wh-steel var(--wh-steel-bright) (4.73:1, axe-flagged at the mobile/field-tech viewport on data-status="published"/"draft"/"removed") to #86929D (5.40:1 over rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5)/body) — same steel hue, clears 4.5:1 AA with margin. Page-scoped override; NOT editing the shared --wh-steel token. */
     .filter-chip.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); color: var(--wh-orange); }
 
     /* Listing items */
     .item-list { display: flex; flex-direction: column; gap: 0.75rem; }
     .listing-item {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.45), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.65));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; overflow: hidden;
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 12px; overflow: hidden;
     }
     .listing-item.draft     { border-left: 3px solid var(--wh-orange); }
     .listing-item.published { border-left: 3px solid var(--wh-green); }
@@ -161,15 +161,15 @@
     .li-info { flex: 1 1 9rem; min-width: 0; }
     .li-title { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.25rem; }
     .li-meta { display: flex; gap: 0.375rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
-    .meta-chip { padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08); }
+    .meta-chip { padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--wh-steel-bright); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); }
     .meta-chip.gold   { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1); color: var(--wh-orange); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25); }
     .meta-chip.green  { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.1); color: var(--wh-green); border-color: rgba(var(--wh-green-rgb, 74, 222, 128), 0.2); }
     .meta-chip.yellow { background: rgba(251,191,36,0.1); color: var(--wh-orange); border-color: rgba(251,191,36,0.2); }
     .meta-chip.red    { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); color: var(--wh-red-text); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.2); }
     .meta-chip.blue   { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1); color: var(--wh-blue); border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); }
-    .li-actions { display: flex; gap: 0.375rem; padding: 0.75rem 1rem; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.12); }
-    .btn-sm { padding: 0.375rem 0.75rem; border-radius: 0.5rem; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--wh-steel-bright); transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; }  /* radius 0.5rem=8px matches the press vocabulary (was 0.45rem=7px rogue → S1/R3); min-height 44px meets the tap target (Edit/View Live were 25px → F1/K2) */
-    .btn-sm:hover { background: rgba(255,255,255,0.08); }
+    .li-actions { display: flex; gap: 0.375rem; padding: 0.75rem 1rem; border-top: 1px solid var(--wh-white-05, rgba(255,255,255,0.05)); background: rgba(0,0,0,0.12); }
+    .btn-sm { padding: 0.375rem 0.75rem; border-radius: 0.5rem; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); background: var(--wh-white-04, rgba(255,255,255,0.04)); color: var(--wh-steel-bright); transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 0.25rem; }  /* radius 0.5rem=8px matches the press vocabulary (was 0.45rem=7px rogue → S1/R3); min-height 44px meets the tap target (Edit/View Live were 25px → F1/K2) */
+    .btn-sm:hover { background: var(--wh-white-08, rgba(255,255,255,0.08)); }
     .btn-sm.primary { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25); color: var(--wh-orange); }
     .btn-sm.primary:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); }
     .btn-sm.danger { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.08); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.2); color: var(--wh-red-text); }
@@ -180,7 +180,7 @@
     .btn-sm:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* Inquiry items */
-    .inquiry-item { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.45), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.65)); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1rem; }
+    .inquiry-item { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.45), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.65)); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 12px; padding: 1rem; }
     .inquiry-item.replied { opacity: 0.65; }
     .inq-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.5rem; gap: 0.5rem; }
     .inq-buyer { font-size: 0.875rem; font-weight: 700; }
@@ -190,7 +190,7 @@
     .inq-contact { font-size: 0.75rem; color: var(--wh-steel-bright); margin-bottom: 0.75rem; }
     .inq-contact strong { color: var(--wh-cloud); }
     .reply-area { margin-top: 0.5rem; }
-    .reply-textarea { width: 100%; padding: 0.5rem 0.75rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; resize: vertical; min-height: 70px; margin-bottom: 0.375rem; }
+    .reply-textarea { width: 100%; padding: 0.5rem 0.75rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 0.5rem; color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; resize: vertical; min-height: 70px; margin-bottom: 0.375rem; }
     .reply-textarea:focus { outline: none; border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); }
     .reply-textarea::placeholder { color: var(--wh-steel-bright); }
     .inq-actions { display: flex; gap: 0.375rem; }
@@ -207,13 +207,13 @@
     .btn-post-now { min-height: 44px; margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.5rem 1.25rem; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: var(--wh-radius); color: var(--wh-ink-deep, #0f1923); font-size: 0.875rem; font-weight: 700; font-family: 'Poppins', sans-serif; cursor: pointer; text-decoration: none; }
 
     /* Skeleton */
-    .skel { background: rgba(255,255,255,0.04); border-radius: 0.5rem; }
+    .skel { background: var(--wh-white-04, rgba(255,255,255,0.04)); border-radius: 0.5rem; }
     .skel-pulse { animation: sk 1.5s ease-in-out infinite; }
     @keyframes sk { 0%,100%{opacity:0.4}50%{opacity:0.8} }
     @media (max-width: 767px) { .skel-pulse { animation: none; } }
 
     /* Toast */
-    #toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid rgba(255,255,255,0.12); border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 600; z-index: 200; /* ★THE RETIRED BOUNCE, STILL HARD-CODED (design lens, 2026-09-16). tokens.css retired
+    #toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px); background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 600; z-index: 200; /* ★THE RETIRED BOUNCE, STILL HARD-CODED (design lens, 2026-09-16). tokens.css retired
          --wh-ease-spring - cubic-bezier(0.34, 1.56, 0.64, 1) - for overshooting by 56%, and the grep
          that confirmed it was unused searched the token's NAME. These files spell the curve as a
          LITERAL, so the platform's one dated bounce outlived the decision that removed it. A toast
@@ -226,24 +226,24 @@
     #toast.info    { border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3);  color: var(--wh-blue); }
 
     /* Bottom sheet */
-    .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; opacity: 0; pointer-events: none; transition: opacity var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
+    .sheet-overlay { position: fixed; inset: 0; background: var(--wh-black-60, rgba(0,0,0,0.6)); z-index: 100; opacity: 0; pointer-events: none; transition: opacity var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
     .sheet-overlay.open { opacity: 1; pointer-events: all; }
-    .sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 101; background: linear-gradient(160deg, var(--wh-navy-mid) 0%, var(--wh-navy) 100%); border-radius: 16px 16px 0 0; border-top: 1px solid rgba(255,255,255,0.1); padding: 1.25rem 1.25rem calc(2rem + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 92vh; overflow-y: auto; }
+    .sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 101; background: linear-gradient(160deg, var(--wh-navy-mid) 0%, var(--wh-navy) 100%); border-radius: 16px 16px 0 0; border-top: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); padding: 1.25rem 1.25rem calc(2rem + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); max-height: 92vh; overflow-y: auto; }
     .sheet.open { transform: translateY(0); }
-    .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 999px; margin: 0 auto 1rem; }
+    .sheet-handle { width: 40px; height: 4px; background: var(--wh-white-15, rgba(255,255,255,0.15)); border-radius: 999px; margin: 0 auto 1rem; }
     .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
     .sheet-title { font-size: 1.125rem; font-weight: 700; }
-    .btn-close-sheet { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.06); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); }
+    .btn-close-sheet { width: 44px; height: 44px; border-radius: 50%; background: var(--wh-white-06, rgba(255,255,255,0.06)); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright); }
 
     /* Form elements */
     .form-group { margin-bottom: 1rem; }
     .form-label { font-size: 0.75rem; font-weight: 600; color: var(--wh-steel-bright); margin-bottom: 0.375rem; display: block; }
-    .wh-input { width: 100%; padding: 0.75rem 1rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--wh-radius); color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; }
+    .wh-input { width: 100%; padding: 0.75rem 1rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: var(--wh-radius); color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; }
     .wh-input:focus { outline: none; border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); }
     .wh-input::placeholder { color: var(--wh-steel-bright); }
-    .wh-select { width: 100%; padding: 0.75rem 1rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--wh-radius); color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; cursor: pointer; appearance: none; -webkit-appearance: none; }
+    .wh-select { width: 100%; padding: 0.75rem 1rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: var(--wh-radius); color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; cursor: pointer; appearance: none; -webkit-appearance: none; }
     .wh-select:focus { outline: none; border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); }
-    .wh-textarea { width: 100%; padding: 0.75rem 1rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--wh-radius); color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; resize: vertical; min-height: 80px; }
+    .wh-textarea { width: 100%; padding: 0.75rem 1rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: var(--wh-radius); color: var(--wh-cloud); font-family: 'Poppins', sans-serif; font-size: 1rem; resize: vertical; min-height: 80px; }
     .wh-textarea:focus { outline: none; border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); }
     .wh-textarea::placeholder { color: var(--wh-steel-bright); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
@@ -404,7 +404,7 @@
     <p class="ps-example" style="margin:0.5rem 0 0;font-size:0.75rem;opacity:0.8;line-height:1.5;">
       <strong>A finished listing reads like this:</strong> SKF 6205-2RS deep-groove bearing, new, box of 10 · ₱1,850 ·
       Valenzuela, pick-up or courier · a clear photo of the part number.</p>
-    <div id="credit-wallet" style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
+    <div id="credit-wallet" style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
         <span class="ic ic-secure" aria-hidden="true"></span>
         <h2 style="font-size:0.875rem;font-weight:700;margin:0;">WorkHive Credits</h2>
@@ -422,7 +422,7 @@
            PRIMARY viewport. Two 8rem (128px) tracks need 264px, which fits at 390 and still cannot
            fit in the 122px available at 200% zoom, so it stacks exactly where it should. -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(8rem,1fr));gap:0.5rem;">
-        <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.5rem 0.75rem;">
+        <div style="background:var(--wh-white-04, rgba(255,255,255,0.04));border-radius:var(--wh-radius-sm);padding:0.5rem 0.75rem;">
           <div id="cw-available" style="font-size:1.125rem;font-weight:700;">-</div>
           <div data-i="p_availabletolist_06a2" style="font-size: 0.75rem;opacity:0.75;">Available to list</div>
           <!-- A NEGATIVE balance had no words at all. The panel handled zero (offer the starter grant)
@@ -441,7 +441,7 @@
                          font-weight:700;border-radius:0.5rem;border:1px solid var(--wh-orange);
                          background:transparent;color:var(--wh-orange-text);cursor:pointer;" data-i="gototopup">Go to top up</button>
         </div>
-        <div style="background:rgba(255,255,255,0.04);border-radius:var(--wh-radius-sm);padding:0.5rem 0.75rem;">
+        <div style="background:var(--wh-white-04, rgba(255,255,255,0.04));border-radius:var(--wh-radius-sm);padding:0.5rem 0.75rem;">
           <div id="cw-reserved" style="font-size:1.125rem;font-weight:700;">-</div>
           <div data-i="p_heldbylivelistings_a446" style="font-size: 0.75rem;opacity:0.75;">Held by live listings</div>
         </div>
@@ -455,7 +455,7 @@
     </div>
 
     <!-- Messenger handle input — buyers reach you via m.me/<handle> -->
-    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
       <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
         <span class="ic ic-message" aria-hidden="true"></span>
         <h2 style="font-size:0.875rem;font-weight:700;margin:0;">Facebook Messenger handle</h2>
@@ -489,11 +489,11 @@
     </div>
 
     <!-- Certifications input — admin verifies before the Certified badge shows -->
-    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.07);">
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
         <span class="ic ic-star" aria-hidden="true"></span>
         <h2 data-i="p_certifications_b65e" id="cert-input-label" style="font-size:0.875rem;font-weight:700;margin:0;">Certifications</h2>
-        <span data-i="p_notverified_fbc0" id="cert-status-pill" style="margin-left:auto;font-size: 0.75rem;padding:0.125rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.06);color:var(--wh-steel-bright);">Not verified</span>
+        <span data-i="p_notverified_fbc0" id="cert-status-pill" style="margin-left:auto;font-size: 0.75rem;padding:0.125rem 0.5rem;border-radius:999px;background:var(--wh-white-06, rgba(255,255,255,0.06));color:var(--wh-steel-bright);">Not verified</span>
       </div>
       <p class="cert-note" style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-bottom:0.5rem;">List your trade certifications, one per line. Admin reviews before the "Certified" badge appears on your listings. Examples: <em>PRC ME License, TESDA HVAC NC II, Welder NC III</em>.</p>
       <textarea class="wh-textarea" id="cert-input" maxlength="1000" placeholder="PRC Master Electrician License&#10;TESDA Welder NC II&#10;HVAC Technician Certification" aria-labelledby="cert-input-label" style="min-height:90px;font-size:1rem;"></textarea>
@@ -546,7 +546,7 @@
     <button id="btn-load-more-seller" type="button" style="width:100%;padding:0.75rem;border-radius:0.5rem;font-size:0.875rem;font-weight:600;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);cursor:pointer;min-height:44px;" data-i="loadmore">Load More</button>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
@@ -631,7 +631,7 @@
     <!-- Image picker — same component as the post form -->
     <div class="form-group">
       <label data-i="p_photo_d01d" class="form-label">Photo</label>
-      <div id="edit-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:var(--wh-radius);padding:1.25rem;text-align:center;cursor:pointer;">
+      <div id="edit-image-zone" style="position:relative;border:2px dashed var(--wh-white-15, rgba(255,255,255,0.15));border-radius:var(--wh-radius);padding:1.25rem;text-align:center;cursor:pointer;">
         <input type="file" id="edit-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
         <div id="edit-image-empty" style="color:var(--wh-steel-bright);">
           <span class="ic ic-image" aria-hidden="true"></span>
@@ -1620,7 +1620,7 @@
               <div style="font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-top:0.25rem;">Edit this listing to fix it, then save: it goes back into review automatically.</div>
             </div>` : ''}
             ${item.status === 'removed' && !item.moderation_reason ? `
-            <div role="alert" style="margin-top:0.5rem;padding:0.5rem 0.75rem;border-radius:0.5rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);font-size:0.75rem;color:rgba(255,255,255,0.85);">
+            <div role="alert" style="margin-top:0.5rem;padding:0.5rem 0.75rem;border-radius:0.5rem;background:var(--wh-white-04, rgba(255,255,255,0.04));border:1px solid var(--wh-white-10, rgba(255,255,255,0.10));font-size:0.75rem;color:rgba(255,255,255,0.85);">
               This listing was removed by WorkHive. No reason was recorded, so contact support if you need details.
             </div>` : ''}
           </div>
@@ -1701,7 +1701,7 @@
           <div class="inq-contact">Contact buyer:
             ${inq.buyer_contact
               ? `<button type="button" class="btn-sm" data-action="reveal-contact" data-contact="${e(inq.buyer_contact)}"
-                   style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.06);color:inherit;cursor:pointer;font-size: 0.75rem;" data-i="showcontact">Show contact</button>`
+                   style="min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--wh-white-18, rgba(255,255,255,0.18));background:var(--wh-white-06, rgba(255,255,255,0.06));color:inherit;cursor:pointer;font-size: 0.75rem;" data-i="showcontact">Show contact</button>`
               : `<strong>Not provided</strong>`}
           </div>
           ${inq.reply_text ? `<div style="font-size: 0.75rem;color:var(--wh-green);padding:0.375rem 0.75rem;background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.06);border-radius:12px;margin-bottom:0.5rem;">Your reply: ${e(inq.reply_text)}</div>` : ''}
@@ -1721,7 +1721,7 @@
         ? '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0 0 0.5rem;">Showing the ' + _inquiries.length + ' newest of ' + _inquiriesTotal.toLocaleString('en-PH') + ' inquiries.</p>'
           // HS L4 (2026-10-30, "a year of the hive", walked live): 166 questions, and an unanswered one older than the
           // newest 50 could not be reached to reply to - the older ones are read on demand, 50 at a time
-          + '<button type="button" data-action="older-inquiries" style="width:100%;min-height:44px;border-radius:0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:inherit;font-weight:600;">Show older inquiries</button>' : '');
+          + '<button type="button" data-action="older-inquiries" style="width:100%;min-height:44px;border-radius:0.75rem;background:var(--wh-white-05, rgba(255,255,255,0.05));border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));color:inherit;font-weight:600;">Show older inquiries</button>' : '');
 
     area.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1966,7 +1966,7 @@
     if (!saved || saved === (item.description || '')) return;   // nothing to offer, or it matches what is saved
     slot.innerHTML = '<p style="font-size:0.75rem;margin:0.375rem 0 0;color:var(--wh-text-muted);">'
       + 'You have an unsaved edit to this description from earlier. '
-      + '<button type="button" id="edit-draft-restore" style="font-size:0.75rem;min-height:44px;padding:0.25rem 0.75rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;" data-i="restoreit">Restore it</button> '
+      + '<button type="button" id="edit-draft-restore" style="font-size:0.75rem;min-height:44px;padding:0.25rem 0.75rem;border-radius:var(--wh-radius-sm);border:1px solid var(--wh-white-18, rgba(255,255,255,0.18));background:transparent;color:inherit;" data-i="restoreit">Restore it</button> '
       + '<button type="button" id="edit-draft-discard" style="font-size:0.75rem;min-height:44px;padding:0.25rem 0.75rem;border-radius:var(--wh-radius-sm);border:0;background:transparent;color:inherit;text-decoration:underline;" data-i="discard">Discard</button></p>';
     document.getElementById('edit-draft-restore').addEventListener('click', () => {
       descInput.value = saved;
@@ -2498,18 +2498,18 @@
       cats = [...new Set((data || []).map(r => r.category))].sort();
     } catch (_) { /* empty-catch-allow: category list is a convenience; the form still works */ }
     const catBoxes = cats.map(c =>
-      '<label style="display:inline-flex;align-items:center;gap:0.375rem;padding:0.5rem 0.75rem;border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);cursor:pointer;min-height:44px;box-sizing:border-box;">' +
+      '<label style="display:inline-flex;align-items:center;gap:0.375rem;padding:0.5rem 0.75rem;border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));border-radius:var(--wh-radius-sm);cursor:pointer;min-height:44px;box-sizing:border-box;">' +
       '<input type="checkbox" class="svc-cat" value="' + e(c) + '" style="width:1.05rem;height:1.05rem;accent-color:var(--wh-orange);"> ' + e(c) + '</label>').join(' ');
     area.innerHTML =
       '<div class="empty-state" style="text-align:left;max-width:560px;margin:0 auto;">' +
       '<h2 style="text-align:center;">Become a service provider</h2>' +
       '<p style="text-align:center;">Get hailed for jobs near you, like a ride-hailing driver for your trade. Your skill matrix and resume back your profile.</p>' +
       '<label style="display:block;margin-top:1rem;font-size:0.75rem;font-weight:600;">Provider name' +
-      '<input id="svc-reg-name" type="text" aria-label="Provider name" value="' + e((WORKER_NAME ? WORKER_NAME + ' ' : '') + 'Services') + '" maxlength="80" style="display:block;width:100%;margin-top:0.25rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
+      '<input id="svc-reg-name" type="text" aria-label="Provider name" value="' + e((WORKER_NAME ? WORKER_NAME + ' ' : '') + 'Services') + '" maxlength="80" style="display:block;width:100%;margin-top:0.25rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));background:var(--wh-white-05, rgba(255,255,255,0.05));color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
       '<label style="display:block;margin-top:0.75rem;font-size:0.75rem;font-weight:600;">Contact (mobile no.)' +
-      '<input id="svc-reg-contact" type="tel" aria-label="Contact (mobile no.)" placeholder="09xx xxx xxxx" maxlength="20" style="display:block;width:100%;margin-top:0.25rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
+      '<input id="svc-reg-contact" type="tel" aria-label="Contact (mobile no.)" placeholder="09xx xxx xxxx" maxlength="20" style="display:block;width:100%;margin-top:0.25rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));background:var(--wh-white-05, rgba(255,255,255,0.05));color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
       '<label style="display:block;margin-top:0.75rem;font-size:0.75rem;font-weight:600;">City / service area' +
-      '<input id="svc-reg-area" type="text" aria-label="Service area" placeholder="e.g. Baguio" maxlength="60" style="display:block;width:100%;margin-top:0.25rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
+      '<input id="svc-reg-area" type="text" aria-label="Service area" placeholder="e.g. Baguio" maxlength="60" style="display:block;width:100%;margin-top:0.25rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));background:var(--wh-white-05, rgba(255,255,255,0.05));color:inherit;box-sizing:border-box;min-height:44px;"></label>' +
       '<div style="margin-top:1rem;font-size:0.75rem;font-weight:600;">What services do you offer?</div>' +
       '<div id="svc-reg-cats" style="display:flex;flex-wrap:wrap;gap:0.375rem;margin-top:0.375rem;">' + (catBoxes || '<em>Loading categories…</em>') + '</div>' +
       '<button type="button" onclick="_svcJobGuard(this,\'Registering…\',function(){return svcRegister();})" style="' + _svcBtn + 'width:100%;margin-top:1rem;" data-i="registerasaprovider">Register as a provider</button>' +
@@ -2531,7 +2531,7 @@
       const slot = document.getElementById('svc-hive-reg');
       if (slot && sup && sup.length) {
         const e2 = escHtml;
-        slot.innerHTML = '<div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:0.75rem;font-size:0.75rem;font-weight:600;">You supervise a hive</div>' +
+        slot.innerHTML = '<div style="border-top:1px solid var(--wh-white-10, rgba(255,255,255,0.1));padding-top:0.75rem;font-size:0.75rem;font-weight:600;">You supervise a hive</div>' +
           sup.map(s => '<button type="button" onclick="_svcJobGuard(this,\'Registering…\',function(){return svcRegisterHive(\'' + e2(s.hive_id) + '\',\'' + e2(((s.hives && s.hives.name) || 'Our hive').replace(/'/g, '')) + '\');})" style="' + _svcBtnGhost + 'width:100%;margin-top:0.5rem;">Register ' + e2((s.hives && s.hives.name) || 'your hive') + ' as a service company</button>').join('');
       }
     } catch (_) { /* empty-catch-allow: hive-company option is additive; the freelancer form stands alone */ }
@@ -2771,8 +2771,8 @@
       ', then file it below. <strong>Paste your receipt</strong> into either box, or upload the ' +
       'screenshot, and the amount and reference fill themselves.</div>' +
       '<div style="display:flex;flex-wrap:wrap;gap:0.375rem;margin-top:0.5rem;">' +
-      '<input id="svc-topup-amt-' + e(provId) + '" type="number" min="1" step="50" placeholder="Amount ₱" aria-label="Top-up amount in pesos" style="width:8rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
-      '<input id="svc-topup-ref-' + e(provId) + '" type="text" maxlength="20" placeholder="GCash reference no." aria-label="GCash reference number" style="width:12rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
+      '<input id="svc-topup-amt-' + e(provId) + '" type="number" min="1" step="50" placeholder="Amount ₱" aria-label="Top-up amount in pesos" style="width:8rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));background:var(--wh-white-05, rgba(255,255,255,0.05));color:inherit;min-height:44px;box-sizing:border-box;">' +
+      '<input id="svc-topup-ref-' + e(provId) + '" type="text" maxlength="20" placeholder="GCash reference no." aria-label="GCash reference number" style="width:12rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));background:var(--wh-white-05, rgba(255,255,255,0.05));color:inherit;min-height:44px;box-sizing:border-box;">' +
       /* DOUBLE-TAP FILED IT TWICE (2026-08-04, U-recovery double_submit probe: two clicks
          produced FOUR writes). This page has loaded button-lock.js all along and called it
          nowhere - its own header says pages adopt it 'incrementally', and this one adopted
@@ -3102,7 +3102,7 @@
             : (f.mode === 'instant'
                 ? '<button type="button" onclick="_svcJobGuard(this,\'Accepting…\',function(){return svcAccept(\'' + e(f.request_id) + '\');})" style="' + _svcBtn + '" data-i="acceptjob">Accept job</button>'
                 : '<span style="display:inline-flex;gap:0.375rem;align-items:center;flex-wrap:wrap;">' +
-                  '<input id="svc-q-' + e(f.request_id) + '" type="number" min="0" step="50" placeholder="Your price ₱" aria-label="Your quote price in pesos" style="width:9rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:inherit;min-height:44px;box-sizing:border-box;">' +
+                  '<input id="svc-q-' + e(f.request_id) + '" type="number" min="0" step="50" placeholder="Your price ₱" aria-label="Your quote price in pesos" style="width:9rem;padding:0.5rem;border-radius:var(--wh-radius-sm);border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));background:var(--wh-white-05, rgba(255,255,255,0.05));color:inherit;min-height:44px;box-sizing:border-box;">' +
                   '<button type="button" onclick="_svcJobGuard(this,\'Sending…\',function(){return svcQuote(\'' + e(f.request_id) + '\');})" style="' + _svcBtnGhost + '" data-i="sendquote">Send quote</button></span>')) +
           '</div>';
       });
@@ -3275,7 +3275,7 @@
     if (!slot) return;
     if (slot.innerHTML) { slot.innerHTML = ''; return; }   // toggle
     const e = escHtml;
-    slot.innerHTML = '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);padding:0.5rem 0.75rem;">' +
+    slot.innerHTML = '<div style="border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));border-radius:var(--wh-radius-sm);padding:0.5rem 0.75rem;">' +
       '<div style="font-size:0.75rem;font-weight:600;margin-bottom:0.25rem;">How was this client?</div>' +
       '<div role="radiogroup" aria-label="Rating from 1 to 5 stars" style="display:flex;gap:0.25rem;margin-bottom:0.375rem;flex-wrap:wrap;">' +
       [1, 2, 3, 4, 5].map(n => '<button type="button" aria-label="' + n + ' star' + (n > 1 ? 's' : '') + '" onclick="_svcJobGuard(this,\'…\',function(){return svcProvPickStar(\'' + e(requestId) + '\',' + n + ');})" style="' + _svcBtnGhost + 'min-width:44px;">' + n + '★</button>').join('') + '</div>' +
@@ -3568,7 +3568,7 @@
       </div>
 
       <!-- Response time benchmark -->
-      <div style="background:linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+      <div style="background:linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));border-radius:12px;padding:1rem;margin-bottom:1rem;">
         <!-- "Reply Time", matching the seller PROFILE's "Avg Reply" tile and its "Inquiries Replied"
              counter. The same seller's speed was called a RESPONSE here and a REPLY one page over,
              which is the cross-surface half of one-concept-one-word: a seller checking their own
@@ -3609,7 +3609,7 @@
         const conv  = views > 0 ? Math.round((inq / views) * 1000) / 10 : 0;
         const isPub = l.status === 'published';
         html += `
-          <div style="background:rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.5);border:1px solid rgba(255,255,255,0.06);border-radius:var(--wh-radius);padding:0.75rem;display:flex;align-items:center;gap:0.75rem;${!isPub ? 'opacity:0.55;' : ''}">
+          <div style="background:rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.5);border:1px solid var(--wh-white-06, rgba(255,255,255,0.06));border-radius:var(--wh-radius);padding:0.75rem;display:flex;align-items:center;gap:0.75rem;${!isPub ? 'opacity:0.55;' : ''}">
             <div style="flex:1;min-width:0;">
               <div style="font-size:0.75rem;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e(l.title)}</div>
               <div style="font-size: 0.75rem;color:var(--wh-steel-bright);margin-top:0.125rem;">

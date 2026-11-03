@@ -33,12 +33,12 @@
 
     .card { /* FC4 dialect: voice-journal gradient variant of the blessed .card */
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7) 100%);
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 1rem;
     }
     .wh-input {
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
       color: white;
       padding: 0.75rem 1rem;
@@ -85,7 +85,7 @@
 
     .btn-ghost {
       background: transparent;
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       color:var(--wh-text-faint, rgba(255,255,255,0.86));
       min-height: 44px; /* WCAG 2.5.8 / F1 */
       /* 500 was a fourth weight on a page that already uses 400, 600 and 700, carried by these two
@@ -131,7 +131,7 @@
        while PRESS actions (speak-again, load-more) take the rect. Keeps 3 shapes for 2 roles. */
     #tts-toggle, #sov-voice-toggle { border-radius: var(--wh-radius-pill); }
     .speak-btn { border-radius: var(--wh-radius-sm); }
-    .btn-ghost:active { background: rgba(255,255,255,0.08); transform: scale(0.97); }
+    .btn-ghost:active { background: var(--wh-white-08, rgba(255,255,255,0.08)); transform: scale(0.97); }
     @media (max-width: 480px) { .btn-ghost { min-height: 44px; padding: 0.75rem 1rem; } }
 
     /* The page title, on DESIGN.md's headline step (1.125rem/700 - the step it names for page
@@ -238,7 +238,7 @@
 
     .transcript-box {
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.55);
-      border: 1px dashed rgba(255,255,255,0.12);
+      border: 1px dashed var(--wh-white-12, rgba(255,255,255,0.12));
       border-radius: 0.75rem;
       padding: 0.75rem 1rem;
       min-height: 3.2rem;
@@ -260,7 +260,7 @@
 
     .history-entry {
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.45);
-      border: 1px solid rgba(255,255,255,0.06);
+      border: 1px solid var(--wh-white-06, rgba(255,255,255,0.06));
       /* 13.6px was between the md and lg rungs of DESIGN.md's rounded scale (8/12/16) - the same
          0.05rem habit as the spacing on this page, applied to a shape. On the platform's token. */
       border-radius: var(--wh-radius, 12px);
@@ -298,8 +298,8 @@
     }
 
     .persona-chip {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.10);
+      background: var(--wh-white-04, rgba(255,255,255,0.04));
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.10));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       border-radius: 999px;
       font-family: inherit;
@@ -328,8 +328,8 @@
     .speak-btn:active { transform: scale(0.96); }
 
     .filter-chip {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.10);
+      background: var(--wh-white-04, rgba(255,255,255,0.04));
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.10));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       border-radius: 999px;
       padding: 0.25rem 0.75rem;
@@ -338,7 +338,7 @@
       min-height: 44px;
       display: inline-flex; align-items: center; justify-content: center;
     }
-    .filter-chip:hover  { color: white; border-color: rgba(255,255,255,0.2); }
+    .filter-chip:hover  { color: white; border-color: var(--wh-white-20, rgba(255,255,255,0.2)); }
     .filter-chip:active { transform: scale(0.97); }
     .filter-chip.active {
       background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); color: var(--wh-orange-light);   /* C2: AA-safe orange (was --wh-orange @ 4.44:1) */
@@ -357,7 +357,7 @@
       position: fixed; left: 50%; bottom: calc(1.5rem + env(safe-area-inset-bottom));
       transform: translateX(-50%) translateY(4px);
       background: linear-gradient(135deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.95), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.98));
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       padding: 0.75rem 1.25rem; border-radius: 999px;
       font-size: 0.75rem; font-weight: 600;
       /* 0.3s is not UNDER the 300ms ceiling for interface motion, it IS the ceiling, and neither
@@ -369,7 +369,7 @@
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     .skeleton-row {
-      background: rgba(255,255,255,0.04);
+      background: var(--wh-white-04, rgba(255,255,255,0.04));
       border-radius: var(--wh-radius-sm, 8px); height: 64px;   /* 9.6px was off the 8/12/16 scale */
       animation: skeleton 1.2s ease-in-out infinite;
     }

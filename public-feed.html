@@ -55,7 +55,7 @@
     .header {
       position: sticky; top: 0; z-index: 20;
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.92); backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       padding: 0.875rem 1.25rem;
       /* Sticky at top:0, so the moment the feed scrolls this bar pins to the viewport edge and its
          title and buttons sit under the notch. The body padding-top below is NOT this: that reserves
@@ -133,10 +133,10 @@
        post, and only a SAFETY post keeps a 1px tint of the red, so a hazard still stands out in the scroll. */
     .post-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 12px;
       padding: 1rem; margin-bottom: 0.75rem; transition: border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
     }
-    .post-card:hover { border-color: rgba(255,255,255,0.18); }
+    .post-card:hover { border-color: var(--wh-white-18, rgba(255,255,255,0.18)); }
     .post-card.post-safety { border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.35); }
     .post-card.post-safety:hover { border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.55); }
 
@@ -148,7 +148,7 @@
       display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
       font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
-    .cat-general      { background: rgba(255,255,255,0.08); color:var(--wh-text-faint, rgba(255,255,255,0.86)); } /* D1 a11y: 0.5→0.72 WCAG 1.4.3 */
+    .cat-general      { background: var(--wh-white-08, rgba(255,255,255,0.08)); color:var(--wh-text-faint, rgba(255,255,255,0.86)); } /* D1 a11y: 0.5→0.72 WCAG 1.4.3 */
     .cat-safety       { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.15); color: var(--wh-red-text); } /* D1 U5: var(--wh-red)<4.5:1 on tinted bg → WCAG 1.4.3 */
     .cat-technical    { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--wh-blue-light); } /* C2: AA-safe blue (was --wh-blue @ 4.48:1, WCAG 1.4.3) */
     .cat-announcement { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.14); color: var(--wh-violet-text, #C4B5FD); } /* D1 U5: var(--wh-violet)<4.5:1 → WCAG 1.4.3 */
@@ -166,7 +166,7 @@
     }
 
     /* Skeleton */
-    .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 0.5rem; }
+    .skeleton { background: linear-gradient(90deg, var(--wh-white-04, rgba(255,255,255,0.04)) 25%, var(--wh-white-08, rgba(255,255,255,0.08)) 50%, var(--wh-white-04, rgba(255,255,255,0.04)) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 0.5rem; }
     @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
     /* ★AN INFINITE SHIMMER THAT NOBODY COULD TURN OFF (2026-09-18, W46018 motion). The platform's
@@ -191,11 +191,11 @@
 
     .load-more-wrap { display: flex; justify-content: center; padding: 1rem 0; }
     .load-more-btn {
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       color:rgba(255,255,255,0.83); border-radius: var(--wh-radius-sm); padding: 0.6rem 1.5rem;
       font-size: 0.75rem; cursor: pointer; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); min-height: 44px; /* D1 U2 */
     }
-    .load-more-btn:hover { background: rgba(255,255,255,0.1); }
+    .load-more-btn:hover { background: var(--wh-white-10, rgba(255,255,255,0.1)); }
     .load-more-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -272,7 +272,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <button id="btn-load-more" class="load-more-btn" onclick="loadMore()" data-i="loadmore">Load more</button>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>

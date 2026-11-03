@@ -109,8 +109,8 @@
        had no title, no heading the page owned and nothing grouped (critic A1/A2/C3/I2 on every solo walk). It is now
        one declared card under the page's own header, on the toolbar's surface. */
     #hive-gate { display: none; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem;
-      padding: 2rem 1.25rem; margin-bottom: 1rem; background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; }
+      padding: 2rem 1.25rem; margin-bottom: 1rem; background: var(--wh-white-02, rgba(255,255,255,0.02));
+      border: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 0.75rem; }
     #hive-gate h2 { font-size: 1.125rem; font-weight: 700; }
     #hive-gate p  { color: var(--wh-text-muted, rgba(255,255,255,0.80)); font-size: 0.875rem; max-width: 360px; }
     #hive-gate a  { display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
@@ -121,8 +121,8 @@
     .ar-toolbar {
       display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
       padding: 0.65rem 0.75rem; margin-bottom: 1rem;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: var(--wh-white-02, rgba(255,255,255,0.02));
+      border: 1px solid var(--wh-white-06, rgba(255,255,255,0.06));
       border-radius: 0.75rem /* S1 2026-09-05: 10px was off the 8/12/16 scale */;
     }
     .toolbar-label {
@@ -132,7 +132,7 @@
     .pill-btn {
       font-family: inherit; font-size: 0.8rem; font-weight: 600;
       padding: 8px 16px; border-radius: 999px; cursor: pointer;   /* 11.5px -> 12.8px, and on the grid */
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      background: var(--wh-white-05, rgba(255,255,255,0.05)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       color:rgba(255,255,255,0.83); min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
       transition: color .15s ease, background .15s ease, border-color .15s ease, transform .12s var(--wh-ease-out);   /* was `all`: it animated layout properties too (design lens motion, 2026-09-15) */
     }
@@ -153,30 +153,30 @@
     }
     /* the primary action is amber (DESIGN.md), solid - not the violet gradient the system rules out (K, 2026-10-15) */
     .btn-generate { background: var(--wh-orange); color: var(--wh-navy); }
-    .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.35); }   /* a shadow is cast by light, not emitted by the button (craft floor: a coloured halo is decoration) */
+    .btn-generate:hover { transform: translateY(-1px); box-shadow: 0 4px 16px var(--wh-black-35, rgba(0,0,0,0.35)); }   /* a shadow is cast by light, not emitted by the button (craft floor: a coloured halo is decoration) */
     .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
     .btn-pdf {
-      background: rgba(255,255,255,0.06); color: #fff;
-      border: 1px solid rgba(255,255,255,0.15);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); color: #fff;
+      border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
     }
-    .btn-pdf:hover { background: rgba(255,255,255,0.12); }
+    .btn-pdf:hover { background: var(--wh-white-12, rgba(255,255,255,0.12)); }
     .btn-pdf:disabled { opacity: 0.6; cursor: not-allowed; }
     /* ★THE THIRD TOOLBAR ACTION HAD NO STYLE AT ALL (design lens slop, 2026-09-15). #csv-btn carries
        .btn-action, which sets size and shape but no colour, and no .btn-generate or .btn-pdf beside it -
        so it fell back to the browser's own button chrome and measured 1.43:1 (near-black on grey) while
        its two neighbours wore the platform's vocabulary. It is a secondary action, like Save as PDF. */
     .btn-csv {
-      background: rgba(255,255,255,0.06); color: var(--wh-cloud);
-      border: 1px solid rgba(255,255,255,0.15);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--wh-cloud);
+      border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
     }
-    .btn-csv:hover { background: rgba(255,255,255,0.12); }
+    .btn-csv:hover { background: var(--wh-white-12, rgba(255,255,255,0.12)); }
     .btn-csv:disabled { opacity: 0.6; cursor: not-allowed; }
 
     /* ── Empty / loading ── */
     .ar-status {
       padding: 2.5rem 1rem; text-align: center; color:var(--wh-text-muted, rgba(255,255,255,0.80));
-      background: rgba(255,255,255,0.02);
-      border: 1px dashed rgba(255,255,255,0.08);
+      background: var(--wh-white-02, rgba(255,255,255,0.02));
+      border: 1px dashed var(--wh-white-08, rgba(255,255,255,0.08));
       border-radius: 0.75rem; font-size: 0.85rem;
     }
     .ar-spinner {
@@ -714,7 +714,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                onto two lines (the same class report-sender's tabs were fixed for at 390, W41441). Fixed items make the strip
                scroll sideways as its own comment promises. -->
           <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); flex-shrink:0; white-space:nowrap;"><span data-i="artab1">Analytics report</span></span>
-          <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08); flex-shrink:0; white-space:nowrap;"><span data-i="artab2">Send / schedule &rarr;</span></a>
+          <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:var(--wh-white-04, rgba(255,255,255,0.04)); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); flex-shrink:0; white-space:nowrap;"><span data-i="artab2">Send / schedule &rarr;</span></a>
         </div>
       </div>
       <span class="ar-badge">BETA</span>
@@ -789,7 +789,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="source-line-1">

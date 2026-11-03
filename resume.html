@@ -94,14 +94,14 @@
 
     /* ── Toast ── */
     #toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-90px);
-      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem;
+      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 0.75rem;
       padding: 0.75rem 1.25rem; font-size: 0.75rem; color: #fff; z-index: 9999; transition: transform 0.25s ease-out;
       display: flex; align-items: center; gap: 0.5rem; max-width: 340px; }
     #toast.show { transform: translateX(-50%) translateY(0); }
 
     /* ── Cards ── */
     .card { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 1rem; padding: 1rem 1.25rem; margin-bottom: 1rem; }
     .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
     .sec-title { font-size: 0.95rem; font-weight: 700; color: #fff; }
     /* --wh-steel-bright, not --wh-steel, on every one of this page-s muted labels. tokens.css
@@ -131,8 +131,8 @@
     .btn:active { transform: scale(0.97); }
     .btn-primary { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); }
     .btn-primary:active { opacity: 0.85; }
-    .btn-ghost { background: rgba(255,255,255,0.05); color: var(--wh-cloud); border-color: rgba(255,255,255,0.12); }
-    .btn-ghost:active { background: rgba(255,255,255,0.1); }
+    .btn-ghost { background: var(--wh-white-05, rgba(255,255,255,0.05)); color: var(--wh-cloud); border-color: var(--wh-white-12, rgba(255,255,255,0.12)); }
+    .btn-ghost:active { background: var(--wh-white-10, rgba(255,255,255,0.1)); }
     .btn-sm { min-height: 36px; padding: 0.35rem 0.7rem; font-size: 0.75rem; }
     /* Export/preview dialog is the most-used surface: hold the 44px platform tap floor. */
     .preview-bar .btn-sm { min-height: 44px; }
@@ -178,7 +178,7 @@
    word shapes that make a label scannable, and 0.05em tracking spreads them further; the    detector reads the result as body text shouting. Sentence case, same size, same weight. */
     .field label { display: block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.01em;
       color: var(--wh-steel-bright); margin-bottom: 0.25rem; }
-    .wh-input { width: 100%; padding: 0.5rem 0.75rem; border-radius:0.5rem; border: 1px solid rgba(255,255,255,0.12);
+    .wh-input { width: 100%; padding: 0.5rem 0.75rem; border-radius:0.5rem; border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.55); color: var(--wh-cloud); font-size: 1rem; font-family: inherit; line-height: 1.4; }
     .wh-input:focus { outline: none; border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.6); }
     .field-hint { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.25rem; line-height: 1.4; }
@@ -188,7 +188,7 @@
     .field-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
 
     /* ── Item card (one repeatable entry) ── */
-    .item { background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4); border: 1px solid rgba(255,255,255,0.06); border-radius:0.75rem;
+    .item { background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4); border: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:0.75rem;
       padding: 0.85rem 0.9rem; margin-bottom: 0.7rem; }
     .item-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.55rem; }
 
@@ -202,7 +202,7 @@
     .jd-score-head { display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem; }
     .jd-score-pct { font-size: 1.5rem; font-weight: 800; line-height: 1; }
     .jd-score-sub { font-size: 0.75rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); }
-    .jd-bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; margin-bottom: 0.6rem; }
+    .jd-bar { height: 8px; border-radius: 999px; background: var(--wh-white-08, rgba(255,255,255,0.08)); overflow: hidden; margin-bottom: 0.6rem; }
         /* ★400ms ON A LAYOUT PROPERTY WITH AN EASE-IN CURVE - the same three-in-one this wave found on
        ph-intelligence's MTBF bar. `ease` is ease-IN-out so the bar starts slowly; 400ms is past the
        300ms ceiling for interface motion; and `width` reflows its row on every frame. Unlike that
@@ -251,7 +251,7 @@
     .empty-prompt p { font-size: 0.875rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom: 1rem; line-height: 1.5; }
 
     /* ── Bottom sheet (checklist review) ── */
-    .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; display: none; }
+    .sheet-overlay { position: fixed; inset: 0; background: var(--wh-black-60, rgba(0,0,0,0.6)); z-index: 1000; display: none; }
     .sheet-overlay.open { display: block; }
     .sheet-panel { position: fixed; left: 0; right: 0; bottom: 0; z-index: 1001; background: var(--wh-navy);
       border-top-left-radius: 16px; border-top-right-radius: 16px; max-height: 85vh; overflow-y: auto;
@@ -280,10 +280,10 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
     }
-    .sheet-handle { width: 40px; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.2); margin: 0 auto 0.8rem; }
+    .sheet-handle { width: 40px; height: 4px; border-radius: 999px; background: var(--wh-white-20, rgba(255,255,255,0.2)); margin: 0 auto 0.8rem; }
     .sheet-group-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
       color: var(--wh-blue-light); margin: 1rem 0 0.5rem; }
-    .check-row { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .check-row { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid var(--wh-white-05, rgba(255,255,255,0.05)); }
     /* ★24px ON THE ONE CONTROL THAT DECIDES WHAT ENTERS SOMEONE'S CV. These are the review sheet's
        per-item checkboxes - the mechanism behind this page's own promise that nothing is added without
        confirmation - and they shipped at 24x24 on a phone-first surface, well under the 44px floor the
@@ -309,7 +309,7 @@
        obscured by the footer (WCAG 2.2 SC 2.5.8 target-size). */
     #review-body { padding-bottom: 3.25rem; }
     /* ── My Resumes manager ── */
-    .rm-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .rm-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0; border-bottom: 1px solid var(--wh-white-05, rgba(255,255,255,0.05)); }
     .rm-row-main { flex: 1; min-width: 0; }
     .rm-row-title { font-size: 0.875rem; font-weight: 600; color: #fff; overflow-wrap: break-word; }
     .rm-row-sub { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.1rem; }
@@ -322,10 +322,10 @@
     .preview-overlay { position: fixed; inset: 0; background: #0b1018; z-index: 1100; display: none; flex-direction: column; }
     .preview-overlay.open { display: flex; }
     .preview-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between;
-      padding: 0.6rem 0.8rem calc(0.6rem + env(safe-area-inset-top)); background: var(--wh-navy); border-bottom: 1px solid rgba(255,255,255,0.08); }
+      padding: 0.6rem 0.8rem calc(0.6rem + env(safe-area-inset-top)); background: var(--wh-navy); border-bottom: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); }
     .pv-templates { display: flex; gap: 0.4rem; }
     .pv-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-    .pv-tpl { background: rgba(255,255,255,0.06); color: var(--wh-steel-bright, #CFD7E0); border: 1px solid rgba(255,255,255,0.12); }
+    .pv-tpl { background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--wh-steel-bright, #CFD7E0); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); }
     .pv-tpl.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--wh-orange-light); border-color: var(--wh-orange); }
     .preview-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)); }
     #resume-paper { box-shadow: 0 8px 40px rgba(0,0,0,0.5); border-radius: 8px; }
@@ -429,7 +429,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     <div id="sections" style="min-height:480px"></div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="source-line-1">

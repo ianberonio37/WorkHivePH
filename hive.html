@@ -74,14 +74,14 @@
        section down the scroll — same radius/border/padding — so the page stops mixing bordered cards,
        bare labels + bare disclosures (Gestalt similarity). Semantic bg tints (team-stock severity,
        adoption) are allowed to override the neutral bg; STRUCTURE is what unifies. */
-    .board-card { background: var(--wh-surface-card, rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding:16px; }
+    .board-card { background: var(--wh-surface-card, rgba(255,255,255,0.03)); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 12px; padding:16px; }
     /* disclosures become cards too: the summary is the card header, the body its content. */
-    #view-board > details.wh-disclose { background: var(--wh-surface-card, rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding:16px; }
+    #view-board > details.wh-disclose { background: var(--wh-surface-card, rgba(255,255,255,0.03)); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 12px; padding:16px; }
     #view-board > details.wh-disclose > summary { margin: 0; }
     /* R3: the 2-col dashboard row (coach + Open-WO/Team-Members) also gets the card treatment so it
        stops being the one bare block in the upper board. Its inner stat tiles read as tiles-in-a-card
        (same pattern as the hero's 3 action tiles). */
-    #view-board > #ss-dash { background: var(--wh-surface-card, rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding:16px; }
+    #view-board > #ss-dash { background: var(--wh-surface-card, rgba(255,255,255,0.03)); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 12px; padding:16px; }
     /* The verdict box starts .empty (one line "Computing…") then fills to the
        two-line label+sub — reserve the settled two-line height. */
     #supervisor-summary #ss-verdict { min-height: 64px; }
@@ -155,14 +155,14 @@
 
     .wh-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.8));
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       border-radius: 1rem;
     }
 
     .wh-input {
       width: 100%;
-      background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: var(--wh-white-07, rgba(255,255,255,0.07));
+      border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       border-radius: 0.75rem;
       padding: 0.75rem 1rem;
       color: white;
@@ -204,7 +204,7 @@
       padding: 0.75rem 1.5rem;
       width: 100%;
       font-size: 0.875rem;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
       transition: border-color 0.2s, color 0.2s;
       cursor: pointer;
     }
@@ -263,7 +263,7 @@
        ramp would have restyled a piece of paper to match a dark dashboard, which is the same category
        error as reading @media print colours against screen contrast. */
     .hive-menu-item { width:100%; text-align:left; background:none; border:none; border-radius:8px; padding:0.5rem 0.75rem; font-family:inherit; font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.82); cursor:pointer; min-height:44px; text-decoration:none; box-sizing:border-box; }
-    .hive-menu-item:hover { background:rgba(255,255,255,0.06); color:#fff; }
+    .hive-menu-item:hover { background:var(--wh-white-06, rgba(255,255,255,0.06)); color:#fff; }
     .hive-menu-danger { color:var(--wh-red-text); }
     .hive-menu-danger:hover { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); color:var(--wh-red-text); }
 
@@ -283,8 +283,8 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--wh-white-06, rgba(255,255,255,0.06));
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 999px;
       padding: 6px 12px;
       font-size: 0.75rem;
@@ -302,17 +302,17 @@
        8px dot just smears it on an OLED phone in a dim bay. Both dots keep their colour and lose the
        bloom. */
     .presence-dot.online { background: var(--wh-green); }
-    .presence-dot.offline { background: rgba(255,255,255,0.2); }
+    .presence-dot.offline { background: var(--wh-white-20, rgba(255,255,255,0.2)); }
 
     .feed-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 12px;
       padding: 1rem;
       transition: border-color 0.2s;
       border-left-width: 3px;
     }
-    .feed-card:hover { border-color: rgba(255,255,255,0.15); }
+    .feed-card:hover { border-color: var(--wh-white-15, rgba(255,255,255,0.15)); }
     .feed-card.new-entry { animation: slideIn 0.3s ease; }
     .feed-log-open   { border-left-color: var(--wh-red); }
     .feed-log-closed { border-left-color: var(--wh-green); }
@@ -340,7 +340,7 @@
       text-align: center;
       flex: 1;
     }
-    .welcome-stat + .welcome-stat { border-left: 1px solid rgba(255,255,255,0.10); }
+    .welcome-stat + .welcome-stat { border-left: 1px solid var(--wh-white-10, rgba(255,255,255,0.10)); }
 
     /* status tints are the tokens' channels (critique W45922, 2026-10-13): the board tinted danger and success with
        Tailwind's red-500 and green-500 (239,68,68 / 34,197,94) beside token text - 12 off-token reads in the activity
@@ -404,10 +404,10 @@
     #handover-sheet .sheet-inner {
       background: linear-gradient(160deg, var(--wh-navy-mid), var(--wh-navy));
       border-radius: 16px 16px 0 0;
-      border: 1px solid rgba(255,255,255,0.08); border-bottom: none;
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-bottom: none;
       max-height: 85vh; overflow-y: auto; width: 100%;
     }
-    .ho-section { border-bottom: 1px solid rgba(255,255,255,0.06); padding: 1rem 1.25rem; }
+    .ho-section { border-bottom: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); padding: 1rem 1.25rem; }
     .ho-section:last-child { border-bottom: none; }
     /* ALL-CAPS IS FOR CHIPS, NOT PHRASES (2026-09-16): every .ho-label instance is a multi-word phrase in
        the shift-handover report - "Handover to (incoming technician)" is 33 characters - and caps plus
@@ -415,7 +415,7 @@
        their caps, because .status-badge renders PM DONE and .supervisor-tag renders Supervisor. */
     .ho-label { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.03em; margin-bottom: 0.5rem; }
     .ho-item { font-size: 0.75rem; color:rgba(255,255,255,0.83); padding: 4px 0; display: flex; align-items: baseline; gap: 6px; }
-    .ho-input { width: 100%; min-height: 44px; padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); font-size: 0.75rem; font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.5rem; }
+    .ho-input { width: 100%; min-height: 44px; padding: 0.5rem 0.75rem; border-radius: 8px; background: var(--wh-white-07, rgba(255,255,255,0.07)); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color: rgba(255,255,255,0.85); font-size: 0.75rem; font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.5rem; }
     .ho-input::placeholder { color: var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .ho-input:focus { border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.4); background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); }
     /* SL LB3: the roster draws through whRenderRows as a long list - its rows keep the column and spacing they had as
@@ -451,7 +451,7 @@
 <div class="aurora-bg"></div>
 
 <!-- ── NAV ── -->
-<nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.92); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
+<nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.92); border-bottom:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
   <div class="max-w-2xl mx-auto px-5 h-14 flex items-center justify-between">
     <a href="index.html" data-wh-back aria-label="WorkHive home" class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm min-h-[44px]">
       <span class="ic ic-back" aria-hidden="true"></span>
@@ -466,7 +466,7 @@
           <span id="notif-badge" class="hidden" style="position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--wh-red); border:2px solid var(--wh-navy, rgba(22,32,50,1));"></span>
         </button>
         <!-- Dropdown panel -->
-        <div id="notif-panel" class="hidden" style="position:absolute; top:calc(100% + 4px); right:0; width:300px; background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.98); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); backdrop-filter:blur(12px); z-index:100; overflow:hidden;">
+        <div id="notif-panel" class="hidden" style="position:absolute; top:calc(100% + 4px); right:0; width:300px; background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.98); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius:1rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); backdrop-filter:blur(12px); z-index:100; overflow:hidden;">
           <div class="px-4 pt-3 pb-2 border-b border-white/[0.07] flex items-center justify-between">
             <p data-i="p_notifications_753a" class="text-xs font-bold text-white/85">Notifications</p>
             <button id="notif-mark-read" style="background:none;border:none;cursor:pointer;font-size: 0.75rem;font-weight:600;color:var(--wh-text-muted, rgba(255,255,255,0.80));" data-i="markallread">Mark all read</button>
@@ -738,7 +738,7 @@
             <span aria-hidden="true" style="font-size:1.125rem; line-height:0.6; letter-spacing:1px;">&#8943;</span> <span data-i="more">More</span>
           </button>
           <div id="hive-menu" role="menu" aria-label="Hive actions" class="hidden"
-               style="position:absolute; right:0; top:calc(100% + 6px); min-width:210px; background:var(--wh-elev-2); border:1px solid rgba(255,255,255,0.12); border-radius:12px; padding:6px; z-index:var(--wh-z-overlay); box-shadow:var(--wh-shadow-3);">
+               style="position:absolute; right:0; top:calc(100% + 6px); min-width:210px; background:var(--wh-elev-2); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius:12px; padding:6px; z-index:var(--wh-z-overlay); box-shadow:var(--wh-shadow-3);">
             <button id="btn-show-code" role="menuitem" class="hive-menu-item hidden" data-i="showinvitecode">Show Invite Code</button>
             <!-- H11 (hive deepwalk 2026-07-27): renaming was the one hive-identity capability with no
                  control anywhere, so a hive misnamed at creation stayed misnamed for every member.
@@ -1030,7 +1030,7 @@
       <!-- ── Maturity Stairway (Phase 0.2 of STRATEGIC_ROADMAP) ──────────────
            Readiness score: current stair + composite + dimension scores + the
            honest blocker for the next stair. Updates live via supabase_realtime. -->
-      <div id="maturity-stairway-card" class="mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid rgba(255,255,255,0.08);">
+      <div id="maturity-stairway-card" class="mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
         <div style="padding:16px 8px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:10px;">
@@ -1038,7 +1038,7 @@
               <span id="stair-composite" style="font-size:1.5rem; font-weight:800; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
               <span style="font-size: 12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); letter-spacing:0.04em;" data-i="readyscale">/100 readiness &middot; higher is better</span>
             </div>
-            <button id="stair-explain-btn" type="button" style="background:rgba(255,255,255,0.04); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding: 12px 16px; font-family:inherit; font-size: 12px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
+            <button id="stair-explain-btn" type="button" style="background:var(--wh-white-04, rgba(255,255,255,0.04)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:8px; padding: 12px 16px; font-family:inherit; font-size: 12px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
           </div>
           <p data-i="p_computingyourhivesreadiness_aa15" id="stair-blocker" style="font-size: 12px; color:rgba(255,255,255,0.83); margin-top:6px; line-height:1.45;">Computing your hive's readiness...</p>
         </div>
@@ -1080,7 +1080,7 @@
           </div>
         </div>
         <!-- Evidence drawer (hidden by default) -->
-        <div id="stair-evidence" style="display:none; padding: 12px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size: 12px; color:rgba(255,255,255,0.83); line-height:1.55;"></div>
+        <div id="stair-evidence" style="display:none; padding: 12px 16px 16px; border-top:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); background:rgba(0,0,0,0.18); font-size: 12px; color:rgba(255,255,255,0.83); line-height:1.55;"></div>
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
@@ -1162,32 +1162,32 @@
            back to hives.intent and dismisses. Hidden by default.
            ───────────────────────────────────────────────────────────────── -->
       <div id="intent-capture" role="dialog" aria-modal="true" aria-label="What should WorkHive focus on for your hive?" style="position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; background:rgba(11,15,26,0.78); backdrop-filter:blur(4px); padding:1rem; font-family:'Poppins',system-ui,sans-serif;">
-        <div style="background:var(--wh-navy); border:1px solid rgba(255,255,255,0.12); border-radius:1rem; padding:1.5rem 1.25rem; max-width:420px; width:100%; box-shadow:0 14px 44px rgba(0,0,0,0.55); color:var(--wh-cloud);">
+        <div style="background:var(--wh-navy); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius:1rem; padding:1.5rem 1.25rem; max-width:420px; width:100%; box-shadow:0 14px 44px var(--wh-black-55, rgba(0,0,0,0.55)); color:var(--wh-cloud);">
           <h2 style="margin:0 0 0.5rem; font-size:1.125rem; font-weight:800; letter-spacing:0.02em;" data-i="intent_q">What should WorkHive focus on for your hive?</h2>
           <p data-i="p_picktheonegoalthatmattersmos_38cb" style="margin:0 0 1rem; font-size:0.875rem; color:rgba(255,255,255,0.83); line-height:1.5;">Pick the one goal that matters most right now. WorkHive will put the right tools front and centre for your hive. You can change this anytime.</p>
           <div role="radiogroup" style="display:grid; gap:0.4rem; margin-bottom:0.8rem;">
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="predictive" style="accent-color:var(--wh-orange);"> <span data-i="intent_pred">Predictive maintenance: stop failures before they happen</span>
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="downtime" style="accent-color:var(--wh-orange);"> <span data-i="intent_down">Reduce downtime: get production running faster</span>
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="training" style="accent-color:var(--wh-orange);"> <span data-i="intent_train">Train workers: skill matrix + knowledge capture</span>
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="compliance" style="accent-color:var(--wh-orange);"> <span data-i="intent_comp">Compliance: PSME, DOLE, ISO 14224 evidence</span>
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="cmms_replace" style="accent-color:var(--wh-orange);"> <span data-i="intent_repl">Replace our spreadsheets / CMMS</span>
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
               <input type="radio" name="intent-primary" value="other" style="accent-color:var(--wh-orange);"> <span data-i="intent_other">Something else</span>
             </label>
           </div>
           <div style="display:flex; gap:0.5rem;">
             <button id="intent-save" type="button" style="flex:1; padding:0.7rem; border-radius:0.75rem; font-weight:700; font-size:0.75rem; color:var(--wh-navy); background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); border:0; cursor:pointer; min-height:44px;" data-i="intent_save">Save</button>
-            <button id="intent-skip" type="button" data-wh-close style="padding:0.7rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); cursor:pointer; min-height:44px;" data-i="intent_later">Later</button>
+            <button id="intent-skip" type="button" data-wh-close style="padding:0.7rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); background:var(--wh-white-05, rgba(255,255,255,0.05)); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); cursor:pointer; min-height:44px;" data-i="intent_later">Later</button>
           </div>
         </div>
       </div>
@@ -1205,7 +1205,7 @@
            workers + champion candidate. Updates live via supabase_realtime
            on hive_adoption_score. Hidden when HIVE_ROLE !== 'supervisor'.
            ───────────────────────────────────────────────────────────────── -->
-      <div id="adoption-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(58,42,88,0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid rgba(255,255,255,0.08);">
+      <div id="adoption-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(58,42,88,0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
         <div style="padding:16px 8px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:10px;">
@@ -1213,7 +1213,7 @@
               <span id="adoption-risk-score" style="font-size:1.5rem; font-weight:800; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
               <span style="font-size: 12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); letter-spacing:0.04em;" data-i="adoption_scale">/100 composite risk &middot; lower is better</span>
             </div>
-            <button id="adoption-explain-btn" type="button" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.82); border:1px solid rgba(255,255,255,0.16); border-radius:8px; padding: 12px 16px; font-family:inherit; font-size: 12px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
+            <button id="adoption-explain-btn" type="button" style="background:var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(255,255,255,0.82); border:1px solid rgba(255,255,255,0.16); border-radius:8px; padding: 12px 16px; font-family:inherit; font-size: 12px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
           </div>
           <!-- E1: risk as length (0-100), colored by tier, so severity is preattentive, not a bare number.
                The bar grows + reddens as risk rises (short green = low risk / good). -->
@@ -1226,7 +1226,7 @@
           <p data-i="p_basedontheworkhiveadoptionri_3074" style="font-size: 12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:6px 0 0; line-height:1.4;">Based on the WorkHive Adoption Risk model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 -->
         </div>
         <!-- Reasons + dropping workers drawer -->
-        <div id="adoption-detail" style="display:none; padding: 12px 16px 16px; border-top:1px solid rgba(255,255,255,0.06); background:rgba(0,0,0,0.18); font-size: 12px; color:rgba(255,255,255,0.83); line-height:1.55;"></div>
+        <div id="adoption-detail" style="display:none; padding: 12px 16px 16px; border-top:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); background:rgba(0,0,0,0.18); font-size: 12px; color:rgba(255,255,255,0.83); line-height:1.55;"></div>
       </div>
 
       <style>
@@ -1238,7 +1238,7 @@
            dimension name; letting the word break is the durable answer, and these are uppercase labels
            where a mid-word break reads acceptably. */
         .stair-dim-label { font-size: 12px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:var(--wh-text-faint, rgba(255,255,255,0.86)); margin:0 0 4px; overflow-wrap:anywhere; }
-        .stair-dim-track { width:100%; height:5px; background:rgba(255,255,255,0.06); border-radius:999px; overflow:hidden; }
+        .stair-dim-track { width:100%; height:5px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:999px; overflow:hidden; }
         /* ★SIX BARS ANIMATED `width` FOR 450ms ON AN EASE-IN-OUT (2026-09-19, W45920 motion lens). Three
            faults in one declaration and none of them visible as a wrong value: width is a LAYOUT
            property, so every frame reflowed the row on a page of 151 cards; 450ms is half again the
@@ -1270,10 +1270,10 @@
            (AA text = --wh-red-text)" and this is TEXT - the warning glyph measured Lc 47.0 vs a floor
            of 60 at 21px. The AA-safe variant already exists; using it is the C2 rule, not a new colour. */
         .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
-        .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+        .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
         .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
         .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px; }
-        .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px; }
+        .simple-card { background:var(--wh-navy); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:12px; padding:16px; }
         .simple-card .sc-label { font-size: 0.75rem; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-transform:uppercase; letter-spacing:0.04em; }
         .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
         .simple-card .sc-sub   { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.4; }
@@ -1281,7 +1281,7 @@
         .simple-card.tag-green .sc-tag { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.16);  color:var(--wh-green); }
         .simple-card.tag-amber .sc-tag { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.16);  color:var(--wh-orange-text); }
         .simple-card.tag-red   .sc-tag { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color:var(--wh-red-text); }
-        .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+        .simple-card.tag-grey  .sc-tag { background:var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
         .action-card { background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); border-radius:12px; padding:16px; margin-bottom:16px; }
         /* ★A FIVE-WORD KICKER IN ALL CAPS ABOVE A HEADING, which is two of DESIGN.md's don'ts in one
            rule. .ac-label carries "What to do next" and "Earn as a service company" - the second is
@@ -1308,8 +1308,8 @@
           background: transparent; border: 1px solid var(--wh-orange);
           color: var(--wh-orange-text, var(--wh-orange)); font-weight: 700; font-size: 0.75rem;
         }
-        .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size: 0.75rem; font-weight:600; cursor:pointer; min-height:44px; }
-        .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
+        .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size: 0.75rem; font-weight:600; cursor:pointer; min-height:44px; }
+        .details-toggle:hover { color:var(--wh-cloud); border-color:var(--wh-white-18, rgba(255,255,255,0.18)); }
 
         /* ── v4 UFAI hero (2026-07-14, Ian-approved) — greeting headline + 3 action tiles.
              Reuses the file's established semantic colors (red var(--wh-red) / orange --wh-orange /
@@ -1399,7 +1399,7 @@
            44px control genuinely is the fixed part of this row, which is true regardless.
            The probe needs a sixth exclusion for a negative-margin offset, not this page needs a change. */
         .ss-tile .ss-tile-top .ss-snooze { flex: 0 0 auto; }
-        .ss-tile .ss-tile-cap { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; font-size:1.125rem; background:rgba(255,255,255,0.06); }   /* S1: 10px→12px (declared radius scale 8/12/16) */
+        .ss-tile .ss-tile-cap { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; font-size:1.125rem; background:var(--wh-white-06, rgba(255,255,255,0.06)); }   /* S1: 10px→12px (declared radius scale 8/12/16) */
         .ss-tile .sc-hero { font-size:1.5rem; font-weight:800; line-height:1.05; margin:8px 0 0; font-variant-numeric:tabular-nums; color:var(--wh-cloud); }
         .ss-tile .ss-tile-label { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.82); margin-top:2px; }
         .ss-tile .ss-tile-cta { font-size: 0.75rem; font-weight:700; margin-top:auto; padding-top:12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
@@ -1411,7 +1411,7 @@
            documented passing band for muted white, and the C2 contrast pass raised hive's own "Based on"
            caption 0.42 -> 0.56 for exactly this reason. */
         .ss-snooze { margin:-6px -6px -6px auto; color:rgba(255,255,255,0.72); font-size:1.125rem; font-weight:800; letter-spacing:1px; line-height:0.4; border-radius:8px; cursor:pointer; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; }
-        .ss-snooze:hover { color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.06); }
+        .ss-snooze:hover { color:rgba(255,255,255,0.85); background:var(--wh-white-06, rgba(255,255,255,0.06)); }
         .ss-snooze:focus-visible { outline:2px solid var(--wh-orange); outline-offset:1px; }
         /* ★C16 (wave-4 narrow-320 walk, 2026-09-14): at 320 the tiles stack in one column and a tile's snooze
            (the top-right ⋯, 44x44) can land exactly in the band the shared hub FAB owns (bottom-right, 56x56 at
@@ -1434,7 +1434,7 @@
         @media (prefers-reduced-motion: reduce){ .ss-tile{ transition:none; } .ss-tile:hover{ transform:none; } }
 
         /* v4 readiness goal-gradient glance — length bar (NOT a gauge, E1), links to full detail. */
-        .ss-readiness { display:block; margin-top:12px; padding:12px 16px; background:var(--wh-surface-card, rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.07); border-radius:12px; cursor:pointer; }
+        .ss-readiness { display:block; margin-top:12px; padding:12px 16px; background:var(--wh-surface-card, rgba(255,255,255,0.03)); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:12px; cursor:pointer; }
         .ss-readiness:hover { border-color:rgba(255,255,255,0.16); }
         .ss-rd-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
         .ss-rd-title { font-size: 0.75rem; font-weight:700; letter-spacing:normal; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
@@ -1442,7 +1442,7 @@
         .ss-rd-score b { font-size:1.5rem; font-weight:800; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
         .ss-rd-stair { font-size: 0.75rem; font-weight:600; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
         .ss-rd-cta { margin-left:auto; font-size: 0.75rem; font-weight:700; color:var(--wh-orange-text); }
-        .ss-rd-track { height:7px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden; margin:8px 0 8px; }
+        .ss-rd-track { height:7px; border-radius:999px; background:var(--wh-white-08, rgba(255,255,255,0.08)); overflow:hidden; margin:8px 0 8px; }
         /* ★THE CLIP-PATH THIS NOTE ASKED FOR (critique W45922, 2026-10-13). It kept `width` because scaling a gradient
            squeezes the whole orange-to-green ramp into the filled part - but `width` does exactly that too, since the
            gradient spans the element's own box: measured at 40/100 the bar already ended in full green. A FULL-WIDTH
@@ -1459,7 +1459,7 @@
         .ss-dash > div { min-width:0; }
         .ss-dash .ss-dash-r > * { margin-bottom:16px; }
         @media (max-width:640px){ .ss-dash { grid-template-columns:1fr; gap:0; } }
-        #supervisor-summary-details { display:none; margin-top:12px; margin-bottom:16px; padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); }
+        #supervisor-summary-details { display:none; margin-top:12px; margin-bottom:16px; padding:16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); }
         #supervisor-summary-details.open { display:block; }
       </style>
 
@@ -1786,21 +1786,21 @@
       <!-- Handover bottom sheet -->
       <div id="handover-sheet" role="dialog" aria-modal="true" aria-label="Shift handover" class="hidden fixed inset-0 z-50 flex items-end" style="background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);">
         <div class="sheet-inner w-full max-w-lg mx-auto">
-          <div class="px-5 pt-5 pb-4 flex items-center justify-between" style="border-bottom:1px solid rgba(255,255,255,0.07);">
+          <div class="px-5 pt-5 pb-4 flex items-center justify-between" style="border-bottom:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
             <div>
               <p data-i="p_shifthandoverreport_c5a7" class="font-black text-white text-base" id="ho-title">Shift Handover Report</p>
               <p class="text-xs mt-0.5" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));" id="ho-meta"></p>
             </div>
             <!-- 44px effective target (dialog_layout floor): the sheet was unreachable until
                  2026-08-21, so its 32px close button had never been measured. -->
-            <button onclick="document.getElementById('handover-sheet').classList.add('hidden')" aria-label="Close handover sheet" class="rounded-full flex items-center justify-center" style="min-width:44px;min-height:44px;background:rgba(255,255,255,0.08);border:none;cursor:pointer;color:var(--wh-text-muted, rgba(255,255,255,0.80));">&#x2715;</button>
+            <button onclick="document.getElementById('handover-sheet').classList.add('hidden')" aria-label="Close handover sheet" class="rounded-full flex items-center justify-center" style="min-width:44px;min-height:44px;background:var(--wh-white-08, rgba(255,255,255,0.08));border:none;cursor:pointer;color:var(--wh-text-muted, rgba(255,255,255,0.80));">&#x2715;</button>
           </div>
           <div id="handover-body"></div>
-          <div class="p-4" style="border-top:1px solid rgba(255,255,255,0.07);">
+          <div class="p-4" style="border-top:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
             <label data-i="p_handovertoincomingtechnician_0cd0" class="ho-label" for="ho-handover-to">Handover to (incoming technician)</label>
             <input id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to&#8230; (incoming technician name)" />
             <div class="flex gap-3">
-              <button data-i="p_copy_7baa" onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.83);">&#128203; Copy</button>
+              <button data-i="p_copy_7baa" onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:var(--wh-white-07, rgba(255,255,255,0.07));border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));color:rgba(255,255,255,0.83);">&#128203; Copy</button>
               <button data-i="p_print_d218" onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12);border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3);color:var(--wh-blue-text);">&#128424; Print</button>
             </div>
           </div>
@@ -1856,7 +1856,7 @@
         </div>
         <div id="approval-body">
           <div id="approval-list" class="flex flex-col gap-2"></div>
-          <div id="approval-empty" class="hidden rounded-xl p-4 text-center" style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.06);">
+          <div id="approval-empty" class="hidden rounded-xl p-4 text-center" style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid var(--wh-white-06, rgba(255,255,255,0.06));">
             <p data-i="p_allcaughtupnopendingitems_52fb" class="text-xs text-white/80">All caught up: no pending items.</p>
           </div>
         </div>
@@ -1886,7 +1886,7 @@
         </div>
         <div id="audit-log-body" style="display:none;">
           <div id="audit-log-list" class="flex flex-col gap-2"></div>
-          <div id="audit-log-empty" class="hidden rounded-xl p-4 text-center" style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.06);">
+          <div id="audit-log-empty" class="hidden rounded-xl p-4 text-center" style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid var(--wh-white-06, rgba(255,255,255,0.06));">
             <p data-i="p_nosupervisoractionsrecordedy_8934" class="text-xs text-white/80">No supervisor actions recorded yet. Approvals and role changes land here.</p>
           </div>
         </div>
@@ -1902,7 +1902,7 @@
 
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" data-wh-source-key="board-data-sources" hidden style="margin:0;">
@@ -1944,10 +1944,10 @@
 </main>
 
 <!-- Toast notification -->
-<div id="hive-toast" class="hidden fixed bottom-6 left-1/2 z-50 px-4 py-3 rounded-xl text-sm font-semibold text-white shadow-xl" style="transform:translateX(-50%); background:rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border:1px solid rgba(255,255,255,0.12); max-width:calc(100vw - 2rem); text-align:center; pointer-events:none;" role="alert" aria-live="polite"></div>
+<div id="hive-toast" class="hidden fixed bottom-6 left-1/2 z-50 px-4 py-3 rounded-xl text-sm font-semibold text-white shadow-xl" style="transform:translateX(-50%); background:rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); max-width:calc(100vw - 2rem); text-align:center; pointer-events:none;" role="alert" aria-live="polite"></div>
 
 <!-- Hive switcher modal -->
-<div id="modal-hive-switch" role="dialog" aria-modal="true" aria-label="Switch hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
+<div id="modal-hive-switch" role="dialog" aria-modal="true" aria-label="Switch hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:var(--wh-black-60, rgba(0,0,0,0.6)); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
     <!-- ★THE DOOR BETWEEN TWO WORKPLACES, AND ONLY ITS EXIT WAS TRANSLATED (walked 2026-09-11, J26).
          Of the six strings a multi-hive Filipino person reads in this dialog, exactly one carried a
@@ -1965,7 +1965,7 @@
 </div>
 
 <!-- Supervisor leave modal -->
-<div id="modal-sup-leave" role="dialog" aria-modal="true" aria-label="Leave hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
+<div id="modal-sup-leave" role="dialog" aria-modal="true" aria-label="Leave hive" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:var(--wh-black-60, rgba(0,0,0,0.6)); backdrop-filter:blur(4px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="wh-card w-full max-w-lg p-6 mx-4 mb-6">
     <h3 data-i="p_handoversupervisorbeforeyoul_e6cd" class="text-lg font-black text-white mb-1">Hand over supervisor before you leave</h3>
     <p data-i="p_yourunthishivepicksomeonetot_b110" class="text-xs text-white/80 mb-5 leading-relaxed">You run this hive. Pick someone to take over first: without a supervisor, no one can manage the hive or remove members.</p>
@@ -2384,7 +2384,7 @@ function buildPMCard(record, isNew) {
         <div class="flex items-center gap-2 flex-wrap mb-1">
           <span class="text-xs font-bold text-white/80" data-worker-name="${workerName}">${workerName}</span>
           <span class="status-badge" style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12);color:var(--wh-orange-text);">PM Done</span>
-          ${freq ? `<span class="cat-badge" style="background:${freqCls[_cf(freq)] || 'rgba(255,255,255,0.06);color:var(--wh-text-muted, rgba(255,255,255,0.80))'};">${freqMap[_cf(freq)] || freq}</span>` : ''}
+          ${freq ? `<span class="cat-badge" style="background:${freqCls[_cf(freq)] || 'var(--wh-white-06, rgba(255,255,255,0.06));color:var(--wh-text-muted, rgba(255,255,255,0.80))'};">${freqMap[_cf(freq)] || freq}</span>` : ''}
           <span class="text-xs text-white/80 ml-auto">${time}</span>
         </div>
         <p class="text-sm font-semibold text-white/90 truncate">${assetName}</p>
@@ -4775,20 +4775,20 @@ async function loadKnowledgePipeline() {
     // E2/L1: an empty corpus reads as empty (neutral), never a red "0%" under an "up to date" headline.
     if (tot === 0) {
       return `
-      <div style="background:var(--wh-surface-card, rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:8px;">
+      <div style="background:var(--wh-surface-card, rgba(255,255,255,0.03)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:8px; padding:8px;">
         <div style="font-size: 0.75rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
         <div style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:2px;">${_t('Nothing logged yet', 'Wala pang naka-log')}</div>
       </div>`;
     }
     return `
-      <div style="background:var(--wh-surface-card, rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:8px;">
+      <div style="background:var(--wh-surface-card, rgba(255,255,255,0.03)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:8px; padding:8px;">
         <div style="font-size: 0.75rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
         <div style="display:flex; align-items:baseline; gap:4px;">
           <span style="font-size:1.125rem; font-weight:800; color:${color}; font-variant-numeric:tabular-nums;">${pct}%</span>
           <span style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));" data-i="kpipe_searchable">searchable</span>
         </div>
         <!-- E1: coverage as a length bar (preattentive), not a bare colored number. -->
-        <div style="height:4px; background:rgba(255,255,255,0.08); border-radius:999px; margin-top: 4px; overflow:hidden;"><div style="height:100%; width:${Math.max(0, Math.min(100, pct))}%; background:${color}; border-radius:999px;"></div></div>
+        <div style="height:4px; background:var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:999px; margin-top: 4px; overflow:hidden;"><div style="height:100%; width:${Math.max(0, Math.min(100, pct))}%; background:${color}; border-radius:999px;"></div></div>
         <div style="font-size: 0.75rem; color:rgba(255,255,255,0.72); margin-top:4px;">
           ${e(String(r.embedded_rows || 0))} / ${e(String(r.total_rows || 0))} ${_t('rows', 'rows')}
         </div>
@@ -5134,7 +5134,7 @@ async function renderRoster() {
     const workloadBadge = openJobs > 0
       ? `<span class="text-xs font-black px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(0,0,0,0.28);color:${workloadColor};">${openJobs}${_openJobsMore ? '+' : ''} ${_t('open','bukas')}${workloadWord}</span>`
       : `<span class="text-xs text-white/80 flex-shrink-0">${_t('no open jobs','walang bukas na trabaho')}</span>`;
-    return `<div class="flex items-center gap-3 p-3 rounded-xl" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); margin-bottom:0.5rem;">
+    return `<div class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); margin-bottom:0.5rem;">
       <div style="flex-shrink:0;padding-bottom:${(memberTiers[m.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(m.worker_name, memberTiers[m.worker_name] || 0, 32)}</div>
       <div class="flex-1 min-w-0">
         <p class="text-sm font-semibold text-white break-words">${escHtml(m.worker_name)}${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(m.worker_name) : '')}${isMe ? ` <span style="color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 0.75rem;">${_t('(you)','(ikaw)')}</span>` : ''}</p>
@@ -5527,7 +5527,7 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
       'position:fixed; inset:0; z-index:60; display:none; align-items:flex-end; ' +
       'justify-content:center; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px);';
     drawer.innerHTML =
-      '<div id="wh-wp-panel" style="background:var(--wh-navy); border-top:1px solid rgba(255,255,255,0.08); border-radius:16px 16px 0 0; width:100%; max-width:520px; max-height:80vh; overflow-y:auto; padding:20px 22px 28px;"></div>';
+      '<div id="wh-wp-panel" style="background:var(--wh-navy); border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:16px 16px 0 0; width:100%; max-width:520px; max-height:80vh; overflow-y:auto; padding:20px 22px 28px;"></div>';
     drawer.addEventListener('click', e => { if (e.target === drawer) drawer.style.display = 'none'; });
     document.body.appendChild(drawer);
   }
@@ -5597,11 +5597,11 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
           '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-blue); margin:0 0 2px;">Community XP</p>' +
           '<p style="font-size:0.875rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + xp + '</p>' +
         '</div>' +
-        '<div style="padding: 12px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px;">' +
+        '<div style="padding: 12px 12px; background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:12px;">' +
           '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 2px;">Role</p>' +
           '<p style="font-size:0.875rem; font-weight:700; color:var(--wh-cloud); margin:0; text-transform:capitalize;">' + escHtml(role) + '</p>' +
         '</div>' +
-        '<div style="padding: 12px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px;">' +
+        '<div style="padding: 12px 12px; background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:12px;">' +
           '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 2px;">Joined</p>' +
           '<p style="font-size:0.875rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + escHtml(joined) + '</p>' +
         '</div>' +
@@ -6716,7 +6716,7 @@ async function loadAuditLog() {
       ? new Date(row.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
       : '';
     return `
-    <div class="flex items-start gap-3 px-3 py-2.5 rounded-xl" style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.06);">
+    <div class="flex items-start gap-3 px-3 py-2.5 rounded-xl" style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid var(--wh-white-06, rgba(255,255,255,0.06));">
       <span class="text-sm font-black flex-shrink-0 mt-0.5" style="color:${_AUD_TONE[v.tone] || '#94a3b8'};width:16px;text-align:center;">${escHtml(v.icon)}</span>
       <div class="flex-1 min-w-0">
         <p class="text-xs font-semibold text-white/80">${escHtml(_t(v.label, FIL_ACTION[row.action]))}${targetHtml}${sub}</p>
@@ -6945,7 +6945,7 @@ async function loadPatternAlerts() {
           <div style="flex:1;">
             <div class="flex items-center gap-2 mb-1">
               <span class="text-xs font-black px-2 py-0.5 rounded-full" style="background:${color}22;color:${textColor};">${escHtml(sev)}</span>
-              <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.06);color:var(--wh-text-faint, rgba(255,255,255,0.86));">${escHtml(label)}</span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:var(--wh-white-06, rgba(255,255,255,0.06));color:var(--wh-text-faint, rgba(255,255,255,0.86));">${escHtml(label)}</span>
               <span class="text-xs text-white/85">${escHtml(a.machine)}</span>
               <span class="text-xs text-white/85">${dt}</span>
             </div>
@@ -7068,12 +7068,12 @@ async function loadBenchmarks() {
       const myPct  = Math.max(2, Math.min(100, (Number(h.mtbf_days) || 0) / sharedMax * 100));
       const avgPct = Math.max(0, Math.min(100, (Number(net.avg_mtbf_days) || 0) / sharedMax * 100));
 
-      html += '<div style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05);">'
+      html += '<div style="padding:8px 0; border-bottom:1px solid var(--wh-white-05, rgba(255,255,255,0.05));">'
         + '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom: 4px;">'
         + '<p style="font-size:0.875rem; font-weight:600; color:rgba(255,255,255,0.85);">' + escHtml(h.equipment_category) + '</p>'
         + '<p style="font-size:0.875rem; font-weight:800; color:' + color + '; font-variant-numeric:tabular-nums;">' + escHtml(myMTBF) + ' <span style="font-size: 0.75rem; font-weight:600;">' + label + '</span></p>'
         + '</div>'
-        + '<div style="position:relative; height:6px; background:rgba(255,255,255,0.06); border-radius:999px;">'
+        + '<div style="position:relative; height:6px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:999px;">'
         +   '<div style="position:absolute; left:0; top:0; height:100%; width:' + myPct.toFixed(1) + '%; background:' + color + '; border-radius:999px;"></div>'
         +   '<div title="Network average" style="position:absolute; left:' + avgPct.toFixed(1) + '%; top:-2px; width:2px; height:10px; background:rgba(255,255,255,0.85); border-radius:0;"></div>'
         + '</div>'
@@ -7499,7 +7499,7 @@ document.getElementById('btn-switch-hive').addEventListener('click', () => {
   const modal = document.getElementById('modal-hive-switch');
   document.getElementById('hive-switch-list').innerHTML = list.map(h => {
     const isActive = h.id === HIVE_ID;
-    return `<button onclick="switchToHive('${escJsAttr(h.id)}')" class="flex items-center gap-3 p-3 rounded-xl w-full text-left transition-all" style="background:${isActive ? 'rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25);' : 'rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);'}">
+    return `<button onclick="switchToHive('${escJsAttr(h.id)}')" class="flex items-center gap-3 p-3 rounded-xl w-full text-left transition-all" style="background:${isActive ? 'rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25);' : 'var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));'}">
       <div class="avatar-initial">${escHtml(h.name[0]?.toUpperCase() || '?')}</div>
       <div class="flex-1 min-w-0">
         <p class="text-sm font-bold text-white truncate">${escHtml(h.name)}</p>

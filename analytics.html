@@ -58,7 +58,7 @@
       padding: 8px 16px; border-radius: 999px; cursor: pointer;
       /* was `all 0.15s` - it animated layout properties too (design lens craft, 2026-09-15) */
       transition: background .15s ease, border-color .15s ease, color .15s ease, transform .12s var(--wh-ease-out);
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color:var(--wh-text-muted, rgba(255,255,255,0.80));
+      background: var(--wh-white-05, rgba(255,255,255,0.05)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); color:var(--wh-text-muted, rgba(255,255,255,0.80));
       min-height: 44px;
     }
     .period-btn.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); border-color: var(--wh-orange-text); color: var(--wh-orange-text); }
@@ -93,7 +93,7 @@
     /* NAVIGATE vocabulary (Ian, 2026-07-15): view-switchers are a CONNECTED TAB-BAR --
        joined siblings, 8px outer corners, no gap -- visually distinct from both the
        select pills (filters) and the action rects. rubric R3 third role. */
-    .phase-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; overflow-x: auto; border-radius: var(--wh-radius-sm); border: 1px solid rgba(255,255,255,0.1); width: fit-content; max-width: 100%; }
+    .phase-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; overflow-x: auto; border-radius: var(--wh-radius-sm); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); width: fit-content; max-width: 100%; }
     /* PJ18 — these four tabs ARE the page: What happened / Why it happened / What's coming / What
        to do. At 390px the strip measured scrollWidth 463 against clientWidth 333, which put "What
        to do" (Prescriptive) entirely off the right edge — the phase that tells a maintenance
@@ -126,8 +126,8 @@
       display: flex; flex-direction: column; gap: 0.5rem;
       padding: 12px;
       margin-bottom: 1rem;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.06);
+      background: var(--wh-white-02, rgba(255,255,255,0.02));
+      border: 1px solid var(--wh-white-06, rgba(255,255,255,0.06));
       border-radius: var(--wh-radius);
     }
     .filter-group { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
@@ -141,8 +141,8 @@
       min-height: 44px; min-width: 44px;   /* WCAG 2.5.8 / owner 44px tap rule */
       padding: 4px 12px;   /* 5.6px was the largest single source of this page's 160 off-grid paddings (x24, design lens craft 2026-09-15) */
       border-radius: 999px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--wh-white-04, rgba(255,255,255,0.04));
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       font-size: 0.8rem;
       font-weight: 600;
@@ -154,7 +154,7 @@
                            squish below their text width and OVERLAP (unreadable filters on a phone) */
     }
     .filter-chip:hover {
-      background: rgba(255,255,255,0.07);
+      background: var(--wh-white-07, rgba(255,255,255,0.07));
       color: #fff;
     }
     .filter-chip.active {
@@ -187,7 +187,7 @@
     .phase-tab {
       font-family: 'Poppins', sans-serif; font-size: 0.8rem; font-weight: 600;
       padding: 0.5rem 0.875rem; border-radius: 0; cursor: pointer; white-space: nowrap;
-      background: rgba(255,255,255,0.04); border: none; border-right: 1px solid rgba(255,255,255,0.08); color:var(--wh-text-muted, rgba(255,255,255,0.80));
+      background: var(--wh-white-04, rgba(255,255,255,0.04)); border: none; border-right: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); color:var(--wh-text-muted, rgba(255,255,255,0.80));
       /* was `all 0.15s`: it animates layout properties too (design lens motion, 2026-09-15) */
       transition: background .15s ease, border-color .15s ease, color .15s ease, transform .12s var(--wh-ease-out);
       min-height: 44px;
@@ -204,7 +204,7 @@
     /* ── Cards ── */
     .card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; padding: 1.25rem;
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 1rem; padding: 1.25rem;
       margin-bottom: 1rem;
     }
     .card-title { font-size: 0.8rem; font-weight: 600; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; } /* arc U5: WCAG AA 4.5:1 over dark bg */
@@ -212,7 +212,7 @@
 
     /* ── Tables ── */
     .data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-    .data-table th { text-align: left; color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-weight: 600; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.75rem; }    .data-table td { padding: 0.5rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.04); color:var(--wh-text-faint, rgba(255,255,255,0.86)); }
+    .data-table th { text-align: left; color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-weight: 600; padding: 8px; border-bottom: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); font-size: 0.75rem; }    .data-table td { padding: 0.5rem 0.5rem; border-bottom: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); color:var(--wh-text-faint, rgba(255,255,255,0.86)); }
     .data-table tr:last-child td { border-bottom: none; }
     .data-table .machine-name { font-weight: 600; color: #fff; }
     /* ★THE WHOLE NUMERIC COLUMN WAS BOLD (design lens craft, 2026-09-15). This one rule rendered 130
@@ -266,8 +266,8 @@
       padding: 8px 12px;
       /* 44px is the tap-target floor (F1) — gloved, one-handed field use. */
       min-height: 44px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--wh-white-04, rgba(255,255,255,0.04));
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.5rem;
       color: #fff;
       font-size: 16px;        /* exact 16px so iOS Safari does not auto-zoom on focus */
@@ -277,7 +277,7 @@
       -webkit-appearance: none;
     }
     .list-with-showall .list-search::placeholder { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }    .list-with-showall .list-search:focus {
-      background: rgba(255,255,255,0.06);
+      background: var(--wh-white-06, rgba(255,255,255,0.06));
       border-color: var(--wh-orange-text);
     }
     /* iOS Safari adds a clear button by default; keep it. */
@@ -285,13 +285,13 @@
 
     /* ── Stat tiles ── */
     .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
-    .stat-tile { background: rgba(255,255,255,0.04); border-radius: 0.75rem; padding: 0.875rem; border: 1px solid rgba(255,255,255,0.06); }
+    .stat-tile { background: var(--wh-white-04, rgba(255,255,255,0.04)); border-radius: 0.75rem; padding: 0.875rem; border: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); }
     .stat-tile .val { font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1; }
     .stat-tile .label { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 0.25rem; font-weight: 600; }
     /* ── Bar chart (CSS) ── */
     .bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
     .bar-label { font-size: 0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); width: 120px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .bar-track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
+    .bar-track { flex: 1; height: 8px; background: var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 999px; overflow: hidden; }
     .bar-fill { height: 100%; border-radius: 999px; background: var(--wh-blue); }   /* data is information: cyan, solid (K) */
     /* ★A 600 ms TRANSITION ON `width` THAT NEVER RUNS (design lens slop, 2026-09-15). The walk measured
        eight of these declaring a transition past the standards' 300 ms ceiling, on a LAYOUT property the
@@ -375,7 +375,7 @@
     .role-btn {
       font-family:inherit; font-size:0.8rem; font-weight:600;
       padding:4px 12px; border-radius:999px; cursor:pointer;   /* the .filter-chip padding: both are filter pills */
-      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
+      background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); min-height:44px;
       transition: background .15s ease, border-color .15s ease, color .15s ease, transform .12s var(--wh-ease-out);
     }
@@ -389,7 +389,7 @@
       border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.2);
     }
     .role-card-title { font-size:0.75rem; font-weight:600; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:12px; }
-    .role-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.75rem; }
+    .role-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--wh-white-05, rgba(255,255,255,0.05)); font-size:0.75rem; }
     .role-row:last-child { border-bottom:none; }
     .role-row .label { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }    .role-row .val { font-weight:600; }
 
@@ -425,13 +425,13 @@
     .repeat-badge { font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 999px; background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.15); color: var(--wh-red-text); border: 1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.25); }
 
     /* ── Compliance bar ── */
-    .compliance-track { height: 10px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; margin: 0.4rem 0; }
+    .compliance-track { height: 10px; background: var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 999px; overflow: hidden; margin: 0.4rem 0; }
     .compliance-fill { height: 100%; border-radius: 999px; }   /* the same inert 600ms width transition the KPI bars carried: the width is set inline at render */
 
     /* ── Toast ── */
     #toast {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px);
-      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.8rem;
       color: #fff; z-index: 9999; transition: transform 0.25s ease-out;
     }
@@ -449,11 +449,11 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:16px; margin-bottom:16px; }
     @media (max-width:420px) { .simple-row { grid-template-columns:1fr; } }   /* phone fit (2026-09-06): two 171px tiles wrapped 'PM compliance (90 days) · complete' into 3 lines; KPI tiles stack on a phone */
-    .simple-card { background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px; }
+    .simple-card { background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:12px; padding:16px; }
     /* ★PROSE RAN TO 92ch AT 1280 (design lens craft, 2026-09-15). The OEE explainer carries no class,
        so it inherited the card's full width and a reader lost the line start on every wrap. 70ch is the
        cap .role-ai-rec-text already uses for generated prose. */
@@ -477,7 +477,7 @@
     .simple-card.tag-green .sc-tag { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.16);  color:var(--wh-orange-light); }   /* the AA text token, as components.css and alert-hub (2026-10-13): the fill read 4.93:1 here, borderline */
     .simple-card.tag-red   .sc-tag { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color:var(--wh-red-text); }
-    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+    .simple-card.tag-grey  .sc-tag { background:var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* min-height reserves the height of the recommendation + its CTA, which are
        both filled in after the fetch resolves (I1/CLS). */
     .action-card { background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); border-radius:12px; padding:16px; margin-bottom:16px; min-height:168px; }
@@ -489,9 +489,9 @@
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
-    .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
-    #an-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
+    .details-toggle:hover { color:var(--wh-cloud); border-color:var(--wh-white-18, rgba(255,255,255,0.18)); }
+    #an-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #an-summary-details.open { display:block; }
 
     /* N1: EN/FIL toggle. 44px min on both axes -- F1 fails on the MIN dimension,
@@ -503,7 +503,7 @@
          job as .filter-chip / .period-btn / .role-btn, so it must wear their shape --
          it wore the 8px ACTION rect instead: same job, two shapes (rubric R3). */
       min-width:44px; min-height:44px; padding:0 8px; border-radius:var(--wh-radius-pill); cursor:pointer;
-      background:transparent; border:1px solid rgba(255,255,255,0.12);
+      background:transparent; border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-family:inherit; font-size:0.75rem; font-weight:800;
       letter-spacing:0.06em; transition:background 0.15s, color 0.15s, border-color 0.15s;
     }
@@ -787,7 +787,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div id="toast" role="alert" aria-live="polite"></div>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="an-summary-details">
@@ -2530,7 +2530,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const cards = d.by_discipline.map(disc => {
       const sig = disc.significant;
       const cls = sig && disc.correlation < -0.3 ? 'good' : sig ? 'warn' : '';
-      return `<div style="margin-bottom:0.875rem;padding-bottom:0.875rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+      return `<div style="margin-bottom:0.875rem;padding-bottom:0.875rem;border-bottom:1px solid var(--wh-white-05, rgba(255,255,255,0.05));">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
           <span style="font-size:0.8rem;font-weight:600;color:#fff;">${escHtml(disc.discipline)}</span>
           <span class="${cls}" style="font-size:0.8rem;font-weight:700;">r = ${disc.correlation} (${strength(disc.correlation)}) ${sig ? '✓' : ''}</span>
@@ -2673,7 +2673,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       searchable: true,
       renderRow: (s) => {
         const sColor = s.signal === 'CRITICAL' ? '#f87171' : s.signal === 'NEW_USAGE' ? '#29B6D9' : '#F7A21B';
-        return `<div style="padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+        return `<div style="padding:0.6rem 0;border-bottom:1px solid var(--wh-white-05, rgba(255,255,255,0.05));">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem;margin-bottom:0.2rem;">
             <span style="font-size:0.78rem;font-weight:600;color:#fff;">${escHtml(s.part_name)}</span>
             <span style="font-size:0.75rem;font-weight:700;color:${sColor};white-space:nowrap;flex-shrink:0;">
@@ -2803,10 +2803,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     const worstComps = worst.components || {};
     const compBreakdown = worstComps.pm_score !== undefined ? `
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
-        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:var(--wh-text-muted, rgba(255,255,255,0.80));">PM ${worstComps.pm_score}</span>
-        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:var(--wh-text-muted, rgba(255,255,255,0.80));">Fault ${worstComps.fault_score}</span>
-        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:var(--wh-text-muted, rgba(255,255,255,0.80));">Time ${worstComps.time_score}</span>
-        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:rgba(255,255,255,0.05);color:var(--wh-text-muted, rgba(255,255,255,0.80));">Repeat ${worstComps.repeat_score}</span>
+        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:var(--wh-white-05, rgba(255,255,255,0.05));color:var(--wh-text-muted, rgba(255,255,255,0.80));">PM ${worstComps.pm_score}</span>
+        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:var(--wh-white-05, rgba(255,255,255,0.05));color:var(--wh-text-muted, rgba(255,255,255,0.80));">Fault ${worstComps.fault_score}</span>
+        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:var(--wh-white-05, rgba(255,255,255,0.05));color:var(--wh-text-muted, rgba(255,255,255,0.80));">Time ${worstComps.time_score}</span>
+        <span style="font-size:0.75rem;padding:0.15rem 0.5rem;border-radius:999px;background:var(--wh-white-05, rgba(255,255,255,0.05));color:var(--wh-text-muted, rgba(255,255,255,0.80));">Repeat ${worstComps.repeat_score}</span>
       </div>` : '';
 
     return kpiCard({
@@ -2909,7 +2909,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
       const taskRows = tasks.map(t => {
         const tc = t.risk === 'OVERDUE' ? '#f87171' : t.risk === 'DUE SOON' ? '#F7A21B' : '#a78bfa';
-        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--wh-white-04, rgba(255,255,255,0.04));">
           <div style="flex:1;min-width:0;">
             <p style="font-size:0.8rem;color:var(--wh-text-faint, rgba(255,255,255,0.86));overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(t.task)}</p>
             <p style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-top:0.1rem;">${escHtml(t.frequency)} · Last: ${escHtml(t.last_done)}</p>
@@ -2918,7 +2918,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         </div>`;
       }).join('');
 
-      return `<div style="margin-bottom:0.5rem;border-radius:0.75rem;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
+      return `<div style="margin-bottom:0.5rem;border-radius:0.75rem;overflow:hidden;border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
         <button onclick="togglePMAsset('${escJsAttr(id)}')" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:var(--wh-surface-card, rgba(255,255,255,0.03));border:none;cursor:pointer;min-height:48px;-webkit-tap-highlight-color:transparent;">
           <div style="display:flex;align-items:center;gap:0.625rem;flex:1;min-width:0;">
             <span style="width:8px;height:8px;border-radius:50%;background:${assetColor};flex-shrink:0;"></span>
@@ -3144,7 +3144,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           ? ` · covers ${r.scope_items_count} PM task${r.scope_items_count === 1 ? '' : 's'}`
           : '';
         return `
-          <div style="margin-bottom:0.75rem;padding:0.75rem;border-radius:0.75rem;background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.06);">
+          <div style="margin-bottom:0.75rem;padding:0.75rem;border-radius:0.75rem;background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid var(--wh-white-06, rgba(255,255,255,0.06));">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">
               <span style="font-size:0.78rem;font-weight:600;color:#fff;">${escHtml(r.asset_name)}${codeBadge}</span>
               <span style="font-size:0.75rem;font-weight:700;color:${r.action.includes('ROOT CAUSE')?'var(--wh-red)':r.action.includes('INCREASE')?'var(--wh-red)':'var(--wh-orange)'};">${escHtml(r.action)}</span>

@@ -154,6 +154,25 @@ button.btn-secondary:disabled, button.btn-ghost:disabled { cursor: not-allowed; 
   --wh-print-ink:      #111111;
   --wh-print-rule:     #BBBBBB;
   --wh-paper-rule:     #E5E7EB;
+  /* The neutral overlay scale (OD-S, 2026-11-04): white at an alpha is how this dark platform draws its hairlines and
+     raised surfaces, and black at an alpha its shadows and scrims - 2,441 of them were typed by hand. These are the
+     steps the pages already use (measured: white .07 x483, .08 x448, .06 x203, .10 x116, .04 x96 ...; black .35 x128,
+     .55 x43), declared so the pages can name them. Text alphas (.60-.92) are NOT here: each sits on an APCA contrast
+     decision (--wh-text-muted / --wh-text-faint above), and folding them is a contrast call, not a token one. */
+  --wh-white-02: rgba(255, 255, 255, 0.02);
+  --wh-white-04: rgba(255, 255, 255, 0.04);
+  --wh-white-05: rgba(255, 255, 255, 0.05);
+  --wh-white-06: rgba(255, 255, 255, 0.06);
+  --wh-white-07: rgba(255, 255, 255, 0.07);
+  --wh-white-08: rgba(255, 255, 255, 0.08);
+  --wh-white-10: rgba(255, 255, 255, 0.10);
+  --wh-white-12: rgba(255, 255, 255, 0.12);
+  --wh-white-15: rgba(255, 255, 255, 0.15);
+  --wh-white-18: rgba(255, 255, 255, 0.18);
+  --wh-white-20: rgba(255, 255, 255, 0.20);
+  --wh-black-35: rgba(0, 0, 0, 0.35);
+  --wh-black-55: rgba(0, 0, 0, 0.55);
+  --wh-black-60: rgba(0, 0, 0, 0.60);
 }
 
 /* ── THE TEXT UTILITIES MUST USE THE -text HUES, NOT THE FILL HUES ─────────

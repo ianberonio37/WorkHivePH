@@ -50,7 +50,7 @@
       --blue-wh:   var(--wh-blue);
       --navy-wh:   var(--wh-navy);
       --muted:     var(--wh-text-muted, rgba(255,255,255,0.80));
-      --border:    rgba(255,255,255,0.10);
+      --border:    var(--wh-white-10, rgba(255,255,255,0.10));
       --card-bg:   linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7) 100%);
     }
     body {
@@ -107,11 +107,11 @@
     @media (prefers-reduced-motion: reduce) { .asset-deciding { transition: none; } }
     .back-btn {
       width: 44px; height: 44px; border-radius: 0.5rem; flex-shrink: 0;
-      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); border: 1px solid var(--border);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; color: var(--muted); text-decoration: none;
     }
-    .back-btn:hover { background: rgba(255,255,255,0.1); }
+    .back-btn:hover { background: var(--wh-white-10, rgba(255,255,255,0.1)); }
     .page-title { font-size: 1.05rem; font-weight: 700; margin: 0; }
     .page-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
 
@@ -135,7 +135,7 @@
     }
     .search-input {
       flex: 1; height: 44px; border-radius: 8px;
-      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      background: var(--wh-white-04, rgba(255,255,255,0.04)); border: 1px solid var(--border);
       color: var(--wh-cloud); padding: 0 0.85rem;
       font-size: 16px; /* iOS auto-zoom rule */
       font-family: inherit;
@@ -275,7 +275,7 @@
     /* External IDs */
     .ext-grid { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .ext-pill {
-      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); border: 1px solid var(--border);
       border-radius: 0.5rem; padding: 5px 10px;
       font-size: 0.8rem; color: var(--muted);
     }
@@ -340,18 +340,18 @@
     }
     .fmea-ap-h { border-color: rgba(239,87,87,0.55);  color:var(--wh-red-text);    background: rgba(239,87,87,0.10); }
     .fmea-ap-m { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); color:var(--wh-orange-text); background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); }
-    .fmea-ap-l { border-color: rgba(255,255,255,0.20);color: var(--muted);     background: var(--wh-surface-card, rgba(255,255,255,0.03)); }
+    .fmea-ap-l { border-color: var(--wh-white-20, rgba(255,255,255,0.20));color: var(--muted);     background: var(--wh-surface-card, rgba(255,255,255,0.03)); }
     .fmea-sod {
       display: inline-flex; gap: 4px; font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));
     }
     .fmea-sod span {
-      background: rgba(255,255,255,0.05); padding: 1px 6px; border-radius: 8px;
+      background: var(--wh-white-05, rgba(255,255,255,0.05)); padding: 1px 6px; border-radius: 8px;
     }
     .fmea-source-pill {
       display: inline-block; padding: 1px 7px; border-radius: 999px;
       font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
     }
-    .fmea-source-manual    { background: rgba(255,255,255,0.06); color: var(--muted); }
+    .fmea-source-manual    { background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--muted); }
     .fmea-source-ai        { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.18); color: var(--wh-violet-text, #C4B5FD); }
     .fmea-status-pending   { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color:var(--wh-orange-text); }
     .fmea-status-approved  { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.16); color: var(--wh-green); }
@@ -366,7 +366,7 @@
        label optically centred now that the box is taller than the text. */
     .fmea-row-actions button {
       font-size: 0.75rem; padding: 4px 9px; border-radius:8px;
-      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      background: var(--wh-white-05, rgba(255,255,255,0.05)); border: 1px solid var(--border);
       color: var(--wh-cloud); cursor: pointer; font-family: inherit;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
       box-sizing: border-box;
@@ -382,7 +382,7 @@
     .rcm-strip {
       display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
       margin-top: 4px; padding-top: 6px;
-      border-top: 1px dashed rgba(255,255,255,0.08);
+      border-top: 1px dashed var(--wh-white-08, rgba(255,255,255,0.08));
       font-size: 0.8rem;
     }
     .rcm-pill {
@@ -390,7 +390,7 @@
       font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
       text-transform: lowercase;
     }
-    .rcm-decision-run_to_failure         { background: rgba(255,255,255,0.06); color: var(--muted); }
+    .rcm-decision-run_to_failure         { background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--muted); }
     .rcm-decision-scheduled_on_condition { background: rgba(56,189,248,0.18);  color: var(--wh-blue); }
     .rcm-decision-scheduled_restoration  { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18);  color: var(--wh-green); }
     .rcm-decision-scheduled_discard      { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18);  color:var(--wh-orange-text); }
@@ -406,7 +406,7 @@
       display: inline-block; padding: 4px 12px; border-radius: 999px;
       font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
       text-transform: lowercase;
-      background: rgba(255,255,255,0.06); color: var(--muted);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--muted);
     }
     .weibull-pattern-infant   { background: rgba(56,189,248,0.20);  color: var(--wh-blue); }
     .weibull-pattern-random   { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.2); color: var(--wh-violet-text, #C4B5FD); }
@@ -426,7 +426,7 @@
       display: inline-block; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.07em;
       text-transform: uppercase; color: var(--wh-violet-text, #C4B5FD); margin-right: 6px;
     }
-    .weibull-pattern-insufficient_data { background: rgba(255,255,255,0.06); color: var(--muted); }
+    .weibull-pattern-insufficient_data { background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--muted); }
 
     /* FMEA + RCM modals — share visual language with edge-modal */
     #fmea-modal, #rcm-modal {
@@ -441,7 +441,7 @@
       border: 1px solid var(--border);
       border-radius: 1rem; padding: 1.5rem 1.25rem;
       width: 100%; max-width: 460px;
-      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+      box-shadow: 0 40px 80px var(--wh-black-60, rgba(0,0,0,0.6));
       max-height: 92vh; overflow-y: auto;
     }
     #fmea-modal h3, #rcm-modal h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.85rem; }
@@ -455,7 +455,7 @@
     #fmea-modal input, #fmea-modal select,
     #rcm-modal input, #rcm-modal select {
       width: 100%; height: 42px; border-radius:0.5rem;
-      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      background: var(--wh-white-04, rgba(255,255,255,0.04)); border: 1px solid var(--border);
       color: var(--wh-cloud); padding: 0 0.7rem;
       font-size: 16px; /* iOS auto-zoom rule */
       font-family: inherit; margin-bottom: 0.85rem;
@@ -476,10 +476,10 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange-text); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #ah-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #ah-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #ah-summary-details.open { display:block; }
 
     /* L2 anchor for asset_hub_reliability_report_print_css — the
@@ -537,7 +537,7 @@
            Populated by renderAssetSummary() from _allNodes + _pendingNodes. -->
       <div id="ah-verdict" class="verdict empty">
         <span id="ah-verdict-icon" class="verdict-icon">·</span>
-        <div class="verdict-text"><span data-i="p_loadingassetfleet_d1ec" id="ah-verdict-label">Loading asset fleet...</span><small data-i="p_countingapprovedassetscritic_cdb9" id="ah-verdict-sub">Counting approved assets, critical equipment, and pending approvals.</small><button type="button" id="ah-risk-filter" hidden aria-pressed="false" style="display:inline-flex; align-items:center; margin-top:8px; min-height:44px; padding:8px 16px; border-radius:999px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.18); color:var(--wh-cloud); font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Show the flagged assets</button></div>
+        <div class="verdict-text"><span data-i="p_loadingassetfleet_d1ec" id="ah-verdict-label">Loading asset fleet...</span><small data-i="p_countingapprovedassetscritic_cdb9" id="ah-verdict-sub">Counting approved assets, critical equipment, and pending approvals.</small><button type="button" id="ah-risk-filter" hidden aria-pressed="false" style="display:inline-flex; align-items:center; margin-top:8px; min-height:44px; padding:8px 16px; border-radius:999px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-18, rgba(255,255,255,0.18)); color:var(--wh-cloud); font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Show the flagged assets</button></div>
       </div>
       <div class="simple-row">
         <div class="simple-card hero tag-grey" id="ah-card-total" data-rag-tile="asset-hub:total_assets" data-rag-label="Total assets">
@@ -582,7 +582,7 @@
              reading. Same export shape as the logbook, the inventory and the skill matrix. -->
         <button id="btn-export-assets" type="button"
                 title="Export the asset register to CSV" data-ia="a_export" aria-label="Export the asset register to CSV"
-                style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor:pointer; font-size:0.75rem; font-weight:600;">
+                style="min-width:44px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:6px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor:pointer; font-size:0.75rem; font-weight:600;">
           <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
         </button>
       </div>
@@ -628,8 +628,8 @@
         </div>
         <div style="margin-top:0.6rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
           <span class="crit-pill" id="detail-crit"></span>
-          <span class="crit-pill" id="detail-level" style="background:rgba(255,255,255,0.08);color:var(--muted);"></span>
-          <span class="crit-pill" id="detail-location" style="background:rgba(255,255,255,0.08);color:var(--muted);display:none;"></span>
+          <span class="crit-pill" id="detail-level" style="background:var(--wh-white-08, rgba(255,255,255,0.08));color:var(--muted);"></span>
+          <span class="crit-pill" id="detail-location" style="background:var(--wh-white-08, rgba(255,255,255,0.08));color:var(--muted);display:none;"></span>
           <!-- AH18 (Asset Hub deepwalk, 2026-07-28): min-height 44px, not 36. Measured at a TRUE 390px
                viewport, these two were 104x36 and 110x36 - and they are precisely the buttons the
                at-the-asset journey reaches for: a worker standing at the machine, gloved, having just
@@ -657,7 +657,7 @@
                honors ?q= (+ actor/action/target) - this is the record-side half of that contract.
                Supervisor-only, matching audit-log's own gate. -->
           <a data-i="p_history_6a9d" id="detail-audit-link" href="#" aria-label="View this asset's change history in the Audit Log"
-            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:700;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.2);">📜 History</a>
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:700;background:var(--wh-white-07, rgba(255,255,255,0.07));color:rgba(255,255,255,0.85);border:1px solid var(--wh-white-20, rgba(255,255,255,0.2));">📜 History</a>
           <!-- T15 (2026-08-27): the asset -> its FAULT HISTORY. This page already COUNTS the
                asset's logbook entries in the stat card below and offered no way to read them - a
                number with no door, while T15's whole scenario is a worker at the machine asking
@@ -670,7 +670,7 @@
                ★AND ?view=team: fault history is the TEAM's history. Without it the reader gets
                only their own entries and reads a colleague's fix as absent. -->
           <a data-i="p_faulthistory_a1dc" id="detail-logbook-link" href="#" aria-label="Read this asset's fault history in the Logbook"
-            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:700;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.2);">🔧 Fault history</a>
+            style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size:0.8rem;font-weight:700;background:var(--wh-white-07, rgba(255,255,255,0.07));color:rgba(255,255,255,0.85);border:1px solid var(--wh-white-20, rgba(255,255,255,0.2));">🔧 Fault history</a>
         </div>
         <!-- ★WHO PUT THIS MACHINE ON THE REGISTER (2026-10-28, the cube's U-on-trail walk). The pending list says "by" whoever
              submitted an asset; once approved, neither the submitter nor the approver was shown anywhere, so a worker
@@ -715,7 +715,7 @@
           <!-- risk score gauge -->
           <div id="risk-gauge" style="display:flex; flex-direction:column; align-items:center; min-width:108px;">
             <div id="risk-score-num" style="font-size:2.2rem; font-weight:800; line-height:1;">-</div>
-            <div id="risk-level-badge" style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .65rem; border-radius:8px; margin-top:8px; background:rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80));">-</div>
+            <div id="risk-level-badge" style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.06em; padding:.22rem .65rem; border-radius:8px; margin-top:8px; background:var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80));">-</div>
           </div>
           <!-- detail strip -->
           <div style="flex:1; min-width:220px; display:flex; flex-direction:column; gap:8px;">
@@ -832,22 +832,22 @@
         <!-- Phase R.6: P-F interval panel -->
         <div id="rel-panel-pf" role="tabpanel" aria-labelledby="rel-tab-pf" tabindex="0" style="display:none;">
           <p class="rel-worked-example"><span data-i="p_example_0f01" class="rwe-tag">Example</span>Vibration starts rising <b data-i="p_days_176e">14 days</b> before a bearing seizes, so the <b data-i="p_pfwindowdays_3eba">P-F window = 14 days</b>. Inspect at <b data-i="p_halfthewindoweverydays_fd39">half the window = every 7 days</b> so at least one check always lands inside the warning period. <b data-i="p_guidance_6a65">Guidance:</b> set the inspection interval to P-F &divide; 2; for safety-critical assets use P-F &divide; 3 (here, every ~5 days). Too long an interval and you miss the warning; too short wastes labour.</p>
-          <div id="pf-form" style="display:flex; flex-direction:column; gap:8px; padding:0.6rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:0.5rem;">
+          <div id="pf-form" style="display:flex; flex-direction:column; gap:8px; padding:0.6rem; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--border); border-radius:0.5rem;">
             <label for="pf-parameter" data-i="parameter" style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Parameter</label>
-            <select id="pf-parameter" style="height:44px; border-radius:0.5rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;"></select>
+            <select id="pf-parameter" style="height:44px; border-radius:0.5rem; background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;"></select>
             <div style="display:flex; gap:8px;">
               <div style="flex:1;">
                 <label for="pf-p-threshold" data-i="pwarning" style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">P (warning)</label>
-                <input id="pf-p-threshold" type="number" step="0.01" placeholder="e.g. 4.5" style="width:100%; height:44px; border-radius:0.5rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;" />
+                <input id="pf-p-threshold" type="number" step="0.01" placeholder="e.g. 4.5" style="width:100%; height:44px; border-radius:0.5rem; background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;" />
               </div>
               <div style="flex:1;">
                 <label for="pf-f-threshold" data-i="ffailure" style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">F (failure)</label>
-                <input id="pf-f-threshold" type="number" step="0.01" placeholder="e.g. 7.1" style="width:100%; height:44px; border-radius:0.5rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;" />
+                <input id="pf-f-threshold" type="number" step="0.01" placeholder="e.g. 7.1" style="width:100%; height:44px; border-radius:0.5rem; background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.6rem; font-size:16px;" />
               </div>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
               <label for="pf-direction" data-i="direction" style="font-size:0.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Direction</label>
-              <select id="pf-direction" style="height:44px; border-radius:0.5rem; background:rgba(255,255,255,0.04); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.55rem; font-size:16px;" data-select-placeholder-allow="filter UI, default direction intentional">
+              <select id="pf-direction" style="height:44px; border-radius:0.5rem; background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--border); color:var(--wh-cloud); padding:0 0.55rem; font-size:16px;" data-select-placeholder-allow="filter UI, default direction intentional">
                 <option data-i="p_aboverisingbad_39fa" value="above">above (rising = bad)</option>
                 <option data-i="p_belowfallingbad_a2bd" value="below">below (falling = bad)</option>
               </select>
@@ -1068,7 +1068,7 @@
     </div>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
@@ -1770,7 +1770,7 @@
                    under-44 count from 10 to 2 and left THIS button at 120x26 — the walked path fixed,
                    the sibling path missed. Re-measured, not assumed. (No backticks in this comment: it
                    is inside a JS template literal and a backtick terminates the string.) -->
-              <button data-i="restorepending" class="restore" data-action="asset-restore" data-id="${e(n.id)}" style="font-size:0.75rem; padding:4px 9px; border-radius:8px; background:rgba(255,255,255,0.05); color:var(--wh-cloud); border:1px solid var(--border); cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">Restore to pending</button>
+              <button data-i="restorepending" class="restore" data-action="asset-restore" data-id="${e(n.id)}" style="font-size:0.75rem; padding:4px 9px; border-radius:8px; background:var(--wh-white-05, rgba(255,255,255,0.05)); color:var(--wh-cloud); border:1px solid var(--border); cursor:pointer; font-family:inherit; min-height:44px; display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;">Restore to pending</button>
             `}
           </div>
         </div>`;
@@ -2566,10 +2566,10 @@
             const barPct = Math.max(2, pct);
             const explain = (f && f.explanation) ? String(f.explanation) : '';
             return ''
-              + '<div style="display:flex; flex-direction:column; gap:3px; padding:6px 8px; background:var(--wh-surface-card, rgba(255,255,255,0.03)); border:1px solid rgba(255,255,255,0.06); border-radius:var(--wh-radius-sm);">'
+              + '<div style="display:flex; flex-direction:column; gap:3px; padding:6px 8px; background:var(--wh-surface-card, rgba(255,255,255,0.03)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:var(--wh-radius-sm);">'
               +   '<div style="display:flex; align-items:center; gap:8px;">'
               +     '<span style="flex:1; font-size:0.8rem; font-weight:700; letter-spacing:.02em; color:var(--wh-cloud);">' + e(label) + '</span>'
-              +     '<div style="width:90px; height:6px; background:rgba(255,255,255,0.07); border-radius:999px; overflow:hidden;">'
+              +     '<div style="width:90px; height:6px; background:var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:999px; overflow:hidden;">'
               +       '<div style="width:' + barPct + '%; height:100%; background:' + e(levelColor) + ';"></div>'
               +     '</div>'
               +     '<span style="font-size:0.75rem; font-weight:700; color:' + e(levelColor) + '; min-width:28px; text-align:right;">+' + pct + '%</span>'
@@ -2582,7 +2582,7 @@
           facEl.style.flexDirection = 'row';
           facEl.style.gap           = '5px';
           facEl.innerHTML = factors.slice(0, 5).map(f =>
-            '<span style="font-size:0.75rem; font-weight:600; padding:.2rem .55rem; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:8px; color:rgba(255,255,255,0.83);">'
+            '<span style="font-size:0.75rem; font-weight:600; padding:.2rem .55rem; background:var(--wh-white-05, rgba(255,255,255,0.05)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:8px; color:rgba(255,255,255,0.83);">'
             + e(String(f).replace(/_/g, ' ')) + '</span>'
           ).join('');
         }
@@ -3082,7 +3082,7 @@
           ? '<span style="font-size:0.75rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:8px; background:rgba(250,204,21,0.15); color:var(--wh-amber);">WATCH ' + z.toFixed(1) + 'σ</span>'
           : '<span style="font-size:0.75rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:8px; background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.12); color:var(--wh-green);">OK</span>';
         blocks.push(
-          '<div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; padding:8px 12px;">' +
+          '<div style="background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--border); border-radius:8px; padding:8px 12px;">' +
           '  <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap;">' +
           '    <div>' +
           '      <span style="font-size:0.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">' + e(param.replace(/_/g, ' ')) + '</span>' +

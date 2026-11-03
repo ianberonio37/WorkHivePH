@@ -97,6 +97,21 @@ def _literal_uses(lead) -> int:
     return n
 
 
+def _overlay_literals() -> int:
+    """White at alpha <= 0.20 or black at any alpha above 0, typed by hand outside a var() fallback."""
+    import fix_token_literals as ftl
+    _literal_uses([0, 0, 0])  # fills the shared text cache
+    n = 0
+    for css in _LIT_CACHE["texts"]:
+        for m in ftl.COLOUR.finditer(css):
+            if ftl._in_var_fallback(css, m.start()):
+                continue
+            c = ftl.rgba(m.group(0))
+            if c and 0 < c[3] < 1 and ((c[:3] == (255, 255, 255) and c[3] <= 0.20) or c[:3] == (0, 0, 0)):
+                n += 1
+    return n
+
+
 def class_count(m, members, unit, cls) -> int:
     return sum(sum(m[f].get(k, 0) for k in CLASS_KEYS[cls]) for f in members.get(unit, []))
 
@@ -125,8 +140,15 @@ def verdict(row, m, members, tokens_css, census, tints, comps) -> tuple[bool, st
             uses = _literal_uses(lead)
             return declared and uses == 0, (f"{unit}: a token {'holds' if declared else 'does NOT hold'} it; "
                                             f"{uses} literal use(s) of it or a near-twin remain")
-        scale_tokens = {"the type scale": r"--wh-fs-", "the stacking (z-index) scale": r"--wh-z-",
-                        "the neutral overlay + shadow scale": r"--wh-overlay-"}
+        if unit == "the neutral overlay + shadow scale":
+            # ★the scale is --wh-white-NN / --wh-black-NN (2026-11-04); "its uses read from it" means no OVERLAY-range
+            # alpha typed by hand - white <= 0.20 or any black - while rgba(0,0,0,0) is "transparent", not an overlay,
+            # and white text alphas (.60-.92) sit on APCA decisions outside this scale
+            declared = re.search(r"--wh-white-\d+\s*:", tokens_css) and re.search(r"--wh-black-\d+\s*:", tokens_css)
+            n = _overlay_literals()
+            return bool(declared) and n == 0, (f"overlay scale {'declared' if declared else 'NOT declared'}; "
+                                               f"{n} overlay-range alpha(s) still typed by hand")
+        scale_tokens = {"the type scale": r"--wh-fs-", "the stacking (z-index) scale": r"--wh-z-"}
         pat = scale_tokens.get(unit)
         raw = {"the type scale": "fontSizes", "the stacking (z-index) scale": "zIndexes",
                "the neutral overlay + shadow scale": "neutral"}.get(unit)

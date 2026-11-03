@@ -44,7 +44,7 @@
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber); --purple: var(--wh-violet);
       --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
-      --border: rgba(255,255,255,0.07);
+      --border: var(--wh-white-07, rgba(255,255,255,0.07));
     }
     /* Same defect as alert-hub: this page <link>s Poppins above and then rendered
        system-ui anyway -- all 41 of its text elements measured as a NON-Poppins typeface
@@ -84,7 +84,7 @@
                   border-color .15s var(--wh-ease-out, ease-out);
       min-height: 44px;
     }
-    .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+    .chip:hover { color: var(--text); border-color: var(--wh-white-18, rgba(255,255,255,0.18)); }
     .chip.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--gold); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
 
     .filter-select, .filter-input {
@@ -112,7 +112,7 @@
       border-radius: 8px; font-size: 0.8rem; font-weight: 600;
       cursor: pointer; min-height: 44px;
     }
-    .btn-clear:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+    .btn-clear:hover { color: var(--text); border-color: var(--wh-white-18, rgba(255,255,255,0.18)); }
 
     .filter-summary { font-size: 0.75rem; color: var(--muted); margin-left: auto; }
 
@@ -391,7 +391,7 @@
 </div>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>

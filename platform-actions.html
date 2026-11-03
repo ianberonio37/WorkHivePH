@@ -9,7 +9,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Platform Actions · WorkHive</title>
   <style>
-    :root { --navy:#0b0f1a; --navy-mid:#141b2d; --card:var(--wh-navy, #162032); --border:rgba(255,255,255,0.08);
+    :root { --navy:#0b0f1a; --navy-mid:#141b2d; --card:var(--wh-navy, #162032); --border:var(--wh-white-08, rgba(255,255,255,0.08));
             --gold:var(--wh-orange); --blue:var(--wh-blue); --green:var(--wh-green); --red:var(--wh-red); --muted:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     * { box-sizing:border-box; }
     body { margin:0; font-family:'Poppins',system-ui,sans-serif; background:linear-gradient(160deg,var(--navy) 0%,var(--navy-mid) 100%);
@@ -26,7 +26,7 @@
     .card-hdr { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:0.75rem; }
     .card-hdr h2 { font-size:1rem; font-weight:700; margin:0; }
     main, body { font-variant-numeric: tabular-nums; }   /* C4 (2026-09-05): every numeral on this console is a figure */
-    .count { font-size:1.25rem; line-height:1; font-variant-numeric:tabular-nums; font-weight:700; padding:0.25rem 0.5rem; border-radius:999px; background:rgba(255,255,255,0.08); color:var(--wh-cloud, #F4F6FA);   /* C5: a 20 px numeral on the dim pill needs the near-white tint (Lc 60 -> 75+) */ }
+    .count { font-size:1.25rem; line-height:1; font-variant-numeric:tabular-nums; font-weight:700; padding:0.25rem 0.5rem; border-radius:999px; background:var(--wh-white-08, rgba(255,255,255,0.08)); color:var(--wh-cloud, #F4F6FA);   /* C5: a 20 px numeral on the dim pill needs the near-white tint (Lc 60 -> 75+) */ }
     .count.warn { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color:#fde68a; }   /* C5: same step for the amber pill */
     /* --red on its own 18% tint measures 4.35:1 -- under the 4.5 AA floor for text this small, and
        axe flagged 11 nodes across the count badges and status pills. The gold pair already clears it
@@ -49,7 +49,7 @@
     .mod-sub { display:block; color:var(--muted); font-size:0.78rem; margin-top:0.25rem; }
     .mod-actions { display:flex; gap:0.4rem; flex-wrap:wrap; }
     .mod-btn { padding:0.5rem 0.75rem; border-radius:0.5rem; font-weight:700; font-size:0.8rem; cursor:pointer;
-               border:1px solid var(--border); background:rgba(255,255,255,0.05); color:#fff; min-height:44px; }
+               border:1px solid var(--border); background:var(--wh-white-05, rgba(255,255,255,0.05)); color:#fff; min-height:44px; }
     .mod-btn.ok { background:rgba(52,211,153,0.14); color:var(--green); border-color:rgba(52,211,153,0.35); }
     /* TEXT uses --wh-red-text, not --red. --wh-red (var(--wh-red, #f87171)) is the danger FILL token and its own
        comment says so ("AA text = --wh-red-text"); using it as a label colour put "Reject" at APCA
@@ -106,13 +106,13 @@
        copies of a design system on one platform is how they drift. */
     .fb-tabs { display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.5rem; }
     .fb-tab { padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); font-size:0.78rem; font-weight:700; cursor:pointer;
-              background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--muted); min-height:44px; }
+              background:var(--wh-white-05, rgba(255,255,255,0.05)); border:1px solid var(--border); color:var(--muted); min-height:44px; }
     .fb-tab[aria-selected="true"] { background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.14); color:var(--blue); border-color:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.35); }
     .fb-filters { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem; }
     /* 16px, not 0.8rem. Below 16px iOS Safari ZOOMS the page on focus and does not zoom back, so a
        founder triaging on a phone gets thrown into a magnified, horizontally-scrolling layout by
        tapping the search box. The battery measured these two at 12.8px. */
-    .fb-filter { padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); background:rgba(255,255,255,0.05); color:#fff;
+    .fb-filter { padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); background:var(--wh-white-05, rgba(255,255,255,0.05)); color:#fff;
                  border:1px solid var(--border); font-size:16px; min-height:44px; }
     /* white@0.5 composites to rgb(146,151,160) on this card = APCA Lc 41.1 against the Lc 60
        floor for 16px/400, so the only hint telling a sighted user what this field searches was
@@ -128,14 +128,14 @@
     .fb-card:focus-visible { outline:2px solid var(--blue); outline-offset:-2px; }
     .fb-card-top { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; font-size: 0.75rem; color:var(--muted); }
     .fb-kind, .fb-status { padding:0.1rem 0.5rem; border-radius:var(--wh-radius-pill); font-weight:700; font-size: 0.75rem;
-                           background:rgba(255,255,255,0.08); }
+                           background:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .fb-status.new { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.18); color:#fca5a5; }   /* 6.35:1; --red measured 4.35:1 */
     .fb-status.triaged, .fb-status.in_progress { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color:var(--gold); }
     .fb-status.resolved, .fb-status.wontfix, .fb-status.duplicate { background:rgba(52,211,153,0.16); color:var(--green); }
     .fb-subject { font-weight:700; font-size:0.88rem; margin-top:0.25rem; }
     .fb-snippet { color:var(--muted); font-size:0.78rem; margin-top:0.25rem;
                   display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    .fb-drawer-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9000; }
+    .fb-drawer-backdrop { position:fixed; inset:0; background:var(--wh-black-55, rgba(0,0,0,0.55)); z-index:9000; }
     /* padding-bottom carries the safe-area inset: the drawer is pinned bottom:0, so on an iPhone X+
        its last control (Save changes / Reply via email) sits UNDER the home indicator bar and cannot
        be tapped. env() resolves to 0 everywhere else, so this costs nothing on desktop. */
@@ -149,11 +149,11 @@
     .fb-drawer label { display:block; font-size: 0.75rem; text-transform:uppercase; letter-spacing:0.04em;
                        color:var(--muted); margin:1rem 0 0.25rem; }
     .fb-drawer select, .fb-drawer textarea { width:100%; padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); font-size:0.85rem;
-                 background:rgba(255,255,255,0.05); color:#fff; border:1px solid var(--border); font-family:inherit; min-height:44px; }
+                 background:var(--wh-white-05, rgba(255,255,255,0.05)); color:#fff; border:1px solid var(--border); font-family:inherit; min-height:44px; }
     .fb-drawer textarea { min-height:90px; resize:vertical; }
     .fb-meta { color:var(--muted); font-size:0.76rem; line-height:1.5; }
     .fb-body { white-space:pre-wrap; font-size:0.86rem; line-height:1.55; margin:0.5rem 0;
-               background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:var(--wh-radius-sm); padding:0.75rem; }
+               background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--border); border-radius:var(--wh-radius-sm); padding:0.75rem; }
     .fb-drawer-actions { display:flex; gap:0.5rem; margin-top:1rem; flex-wrap:wrap; }
     .fb-drawer-actions .mod-btn { flex:1; text-align:center; text-decoration:none; line-height:1.9; }
   </style>
@@ -207,7 +207,7 @@
      pulling in nav-hub, because a navigation hub on an admin console is a product decision and a
      skip link is not. Matches the shared link's look so the two do not diverge. -->
 <a class="wh-skip-link" href="#actions"
-   style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform var(--wh-dur-fast,.15s) var(--wh-ease-out,cubic-bezier(0.23,1,0.32,1));box-sizing:border-box;"
+   style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px var(--wh-black-35, rgba(0,0,0,.35));transition:transform var(--wh-dur-fast,.15s) var(--wh-ease-out,cubic-bezier(0.23,1,0.32,1));box-sizing:border-box;"
    onfocus="this.style.transform='translateY(0)'"
    onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
   <!-- Gate: not signed in or not admin -->
@@ -429,7 +429,7 @@
     <span data-wh-source-anchor="usage-source" hidden></span>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="usage-source" hidden>

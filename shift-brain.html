@@ -47,7 +47,7 @@
       --blue-wh:   var(--wh-blue);
       --navy-wh:   var(--wh-navy);
       --muted:     var(--wh-text-muted, rgba(255,255,255,0.80));
-      --border:    rgba(255,255,255,0.10);
+      --border:    var(--wh-white-10, rgba(255,255,255,0.10));
       --card-bg:   linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7) 100%);
     }
     body {
@@ -93,11 +93,11 @@
     .page-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
     .back-btn {
       width: 44px; height: 44px; border-radius: 0.5rem; flex-shrink: 0;
-      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); border: 1px solid var(--border);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; color: var(--muted); text-decoration: none;
     }
-    .back-btn:hover { background: rgba(255,255,255,0.1); }
+    .back-btn:hover { background: var(--wh-white-10, rgba(255,255,255,0.1)); }
     .page-title { font-size: 1.125rem; font-weight: 700; }
     .page-sub   { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
 
@@ -131,7 +131,7 @@
     }
     .shift-pill {
       flex: 1; min-width: max-content; white-space: nowrap;   /* phone fit (2026-09-06): three pills shared 114px each at 390px and '14-22 Afternoon' wrapped; the row already wraps, so the third pill drops down instead */
-      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      background: var(--wh-white-04, rgba(255,255,255,0.04)); border: 1px solid var(--border);
       border-radius: var(--wh-radius-sm); padding: 0.5rem 0.75rem;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
       font-size: 0.75rem; font-weight: 600; cursor: pointer;
@@ -191,7 +191,7 @@
       display: flex; justify-content: space-between; align-items: center;
     }
     .section-count {
-      background: rgba(255,255,255,0.06); border-radius: 999px;
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 999px;
       padding: 2px 8px; font-size: 0.75rem; color: var(--wh-cloud); font-weight: 700;
       letter-spacing: 0.02em; text-transform: none;
     }
@@ -227,7 +227,7 @@
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-ghost:disabled { opacity: 0.5; cursor: not-allowed; }   /* a stale plan's Publish (W46041) */
     .btn-ghost {
-      background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--wh-cloud);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); border: 1px solid var(--border); color: var(--wh-cloud);
     }
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
@@ -240,10 +240,10 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #sb-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #sb-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #sb-summary-details.open { display:block; }
   </style>
 </head>
@@ -384,7 +384,7 @@
   </div>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
@@ -1273,7 +1273,7 @@
       const restId = elId + '-rest';
       el.innerHTML = rows.slice(0, cap).map(rowFn).join('')
         + `<div id="${restId}" style="display:none;">${rows.slice(cap).map(rowFn).join('')}</div>`
-        + `<button type="button" class="sb-showall" style="width:100%; margin-top:8px; min-height:44px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:var(--wh-radius-sm); color:rgba(255,255,255,0.83); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer;">Show all ${rows.length} &#8595;</button>`;
+        + `<button type="button" class="sb-showall" style="width:100%; margin-top:8px; min-height:44px; background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius:var(--wh-radius-sm); color:rgba(255,255,255,0.83); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer;">Show all ${rows.length} &#8595;</button>`;
       const btn = el.querySelector('.sb-showall');
       if (btn) btn.addEventListener('click', () => { const r = document.getElementById(restId); if (r) { r.style.display = 'block'; btn.style.display = 'none'; } });
     }

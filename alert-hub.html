@@ -48,7 +48,7 @@
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber); --purple: var(--wh-violet);
       --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
-      --border: rgba(255,255,255,0.07);
+      --border: var(--wh-white-07, rgba(255,255,255,0.07));
     }
     /* This page <link>s Poppins above and then rendered system-ui anyway: all 53 of its
        text elements measured as a NON-Poppins typeface, the strongest "different
@@ -71,13 +71,13 @@
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer;
       transition: color .15s ease, border-color .15s ease, background .15s ease;   /* was `all`: it animated layout properties too (design lens motion, 2026-09-15) */
     }
-    .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+    .chip:hover { color: var(--text); border-color: var(--wh-white-18, rgba(255,255,255,0.18)); }
     .chip.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--gold); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
     .chip-count {
       font-size: .75rem; font-weight: 700; padding: 2px 8px;
-      border-radius: 999px; background: rgba(255,255,255,0.08);
+      border-radius: 999px; background: var(--wh-white-08, rgba(255,255,255,0.08));
     }
-    .chip.active .chip-count { background: rgba(0,0,0,0.35); color: var(--gold); }
+    .chip.active .chip-count { background: var(--wh-black-35, rgba(0,0,0,0.35)); color: var(--gold); }
 
     /* Feed */
     .feed { display: flex; flex-direction: column; gap: 8px; }
@@ -124,14 +124,14 @@
       font-size: 0.8rem; font-weight: 600; color:var(--wh-text-faint, rgba(255,255,255,0.86));
       margin-top: 8px; padding: 4px 12px; cursor: pointer;
       border: 1px solid rgba(255,255,255,0.16); border-radius: var(--wh-radius-sm);
-      background: rgba(255,255,255,0.05);
+      background: var(--wh-white-05, rgba(255,255,255,0.05));
       transition: background .15s ease, transform .12s var(--wh-ease-out);
     }
     .alert-dismiss:active, .alert-action:active { transform: scale(0.97); }   /* a tap answers physically, 120 ms (STANDARDS: 100-160 ms) */
     /* R3 one-shape-per-role: "Seen" is a SELECT toggle (aria-pressed) — give it the pill
        silhouette so it reads differently from the "Snooze"/details PRESS rects (8px). */
     .alert-dismiss[aria-pressed] { border-radius: var(--wh-radius-pill); }
-    .alert-dismiss:hover { background: rgba(255,255,255,0.12); color: var(--wh-cloud); }
+    .alert-dismiss:hover { background: var(--wh-white-12, rgba(255,255,255,0.12)); color: var(--wh-cloud); }
     .alert-dismiss:active { transform: scale(.97); }
     /* Arc Y Y3: Acknowledge ("Seen") distinct visual — the alert stays but its
        CONTENT dims (icon/title/msg), keeping the badge + action buttons at full
@@ -152,7 +152,7 @@
     .alert-seen-badge {
       font-size: .75rem; font-weight: 700;
       padding: .15rem .5rem; border-radius: 999px; flex-shrink: 0; max-width: 100%;   /* it carries a name now: never wider than its row */
-      background: rgba(255,255,255,0.08); color:var(--wh-text-muted, rgba(255,255,255,0.80));
+      background: var(--wh-white-08, rgba(255,255,255,0.08)); color:var(--wh-text-muted, rgba(255,255,255,0.80));
       border: 1px solid rgba(255,255,255,0.14);
     }
 
@@ -231,7 +231,7 @@
     .amc-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: .8rem; color:rgba(255,255,255,0.83); }
     .amc-details.open { display: block; }
     .amc-section-title { font-size: .9rem; font-weight: 700; color: var(--purple); margin: 12px 0 4px; }   /* a section title is a heading, not an eyebrow */
-    .amc-row { padding: 4px 0; border-bottom: 1px dotted rgba(255,255,255,0.05); }
+    .amc-row { padding: 4px 0; border-bottom: 1px dotted var(--wh-white-05, rgba(255,255,255,0.05)); }
     .amc-row:last-child { border-bottom: 0; }
     .amc-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
     .amc-btn { min-height: 44px; padding: 8px 18px; border-radius:var(--wh-radius-sm); font-family: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
@@ -240,8 +240,8 @@
     .amc-btn-approve:disabled { opacity: 0.5; cursor: wait; }
     .amc-btn-reject { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); color: var(--red); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .amc-btn-reject:hover:not(:disabled) { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.2); }
-    .amc-btn-toggle { background: rgba(255,255,255,0.04); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border-color: var(--border); }
-    .amc-btn-toggle:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+    .amc-btn-toggle { background: var(--wh-white-04, rgba(255,255,255,0.04)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border-color: var(--border); }
+    .amc-btn-toggle:hover { background: var(--wh-white-08, rgba(255,255,255,0.08)); color: var(--text); }
     .amc-readonly-note { font-size: 0.8rem; color: var(--muted); margin-left: auto; align-self: center; }
     .amc-status-msg { font-size: 0.8rem; color: var(--muted); margin-top: 8px; min-height: 1.1em; }
     @media (max-width: 480px) {
@@ -260,10 +260,10 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px; }
-    .simple-card { background:var(--card); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px; min-height:134px; }
+    .simple-card { background:var(--card); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:12px; padding:16px; min-height:134px; }
     @media (max-width: 699px) { .simple-card { min-height:158px; } }   /* the settled one-column tile measured 158px at 390 (was reserved at 134: every tile grew 18px when its numbers landed, CLS 0.04 - design lens audit 2026-09-15) */ /* CLS (Arc L L1): reserve settled card height (placeholder 118px → 134px when sc-sub fills) */
     .simple-card .sc-label { font-size:0.75rem; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }   /* the shared tile label (components.css) after the 2026-09-15 floor: sentence case */
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
@@ -275,7 +275,7 @@
        components.css records fixing. It shows only when critical alerts pile up, which is why it hid until today. */
     .simple-card.tag-amber .sc-tag { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.16);  color:var(--wh-orange-light); }
     .simple-card.tag-red   .sc-tag { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color:var(--wh-red-text); }
-    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+    .simple-card.tag-grey  .sc-tag { background:var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .action-card { background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); border-radius:12px; padding:16px; margin-bottom:16px; }
     .action-card .ac-label { font-size:0.75rem; font-weight:700; color:var(--wh-blue-text); }
     .action-card .ac-text { font-size:0.875rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; }/* C1 said "0.82rem→0.75rem, merge the lone 13px tier into 12px" and the value it left was 0.8rem - the comment asserted a change the declaration never held. Reconciled 2026-09-17 to the canonical .ac-text in components.css: DESIGN.md's BODY step, 0.875rem/400. .ac-text is a sentence of instruction, not a caption, so merging it DOWN into the 0.75rem label tier would have put reading prose on the 12px floor to save a ramp step. */
@@ -289,9 +289,9 @@
        async-filled alert filter row (#filters empty → ~144px of severity/type chips, the dominant shifter). */
     /* #ah-verdict re-added (UX Contract Layer D) — composite-tone verdict, no KPI-number duplication (styled by .verdict rules above). */
     #filters { min-height:144px; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:var(--wh-radius-sm); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
-    .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
-    #ah-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.8rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:var(--wh-radius-sm); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
+    .details-toggle:hover { color:var(--wh-cloud); border-color:var(--wh-white-18, rgba(255,255,255,0.18)); }
+    #ah-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.8rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #ah-summary-details.open { display:block; }
       /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
        selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
@@ -446,7 +446,7 @@
     <p id="feed-hidden-note" hidden style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:-4px 0 12px; max-width:70ch; line-height:1.5;"></p>
     <div id="sev-focus-bar" style="display:none; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; padding:12px 16px; border-radius:12px; border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.08);">
       <span id="sev-focus-text" style="font-size:0.8rem; color:var(--text);"></span>
-      <button id="sev-focus-clear" type="button" style="margin-left:auto; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid rgba(255,255,255,0.18); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Show all alerts</button>
+      <button id="sev-focus-clear" type="button" style="margin-left:auto; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid var(--wh-white-18, rgba(255,255,255,0.18)); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Show all alerts</button>
     </div>
     <div id="feed" class="feed">
       <div class="loading">Loading alerts...</div>
@@ -465,7 +465,7 @@
 </div>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">

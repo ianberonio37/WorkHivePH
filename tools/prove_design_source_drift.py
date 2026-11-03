@@ -86,13 +86,15 @@ def measure(root: Path, files: list[str]) -> dict:
 # its literals from 'off' to 'exact' and read as a rise: growing the design system failed the gate built to grow it.
 # A file's colour total (exact + tint + off) cannot rise when a token is added and can only fall when a literal becomes
 # var(); the buckets stay in the report, where they say what kind of fix each literal needs.
-RATCHETED = ("colour", "neutral", "fontSizes", "families", "zIndexes")
+# (2026-11-04) neutral joined the total too: declaring --wh-black-* moved black alphas from neutral to exact - the
+# same re-bucketing, one bucket over. Every colour literal a page types is one count, whatever bucket names it.
+RATCHETED = ("colour", "fontSizes", "families", "zIndexes")
 
 
 def counts(m: dict) -> dict[str, int]:
     out = {}
     for f, v in m["files"].items():
-        row = dict(v, colour=v.get("exact", 0) + v.get("tint", 0) + v.get("off", 0))
+        row = dict(v, colour=v.get("exact", 0) + v.get("tint", 0) + v.get("off", 0) + v.get("neutral", 0))
         out.update({f"{f} :: {k}": row[k] for k in RATCHETED if row.get(k)})
     return out
 

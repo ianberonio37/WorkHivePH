@@ -45,7 +45,7 @@
    whole command-center stack down. min-height = a floor, so shorter cards just pad to uniform. */
 /* Arc W · W1: lift the KPI card off the page with the navy ladder (was background:var(--wh-navy)
    == page bg → coplanar). The soft shadow comes from the global elevation rule below. */
-.simple-card { background:var(--wh-elev-1); border:1px solid rgba(255,255,255,0.07); border-radius:var(--wh-radius); padding:16px; min-height:154px; }   /* on the 4px grid (design lens craft, 2026-09-15) */
+.simple-card { background:var(--wh-elev-1); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:var(--wh-radius); padding:16px; min-height:154px; }   /* on the 4px grid (design lens craft, 2026-09-15) */
 /* ...BUT THE 154px FLOOR BELONGS TO A KPI TILE, NOT TO A LIST ROW. The floor above exists so an
    async value-fill cannot grow a tile and push the command-center stack down (CLS) — it assumes a
    label + hero number + sub + tag. Surfaces that reuse .simple-card for a two-line LIST ROW inherit
@@ -81,7 +81,7 @@
 .simple-card.tag-red   .sc-tag { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color:var(--wh-red-text); }
 /* the neutral tag is the platform's muted white, not Tailwind slate-300 var(--wh-steel-bright, #CFD7E0) (critique W45936, 2026-10-13: read
    off-token on dayplanner and integrations); same lightness, ~10:1 on the card */
-.simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+.simple-card.tag-grey  .sc-tag { background:var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 
 /* "What to do next" recommendation card */
 /* CLS NOTE — do NOT "fix" a shift by reserving this card, and do not read a layout-shift entry the
@@ -128,7 +128,7 @@
 /* Arc P · Wave 1 (P2 progressive disclosure / FUSION 2 list-discipline): heavy SECONDARY sections
    (long feeds, benchmarks, action logs, big lists) collapse into <details class="wh-disclose"> so the
    default view stays glance-first (verdict + vital-20% + one action). Reused across dashboards. */
-.wh-disclose { margin-bottom:var(--wh-space-6); border:1px solid rgba(255,255,255,0.08); border-radius:var(--wh-radius); background:rgba(255,255,255,0.02); overflow:hidden; }
+.wh-disclose { margin-bottom:var(--wh-space-6); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:var(--wh-radius); background:var(--wh-white-02, rgba(255,255,255,0.02)); overflow:hidden; }
 /* ★A CONTROL'S LABEL UNDER THE 12px FLOOR, ON EVERY PAGE THAT DISCLOSES (2026-09-18, W46035).
    0.72rem is 11.52px, and this is not decoration - it is the <summary> a reader presses to open
    the details a glance-first dashboard deliberately hides. Found by shift-brain's walk, which
@@ -156,8 +156,8 @@
 /* the shared disclosure CONTROL rendered at 11.2px, under the platform floor, on every page that draws
    one - the last sub-12px node left on asset-hub after its own 101 declarations were lifted, and a
    per-page walk can only find it by measuring what the page RENDERS (design lens slop, 2026-09-15). */
-.details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:var(--wh-space-6); }
-.details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
+.details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:var(--wh-space-6); }
+.details-toggle:hover { color:var(--wh-cloud); border-color:var(--wh-white-18, rgba(255,255,255,0.18)); }
 
 /* ── List loading skeleton + inline error/retry (STREAMLINE E2 — consistent states) ──
    Renderers live in utils.js (whListSkeleton / whListError). A dynamic list shows a
@@ -169,17 +169,17 @@
 /* The sweep is a COMPOSITED transform, not an animated background-position: Chrome DevTools measured the
    old rule as a non-composited animation (UNSUPPORTED_CSS_PROPERTY: background-position-x) and blamed it
    for 0.0241 of alert-hub's 0.032 layout-shift cluster on a 4x-throttled phone (2026-09-15). */
-.wh-skeleton-row { position:relative; overflow:hidden; height:44px; border-radius:10px; background:rgba(255,255,255,0.05); }
+.wh-skeleton-row { position:relative; overflow:hidden; height:44px; border-radius:10px; background:var(--wh-white-05, rgba(255,255,255,0.05)); }
 /* ...and a PULSE, not a sweep: the translateX sweep that replaced the background-position animation was
    composited but read as an auto-scrolling marquee (the detector says so, and it is right - an infinite
    horizontal loop is motion that has not earned attention). Opacity is composited too, and a pulse is the
    idiom achievements.html already uses for its own skeleton, so the platform now has ONE. */
-.wh-skeleton-row::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,0.05); animation:wh-shimmer 1.4s ease-in-out infinite; }
+.wh-skeleton-row::after { content:''; position:absolute; inset:0; background:var(--wh-white-05, rgba(255,255,255,0.05)); animation:wh-shimmer 1.4s ease-in-out infinite; }
 @keyframes wh-shimmer { 0%, 100% { opacity:0.45; } 50% { opacity:1; } }
 @media (prefers-reduced-motion: reduce) { .wh-skeleton-row::after { animation:none; } }
 .wh-list-error { text-align:center; padding:1.4rem 1rem; font-size:0.82rem; color:var(--wh-text-faint, rgba(255,255,255,0.86)); line-height:1.5; }
 .wh-list-error .wh-list-error-icon { font-size:1.4rem; }
-.wh-list-error button { margin-top:0.6rem; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid rgba(255,255,255,0.18); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; }
+.wh-list-error button { margin-top:0.6rem; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid var(--wh-white-18, rgba(255,255,255,0.18)); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; }
 .wh-list-error button:hover { border-color:rgba(255,255,255,0.32); }
 /* D1 U2 (Arc D): shared reports-tab bar — tabs ship inline min-height:34px; an
    a11y floor must override it to the platform's 44px gloved-field tap target.
@@ -244,7 +244,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
 /* FC2 (FULLSTACK_COMPONENT_LIBRARY §2.2): count-chip summary — PROMOTED 2026-07-17 from
    page-local twins (agentic-rag-observability.html:74, ai-quality.html). Pages' local rules
    keep working (same shape); this is the ONE canonical source new pages use. */
-.sum-card { background: var(--wh-navy); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--wh-radius, 12px); padding: 16px; text-align: center; }
+.sum-card { background: var(--wh-navy); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: var(--wh-radius, 12px); padding: 16px; text-align: center; }
 .sum-card .sn { font-size: 1.6rem; font-weight: 800; display: block; line-height: 1; color: var(--wh-orange); font-variant-numeric: tabular-nums; }
 .sum-card .sl { font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.83); margin-top: 4px; }   /* 12px floor, sentence case (design lens craft, 2026-09-15) */
 
@@ -253,7 +253,7 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
    Boundaries: KPI/count tiles = .simple-card/.sum-card; report/panel sections = .card.
    Pages' local .card rules (loaded after this link) intentionally override while their values
    converge; this canonical is the single reference + the floor for new pages. */
-.card { background: var(--wh-navy); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--wh-radius, 12px); padding: 16px; margin-bottom: 16px; }
+.card { background: var(--wh-navy); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: var(--wh-radius, 12px); padding: 16px; margin-bottom: 16px; }
 
 /* General .hidden utility — see the full note in tokens.css (marketplace deepwalk J9,
    2026-07-24). Repeated here because asset-hub and shift-brain load components.css but
@@ -379,8 +379,8 @@ html { scrollbar-gutter: stable; }
      (utils.js ~L1890): a second, DIFFERENT rule arriving after first paint is the exact layout shift
      the 2026-09-07 note there records. Both were changed together. */
   margin: 0 0 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--wh-white-02, rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--wh-white-06, rgba(255, 255, 255, 0.06));
   border-radius: var(--wh-radius, 12px);
   /* 10px 14px -> 12px 16px (design lens craft, 2026-09-15): neither value is on the declared 4/8/12/16
      scale, and this disclosure ships on 30 pages, so it was the last off-grid padding on audit-log and

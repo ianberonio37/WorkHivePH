@@ -61,7 +61,7 @@
     /* Card */
     .card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.9) 100%);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       border-radius: 1rem;
     }
 
@@ -71,7 +71,7 @@
     .part-card p, .part-card .flex-1 { overflow-wrap: anywhere; word-break: break-word; min-width: 0; }
     .part-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.9) 100%);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       border-radius: 1rem;
       /* the stock hue stays on a 1px edge (2026-10-12, the W45941 motion walk): the craft floor refuses a coloured
          left border thicker than 1px on a card, and utils.js already ruled 1px for the shared strips - the
@@ -102,7 +102,7 @@
     /* Inputs */
     .wh-input {
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
       color: white;
       padding: 0.75rem 1rem;
@@ -127,13 +127,13 @@
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
 
     .btn-secondary {
-      background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.83);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(255,255,255,0.83);
       font-weight: 600; border-radius: 0.75rem;
       padding: 0.75rem 1.5rem; font-size: 0.875rem;
-      cursor: pointer; border: 1px solid rgba(255,255,255,0.1); min-height: 44px;
+      cursor: pointer; border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); min-height: 44px;
       transition: background 0.2s;
     }
-    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+    .btn-secondary:hover { background: var(--wh-white-10, rgba(255,255,255,0.1)); }
 
     .btn-danger {
       background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); color: var(--wh-red-text);
@@ -177,8 +177,8 @@
 
     /* Stat pill */
     .stat-pill {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--wh-white-05, rgba(255,255,255,0.05));
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       /* 0.35rem/0.9rem was 5.6px/14.4px, neither on the rhythm (W45938). 6px passes below 8, 16px is a
          step; the pill grows 1.6px on each side, which is within the radius it already carries. */
       border-radius: 999px; padding: 0.375rem 1rem; font-size: 0.75rem;
@@ -206,8 +206,8 @@
          horizontal overflow the same prover checks in the same run. */
       min-height: 44px;
       font-size: 0.75rem; font-weight: 600; cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
+      background: var(--wh-white-04, rgba(255,255,255,0.04));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       transition: all 0.15s; user-select: none;
       /* the trailing `min-height: 36px` that used to sit here is REMOVED, not just overridden: it came
@@ -218,10 +218,10 @@
     .asset-tag.selected { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15); border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.4); color: var(--wh-blue); }
 
     /* Photo */
-    .photo-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.1); }
+    .photo-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 0.5rem; border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); }
 
     /* Transaction row */
-    .txn-row { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.6rem 0; }
+    .txn-row { border-bottom: 1px solid var(--wh-white-05, rgba(255,255,255,0.05)); padding: 0.6rem 0; }
     .txn-row:last-child { border-bottom: none; }
 
     /* Empty */
@@ -235,7 +235,7 @@
     /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb { background: var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 999px; }
 
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px;   /* 14px was off-grid (W45938) */ margin-bottom:16px; border-radius:12px; border:1px solid; }
@@ -248,10 +248,10 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #inv-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.75rem; line-height:1.5;   /* 0.78rem was 12.48px, a step nothing else uses (W45938) */ color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #inv-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.75rem; line-height:1.5;   /* 0.78rem was 12.48px, a step nothing else uses (W45938) */ color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #inv-summary-details.open { display:block; }
   </style>
 </head>
@@ -322,13 +322,13 @@
                including the scope preamble, so the file still says what it is once it is off the page. -->
           <button id="btn-export-inventory" type="button" class="text-xs py-2 px-3 flex items-center gap-1.5"
                   title="Export to CSV" aria-label="Export the current inventory to CSV"
-                  style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor:pointer; font-weight:600; white-space:nowrap;">
+                  style="min-height:44px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor:pointer; font-weight:600; white-space:nowrap;">
             <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
           </button>
           <!-- D3 (2026-10-16): a removed part waits here for 30 days, with its stock ledger. -->
           <button id="btn-recently-deleted" type="button" class="text-xs py-2 px-3" aria-haspopup="dialog" aria-expanded="false"
                   onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'inventory_items', { hiveId: HIVE_ID || null, title: 'Recently deleted parts', opener: this, onRestored: () => initData() })"
-                  style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor:pointer; font-weight:600; white-space:nowrap;">
+                  style="min-height:44px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor:pointer; font-weight:600; white-space:nowrap;">
             Recently deleted
           </button>
           <button id="btn-add-part" class="btn-primary text-xs py-2 px-4 flex items-center gap-1.5">
@@ -451,7 +451,7 @@
     </div>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="inv-summary-details">
@@ -480,7 +480,7 @@
   <!-- TOAST -->
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden" role="alert" aria-live="polite">
     <div class="rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 shadow-xl"
-         style="background: linear-gradient(135deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97)); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px);">
+         style="background: linear-gradient(135deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); backdrop-filter: blur(12px);">
       <svg id="toast-icon" class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
       </svg>
@@ -491,7 +491,7 @@
   <!-- ADD / EDIT PART MODAL -->
   <div id="part-modal" role="dialog" aria-modal="true" aria-label="Add part" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-lg max-h-[90vh] overflow-y-auto p-7 relative">
-      <button id="part-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
+      <button id="part-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <h2 id="part-modal-title" class="font-black text-xl text-white mb-6" data-i="addpart">Add Part</h2>
@@ -568,7 +568,7 @@
                  placeholder="Find a machine by tag or name" aria-label="Find a machine by tag or name" />
           <p id="asset-linker-nomatch" class="text-xs text-white/80 mt-1 hidden" role="status"></p>
           <div id="asset-linker" class="flex flex-wrap gap-2 mt-1 rounded-xl p-3 min-h-[52px]"
-               style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4); border:1px solid rgba(255,255,255,0.08);">
+               style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
             <p data-i="p_noassetsregisteredregisteras_140d" id="asset-linker-empty" class="text-xs text-white/80 self-center">No assets registered. Register assets in the Logbook first.</p>
           </div>
         </div>
@@ -600,7 +600,7 @@
             <img id="f-photo-thumb" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="photo-thumb cursor-pointer" title="Tap to replace"
                  role="button" tabindex="0" alt="Attached photo. Activate to replace it." />
             <button id="f-photo-remove"
-              style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:rgba(30,30,40,0.95);border:1.5px solid rgba(255,255,255,0.18);border-radius:50%;color:var(--wh-text-faint, rgba(255,255,255,0.86));font-size: 12px;display:flex;align-items:center;justify-content:center;cursor:pointer;" aria-label="Remove">
+              style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:rgba(30,30,40,0.95);border:1.5px solid var(--wh-white-18, rgba(255,255,255,0.18));border-radius:50%;color:var(--wh-text-faint, rgba(255,255,255,0.86));font-size: 12px;display:flex;align-items:center;justify-content:center;cursor:pointer;" aria-label="Remove">
               &#x2715;
             </button>
           </div>
@@ -618,7 +618,7 @@
   <!-- USE STOCK MODAL -->
   <div id="use-modal" role="dialog" aria-modal="true" aria-label="Use stock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-sm p-7 relative">
-      <button id="use-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
+      <button id="use-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <h2 class="font-black text-lg text-white mb-1" data-i="usestock">Use Stock</h2>
@@ -646,7 +646,7 @@
   <!-- RESTOCK MODAL -->
   <div id="restock-modal" role="dialog" aria-modal="true" aria-label="Restock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-sm p-7 relative">
-      <button id="restock-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
+      <button id="restock-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <h2 class="font-black text-lg text-white mb-1" data-i="restock">Restock</h2>
@@ -671,7 +671,7 @@
   <!-- DETAIL MODAL -->
   <div id="detail-modal" role="dialog" aria-modal="true" aria-label="Part details" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-lg max-h-[88vh] overflow-y-auto p-7 relative">
-      <button id="detail-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:rgba(255,255,255,0.06);" aria-label="Close">
+      <button id="detail-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <div id="detail-content"></div>
@@ -2679,15 +2679,15 @@ function openDetailModal(id) {
     </div>` : ''}
 
     <div class="grid grid-cols-3 gap-3 mb-5">
-      <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+      <div class="rounded-xl p-3 text-center" style="background:var(--wh-white-04, rgba(255,255,255,0.04));border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
         <div data-fig="qty" class="text-2xl font-black" style="color:${sc.text}">${item.qty_on_hand}</div>
         <div class="text-xs text-white/80 uppercase tracking-wider mt-0.5">${escHtml(item.unit || 'pcs')} ${escHtml(_t('on hand', 'nasa kamay'))}</div>
       </div>
-      <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+      <div class="rounded-xl p-3 text-center" style="background:var(--wh-white-04, rgba(255,255,255,0.04));border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
         <div data-fig="min" class="text-2xl font-black text-white/80">${item.min_qty || '-'}</div>
         <div class="text-xs text-white/80 uppercase tracking-wider mt-0.5">${escHtml(_t('Min / Reorder', 'Min / Reorder'))}</div>
       </div>
-      <div class="rounded-xl p-3 text-center" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+      <div class="rounded-xl p-3 text-center" style="background:var(--wh-white-04, rgba(255,255,255,0.04));border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
         <div class="text-xs font-bold text-white/80 mt-1 break-words">${escHtml(item.bin_location || '-')}</div>
         <div class="text-xs text-white/80 uppercase tracking-wider mt-0.5">Location</div>
       </div>

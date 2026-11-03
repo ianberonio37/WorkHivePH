@@ -49,7 +49,7 @@
 
     /* Layout */
     .app-layout { display: flex; height: 100vh; overflow: hidden; position: relative; z-index: 1; }
-  .sidebar { width: 280px; min-width: 280px; background: linear-gradient(180deg, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.95) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.98) 100%); border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; overflow: hidden; }
+  .sidebar { width: 280px; min-width: 280px; background: linear-gradient(180deg, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.95) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.98) 100%); border-right: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); display: flex; flex-direction: column; overflow: hidden; }
     .sidebar.collapsed { width: 48px; min-width: 48px; }
     /* no width transition (critique W45908, 2026-10-13): nothing toggles .collapsed, so `transition: width .3s` only ran when a
        window was resized across a breakpoint - a layout property re-laid out every frame for a move no person makes */
@@ -85,20 +85,20 @@
     @media (max-width: 767px) {
       .app-layout    { height: auto; min-height: 100vh; overflow: visible; flex-direction: column; }
       .sidebar       { width: 100%; min-width: 0; border-right: none;
-                       border-bottom: 1px solid rgba(255,255,255,0.07); }
+                       border-bottom: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); }
       .main-area     { overflow: visible; min-width: 0; }
       /* .calendar-wrap is `flex:none; overflow:visible` at EVERY width now (see the base rule) -
          the mobile unlock no longer has to special-case it. */
     }
 
     /* Header */
-    .top-bar { background: linear-gradient(135deg, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.95) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.98) 100%); border-bottom: 1px solid rgba(255,255,255,0.07); padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0; flex-wrap: wrap; }   /* 14 -> 12px (craft, 2026-09-15) */
+    .top-bar { background: linear-gradient(135deg, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.95) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.98) 100%); border-bottom: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); padding: 0.75rem 1.5rem; display: flex; align-items: center; gap: 1rem; flex-shrink: 0; flex-wrap: wrap; }   /* 14 -> 12px (craft, 2026-09-15) */
 
     /* View tabs */
     .view-tabs { display: flex; gap: 0.25rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border-radius: 0.75rem; padding: 0.25rem; }
     /* ★transition:`all` animates every property that ever changes, layout included - the declaration that makes a hover cost a reflow (design lens motion, 2026-09-15). Narrowed to what each rule actually changes on hover or selection. */
     .view-tab { padding: 0.5rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s, border-color 0.2s; color:var(--wh-text-muted, rgba(255,255,255,0.80)); border: none; background: none; }
-    .view-tab:hover { color:var(--wh-text-faint, rgba(255,255,255,0.86)); background: rgba(255,255,255,0.05); }
+    .view-tab:hover { color:var(--wh-text-faint, rgba(255,255,255,0.86)); background: var(--wh-white-05, rgba(255,255,255,0.05)); }
     .view-tab.active { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); }
 
     /* Mobile: stack tabs on second row */
@@ -156,11 +156,11 @@
     }
 
     /* Sidebar items */
-    .sidebar-header { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+    .sidebar-header { padding: 1rem; border-bottom: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); flex-shrink: 0; }
     .sidebar-items { flex: 1; overflow-y: auto; padding: 0.75rem; display: flex; flex-direction: column; gap: 0.5rem; }
     .sidebar-items::-webkit-scrollbar { width: 4px; }
     .sidebar-items::-webkit-scrollbar-track { background: transparent; }
-    .sidebar-items::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+    .sidebar-items::-webkit-scrollbar-thumb { background: var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 999px; }
 
     /* Logbook card */
     /* flex-shrink:0 IS THE FIX, not decoration. Found 2026-08-06 walking dayplanner: five clickable
@@ -174,7 +174,7 @@
        scrolling, and this card's own `overflow:hidden` then clips the evidence so the collapse looks
        like an empty box rather than a broken one. flex-shrink:0 makes the container scroll, which is
        what overflow-y:auto was there for. */
-    .lb-card { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7) 100%); border: 1px solid rgba(255,255,255,0.07); border-radius: 0.75rem; cursor: pointer; transition: background-color 0.2s, border-color 0.2s, transform 0.2s; overflow: hidden; flex-shrink: 0; }
+    .lb-card { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7) 100%); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 0.75rem; cursor: pointer; transition: background-color 0.2s, border-color 0.2s, transform 0.2s; overflow: hidden; flex-shrink: 0; }
     .lb-card:hover { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); background: linear-gradient(145deg, rgba(52,74,108,0.6) 0%, rgba(35,52,78,0.8) 100%); }
     .lb-card.selected { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.6); box-shadow: 0 0 0 2px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); }
     /* SL LB3: the open items are a long list of their own inside the sidebar (whRenderRows, see renderSidebar) - the same
@@ -207,7 +207,7 @@
     .calendar-wrap:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: -2px; }
     .main-area::-webkit-scrollbar { width: 6px; height: 6px; }
     .main-area::-webkit-scrollbar-track { background: transparent; }
-    .main-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+    .main-area::-webkit-scrollbar-thumb { background: var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 999px; }
 
     /* DILO: day timeline */
     .dilo-grid { display: grid; grid-template-columns: 56px 1fr; gap: 0; }
@@ -227,9 +227,9 @@
 
     /* WILO: week grid */
     .wilo-grid { display: grid; grid-template-columns: 52px repeat(7, 1fr); gap: 0; }
-    .wilo-day-header { text-align: center; padding: 0.5rem 0.25rem; font-size: 0.75rem; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.07); position: sticky; top: 0; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.95); z-index: 3; }
+    .wilo-day-header { text-align: center; padding: 0.5rem 0.25rem; font-size: 0.75rem; font-weight: 600; border-bottom: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); position: sticky; top: 0; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.95); z-index: 3; }
     .wilo-day-header.today { color: var(--wh-orange); }
-    .wilo-cell { border-top: 1px solid rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.04); min-height: 40px; position: relative; cursor: pointer; transition: background 0.15s; }
+    .wilo-cell { border-top: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); border-left: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); min-height: 40px; position: relative; cursor: pointer; transition: background 0.15s; }
     .wilo-cell:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); }
     .wilo-cell.today-col { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.02); }
     .wilo-block { margin: 2px; border-radius: 12px; padding: 0.2rem 0.375rem; font-size: 0.75rem; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
@@ -262,7 +262,7 @@
       .wilo-grid { grid-template-columns: 52px repeat(7, minmax(45px, 1fr)); overflow-x: auto; }
     }
     .milo-day-name { text-align: center; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 600; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
-    .milo-cell { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.3) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.4) 100%); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.5rem; min-height: 80px; padding: 0.375rem; cursor: pointer; transition: background-color 0.15s, border-color 0.15s; position: relative; }
+    .milo-cell { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.3) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.4) 100%); border: 1px solid var(--wh-white-05, rgba(255,255,255,0.05)); border-radius: 0.5rem; min-height: 80px; padding: 0.375rem; cursor: pointer; transition: background-color 0.15s, border-color 0.15s; position: relative; }
     .milo-cell:hover { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); background: linear-gradient(145deg, rgba(52,74,108,0.4) 0%, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) 100%); }
     .milo-cell.today { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); box-shadow: 0 0 0 1px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); }
     .milo-cell.other-month { opacity: 0.35; }
@@ -272,7 +272,7 @@
 
     /* YILO: year grid */
     .yilo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
-    .yilo-month { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.3) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.4) 100%); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; padding: 0.75rem; }
+    .yilo-month { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.3) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.4) 100%); border: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 0.75rem; padding: 0.75rem; }
     .yilo-month-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; color:rgba(255,255,255,0.83); }
     .yilo-mini-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
     .yilo-mini-day-name { text-align: center; font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding: 1px 0; }
@@ -300,18 +300,18 @@
     .btn-primary { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); font-weight: 700; border-radius: var(--wh-radius-sm); padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; border: none; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.97); box-shadow: none; }
-    .btn-ghost { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.83); font-weight: 500; border-radius: var(--wh-radius-sm); padding: 0.5rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: background-color 0.2s, color 0.2s, border-color 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
-    .btn-ghost:hover { background: rgba(255,255,255,0.1); color: white; }
-    .btn-ghost:active { background: rgba(255,255,255,0.15); transform: scale(0.97); }
-    .btn-icon { background: rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border-radius: 0.5rem; padding: 0.5rem;   /* 6.4 -> 8px (craft, 2026-09-15) */ min-height: 44px; min-width: 44px; cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: background-color 0.2s, color 0.2s, border-color 0.2s; display: flex; align-items: center; justify-content: center; }
-    .btn-icon:hover { background: rgba(255,255,255,0.12); color: white; }
-    .btn-icon:active { background: rgba(255,255,255,0.18); transform: scale(0.93); }
+    .btn-ghost { background: var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(255,255,255,0.83); font-weight: 500; border-radius: var(--wh-radius-sm); padding: 0.5rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); transition: background-color 0.2s, color 0.2s, border-color 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-ghost:hover { background: var(--wh-white-10, rgba(255,255,255,0.1)); color: white; }
+    .btn-ghost:active { background: var(--wh-white-15, rgba(255,255,255,0.15)); transform: scale(0.97); }
+    .btn-icon { background: var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border-radius: 0.5rem; padding: 0.5rem;   /* 6.4 -> 8px (craft, 2026-09-15) */ min-height: 44px; min-width: 44px; cursor: pointer; border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); transition: background-color 0.2s, color 0.2s, border-color 0.2s; display: flex; align-items: center; justify-content: center; }
+    .btn-icon:hover { background: var(--wh-white-12, rgba(255,255,255,0.12)); color: white; }
+    .btn-icon:active { background: var(--wh-white-18, rgba(255,255,255,0.18)); transform: scale(0.93); }
 
     /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; }
+    .modal-overlay { position: fixed; inset: 0; background: var(--wh-black-60, rgba(0,0,0,0.6)); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; }
     .modal-overlay.hidden { display: none; }
-    .modal-box { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.99) 100%); border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; width: 100%; max-width: 460px; padding: 1.5rem; box-shadow: 0 24px 80px rgba(0,0,0,0.5); }
-    .wh-input { background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--wh-radius-sm); color: white; padding: 0.625rem 0.875rem; width: 100%; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+    .modal-box { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.99) 100%); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 1rem; width: 100%; max-width: 460px; padding: 1.5rem; box-shadow: 0 24px 80px rgba(0,0,0,0.5); }
+    .wh-input { background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: var(--wh-radius-sm); color: white; padding: 0.625rem 0.875rem; width: 100%; font-size: 1rem; outline: none; transition: border-color 0.2s; }
     .wh-input:focus { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); }
     .wh-input::placeholder { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     select.wh-input option { background: var(--wh-navy-mid); }
@@ -321,7 +321,7 @@
     .badge { display: inline-flex; align-items: center; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
 
     /* Capacity bar */
-    .cap-bar-wrap { height: 3px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+    .cap-bar-wrap { height: 3px; background: var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 999px; overflow: hidden; margin-top: 4px; }
     /* ★400ms OF LAYOUT ON A 3px BAR (design lens motion, 2026-09-15). This transitioned `width`, so
        every frame ran layout, paint and composite - on the sidebar of a page whose main column is a
        24-row grid - and 400ms is past the 300ms ceiling review-animations/STANDARDS.md sets for UI. A
@@ -339,7 +339,7 @@
        left a 26px gap holding nothing. */
 
     /* Tooltip */
-    .tooltip { position: absolute; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.75rem; z-index: 20; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .tooltip { position: absolute; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.75rem; z-index: 20; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
 
     /* Selected item glow */
     @keyframes pulse-border { 0%,100%{box-shadow:0 0 0 2px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2)} 50%{box-shadow:0 0 0 4px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35)} }
@@ -360,7 +360,7 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     /* ★THE TILE RESERVE WAS SIZED AGAINST "Loading..." (design lens audit, 2026-09-15). components.css
@@ -380,7 +380,7 @@
        settled at 320/340/390/430/768 and 16 at 600/1024/1280, the same in en and fil, so the two-line
        height is the honest reserve. */
     #dp-verdict-sub { min-height: 32px; }
-    #dp-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #dp-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #dp-summary-details.open { display:block; }
   </style>
 </head>
@@ -646,10 +646,10 @@
         <textarea class="wh-input" id="m-notes" rows="4" placeholder="Optional details..." style="resize:vertical"></textarea>
       </div>
       <!-- Status row (edit mode only) -->
-      <div id="m-status-row" style="display:none;background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);border:1px solid rgba(255,255,255,0.07);border-radius:0.75rem;padding:0.75rem">
+      <div id="m-status-row" style="display:none;background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));border-radius:0.75rem;padding:0.75rem">
         <div data-i="p_itemstatus_b596" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.5rem;font-weight:600">Item Status</div>
         <div style="display:flex;gap:0.5rem">
-          <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:0.75rem;font-weight:600;cursor:pointer" data-i="upcoming">Upcoming</button>
+          <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid var(--wh-white-10, rgba(255,255,255,0.1));background:var(--wh-white-05, rgba(255,255,255,0.05));color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:0.75rem;font-weight:600;cursor:pointer" data-i="upcoming">Upcoming</button>
           <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.3);background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.08);color:var(--wh-green);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="done">Done</button>
           <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.3);background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.08);color:var(--wh-red-text);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="missed">Missed</button>
         </div>
@@ -1571,7 +1571,7 @@ function renderPlantWorkSection() {
     </div>`;
   }).join('');
   return `
-    <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06)">
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--wh-white-06, rgba(255,255,255,0.06))">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
         <span class="ic ic-clock" aria-hidden="true"></span>
         <!-- "your plant" said to a solo car owner read wrong (VP13); "your assets" is true for
@@ -1751,7 +1751,7 @@ function renderSidebar() {
         <div style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.5rem;line-height:1.4">${escHtml((item.problem || '').substring(0,120))}${(item.problem||'').length > 120 ? '...' : ''}</div>
         <div style="display:flex;gap:0.375rem;flex-wrap:wrap;margin-bottom:0.5rem">
           <span class="badge" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">${escHtml(item.category)}</span>
-          <span class="badge" style="background:rgba(255,255,255,0.06);color:var(--wh-text-muted, rgba(255,255,255,0.80))">${escHtml(item.status) || 'Open'}</span>
+          <span class="badge" style="background:var(--wh-white-06, rgba(255,255,255,0.06));color:var(--wh-text-muted, rgba(255,255,255,0.80))">${escHtml(item.status) || 'Open'}</span>
         </div>
         ${linked.length ? `<div style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.375rem">${linked.length} scheduled slot${linked.length>1?'s':''}</div>` : ''}
         <button class="btn-ghost" style="width:100%;font-size:0.75rem;min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')" data-i="placeonschedule">+ Place on Schedule</button>
@@ -2350,7 +2350,7 @@ function renderDILO() {
     <span style="flex:1"></span>
     <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;row-gap:4px">
       <span style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80))">${_t('Capacity', 'Kapasidad')}</span>
-      <div style="width:80px;height:5px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden">
+      <div style="width:80px;height:5px;background:var(--wh-white-06, rgba(255,255,255,0.06));border-radius:999px;overflow:hidden">
         <div style="width:${capBar}%;height:100%;background:${capColor};border-radius:999px"></div>
       </div>
       <!-- ★A BARE % IS A CLAIM NOBODY CAN CHECK. capPct is totalMins / 480 - an EIGHT-HOUR day,
@@ -2419,7 +2419,7 @@ function renderDILO() {
       aria-label="${_t('Add task at ' + slotLabel, 'Magdagdag ng task sa ' + slotLabel)}"
       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
       style="position:absolute;top:${(h - startHour) * SLOT_H}px;left:0;right:0;height:${SLOT_H}px;
-             border-top:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:background-color 90ms var(--wh-ease-out);z-index:0"
+             border-top:1px solid var(--wh-white-05, rgba(255,255,255,0.05));cursor:pointer;transition:background-color 90ms var(--wh-ease-out);z-index:0"
       onmouseenter="this.style.background='rgba(247,162,27,0.03)'"
       onmouseleave="this.style.background='transparent'">
     </div>`;
@@ -2560,7 +2560,7 @@ function renderWILO() {
     return { ymd, items: itemsOnDate(ymd).filter(i => !i.startTime) };
   });
   if (_wkUntimed.some(d => d.items.length)) {
-    html += `<div class="wilo-grid" style="border-bottom:1px solid rgba(255,255,255,0.07)">
+    html += `<div class="wilo-grid" style="border-bottom:1px solid var(--wh-white-07, rgba(255,255,255,0.07))">
       <div style="padding:0.375rem 0.25rem;font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));text-align:center;align-self:center">${_t('No time', 'Walang oras')}</div>`;
     _wkUntimed.forEach(d => {
       html += `<div style="padding:4px;display:flex;flex-direction:column;gap:3px;min-height:28px">`;
@@ -2596,7 +2596,7 @@ function renderWILO() {
   html += `<div class="wilo-grid" style="position:relative">`;
 
   // Time label column
-  html += `<div style="position:relative;height:${totalH}px;border-right:1px solid rgba(255,255,255,0.05)">`;
+  html += `<div style="position:relative;height:${totalH}px;border-right:1px solid var(--wh-white-05, rgba(255,255,255,0.05))">`;
   for (let h = 0; h < 24; h++) {
     const label = _hrLabel(h);
     html += `<div style="position:absolute;top:${h * WILO_SLOT_H - 8}px;right:6px;font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));white-space:nowrap;line-height:1">${label}</div>`;
@@ -2612,7 +2612,7 @@ function renderWILO() {
     const now = _phtWallNow();
     const nowMins = isToday ? now.getHours() * 60 + now.getMinutes() : null;
 
-    html += `<div style="position:relative;height:${totalH}px;border-left:1px solid rgba(255,255,255,0.04);${isToday ? 'background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.015)' : ''}">`;
+    html += `<div style="position:relative;height:${totalH}px;border-left:1px solid var(--wh-white-04, rgba(255,255,255,0.04));${isToday ? 'background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.015)' : ''}">`;
 
     // Hour lines
     // From ymd, not from `day`: the label must name the day this slot will actually write to.
@@ -2624,7 +2624,7 @@ function renderWILO() {
         aria-label="Add task on ${dayLabel} at ${slotLabel}"
         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
         style="position:absolute;top:${h*WILO_SLOT_H}px;left:0;right:0;height:${WILO_SLOT_H}px;
-               border-top:1px solid rgba(255,255,255,0.04);cursor:pointer;z-index:0"
+               border-top:1px solid var(--wh-white-04, rgba(255,255,255,0.04));cursor:pointer;z-index:0"
         onmouseenter="this.style.background='rgba(247,162,27,0.04)'"
         onmouseleave="this.style.background='transparent'"></div>`;
     }
@@ -3408,7 +3408,7 @@ document.addEventListener('keydown', e => {
 <div id="dp-toast" class="dp-toast" role="alert" aria-live="polite"></div>
 <style>
   .dp-toast { position:fixed; top:1rem; left:50%; transform:translateX(-50%) translateY(-80px);
-    background:rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border:1px solid rgba(255,255,255,0.1); border-radius:.75rem;
+    background:rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius:.75rem;
     padding:.75rem 1.25rem; font-size:.8rem; color:#fff; z-index:9999;
     transition:transform .25s ease-out; pointer-events:none; }
   .dp-toast.show { transform:translateX(-50%) translateY(0); }
@@ -3417,7 +3417,7 @@ document.addEventListener('keydown', e => {
   .dp-slot:focus-visible { outline:2px solid var(--wh-orange); outline-offset:-2px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06); }
 </style>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">

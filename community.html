@@ -52,10 +52,10 @@
     /* ── Cards & Inputs ── */
     .wh-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.8));
-      border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem;
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 1rem;
     }
     .wh-input {
-      width: 100%; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid rgba(255,255,255,0.1);
+      width: 100%; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem; color: white; padding: 0.75rem 1rem; font-size: 1rem;
       outline: none; transition: border-color 0.2s; -webkit-appearance: none;
     }
@@ -75,14 +75,14 @@
     /* ★A COLOURED GLOW IN THE BUTTON'S OWN HUE (design lens slop, 2026-09-15). An amber halo under an
        amber button on a navy ground is the generated-interface tell, and it does no work: the button is
        already the highest-contrast object in its row. Neutral elevation still reads as a lift. */
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.35); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px var(--wh-black-35, rgba(0,0,0,0.35)); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); box-shadow: none; }
     .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .btn-ghost {
       min-height: 44px; background: transparent; color:rgba(255,255,255,0.83); font-weight: 600;
       border-radius: 0.75rem; padding: 0.75rem 1.5rem; font-size: 0.875rem;
-      border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
+      border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15)); cursor: pointer;
       transition: background-color 0.2s var(--wh-ease-out, ease-out), border-color 0.2s var(--wh-ease-out, ease-out), color 0.2s var(--wh-ease-out, ease-out);
     }
     .btn-ghost:hover { border-color: rgba(255,255,255,0.6); color: white; }
@@ -94,8 +94,8 @@
       display: inline-flex; align-items: center; justify-content: center;
       transition: background-color 0.15s var(--wh-ease-out, ease-out), color 0.15s var(--wh-ease-out, ease-out); padding: 0.5rem;
     }
-    .btn-icon:hover { color: var(--wh-text-muted, rgba(255,255,255,0.8)); background: rgba(255,255,255,0.06); }
-    .btn-icon:active { background: rgba(255,255,255,0.12); transform: scale(0.93); }
+    .btn-icon:hover { color: var(--wh-text-muted, rgba(255,255,255,0.8)); background: var(--wh-white-06, rgba(255,255,255,0.06)); }
+    .btn-icon:active { background: var(--wh-white-12, rgba(255,255,255,0.12)); transform: scale(0.93); }
     /* The moderation toggles were SVGs that showed their state by stroke colour; as the library's emoji (critique,
        2026-10-13) a glyph cannot change colour, so an ON toggle carries a ring in its own state colour (--on, set per
        button: pinned orange, public green, flagged red). data-on, not aria-pressed: the labels already flip
@@ -114,14 +114,14 @@
     .avatar-btn:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
 
     /* ── Person card (identity + reputation + marketplace bridge) ── */
-    .pc-stat { text-align: center; padding: 0.5rem 0.25rem; background: rgba(255,255,255,0.04); border-radius: 12px; }
+    .pc-stat { text-align: center; padding: 0.5rem 0.25rem; background: var(--wh-white-04, rgba(255,255,255,0.04)); border-radius: 12px; }
     .pc-stat b { display: block; font-size: 1.1rem; font-weight: 800; color: white; }
     .pc-stat span { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .pc-tier { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
     .pc-tier.voice_of_the_hive { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--wh-orange); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); }
     .pc-tier.top_contributor  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.14); color: var(--wh-blue); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.4); }
     .pc-tier.active_contributor { background: rgba(34,197,94,0.12); color: var(--wh-green); border: 1px solid rgba(34,197,94,0.35); }
-    .pc-tier.new_member { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.83); border: 1px solid rgba(255,255,255,0.15); }
+    .pc-tier.new_member { background: var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(255,255,255,0.83); border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15)); }
     .pc-seller-link {
       display: flex; align-items: center; justify-content: space-between; gap: 8px; text-decoration: none;
       background: linear-gradient(135deg, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12), rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1));
@@ -145,7 +145,7 @@
     /* ── Presence chips ── */
     .presence-chip {
       display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 999px; padding: 8px 12px; font-size: 0.75rem;   /* 6 -> 8: the 4px grid (craft, 2026-09-15) */
       color: var(--wh-text-muted, rgba(255,255,255,0.8)); white-space: nowrap; flex-shrink: 0;
     }
@@ -153,14 +153,14 @@
     /* The same halo, repeated once per teammate down a list of avatars - which is where an accent
        becomes noise. The ring is what actually separates it from the avatar underneath. */
     .presence-dot.online  { background: var(--wh-green); box-shadow: 0 0 0 2px var(--wh-navy); }
-    .presence-dot.offline { background: rgba(255,255,255,0.2); }
+    .presence-dot.offline { background: var(--wh-white-20, rgba(255,255,255,0.2)); }
     #presence-bar::-webkit-scrollbar { display: none; }
 
     /* ── Filter chips ── */
     .filter-chip {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 8px 16px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;   /* 6 -> 8 (craft, 2026-09-15) */
-      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); background: var(--wh-white-05, rgba(255,255,255,0.05));
       color:rgba(255,255,255,0.83); cursor: pointer; white-space: nowrap;
       transition: background-color 0.15s var(--wh-ease-out, ease-out), border-color 0.15s var(--wh-ease-out, ease-out), color 0.15s var(--wh-ease-out, ease-out); min-height: 44px;
     }
@@ -184,7 +184,7 @@
     .post-card {
       position: relative;
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 12px;
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 12px;
       transition: border-color 0.2s;
     }
     .post-head { display: flex; align-items: flex-start; gap: 10px; }
@@ -198,14 +198,14 @@
     .post-foot .reaction-btn { padding: 4px 8px; min-width: 44px; justify-content: center; background: transparent;
                                border-color: transparent; }
     .post-foot .reaction-btn.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
-    .post-foot .reaction-btn[onclick*="openThread"] { margin-left: auto; border-color: rgba(255,255,255,0.10); }
+    .post-foot .reaction-btn[onclick*="openThread"] { margin-left: auto; border-color: var(--wh-white-10, rgba(255,255,255,0.10)); }
     .rx-n:empty { display: none; }
     .rx-n:not(:empty) ~ .rx-word { display: none; }
     .post-menu-btn { flex: 0 0 auto; margin: -6px -8px 0 0; }
     .post-menu-btn svg { width: 20px; height: 20px; }
     .post-menu {
       position: absolute; top: 48px; right: 8px; z-index: 30; min-width: 216px; padding: 6px;
-      background: var(--wh-navy-mid, #1F2E45); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
+      background: var(--wh-navy-mid, #1F2E45); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius: 12px;
       box-shadow: 0 12px 28px rgba(0,0,0,0.45); display: flex; flex-direction: column;
     }
     .post-menu[hidden] { display: none; }
@@ -214,10 +214,10 @@
       background: transparent; border: none; border-radius: 8px; text-align: left; cursor: pointer;
       font: inherit; font-size: 0.875rem; color: rgba(255,255,255,0.88);
     }
-    .post-menu-item:hover, .post-menu-item:focus-visible { background: rgba(255,255,255,0.08); outline: none; }
+    .post-menu-item:hover, .post-menu-item:focus-visible { background: var(--wh-white-08, rgba(255,255,255,0.08)); outline: none; }
     .post-menu-item[data-on="1"] { color: var(--wh-orange-text, #FDB94A); }
     .post-menu-item.danger { color: var(--wh-red-text, #FDC9C9); margin-top: 4px;
-                             box-shadow: 0 -1px 0 rgba(255,255,255,0.08); border-radius: 0 0 8px 8px; }
+                             box-shadow: 0 -1px 0 var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 0 0 8px 8px; }
     .post-card:hover { border-color: rgba(255,255,255,0.14); }
     /* ★DECLARED, AND NEVER CONNECTED (design lens motion, 2026-09-15). `new-entry` appeared exactly
        ONCE in this file - here - so the animation written for a new post arriving was never applied to
@@ -235,7 +235,7 @@
       display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px;   /* 2 -> 4 (craft, 2026-09-15) */
       font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
-    .cat-general     { background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.83); }
+    .cat-general     { background: var(--wh-white-08, rgba(255,255,255,0.08)); color:rgba(255,255,255,0.83); }
     .cat-safety      { background: rgba(239,68,68,0.15); color: var(--wh-red-text); }
     .cat-technical   { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: #4fc3e8; }   /* C2: AA-safe blue on the 12% tint (was --wh-blue var(--wh-blue,#29B6D9) @ 4.03:1 → #4fc3e8 ~4.7:1) */
     /* C2/BH: --wh-orange (var(--wh-orange,#F7A21B)) measures 4.06:1 on this tint at 10px, under the 4.5 AA floor.
@@ -262,7 +262,7 @@
     .reaction-btn {
       display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
       border-radius: 999px; font-size: 0.75rem; font-weight: 600;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      background: var(--wh-white-05, rgba(255,255,255,0.05)); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer;
       transition: background-color 0.15s var(--wh-ease-out, ease-out), border-color 0.15s var(--wh-ease-out, ease-out), color 0.15s var(--wh-ease-out, ease-out);
       min-height: 44px;
@@ -271,12 +271,12 @@
        PRESS action (openThread), while the emoji reactions are SELECT toggles (aria-pressed).
        Give the press one the rect silhouette so pill stays select-only. */
     .reaction-btn[onclick*="openThread"] { border-radius: var(--wh-radius-sm); }
-    .reaction-btn:hover  { background: rgba(255,255,255,0.1); color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
+    .reaction-btn:hover  { background: var(--wh-white-10, rgba(255,255,255,0.1)); color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
     .reaction-btn.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); color: var(--wh-orange); }
 
     /* ── Reply thread ── */
     .reply-card {
-      border-left: 2px solid rgba(255,255,255,0.06); margin-left: 12px; padding-left: 16px;
+      border-left: 2px solid var(--wh-white-06, rgba(255,255,255,0.06)); margin-left: 12px; padding-left: 16px;
     }
     .reply-card.accepted {
       border-left-color: var(--wh-green); background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.06);
@@ -286,7 +286,7 @@
     /* ── Leaderboard row ── */
     .lb-row {
       display: flex; align-items: center; gap: 12px; padding: 0.75rem 0;   /* 10.4 -> 12px, x14 on a 7-row board (craft, 2026-09-15) */
-      border-bottom: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid var(--wh-white-04, rgba(255,255,255,0.04));
     }
     .lb-row:last-child { border-bottom: none; }
     .lb-rank { width: 22px; text-align: center; font-size: 0.75rem; font-weight: 800; color:var(--wh-text-muted, rgba(255,255,255,0.80)); flex-shrink: 0; }
@@ -298,14 +298,14 @@
     /* Q2 no-phantom-focus: the CLOSED-overlay visibility guard (which takes these controls OUT of the
        tab order) is injected once for every page by utils.js - do NOT re-declare it here. */
     .sheet-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50;
+      position: fixed; inset: 0; background: var(--wh-black-60, rgba(0,0,0,0.6)); z-index: 50;
       opacity: 0; pointer-events: none; transition: opacity 0.25s;
     }
     .sheet-overlay.open { opacity: 1; pointer-events: all; }
     .sheet-inner {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 51;
       background: linear-gradient(160deg, var(--wh-navy-mid), var(--wh-navy));
-      border-radius: 16px 16px 0 0; border: 1px solid rgba(255,255,255,0.08); border-bottom: none;
+      border-radius: 16px 16px 0 0; border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-bottom: none;
       max-height: 90vh; overflow-y: auto; padding: 1.25rem 1.25rem;
       padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
       transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
@@ -334,7 +334,7 @@
       position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%;
       transform: translateX(-50%); z-index: 200; white-space: normal;
       max-width: min(92vw, 42ch); text-align: center; line-height: 1.35;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.95); border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.95); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       border-radius: 999px; padding: 0.75rem 1.25rem; font-size: 0.8rem;
       display: flex; align-items: center; gap: 8px; transition: opacity 0.3s;
       box-shadow: 0 8px 24px rgba(0,0,0,0.4);
@@ -373,7 +373,7 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.45);
       transition: box-shadow 0.2s var(--wh-ease-out, ease-out), transform 0.2s var(--wh-ease-out, ease-out);
     }
-    #fab-post:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(0,0,0,0.55); }
+    #fab-post:hover { transform: scale(1.08); box-shadow: 0 6px 28px var(--wh-black-55, rgba(0,0,0,0.55)); }
     #fab-post:active { transform: scale(0.95); }
     /* D1 U5 (FAB shell-occlusion fork — Ian 2026-06-19: move page FABs bottom-LEFT on
        mobile, away from the global bottom-right widget stack nav-hub/conn-chip/feedback
@@ -402,7 +402,7 @@
     .empty-state svg { opacity: 0.25; margin: 0 auto 1rem; display: block; }
 
     /* ── Skeleton loader ── */
-    .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 0.5rem; }
+    .skeleton { background: linear-gradient(90deg, var(--wh-white-04, rgba(255,255,255,0.04)) 25%, var(--wh-white-08, rgba(255,255,255,0.08)) 50%, var(--wh-white-04, rgba(255,255,255,0.04)) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 0.5rem; }
     @keyframes shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
     @media (prefers-reduced-motion: reduce) { .skeleton { animation: none !important; } }
     @media (max-width: 767px) { .skeleton { animation: none !important; } }
@@ -435,7 +435,7 @@
     #mention-dropdown {
       position: absolute; left: 0; right: 0; z-index: 60;
       background: var(--wh-navy-mid);
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       border-radius: var(--wh-radius);
       box-shadow: 0 8px 24px rgba(0,0,0,0.4);
       max-height: 200px; overflow-y: auto;
@@ -491,7 +491,7 @@
 <div class="aurora-bg"></div>
 
 <!-- ── NAV ── -->
-<nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.92); border-bottom:1px solid rgba(255,255,255,0.06); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
+<nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.92); border-bottom:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); backdrop-filter:blur(12px); padding-top:env(safe-area-inset-top);">
   <div style="max-width:900px; margin:0 auto; padding:0 1.25rem; height:56px; display:flex; align-items:center; justify-content:space-between;">
     <a href="index.html" class="home-link" aria-label="WorkHive home" style="display:flex; align-items:center; gap:8px; min-height:44px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-decoration:none; font-size:0.875rem; transition:color 0.2s;" onmouseover="this.style.color='rgba(255,255,255,0.8)'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">
       <span class="ic ic-back" aria-hidden="true"></span>
@@ -581,7 +581,7 @@
           and doing so updates what everyone sees. Helpful posts build the trust score that buyers see on your listings.
         </p>
         <!-- Tabs (feed / mod queue) -->
-        <div style="display:flex; border-bottom:1px solid rgba(255,255,255,0.07); margin-bottom:1rem;">
+        <div style="display:flex; border-bottom:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); margin-bottom:1rem;">
           <button class="tab-btn active" id="tab-feed" onclick="switchTab('feed')" data-i="c_feed">Feed</button>
           <button class="tab-btn" id="tab-global" onclick="switchTab('global')" data-i="c_global">🌐 Global</button>
           <button class="tab-btn" id="tab-mod" onclick="switchTab('mod')" style="display:none;"><span data-i="c_mod">Mod Queue</span> <span id="mod-count" style="display:none; background:rgba(239,68,68,0.2); color:var(--wh-red); font-size:0.75rem; border-radius:999px; padding:1px 6px; margin-left:4px;"></span></button>
@@ -621,7 +621,7 @@
           <div id="feed-list" style="display:none; display:flex; flex-direction:column; gap:0.75rem;"></div>
           <div id="feed-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
             <button id="btn-load-more-posts" onclick="loadMorePosts()"
-              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.83); border-radius:var(--wh-radius-sm); padding:0.75rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer; transition:background 0.15s;">
+              style="background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); color:rgba(255,255,255,0.83); border-radius:var(--wh-radius-sm); padding:0.75rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer; transition:background 0.15s;">
               <span data-i="c_loadmore">Load more posts</span>
             </button>
           </div>
@@ -629,7 +629,7 @@
           <div style="display:flex; justify-content:center; padding:0.25rem 0 0.75rem;">
             <button id="btn-recently-deleted" type="button" aria-haspopup="dialog" aria-expanded="false"
               onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'community_posts', { hiveId: HIVE_ID, title: 'Recently deleted posts', opener: this, onRestored: () => loadPosts() })"
-              style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border-radius:var(--wh-radius-sm); padding:0.75rem 1.25rem; min-height:44px; font-size:0.85rem; font-weight:600; cursor:pointer;">
+              style="background:transparent; border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border-radius:var(--wh-radius-sm); padding:0.75rem 1.25rem; min-height:44px; font-size:0.85rem; font-weight:600; cursor:pointer;">
               Recently deleted posts
             </button>
           </div>
@@ -643,7 +643,7 @@
           <div id="global-list" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
           <div id="global-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
             <button id="btn-load-more-global" onclick="loadMoreGlobalPosts()"
-              style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.83); border-radius:var(--wh-radius-sm); padding:0.75rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer;" data-i="loadmore">Load more</button>
+              style="background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); color:rgba(255,255,255,0.83); border-radius:var(--wh-radius-sm); padding:0.75rem 1.25rem; min-height:44px; font-size:0.8rem; cursor:pointer;" data-i="loadmore">Load more</button>
           </div>
         </div>
 
@@ -673,7 +673,7 @@
             </div>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:1rem;">
-            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:0.75rem; text-align:center;">
+            <div style="background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; padding:0.75rem; text-align:center;">
               <!-- var(--wh-orange-text), not --wh-orange: the base token is a FILL, and as small text it
                    measured APCA Lc 55.3 against a floor of 60 on rgb(41,55,77). tokens.css already carries
                    the AA-safe variant for exactly this (#FDB94A), and the C2 contrast cluster established
@@ -682,7 +682,7 @@
               <p id="profile-posts" style="font-size:1.25rem; font-weight:800; margin:0; color:var(--wh-orange-text); font-variant-numeric:tabular-nums;" aria-label="posts: unknown, not loaded">-</p>
               <p data-i="p_posts_a0ca" style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0; margin-top:2px;">Posts so far</p>
             </div>
-            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:0.75rem; text-align:center;">
+            <div style="background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; padding:0.75rem; text-align:center;">
               <!-- --wh-blue-text, not --wh-blue. --wh-blue (#29B6D9) is the accent FILL; the text tier
                    exists because the fill does not carry on a dark tint. Measured on this chip's own
                    background: the fill scores APCA Lc 53.1 against the Lc 60 floor for 20px/800, and
@@ -767,7 +767,7 @@
     </div>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
@@ -821,7 +821,7 @@
          board named "community" where the reasonable guess is that everyone can read it. The
          destination of a post is the one thing that cannot be taken back, so it is stated to both
          roles, not only the one that can change it. -->
-    <p data-i="p_thisstaysinsideyourhiveonlyy_1b5d" id="post-private-note" style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:0.6rem 0.75rem; margin-bottom:1rem; line-height:1.5;">
+    <p data-i="p_thisstaysinsideyourhiveonlyy_1b5d" id="post-private-note" style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:12px; padding:0.6rem 0.75rem; margin-bottom:1rem; line-height:1.5;">
       🔒 This stays inside your hive. Only your hive-mates can read it, and it will not appear on the public Global feed.
     </p>
 
@@ -1553,7 +1553,7 @@ function _isMinePost(p) {
         : _t('Couldn’t load the leaderboard - WorkHive did not answer. Try again in a moment.', 'Hindi ma-load ang leaderboard - hindi sumagot ang WorkHive. Subukan muli maya-maya.');
       el.innerHTML = '<p style="font-size:0.78rem; color:var(--wh-text-muted); text-align:center; padding:1rem 0;">'
                    + escHtml(msg) + '</p>'
-                   + '<div style="text-align:center;"><button type="button" id="lb-retry" style="font-size:0.75rem;padding:0.4rem 0.9rem;min-height:44px;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;" data-i="retry">Retry</button></div>';
+                   + '<div style="text-align:center;"><button type="button" id="lb-retry" style="font-size:0.75rem;padding:0.4rem 0.9rem;min-height:44px;border-radius:var(--wh-radius-sm);border:1px solid var(--wh-white-18, rgba(255,255,255,0.18));background:transparent;color:inherit;" data-i="retry">Retry</button></div>';
       const rb = document.getElementById('lb-retry');
       if (rb) rb.addEventListener('click', () => communityRetryAll());
       return;
@@ -1570,7 +1570,7 @@ function _isMinePost(p) {
         : 'No one has earned community XP in this hive yet. Your first post puts you on the board.';
       el.innerHTML = '<p style="font-size:0.875rem; color:var(--wh-text-muted); text-align:center; padding:1rem 0 0.5rem; margin:0;">'
                    + escHtml(_lbMsg) + '</p>'
-                   + (_hiveLost ? '' : '<div style="text-align:center;"><button type="button" id="lb-first-post" style="font-size:0.875rem;font-weight:600;padding:0 16px;min-height:44px;border-radius:var(--wh-radius-sm);border:1px solid rgba(255,255,255,0.18);background:transparent;color:inherit;cursor:pointer;">Write a post</button></div>');
+                   + (_hiveLost ? '' : '<div style="text-align:center;"><button type="button" id="lb-first-post" style="font-size:0.875rem;font-weight:600;padding:0 16px;min-height:44px;border-radius:var(--wh-radius-sm);border:1px solid var(--wh-white-18, rgba(255,255,255,0.18));background:transparent;color:inherit;cursor:pointer;">Write a post</button></div>');
       const fp = document.getElementById('lb-first-post');
       if (fp && typeof openComposer === 'function') fp.addEventListener('click', () => openComposer());
       return;
@@ -1635,7 +1635,7 @@ function _isMinePost(p) {
       const more = disc.length > 2
         ? `<span style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));">+${disc.length - 2} more</span>` : '';
       const roleLabel = r.role === 'supervisor' ? 'Supervisor' : 'Technician'; // role-check-allow: r.role is a per-member DB field (the post author's role), not the ambient user role
-      return `<div style="display:flex; align-items:flex-start; gap:0.6rem; padding:0.5rem 0; border-top:1px solid rgba(255,255,255,0.05);">
+      return `<div style="display:flex; align-items:flex-start; gap:0.6rem; padding:0.5rem 0; border-top:1px solid var(--wh-white-05, rgba(255,255,255,0.05));">
         <div style="flex-shrink:0;padding-bottom:${(tiers[r.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(r.worker_name, tiers[r.worker_name] || 0, 32)}</div>
         <div style="flex:1; min-width:0;">
           <button type="button" translate="no" class="author-link" onclick="openPersonCard('${escJsAttr(r.worker_name)}')" aria-label="${escHtml(_t(`View ${r.worker_name}'s member card`, `Tingnan ang member card ni ${r.worker_name}`))}" style="display:block; font-size:0.8rem; font-weight:600; color:white; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(r.worker_name)}</button>
@@ -3334,7 +3334,7 @@ function _isMinePost(p) {
       <div style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); border-radius:0.75rem; padding:0.85rem;">
         <p style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--wh-orange-text); margin:0 0 0.5rem;">🛒 ${escHtml(_t('Related on the free Marketplace', 'Kaugnay sa libreng Marketplace'))}</p>
         ${data.map(l => `
-          <a href="marketplace.html?listing=${encodeURIComponent(l.id)}" style="display:flex; align-items:center; justify-content:space-between; gap:8px; text-decoration:none; color:white; padding:0.5rem 0; border-top:1px solid rgba(255,255,255,0.05);">
+          <a href="marketplace.html?listing=${encodeURIComponent(l.id)}" style="display:flex; align-items:center; justify-content:space-between; gap:8px; text-decoration:none; color:white; padding:0.5rem 0; border-top:1px solid var(--wh-white-05, rgba(255,255,255,0.05));">
             <span style="font-size:0.8rem; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(l.title)}</span>
             <span style="font-size:0.75rem; color:var(--wh-orange-text); white-space:nowrap; font-weight:700;">${l.price ? whFmtPeso(l.price) : 'View'} →</span>
           </a>`).join('')}

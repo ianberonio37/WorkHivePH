@@ -52,7 +52,7 @@
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber);
       --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
-      --border: rgba(255,255,255,0.07);
+      --border: var(--wh-white-07, rgba(255,255,255,0.07));
     }
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
     .page { max-width: 980px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
@@ -68,8 +68,8 @@
 
     table.pc-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
     table.pc-table th { text-align: left; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); padding: 8px 8px; border-bottom: 1px solid var(--border); }
-    table.pc-table td { padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    table.pc-table tr:hover td { background: rgba(255,255,255,0.02); }
+    table.pc-table td { padding: 9px 8px; border-bottom: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); }
+    table.pc-table tr:hover td { background: var(--wh-white-02, rgba(255,255,255,0.02)); }
     /* A1 mobile overflow: wide (6-col) pc-tables scroll inside their own container
        so the page body never scrolls horizontally at 390px. */
     .pc-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -78,7 +78,7 @@
     .pc-ret-form { display: grid; gap: 12px; margin: 16px 0 8px; }
     .pc-ret-form label { display: grid; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--wh-text-faint, rgba(255,255,255,0.86)); }
     .pc-ret-form input { min-height: 44px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
-                         background: rgba(255,255,255,0.04); color: var(--text); font: inherit; font-variant-numeric: tabular-nums; }
+                         background: var(--wh-white-04, rgba(255,255,255,0.04)); color: var(--text); font: inherit; font-variant-numeric: tabular-nums; }
     .pc-ret-form input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     .pc-ret-form button { justify-self: start; min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.55);
                           background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color: var(--gold); font-weight: 700; font-size: 0.875rem; font-family: inherit; cursor: pointer; }
@@ -88,7 +88,7 @@
     .pill-green { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.12); color: var(--green); }
     .pill-amber { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color: var(--gold); }
     .pill-red   { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.12); color: var(--red); }
-    .pill-grey  { background: rgba(255,255,255,0.06); color: var(--muted); }
+    .pill-grey  { background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--muted); }
 
     .denied { padding: 1.25rem; border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius: 12px; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06); text-align: center; }
     .denied h2 { font-size: 1.125rem; margin-bottom: 0.4rem; }
@@ -111,7 +111,7 @@
     .verdict.watch   .verdict-icon { color: var(--gold); }
     .verdict.attn    { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color: var(--red); }
-    .verdict.empty   { background: var(--wh-surface-card, rgba(255,255,255,0.03)); border-color: rgba(255,255,255,0.08); }
+    .verdict.empty   { background: var(--wh-surface-card, rgba(255,255,255,0.03)); border-color: var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 
     .simple-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -135,7 +135,7 @@
     .simple-card.tag-green .sc-tag { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.16);  color: var(--green); }
     .simple-card.tag-amber .sc-tag { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.16);  color: var(--gold); }
     .simple-card.tag-red   .sc-tag { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color: var(--red); }
-    .simple-card.tag-grey  .sc-tag { background: rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+    .simple-card.tag-grey  .sc-tag { background: var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .simple-card .sc-next  { display:inline-flex; align-items:center; min-height:44px; margin-top:4px; font-size:0.875rem; font-weight:600; color: var(--wh-orange); text-decoration: underline; text-underline-offset: 3px; }
 
     .action-card {
@@ -166,7 +166,7 @@
       font-family: inherit; font-size: 0.75rem; font-weight: 600;
       cursor: pointer; min-height: 44px;
     }
-    .details-toggle:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+    .details-toggle:hover { color: var(--text); border-color: var(--wh-white-18, rgba(255,255,255,0.18)); }
     #details-pane { display: none; margin-top: 16px; }
     #details-pane.open { display: block; }
   </style>
@@ -187,7 +187,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface.
              This tab bar switches CMMS ↔ Plant/IoT; one nav entry. Both pages kept on disk. -->
         <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
-          <a role="tab" aria-selected="false" href="integrations.html" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:0.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; CMMS Integration</a>
+          <a role="tab" aria-selected="false" href="integrations.html" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:var(--wh-white-04, rgba(255,255,255,0.04)); color:rgba(255,255,255,0.83); font-size:0.75rem; font-weight:600; text-decoration:none; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">&larr; CMMS Integration</a>
           <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:0.75rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">Plant / IoT</span>
         </div>
       </div>
@@ -227,7 +227,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="card"><div data-i="p_loadingplantconnections_ae59" class="empty">Loading plant connections...</div></div>
     </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">

@@ -23,7 +23,7 @@
   :root {
     --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: var(--wh-navy-mid); --card-hover: var(--wh-navy-light, #2A3D58);   /* --card was var(--wh-navy-mid, #1F2E45), one unit from --wh-navy-mid (critique W46006) */
     --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green); --amber: var(--wh-amber); --red: var(--wh-red);
-    --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80)); --border: rgba(255,255,255,0.08);
+    --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80)); --border: var(--wh-white-08, rgba(255,255,255,0.08));
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Poppins', system-ui, sans-serif; background: var(--bg); color: var(--text); padding-top: 60px; min-height: 100vh; }
@@ -94,7 +94,7 @@
 
   /* ── Tab counts ───────────────────────────────────────────── */
   .tab-count {
-    display: inline-block; background: rgba(255,255,255,0.08); color: var(--muted);
+    display: inline-block; background: var(--wh-white-08, rgba(255,255,255,0.08)); color: var(--muted);
     border-radius: 999px; padding: 1px 8px; font-size: 0.75rem; font-weight: 600; margin-left: 6px;
   }
   .tab-strip button.active .tab-count { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22); color: var(--gold); }
@@ -107,9 +107,9 @@
   .group-header {
     display: flex; justify-content: space-between; align-items: center;
     padding: 12px 16px; cursor: pointer; user-select: none;
-    background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border);
+    background: var(--wh-white-02, rgba(255,255,255,0.02)); border-bottom: 1px solid var(--border);
   }
-  .group-header:hover { background: rgba(255,255,255,0.04); }
+  .group-header:hover { background: var(--wh-white-04, rgba(255,255,255,0.04)); }
   .group-title { font-weight: 700; font-size: 0.92rem; display: flex; gap: 8px; align-items: center; }
   .group-chev { color: var(--muted); transition: transform 0.2s; }
   .group.collapsed .group-chev { transform: rotate(-90deg); }
@@ -164,19 +164,19 @@
   .nature-project    { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color: var(--gold);  border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
   .pname { font-size: 1rem; font-weight: 700; margin: 4px 0 8px; line-height: 1.25; }
   .pmeta { font-size: 0.78rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
-  .progress { height: 6px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+  .progress { height: 6px; background: var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 999px; overflow: hidden; }
   .progress-bar { height: 100%; background: var(--blue); transition: width 0.3s; }
   .progress-bar.green { background: var(--green); }
   .progress-bar.amber { background: var(--amber); }
   .progress-bar.red   { background: var(--red); }
   .pcard-foot { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
   .status-pill { padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; }
-  .status-planning  { background: rgba(255,255,255,0.08); color: var(--muted); }
+  .status-planning  { background: var(--wh-white-08, rgba(255,255,255,0.08)); color: var(--muted); }
   .status-active    { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
   .status-on_hold   { background: rgba(250,204,21,0.18); color: var(--amber); }
   .status-complete  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--blue); }
   .status-cancelled { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.18);  color: var(--wh-red-text, #FDC9C9); }
-  .status-archived  { background: rgba(255,255,255,0.04); color: var(--muted); }
+  .status-archived  { background: var(--wh-white-04, rgba(255,255,255,0.04)); color: var(--muted); }
   /* A scope item's status pill is a BUTTON (2026-10-12, W4673). It was a <span onclick>: utils.js's polyfill made it
      focusable, but as a bare "in progress, button" - a name that never said pressing it changes the task's status -
      and ~20px tall. A native button named "<status>: change to <next>", same look; 24px is the WCAG 2.5.8 minimum. */
@@ -234,7 +234,7 @@
 
   /* ── Modal ────────────────────────────────────────────────── */
   .modal-bg {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200;
+    display: none; position: fixed; inset: 0; background: var(--wh-black-60, rgba(0,0,0,0.6)); z-index: 200;
     align-items: flex-start; justify-content: center; padding: 60px 16px 16px;
     overflow-y: auto;
   }
@@ -350,11 +350,11 @@
     font-size: 0.75rem; padding: 2px 8px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap;
   }
-  .phase-pre        { background: rgba(255,255,255,0.08); color: var(--muted); }
+  .phase-pre        { background: var(--wh-white-08, rgba(255,255,255,0.08)); color: var(--muted); }
   .phase-execute    { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--blue); }
   .phase-commission { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
   .phase-close      { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--gold); }
-  .phase-fel1       { background: rgba(255,255,255,0.08); color: var(--muted); }
+  .phase-fel1       { background: var(--wh-white-08, rgba(255,255,255,0.08)); color: var(--muted); }
   .phase-fel2       { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--blue); }
   .phase-fel3       { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
   .phase-gate       { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.18); color: var(--wh-red-text, #FDC9C9); }
@@ -369,7 +369,7 @@
 
   /* ── Critical path bar ────────────────────────────────────── */
   .gantt-row { display: grid; grid-template-columns: 220px 1fr; gap: 10px; align-items: center; padding: 6px 0; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
-  .gantt-bar-wrap { background: rgba(255,255,255,0.04); height: 16px; border-radius: 999px; position: relative; overflow: hidden; }
+  .gantt-bar-wrap { background: var(--wh-white-04, rgba(255,255,255,0.04)); height: 16px; border-radius: 999px; position: relative; overflow: hidden; }
   .gantt-bar { position: absolute; top: 0; bottom: 0; background: var(--blue); border-radius: 8px; }
   .gantt-bar.critical { background: var(--red); }
   .gantt-bar.done { background: var(--green); }
@@ -384,7 +384,7 @@
 .verdict.watch   .verdict-icon { color:var(--wh-orange); }
 .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
 .verdict.attn    .verdict-icon { color:var(--wh-red); }
-.verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+.verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
 .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
 /* ── CLS reservation (Arc L) — reserve settled heights of above-the-fold async growers ──
@@ -409,7 +409,7 @@
 @media (max-width: 560px) { #list-view > .row > div:last-child { flex-basis: 100%; } }
 .simple-row .sc-sub { min-height: 47px; }        /* "Loading..." 16 → wrapped real text up to 47 (overdue 3-line) */
 #pm-action-text { min-height: 79px; }            /* recommendation 60→79 (longer real text wraps) */
-#pm-summary-details { display:none; padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+#pm-summary-details { display:none; padding:16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
 #pm-summary-details.open { display:block; }
 </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -568,7 +568,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <div id="pane-signoff"  class="detail-pane"></div>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="pm-summary-details">

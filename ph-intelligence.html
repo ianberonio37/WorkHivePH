@@ -23,7 +23,7 @@
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --purple: var(--wh-violet); --yellow: var(--wh-orange);
       --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
-      --border: rgba(255,255,255,0.07);
+      --border: var(--wh-white-07, rgba(255,255,255,0.07));
     }
     body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px;
       /* I1 CLS: reserve the wayfinding back-pill band STATICALLY (nav-hub.js otherwise sets this
@@ -57,7 +57,7 @@
     .mtbf-bar-wrap { display: flex; flex-direction: column; gap: 10px; }
     .mtbf-row { display: grid; grid-template-columns: 180px 1fr 60px; gap: 10px; align-items: center; }
     .mtbf-cat { font-size: .75rem; font-weight: 600; color: var(--wh-text-muted, rgba(255,255,255,0.8)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .mtbf-bar-bg { background: rgba(255,255,255,0.05); border-radius: 999px; height: 8px; overflow: hidden; }
+    .mtbf-bar-bg { background: var(--wh-white-05, rgba(255,255,255,0.05)); border-radius: 999px; height: 8px; overflow: hidden; }
     .mtbf-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
     /* ★600ms ON A LAYOUT PROPERTY WITH AN EASE-IN CURVE - three of the standard's rules in one
        declaration (2026-09-18, W45976 motion). `ease` is ease-IN-out, so the bar starts slowly, which
@@ -73,10 +73,10 @@
     .mtbf-val { font-size: 0.75rem; font-weight: 700; color: var(--green); text-align: right; }
 
     /* Failure modes */
-    .fm-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .fm-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); }
     .fm-rank { font-size: 0.75rem; font-weight: 800; color:var(--wh-text-muted, rgba(255,255,255,0.80)); width: 20px; flex-shrink: 0; }
     .fm-name { flex: 1; font-size: .78rem; color: rgba(255,255,255,0.85); }
-    .fm-bar-bg { width: 80px; background: rgba(255,255,255,0.05); border-radius: 999px; height: 4px; flex-shrink: 0; }
+    .fm-bar-bg { width: 80px; background: var(--wh-white-05, rgba(255,255,255,0.05)); border-radius: 999px; height: 4px; flex-shrink: 0; }
     .fm-bar-fill { height: 100%; border-radius: 999px; background: var(--red); }
     .fm-pct { font-size: 0.75rem; color: var(--muted); width: 32px; text-align: right; flex-shrink: 0; }
 
@@ -84,7 +84,7 @@
     .narrative-block { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-radius: 12px; padding: 16px 18px; font-size: .78rem; line-height: 1.65; color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
 
     /* Your plant compare */
-    .compare-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .compare-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--wh-white-05, rgba(255,255,255,0.05)); }
     .cr-cat { flex: 1; font-size: .78rem; font-weight: 600; }
     .cr-yours { font-size: .82rem; font-weight: 800; }
     .cr-network { font-size: 0.75rem; color: var(--muted); }
@@ -113,10 +113,10 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #ph-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #ph-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #ph-summary-details.open { display:block; }
   </style>
 </head>
@@ -293,7 +293,7 @@
 </div>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
@@ -403,7 +403,7 @@
       // <p> it left the page with no heading at all (critic batch A1/A2, 2026-10-13). Same size and weight as before.
       // One card on the shared card surface (ENH-C, 2026-10-22): as bare text the gate grouped nothing (critic C3).
       if (main) main.innerHTML =
-        '<div class="empty-state" data-wh-gate="no-hive" style="padding:40px 24px;text-align:center;max-width:560px;margin:0 auto;background:var(--wh-surface-card,rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.08);border-radius:var(--wh-radius,12px)">' +   // heading-allow: replaces <main>, so this h1 is the only one shown
+        '<div class="empty-state" data-wh-gate="no-hive" style="padding:40px 24px;text-align:center;max-width:560px;margin:0 auto;background:var(--wh-surface-card,rgba(255,255,255,0.03));border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));border-radius:var(--wh-radius,12px)">' +   // heading-allow: replaces <main>, so this h1 is the only one shown
         '<h1 style="font-size:1rem;font-weight:700;line-height:1.5;margin:0 0 8px">Join or create a hive to see PH Intelligence</h1>' +
         '<p style="opacity:.75;line-height:1.5">PH Intelligence benchmarks your plant against anonymised peers. It is a team tool, so you need a hive first. This is not an empty report; there is no hive to report on yet.</p>' +
         '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">' + _way + '</div></div>';

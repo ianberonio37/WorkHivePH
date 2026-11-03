@@ -50,7 +50,10 @@ def norm_value(v: str) -> str:
     prev = None
     while prev != v:                                   # nested var() fallbacks
         prev = v
-        v = re.sub(r"var\(\s*--[\w-]+\s*,\s*([^()]*?)\s*\)", r"\1", v)
+        # ★a fallback may itself be a function - var(--wh-white-02, rgba(255,255,255,0.02)) - (2026-11-04: the OD token
+        # rewrite gave components.css that form, and `[^()]*?` could not see past the inner parentheses, so a pair
+        # carrying the SAME colour read as a disagreement). One level of nesting is allowed in the fallback.
+        v = re.sub(r"var\(\s*--[\w-]+\s*,\s*((?:[^()]|\([^()]*\))*?)\s*\)", r"\1", v)
     return v.strip()
 
 
@@ -130,6 +133,13 @@ def _self_test() -> int:
         fails.append("a differing margin must FAIL and name the property")
     if p and ("16px" not in p[0] or "14px" not in p[0]):
         fails.append("the failure must show BOTH values so the fix is obvious")
+
+    # a token with a FUNCTION fallback is the same colour as the bare function (the OD token rewrite's form)
+    css_tok = ".wh-help {\n  background: var(--wh-white-02, rgba(255,255,255,0.02));\n}\n"
+    if compare(css_tok, "'.wh-help{background:rgba(255,255,255,0.02)}' +"):
+        fails.append("var(--x, rgba(...)) must equal the bare rgba(...) - same colour, one level of nesting")
+    if not compare(css_tok, "'.wh-help{background:rgba(255,255,255,0.05)}' +"):
+        fails.append("teeth: a DIFFERENT colour behind a var() fallback must still FAIL")
 
     # a property in only one source is not a disagreement
     if compare(css, "'.wh-help{margin:0 0 16px}' +"):

@@ -50,7 +50,7 @@
     /* ── Toast ── */
     #toast {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px);
-      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.8rem;
       color: #fff; z-index: 9999; transition: transform 0.25s ease-out;
       display: flex; align-items: center; gap: 0.5rem; max-width: 320px;
@@ -61,7 +61,7 @@
     /* ── Cards ── */
     .card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 1rem; padding: 1.25rem;
     }
 
@@ -75,7 +75,7 @@
     #radar-canvas { max-width: 280px; max-height: 280px; }
     .chart-fallback { display: none; width: 100%; }
     .chart-fallback table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-    .chart-fallback td { padding: 0.5rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .chart-fallback td { padding: 0.5rem 0.5rem; border-bottom: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); }
     .chart-fallback .label { color: var(--wh-steel-bright); }
     .chart-fallback .val { text-align: right; font-weight: 600; }
 
@@ -103,19 +103,19 @@
     .disc-icon { font-size: 18px; line-height: 1; display: inline-block; vertical-align: -0.15em; }
     .disc-level-badge {
       font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.5rem;
-      border-radius: 999px; background: rgba(255,255,255,0.08);
+      border-radius: 999px; background: var(--wh-white-08, rgba(255,255,255,0.08));
       color: var(--disc-color); border: 1px solid var(--disc-color);
     }
     .disc-card-progress { margin-bottom: 0.5rem; }
     .level-dots { display: flex; gap: 6px; margin-bottom: 0.5rem; }
     .level-dot {
       width: 14px; height: 14px; border-radius: 50%;
-      background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.15);
+      background: var(--wh-white-10, rgba(255,255,255,0.1)); border: 2px solid var(--wh-white-15, rgba(255,255,255,0.15));
       transition: all 0.2s;
     }
     .level-dot.earned { background: var(--disc-color); border-color: var(--disc-color); }
-    .level-dot.target { border-color: var(--disc-color); background: rgba(255,255,255,0.05); }
-    .progress-bar-bg { height: 4px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+    .level-dot.target { border-color: var(--disc-color); background: var(--wh-white-05, rgba(255,255,255,0.05)); }
+    .progress-bar-bg { height: 4px; background: var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 999px; overflow: hidden; }
     .progress-bar-fill { height: 100%; border-radius: 999px; background: var(--disc-color); transition: width 0.5s; }
     .disc-card-footer { display: flex; align-items: center; justify-content: space-between; }
     .disc-target-row { font-size: 0.75rem; color: var(--wh-steel-bright); }
@@ -137,12 +137,12 @@
     .target-name { font-size: 0.75rem; font-weight: 600; color: var(--wh-cloud); flex: 1; }
     .stepper { display: flex; align-items: center; gap: 0.35rem; }
     .step-btn {
-      width: 28px; height: 28px; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.15);
-      background: rgba(255,255,255,0.05); color: #fff; font-size: 1rem; cursor: pointer;
+      width: 28px; height: 28px; border-radius: 0.5rem; border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
+      background: var(--wh-white-05, rgba(255,255,255,0.05)); color: #fff; font-size: 1rem; cursor: pointer;
       display: flex; align-items: center; justify-content: center; transition: background 0.15s;
       min-width: 44px; min-height: 44px;
     }
-    .step-btn:active { background: rgba(255,255,255,0.15); }
+    .step-btn:active { background: var(--wh-white-15, rgba(255,255,255,0.15)); }
     .step-btn:focus-visible { outline: 2px solid var(--wh-blue); outline-offset: 2px; }
     .step-btn:disabled { opacity: 0.3; cursor: not-allowed; }
     .step-val { font-size: 0.85rem; font-weight: 700; color: #fff; width: 18px; text-align: center; }
@@ -163,12 +163,12 @@
     .onboard-card p { font-size: 0.8rem; color: var(--wh-steel-bright); margin-bottom: 1.5rem; }
     .primary-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.25rem; }
     .primary-option {
-      padding: 0.75rem 0.5rem; border-radius: 0.75rem; border: 2px solid rgba(255,255,255,0.1);
+      padding: 0.75rem 0.5rem; border-radius: 0.75rem; border: 2px solid var(--wh-white-10, rgba(255,255,255,0.1));
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4); cursor: pointer; font-size: 0.75rem; font-weight: 600;
       color: var(--wh-steel-bright); transition: all 0.2s; text-align: center;
     }
     .primary-option:active { transform: scale(0.96); }
-    .primary-option.selected { border-color: var(--disc-color); color: var(--disc-color); background: rgba(255,255,255,0.04); }
+    .primary-option.selected { border-color: var(--disc-color); color: var(--disc-color); background: var(--wh-white-04, rgba(255,255,255,0.04)); }
 
     /* ── Modals (full-screen bottom-sheet) ── */
     .modal-overlay {
@@ -183,14 +183,14 @@
     .modal-sheet {
       background: linear-gradient(180deg, #1a2a3e, var(--wh-navy));
       border-radius: 16px 16px 0 0;
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       width: 100%; max-width: 680px;
       max-height: 92vh; display: flex; flex-direction: column;
       transform: translateY(40px); transition: transform 0.25s ease-out;
       padding-bottom: env(safe-area-inset-bottom);
     }
     .modal-overlay.open .modal-sheet { transform: translateY(0); }
-    .modal-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 999px; margin: 0.75rem auto 0; }
+    .modal-handle { width: 40px; height: 4px; background: var(--wh-white-15, rgba(255,255,255,0.15)); border-radius: 999px; margin: 0.75rem auto 0; }
     .modal-header {
       display: flex; align-items: flex-start; justify-content: space-between;
       padding: 1rem 1.25rem 0.75rem;
@@ -199,12 +199,12 @@
     .modal-subtitle { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.25rem; }
     .modal-close-btn {
       width: 36px; height: 36px; border-radius: 0.5rem; border: none;
-      background: rgba(255,255,255,0.07); color:var(--wh-text-muted, rgba(255,255,255,0.80));
+      background: var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80));
       cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
       min-width: 44px; min-height: 44px;
     }
     .modal-body { overflow-y: auto; overscroll-behavior: contain; flex: 1; padding: 0 1.25rem 1.25rem; }
-    .modal-footer { padding: 0.75rem 1.25rem 1rem; border-top: 1px solid rgba(255,255,255,0.06); }
+    .modal-footer { padding: 0.75rem 1.25rem 1rem; border-top: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); }
 
     /* ── Lesson modal ── */
     .lesson-body { font-size: 0.82rem; color: var(--wh-text-muted, rgba(255,255,255,0.8)); line-height: 1.7; }
@@ -226,22 +226,22 @@
     .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
     .btn-ghost {
       width: 100%; background: transparent; color:var(--wh-text-muted, rgba(255,255,255,0.80));
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 0.75rem;
+      border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius: 0.75rem;
       padding: 0.75rem 1.5rem; font-size: 0.85rem; cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s; margin-top: 0.5rem;
       min-height: 44px; /* tap-target floor */
     }
-    .btn-ghost:active { background: rgba(255,255,255,0.08); }
+    .btn-ghost:active { background: var(--wh-white-08, rgba(255,255,255,0.08)); }
 
     /* ── Exam modal ── */
-    .exam-progress-bar { height: 3px; background: rgba(255,255,255,0.08); border-radius: 999px; margin-bottom: 1rem; overflow: hidden; }
+    .exam-progress-bar { height: 3px; background: var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 999px; margin-bottom: 1rem; overflow: hidden; }
     .exam-progress-fill { height: 100%; background: var(--wh-blue); border-radius: 999px; transition: width 0.3s; }
     .exam-progress-label { font-size: 0.75rem; color: var(--wh-steel-bright); text-align: right; margin-top: -0.75rem; margin-bottom: 0.75rem; }
     .exam-question { font-size: 0.9rem; font-weight: 600; color: #fff; line-height: 1.5; margin-bottom: 1rem; }
     .exam-options { display: flex; flex-direction: column; gap: 0.5rem; }
     .exam-option {
       display: flex; align-items: center; gap: 0.75rem;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1.5px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1.5px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem; padding: 1rem 1rem;
       cursor: pointer; transition: all 0.15s; font-size: 0.82rem; color: var(--wh-cloud);
       min-height: 56px; text-align: left; width: 100%;
@@ -256,7 +256,7 @@
       width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       font-size: 0.75rem; font-weight: 700;
-      background: rgba(255,255,255,0.08); color:var(--wh-text-muted, rgba(255,255,255,0.80));
+      background: var(--wh-white-08, rgba(255,255,255,0.08)); color:var(--wh-text-muted, rgba(255,255,255,0.80));
     }
     .exam-option.selected .option-letter { background: var(--wh-blue); color: var(--wh-navy); }
     .exam-option.correct .option-letter { background: var(--wh-green); color: var(--wh-navy); }
@@ -264,7 +264,7 @@
     .exam-option.reveal-correct .option-letter { background: var(--wh-green); color: var(--wh-navy); }
     .exam-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; }
     .nav-dots { display: flex; gap: 5px; }
-    .nav-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+    .nav-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--wh-white-15, rgba(255,255,255,0.15)); }
     .nav-dot.answered { background: var(--wh-blue); }
     .nav-dot.current { background: #fff; }
     .btn-next {
@@ -293,13 +293,13 @@
     .result-review-item {
       display: flex; align-items: flex-start; gap: 0.5rem;
       font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding: 0.5rem 0;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid var(--wh-white-05, rgba(255,255,255,0.05));
     }
     .result-review-item .ri-icon { font-size: 0.8rem; flex-shrink: 0; margin-top: 1px; }
     .cooldown-timer { font-size: 0.75rem; color:var(--wh-orange-text); font-weight: 600; margin-top: 0.5rem; }
 
     /* ── Loading skeleton ── */
-    .skeleton { background: rgba(255,255,255,0.06); border-radius: 0.5rem; animation: shimmer 1.5s infinite; }
+    .skeleton { background: var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 0.5rem; animation: shimmer 1.5s infinite; }
     @keyframes shimmer { 0%,100%{opacity:0.5} 50%{opacity:1} }
     .skel-chart { width: 260px; height: 260px; border-radius: 50%; margin: 0 auto; }
     .skel-card { height: 90px; border-radius: 1rem; margin-bottom: 0.75rem; }
@@ -321,10 +321,10 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #sm-summary-details { display:none; padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #sm-summary-details { display:none; padding:16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #sm-summary-details.open { display:block; }
   </style>
   <link rel="canonical" href="https://workhiveph.com/skillmatrix.html" />
@@ -384,7 +384,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
          switches Skills ↔ Achievements; one nav entry. Both pages kept on disk. -->
     <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
       <span data-i="p_skills_e092" role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">Skills</span>
-      <a data-i="p_achievements_641a" role="tab" aria-selected="false" href="achievements.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Achievements &rarr;</a>
+      <a data-i="p_achievements_641a" role="tab" aria-selected="false" href="achievements.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:var(--wh-white-04, rgba(255,255,255,0.04)); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">Achievements &rarr;</a>
       <!-- This page says, in its own words, that a worker's skills, badges and exam attempts are private to
            them - and offered no way to take that record anywhere. A competence record a
            worker cannot carry is not really theirs: it is the evidence behind a job application, a
@@ -392,7 +392,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
            logbook and the inventory, scope preamble included. -->
       <button id="btn-export-skills" type="button" role="tab" aria-selected="false"
               title="Export my skill record to CSV" aria-label="Export my skill record to CSV"
-              style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; gap:6px; border-radius:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.8rem; font-weight:600; cursor:pointer;">
+              style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; gap:6px; border-radius:8px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.8rem; font-weight:600; cursor:pointer;">
         <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
       </button>
     </div>
@@ -521,7 +521,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
 
   </div><!-- /main-content -->
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="sm-summary-details" hidden>

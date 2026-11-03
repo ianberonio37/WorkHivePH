@@ -11,7 +11,7 @@
    page measured 16px and 12px/16px. Set byte-identical to the other two now. Same for the summary size
    below: 0.74rem here against 0.75rem there. A contract with three copies needs all three edited or it is
    not a contract. */
-.wh-help { margin: 0 0 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 16px; }
+.wh-help { margin: 0 0 16px; background: var(--wh-white-02, rgba(255,255,255,0.02)); border: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 12px; padding: 12px 16px; }
 /* 0.74rem was 11.84px - over the 11px absolute floor but under DESIGN.md's 12px floor for anything a person
    READS, and this is the control that opens every inline-help disclosure in the product (design lens slop,
    2026-09-17, W46007). 0.75rem is 12px and is the ramp's existing smallest step, so it adds nothing new. */

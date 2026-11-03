@@ -64,7 +64,7 @@
 
   .toolbar {
     position: static; z-index: 50;   /* sticky from 768px only - see the @media below */
-    background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.96); border-bottom: 1px solid rgba(255,255,255,0.08);   /* --wh-navy's channel (was var(--wh-ink-deep, #0f1923)'s), W46013 */
+    background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.96); border-bottom: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));   /* --wh-navy's channel (was var(--wh-ink-deep, #0f1923)'s), W46013 */
     padding: 12px 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;   /* 10px x2 was off-grid (W46008) */
   }
   .toolbar h1 { font-size: 1.05rem; font-weight: 700; }
@@ -92,7 +92,7 @@
   .toolbar button, .toolbar a.btn {
     font-family: inherit; font-size: 0.9rem; font-weight: 600;
     background: var(--wh-navy-mid); color: var(--shell-text);   /* was var(--wh-navy-mid, #1F2E45), one unit off the token (W46013) */
-    border: 1px solid rgba(255,255,255,0.08); border-radius: var(--wh-radius, 12px);   /* was 10px, off the 8/12/16 scale (critic batch S1) */
+    border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: var(--wh-radius, 12px);   /* was 10px, off the 8/12/16 scale (critic batch S1) */
     padding: 8px 16px; min-height: 44px; display: inline-flex;   /* 14px was off the 4px rhythm on all five toolbar controls (W46008) */ align-items: center; justify-content: center; gap: 6px; cursor: pointer; text-decoration: none;
   }
   .toolbar button:hover, .toolbar a.btn:hover { background: var(--wh-navy-light, #2A3D58); }
@@ -121,7 +121,7 @@
     font-family: 'Poppins', system-ui, -apple-system, sans-serif;
     font-size: 11pt; line-height: 1.55;
     max-width: 980px; margin: 16px auto; padding: 32px 40px;   /* 38px was off-grid (W46008) */
-    box-shadow: 0 4px 22px rgba(0,0,0,0.6);
+    box-shadow: 0 4px 22px var(--wh-black-60, rgba(0,0,0,0.6));
   }
   #ar-print-wrapper h1, #ar-print-wrapper h2, #ar-print-wrapper h3 { color: var(--ink); font-weight: 700; }
   #ar-print-wrapper h1 { font-size: 24pt; line-height: 1.15; letter-spacing: -0.01em; }
@@ -395,7 +395,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
   <!-- I1 CLS (EX-PF F07, 2026-09-07): the provenance chip used to be appended here after the data loaded, pushing every section down 16px; it now has its place from first paint -->
   <div id="pr-source-chip" hidden data-wh-sources-collapsed></div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>

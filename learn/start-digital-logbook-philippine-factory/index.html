@@ -213,7 +213,7 @@
     .prose-wh a:hover { color: var(--wh-blue,#29B6D9); }
     .prose-wh blockquote { border-left: 3px solid var(--wh-orange,#F7A21B); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); font-style: italic; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
-    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); }
     /* A cell breaks between WORDS (2026-10-27): .prose-wh's overflow-wrap:anywhere let auto table layout shrink every column to one
        letter, so on a phone 'WorkHive' read 'WorkHiv e' and the table never used its scroll region. A whole word is a cell's
        minimum; a wide table scrolls inside [data-table-scroll]; an over-long token still wraps (break-word). */
@@ -228,7 +228,7 @@
     .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: 0.02em; }
     .pill-orange { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--wh-orange,#F7A21B); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
 
-    .toc { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 24px 26px; margin: 2rem 0 3rem; }
+    .toc { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 16px; padding: 24px 26px; margin: 2rem 0 3rem; }
     .toc h2, .toc h4 { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
     .toc ol { padding-left: 1.5rem; margin: 0; }
     .toc li { margin-bottom: 6px; font-size: 0.95rem; }
@@ -246,7 +246,7 @@
     .cta-box p { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); margin-bottom: 16px; line-height: 1.65; }
     .cta-btn { display: inline-block; background: linear-gradient(135deg, var(--wh-orange,#F7A21B) 0%, var(--wh-orange-dark,#D88A0E) 100%); color: var(--wh-navy,#162032); font-weight: 700; padding: 12px 28px; border-radius: 8px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
     .prose-wh a.cta-btn { color: var(--wh-navy,#162032); text-decoration: none; }  /* (0,2,1) beats .prose-wh a (0,1,1): a button inside the article body keeps its own colour instead of being painted as a prose link (measured 1.11:1 before this) */
-    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px rgba(0,0,0,0.55); }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px var(--wh-black-55, rgba(0,0,0,0.55)); }
     .cta-secondary { font-size: 0.85rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); margin-top: 16px; margin-bottom: 0; }
     /* (0,2,1) beats .cta-box p (0,1,1): the margin-bottom:0 above was written and never applied - the walk measured 18px (2026-09-16). */
     .cta-box p.cta-secondary { margin-bottom: 0; }
@@ -259,7 +259,7 @@
     .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
     .audience-block ul li::before { content: '·'; position: absolute; left: 4px; color: var(--wh-blue,#29B6D9); font-weight: 800; font-size: 1.25rem; line-height: 1; top: 0; }
     @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
-    .faq-item { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; margin-bottom: 12px; }
+    .faq-item { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 16px; margin-bottom: 12px; }
     .faq-item[open] { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.85); }
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: var(--wh-cloud,#F4F6FA); display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
@@ -267,7 +267,7 @@
     .faq-item[open] summary::after { content: '\2212'; }
     .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); line-height: 1.7; font-size: 0.95rem; }
 
-    .author-card { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
+    .author-card { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.5); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 16px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
     .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--wh-orange,#F7A21B), var(--wh-orange-light,#FDB94A)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--wh-navy,#162032); font-size: 1.05rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.95rem; margin-bottom: 2px; }
     .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); }
@@ -358,7 +358,7 @@
 <link rel="stylesheet" href="/wh-tw-pub-ramp.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->
 </head>
 <body class="bg-navy-wh text-white antialiased">
-<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px var(--wh-black-35, rgba(0,0,0,.35));transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 
 
 <!-- ── Nav ── -->

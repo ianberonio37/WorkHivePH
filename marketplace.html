@@ -112,7 +112,7 @@
     .section-tabs {
       display: flex; gap: 0.5rem; margin-bottom: 1rem;
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 0.75rem; padding: 0.375rem;
       overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
     }
@@ -153,7 +153,7 @@
        once the icon became an emoji span, so it sat above the field (critique W45915, 2026-10-13) */
     .search-input {
       width: 100%; min-height: 44px; padding: 0.5rem 0.75rem 0.5rem 2.25rem;   /* 0.6rem was 9.6px; min-height:44px drives the height (W45965) */
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: var(--wh-radius-sm); color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
     }
@@ -161,7 +161,7 @@
     .search-input::placeholder { color: var(--wh-steel-bright); }
     .btn-filter {
       padding: 0.5rem 0.875rem;   /* 0.6rem was 9.6px (W45965) */
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: var(--wh-radius-sm); color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 0.8rem;
       cursor: pointer; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; min-height: 44px; /* D1 U2 */
@@ -174,7 +174,7 @@
     /* Price filter panel */
     .price-filter {
       display: none; padding: 0.75rem;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: var(--wh-radius); margin-bottom: 0.75rem;
     }
     .price-filter.show { display: block; }
@@ -188,7 +188,7 @@
     .filter-chip {
       display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px;
       padding: 0.25rem 0.75rem; border-radius: 999px;   /* 0.3rem was 4.8px; min-height:44px drives the height anyway (W45965) */
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); color: var(--wh-steel-bright);
       font-size: 0.75rem; font-family: 'Poppins', sans-serif; cursor: pointer;
       transition: all 0.15s;
@@ -218,7 +218,7 @@
     /* Listing card */
     .listing-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem;
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 1rem;
       overflow: hidden; cursor: pointer;
       transition: transform 0.2s, border-color 0.2s;
     }
@@ -259,7 +259,7 @@
     /* "Negotiable" is a real answer but it is not a price, so it does not wear the price colour --
        a buyer scanning the grid should not read it as a figure. */
     .card-price-pill.is-unpriced {
-      border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.82); font-weight: 600;
+      border-color: var(--wh-white-18, rgba(255,255,255,0.18)); color: rgba(255,255,255,0.82); font-weight: 600;
     }
 
     /* Compare-mode selection visual */
@@ -299,7 +299,7 @@
        comment below says their geometry is deliberately identical. */
     .cat-chip {
       padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
-      background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--wh-steel-bright); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
     }
     /* Money coming BACK to the buyer, so it reads as a gain rather than another grey fact. Same chip
        geometry as .cat-chip beside it — the colour is the whole difference, because a card with two
@@ -309,7 +309,7 @@
     }
     .cond-chip { padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
     .cond-chip.new   { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.1); color: var(--wh-green); border: 1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.2); }
-    .cond-chip.used  { background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.1); }
+    .cond-chip.used  { background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--wh-steel-bright); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); }
     .cond-chip.refurb { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1); color: var(--wh-orange); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); }   /* was amber-400 tints beside --wh-orange text (W45971) */
 
     /* Card footer */
@@ -317,7 +317,7 @@
        (critique W45971, 2026-10-13 - measured, the name's own 80px cap cut "Leandro Marquez" even on a 390 phone) */
     .card-footer {
       display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; row-gap: 0.25rem;
-      padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05);   /* 0.625rem was 10px (W45965) */
+      padding-top: 0.75rem; border-top: 1px solid var(--wh-white-05, rgba(255,255,255,0.05));   /* 0.625rem was 10px (W45965) */
     }
     .seller-row { display: flex; align-items: center; gap: 0.4rem; min-width: 0; flex: 1 1 auto; }
     .card-footer > div:last-child { margin-left: auto; }   /* rating + View stay at the right edge when the footer wraps */
@@ -342,10 +342,10 @@
     .btn-view:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); }
 
     /* Skeleton */
-    .skel { background: rgba(255,255,255,0.04); border-radius: 0.5rem; }
+    .skel { background: var(--wh-white-04, rgba(255,255,255,0.04)); border-radius: 0.5rem; }
     .skel-pulse { animation: skel-anim 1.5s ease-in-out infinite; }
     @keyframes skel-anim { 0%,100% { opacity: 0.4; } 50% { opacity: 0.8; } }
-    .skel-card { border-radius: 1rem; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.3), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.5)); }
+    .skel-card { border-radius: 1rem; overflow: hidden; border: 1px solid var(--wh-white-05, rgba(255,255,255,0.05)); background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.3), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.5)); }
 
     /* Empty state */
     .empty-state { grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: var(--wh-steel-bright); }
@@ -400,14 +400,14 @@
 
     /* Bottom sheets */
     .sheet-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100;
+      position: fixed; inset: 0; background: var(--wh-black-60, rgba(0,0,0,0.6)); z-index: 100;
       opacity: 0; pointer-events: none; transition: opacity 0.25s;
     }
     .sheet-overlay.open { opacity: 1; pointer-events: all; }
     .sheet {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 101;
       background: linear-gradient(160deg, var(--wh-navy-mid) 0%, var(--wh-navy) 100%);
-      border-radius: 16px 16px 0 0; border-top: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px 16px 0 0; border-top: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       /* The bottom padding clears the home indicator. marketplace-seller.html's .sheet — the same
          rule, on the other side of the same marketplace — has always read
          calc(2rem + env(safe-area-inset-bottom)); this one read a flat 2rem, so on a notched phone
@@ -427,12 +427,12 @@
    tree; the delayed visibility transition lets the slide-out still animate (nav-hub's own panel technique). */
 .sheet:not(.open) { visibility: hidden; transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s linear 0.25s; }
 .sheet.open { visibility: visible; transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s; }
-    .sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 999px; margin: 0 auto 1rem; }
+    .sheet-handle { width: 40px; height: 4px; background: var(--wh-white-15, rgba(255,255,255,0.15)); border-radius: 999px; margin: 0 auto 1rem; }
     .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
     .sheet-title { font-size: 1rem; font-weight: 700; }
     .btn-close-sheet {
       width: 44px; height: 44px; border-radius: 50%; /* D1 U2: 32→44 gloved-field tap target */
-      background: rgba(255,255,255,0.06); border: none; cursor: pointer;
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center; color: var(--wh-steel-bright);
     }
 
@@ -441,7 +441,7 @@
     .form-label { font-size: 0.75rem; font-weight: 600; color: var(--wh-steel-bright); margin-bottom: 0.4rem; display: block; }
     .wh-input {
       width: 100%; padding: 0.65rem 0.875rem;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: var(--wh-radius-sm); color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
     }
@@ -449,7 +449,7 @@
     .wh-input::placeholder { color: var(--wh-steel-bright); }
     .wh-select {
       width: 100%; padding: 0.65rem 0.875rem;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: var(--wh-radius-sm); color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
       cursor: pointer; appearance: none; -webkit-appearance: none;
@@ -457,7 +457,7 @@
     .wh-select:focus { outline: none; border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); }
     .wh-textarea {
       width: 100%; padding: 0.65rem 0.875rem;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 8px; color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
       resize: vertical; min-height: 80px;
@@ -471,7 +471,7 @@
     .section-toggle { display: flex; gap: 0.4rem; }
     .section-toggle-btn {
       flex: 1; padding: 0.5rem; text-align: center;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.5rem; color: var(--wh-steel-bright);
       font-size: 0.75rem; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer;
       transition: all 0.15s; min-height: 44px; /* D1 U2 */
@@ -491,12 +491,12 @@
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-secondary {
       flex: 1; padding: 0.7rem;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      background: var(--wh-white-05, rgba(255,255,255,0.05)); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       border-radius: 8px; color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer;
       transition: background 0.15s;
     }
-    .btn-secondary:hover { background: rgba(255,255,255,0.08); }
+    .btn-secondary:hover { background: var(--wh-white-08, rgba(255,255,255,0.08)); }
     .btn-cta {
       flex: 2; padding: 0.7rem;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none; border-radius: 8px;
@@ -540,7 +540,7 @@
 
     /* Seller card in detail */
     .seller-card {
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 0.75rem; padding: 0.875rem;
       display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
     }
@@ -557,7 +557,7 @@
     .seller-badges { display: flex; gap: 0.35rem; margin-top: 0.35rem; flex-wrap: wrap; }
 
     /* Reviews */
-    .review-item { padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .review-item { padding: 0.75rem 0; border-bottom: 1px solid var(--wh-white-05, rgba(255,255,255,0.05)); }
     .review-item:last-child { border-bottom: none; }
     .review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; }
     .review-author { font-size: 0.78rem; font-weight: 600; }
@@ -576,7 +576,7 @@
     /* Toast */
     #toast {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px);
-      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       border-radius: 0.75rem; padding: 0.75rem 1.25rem;
       font-size: 0.82rem; font-weight: 600; z-index: 200;
       /* ★THE RETIRED BOUNCE, STILL HARD-CODED (design lens, 2026-09-16). tokens.css retired
@@ -637,10 +637,10 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #mk-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #mk-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #mk-summary-details.open { display:block; }
   </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -673,7 +673,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span data-i="p_browsingasaguestsignintobuys_ec38" style="font-size:0.78rem;color:var(--wh-text-muted, rgba(255,255,255,0.8));">Browsing as a guest. Sign in to buy, sell, or hail services</span>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a data-i="p_signin_f849" href="index.html?signin=1&return=marketplace.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:var(--wh-radius, 12px);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.9);font-size:0.8rem;font-weight:700;text-decoration:none;">Sign In</a>
+      <a data-i="p_signin_f849" href="index.html?signin=1&return=marketplace.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:var(--wh-radius, 12px);border:1px solid var(--wh-white-20, rgba(255,255,255,0.2));color:rgba(255,255,255,0.9);font-size:0.8rem;font-weight:700;text-decoration:none;">Sign In</a>
       <a data-i="p_signupfree_8f5e" href="index.html?signup=1&return=marketplace.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 16px;border-radius:var(--wh-radius, 12px);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-size:0.8rem;font-weight:700;text-decoration:none;">Sign Up Free</a>
     </div>
   </div>
@@ -907,7 +907,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <button id="btn-load-more" style="display:none;" class="btn-load-more" data-i="loadmore">Load More</button>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="mk-summary-details">
@@ -956,7 +956,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <span data-i="p_tapuptolistingstorequestquot_fc5a" style="font-size: 0.75rem;color:var(--wh-steel-bright);font-weight:400;display:block;margin-top:0.25rem;">Tap up to 5 listings to request quotes</span>
     </div>
     <div style="display:flex;gap:0.5rem;">
-      <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--wh-steel-bright);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;" data-i="clear">Clear</button>
+      <button id="btn-compare-clear" style="padding:0.55rem 0.875rem;border-radius:0.5rem;background:var(--wh-white-06, rgba(255,255,255,0.06));border:1px solid var(--wh-white-10, rgba(255,255,255,0.1));color:var(--wh-steel-bright);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;" data-i="clear">Clear</button>
       <button id="btn-compare-rfq" style="padding:0.55rem 1rem;border-radius:0.5rem;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));border:none;color:var(--wh-ink-deep, #0f1923);font-family:Poppins,system-ui,-apple-system,sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
         <span class="ic ic-send" aria-hidden="true"></span>
         <span data-i="requestquotes">Request Quotes</span>
@@ -1046,7 +1046,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- Image picker — single photo, compressed client-side before upload -->
     <div class="form-group">
       <label for="post-image-file" class="form-label" data-i="photo">Photo (recommended)</label>
-      <div id="post-image-zone" style="position:relative;border:2px dashed rgba(255,255,255,0.15);border-radius:12px;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color 0.15s;">
+      <div id="post-image-zone" style="position:relative;border:2px dashed var(--wh-white-15, rgba(255,255,255,0.15));border-radius:12px;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color 0.15s;">
         <input type="file" id="post-image-file" accept="image/jpeg,image/jpg,image/png,image/webp" style="position:absolute;inset:0;opacity:0;cursor:pointer;" aria-label="Choose listing photo" />
         <div id="post-image-empty" style="color:var(--wh-steel-bright);">
           <span class="ic ic-image ic-lg" aria-hidden="true"></span>
@@ -1075,12 +1075,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
 
     <!-- Quality score widget — updates in real time as the seller types -->
-    <div id="quality-widget" style="margin-bottom:1rem;padding:0.875rem;background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5);border:1px solid rgba(255,255,255,0.07);border-radius:0.75rem;">
+    <div id="quality-widget" style="margin-bottom:1rem;padding:0.875rem;background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5);border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));border-radius:0.75rem;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
         <span data-i="p_listingqualityworkhivemarket_0cc7" style="font-size:0.78rem;font-weight:700;" title="WorkHive Marketplace Seller Score: platform-internal listing-quality composite (0-100)">Listing quality · WorkHive Marketplace Seller Score</span>
         <span id="quality-score-num" style="font-size:0.95rem;font-weight:800;color:var(--wh-steel-bright);">0 / 100</span>
       </div>
-      <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:999px;overflow:hidden;">
+      <div style="height:6px;background:var(--wh-white-07, rgba(255,255,255,0.07));border-radius:999px;overflow:hidden;">
         <div id="quality-bar" style="height:100%;width:0%;background:var(--wh-red);transition:width 0.3s,background 0.3s;"></div>
       </div>
       <div id="quality-tips" style="margin-top:0.625rem;font-size: 0.75rem;color:var(--wh-steel-bright);line-height:1.6;"></div>
@@ -1092,7 +1092,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          commitment - it spends a credit hold, it goes to moderation, and it is the first thing a
          stranger judges the seller by - so J3's bar is preview-before-irreversible. Built from the
          SAME fields the insert reads, so the preview cannot drift from what actually publishes. -->
-    <div id="post-preview" style="display:none;margin-bottom:0.75rem;padding:0.875rem;border:1px solid rgba(255,255,255,0.12);border-radius:0.75rem;background:var(--wh-surface-card, rgba(255,255,255,0.03));">
+    <div id="post-preview" style="display:none;margin-bottom:0.75rem;padding:0.875rem;border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));border-radius:0.75rem;background:var(--wh-surface-card, rgba(255,255,255,0.03));">
       <p data-i="p_howbuyerswillseethis_98e3" style="font-size: 0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--wh-steel-bright);margin:0 0 0.5rem;">How buyers will see this</p>
       <div id="post-preview-body"></div>
       <p data-i="p_nothingispostedyetclosethist_491b" style="font-size: 0.75rem;color:rgba(255,255,255,0.72);margin:0.5rem 0 0;">Nothing is posted yet. Close this to keep editing.</p>
@@ -1683,7 +1683,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (plr) plr.textContent = selected.length === 1 ? '' : 's';
     if (list) {
       list/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = selected.map(item => `
-        <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;background:rgba(255,255,255,0.04);border-radius:12px;font-size: 0.75rem;">
+        <div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;background:var(--wh-white-04, rgba(255,255,255,0.04));border-radius:12px;font-size: 0.75rem;">
           <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--wh-cloud);">${e(item.title)}</span>
           <span style="color:var(--wh-steel-bright);white-space:nowrap;">${e(item.seller_name || 'Seller')}</span>
         </div>`).join('');
@@ -1894,7 +1894,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           pieces.push(`PHP ${s.price_min ?? '0'}-${s.price_max ?? 'any'}`);
         }
         return `
-          <div style="padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="padding:0.75rem 0;border-bottom:1px solid var(--wh-white-06, rgba(255,255,255,0.06));">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.35rem;">
               <span style="font-size:0.85rem;font-weight:700;">${e(s.search_name)}</span>
               <span style="display:inline-flex;gap:0.3rem;align-items:center;">
@@ -2132,7 +2132,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
           var sent = r.created_at ? (typeof whFmtDate === 'function' ? whFmtDate(r.created_at) : String(r.created_at).slice(0, 10)) : '';
           // the buyer's question and the seller's reply are people's own words, marked as such (data-user-content), so
           // nothing grades a seller's sentence as the marketplace's copy (ENH-C B3, 2026-10-22)
-          return '<div style="padding:6px 0;border-top:1px solid rgba(255,255,255,0.06);">' +
+          return '<div style="padding:6px 0;border-top:1px solid var(--wh-white-06, rgba(255,255,255,0.06));">' +
             '<div style="font-size: 0.75rem;opacity:0.75;">You asked: <span data-user-content>' + e(String(r.message || '').slice(0, 90)) + '</span></div>' +
             (r.reply_text
               ? '<div style="font-size:0.8rem;margin-top:2px;"><strong>' + e(r.seller_name || 'The seller') + '</strong> replied' +
@@ -2272,7 +2272,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       // Render the DIFFERENCE (saved ids vs readable rows) instead of quietly showing fewer cards.
       const _goneCount = Math.max(0, ids.length - items.length);
       const _goneNote = _goneCount
-        ? `<div role="status" style="font-size:0.75rem;color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);border-radius:0.5rem;padding:0.5rem 0.65rem;margin:0 0 0.6rem;display:flex;align-items:center;justify-content:space-between;gap:0.6rem;flex-wrap:wrap;">
+        ? `<div role="status" style="font-size:0.75rem;color:rgba(255,255,255,0.85);background:var(--wh-white-04, rgba(255,255,255,0.04));border:1px solid var(--wh-white-10, rgba(255,255,255,0.10));border-radius:0.5rem;padding:0.5rem 0.65rem;margin:0 0 0.6rem;display:flex;align-items:center;justify-content:space-between;gap:0.6rem;flex-wrap:wrap;">
              <span>${_goneCount} saved listing${_goneCount === 1 ? ' is' : 's are'} no longer available. ${_goneCount === 1 ? 'It was' : 'They were'} sold or withdrawn by the seller.</span>
              <button id="btn-clear-gone-saves" class="btn-secondary" style="min-height:44px;padding:0.35rem 0.75rem;font-size: 0.75rem;white-space:nowrap;">Remove ${_goneCount === 1 ? 'it' : 'them'}</button>
            </div>`
@@ -2288,7 +2288,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         const removed = item.status === 'removed';
         const hasImg  = !!item.image_url;
         return `
-          <div style="display:flex;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid rgba(255,255,255,0.05);${removed ? 'opacity:0.6;' : ''}">
+          <div style="display:flex;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid var(--wh-white-05, rgba(255,255,255,0.05));${removed ? 'opacity:0.6;' : ''}">
             <div style="width:60px;height:60px;border-radius:0.5rem;flex-shrink:0;background:rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.8);display:flex;align-items:center;justify-content:center;overflow:hidden;">
               ${hasImg ? `<img src="${e(item.image_url)}" alt="${e(item.title)}" style="width:100%;height:100%;object-fit:cover;" />`
                        : `<span class="ic ic-image ic-lg" aria-hidden="true"></span>`}
@@ -4952,7 +4952,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     const byId = {}; (provs || []).forEach(p => { byId[p.id] = p; });
     slot.innerHTML = offers.map(o => {
       const p = byId[o.provider_id] || {};
-      return '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);padding:0.6rem 0.7rem;margin:0.35rem 0;">' +
+      return '<div style="border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));border-radius:var(--wh-radius-sm);padding:0.6rem 0.7rem;margin:0.35rem 0;">' +
         '<strong>₱' + Number(o.price || 0).toLocaleString() + '</strong> - ' + e(p.display_name || 'Provider') +
         /* T70 (2026-08-27): IS THIS A COMPANY OR A PERSON. provider_type ('hive' | 'freelancer')
            was written at provider signup and rendered nowhere, though v_service_provider_truth has
@@ -5003,7 +5003,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     if (slot.innerHTML) { slot.innerHTML = ''; return; }   // toggle, like the rating panel
     const e = escHtml, id = e(requestId);
     slot.innerHTML =
-      '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);padding:0.7rem 0.8rem;">' +
+      '<div style="border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));border-radius:var(--wh-radius-sm);padding:0.7rem 0.8rem;">' +
         '<div data-i="payconfirmtitle" style="font-size:0.78rem;font-weight:600;margin-bottom:0.15rem;">Confirm what you paid</div>' +
         (function(){
           var to = _svcPayTo[requestId] || {};
@@ -5189,7 +5189,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         // Nothing to spend. Say what they GET instead of saying nothing at all.
         if (earn > 0) {
           slot./* xss-allow: escHtml()'d */ innerHTML =
-            '<div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:0.5rem;padding-top:0.5rem;' +
+            '<div style="border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));margin-top:0.5rem;padding-top:0.5rem;' +
               'font-size: 0.75rem;line-height:1.5;">' +
               '<strong>Pay in full and you receive ' + e0(fmtPrice(earn)) + ' back in credits.</strong> ' +
               '1 credit = ₱1, and you can put them toward your next job here.' +
@@ -5200,7 +5200,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
 
       const e = escHtml, id = e(requestId);
       slot./* xss-allow: every interpolation is escHtml()'d or a Number */ innerHTML =
-        '<div style="border-top:1px solid rgba(255,255,255,0.08);margin-top:0.5rem;padding-top:0.5rem;">' +
+        '<div style="border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));margin-top:0.5rem;padding-top:0.5rem;">' +
           '<label for="svc-pay-credits-amt-' + id + '" style="font-size: 0.75rem;opacity:0.85;">' +
             'Use your WorkHive Credits (optional)</label>' +
           '<div style="font-size: 0.75rem;opacity:0.75;margin-bottom:0.25rem;">' +
@@ -5318,7 +5318,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     if (!slot) return;
     if (slot.innerHTML) { slot.innerHTML = ''; return; } // toggle
     const e = escHtml;
-    slot.innerHTML = '<div style="border:1px solid rgba(255,255,255,0.12);border-radius:var(--wh-radius-sm);padding:0.6rem 0.7rem;">' +
+    slot.innerHTML = '<div style="border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));border-radius:var(--wh-radius-sm);padding:0.6rem 0.7rem;">' +
       '<div style="font-size:0.78rem;font-weight:600;margin-bottom:0.3rem;">How was the provider?</div>' +
       '<div role="radiogroup" aria-label="Rating from 1 to 5 stars" style="display:flex;gap:0.3rem;margin-bottom:0.4rem;">' +
       [1, 2, 3, 4, 5].map(n => '<button type="button" data-svc-star="' + n + '" aria-label="' + n + ' star' + (n > 1 ? 's' : '') + '" onclick="svcPickStar(\'' + e(requestId) + '\',' + n + ')" style="' + _svcGhostC + 'min-width:44px;">' + n + '★</button>').join('') + '</div>' +
@@ -6347,7 +6347,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     body.innerHTML =
       '<p style="font-weight:700;font-size:0.9rem;margin:0 0 0.25rem;">' + (title ? e(title) : '<span style="color:var(--wh-steel-bright);">(no title yet)</span>') + '</p>'
       + '<p style="font-size:0.8rem;color:var(--wh-orange);font-weight:700;margin:0 0 0.35rem;">' + e(priceTxt) + '</p>'
-      + (cond ? '<span style="display:inline-block;font-size: 0.75rem;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.08);margin-bottom:0.4rem;">' + e(cond) + '</span>' : '')
+      + (cond ? '<span style="display:inline-block;font-size: 0.75rem;padding:2px 8px;border-radius:999px;background:var(--wh-white-08, rgba(255,255,255,0.08));margin-bottom:0.4rem;">' + e(cond) + '</span>' : '')
       + (part ? '<p style="font-size: 0.75rem;color:rgba(255,255,255,0.72);margin:0.3rem 0 0;">Part no. ' + e(part) + '</p>' : '')
       + '<p style="font-size:0.75rem;color:rgba(255,255,255,0.82);line-height:1.5;margin:0.4rem 0 0;">'
       + (desc ? e(desc) : '<span style="color:var(--wh-steel-bright);">(no description yet)</span>') + '</p>';

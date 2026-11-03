@@ -56,12 +56,12 @@
 
     .card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.9) 100%);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       border-radius: 1rem;
     }
     .wh-input {
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
       color: white;
       padding: 0.75rem 1rem;
@@ -105,7 +105,7 @@
       border-radius: 0.75rem;
       padding: 0.75rem 1.5rem;
       font-size: 0.875rem;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
       cursor: pointer;
       transition: all 0.2s;
       /* U-6 (deep-arc P3): 44px min target (WCAG 2.5.8 / Apple HIG). */
@@ -145,7 +145,7 @@
       color: var(--wh-orange-text);
       border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);
     }
-    .page-tab:hover:not(.active) { color: var(--wh-text-muted, rgba(255,255,255,0.8)); background: rgba(255,255,255,0.05); }
+    .page-tab:hover:not(.active) { color: var(--wh-text-muted, rgba(255,255,255,0.8)); background: var(--wh-white-05, rgba(255,255,255,0.05)); }
 
     /* Discipline pills */
     .discipline-pill {
@@ -160,7 +160,7 @@
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
-      border: 2px solid rgba(255,255,255,0.1);
+      border: 2px solid var(--wh-white-10, rgba(255,255,255,0.1));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4);
       min-height: 44px;
@@ -181,7 +181,7 @@
     .calc-card {
       padding: 1rem;
       border-radius: 0.75rem;
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.6);
       cursor: pointer;
       transition: all 0.2s;
@@ -198,7 +198,7 @@
       border-radius: 999px;
       font-size: 0.75rem;
       font-weight: 500;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5);
       cursor: pointer;
@@ -241,7 +241,7 @@
     .step-dot {
       width: 8px; height: 8px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.2);
+      background: var(--wh-white-20, rgba(255,255,255,0.2));
       transition: all 0.2s;
     }
     .step-dot.active { background: var(--wh-orange); width: 20px; border-radius: 999px; }
@@ -330,7 +330,7 @@
     /* History card */
     .hist-card {
       background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.6);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       border-radius: 0.75rem;
       padding: 1rem 1.25rem;
       transition: border-color 0.2s;
@@ -362,7 +362,7 @@
          into it, so it never needs to receive a pointer - and a VISIBLE toast can no longer swallow
          a tap either. */
       pointer-events: none;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       white-space: nowrap;
     }
     #toast.show { opacity: 1; }
@@ -385,7 +385,7 @@
       border-radius: 8px;
       font-size: 0.75rem;
       font-weight: 500;
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       cursor: pointer;
       background: transparent;
@@ -400,7 +400,7 @@
       gap: 0.65rem;
       padding: 0.75rem 0.75rem;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.45);
       margin-bottom: 0.5rem;
       transition: border-color 0.15s;
@@ -417,7 +417,7 @@
     .bom-item-row { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
     .bom-item-input {
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 8px;
       color: white;
       padding: 0.25rem 0.55rem;
@@ -432,7 +432,7 @@
     .bom-item-input.rmk  { flex: 1; min-width: 80px; }
     .bom-item-select {
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 8px;
       color: white;
       padding: 0.25rem 0.4rem;
@@ -457,7 +457,7 @@
     .sow-checklist-item {
       padding: 0.75rem 0.75rem;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.45);
       margin-bottom: 0.5rem;
     }
@@ -519,7 +519,7 @@
     /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb { background: var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 999px; }
 
     /* ════════════════════════════════
        UX ENHANCEMENTS: TEST BUILD
@@ -539,7 +539,7 @@
     /* Discipline count badge */
     .pill-count {
       display: inline-flex; align-items: center; justify-content: center;
-      background: rgba(255,255,255,0.12); border-radius: 999px;
+      background: var(--wh-white-12, rgba(255,255,255,0.12)); border-radius: 999px;
       font-size: 0.75rem; font-weight: 700; padding: 2px 6px; margin-left: 4px;
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
     }
@@ -550,7 +550,7 @@
     /* Search box */
     #calc-search {
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
       color: white; width: 100%;
       padding: 0.75rem 1rem 0.75rem 2.5rem;
@@ -579,7 +579,7 @@
     .recent-chip {
       display: inline-flex; align-items: center; gap: 6px;
       background: rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.7);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: var(--wh-radius, 12px); padding: 5px 12px; min-height: 44px;
       font-size: 0.75rem; color:rgba(255,255,255,0.83);
       cursor: pointer; white-space: nowrap;
@@ -598,7 +598,7 @@
       text-transform: uppercase; letter-spacing: 0.1em;
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       padding: 0.5rem 0 0.25rem;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid var(--wh-white-06, rgba(255,255,255,0.06));
       margin-top: 0.25rem;
     }
     .calc-subcat-header:first-child { margin-top: 0; }
@@ -607,7 +607,7 @@
     .calc-disc-tag {
       font-size: 0.75rem; font-weight: 600;
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
-      background: rgba(255,255,255,0.06);
+      background: var(--wh-white-06, rgba(255,255,255,0.06));
       border-radius: 8px; padding: 2px 5px;
       margin-left: auto; flex-shrink: 0;
       white-space: nowrap;
@@ -623,13 +623,13 @@
     .ed-catalog-notice ul { margin: 0.3rem 0 0; padding-left: 1.1rem; }
     .ed-compare-scroll { overflow-x: auto; }
     .ed-compare-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; font-variant-numeric: tabular-nums; }
-    .ed-compare-table th, .ed-compare-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.12); vertical-align: top; }
+    .ed-compare-table th, .ed-compare-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); vertical-align: top; }
     .ed-compare-table thead th { font-weight: 600; color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
     .ed-compare-table tbody th { font-weight: 500; }
     .ed-compare-table td.is-diff { font-weight: 700; color: #fff; }
     .ed-compare-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .ed-share-box { margin: 0 0 12px; font-size: 0.875rem; line-height: 1.5; color: rgba(255,255,255,0.85); }
-    .ed-share-box input { display: block; width: 100%; margin-top: 4px; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #fff; font-size: 0.875rem; }
+    .ed-share-box input { display: block; width: 100%; margin-top: 4px; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--wh-white-20, rgba(255,255,255,0.2)); background: var(--wh-white-06, rgba(255,255,255,0.06)); color: #fff; font-size: 0.875rem; }
   </style>
   <link rel="canonical" href="https://workhiveph.com/engineering-design.html" />
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -665,7 +665,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
        (measured at 390). The band's line is already reserved in flow (body padding-top below); the bar pins on that same
        line, plus the offline banner's height that the band itself is pushed down by, and the notch sits inside the
        band's reserve rather than in this bar. -->
-  <div style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.8);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(12px);top:calc(64px + env(safe-area-inset-top, 0px) + var(--wh-offline-banner-h, 0px));" class="sticky z-40" id="ed-pinned-header">
+  <div style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.8);border-bottom:1px solid var(--wh-white-07, rgba(255,255,255,0.07));backdrop-filter:blur(12px);top:calc(64px + env(safe-area-inset-top, 0px) + var(--wh-offline-banner-h, 0px));" class="sticky z-40" id="ed-pinned-header">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-y-2">
       <div class="flex items-center gap-3 min-w-0 flex-1">
         <a data-i="p_back_c32a" href="index.html" style="color:var(--wh-text-faint, rgba(255,255,255,0.86));font-size:0.75rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
@@ -862,7 +862,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <!-- SOW list -->
             <div id="sow-sections-list" class="hidden"></div>
             <!-- Actions row -->
-            <div class="flex gap-2 flex-wrap mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="flex gap-2 flex-wrap mt-4 pt-4" style="border-top:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
               <button onclick="addBomRow()" id="bom-add-row-btn" class="btn-ghost text-xs py-2 px-3" data-i="additem">+ Add Item</button>
               <button onclick="addSowRow()" id="sow-add-row-btn" class="btn-ghost text-xs py-2 px-3 hidden" data-i="addsection">+ Add Section</button>
               <button onclick="generateDocuments()" class="btn-primary text-sm py-2 px-5 ml-auto" data-i="generatedocuments">Generate Documents →</button>
@@ -976,7 +976,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <div id="toast" role="alert" aria-live="polite"></div>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>

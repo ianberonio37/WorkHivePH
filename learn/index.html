@@ -96,7 +96,7 @@
     .article-card {
       min-width: 0; overflow-wrap: break-word;
       background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55);
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 16px;
       padding: 24px 26px;
       transition: border-color .2s ease, background .2s ease, transform .2s ease;
@@ -113,7 +113,7 @@
     }
     .article-card.coming-soon:hover {
       transform: none;
-      border-color: rgba(255,255,255,0.07);
+      border-color: var(--wh-white-07, rgba(255,255,255,0.07));
       background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55);
     }
     .pill {
@@ -136,7 +136,7 @@
     .pill-orange { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--wh-orange,#F7A21B); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
     .pill-steel  { background: rgba(123,135,148,0.18); color: #9CA8B5; border: 1px solid rgba(123,135,148,0.35); }
     /* Learn-hub search + filter (mirrors the community.html filter-chip pattern) */
-    .filter-chip { padding: 8px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; cursor: pointer; min-height: 44px; min-width: 44px; justify-content: center; display: inline-flex; align-items: center; /* K2/F1 (2026-09-05): 31px tall / 43px wide chips at 390 */ background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); min-height: 44px; transition: all .15s ease; }
+    .filter-chip { padding: 8px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; cursor: pointer; min-height: 44px; min-width: 44px; justify-content: center; display: inline-flex; align-items: center; /* K2/F1 (2026-09-05): 31px tall / 43px wide chips at 390 */ background: var(--wh-white-04, rgba(255,255,255,0.04)); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color: rgba(255,255,255,0.6); min-height: 44px; transition: all .15s ease; }
     .filter-chip:hover { border-color: rgba(255,255,255,0.55); color: rgba(255,255,255,0.85); }
     .filter-chip.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); color: var(--wh-orange,#F7A21B); }
     /* T2 (2026-09-05): at 390 px a nowrap chip wider than its box clips - let chips wrap their label on narrow phones */
@@ -213,7 +213,7 @@
 <link rel="stylesheet" href="/wh-tw-pub-site.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->
 </head>
 <body class="bg-navy-wh text-white antialiased">
-<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn-hub" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn-hub" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px var(--wh-black-35, rgba(0,0,0,.35));transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 
 <!-- ── Nav ── -->
 <header class="border-b border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
@@ -783,14 +783,14 @@
 
     <p id="lh-empty" class="text-center text-white/45 py-12">No guides match that search. Try a different word, or tap <strong>All</strong>.</p>
     <div class="text-center mt-8">
-      <button id="lh-more" class="lh-more-btn" data-i="lh-more" style="display:none; padding:12px 28px; min-height:44px; border-radius:8px; border:1px solid rgba(255,255,255,0.35); background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.9); font-weight:600; cursor:pointer;">Show more guides</button>
+      <button id="lh-more" class="lh-more-btn" data-i="lh-more" style="display:none; padding:12px 28px; min-height:44px; border-radius:8px; border:1px solid rgba(255,255,255,0.35); background:var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(255,255,255,0.9); font-weight:600; cursor:pointer;">Show more guides</button>
     </div>
 
   </div>
 </section>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <div class="max-w-4xl mx-auto px-5 sm:px-8" data-wh-sources-column>
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">

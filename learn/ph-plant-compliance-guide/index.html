@@ -205,7 +205,7 @@
        not flag it - the don't is about a CARD wearing a coloured tab, not about a quote. */
     .prose-wh blockquote { border-left: 3px solid var(--wh-orange,#F7A21B); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); font-style: italic; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
-    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); vertical-align: top; }
 /* A cell breaks between WORDS (2026-10-27): .prose-wh's overflow-wrap:anywhere let auto table layout shrink every column to one
    letter, so on a phone 'WorkHive' read 'WorkHiv e' and the table never used its scroll region. A whole word is a cell's
    minimum; a wide table scrolls inside [data-table-scroll]; an over-long token still wraps (break-word). */
@@ -215,8 +215,8 @@
          pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
          wrapped to THREE lines in 66px (W46083, 2026-09-16). One line here is what makes the wrapper real. */
       white-space: nowrap; }
-    .prose-wh code { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 0.95rem; color: #FED38D; }
-    .toc { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 24px 26px; margin: 2rem 0 3rem; }
+    .prose-wh code { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); padding: 2px 8px; border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 0.95rem; color: #FED38D; }
+    .toc { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 16px; padding: 24px 26px; margin: 2rem 0 3rem; }
     .toc h2, .toc h4 { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
     .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.95rem; }
     .toc a { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); text-decoration: none; } .toc a:hover { color: var(--wh-orange,#F7A21B); }
@@ -231,13 +231,13 @@
     .callout strong { color: #A4E2F2; }
     .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: 0.05em; text-transform: uppercase; }
     .pill-orange { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--wh-orange,#F7A21B); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
-    .faq-item { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; margin-bottom: 12px; }
+    .faq-item { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 16px; margin-bottom: 12px; }
     .faq-item[open] { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.85); }
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: var(--wh-cloud,#F4F6FA); display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
     .faq-item summary::after { content: '+'; font-size: 1.25rem; color: var(--wh-orange,#F7A21B); } .faq-item[open] summary::after { content: '\2212'; }
     .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); line-height: 1.7; font-size: 0.95rem; }
-    .author-card { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
+    .author-card { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.5); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 16px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
     .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--wh-orange,#F7A21B), var(--wh-orange-light,#FDB94A)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--wh-navy,#162032); font-size: 1.05rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.95rem; margin-bottom: 2px; }
     .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); }
@@ -253,7 +253,7 @@
        plus a reduced-motion guard for the hover lift. */
     .cta-btn { display: inline-block; background: linear-gradient(135deg, var(--wh-orange,#F7A21B) 0%, var(--wh-orange-dark,#D88A0E) 100%); color: var(--wh-navy,#162032); font-weight: 700; padding: 12px 28px; border-radius: 8px; text-decoration: none; transition: transform .18s, box-shadow .18s; }
     .prose-wh a.cta-btn { color: var(--wh-navy,#162032); text-decoration: none; }
-    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px rgba(0,0,0,0.55); }
+    .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px var(--wh-black-55, rgba(0,0,0,0.55)); }
     @media (prefers-reduced-motion: reduce) { .cta-btn { transition: none; } .cta-btn:hover { transform: none; } }
     .callout > p { margin: 0 0 16px; }
     .callout .cta-secondary { font-size: 0.85rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); margin: 16px 0 0; }
@@ -308,7 +308,7 @@
      (amber on navy, 44px, hidden until focused) rather than inventing a second look; these pages do
      not load that file, so it is inlined here. -->
 <a class="wh-skip-link" href="#wh-main-content"
-   style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;"
+   style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px var(--wh-black-35, rgba(0,0,0,.35));transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;"
    onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 
 <header class="border-b border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">

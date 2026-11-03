@@ -63,7 +63,7 @@
     /* Tab switcher */
     .tab-bar {
       display: flex; gap: 0.375rem; margin-bottom: 1.5rem;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 0.75rem; padding: 0.35rem;
       overflow-x: auto; -webkit-overflow-scrolling: touch; /* contain 5-tab row at ≤360px (was 148px page overflow) */
     }
@@ -91,7 +91,7 @@
     }
     .stat-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 0.875rem;
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 12px; padding: 0.875rem;
       text-align: center;
     }
     .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--wh-orange); font-variant-numeric: tabular-nums; }
@@ -106,7 +106,7 @@
        once the icon became an emoji span, so it sat above the field (critique W45915, 2026-10-13) */
     .search-input {
       width: 100%; min-height: 44px; padding: 0.625rem 0.875rem 0.625rem 2.25rem;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 8px; color: var(--wh-cloud);
       font-family: 'Poppins', sans-serif; font-size: 1rem;
     }
@@ -121,7 +121,7 @@
 
     .admin-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; overflow: hidden;
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 1rem; overflow: hidden;
     }
     .admin-card.draft  { border-left: 3px solid var(--wh-orange); }
     .admin-card.published { border-left: 3px solid var(--wh-green); }
@@ -141,7 +141,7 @@
     .card-meta { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.35rem; }
     .meta-chip {
       padding: 0.12rem 0.45rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
-      background: rgba(255,255,255,0.06); color: var(--wh-steel-bright); border: 1px solid rgba(255,255,255,0.08);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--wh-steel-bright); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
     }
     .meta-chip.gold   { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1); color: var(--wh-orange); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25); }
     .meta-chip.green  { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.1); color: var(--wh-green); border-color: rgba(var(--wh-green-rgb, 74, 222, 128), 0.2); }
@@ -154,7 +154,7 @@
     /* Action row */
     .card-actions {
       display: flex; gap: 0.5rem; padding: 0.625rem 0.875rem;
-      border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.15);
+      border-top: 1px solid var(--wh-white-05, rgba(255,255,255,0.05)); background: rgba(0,0,0,0.15);
     }
     /* Approve is the moderator's RECOMMENDED action — filled green so it reads as the primary
        per-card CTA (A1 5-second test); Reject stays ghost = clear primary/secondary hierarchy. */
@@ -165,11 +165,11 @@
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
       min-height: 44px; padding: 0.5rem 0.9rem; border-radius: 0.5rem;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); border: 1px solid var(--wh-white-18, rgba(255,255,255,0.18));
       color: var(--text); font-family: 'Poppins', sans-serif; font-size: 0.82rem; font-weight: 600;
       text-decoration: none; cursor: pointer;
     }
-    .btn:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.28); }
+    .btn:hover { background: var(--wh-white-10, rgba(255,255,255,0.10)); border-color: rgba(255,255,255,0.28); }
     .btn-approve {
       flex: 1; min-height: 44px; padding: 0.55rem; border-radius: 0.5rem; cursor: pointer;
       background: linear-gradient(135deg, var(--wh-green), var(--wh-green)); border: 1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.5);
@@ -188,7 +188,7 @@
     .btn-reject:disabled { opacity: 0.5; cursor: not-allowed; }
     .btn-unpublish {
       padding: 0.45rem 0.75rem; border-radius: 0.5rem; cursor: pointer;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      background: var(--wh-white-05, rgba(255,255,255,0.05)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       color: var(--wh-steel-bright); font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
       transition: background 0.15s;
     }
@@ -197,7 +197,7 @@
     /* Seller cards */
     .seller-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; padding: 0.875rem;
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 1rem; padding: 0.875rem;
       display: flex; align-items: center; gap: 0.875rem;
     }
     .seller-avatar {
@@ -218,7 +218,7 @@
     .btn-verify:hover { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.2); }
     .btn-unverify {
       padding: 0.45rem 0.875rem; border-radius: 0.5rem; cursor: pointer;
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      background: var(--wh-white-04, rgba(255,255,255,0.04)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       color: var(--wh-steel-bright); font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
       white-space: nowrap;
     }
@@ -230,7 +230,7 @@
     .empty-state p { font-size: 0.78rem; }
 
     /* Skeleton */
-    .skel { background: rgba(255,255,255,0.04); border-radius: 0.5rem; }
+    .skel { background: var(--wh-white-04, rgba(255,255,255,0.04)); border-radius: 0.5rem; }
     .skel-pulse { animation: sk 1.5s ease-in-out infinite; }
     @keyframes sk { 0%,100%{opacity:0.4}50%{opacity:0.8} }
     @media (max-width: 767px) { .skel-pulse { animation: none; } }
@@ -238,7 +238,7 @@
     /* Toast */
     #toast {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px);
-      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.82rem; font-weight: 600;
       z-index: 200; transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);   /* a strong ease-out, no overshoot (BRH322) */
       white-space: nowrap; max-width: 90vw;
@@ -383,7 +383,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <button onclick="loadMoreAdmin()" style="width:100%;min-height:44px;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);cursor:pointer;" data-i="loadmore">Load More</button>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
@@ -859,7 +859,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               ${s.cert_verified ? '✓ Certifications Verified' : 'Certifications Pending Review'}
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:0.3rem;">
-              ${certs.map(c => `<span style="padding:0.2rem 0.5rem;border-radius:999px;font-size: 0.75rem;background:rgba(255,255,255,0.06);color:var(--wh-cloud);border:1px solid rgba(255,255,255,0.1);">${e(c)}</span>`).join('')}
+              ${certs.map(c => `<span style="padding:0.2rem 0.5rem;border-radius:999px;font-size: 0.75rem;background:var(--wh-white-06, rgba(255,255,255,0.06));color:var(--wh-cloud);border:1px solid var(--wh-white-10, rgba(255,255,255,0.1));">${e(c)}</span>`).join('')}
             </div>
           </div>` : ''}
         <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">

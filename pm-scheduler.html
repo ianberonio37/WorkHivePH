@@ -37,12 +37,12 @@
 
     .wh-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.8));
-      border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem;
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 1rem;
     }
 
     .wh-input {
-      width: 100%; background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 0.75rem;
+      width: 100%; background: var(--wh-white-07, rgba(255,255,255,0.07));
+      border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius: 0.75rem;
       padding: 0.75rem 1rem; color: white; font-size: 1rem; outline: none;
       transition: border-color 0.2s; -webkit-appearance: none; appearance: none;
     }
@@ -81,7 +81,7 @@
     .btn-ghost {
       min-height: 44px; background: transparent; color:rgba(255,255,255,0.83);
       font-weight: 600; border-radius: 0.75rem; padding: 0.75rem 1.5rem; width: 100%;
-      font-size: 0.875rem; border: 1px solid rgba(255,255,255,0.15);
+      font-size: 0.875rem; border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
       transition: border-color 0.2s, color 0.2s; cursor: pointer;
     }
     .btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: white; }
@@ -98,7 +98,7 @@
 
     /* Scope item row */
     .scope-row {
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+      background: var(--wh-white-04, rgba(255,255,255,0.04)); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 0.75rem; padding: 0.75rem 1rem;
       display: flex; align-items: flex-start; gap: 0.75rem;
       transition: border-color 0.2s;
@@ -113,7 +113,7 @@
     }
 
     .scope-check {
-      width: 20px; height: 20px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2);
+      width: 20px; height: 20px; border-radius: 8px; border: 2px solid var(--wh-white-20, rgba(255,255,255,0.2));
       flex-shrink: 0; margin-top: 2px; cursor: pointer; transition: all 0.15s;
       display: flex; align-items: center; justify-content: center;
     }
@@ -131,7 +131,7 @@
        exact semantic once: utils.js renderKpiTile's "No data" row uses rgba(255,255,255,0.78), raised
        from 0.6 on 2026-09-07 when a 24px APCA reading (Lc 0/45) showed WCAG had waved through what APCA
        would not. Reusing that value keeps one neutral for one meaning instead of a second opinion. */
-    .badge-nodata   { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.78); border: 1px solid rgba(255,255,255,0.2); }
+    .badge-nodata   { background: var(--wh-white-08, rgba(255,255,255,0.08)); color: rgba(255,255,255,0.78); border: 1px solid var(--wh-white-20, rgba(255,255,255,0.2)); }
 
     .status-badge {
       display: inline-flex; align-items: center; padding: 4px 10px;
@@ -142,13 +142,13 @@
     /* Asset card */
     .asset-card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.08); border-radius: 1rem;
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 1rem;
       padding: 1rem; cursor: pointer; transition: border-color 0.2s var(--wh-ease-out, ease-out), transform 0.1s var(--wh-ease-out, ease-out);
       /* the status hue on a 1px edge, not 4px (critique W45999, 2026-10-13): DESIGN.md - "accent borders are 1px tints of the
          status hue, NEVER a thick coloured border-left"; inventory's part cards made the same change on 2026-10-12 */
       border-left-width: 1px;
     }
-    .asset-card:hover { border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
+    .asset-card:hover { border-color: var(--wh-white-18, rgba(255,255,255,0.18)); transform: translateY(-1px); }
     .asset-card:focus-visible { outline: 2px solid var(--wh-orange); outline-offset: 2px; }
     .asset-card.overdue  { border-left-color: var(--wh-red); }
     .asset-card.duesoon  { border-left-color: var(--wh-orange); }
@@ -172,11 +172,11 @@
     .freq-Q  { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.15); color: var(--wh-violet-text); }
     .freq-SA { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15);  color: var(--wh-orange); }
     .freq-Y  { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15);  color: var(--wh-orange); }
-    .freq-Other { background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.83); }
+    .freq-Other { background: var(--wh-white-08, rgba(255,255,255,0.08)); color:rgba(255,255,255,0.83); }
 
     /* Detail scope row */
     .detail-scope-row {
-      background: var(--wh-surface-card, rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.07);
+      background: var(--wh-surface-card, rgba(255,255,255,0.03)); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 0.75rem; padding: 0.875rem 1rem;
       transition: border-color 0.2s;
     }
@@ -184,14 +184,14 @@
     /* Step indicator */
     .step-dot {
       width: 8px; height: 8px; border-radius: 50%;
-      background: rgba(255,255,255,0.2); transition: background 0.2s;
+      background: var(--wh-white-20, rgba(255,255,255,0.2)); transition: background 0.2s;
     }
     .step-dot.active { background: var(--wh-orange); }
     .step-dot.done   { background: var(--wh-green); }
 
     /* Progress bar */
     .progress-bar {
-      height: 4px; border-radius: 999px; background: rgba(255,255,255,0.08);
+      height: 4px; border-radius: 999px; background: var(--wh-white-08, rgba(255,255,255,0.08));
       overflow: hidden;
     }
     /* the fill grows on TRANSFORM (2026-10-13, the W45997 motion walk): it transitioned WIDTH over 0.4s - a layout property,
@@ -203,7 +203,7 @@
     /* History item */
     .history-row {
       display: flex; align-items: flex-start; gap: 0.75rem;
-      padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 0.75rem 0; border-bottom: 1px solid var(--wh-white-05, rgba(255,255,255,0.05));
     }
     .history-row:last-child { border-bottom: none; }
 
@@ -211,7 +211,7 @@
     .filter-chip {
       padding: 6px 16px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
-      border: 1px solid rgba(255,255,255,0.12); color:var(--wh-text-muted, rgba(255,255,255,0.80));
+      border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color:var(--wh-text-muted, rgba(255,255,255,0.80));
       background: transparent; cursor: pointer; transition: all 0.15s; white-space: nowrap;
     }
     .filter-chip.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); color: var(--wh-orange); }
@@ -226,7 +226,7 @@
     .complete-btn {
       min-height: 44px; min-width: 44px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      border: 2px solid rgba(255,255,255,0.2); background: transparent;
+      border: 2px solid var(--wh-white-20, rgba(255,255,255,0.2)); background: transparent;
       cursor: pointer; transition: all 0.15s; flex-shrink: 0;
     }
     .complete-btn:hover { border-color: var(--wh-green); background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.1); }
@@ -235,13 +235,13 @@
     /* Scrollbar */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb { background: var(--wh-white-12, rgba(255,255,255,0.12)); border-radius: 999px; }
 
     /* Toast */
     #toast {
       position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.95); color: white; border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.95); color: white; border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 500;
       white-space: nowrap; opacity: 0; pointer-events: none;
       transition: opacity 0.25s, transform 0.25s; z-index: 999;
@@ -277,7 +277,7 @@
 
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.95); border-top: 1px solid rgba(255,255,255,0.07);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.95); border-top: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       backdrop-filter: blur(12px);
       padding-bottom: env(safe-area-inset-bottom);
     }
@@ -303,14 +303,14 @@
     /* Bottom sheet */
     .sheet-overlay {
       position: fixed; inset: 0; z-index: 50;
-      background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+      background: var(--wh-black-55, rgba(0,0,0,0.55)); backdrop-filter: blur(4px);
       display: none; align-items: flex-end; justify-content: center;
       padding-bottom: env(safe-area-inset-bottom);
     }
     .sheet-overlay.open { display: flex; }
     .sheet-panel {
       background: linear-gradient(145deg, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.98), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.99));
-      border: 1px solid rgba(255,255,255,0.1); border-radius: 16px 16px 0 0;
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 16px 16px 0 0;
       width: 100%; max-width: 640px; padding: 1.5rem 1.25rem;
       animation: sheetUp 0.25s ease;
     }
@@ -320,7 +320,7 @@
     }
     .sheet-handle {
       width: 40px; height: 4px; border-radius: 999px;
-      background: rgba(255,255,255,0.15); margin: 0 auto 1.25rem;
+      background: var(--wh-white-15, rgba(255,255,255,0.15)); margin: 0 auto 1.25rem;
     }
 
     /* Plain-Read summary (Layer D — UX Contract) */
@@ -334,10 +334,10 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:16px; }
-    .simple-card { background:var(--wh-navy); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px; }
+    .simple-card { background:var(--wh-navy); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:12px; padding:16px; }
     .simple-card .sc-label { font-size: 0.75rem; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-transform:uppercase; letter-spacing:0.06em; }
     .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
     .simple-card .sc-sub   { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.4; }
@@ -345,7 +345,7 @@
     .simple-card.tag-green .sc-tag { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.16);  color:var(--wh-orange-light); }   /* the AA text token, as components.css and alert-hub (2026-10-13): the fill read 4.93:1 here, borderline */
     .simple-card.tag-red   .sc-tag { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color:var(--wh-red-text); }
-    .simple-card.tag-grey  .sc-tag { background:rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+    .simple-card.tag-grey  .sc-tag { background:var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .action-card { background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); border-radius:12px; padding:16px; margin-bottom:16px; }
     .action-card .ac-label { font-size: 0.75rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
     .action-card .ac-text { font-size:0.875rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
@@ -355,9 +355,9 @@
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid rgba(255,255,255,0.07); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size: 0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
-    .details-toggle:hover { color:var(--wh-cloud); border-color:rgba(255,255,255,0.18); }
-    #pm-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size: 0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
+    .details-toggle:hover { color:var(--wh-cloud); border-color:var(--wh-white-18, rgba(255,255,255,0.18)); }
+    #pm-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #pm-summary-details.open { display:block; }
     /* T124 (2026-08-25): print reality — the PM schedule is the one page plants PIN TO A
        BOARD, and it printed as a dark dashboard: navy background swallowing toner, nav/FAB
@@ -384,7 +384,7 @@
 <div class="aurora-bg"></div>
 
 <!-- ── TOP NAV ── -->
-<nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.92);border-bottom:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top);">
+<nav class="fixed top-0 left-0 right-0 z-30" style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.92);border-bottom:1px solid var(--wh-white-06, rgba(255,255,255,0.06));backdrop-filter:blur(12px);padding-top:env(safe-area-inset-top);">
   <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
     <a href="index.html" data-wh-back aria-label="WorkHive home" class="flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm min-h-[44px]">
       <span class="ic ic-back" aria-hidden="true"></span>
@@ -751,7 +751,7 @@
              (the same landing pad as asset-hub's CTA). href set in renderDetail. -->
         <button type="button" id="det-autohail-btn" onclick="toggleAutoHail()" aria-pressed="false"
           aria-label="Turn this asset's due PM work into a recurring service contract that hails a provider automatically"
-          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;font-size: 0.75rem;font-weight:700;cursor:pointer;background:rgba(255,255,255,0.06);color:inherit;border:1px solid rgba(255,255,255,0.15);">🔁 Auto-hail when due</button>
+          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;font-size: 0.75rem;font-weight:700;cursor:pointer;background:var(--wh-white-06, rgba(255,255,255,0.06));color:inherit;border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));">🔁 Auto-hail when due</button>
         <a id="det-hail-link" href="#" aria-label="Hail an outside specialist for this asset's PM work"
           style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size: 0.75rem;font-weight:700;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.13);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">🔧 Hail a specialist</a>
       </div>
@@ -811,7 +811,7 @@
          (inventory's #part-modal-close carries aria-label="Close", hive's handover close carries
          aria-label="Close handover sheet"); this button was the outlier. Found by
          tools/prove_dialog_a11y.mjs, which was the first check to open this dialog and read its controls. -->
-    <button onclick="closeEditPMAsset()" aria-label="Close" style="position:absolute;top:0.75rem;right:0.75rem;background:rgba(255,255,255,0.06);border:none;border-radius:0.5rem;width:44px;height:44px;color:var(--wh-text-muted, rgba(255,255,255,0.80));cursor:pointer;font-size:1.1rem;">✕</button>
+    <button onclick="closeEditPMAsset()" aria-label="Close" style="position:absolute;top:0.75rem;right:0.75rem;background:var(--wh-white-06, rgba(255,255,255,0.06));border:none;border-radius:0.5rem;width:44px;height:44px;color:var(--wh-text-muted, rgba(255,255,255,0.80));cursor:pointer;font-size:1.1rem;">✕</button>
 
     <h3 class="font-bold text-base text-white mb-4 pr-8" data-i="editasset">Edit Asset</h3>
 
@@ -861,7 +861,7 @@
     </div>
 
     <!-- Asset + date row -->
-    <div class="flex items-center gap-2 mb-4 px-3 py-2.5 rounded-xl" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+    <div class="flex items-center gap-2 mb-4 px-3 py-2.5 rounded-xl" style="background:var(--wh-white-04, rgba(255,255,255,0.04));border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
       <span class="ic ic-back" aria-hidden="true"></span>
       <div class="min-w-0">
         <p id="sheet-asset-name" class="text-sm font-semibold text-white truncate"></p>
@@ -2965,7 +2965,7 @@ function renderRegisteredAssets(list) {
   listEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = list.map(a => `
     <button type="button" onclick="pickRegisteredAsset('${escJsAttr(a.id)}')"
       class="w-full text-left px-3 py-2.5 rounded-xl border transition-all"
-      style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08);"
+      style="background:var(--wh-white-04, rgba(255,255,255,0.04));border-color:var(--wh-white-08, rgba(255,255,255,0.08));"
       onmouseover="this.style.borderColor='rgba(247,162,27,0.4)'"
       onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">
       <div class="flex items-center justify-between gap-2">
@@ -3111,7 +3111,7 @@ function renderScopeList() {
           <div class="flex items-center gap-2 mt-1.5">
             ${item.isCustom ? '<span class="text-xs text-orange-400 font-semibold">Custom</span>' : ''}
             <select class="text-xs font-semibold rounded-lg px-2 py-1 border outline-none transition-colors"
-              style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);color:rgba(255,255,255,0.83);font-size:16px;"
+              style="background:var(--wh-white-06, rgba(255,255,255,0.06));border-color:var(--wh-white-12, rgba(255,255,255,0.12));color:rgba(255,255,255,0.83);font-size:16px;"
               aria-label="Frequency for ${escHtml(item.text)}"
               onchange="updateItemFreq(${escJsAttr(idx)}, this.value)">
               ${freqOpts}
@@ -3369,7 +3369,7 @@ function renderTaskChips() {
       class="flex items-center justify-between gap-3 w-full text-left px-3 py-2 rounded-lg border text-sm transition-colors"
       style="background:${bg};border-color:${border};">
       <span class="leading-snug">${escHtml(t.text)}</span>
-      <span class="text-[0.65rem] font-semibold flex-shrink-0 px-1.5 py-0.5 rounded" style="background:rgba(255,255,255,0.06);color:${fc};">${t.freq}</span>
+      <span class="text-[0.65rem] font-semibold flex-shrink-0 px-1.5 py-0.5 rounded" style="background:var(--wh-white-06, rgba(255,255,255,0.06));color:${fc};">${t.freq}</span>
     </button>`;
   }).join('');
 }
@@ -3646,7 +3646,7 @@ if (window.whModalA11y) {
   </div>
 </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="pm-summary-details">

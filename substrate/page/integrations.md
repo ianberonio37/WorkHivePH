@@ -2,7 +2,7 @@
 name: page-integrations
 type: page
 source: file:integrations.html
-source_sha: 5788272a2353d88b
+source_sha: ff468f7b8ab9f1b7
 last_verified: 2026-07-13
 supersedes: null
 ---

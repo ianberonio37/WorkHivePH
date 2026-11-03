@@ -122,12 +122,12 @@
     .step-dot {
       width:28px; height:28px; border-radius:50%; display:flex; align-items:center;
       justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0;
-      transition:all 0.25s; background:rgba(255,255,255,0.06);
-      border:2px solid rgba(255,255,255,0.15); color:var(--wh-text-muted, rgba(255,255,255,0.80));
+      transition:all 0.25s; background:var(--wh-white-06, rgba(255,255,255,0.06));
+      border:2px solid var(--wh-white-15, rgba(255,255,255,0.15)); color:var(--wh-text-muted, rgba(255,255,255,0.80));
     }
     .step-dot.active  { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); border-color:var(--wh-orange); color:var(--wh-orange-text); }
     .step-dot.done    { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); color:var(--wh-orange-text); }
-    .step-line        { flex:1; height:2px; background:rgba(255,255,255,0.08); margin:0 4px; }
+    .step-line        { flex:1; height:2px; background:var(--wh-white-08, rgba(255,255,255,0.08)); margin:0 4px; }
     .step-line.done   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
     .step-label       { font-size:0.75rem; font-weight:600; color:var(--wh-text-muted, rgba(255,255,255,0.80));
                          text-transform:uppercase; letter-spacing:0.06em; margin-bottom:1rem; }
@@ -140,7 +140,7 @@
     .step-nav .btn-back {
       font-family:inherit; font-size:0.8rem; font-weight:600; padding:0.75rem 1rem;
       border-radius:0.75rem; cursor:pointer; transition:all 0.15s;
-      background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12);
+      background:var(--wh-white-05, rgba(255,255,255,0.05)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); min-height:44px;
     }
     .step-nav .btn-next {
@@ -153,15 +153,15 @@
        detector's dark-glow and the craft floor's decoration-instead-of-depth. Same offset, same blur,
        neutral - which is what a raised button actually casts. The amber focus ring below stays: a focus
        indicator must be visible, and that is not decoration. */
-    .step-nav .btn-next:hover { box-shadow:0 4px 16px rgba(0,0,0,0.35); transform:translateY(-1px); }
+    .step-nav .btn-next:hover { box-shadow:0 4px 16px var(--wh-black-35, rgba(0,0,0,0.35)); transform:translateY(-1px); }
     .extras-toggle {
       font-family:inherit; font-size:0.75rem; font-weight:600; width:100%;
       padding:0.6rem 1rem; border-radius:0.75rem; cursor:pointer; margin-top:0.5rem;
-      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+      background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); transition:all 0.15s; min-height:44px;
       display:flex; align-items:center; justify-content:center; gap:0.5rem;
     }
-    .extras-toggle:hover { background:rgba(255,255,255,0.07); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+    .extras-toggle:hover { background:var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .extras-drawer { display:none; margin-top:0.75rem; }
     .extras-drawer.open { display:block; }
 
@@ -169,7 +169,7 @@
     .consequence-btn {
       display: flex; flex-direction: column; align-items: flex-start;
       gap: 0.15rem; padding: 0.75rem; border-radius: 0.75rem; cursor: pointer;
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      background: var(--wh-white-04, rgba(255,255,255,0.04)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-align: left; transition: all 0.15s;
       min-height: 72px; width: 100%; font-family: inherit;
     }
@@ -194,7 +194,7 @@
       display: inline-flex; align-items: center; gap: 0.3rem;
       padding: 0.5rem 0.85rem; border-radius: 999px; cursor: pointer;
       font-size: 0.75rem; font-weight: 600; min-height: 44px;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      background: var(--wh-white-05, rgba(255,255,255,0.05)); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); transition: all 0.15s; user-select: none;
     }
     .rc-chip:active  { transform: scale(0.96); }
@@ -209,7 +209,7 @@
     /* Card styles */
     .card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.9) 100%);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       border-radius: 1rem;
     }
 
@@ -243,7 +243,7 @@
     /* Input styles */
     .wh-input {
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
       color: white;
       padding: 0.75rem 1rem;
@@ -271,21 +271,21 @@
       transition: opacity 0.2s, transform 0.1s;
       border: none;
     }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.35); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px var(--wh-black-35, rgba(0,0,0,0.35)); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); box-shadow: none; }
 
     .btn-secondary {
-      background: rgba(255,255,255,0.06);
+      background: var(--wh-white-06, rgba(255,255,255,0.06));
       color:rgba(255,255,255,0.83);
       font-weight: 600;
       border-radius: 0.75rem;
       padding: 0.75rem 1.5rem;
       font-size: 0.875rem;
       cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       transition: background 0.2s;
     }
-    .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+    .btn-secondary:hover { background: var(--wh-white-10, rgba(255,255,255,0.1)); }
 
     .btn-danger {
       background: rgba(239,68,68,0.1);
@@ -357,7 +357,7 @@
     .status-toggle {
       display: flex; gap: 4px; padding: 4px;
       border-radius: 0.75rem;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.8);
     }
     .status-toggle label {
@@ -430,8 +430,8 @@
        paddings the walk counted. 8px is the grid step above it; a pill is a label, not a control, so
        nothing about the 44px floor is involved. */
     .stat-pill {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--wh-white-05, rgba(255,255,255,0.05));
+      border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       border-radius: 999px;
       padding: 0.5rem 0.9rem;
       font-size: 0.75rem;
@@ -450,7 +450,7 @@
       height: 64px;
       object-fit: cover;
       border-radius: 0.5rem;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
     }
 
     /* Criticality selector */
@@ -464,8 +464,8 @@
       font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
+      background: var(--wh-white-04, rgba(255,255,255,0.04));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       transition: all 0.15s;
       user-select: none;
@@ -482,7 +482,7 @@
     /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb { background: var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 999px; }
     /* T124 (2026-08-26) - THE PRINTABLE SET, decided by what a plant actually carries on paper:
        pm-scheduler (this shift's PM list, done 2026-08-25), project-report (already had print CSS),
        and THESE TWO - the logbook day-sheet (what happened, taken to the morning meeting) and the
@@ -661,7 +661,7 @@
                asked. Native <details> so it needs no script and prints closed. -->
           <!-- padding 12px like wh-help.css (2026-10-13, the W45945 craft walk): this page does not load that sheet, so this
                inline copy is its only style, and it still carried the 10px the shared rule left behind on 2026-09-15 -->
-          <details class="wh-help" style="margin:0 0 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px 16px;">
+          <details class="wh-help" style="margin:0 0 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; padding:12px 16px;">
             <summary style="cursor:pointer; min-height:44px; display:flex; align-items:center; font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.85);"><span data-i="howworks">How this page works</span></summary>
             <ul style="margin:8px 0 0; padding-left:18px; font-size:0.75rem; line-height:1.55; color:var(--wh-text-muted, rgba(255,255,255,0.8));">
               <li><strong data-i="p_threesteps_75c6">Three steps</strong>: <span data-i="p_picktheassetandwhatkindofwor_79ce">pick the asset and what kind of work it was, describe the problem and what you did, then save. Your typing is kept as you go, so an interruption does not lose it.</span></li>
@@ -699,7 +699,7 @@
                    manual wizard below stays as the fallback (Arc-K drive uses it). -->
               <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
                 <span data-i="p_fastestletaifillit_01c9" style="font-size:.78rem; font-weight:800; color:var(--wh-violet-text); letter-spacing:.02em;">Fastest: let AI fill it</span>
-                <span style="flex:1; height:1px; background:rgba(255,255,255,0.08);"></span>
+                <span style="flex:1; height:1px; background:var(--wh-white-08, rgba(255,255,255,0.08));"></span>
               </div>
 
               <!-- Voice-First Smart Fill (Phase 2.2) -->
@@ -726,7 +726,7 @@
                   <span data-i="p_aiisstructuringyourworkorder_4dfb">AI is structuring your work order...</span>
                 </div>
                 <!-- Result preview -->
-                <div id="vf-result" style="display:none; margin-top:10px; font-size:.75rem; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px;"></div>
+                <div id="vf-result" style="display:none; margin-top:10px; font-size:.75rem; border-top:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); padding-top:10px;"></div>
               </div>
 
               <!-- Photo Defect Capture (Wave A2) - multimodal classify -->
@@ -744,24 +744,24 @@
                 <input id="vdc-file-input" aria-label="Photo of equipment defect" type="file" accept="image/*" capture="environment" style="display:none;" />
                 <div id="vdc-preview" style="display:none; margin-top:10px;">
                   <!-- a transparent 1x1 until a photo arrives: the preview is never a broken image (K, 2026-10-15) -->
-                  <img id="vdc-preview-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Captured defect preview" style="max-width:100%; max-height:220px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);" />
+                  <img id="vdc-preview-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Captured defect preview" style="max-width:100%; max-height:220px; border-radius:8px; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));" />
                   <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
                     <button data-i="p_analyzewithai_8c55" id="vdc-analyze-btn" type="button" style="flex:1; min-width:120px; min-height:44px; padding:8px 16px; background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color:var(--wh-green); border:1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.4); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Analyze with AI</button>
-                    <button data-i="p_retake_1645" id="vdc-retake-btn" type="button" style="min-height:44px; padding:8px 16px; background:rgba(255,255,255,0.04); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border:1px solid rgba(255,255,255,0.08); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Retake</button>
+                    <button data-i="p_retake_1645" id="vdc-retake-btn" type="button" style="min-height:44px; padding:8px 16px; background:var(--wh-white-04, rgba(255,255,255,0.04)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:8px; font-family:inherit; font-size:.78rem; font-weight:700; cursor:pointer;">Retake</button>
                   </div>
                 </div>
                 <div id="vdc-processing" style="display:none; margin-top:10px; font-size:.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));">
                   <span data-i="p_aiisanalyzingthephoto_dbb3">AI is analyzing the photo...</span>
                 </div>
-                <div id="vdc-result" style="display:none; margin-top:10px; font-size:.75rem; border-top:1px solid rgba(255,255,255,0.06); padding-top:10px;"></div>
+                <div id="vdc-result" style="display:none; margin-top:10px; font-size:.75rem; border-top:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); padding-top:10px;"></div>
                 <div id="vdc-status" style="display:none; margin-top:6px; font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));"></div>
               </div>
 
               <!-- Arc V (EFFORTLESS): the manual wizard is the fallback path, framed below the AI-fill primary. -->
               <div style="display:flex; align-items:center; gap:8px; margin:6px 0 2px;">
-                <span style="flex:1; height:1px; background:rgba(255,255,255,0.06);"></span>
+                <span style="flex:1; height:1px; background:var(--wh-white-06, rgba(255,255,255,0.06));"></span>
                 <span data-i="p_orfillinmanually_e14d" style="font-size:0.75rem; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80));">or fill in manually</span>
-                <span style="flex:1; height:1px; background:rgba(255,255,255,0.06);"></span>
+                <span style="flex:1; height:1px; background:var(--wh-white-06, rgba(255,255,255,0.06));"></span>
               </div>
 
               <div>
@@ -877,7 +877,7 @@
                   <textarea id="f-problem" maxlength="2000" class="wh-input pr-10" rows="3" placeholder="Describe what you observed: noise, leak, trip, error code..."></textarea>
                   <button type="button" id="voice-problem" title="Voice input"
                     class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-                    style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
+                    style="background: var(--wh-white-06, rgba(255,255,255,0.06)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));">
                     <span class="ic ic-voice" aria-hidden="true"></span>
                   </button>
                 </div>
@@ -925,7 +925,7 @@
                   <textarea id="f-action" maxlength="2000" class="wh-input pr-10" rows="4" placeholder="Steps taken, parts replaced, settings changed..."></textarea>
                   <button type="button" id="voice-action" title="Voice input"
                     class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-                    style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
+                    style="background: var(--wh-white-06, rgba(255,255,255,0.06)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));">
                     <span class="ic ic-voice" aria-hidden="true"></span>
                   </button>
                 </div>
@@ -1014,7 +1014,7 @@
                     <textarea aria-label="Tips, gotchas, torque specs, watch-outs..." id="f-knowledge" maxlength="2000" class="wh-input pr-10" rows="3" placeholder="Tips, gotchas, torque specs, watch-outs..."></textarea>
                     <button type="button" id="voice-knowledge" title="Voice input"
                       class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
-                      style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);">
+                      style="background: var(--wh-white-06, rgba(255,255,255,0.06)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));">
                       <span class="ic ic-voice" aria-hidden="true"></span>
                     </button>
                   </div>
@@ -1076,7 +1076,7 @@
                              display: flex; align-items: center; justify-content: center;
                              background: transparent; border: none; cursor: pointer; padding: 0;" aria-label="Remove">
                       <span style="width: 20px; height: 20px; background: rgba(30,30,40,0.95);
-                                   border: 1.5px solid rgba(255,255,255,0.18); border-radius: 50%;
+                                   border: 1.5px solid var(--wh-white-18, rgba(255,255,255,0.18)); border-radius: 50%;
                                    color:var(--wh-text-faint, rgba(255,255,255,0.86)); font-size: 0.75rem;
                                    display: flex; align-items: center; justify-content: center; line-height: 1;">&#x2715;</span>
                     </button>
@@ -1128,7 +1128,7 @@
                 </div>
                 <label id="tasklist-ack-label" class="flex items-center gap-3 cursor-pointer" style="min-height:44px;">
                   <input type="checkbox" id="tasklist-ack-check" class="hidden" />
-                  <div id="tasklist-ack-box" class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all" style="background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.2);">
+                  <div id="tasklist-ack-box" class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all" style="background:var(--wh-white-06, rgba(255,255,255,0.06));border:2px solid var(--wh-white-20, rgba(255,255,255,0.2));">
                     <span id="tasklist-ack-tick" class="ic ic-check hidden" aria-hidden="true"></span>
                   </div>
                   <span data-i="p_ihavereadtheworktasklistfort_b22c" class="text-sm text-white/85">I have read the work tasklist for this job</span>
@@ -1173,7 +1173,7 @@
         <!-- Team / My Entries toggle (hive only) -->
         <div id="view-toggle-bar" class="hidden mb-3 flex gap-2">
           <button id="btn-view-mine" aria-pressed="true" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);" data-i="myentries">My Entries</button>
-          <button id="btn-view-team" aria-pressed="false" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:rgba(255,255,255,0.05);color:var(--wh-text-muted, rgba(255,255,255,0.80));border:1px solid rgba(255,255,255,0.08);" data-i="teamfeed">Team Feed</button>
+          <button id="btn-view-team" aria-pressed="false" class="flex-1 rounded-xl py-2 text-xs font-bold transition-colors min-h-[44px]" style="background:var(--wh-white-05, rgba(255,255,255,0.05));color:var(--wh-text-muted, rgba(255,255,255,0.80));border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));" data-i="teamfeed">Team Feed</button>
         </div>
 
         <!-- Search + Filter -->
@@ -1205,14 +1205,14 @@
               <option data-i="p_open_cf9b" value="Open">Open</option>
               <option data-i="p_closed_88d8" value="Closed">Closed</option>
             </select>
-            <button id="btn-export-csv" translate="no" title="Export to CSV" aria-label="Export to CSV" style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; padding:0 0.875rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:600; white-space:nowrap; flex-shrink:0; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+            <button id="btn-export-csv" translate="no" title="Export to CSV" aria-label="Export to CSV" style="min-height:44px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius:0.75rem; padding:0 0.875rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.75rem; font-weight:600; white-space:nowrap; flex-shrink:0; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
               <span class="ic ic-download" aria-hidden="true"></span>
               CSV
             </button>
             <!-- D3 (2026-10-16): a deleted entry waits here for 30 days. -->
             <button id="btn-recently-deleted" type="button" aria-haspopup="dialog" aria-expanded="false"
                     onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'logbook', { hiveId: HIVE_ID || null, title: 'Recently deleted entries', opener: this, onRestored: () => renderEntries() })"
-                    style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; padding:0 0.875rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.75rem; font-weight:600; cursor:pointer; white-space:nowrap;">
+                    style="min-height:44px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius:0.75rem; padding:0 0.875rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.75rem; font-weight:600; cursor:pointer; white-space:nowrap;">
               Recently deleted
             </button>
           </div>
@@ -1312,7 +1312,7 @@
       </div>
     </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
@@ -1323,7 +1323,7 @@
   <!-- ── TOAST ── -->
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden" role="alert" aria-live="polite">
     <div class="rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 shadow-xl"
-         style="background: linear-gradient(135deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97)); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px);">
+         style="background: linear-gradient(135deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); backdrop-filter: blur(12px);">
       <!-- id added so showToast can swap the glyph: nine callers pass '⚠️' for a REFUSAL, and a refusal
            rendered with a green check is the wrong signal even once the text is visible. -->
       <span id="toast-icon" class="ic ic-check" aria-hidden="true"></span>
@@ -1334,7 +1334,7 @@
   <!-- ── DETAIL MODAL ── -->
   <div id="modal" role="dialog" aria-modal="true" aria-label="Logbook entry" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
     <div class="card w-full max-w-lg max-h-[85vh] overflow-y-auto p-7 relative">
-      <button id="modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
+      <button id="modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background: var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
       <div id="modal-content"></div>
@@ -1344,12 +1344,12 @@
 <!-- ── ASSET REGISTRY MODAL ── -->
 <div id="asset-modal" role="dialog" aria-modal="true" aria-label="Add asset" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md max-h-[88vh] overflow-y-auto p-7 relative">
-    <button id="asset-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
+    <button id="asset-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background: var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
 
     <!-- Tabs -->
-    <div class="flex gap-1 mb-6 p-1 rounded-xl" style="background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.8); border: 1px solid rgba(255,255,255,0.08);">
+    <div class="flex gap-1 mb-6 p-1 rounded-xl" style="background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.8); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
       <!-- ★TOUCH FLOOR: both asset tabs measured 143x35 inside #asset-modal, under the 44px rule. py-2 -> py-3
            plus an explicit min-height, so the tab keeps its shape when the label wraps. -->
       <button id="asset-tab-register" class="flex-1 py-3 text-xs font-bold rounded-lg transition-all" data-i="registerasset">Register Asset</button>
@@ -1474,7 +1474,7 @@
 <!-- Asset Edit Modal -->
 <div id="asset-edit-modal" role="dialog" aria-modal="true" aria-label="Edit asset" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md p-6 relative">
-    <button onclick="closeEditAsset()" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
+    <button onclick="closeEditAsset()" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background: var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
     <h3 data-i="p_editasset_3f0e" class="font-bold text-base text-white mb-4 pr-8">Edit Asset</h3>
@@ -1520,13 +1520,13 @@
 <!-- Asset Detail Modal -->
 <div id="asset-detail-modal" role="dialog" aria-modal="true" aria-label="Asset details" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display:none; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);">
   <div class="card w-full max-w-md max-h-[88vh] overflow-y-auto p-6 relative">
-    <button id="asset-detail-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background: rgba(255,255,255,0.06);" aria-label="Close">
+    <button id="asset-detail-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background: var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
       <span class="ic ic-close" aria-hidden="true"></span>
     </button>
 
     <div id="asset-detail-header" class="mb-5 pr-8"></div>
 
-    <div class="flex gap-1 mb-4 p-1 rounded-xl" style="background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.8); border: 1px solid rgba(255,255,255,0.08);">
+    <div class="flex gap-1 mb-4 p-1 rounded-xl" style="background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.8); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
       <button data-i="p_stockedparts_baa7" id="detail-tab-stocked" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Stocked Parts</button>
       <button data-i="p_consumption_47a1" id="detail-tab-consumption" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Consumption</button>
       <button data-i="p_faulthistory_f869" id="detail-tab-faults" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all">Fault History</button>
@@ -1542,17 +1542,17 @@
 <!-- ASSET PICKER MODAL -->
 <div id="asset-picker-modal" role="dialog" aria-modal="true" aria-label="Select asset" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
   <div class="card w-full max-w-md" style="max-height:82vh; display:flex; flex-direction:column;">
-    <div class="p-5 border-b" style="border-color:rgba(255,255,255,0.07);">
+    <div class="p-5 border-b" style="border-color:var(--wh-white-07, rgba(255,255,255,0.07));">
       <div class="flex items-center justify-between mb-3">
         <h3 data-i="p_selectasset_11de" class="font-bold text-sm">Select Asset</h3>
-        <button id="asset-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80));" aria-label="Close">
+        <button id="asset-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80));" aria-label="Close">
           <span class="ic ic-close" aria-hidden="true"></span>
         </button>
       </div>
       <input aria-label="Search by asset ID or name..." id="asset-picker-search" type="text" class="wh-input" placeholder="Search by asset ID or name..." autocomplete="off" />
     </div>
     <div id="asset-picker-list" class="overflow-y-auto p-3" style="max-height:45vh;"></div>
-    <div class="p-3 border-t" style="border-color:rgba(255,255,255,0.07);">
+    <div class="p-3 border-t" style="border-color:var(--wh-white-07, rgba(255,255,255,0.07));">
       <button id="asset-picker-register-btn" type="button" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
         <span class="ic ic-add" aria-hidden="true"></span>
         Asset not found: Register it
@@ -1565,19 +1565,19 @@
 <!-- Work Tasklist Modal -->
 <div id="tasklist-modal" role="dialog" aria-modal="true" aria-label="Task list" class="fixed inset-0 z-50 flex items-end justify-center" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); padding-bottom:env(safe-area-inset-bottom);">
   <div class="card w-full max-w-lg mx-4 mb-4" style="max-height:85vh; display:flex; flex-direction:column;">
-    <div class="p-5 border-b flex-shrink-0" style="border-color:rgba(255,255,255,0.07);">
+    <div class="p-5 border-b flex-shrink-0" style="border-color:var(--wh-white-07, rgba(255,255,255,0.07));">
       <div class="flex items-center justify-between">
         <div>
           <h3 data-i="p_worktasklist_8b06" class="font-bold text-sm text-white">Work Tasklist</h3>
           <p id="tasklist-modal-subtitle" class="text-xs text-white/80 mt-0.5"></p>
         </div>
-        <button id="tasklist-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,0.06);color:var(--wh-text-muted, rgba(255,255,255,0.80));" aria-label="Close">
+        <button id="tasklist-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--wh-white-06, rgba(255,255,255,0.06));color:var(--wh-text-muted, rgba(255,255,255,0.80));" aria-label="Close">
           <span class="ic ic-close" aria-hidden="true"></span>
         </button>
       </div>
     </div>
     <div id="tasklist-modal-items" class="overflow-y-auto p-4 flex-1 flex flex-col gap-2"></div>
-    <div class="p-4 border-t flex-shrink-0" style="border-color:rgba(255,255,255,0.07);">
+    <div class="p-4 border-t flex-shrink-0" style="border-color:var(--wh-white-07, rgba(255,255,255,0.07));">
       <label for="tasklist-modal-note" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Add Note <span data-i="p_optional_b16c" class="normal-case font-normal">(optional)</span></label>
       <textarea aria-label="Additional steps, observations, or deviations from procedure..." id="tasklist-modal-note" class="wh-input mb-3" rows="2" placeholder="Additional steps, observations, or deviations from procedure..."></textarea>
       <button data-i="p_donebacktologbook_b236" id="tasklist-modal-done" class="btn-primary w-full">Done: Back to Logbook</button>
@@ -1587,17 +1587,17 @@
 
 <div id="parts-picker-modal" role="dialog" aria-modal="true" aria-label="Select parts" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
   <div class="card w-full max-w-md" style="max-height:82vh; display:flex; flex-direction:column;">
-    <div class="p-5 border-b" style="border-color:rgba(255,255,255,0.07);">
+    <div class="p-5 border-b" style="border-color:var(--wh-white-07, rgba(255,255,255,0.07));">
       <div class="flex items-center justify-between mb-3">
         <h3 data-i="p_selectpartused_3373" class="font-bold text-sm">Select Part Used</h3>
-        <button id="parts-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80));" aria-label="Close">
+        <button id="parts-picker-modal-close" class="w-11 h-11 rounded-lg flex items-center justify-center" style="background:var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80));" aria-label="Close">
           <span class="ic ic-close" aria-hidden="true"></span>
         </button>
       </div>
       <input aria-label="Search part name or number..." id="parts-picker-search" type="text" class="wh-input" placeholder="Search part name or number..." autocomplete="off" />
     </div>
     <div id="parts-picker-list" class="overflow-y-auto p-3" style="max-height:45vh;"></div>
-    <div class="p-3 border-t" style="border-color:rgba(255,255,255,0.07);">
+    <div class="p-3 border-t" style="border-color:var(--wh-white-07, rgba(255,255,255,0.07));">
       <button id="parts-picker-register-btn" type="button" class="btn-secondary w-full text-xs py-2.5 flex items-center justify-center gap-1.5" style="min-height:44px;">
         <span class="ic ic-add" aria-hidden="true"></span>
         Part not in inventory: Register it
@@ -2682,7 +2682,7 @@ async function pickDepartedAssignee(id) {
     .eq('hive_id', HIVE_ID).eq('status', 'active').order('worker_name').order('id').limit(500);   // limit-as-count-allow: a picker's rows, nothing counts them
   if (error) { showToast(whReadError(error, 'the hive\'s members'), 'error'); return; }
   box.innerHTML = `<label for="departed-assignee" class="text-xs block mb-1" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">Assign this open job to</label>
-    <select id="departed-assignee" class="w-full text-sm rounded-lg px-3 mb-2" style="min-height:44px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:inherit;">
+    <select id="departed-assignee" class="w-full text-sm rounded-lg px-3 mb-2" style="min-height:44px;background:var(--wh-white-06, rgba(255,255,255,0.06));border:1px solid var(--wh-white-18, rgba(255,255,255,0.18));color:inherit;">
       <option value="" disabled selected>Choose who takes it</option>
       ${(data || []).map(m => `<option value="${escHtml(m.worker_name)}">${escHtml(m.worker_name)}</option>`).join('')}
     </select>
@@ -3879,7 +3879,7 @@ function renderAssetList() {
     return;
   }
   container.innerHTML = assets.map(a => `
-    <div class="rounded-xl p-4 mb-3 entry-card" style="background: rgba(255,255,255,0.04); border: 1px solid ${a.status === 'pending' ? 'rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3)' : 'rgba(255,255,255,0.08)'};">
+    <div class="rounded-xl p-4 mb-3 entry-card" style="background: var(--wh-white-04, rgba(255,255,255,0.04)); border: 1px solid ${a.status === 'pending' ? 'rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3)' : 'var(--wh-white-08, rgba(255,255,255,0.08))'};">
       <div class="flex flex-col gap-3">
         <div class="min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -4040,7 +4040,7 @@ function renderDetailStocked(items) {
     const isLow  = !isOut && i.qty_on_hand <= i.min_qty;
     const qtyColor = isOut ? '#f87171' : isLow ? '#F7A21B' : '#4ade80';
     const qtyLabel = isOut ? 'Out of stock' : isLow ? 'Low stock' : '';
-    return `<div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);">
+    return `<div class="rounded-xl p-3 mb-2" style="background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
       <div class="flex items-start justify-between gap-2">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white truncate">${escHtml(i.part_name)}</p>
@@ -4081,7 +4081,7 @@ function renderDetailConsumption(txns, itemsList) {
     const date   = t.created_at ? whFmtDate(t.created_at) : '';
     const jobRef = t.job_ref ? escHtml(t.job_ref) : '';
     const note   = t.note && t.note !== ('Job: ' + t.job_ref) ? escHtml(t.note) : '';
-    return `<div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07);">
+    return `<div class="rounded-xl p-3 mb-2" style="background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
       <div class="flex items-start justify-between gap-2">
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white">${name}</p>
@@ -4125,11 +4125,11 @@ function renderDetailFaultHistory(entries) {
     const borderColor = isOpen ? '#f87171' : '#4ade80';
     const catColor    = catColors[e.category] || '#9ca3af';
     const date        = e.created_at ? whFmtDate(e.created_at) : (e.date ? whFmtDate(e.date) : '');   // FD1a (HS L1): never the phone's locale
-    return `<div class="rounded-xl p-3 mb-2" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-left:3px solid ${borderColor};">
+    return `<div class="rounded-xl p-3 mb-2" style="background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-left:3px solid ${borderColor};">
       <div class="flex items-start justify-between gap-2 mb-1">
         <div class="flex items-center gap-1.5 flex-wrap">
           <span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:${statusBg};color:${statusTx};">${escHtml(e.status || 'Open')}</span>
-          ${e.category ? `<span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:rgba(255,255,255,0.06);color:${catColor};">${escHtml(e.category)}</span>` : ''}
+          ${e.category ? `<span class="text-xs font-semibold px-2 py-0.5 rounded-full" style="background:var(--wh-white-06, rgba(255,255,255,0.06));color:${catColor};">${escHtml(e.category)}</span>` : ''}
           ${e.maintenance_type ? `<span class="text-xs text-white/80">${escHtml(e.maintenance_type)}</span>` : ''}
         </div>
         <span class="text-xs text-white/80 flex-shrink-0">${date}</span>
@@ -4216,7 +4216,7 @@ function renderAssetPickerList(query, keepShown) {
   whRenderRows(list, visible, a => {
     const label = a.name ? escHtml(a.asset_id) + ' <span style="color:var(--wh-text-muted, rgba(255,255,255,0.80));font-weight:400;">' + escHtml(a.name) + '</span>' : escHtml(a.asset_id);
     return `<button type="button" data-asset-id="${escHtml(a.asset_id)}" data-asset-name="${escHtml(a.name || a.asset_id)}" data-asset-ref="${a.id}"
-      class="w-full text-left rounded-xl p-3.5 mb-1.5 transition-colors" style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); min-height:44px; cursor:pointer;"
+      class="w-full text-left rounded-xl p-3.5 mb-1.5 transition-colors" style="background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); min-height:44px; cursor:pointer;"
       onmouseover="this.style.background='rgba(247,162,27,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
       <div class="flex items-center gap-2">
         <div class="flex-1 min-w-0">
@@ -4347,7 +4347,7 @@ async function loadMachineHistory(machineId) {
       const dt = r.created_at
         ? new Date(r.created_at).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', year: '2-digit', month: 'short', day: 'numeric' })
         : '';
-      return '<div style="border-top:1px solid rgba(255,255,255,0.06); padding:10px 2px 6px;">'
+      return '<div style="border-top:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); padding:10px 2px 6px;">'
         + (r.problem  ? '<p style="color:var(--wh-text-faint, rgba(255,255,255,0.86)); margin-bottom:3px;"><span style="color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Problem</span><br>' + escHtml(r.problem) + '</p>' : '')
         + (r.root_cause ? '<p style="color:var(--wh-orange-text); margin-bottom:3px; font-size:0.75rem;"><span style="color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Root cause</span><br>' + escHtml(r.root_cause) + '</p>' : '')
         + (r.action   ? '<p style="color:var(--wh-green); margin-bottom:3px; font-size:0.75rem;"><span style="color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Fixed by</span><br>' + escHtml(r.action) + '</p>' : '')
@@ -4920,7 +4920,7 @@ function readingsBlock(e) {
     var label = (unit ? parts.slice(0, -1) : parts).join(' ');
     label = label.charAt(0).toUpperCase() + label.slice(1);
     if (!unit && parts.length > 1) label = String(k).split('_').join(' ');
-    return '<div class="rounded-lg px-3 py-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">'
+    return '<div class="rounded-lg px-3 py-2" style="background:var(--wh-white-04, rgba(255,255,255,0.04));border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">'
       + '<p class="text-xs uppercase tracking-wider" style="color:rgba(255,255,255,0.55);">' + escHtml(label) + '</p>'
       + '<p class="text-sm font-semibold text-white/90">' + escHtml(String(r[k])) + (unit ? ' <span class="text-xs font-normal text-white/60">' + unit + '</span>' : '') + '</p>'
       + '</div>';
@@ -5437,7 +5437,7 @@ async function openModal(id) {
       <p class="text-xs text-white/80 uppercase tracking-widest font-semibold mb-2">Parts Used</p>
       <div class="space-y-1.5">
         ${entry.parts_used.map(p => `
-          <div class="flex items-center justify-between rounded-lg px-3 py-2" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+          <div class="flex items-center justify-between rounded-lg px-3 py-2" style="background:var(--wh-white-04, rgba(255,255,255,0.04));border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
             <div>
               <span class="text-xs font-semibold text-white/80">${escHtml(p.partName || '')}</span>
               ${p.partNumber ? `<span class="text-xs text-white/80 ml-1">#${escHtml(p.partNumber)}</span>` : ''}
@@ -5448,7 +5448,7 @@ async function openModal(id) {
     </div>` : ''}
 
     ${entry.status === 'Closed' ? `
-    <div class="flex items-center gap-2 mt-2 rounded-lg px-3 py-2" style="background:${entry.tasklist_acknowledged ? 'rgba(var(--wh-green-rgb, 74, 222, 128), 0.08)' : 'var(--wh-surface-card, rgba(255,255,255,0.03))'};border:1px solid ${entry.tasklist_acknowledged ? 'rgba(var(--wh-green-rgb, 74, 222, 128), 0.2)' : 'rgba(255,255,255,0.07)'};">
+    <div class="flex items-center gap-2 mt-2 rounded-lg px-3 py-2" style="background:${entry.tasklist_acknowledged ? 'rgba(var(--wh-green-rgb, 74, 222, 128), 0.08)' : 'var(--wh-surface-card, rgba(255,255,255,0.03))'};border:1px solid ${entry.tasklist_acknowledged ? 'rgba(var(--wh-green-rgb, 74, 222, 128), 0.2)' : 'var(--wh-white-07, rgba(255,255,255,0.07))'};">
       <span class="ic ic-check" aria-hidden="true"></span>
       <div class="flex-1 min-w-0">
         <span class="text-xs font-semibold" style="color:${entry.tasklist_acknowledged ? 'var(--wh-green)' : 'rgba(255,255,255,0.3)'};">${entry.tasklist_acknowledged ? 'Work tasklist read' : 'Tasklist not acknowledged'}</span>
@@ -6164,16 +6164,16 @@ function renderPMTasksPanel() {
     const precheck = item.status === 'overdue' || item.status === 'duesoon';
     return `
       <label class="flex items-start gap-3 cursor-pointer p-2.5 rounded-xl transition-colors"
-        style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.06);">
+        style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid var(--wh-white-06, rgba(255,255,255,0.06));">
         <input type="checkbox" class="pm-task-check hidden" data-item-id="${item.id}" data-asset-id="${item.asset_id}" ${precheck ? 'checked' : ''} />
         <div class="pm-check-box w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 transition-all"
-          style="background:${precheck ? 'rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2)' : 'rgba(255,255,255,0.06)'};border:2px solid ${precheck ? 'var(--wh-orange)' : 'rgba(255,255,255,0.2)'};">
+          style="background:${precheck ? 'rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2)' : 'var(--wh-white-06, rgba(255,255,255,0.06))'};border:2px solid ${precheck ? 'var(--wh-orange)' : 'var(--wh-white-20, rgba(255,255,255,0.2))'};">
           <span class="ic ic-check" aria-hidden="true"></span>
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm text-white/80 leading-snug">${escHtml(item.item_text)}</p>
           <div class="flex items-center gap-1.5 mt-1 flex-wrap">
-            <span class="text-xs font-bold px-1.5 py-0.5 rounded-full" style="background:${freqCls[item.frequency] || 'rgba(255,255,255,0.08);color:var(--wh-text-muted, rgba(255,255,255,0.80))'};">${freqMap[item.frequency] || item.frequency}</span>
+            <span class="text-xs font-bold px-1.5 py-0.5 rounded-full" style="background:${freqCls[item.frequency] || 'var(--wh-white-08, rgba(255,255,255,0.08));color:var(--wh-text-muted, rgba(255,255,255,0.80))'};">${freqMap[item.frequency] || item.frequency}</span>
             ${daysLabel(item)}
           </div>
         </div>
@@ -6187,7 +6187,7 @@ function renderPMTasksPanel() {
     html += `
       <button type="button" onclick="togglePMOnTrack()"
         class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl mt-1 transition-colors"
-        style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.06);color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:12px;">
+        style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid var(--wh-white-06, rgba(255,255,255,0.06));color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:12px;">
         <span>${onTrack.length} task${onTrack.length === 1 ? '' : 's'} on track</span>
         <span class="ic ic-caret" aria-hidden="true"></span>
       </button>`;
@@ -7795,7 +7795,7 @@ document.getElementById('btn-view-tasklist').addEventListener('click', () => {
   const key = TASKLIST_TYPE_MAP[maintType];
   document.getElementById('tasklist-modal-subtitle').textContent = `${key}: ${category}`;
   document.getElementById('tasklist-modal-items').innerHTML = tasks.map((t, i) =>
-    `<div class="flex items-start gap-3 rounded-xl px-3 py-2.5" style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid rgba(255,255,255,0.06);">
+    `<div class="flex items-start gap-3 rounded-xl px-3 py-2.5" style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid var(--wh-white-06, rgba(255,255,255,0.06));">
       <span class="text-xs font-black flex-shrink-0 mt-0.5" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">${String(i + 1).padStart(2, '0')}</span>
       <span class="text-sm text-white/80 leading-snug">${escHtml(t)}</span>
     </div>`
@@ -8048,7 +8048,7 @@ function renderPartsPickerList(query) {
     const fits = fitsAsset(i);
     return `<button type="button" data-part-id="${i.id}" data-part-name="${escHtml(i.part_name)}" data-part-number="${escHtml(i.part_number || '')}" data-unit="${escHtml(i.unit || 'pcs')}"
       class="w-full text-left rounded-xl p-3.5 mb-1.5 transition-colors ${alreadyAdded ? 'opacity-40' : ''}"
-      style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); min-height:44px; cursor:${alreadyAdded ? 'not-allowed' : 'pointer'};"
+      style="background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); min-height:44px; cursor:${alreadyAdded ? 'not-allowed' : 'pointer'};"
       ${alreadyAdded ? 'disabled' : ''}
       onmouseover="if(!this.disabled)this.style.background='rgba(41,182,217,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
       <div class="flex items-center justify-between gap-2">
@@ -8098,7 +8098,7 @@ function renderSelectedParts() {
         <input type="number" min="1" value="${p.qty}" inputmode="numeric" aria-label="Quantity of ${escHtml(p.partName)} used"
           onchange="_partsUsed[${escJsAttr(idx)}].qty = Math.max(1, parseInt(this.value)||1)"
           class="text-xs text-center rounded-lg px-1 font-semibold"
-          style="width:3rem; background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.8); border:1px solid rgba(255,255,255,0.12); color:white; min-height:44px; font-size:16px;" />
+          style="width:3rem; background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.8); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color:white; min-height:44px; font-size:16px;" />
         <span class="text-xs" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">${escHtml(p.unit)}</span>
         <button type="button" onclick="_partsUsed.splice(${escJsAttr(idx)},1); renderSelectedParts();"
           class="w-11 h-11 rounded-lg flex items-center justify-center ml-1"

@@ -53,7 +53,7 @@
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --purple: var(--wh-violet);
       --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
-      --border: rgba(255,255,255,0.07);
+      --border: var(--wh-white-07, rgba(255,255,255,0.07));
     }
     body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
 
@@ -84,14 +84,14 @@
     .step-num {
       width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;
       justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
-      background: rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); /* A11y: 0.3 failed contrast on the dark card */
-      border: 1px solid rgba(255,255,255,0.1); transition: background-color .2s var(--wh-ease-out, ease-out), color .2s var(--wh-ease-out, ease-out), border-color .2s var(--wh-ease-out, ease-out);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); /* A11y: 0.3 failed contrast on the dark card */
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); transition: background-color .2s var(--wh-ease-out, ease-out), color .2s var(--wh-ease-out, ease-out), border-color .2s var(--wh-ease-out, ease-out);
     }
     .step-dot.active   .step-num { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--gold); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); }
     .step-dot.done     .step-num { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.15); color: var(--green); border-color: rgba(var(--wh-green-rgb, 74, 222, 128), 0.4); }
     .step-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing:.04em; margin-top: 4px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .step-dot.active .step-label, .step-dot.done .step-label { color: rgba(255,255,255,0.85); }
-    .step-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); margin: 0 8px; margin-bottom: 16px; }
+    .step-line { flex: 1; height: 1px; background: var(--wh-white-06, rgba(255,255,255,0.06)); margin: 0 8px; margin-bottom: 16px; }
     .step-dot.done .step-line-after { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .step-inner { display: flex; flex-direction: column; align-items: center; }
     /* ★TWO TABS ON TWO LINES, AND A STEP OFF THE SCREEN, AT 320px (2026-10-12, W4332 fit lens). The tabs' padding was
@@ -114,7 +114,7 @@
 
     /* Inputs */
     .wh-input {
-      width: 100%; background: var(--card); border: 1px solid rgba(255,255,255,0.12);
+      width: 100%; background: var(--card); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       border-radius: 8px; color: var(--text); padding: 12px 12px;
       font-family: inherit; font-size: 16px; outline: none; transition: border-color .15s;
     }
@@ -134,8 +134,8 @@
     .btn-gold:hover:not(:disabled)  { opacity: .9; }
     .btn-blue  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue);   border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.35); }
     .btn-blue:hover:not(:disabled)  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.22); }
-    .btn-ghost { background: rgba(255,255,255,0.04); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border-color: rgba(255,255,255,0.1); }
-    .btn-ghost:hover:not(:disabled) { background: rgba(255,255,255,0.08); }
+    .btn-ghost { background: var(--wh-white-04, rgba(255,255,255,0.04)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border-color: var(--wh-white-10, rgba(255,255,255,0.1)); }
+    .btn-ghost:hover:not(:disabled) { background: var(--wh-white-08, rgba(255,255,255,0.08)); }
 
     /* Source picker */
     .source-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
@@ -153,7 +153,7 @@
     .wiz-step-open { margin-bottom: 16px; padding: 20px 0; }   /* the .card spacing, without the box */
 
     .source-card {
-      background: var(--card); border: 2px solid rgba(255,255,255,0.07);
+      background: var(--card); border: 2px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 12px; padding: 20px 16px; text-align: center; cursor: pointer;
       min-width: 0; overflow-wrap: break-word; /* a long name breaks inside its card at 200% text (OWN text grows) */
       transition: border-color .15s var(--wh-ease-out, ease-out), background-color .15s var(--wh-ease-out, ease-out), transform .15s var(--wh-ease-out, ease-out);
@@ -168,7 +168,7 @@
 
     /* Drop zone */
     .drop-zone {
-      border: 2px dashed rgba(255,255,255,0.12); border-radius: 12px;
+      border: 2px dashed var(--wh-white-12, rgba(255,255,255,0.12)); border-radius: 12px;
       padding: 40px 24px; text-align: center; cursor: pointer; transition: border-color .2s var(--wh-ease-out, ease-out), background-color .2s var(--wh-ease-out, ease-out);
     }
     .drop-zone:hover, .drop-zone.drag-over { border-color: var(--blue); background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.04); }
@@ -178,21 +178,21 @@
     /* Mapping table */
     .map-table { width: 100%; border-collapse: collapse; }
     .map-table th { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing:.04em; color: var(--muted); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
-    .map-table td { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+    .map-table td { padding: 8px 12px; border-bottom: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); vertical-align: middle; }
     .map-table tr:last-child td { border-bottom: none; }
     .req-badge { font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.12); color: var(--red); }
-    .opt-badge { font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+    .opt-badge { font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 
     /* Preview table */
     .preview-table-wrap { overflow-x: auto; }
     .preview-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
     .preview-table th { background: rgba(0,0,0,0.2); padding: 8px 12px; text-align: left; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing:.04em; color: var(--muted); white-space: nowrap; }
-    .preview-table td { padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.04); color:var(--wh-text-faint, rgba(255,255,255,0.86)); white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+    .preview-table td { padding: 8px 12px; border-top: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); color:var(--wh-text-faint, rgba(255,255,255,0.86)); white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
     .status-open   { color: var(--blue); font-weight: 600; }
     .status-closed { color: var(--green); font-weight: 600; }
 
     /* Progress */
-    .progress-bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
+    .progress-bar { height: 6px; background: var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 999px; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--gold); border-radius: 999px; transition: width .3s; }
 
     /* Result chips */
@@ -202,7 +202,7 @@
     .result-chip .rl { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing:.04em; color: var(--muted); margin-top: 2px; }
 
     /* Pattern teaser */
-    .pattern-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: .75rem; }
+    .pattern-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); font-size: .75rem; }
     .pattern-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
     /* Hidden */
@@ -220,7 +220,7 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     /* Arc L · CLS reserve (page-scoped, measured h0→h1) — the above-the-fold
@@ -234,7 +234,7 @@
     #it-action-text { min-height: 80px; }                                /* "Computing recommendation…" → 3-line recommendation (measured h1 79px; shared .ac-text reserves only 60px) */
     #it-active-sub, #it-stale-sub, #it-disabled-sub { min-height: 47px; }/* "Loading…" 1-line → up to 3-line sub (measured worst h1 47px) — keeps every .simple-card stable at its 154px reserve */
     #it-active-hero, #it-stale-hero, #it-disabled-hero { min-height: 28px; }/* lock the KPI hero number (measured h1 28px) so a font-swap metric change can't reflow the card-internal stack */
-    #it-summary-details { display:none; padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #it-summary-details { display:none; padding:16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #it-summary-details.open { display:block; }
   </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -272,7 +272,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
      tab bar switches CMMS ↔ Plant/IoT. Both pages kept on disk (reachable via tabs). -->
 <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; max-width:900px; margin:0 auto 1.25rem; flex-wrap:wrap;">
   <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--gold); font-size:.75rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);"><abbr title="computerized maintenance management system">CMMS</abbr> Integration</span>
-  <a role="tab" aria-selected="false" href="plant-connections.html" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Plant / IoT &rarr;</a>
+  <a role="tab" aria-selected="false" href="plant-connections.html" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:var(--wh-white-04, rgba(255,255,255,0.04)); color:rgba(255,255,255,0.83); font-size:.75rem; font-weight:600; text-decoration:none; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">Plant / IoT &rarr;</a>
 </div>
 
 <section id="vehicle-add" class="card" style="max-width:900px; margin:0 auto 1.5rem; padding:20px 22px;">
@@ -315,7 +315,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <!-- VM2 doc path (2026-09-02, behind the measured accuracy gate vehicle-extract-accuracy):
            upload the SCOPED pages, never the whole manual. Extraction only PROPOSES — the
            step-2/3 checklists stay the review rail between the reader and every write. -->
-      <div class="veh-box" style="margin-top:12px; padding:12px 12px; border:1px dashed rgba(255,255,255,0.2);">
+      <div class="veh-box" style="margin-top:12px; padding:12px 12px; border:1px dashed var(--wh-white-20, rgba(255,255,255,0.2));">
         <p style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 8px;">Have the manual? Upload just the <strong>maintenance-schedule</strong> or <strong>parts-list</strong> pages (PDF, Word, Excel, or text) and the schedule below fills itself from your own book - every row stays editable.</p>
         <input type="file" id="veh-doc-file" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt" style="font-size:0.75rem; max-width:100%;" onchange="vehHandleDocFile(this)" aria-label="Upload maintenance schedule or parts list pages" />
         <p id="veh-doc-status" role="status" style="min-height:1em; font-size:0.75rem; color:rgba(255,255,255,0.75); margin:8px 0 0;"></p>
@@ -811,7 +811,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <button type="button" id="int-csv-btn" onclick="exportIntegrations()"
               title="Export the connection list and sync status to CSV (no credentials)"
               aria-label="Export the connection list and sync status to CSV, without credentials"
-              style="min-height:44px; padding:0 .9rem; display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:.75rem; font-weight:600; cursor:pointer;">
+              style="min-height:44px; padding:0 .9rem; display:inline-flex; align-items:center; gap:6px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:.75rem; font-weight:600; cursor:pointer;">
         <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
       </button>
     </div>
@@ -913,7 +913,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   </div>
 
 </div><!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="it-summary-details">
@@ -2541,7 +2541,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               const c = v >= 80 ? 'var(--green)' : v >= 60 ? '#f7a21b' : 'var(--red)';
               return `<div style="display:flex; align-items:center; gap:8px;">
                 <span style="font-size:0.75rem; color:var(--muted); width:110px; flex-shrink:0;">${scoreLabel(k)}</span>
-                <div style="flex:1; height:5px; background:rgba(255,255,255,0.07); border-radius:999px;">
+                <div style="flex:1; height:5px; background:var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:999px;">
                   <div style="width:${v}%; height:100%; background:${c}; border-radius:999px;"></div>
                 </div>
                 <span style="font-size:0.75rem; font-weight:700; color:${c}; width:34px; text-align:right;">${v}%</span>
@@ -3389,7 +3389,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     whRenderRows(listEl.querySelector('#conflict-rows'), shown, _conflictCardHtml, { key: 'html' });
     const _more = listEl.querySelector('#conflict-more');
     if (_more) _more/* xss-allow: numbers only */ .innerHTML = ''
-      + (rest > 0 ? `<button type="button" onclick="_conflictMore()" style="width:100%;min-height:44px;margin-top:4px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:inherit;">Show ${Math.min(30, rest)} more (${rest} not shown)</button>` : '');
+      + (rest > 0 ? `<button type="button" onclick="_conflictMore()" style="width:100%;min-height:44px;margin-top:4px;border-radius:8px;background:var(--wh-white-05, rgba(255,255,255,0.05));border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));color:inherit;">Show ${Math.min(30, rest)} more (${rest} not shown)</button>` : '');
     const f = document.getElementById('conflict-find');
     if (f && raw && document.activeElement !== f) { f.focus(); f.setSelectionRange(raw.length, raw.length); }
   }

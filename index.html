@@ -407,7 +407,7 @@
        shadow does. The float stays (see .logo-glow-img below): transform-only, seven seconds, one authored
        moment instead of a strobe. */
     .logo-glow-img {
-      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.55)) drop-shadow(0 0 24px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22));
+      filter: drop-shadow(0 6px 18px var(--wh-black-55, rgba(0,0,0,0.55))) drop-shadow(0 0 24px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22));
       image-rendering: -webkit-optimize-contrast;
       image-rendering: crisp-edges;
     }
@@ -479,7 +479,7 @@
     }
     .btn-primary:hover {
       transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 8px 24px -4px rgba(0,0,0,0.60);
+      box-shadow: 0 8px 24px -4px var(--wh-black-60, rgba(0,0,0,0.60));
     }
     .btn-primary:active { transform: translateY(0) scale(0.98); }
     .btn-primary:focus-visible { outline: 3px solid var(--wh-orange); outline-offset: 3px; }
@@ -862,13 +862,13 @@
       0%, 100% { transform: translateY(0) scale(1); }
       40%      { transform: translateY(-2px) scale(1.04); }
     }
-    .cta-pulse { box-shadow: 0 4px 18px -2px rgba(0,0,0,.55); animation: cta-nudge 520ms cubic-bezier(0.23, 1, 0.32, 1) 1.4s 1; }   /* fill none: a held end-frame would override the hover lift */
+    .cta-pulse { box-shadow: 0 4px 18px -2px var(--wh-black-55, rgba(0,0,0,.55)); animation: cta-nudge 520ms cubic-bezier(0.23, 1, 0.32, 1) 1.4s 1; }   /* fill none: a held end-frame would override the hover lift */
 
     /* ── Sticky mobile CTA bar ── */
     #sticky-mobile-cta {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
       background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.97);
-      border-top: 1px solid rgba(255,255,255,0.08);
+      border-top: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       padding: 12px 84px 12px 20px;
       padding-bottom: max(12px, env(safe-area-inset-bottom));
       /* 84px right clears nav-hub FAB (56px wide + 24px margin + 4px gap) */
@@ -984,7 +984,7 @@
     }
     .btn-primary:hover {
       transform: translateY(-3px) scale(1.02) !important;
-      box-shadow: 0 10px 26px -6px rgba(0,0,0,0.60);
+      box-shadow: 0 10px 26px -6px var(--wh-black-60, rgba(0,0,0,0.60));
     }
 
     .btn-secondary {
@@ -1066,7 +1066,7 @@
     /* ---- FAQ accordion (AEO Phase 1) ---- */
     .faq-item {
       background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55);
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 16px;
       transition: border-color .2s ease, background .2s ease;
     }
@@ -1222,7 +1222,7 @@
   html.wh-signed-in a[data-i="signup"]{display:none !important;}</style>
 </head>
 <body class="bg-navy-wh text-white antialiased">
-<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="home" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="home" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px var(--wh-black-35, rgba(0,0,0,.35));transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 <main id="wh-main-content">
 
 
@@ -1268,10 +1268,10 @@
       </button>
       <div class="relative user-menu-wrapper">
         <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-2 px-5" data-i="signin">Sign In</button>
-        <div id="user-menu" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <div id="user-menu" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
           <p class="text-xs text-white/80 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
-          <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
+          <div style="border-top:1px solid var(--wh-white-07, rgba(255,255,255,0.07));" class="pt-1">
             <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/80 hover:text-white/70 transition-colors" data-i="signoutmenu">Sign out</button>
             <button onclick="deactivateAccount()" class="w-full text-left px-4 py-2 text-xs text-red-400/70 hover:text-red-400 transition-colors" data-i="deactivate">Deactivate account</button>
           </div>
@@ -1287,10 +1287,10 @@
     <div class="md:hidden flex items-center gap-2">
       <div class="relative user-menu-wrapper-mobile">
         <button type="button" onclick="openSignIn(event)" class="signin-btn btn-ghost text-sm py-1.5 px-4" data-i="signin">Sign In</button>
-        <div id="user-menu-mobile" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+        <div id="user-menu-mobile" class="hidden absolute right-0 top-10 rounded-xl py-2 w-44 z-50" style="background:#1a2535; border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); box-shadow:0 8px 32px rgba(0,0,0,0.4);">
           <p class="text-xs text-white/80 px-4 pb-1 uppercase tracking-widest">Signed in as</p>
           <p id="user-menu-name-mobile" class="text-white text-sm font-bold px-4 pb-3 truncate"></p>
-          <div style="border-top:1px solid rgba(255,255,255,0.07);" class="pt-1">
+          <div style="border-top:1px solid var(--wh-white-07, rgba(255,255,255,0.07));" class="pt-1">
             <button onclick="signOut()" class="w-full text-left px-4 py-2 text-xs text-white/80 hover:text-white/70 transition-colors" data-i="signoutmenu">Sign out</button>
             <button onclick="deactivateAccount()" class="w-full text-left px-4 py-2 text-xs text-red-400/70 hover:text-red-400 transition-colors" data-i="deactivate">Deactivate account</button>
           </div>
@@ -1332,7 +1332,7 @@
 ═══════════════════════════════════════════════ -->
 <div id="ops-home" style="display:none; padding-top:calc(64px + env(safe-area-inset-top, 0px)); background:var(--wh-ink-deep, #0f1923); font-family:'Poppins',sans-serif; position:relative; z-index:1;">
   <style>
-    #ops-home .oh-card { background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85); border:1px solid rgba(255,255,255,0.07); border-radius:12px; }
+    #ops-home .oh-card { background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:12px; }
     /* #oh-stats height reserve, per width - measured 154 (one row, desktop) / 191 (two rows, 390) / 209 (320);
        see the note at #oh-stats in the markup. */
     #oh-stats { min-height: 154px; }
@@ -1343,7 +1343,7 @@
     @media (max-width: 679px) { #oh-today { min-height: 136px; } }
     @media (max-width: 359px) { #oh-today { min-height: 208px; } }
     #ops-home .oh-sec-lbl { font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:rgba(255,255,255,.6); margin:0 0 12px; }
-    #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--wh-surface-card, rgba(255,255,255,.03)); border:1px solid rgba(255,255,255,.06); border-radius:var(--wh-radius); min-height:44px; }
+    #ops-home .oh-job-row { display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--wh-surface-card, rgba(255,255,255,.03)); border:1px solid var(--wh-white-06, rgba(255,255,255,.06)); border-radius:var(--wh-radius); min-height:44px; }
     #ops-home .oh-badge { font-size: 0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:.05em; padding:0.25rem .5rem; border-radius:var(--wh-radius-sm); }
     /* status tints are the tokens' channels (critique W45929, 2026-10-13): open/high were Tailwind orange-400 (251,146,60)
        beside --wh-orange text - 20 off-token reads on the home - and the Voice Journal action was rose-400 beside
@@ -1354,7 +1354,7 @@
     /* Calm stat tile: only renders when count > 0. Container is flex so
        tiles flow without leaving holes. */
     #ops-home .oh-tile { position:relative; display:flex; flex-direction:column; align-items:flex-start; padding:16px; min-width:120px; flex:1; text-decoration:none; transition:transform .15s, border-color .15s; }
-    #ops-home .oh-tile:hover { transform:translateY(-1px); border-color:rgba(255,255,255,0.18); }
+    #ops-home .oh-tile:hover { transform:translateY(-1px); border-color:var(--wh-white-18, rgba(255,255,255,0.18)); }
     /* D1 affordance: a subtle corner chevron signifies each stat tile is tappable (it deep-links
        to its source page). Decorative, so aria-hidden via content-only; brightens on hover. */
     #ops-home .oh-tile::after { content:"\203A"; position:absolute; top:9px; right:12px; font-size:.95rem; font-weight:700; line-height:1; color:rgba(255,255,255,0.28); transition:color .15s; }
@@ -1377,13 +1377,13 @@
     #ops-home .oh-qa-btn { display:flex; align-items:center; gap:9px; padding:12px 16px; border-radius:var(--wh-radius-sm); text-decoration:none; font-size:.78rem; font-weight:700; border:1px solid; transition:opacity .15s; min-height:44px; }
     #ops-home .oh-qa-btn:hover { opacity:.8; }
     /* N1 i18n EN/FIL segmented toggle (mirrors the persona/hive header chips) */
-    #oh-lang { display:inline-flex; border:1px solid rgba(255,255,255,.12); border-radius:8px; overflow:hidden; flex-shrink:0; }
+    #oh-lang { display:inline-flex; border:1px solid var(--wh-white-12, rgba(255,255,255,.12)); border-radius:8px; overflow:hidden; flex-shrink:0; }
     #oh-lang button { font-size: 0.75rem; font-weight:700; padding:6px 12px; background:transparent; color:rgba(255,255,255,.55); border:none; cursor:pointer; font-family:inherit; min-height:31px; }
-    #oh-lang button + button { border-left:1px solid rgba(255,255,255,.12); }
+    #oh-lang button + button { border-left:1px solid var(--wh-white-12, rgba(255,255,255,.12)); }
     #oh-lang button.on { background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15); color:var(--wh-blue); }
     @media (max-width:600px){ #oh-lang button { min-height:44px; min-width:44px; box-sizing:border-box; } }
     /* Disclosure for everything that isn't the verdict, stats, or primary actions */
-    #ops-home .oh-more { background:transparent; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0; overflow:hidden; }
+    #ops-home .oh-more { background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:12px; padding:0; overflow:hidden; }
     #ops-home .oh-more > summary { list-style:none; padding:16px 20px; cursor:pointer; font-size:.78rem; font-weight:700; color:rgba(255,255,255,.6); display:flex; align-items:center; gap:8px; }
     #ops-home .oh-more > summary::-webkit-details-marker { display:none; }
     #ops-home .oh-more > summary::before { content:"▸"; transition:transform .15s; color:rgba(255,255,255,.6); }
@@ -1453,8 +1453,8 @@
              already works, in the one place the platform keeps account actions, beside Sign Out.
              forgotPassword() is already window-scoped and states its own caveat for the many field
              workers who have no email on file: ask your supervisor. -->
-        <button type="button" onclick="forgotPassword(event)" class="oh-signout" data-i="changepwd" style="font-size: 0.75rem; font-weight:600; padding:6px 16px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Change Password</button>
-        <button onclick="signOut()" class="oh-signout" data-i="signout" style="font-size: 0.75rem; font-weight:600; padding:6px 16px; background:rgba(255,255,255,.05); color:rgba(255,255,255,.7); border:1px solid rgba(255,255,255,.1); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
+        <button type="button" onclick="forgotPassword(event)" class="oh-signout" data-i="changepwd" style="font-size: 0.75rem; font-weight:600; padding:6px 16px; background:var(--wh-white-05, rgba(255,255,255,.05)); color:rgba(255,255,255,.7); border:1px solid var(--wh-white-10, rgba(255,255,255,.1)); border-radius:8px; font-family:inherit; cursor:pointer;">Change Password</button>
+        <button onclick="signOut()" class="oh-signout" data-i="signout" style="font-size: 0.75rem; font-weight:600; padding:6px 16px; background:var(--wh-white-05, rgba(255,255,255,.05)); color:rgba(255,255,255,.7); border:1px solid var(--wh-white-10, rgba(255,255,255,.1)); border-radius:8px; font-family:inherit; cursor:pointer;">Sign Out</button>
       </div>
     </div>
 
@@ -1583,7 +1583,7 @@
               <span data-i="voicejournal">Voice Journal</span>
             </a>
             <!-- Phase E.3d: scan an equipment tag from anywhere in the platform -->
-            <button type="button" id="oh-scan-btn" class="oh-qa-btn" style="background:rgba(255,255,255,.04); color:var(--wh-cloud); border-color:rgba(255,255,255,.12); cursor:pointer; font-family:inherit; grid-column:1 / -1;">
+            <button type="button" id="oh-scan-btn" class="oh-qa-btn" style="background:var(--wh-white-04, rgba(255,255,255,.04)); color:var(--wh-cloud); border-color:var(--wh-white-12, rgba(255,255,255,.12)); cursor:pointer; font-family:inherit; grid-column:1 / -1;">
               <span class="ic ic-scan" aria-hidden="true"></span>
               <span data-i="scanasset">Scan an Asset</span>
             </button>
@@ -1597,7 +1597,7 @@
          (both siblings of #ops-home, OUTSIDE #mkt-wrap) are hidden by _showOpsHome() in the
          signed-in state; this gives the operational dashboard a proper, honest bottom edge
          (© + legal) without the acquisition CTA a signed-in user has no use for (rubric L1). -->
-    <footer style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.07); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; font-size: 0.75rem; color:rgba(255,255,255,.5);">
+    <footer style="margin-top:24px; padding-top:16px; border-top:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; font-size: 0.75rem; color:rgba(255,255,255,.5);">
       <span>&copy; 2026 WorkHive Engineering Services</span>
       <span style="display:flex; gap:16px;">
         <a href="privacy-policy/" style="color:rgba(255,255,255,.6); text-decoration:none; display:inline-flex; align-items:center; justify-content:center; min-height:44px; min-width:44px;">Privacy</a>
@@ -1743,7 +1743,7 @@
                    keeps its own rounded border, which is what actually defines it. -->
 
           <div class="relative rounded-3xl border border-white/10 overflow-hidden"
-               style="background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.85) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97) 100%); box-shadow: 0 32px 80px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);">
+               style="background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.85) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97) 100%); box-shadow: 0 32px 80px -12px var(--wh-black-60, rgba(0,0,0,0.6)), inset 0 1px 0 var(--wh-white-07, rgba(255,255,255,0.07));">
 
             <!-- card header -->
             <div class="px-6 pt-6 pb-4 border-b border-white/[0.07]">
@@ -1839,7 +1839,7 @@
                 .stage-card.stage-links-next::after {
                   content: ''; position: absolute; top: 50%; right: -11px;
                   width: 10px; height: 1px;
-                  border-top: 1px dashed rgba(255,255,255,0.2);
+                  border-top: 1px dashed var(--wh-white-20, rgba(255,255,255,0.2));
                   z-index: 2; pointer-events: none;
                 }
               </style>
@@ -1848,7 +1848,7 @@
               <p style="font-size: 12px;color:var(--wh-text-muted, rgba(255,255,255,0.80));text-align:center;letter-spacing:0.02em;margin-bottom:12px;font-weight:600;">Every hive grows in 4 stages · Every stage unlocks tools</p>
 
               <style>
-                .stage-meta { font-size: 12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.5; margin-top:8px; padding-top:8px; border-top:1px dotted rgba(255,255,255,0.08); }
+                .stage-meta { font-size: 12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.5; margin-top:8px; padding-top:8px; border-top:1px dotted var(--wh-white-08, rgba(255,255,255,0.08)); }
                 .stage-meta-row { display:flex; gap:5px; align-items:flex-start; }
                 .stage-meta-tag { font-weight:800; letter-spacing:0.04em; text-transform:uppercase; font-size: 12px; min-width:32px; padding-top:2px; }
                 /* opacity:0.7 REMOVED and 8px -> 9px. These tags already used the AA-safe -text
@@ -2117,7 +2117,7 @@
         </p>
         <div class="grid grid-cols-1 gap-3">
           <!-- ★ONE BOX, NOT TWO (K, 2026-10-15): the sourced figure sat in its own tinted, bordered tile inside the card - a card inside a card, four times. It stays, set apart from the paragraph by a hairline instead of a second box. -->
-          <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
+          <div style="border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); padding-top:1rem;">
             <!-- SAME FIGURE, SECOND MEANING (2026-09-17). This tile said the range was a reduction in
                  downtime COSTS while the hero said it was a reduction in downtime - two different
                  quantities behind one number, on one page. Hours is what the guide measures; figure
@@ -2148,7 +2148,7 @@
           Right person, right job, every time. Competence replaces availability.
         </p>
         <div class="grid grid-cols-1 gap-3">
-          <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
+          <div style="border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); padding-top:1rem;">
             <p class="text-blue-wh font-bold text-xl stat-figure">Data</p>
             <p class="text-white/80 text-xs mt-0.5">Not Guesswork, for Every Assignment</p>
           </div>
@@ -2169,7 +2169,7 @@
           When an expert retires, the knowledge stays. Every repair makes the hive smarter.
         </p>
         <div class="grid grid-cols-1 gap-3">
-          <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
+          <div style="border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); padding-top:1rem;">
             <p class="text-blue-wh font-bold text-xl stat-figure">∞</p>
             <p class="text-white/80 text-xs mt-0.5">Compounding Organizational Memory</p>
           </div>
@@ -2190,7 +2190,7 @@
           The right specialist found in hours, not weeks. Luck replaced by design.
         </p>
         <div class="grid grid-cols-1 gap-3">
-          <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:1rem;">
+          <div style="border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); padding-top:1rem;">
             <p class="text-orange-wh font-bold text-xl stat-figure">4 Pillars</p>
             <p class="text-white/80 text-xs mt-0.5">Services, Parts, Training, Jobs</p>
           </div>
@@ -2495,7 +2495,7 @@
     .learn-teaser-card {
       display: block;
       background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55);
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 16px;
       padding: 24px 24px;
       transition: border-color .2s ease, background .2s ease, transform .2s ease;
@@ -2561,7 +2561,7 @@
            that lifts the mark off the navy, plus a quarter-strength amber that reads as the band's light
            catching it. Written inline rather than by adding .logo-glow-img, because that class also carries
            the 7s float and a height: 118px !important mobile override that would resize this one. -->
-      <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="w-auto" style="height: 80px; filter: drop-shadow(0 6px 18px rgba(0,0,0,0.55)) drop-shadow(0 0 24px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22));" />
+      <img src="brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="w-auto" style="height: 80px; filter: drop-shadow(0 6px 18px var(--wh-black-55, rgba(0,0,0,0.55))) drop-shadow(0 0 24px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22));" />
     </div>
     <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-[1.05] tracking-[-0.03em] mb-6">
       <span data-i="jointhehive">Join the hive.</span><br/>
@@ -2951,7 +2951,7 @@
 
 <style>
   .popup-tab { background: var(--wh-surface-card, rgba(255,255,255,0.03)); cursor: pointer; }
-  .popup-tab:hover { background: rgba(255,255,255,0.06); }
+  .popup-tab:hover { background: var(--wh-white-06, rgba(255,255,255,0.06)); }
   .popup-tab.active { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35) !important; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08) !important; }
   .popup-tab.active span { color: white !important; }
   .popup-tab.active-blue { border-color: rgba(74,159,212,0.35) !important; background: rgba(74,159,212,0.08) !important; }
@@ -3274,7 +3274,7 @@
   a.btn-primary, .btn-primary, a.btn-secondary, .btn-secondary { min-height: 44px; box-sizing: border-box; }
 </style>
 <div id="signin-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden" style="background:rgba(0,0,0,0.75); backdrop-filter:blur(10px);" role="dialog" aria-modal="true" aria-label="Sign in to WorkHive">
-  <div class="relative rounded-2xl p-7 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid rgba(255,255,255,0.1); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
+  <div class="relative rounded-2xl p-7 w-full max-w-sm mx-4" style="background:#1a2535; border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); box-shadow:0 24px 80px rgba(0,0,0,0.5);">
     <!-- Sized to 44x44 (was 11.7 x 20, measured live by tools/prove_dialog_layout.mjs). This is the ONLY
          control that closes the sign-in dialog, and it sits on the signed-OUT path a first-time visitor
          lands on, so it is the worst place on the platform to have a ~12px target. It is also a one-off
@@ -3288,7 +3288,7 @@
     </div>
 
     <!-- Tabs: Sign In / Sign Up -->
-    <div class="flex gap-1 p-1 mb-5 rounded-xl" role="tablist" aria-label="Sign in or sign up" style="border:1px solid rgba(255,255,255,0.1);">
+    <div class="flex gap-1 p-1 mb-5 rounded-xl" role="tablist" aria-label="Sign in or sign up" style="border:1px solid var(--wh-white-10, rgba(255,255,255,0.1));">
       <!-- ★TOUCH FLOOR. Both tabs measured 149.5x40 and 148.5x40 inside #signin-modal - under this
            platform's 44px rule, on the control that chooses between signing in and creating an account.
            Height-only fix (py-2.5 -> py-3 plus an explicit min-height): the width was already ample, so
@@ -3316,7 +3316,7 @@
         <label for="si-username" class="block text-xs mb-1" style="color:var(--wh-text-faint, rgba(255,255,255,0.86));font-weight:600;">Username</label>
         <input id="si-username" type="text" placeholder="Username" autocomplete="username"
           class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none wh-ph"
-          style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
+          style="background:var(--wh-white-07, rgba(255,255,255,0.07)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));" />
         <!-- ★C24 (wave-4, 2026-09-14): _syntheticEmail() silently strips everything outside [a-z0-9_] from the typed
              username before building the address, so a person who types "jeepney.oscarph" is signed in as
              jeepneyoscarph - and, when no such account exists, is told "Wrong username or password". When the
@@ -3326,7 +3326,7 @@
         <div style="position:relative;">
           <input id="si-password" type="password" placeholder="Password" autocomplete="current-password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none wh-ph"
-            style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
+            style="background:var(--wh-white-07, rgba(255,255,255,0.07)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); padding-right:44px;" />
           <button type="button" onclick="togglePwd('si-password',this)" aria-pressed="false"
             style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--wh-text-muted, rgba(255,255,255,0.80));padding:4px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;" aria-label="Show password">
             <span class="ic ic-eye" aria-hidden="true"></span>
@@ -3383,7 +3383,7 @@
           <label for="su-username" class="block text-xs mb-1" style="color:var(--wh-text-faint, rgba(255,255,255,0.86));font-weight:600;">Username</label>
           <input id="su-username" type="text" placeholder="Username (letters, numbers, underscores)" autocomplete="username"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
-            style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);"
+            style="background:var(--wh-white-07, rgba(255,255,255,0.07)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));"
             oninput="checkUsernameDebounced()" />
           <p id="su-username-status" class="text-xs mt-1 hidden"></p>
         </div>
@@ -3391,7 +3391,7 @@
         <div style="position:relative;">
           <input id="su-password" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
-            style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
+            style="background:var(--wh-white-07, rgba(255,255,255,0.07)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); padding-right:44px;" />
           <button type="button" onclick="togglePwd('su-password',this)" aria-pressed="false"
             style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--wh-text-muted, rgba(255,255,255,0.80));padding:4px;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;" aria-label="Show password">
             <span class="ic ic-eye" aria-hidden="true"></span>
@@ -3401,7 +3401,7 @@
         <div style="position:relative;">
           <input id="su-confirm" type="password" placeholder="Repeat password" autocomplete="new-password"
             class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
-            style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); padding-right:44px;" />
+            style="background:var(--wh-white-07, rgba(255,255,255,0.07)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); padding-right:44px;" />
           <button type="button" onclick="togglePwd('su-confirm',this)" aria-pressed="false"
             style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--wh-text-muted, rgba(255,255,255,0.80));padding:4px;" aria-label="Show confirm password">
             <span class="ic ic-eye" aria-hidden="true"></span>
@@ -3410,7 +3410,7 @@
         <label for="su-displayname" class="block text-xs mb-1" style="color:var(--wh-text-faint, rgba(255,255,255,0.86));font-weight:600;">Display name (shown to teammates)</label>
         <input id="su-displayname" type="text" placeholder="Display name (shown to teammates)" autocomplete="nickname"
           class="w-full rounded-xl px-4 py-3 text-sm text-white outline-none"
-          style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);" />
+          style="background:var(--wh-white-07, rgba(255,255,255,0.07)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));" />
       </div>
       <!-- Arc I I7/I — signup bot-protection (Cloudflare Turnstile). CONFIGURE-TO-ENABLE: inert until
            window.WH_TURNSTILE_SITEKEY is set AND Turnstile is enabled in Supabase Auth > Bot Protection
@@ -3455,7 +3455,7 @@
 </div>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="source-line-1">
@@ -6047,7 +6047,7 @@
               ${_t('Dismiss','I-dismiss')} &times;
             </button>
           </div>
-          <div style="height:4px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; margin-bottom:16px;">
+          <div style="height:4px; background:var(--wh-white-06, rgba(255,255,255,.06)); border-radius:999px; overflow:hidden; margin-bottom:16px;">
             <div style="height:100%; width:${pct}%; background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light));"></div>
           </div>
           <div style="display:flex; flex-direction:column; gap:8px;">
@@ -6089,7 +6089,7 @@
             <span class="ac-num" style="color:var(--wh-green);">${closedToday === null ? '&mdash;' : closedToday}</span>
             <span class="ac-lbl">${_t('Jobs Closed','Tapos na Trabaho')}</span>
           </div>
-          <div style="text-align:center; border-left:1px solid rgba(255,255,255,.06); border-right:1px solid rgba(255,255,255,.06);">
+          <div style="text-align:center; border-left:1px solid var(--wh-white-06, rgba(255,255,255,.06)); border-right:1px solid var(--wh-white-06, rgba(255,255,255,.06));">
             <span class="ac-num" style="color:var(--wh-blue-text);">${pmDoneToday === null ? '&mdash;' : pmDoneToday}</span>
             <span class="ac-lbl">${_t('PM Done','Tapos na PM')}</span>
           </div>
@@ -6186,7 +6186,7 @@
      and it must render legibly even in a broken state. Contrast re-measured after the swap. -->
 <div id="wh-consent" hidden role="region" aria-labelledby="wh-consent-t" aria-describedby="wh-consent-d"
        style="position:fixed;left:1rem;right:1rem;bottom:1rem;max-width:34rem;margin:0 auto;z-index:9000;
-              background:var(--wh-navy,#162032);color:var(--wh-cloud,#F4F6FA);border:1px solid rgba(255,255,255,0.12);border-radius:0.75rem;
+              background:var(--wh-navy,#162032);color:var(--wh-cloud,#F4F6FA);border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));border-radius:0.75rem;
               padding:1rem;box-shadow:0 8px 28px rgba(0,0,0,.42);font-size:0.875rem;line-height:1.5">
     <strong id="wh-consent-t" style="display:block;font-size:1rem;margin-bottom:0.25rem">Analytics on this page</strong>
     <!-- 0.85, not 0.80 (2026-10-13, critic batch C5): at 14px on the navy panel 0.80 measured APCA Lc 72.9 against a
@@ -6199,7 +6199,7 @@
       <button type="button" id="wh-consent-yes" style="min-height:44px;padding:0 1rem;border-radius:0.5rem;
               border:0;background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-weight:600;cursor:pointer">Allow</button>
       <button type="button" id="wh-consent-no" style="min-height:44px;padding:0 1rem;border-radius:0.5rem;
-              border:1px solid rgba(255,255,255,0.18);background:transparent;color:var(--wh-cloud,#F4F6FA);cursor:pointer">No thanks</button>
+              border:1px solid var(--wh-white-18, rgba(255,255,255,0.18));background:transparent;color:var(--wh-cloud,#F4F6FA);cursor:pointer">No thanks</button>
     </div>
   </div>
   <script defer src="wh-consent.js"></script>

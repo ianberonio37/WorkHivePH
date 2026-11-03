@@ -45,7 +45,7 @@
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber); --purple: var(--wh-violet);
       --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
-      --border: rgba(255,255,255,0.07);
+      --border: var(--wh-white-07, rgba(255,255,255,0.07));
     }
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
     .page { max-width: 680px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }   /* the app column (DESIGN.md); the fn table scrolls in wh-scroll-x */
@@ -67,8 +67,8 @@
 
     table.fn-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
     table.fn-table th { text-align: left; font-size: 0.75rem; font-weight: 700; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
-    table.fn-table td { padding: 9px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    table.fn-table tr:hover td { background: rgba(255,255,255,0.02); }
+    table.fn-table td { padding: 9px 8px; border-bottom: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); }
+    table.fn-table tr:hover td { background: var(--wh-white-02, rgba(255,255,255,0.02)); }
     .num-right { text-align: right; font-variant-numeric: tabular-nums; }
 
     .roi-block { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -100,7 +100,7 @@
     .verdict.watch   .verdict-icon { color: var(--gold); }
     .verdict.attn    { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color: var(--red); }
-    .verdict.empty   { background: var(--wh-surface-card, rgba(255,255,255,0.03)); border-color: rgba(255,255,255,0.08); }
+    .verdict.empty   { background: var(--wh-surface-card, rgba(255,255,255,0.03)); border-color: var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color: var(--wh-text-muted, rgba(255,255,255,0.80)); }
 
     .simple-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -115,7 +115,7 @@
     .simple-card.tag-green .sc-tag { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.16);  color: var(--green); }
     .simple-card.tag-amber .sc-tag { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.16);  color: var(--gold); }
     .simple-card.tag-red   .sc-tag { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color: var(--red); }
-    .simple-card.tag-grey  .sc-tag { background: rgba(255,255,255,0.06); color: var(--wh-text-muted, rgba(255,255,255,0.80)); }
+    .simple-card.tag-grey  .sc-tag { background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--wh-text-muted, rgba(255,255,255,0.80)); }
 
     .action-card {
       background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06);
@@ -138,7 +138,7 @@
       font-family: inherit; font-size: 0.75rem; font-weight: 600;
       cursor: pointer; min-height: 44px;
     }
-    .details-toggle:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+    .details-toggle:hover { color: var(--text); border-color: var(--wh-white-18, rgba(255,255,255,0.18)); }
     #details-pane { display: none; margin-top: 16px; }
     #details-pane.open { display: block; }
     /* ★THE DISCLOSURE BELOW JUMPED WHEN THE PANEL LANDED (Chrome DevTools MCP on a 4x-throttled phone over
@@ -186,7 +186,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <!-- Rendered by render() after maturity gate passes -->
     </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">

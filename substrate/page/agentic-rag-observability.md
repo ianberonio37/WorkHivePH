@@ -2,7 +2,7 @@
 name: page-agentic-rag-observability
 type: page
 source: file:agentic-rag-observability.html
-source_sha: bde8ce8d73c23d6e
+source_sha: 9a2baf33bbbd5a75
 last_verified: 2026-07-13
 supersedes: null
 ---

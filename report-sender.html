@@ -100,7 +100,7 @@
     /* ── Card ── */
     .card {
       background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
-      border: 1px solid rgba(255,255,255,0.07);
+      border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       border-radius: 1rem;
       padding:1.5rem;
       position: relative;
@@ -130,7 +130,7 @@
       display: flex; align-items: center; gap: 0.625rem;
       padding:0.75rem 1rem;
       border-radius: 0.75rem;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.55);
       cursor: pointer;
       transition: border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
@@ -158,8 +158,8 @@
       display: inline-block;
       font-size: 0.75rem; font-weight: 700;
       padding:0.125rem 0.375rem; border-radius: 999px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--wh-white-05, rgba(255,255,255,0.05));
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       margin-left:auto; flex-shrink: 0;
     }
@@ -172,7 +172,7 @@
     /* ── Email input ── */
     .wh-input {
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
       color: #fff; padding:0.75rem 1rem;
       width: 100%; font-size: 1rem;
@@ -204,7 +204,7 @@
 
     .contact-chip {
       display: flex; align-items: center; gap: 0.75rem;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.55); border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.55); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       border-radius: 0.75rem; padding:0.5rem 1rem;
       cursor: pointer;
       transition: border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
@@ -255,7 +255,7 @@
     /* ── Bottom sheet ── */
     .sheet-overlay {
       position: fixed; inset: 0; z-index: 100;
-      background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+      background: var(--wh-black-60, rgba(0,0,0,0.6)); backdrop-filter: blur(4px);
       display: flex; align-items: flex-end;
     }
     .bottom-sheet {
@@ -266,7 +266,7 @@
       max-height: 80vh; display: flex; flex-direction: column;
       padding-bottom:env(safe-area-inset-bottom);
     }
-    .sheet-handle { width: 36px; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.15); margin:1rem auto 0; flex-shrink: 0; }
+    .sheet-handle { width: 36px; height: 4px; border-radius: 999px; background: var(--wh-white-15, rgba(255,255,255,0.15)); margin:1rem auto 0; flex-shrink: 0; }
     .sheet-header { padding:1rem 1.25rem 0; flex-shrink: 0; }
     .sheet-title  { font-size: 1rem; font-weight: 700; color: #fff; }
     .sheet-body   { padding:1rem 1.25rem; overflow-y: auto; flex: 1; }
@@ -283,7 +283,7 @@
          rule. Height-only fix: the width was already fine, so raising min-height cannot introduce the
          horizontal overflow the same prover checks in the same run. */
       min-height: 44px;
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer;
       transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       -webkit-tap-highlight-color: transparent;
@@ -297,7 +297,7 @@
     .history-item {
       display: flex; align-items: center; gap: 0.75rem;
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.35);
-      border: 1px solid rgba(255,255,255,0.06);
+      border: 1px solid var(--wh-white-06, rgba(255,255,255,0.06));
       border-radius: 0.75rem; padding:0.75rem 1rem;
     }
     .history-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
@@ -313,13 +313,13 @@
     .resend-btn {
       font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
       padding:0.375rem 0.5rem; border-radius: 0.5rem;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      background: var(--wh-white-05, rgba(255,255,255,0.05)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       color: rgba(255,255,255,0.78); cursor: pointer; /* D1 a11y: 0.45→0.78 WCAG 1.4.3 */
       -webkit-tap-highlight-color: transparent;
       transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       white-space: nowrap; flex-shrink: 0; min-height: 44px; /* D1 U2: 32→44 gloved-field tap target */
     }
-    .resend-btn:hover   { background: rgba(255,255,255,0.1); color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
+    .resend-btn:hover   { background: var(--wh-white-10, rgba(255,255,255,0.1)); color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
     .resend-btn:active  { transform: scale(0.95); }
     .resend-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
@@ -389,7 +389,7 @@
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; -webkit-tap-highlight-color: transparent;
     }
-    .voice-ctx-clear:active { background: rgba(255,255,255,0.08); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+    .voice-ctx-clear:active { background: var(--wh-white-08, rgba(255,255,255,0.08)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 
     /* ── Send button ── */
     .send-btn {
@@ -438,7 +438,7 @@
       padding:0.5rem 1rem;
     }
     .proc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .proc-dot.pending { background: rgba(255,255,255,0.18); }
+    .proc-dot.pending { background: var(--wh-white-18, rgba(255,255,255,0.18)); }
     .proc-dot.done { background: var(--wh-green); }
     .proc-dot.err { background: var(--wh-red); }
     .proc-dot.spin-sm {
@@ -498,12 +498,12 @@
     .results-list {
       width: 100%; display: flex; flex-direction: column; gap: 0.4rem;
       max-height: 200px; overflow-y: auto;
-      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+      scrollbar-width: thin; scrollbar-color: var(--wh-white-10, rgba(255,255,255,0.1)) transparent;
     }
     .result-card {
       display: flex; align-items: flex-start; gap: 0.625rem;
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5);
-      border: 1px solid rgba(255,255,255,0.06);
+      border: 1px solid var(--wh-white-06, rgba(255,255,255,0.06));
       border-radius: var(--wh-radius); padding:0.75rem;
       text-align: left;
     }
@@ -515,13 +515,13 @@
     .btn-ghost {
       font-family: 'Poppins', sans-serif; font-size: 0.875rem; font-weight: 600;
       padding:0.5rem 1.5rem; border-radius: var(--wh-radius-sm);
-      border: 1px solid rgba(255,255,255,0.15); background: transparent;
+      border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15)); background: transparent;
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer;
       transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       min-height: 40px;
       -webkit-tap-highlight-color: transparent;
     }
-    .btn-ghost:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+    .btn-ghost:hover { background: var(--wh-white-06, rgba(255,255,255,0.06)); color: rgba(255,255,255,0.85); }
     .btn-ghost:active { transform: scale(0.97); }
 
     /* ── Install icon button in header ── */
@@ -568,7 +568,7 @@
       border-radius: 50%; flex-shrink: 0;
       -webkit-tap-highlight-color: transparent;
     }
-    .ios-hint-close:active { background: rgba(255,255,255,0.08); }
+    .ios-hint-close:active { background: var(--wh-white-08, rgba(255,255,255,0.08)); }
 
     /* ── Mobile overrides ── */
     @media (max-width: 480px) {
@@ -589,10 +589,10 @@
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
     .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #rs-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #rs-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #rs-summary-details.open { display:block; }
   </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -629,7 +629,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                  overflow-x:auto strip; without shrink:0 flex squeezed them at 390px and their labels wrapped to 2 lines,
                  breaking the "one-line strip that scrolls sideways" the comment above promises. Now they keep their
                  natural width and the strip scrolls. -->
-            <a role="tab" aria-selected="false" href="analytics-report.html" data-i="p_analyticsreport_tab" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08); flex-shrink:0; white-space:nowrap;">&larr; Analytics report</a>
+            <a role="tab" aria-selected="false" href="analytics-report.html" data-i="p_analyticsreport_tab" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:var(--wh-white-04, rgba(255,255,255,0.04)); color:rgba(255,255,255,0.83); font-size:.75rem; font-weight:600; text-decoration:none; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); flex-shrink:0; white-space:nowrap;">&larr; Analytics report</a>
             <span data-i="p_sendschedule_7b67" role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:.75rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); flex-shrink:0; white-space:nowrap;">Send / schedule</span>
           </div>
           <p id="report-sender-source-chip" hidden data-wh-sources-collapsed></p>
@@ -835,7 +835,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   </div>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
-<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
+<section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="rs-summary-details">
