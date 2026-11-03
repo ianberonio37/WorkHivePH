@@ -215,52 +215,52 @@ HTML_TEMPLATE = """<!DOCTYPE html>
        against the 4.5:1 it owes. Same seven values as wh-tw.css; body-scoped (0,1,1) so it beats the
        utility whatever the sheet order, with no !important. Applied to the existing 54 by
        tools/fix_learn_contrast_remap.py; this is why the 55th ships correct. */
-    body .text-white\\/45 {{ color: rgb(255 255 255 / 0.8); }}
-    body .text-white\\/50 {{ color: rgb(255 255 255 / 0.8); }}
-    body .text-white\\/55 {{ color: rgb(255 255 255 / 0.8); }}
-    body .text-white\\/60 {{ color: rgb(255 255 255 / 0.8); }}
+    body .text-white\\/45 {{ color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }}
+    body .text-white\\/50 {{ color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }}
+    body .text-white\\/55 {{ color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }}
+    body .text-white\\/60 {{ color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }}
     body .text-white\\/65 {{ color: rgb(255 255 255 / 0.85); }}
     body .text-white\\/70 {{ color: rgb(255 255 255 / 0.85); }}
     body .text-white\\/75 {{ color: rgb(255 255 255 / 0.85); }}
     body {{ font-family: 'Poppins', sans-serif; }}
-    .hex-pattern {{ background-image: radial-gradient(circle, rgba(247,162,27,0.04) 1px, transparent 1px); background-size: 28px 28px; }}
-    .audience-block {{ background: linear-gradient(135deg, rgba(41,182,217,0.10), rgba(41,182,217,0.04)); border: 1px solid rgba(41,182,217,0.22); border-radius: 16px; padding: 18px 22px; margin: 1.75rem 0; }}
+    .hex-pattern {{ background-image: radial-gradient(circle, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04) 1px, transparent 1px); background-size: 28px 28px; }}
+    .audience-block {{ background: linear-gradient(135deg, rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1), rgba(var(--wh-blue-rgb, 41, 182, 217), 0.04)); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.22); border-radius: 16px; padding: 18px 22px; margin: 1.75rem 0; }}
     .audience-label {{ font-size: 11px; font-weight: 700; color: var(--wh-blue-light,#5FCCE8); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }}
-    .audience-block ul {{ margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.78); font-size: 0.92rem; line-height: 1.7; }}
-    .answer-first {{ background: rgba(247,162,27,0.06); border-left: 3px solid var(--wh-orange,#F7A21B); padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-size: 1.02rem; line-height: 1.65; }}
-    .toc {{ background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 18px 22px; margin: 2rem 0; }}
+    .audience-block ul {{ margin: 0; padding-left: 1.2rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.78); font-size: 0.92rem; line-height: 1.7; }}
+    .answer-first {{ background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06); border-left: 3px solid var(--wh-orange,#F7A21B); padding: 18px 22px; border-radius: 0 12px 12px 0; margin: 1.5rem 0; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); font-size: 1.02rem; line-height: 1.65; }}
+    .toc {{ background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 18px 22px; margin: 2rem 0; }}
     /* ~W46101: BOTH tags. The label has been an h2 and an h4 at different times and the
        selector was once coupled to the tag - when the tag moved and the selector did not,
        45 of 54 published articles rendered this label at the browser default 16px for as
        long as nobody asked why the type ramp had nine steps. Matching both tags means the
        styling cannot come apart from the markup again. Tracking is 0.04em per DESIGN.md,
        which caps all-caps labels there. */
-    .toc h2, .toc h4 {{ margin: 0 0 8px; font-size: 13px; color: rgba(244,246,250,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }}
-    .toc ol {{ margin: 0; padding-left: 1.2rem; color: rgba(244,246,250,0.75); font-size: 0.92rem; line-height: 1.85; }}
-    .toc a {{ color: rgba(244,246,250,0.75); }}
+    .toc h2, .toc h4 {{ margin: 0 0 8px; font-size: 13px; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }}
+    .toc ol {{ margin: 0; padding-left: 1.2rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.75); font-size: 0.92rem; line-height: 1.85; }}
+    .toc a {{ color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.75); }}
     .toc a:hover {{ color: var(--wh-orange-light,#FDB94A); }}
     .prose-wh h2 {{ font-size: 1.55rem; font-weight: 800; color: var(--wh-cloud,#F4F6FA); margin: 2.25rem 0 0.85rem; letter-spacing: -0.01em; }}
-    .prose-wh p {{ font-size: 1.005rem; color: rgba(244,246,250,0.78); line-height: 1.75; margin: 0.85rem 0; }}
+    .prose-wh p {{ font-size: 1.005rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.78); line-height: 1.75; margin: 0.85rem 0; }}
     .prose-wh strong {{ color: var(--wh-cloud,#F4F6FA); }}
     .prose-wh a {{ color: var(--wh-blue-light,#5FCCE8); text-decoration: underline; text-underline-offset: 3px; }}
-    .prose-wh ol, .prose-wh ul {{ color: rgba(244,246,250,0.78); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }}
+    .prose-wh ol, .prose-wh ul {{ color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.78); padding-left: 1.4rem; margin: 0.85rem 0; line-height: 1.75; }}
     .prose-wh table {{ width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }}
     .prose-wh th, .prose-wh td {{ padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); }}
-    .prose-wh th {{ background: rgba(31,46,69,0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }}
-    .callout {{ background: rgba(41,182,217,0.06); border-left: 3px solid var(--wh-blue,#29B6D9); border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(244,246,250,0.78); }}
+    .prose-wh th {{ background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }}
+    .callout {{ background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border-left: 3px solid var(--wh-blue,#29B6D9); border-radius: 8px; padding: 18px 22px; margin: 2rem 0; font-size: 0.98rem; line-height: 1.7; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.78); }}
     .callout strong {{ color: var(--wh-blue-light,#5FCCE8); }}
     .article-fig {{ margin: 1.75rem 0; }}
     .article-fig img {{ width: 100%; height: auto; display: block; }}
-    .article-fig figcaption {{ margin-top: 8px; font-size: 0.85rem; color: rgba(244,246,250,0.55); line-height: 1.55; }}
-    .tool-cta {{ background: linear-gradient(135deg, rgba(247,162,27,0.14), rgba(247,162,27,0.04)); border: 1px solid rgba(247,162,27,0.32); border-radius: 16px; padding: 22px 26px; margin: 2.25rem 0; }}
+    .article-fig figcaption {{ margin-top: 8px; font-size: 0.85rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.55); line-height: 1.55; }}
+    .tool-cta {{ background: linear-gradient(135deg, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14), rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04)); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.32); border-radius: 16px; padding: 22px 26px; margin: 2.25rem 0; }}
     .tool-cta a {{ display: inline-block; margin-top: 10px; background: linear-gradient(135deg, var(--wh-orange,#F7A21B), var(--wh-orange-light,#FDB94A)); color: var(--wh-navy,#162032); font-weight: 700; padding: 10px 22px; border-radius: 8px; text-decoration: none; transition: transform 0.15s; }}
     .tool-cta a:hover {{ transform: translateY(-1px); }}
-    .faq-item {{ background: rgba(31,46,69,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 0; margin: 0.7rem 0; }}
+    .faq-item {{ background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 0; margin: 0.7rem 0; }}
     .faq-item summary {{ cursor: pointer; font-weight: 600; color: var(--wh-cloud,#F4F6FA); font-size: 1rem; padding: 16px 20px; }}
     .faq-item[open] summary {{ color: var(--wh-orange-light,#FDB94A); }}
-    .faq-item .faq-answer {{ margin-top: 0; padding: 0 20px 16px; color: rgba(244,246,250,0.78); font-size: 0.97rem; line-height: 1.7; }}
+    .faq-item .faq-answer {{ margin-top: 0; padding: 0 20px 16px; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.78); font-size: 0.97rem; line-height: 1.7; }}
     .sources-list {{ list-style: none; padding: 0; }}
-    .sources-list li {{ padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(244,246,250,0.65); font-size: 0.9rem; }}
+    .sources-list li {{ padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.07); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.65); font-size: 0.9rem; }}
     /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the top bar's row and its links WRAP, and the row's fixed
        h-14 becomes a minimum, so the links drop under the logo instead of running the page sideways or clipping. At normal
        sizes nothing moves: a row only wraps when it does not fit, and 3.5rem is the height it had. */
@@ -332,7 +332,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 {SECTIONS_HTML}
 
       <div class="tool-cta">
-        <p style="margin:0; font-size:0.95rem; color:rgba(244,246,250,0.85);"><strong>Open the tool:</strong> {TOOL_NAME} is the WorkHive surface this guide funnels into. It is free at the worker tier, works offline, and is built for Philippine plants.</p>
+        <p style="margin:0; font-size:0.95rem; color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85);"><strong>Open the tool:</strong> {TOOL_NAME} is the WorkHive surface this guide funnels into. It is free at the worker tier, works offline, and is built for Philippine plants.</p>
         <a href="{TOOL_URL}">Open {TOOL_NAME} &rarr;</a>
       </div>
 

@@ -92,4 +92,4 @@ Or try what “free” actually means here, with no account: the [OEE calculator
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 0e2f87b79f239b17 -->
+<!-- md-twin source-sha: 344471b37cf9629a -->

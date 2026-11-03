@@ -201,10 +201,16 @@ def token_values(tokens_css: str) -> dict:
 
 
 def targets(root: Path) -> list[str]:
+    """Every served page and hand-written stylesheet. ★THE SHIPPED PAGE IS THE SOURCE (2026-11-04): the first version
+    skipped the generated families (learn/, tools/) on the theory that a per-page edit is reverted by the next build.
+    It is not - since 2026-10-23 a generator writes NEW pages only (build_calc_pages.py stages, never overwrites;
+    build_pillar_pages.py needs --force), because the shipped pages carry fixes their templates never got (measured
+    tonight: 196 lines between the calculator template and a shipped calculator page, the OWN text-grows rule among
+    them). So the family's pages are rewritten where they ship, and the templates get the same rewrite for new pages.
+    wh-tw*.css stays out: it IS rebuilt from the Tailwind config, so its colours are fixed there."""
     sys.path.insert(0, str(root / "tools"))
     from prove_design_source_drift import design_files  # noqa: E402 - the gate's own roster
-    return [f for f in design_files(root) if not f.startswith(GENERATED) and not f.startswith("wh-tw")
-            and f not in SKIP_CSS]
+    return [f for f in design_files(root) if not f.startswith("wh-tw") and f not in SKIP_CSS]
 
 
 def run(root: Path, apply: bool, only: set | None) -> int:

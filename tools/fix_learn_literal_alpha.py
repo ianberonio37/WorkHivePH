@@ -49,8 +49,12 @@ RAMP = {"0.4": "0.8", ".4": "0.8", "0.45": "0.8", "0.5": "0.8", ".5": "0.8",
         "0.65": "0.85", "0.7": "0.85", ".7": "0.85", "0.75": "0.85", "0.78": "0.85"}
 
 # `color:` only - never border-color / outline-color / -webkit-text-fill-color etc.
+# ★THE TOKEN FORM IS THE SAME COLOUR (2026-11-04). OD-D's fix_token_literals.py writes rgba(244,246,250,a) as
+# rgba(var(--wh-cloud-rgb, 244, 246, 250), a) - same RGB, same alpha. If this pattern only knew the literal, every
+# rewritten declaration would vanish from the check and a 0.55 body text would pass it unseen. Both forms are read.
 DECL = re.compile(
-    r"(?<![-a-zA-Z])(color\s*:\s*rgba\(\s*244\s*,\s*246\s*,\s*250\s*,\s*)(0?\.\d+)(\s*\))",
+    r"(?<![-a-zA-Z])(color\s*:\s*rgba\(\s*(?:244\s*,\s*246\s*,\s*250"
+    r"|var\(\s*--wh-cloud-rgb\s*(?:,\s*244\s*,\s*246\s*,\s*250\s*)?\))\s*,\s*)(0?\.\d+)(\s*\))",
     re.IGNORECASE,
 )
 

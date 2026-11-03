@@ -1055,12 +1055,12 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
   nav[aria-label="Breadcrumb"] {{ color: rgba(255,255,255,0.85); }}          /* C5: the crumb text sat at Lc 70/75 */
   nav[aria-label="Breadcrumb"] a, .prose-wh li a {{ display: inline-block; min-height: 44px; padding: 12px 0; line-height: 20px; }}  /* F1/K2/Z3: 44px targets */
   .prose-wh input, .prose-wh select, .prose-wh button {{ min-height: 44px; }}
-  .prose-wh p, .prose-wh li {{ color: rgba(244,246,250,0.87); }}            /* C5: body prose sat at Lc 70/75 (0.78) */
+  .prose-wh p, .prose-wh li {{ color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.87); }}            /* C5: body prose sat at Lc 70/75 (0.78) */
   .prose-wh table td:nth-child(2) {{ font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }}  /* K2/C4: the worked result is the page's KPI - glanceable + tabular */
   /* A2/C3 (2026-09-06): the page was one unbroken prose column - no grouped region a scanner can land on. Each section
      becomes a card (edge + padding), which is what A2's "blocks" and C3's "grouped into common regions" measure, and what
      the rest of the platform looks like. Measured: staged pages 98%% -> 100%%. */
-  .prose-wh section {{ background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px;
+  .prose-wh section {{ background: var(--wh-surface-card, rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px;
                       padding: 1.25rem 1.35rem 0.35rem; margin: 1.5rem 0; }}   /* 24px: on the 8-pt scale (R1 flagged 28px) */
   .prose-wh section > h2:first-child {{ margin-top: 0.25rem; }}
   .prose-wh section > [data-table-scroll] {{ margin-bottom: 1rem; }}

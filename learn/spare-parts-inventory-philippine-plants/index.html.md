@@ -157,4 +157,4 @@ No, not for plants with fewer than 1,000 SKUs. A clean spreadsheet or the free W
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 521f1d897008b541 -->
+<!-- md-twin source-sha: c62d47b546f00c4e -->

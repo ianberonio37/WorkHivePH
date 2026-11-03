@@ -167,17 +167,17 @@
     /* wh-learn-contrast-remap: the learn pages load Tailwind from the CDN, so they miss the contrast
        remap wh-tw.css applies app-wide. 12px byline text at /45 measured 4.27:1 against the
        4.5:1 it owes. body-scoped (0,1,1) so it wins over the CDN utility whatever the order. */
-    body .text-white\/45 { color: rgb(255 255 255 / 0.8); }
-    body .text-white\/50 { color: rgb(255 255 255 / 0.8); }
-    body .text-white\/55 { color: rgb(255 255 255 / 0.8); }
-    body .text-white\/60 { color: rgb(255 255 255 / 0.8); }
+    body .text-white\/45 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/50 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/55 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
+    body .text-white\/60 { color: var(--wh-text-muted, rgb(255 255 255 / 0.8)); }
     body .text-white\/65 { color: rgb(255 255 255 / 0.85); }
     body .text-white\/70 { color: rgb(255 255 255 / 0.85); }
     body .text-white\/75 { color: rgb(255 255 255 / 0.85); }
     html, body, a, button { touch-action: manipulation; }   /* T3: no 300 ms tap delay, no double-tap zoom (the rubric reads html/body) */
     * { font-family: 'Poppins', sans-serif; } body { background: var(--wh-navy,#162032); color: var(--wh-cloud,#F4F6FA); }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
-    .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(244,246,250,0.85); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh { overflow-wrap: anywhere; word-break: break-word; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); font-size: 1.05rem; line-height: 1.8; }
     /* craft floor (W46284, 2026-09-16, measured live at 390 and 1280): `small` took the UA default 0.8em of the
        16.8px body and rendered 13.4px - a size off the six-step ramp that no font-size declaration could show,
        because a ramp is what the page RENDERS. And the measure ran to 76ch at 1280, one over the 65-75 floor,
@@ -192,50 +192,50 @@
     .prose-wh ul li { list-style: disc; } .prose-wh ol li { list-style: decimal; }
     .prose-wh strong { color: var(--wh-cloud,#F4F6FA); font-weight: 700; }
     .prose-wh a { color: var(--wh-blue-light,#5FCCE8); text-decoration: underline; text-underline-offset: 3px; } .prose-wh a:hover { color: var(--wh-blue,#29B6D9); }
-    .prose-wh blockquote { border-left: 3px solid var(--wh-orange,#F7A21B); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(244,246,250,0.85); font-style: italic; background: rgba(247,162,27,0.04); }
+    .prose-wh blockquote { border-left: 3px solid var(--wh-orange,#F7A21B); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); font-style: italic; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); }
     .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
     .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
 /* A cell breaks between WORDS (2026-10-27): .prose-wh's overflow-wrap:anywhere let auto table layout shrink every column to one
    letter, so on a phone 'WorkHive' read 'WorkHiv e' and the table never used its scroll region. A whole word is a cell's
    minimum; a wide table scrolls inside [data-table-scroll]; an over-long token still wraps (break-word). */
 .prose-wh th, .prose-wh td { word-break: normal; overflow-wrap: break-word; }
-    .prose-wh th { background: rgba(31,46,69,0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+    .prose-wh th { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
       /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
          pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
          wrapped to THREE lines in 66px (W46083, 2026-09-16). One line here is what makes the wrapper real. */
       white-space: nowrap; }
-    .prose-wh code { background: rgba(31,46,69,0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 0.95rem; color: #FED38D; }
-    .toc { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 24px 26px; margin: 2rem 0 3rem; }
-    .toc h2, .toc h4 { color: rgba(244,246,250,0.8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+    .prose-wh code { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 0.95rem; color: #FED38D; }
+    .toc { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 24px 26px; margin: 2rem 0 3rem; }
+    .toc h2, .toc h4 { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
     .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.95rem; }
-    .toc a { color: rgba(244,246,250,0.85); text-decoration: none; } .toc a:hover { color: var(--wh-orange,#F7A21B); }
-    .answer-first { background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.30); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(244,246,250,0.85); }
-    .audience-block { background: rgba(41,182,217,0.05); border: 1px solid rgba(41,182,217,0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
+    .toc a { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); text-decoration: none; } .toc a:hover { color: var(--wh-orange,#F7A21B); }
+    .answer-first { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); }
+    .audience-block { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.05); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); border-radius: 12px; padding: 16px 20px; margin: 0 0 2rem; }
     .audience-block .audience-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--wh-blue-light,#5FCCE8); margin-bottom: 12px; }
-    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.95rem; color: rgba(244,246,250,0.85); }
+    .audience-block ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 0.95rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); }
     .audience-block ul li { list-style: none !important; position: relative; padding-left: 16px; margin: 0; }
     .audience-block ul li::before { content: '·'; position: absolute; left: 4px; color: var(--wh-blue,#29B6D9); font-weight: 800; font-size: 1.25rem; line-height: 1; top: 0; }
     @media (max-width: 640px) { .audience-block ul { grid-template-columns: 1fr; } }
-    .callout { background: rgba(41,182,217,0.06); border: 1px solid rgba(41,182,217,0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(244,246,250,0.85); }
+    .callout { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); }
     .callout strong { color: #A4E2F2; }
     .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: 0.02em; }
-    .pill-orange { background: rgba(247,162,27,0.18); color: var(--wh-orange,#F7A21B); border: 1px solid rgba(247,162,27,0.35); }
-    .faq-item { background: rgba(31,46,69,0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; margin-bottom: 12px; }
-    .faq-item[open] { border-color: rgba(247,162,27,0.35); background: rgba(31,46,69,0.85); }
+    .pill-orange { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--wh-orange,#F7A21B); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
+    .faq-item { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; margin-bottom: 12px; }
+    .faq-item[open] { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.85); }
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: var(--wh-cloud,#F4F6FA); display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
     .faq-item summary::after { content: '+'; font-size: 1.25rem; color: var(--wh-orange,#F7A21B); } .faq-item[open] summary::after { content: '\2212'; }
-    .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(244,246,250,0.85); line-height: 1.7; font-size: 0.95rem; }
-    .author-card { background: rgba(31,46,69,0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
+    .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); line-height: 1.7; font-size: 0.95rem; }
+    .author-card { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
     .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--wh-orange,#F7A21B), var(--wh-orange-light,#FDB94A)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--wh-navy,#162032); font-size: 1.05rem; flex-shrink: 0; }
     .author-card .meta p:first-child { font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.95rem; margin-bottom: 2px; }
-    .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(244,246,250,0.8); }
-    nav a.nav-link { font-size: 0.95rem; color: rgba(244,246,250,0.85); font-weight: 500; } nav a.nav-link:hover { color: var(--wh-cloud,#F4F6FA); }
+    .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); }
+    nav a.nav-link { font-size: 0.95rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); font-weight: 500; } nav a.nav-link:hover { color: var(--wh-cloud,#F4F6FA); }
     /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the header row and its nav WRAP - the links drop under the
        logo instead of running the page sideways. At normal sizes nothing moves: a row only wraps when it does not fit. */
     header > div:has(> nav) { flex-wrap: wrap; row-gap: 0.5rem; } header nav:has(> a.nav-link) { flex-wrap: wrap; row-gap: 0.25rem; }
-    .breadcrumb { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin-bottom: 1.5rem; }
-    .breadcrumb a { color: rgba(244,246,250,0.8); text-decoration: none; } .breadcrumb a:hover { color: var(--wh-orange,#F7A21B); }
+    .breadcrumb { font-size: 0.85rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); margin-bottom: 1.5rem; }
+    .breadcrumb a { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); text-decoration: none; } .breadcrumb a:hover { color: var(--wh-orange,#F7A21B); }
     .breadcrumb span { margin: 0 8px; }
       /* Z2/R2 (critic re-sweep 2026-09-07): a long unbroken token (a citation URL) widened a paragraph to 463px at 390 and the page scrolled sideways; long words now wrap */
       /* The end-of-article next step is the platform's primary button (critic batch A1, 2026-10-13). These guides
@@ -246,7 +246,7 @@
     .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -8px rgba(0,0,0,0.55); }
     @media (prefers-reduced-motion: reduce) { .cta-btn { transition: none; } .cta-btn:hover { transform: none; } }
     .callout > p { margin: 0 0 16px; }
-    .callout .cta-secondary { font-size: 0.85rem; color: rgba(244,246,250,0.8); margin: 16px 0 0; }
+    .callout .cta-secondary { font-size: 0.85rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.8); margin: 16px 0 0; }
       /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
        extrabold) is wider than the phone, and a word overflows its box without the box growing - no layout test sees it,
        the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
