@@ -1955035,7 +1955035,2964 @@
       "needs_review": false,
       "dims_graded": [],
       "findings": []
+    },
+    {
+      "id": "OD1",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "about/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD2",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "achievements.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD3",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "agentic-rag-observability.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD4",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "ai-quality.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD5",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "alert-hub.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD6",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "analytics-report.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD7",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD8",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "asset-hub.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD9",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "assistant.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD10",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD11",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "community.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD12",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "dayplanner.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD13",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD14",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "feedback/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD15",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "founder-console.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD16",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD17",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD18",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "integrations.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD19",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "inventory.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD20",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "learn/ai-companion-hezekiah-zaniah-personas/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD21",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "learn/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD22",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "llm-observability.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD23",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD24",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "marketplace-admin.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD25",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace.html",
+        "marketplace-seller-profile.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD26",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace-seller.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD27",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD28",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "ph-intelligence.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD29",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "plant-connections.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD30",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "platform-actions.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD31",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD32",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "privacy-policy/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD33",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD34",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html",
+        "project-report.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD35",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "public-feed.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD36",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "report-sender.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD37",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "resume.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD38",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "shift-brain.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD39",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD40",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "status.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD41",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "terms-of-service/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD42",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "tools/ahu-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD43",
+      "wave": "OD-P",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "voice-journal.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD44",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "about/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD45",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "about/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD46",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "about/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD47",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "achievements.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD48",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "achievements.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD49",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "achievements.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD50",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "agentic-rag-observability.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD51",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "agentic-rag-observability.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD52",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "agentic-rag-observability.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD53",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "ai-quality.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD54",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "ai-quality.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD55",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "alert-hub.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD56",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "alert-hub.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD57",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "analytics-report.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD58",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "analytics-report.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD59",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "analytics-report.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD60",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD61",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD62",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD63",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "asset-hub.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD64",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "asset-hub.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD65",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "asset-hub.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD66",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "assistant.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD67",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "assistant.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD68",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "assistant.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD69",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD70",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "audit-log.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD71",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "community.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD72",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "community.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD73",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "community.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD74",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "dayplanner.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD75",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "dayplanner.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD76",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "dayplanner.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD77",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD78",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD79",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "engineering-design.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD80",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "feedback/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD81",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "feedback/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD82",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "feedback/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD83",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "founder-console.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD84",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "founder-console.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD85",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "founder-console.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD86",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD87",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD88",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD89",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD90",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD91",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD92",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "integrations.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD93",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "integrations.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD94",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "integrations.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD95",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "inventory.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD96",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "inventory.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD97",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "inventory.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD98",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "learn/ai-companion-hezekiah-zaniah-personas/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD99",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "learn/ai-companion-hezekiah-zaniah-personas/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD100",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "learn/ai-companion-hezekiah-zaniah-personas/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD101",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "learn/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD102",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "learn/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD103",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "learn/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD104",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "llm-observability.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD105",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "llm-observability.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD106",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "llm-observability.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD107",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD108",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD109",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "logbook.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD110",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "marketplace-admin.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD111",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "marketplace-admin.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD112",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "marketplace-admin.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD113",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace.html",
+        "marketplace-seller-profile.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD114",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace.html",
+        "marketplace-seller-profile.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD115",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace.html",
+        "marketplace-seller-profile.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD116",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace-seller.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD117",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace-seller.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD118",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace-seller.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD119",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD120",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD121",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "marketplace.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD122",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "ph-intelligence.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD123",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "analytics.html",
+        "ph-intelligence.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD124",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "plant-connections.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD125",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "plant-connections.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD126",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "platform-actions.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD127",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "platform-actions.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD128",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "platform-actions.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD129",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD130",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD131",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "pm-scheduler.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD132",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "privacy-policy/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD133",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "privacy-policy/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD134",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "privacy-policy/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD135",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD136",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD137",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD138",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html",
+        "project-report.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD139",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html",
+        "project-report.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD140",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "project-manager.html",
+        "project-report.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD141",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "public-feed.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD142",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "public-feed.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD143",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "public-feed.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD144",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "report-sender.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD145",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "report-sender.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD146",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "report-sender.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD147",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "resume.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD148",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "resume.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD149",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html",
+        "resume.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD150",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "shift-brain.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD151",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "shift-brain.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD152",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "shift-brain.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD153",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD154",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD155",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "hive.html",
+        "skillmatrix.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD156",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "status.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD157",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "status.html"
+      ],
+      "cell": "wide-1920|oversight|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD158",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "terms-of-service/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD159",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "terms-of-service/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD160",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "terms-of-service/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD161",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "tools/ahu-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD162",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "tools/ahu-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD163",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "tools/ahu-sizing-calculator/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD164",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "voice-journal.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD165",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "voice-journal.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD166",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "voice-journal.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD167",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD168",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD169",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "learn/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD170",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html",
+        "learn/index.html"
+      ],
+      "cell": "wide-1920|anon|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD171",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD172",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD173",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD174",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD175",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD176",
+      "wave": "OD-D",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD177",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD178",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD179",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD180",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD181",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD182",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD183",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD184",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD185",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD186",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD187",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD188",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD189",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD190",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD191",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD192",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
+    },
+    {
+      "id": "OD193",
+      "wave": "OD-S",
+      "status": "pending",
+      "pages": [
+        "index.html"
+      ],
+      "cell": "wide-1920|worker|browser-ui|operate",
+      "walk_viewport_px": 1920,
+      "target_source": "critic_seed_missing",
+      "needs_review": false,
+      "dims_graded": [],
+      "findings": []
     }
   ],
-  "count": 17658
+  "count": 17851
 }

@@ -141,6 +141,13 @@ try:
     WAVE_NAMES["ED-E1"] = f"Engineering design: {_edc.E1_LENS}"
 except Exception:
     pass
+# the open-source design lens (OD, 2026-11-03) - registered in the change that seeds it (render() raises KeyError on the
+# first OD row otherwise, as it did on the seeding run)
+WAVE_NAMES.update({
+    "OD-P": "Open design: the page's comp lives in the WorkHive Penpot file (token library, odiff against the live page)",
+    "OD-D": "Open design: a page's own CSS takes its colours, font sizes and z-indexes from tokens.css",
+    "OD-S": "Open design: the design system owns what the pages improvise (missing tokens, -rgb triplets, scales)",
+})
 # SL / ENH / OPC = the three waves of 2026-10-14 (the sub-layers, the enhancements, the operator console), named from
 # their own tables in the SAME change that seeds them, or render() raises KeyError on the first new row.
 try:

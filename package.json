@@ -17,6 +17,8 @@
     "@playwright/test": "^1.60.0",
     "@projectwallace/css-analyzer": "^9.9.5",
     "@supabase/supabase-js": "^2.105.4",
+    "acorn": "^8.19.0",
+    "odiff-bin": "^4.5.0",
     "supabase": "^2.95.3"
   }
 }

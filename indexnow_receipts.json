@@ -1,12 +1,31 @@
 {
- "last_submit_at": "2026-10-31T05:45:17+00:00",
- "count": 3,
- "mode": "url",
+ "last_submit_at": "2026-11-03T10:10:10+00:00",
+ "count": 22,
+ "mode": "changed",
  "response": 200,
  "urls": [
-  "https://workhiveph.com/tools/mtbf-calculator/",
-  "https://workhiveph.com/tools/oee-calculator/",
-  "https://workhiveph.com/tools/solar-pv-calculator/"
+  "https://workhiveph.com/feedback/",
+  "https://workhiveph.com/learn/loto-procedures-dole-oshs-template/",
+  "https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/",
+  "https://workhiveph.com/learn/power-plant-reliability-metrics-philippines/",
+  "https://workhiveph.com/learn/autonomous-shift-planning-philippine-plants/",
+  "https://workhiveph.com/learn/print-ready-maintenance-analytics-report/",
+  "https://workhiveph.com/tools/ahu-sizing-calculator/",
+  "https://workhiveph.com/tools/earthing-grounding-calculator/",
+  "https://workhiveph.com/tools/elevator-traffic-calculator/",
+  "https://workhiveph.com/tools/fire-pump-calculator/",
+  "https://workhiveph.com/tools/fire-sprinkler-calculator/",
+  "https://workhiveph.com/tools/hvac-cooling-load-calculator/",
+  "https://workhiveph.com/tools/noise-acoustics-calculator/",
+  "https://workhiveph.com/tools/roof-drain-calculator/",
+  "https://workhiveph.com/tools/shaft-design-calculator/",
+  "https://workhiveph.com/tools/short-circuit-calculator/",
+  "https://workhiveph.com/tools/solar-pv-calculator/",
+  "https://workhiveph.com/tools/stairwell-pressurization-calculator/",
+  "https://workhiveph.com/tools/v-belt-drive-calculator/",
+  "https://workhiveph.com/tools/vibration-isolation-calculator/",
+  "https://workhiveph.com/tools/water-supply-pipe-calculator/",
+  "https://workhiveph.com/tools/wire-sizing-calculator/"
  ],
  "pushed": {
   "https://workhiveph.com/": {
@@ -22,10 +41,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/feedback/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/learn/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -58,10 +76,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/learn/autonomous-shift-planning-philippine-plants/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/learn/best-free-cmms-software-philippines/": {
    "at": "2026-10-29T07:38:32+00:00",
@@ -156,7 +173,7 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/learn/loto-procedures-dole-oshs-template/": {
-   "at": "2026-10-29T07:38:32+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
    "mode": "changed"
   },
@@ -212,10 +229,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/learn/power-plant-reliability-metrics-philippines/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/learn/predictive-alert-thresholds-plants/": {
    "at": "2026-10-29T07:38:32+00:00",
@@ -229,10 +245,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/learn/print-ready-maintenance-analytics-report/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/learn/psme-iiee-piche-which-association-to-join/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -241,7 +256,7 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/learn/ra-11285-energy-efficiency-plant-checklist/": {
-   "at": "2026-10-29T07:38:32+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
    "mode": "changed"
   },
@@ -354,10 +369,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/ahu-sizing-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/beam-design-calculator/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -438,16 +452,14 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/earthing-grounding-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/elevator-traffic-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/expansion-tank-calculator/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -468,16 +480,14 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/fire-pump-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/fire-sprinkler-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/generator-sizing-calculator/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -516,10 +526,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/hvac-cooling-load-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/hydraulic-cylinder-calculator/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -557,10 +566,9 @@
    "mode": "url"
   },
   "https://workhiveph.com/tools/noise-acoustics-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/oee-calculator/": {
    "at": "2026-10-31T05:45:17+00:00",
@@ -598,10 +606,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/roof-drain-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/septic-tank-calculator/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -616,27 +623,24 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/shaft-design-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/short-circuit-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/solar-pv-calculator/": {
-   "at": "2026-10-31T05:45:17+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "url"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/stairwell-pressurization-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/storm-drain-calculator/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -657,10 +661,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/v-belt-drive-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/ventilation-ach-calculator/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -669,7 +672,7 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/vibration-isolation-calculator/": {
-   "at": "2026-10-29T07:38:32+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
    "mode": "changed"
   },
@@ -692,10 +695,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/water-supply-pipe-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   },
   "https://workhiveph.com/tools/water-treatment-calculator/": {
    "at": "2026-10-27T03:15:48+00:00",
@@ -704,10 +706,9 @@
    "from": "git f3338e6d"
   },
   "https://workhiveph.com/tools/wire-sizing-calculator/": {
-   "at": "2026-10-27T03:15:48+00:00",
+   "at": "2026-11-03T10:10:10+00:00",
    "response": 200,
-   "mode": "changed",
-   "from": "git f3338e6d"
+   "mode": "changed"
   }
  }
 }
