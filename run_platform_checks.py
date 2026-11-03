@@ -13651,6 +13651,23 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # ★A CX-UX ROW CLOSES WHEN EVERY DIM OF ITS CLASS IS ACCOUNTED FOR ON ITS PAGE, AND STAYS CLOSED ONLY WHILE THAT
+        # HOLDS (2026-11-03, T6). tools/bank_cx_ux_rows.py banks a (page, rubric class) cell only when each dim is answered
+        # by the instrument that owns it: the lens dims from the survey file the critic walk wrote for THAT page (never
+        # the walk's union of dims, which the census credits to the last page), the rest from their owners' per-page
+        # records (journey_ux_dims_report.json, ai_write_provenance_report.json, the family board, the S3 corpus). It
+        # records what it rested on; this re-reads it: a critic row reset or deleted, a page dropped from its walk, a dim
+        # gone from dims_graded or moved out of the class, a class that gained a dim nobody answered, or an owner whose
+        # record of the page no longer answers the dim, all fail. A gitignored owner report that is not on disk is
+        # counted, not failed - its own gate rewrites it. --self-test proves each bucket and each guard on fixtures.
+        "id":      "cx-ux-graded",
+        "script":  os.path.join("tools", "bank_cx_ux_rows.py"),
+        "args":    ["--check"],
+        "label":   "CX-UX rows banked as graded or N/A still have every dim of their class answered on their own page (the critic's survey for the lens dims, each owner's record for the rest)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         "id":      "founder-rpc-refusal",
         "script":  os.path.join("tools", "prove_founder_rpc_refusal.py"),
         "args":    ["--check"],

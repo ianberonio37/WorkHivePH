@@ -369,14 +369,95 @@ def self_test() -> bool:
         print(f"{R}selftest FAIL: JA2 wired promise not recognized{X}"); ok = False
     if _RETURN_WIRED.search(j2_bad):
         print(f"{R}selftest FAIL: JA2 unwired promise not caught{X}"); ok = False
+    # the per-page record must be the ratchet's own rule, page by page: same applicability, same gaps
+    pv = page_verdicts(good)
+    if pv["J3"]["pct"] != 100 or pv["S4"]["pct"] != 100 or pv["G5"]["verdict"] != "N/A":
+        print(f"{R}selftest FAIL: page_verdicts on a confirmed delete with no filter -> {pv}{X}"); ok = False
+    if page_verdicts(bad)["J3"]["pct"] != 0:
+        print(f"{R}selftest FAIL: page_verdicts must give an unconfirmed delete J3 0{X}"); ok = False
+    if page_verdicts("<p>about us</p>")["J3"]["verdict"] != "N/A":
+        print(f"{R}selftest FAIL: a page with no destructive handler is J3 N/A, never a pass{X}"); ok = False
+    m = measure()
+    for p in app_pages():
+        v = page_verdicts(p.read_text(encoding="utf-8", errors="replace"))
+        for dim in ("J3", "G5", "S4"):
+            gap = v[dim]["verdict"] == "MEASURED" and v[dim]["pct"] == 0
+            if gap != (p.name in m[dim]["gaps"]):
+                print(f"{R}selftest FAIL: per-page {dim} on {p.name} disagrees with measure()'s gaps{X}"); ok = False
+    for dim in ("J3", "G5", "S4"):
+        applies = sum(1 for p in app_pages()
+                      if page_verdicts(p.read_text(encoding="utf-8", errors="replace"))[dim]["verdict"] == "MEASURED")
+        if applies != m[dim]["total"]:
+            print(f"{R}selftest FAIL: per-page {dim} applies to {applies} app pages, measure() counts {m[dim]['total']}{X}")
+            ok = False
     print((G + "selftest PASS - journey-ux-dims has teeth." + X) if ok else (R + "selftest FAILED." + X))
     return ok
+
+
+# ★THE REPORT NAMED ONLY THE PAGES THAT FAILED, SO NO PAGE COULD BE TOLD ITS OWN ANSWER (2026-11-03). measure() keeps
+# a total and a list of `gaps` per dim. A page absent from the gaps is EITHER one that passed OR one the dim does not
+# apply to (no destructive handler, no filter control) - and those are different answers: the CX-UX banker
+# (tools/bank_cx_ux_rows.py) closes a page's rubric class only when every dim of the class is accounted for on that
+# page, and J3/G5/S4 are this validator's to account for. So the report now also carries `pages`: for every page in the
+# roster, each dim's verdict on that page - MEASURED (pct 100 held / 0 the gap) or N/A with the reason. The verdicts are
+# this validator's own rules, applied to one page at a time (page_verdicts); the ratchet's totals are untouched and the
+# self-test holds the two in agreement on every app page, so the per-page record cannot drift from the gate.
+ROSTER = ROOT / "substrate" / "reference" / "page_roster.json"
+
+
+def page_verdicts(src: str) -> dict:
+    """J3 / S4 / G5 on ONE page's markup, by exactly the rules measure() applies to the app pages."""
+    out = {}
+    if _DESTRUCTIVE.search(src):
+        held = bool(_WHCONFIRM.search(src) or _UNDO_SAFE.search(src))
+        out["J3"] = {"verdict": "MEASURED", "pct": 100 if held else 0,
+                     "note": ("every destructive handler confirms through whConfirm or is undoable" if held else
+                              "a destructive handler fires with no whConfirm and no undo")}
+        raw = bool(_RAWCONFIRM.search(src) and not _WHCONFIRM.search(src))
+        out["S4"] = {"verdict": "MEASURED", "pct": 0 if raw else 100,
+                     "note": ("confirms with a raw window.confirm(), not the shared whConfirm" if raw else
+                              "the destructive action confirms through the shared mechanism")}
+    else:
+        why = "no destructive handler (an onclick that deletes/removes/wipes/purges/discards/revokes) in the page"
+        out["J3"] = {"verdict": "N/A", "pct": None, "note": why}
+        out["S4"] = {"verdict": "N/A", "pct": None, "note": why}
+    if _FILTER_CTL.search(src):
+        kept = bool(_PERSIST.search(src))
+        out["G5"] = {"verdict": "MEASURED", "pct": 100 if kept else 0,
+                     "note": ("the filter/sort/view choice persists across visits" if kept else
+                              "a filter/sort control whose choice is not remembered")}
+    else:
+        out["G5"] = {"verdict": "N/A", "pct": None, "note": "no filter, sort or search control on the page"}
+    return out
+
+
+def roster_pages() -> list[str]:
+    """The app pages measure() grades plus every served page in the roster (the nested articles, calculators and
+    policy pages included), as repo-relative paths."""
+    rel = {p.name for p in app_pages()}
+    try:
+        rel |= {str(x["path"]) for x in json.loads(ROSTER.read_text(encoding="utf-8"))["pages"]}
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    return sorted(r for r in rel if (ROOT / r).is_file())
+
+
+def measure_pages() -> dict:
+    out = {}
+    for rel in roster_pages():
+        try:
+            src = (ROOT / rel).read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue                                   # an unreadable page gets no verdict, never a guessed one
+        out[rel] = page_verdicts(src)
+    return out
 
 
 def main() -> int:
     if "--selftest" in sys.argv or "--self-test" in sys.argv:
         return 0 if self_test() else 1
     m = measure()
+    m["pages"] = measure_pages()
     REPORT.write_text(json.dumps(m, indent=1), encoding="utf-8")
     base = json.loads(BASELINE.read_text(encoding="utf-8")) if BASELINE.exists() else {}
     if "--accept" in sys.argv or not base:

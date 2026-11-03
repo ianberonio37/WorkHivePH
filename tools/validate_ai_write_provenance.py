@@ -438,8 +438,161 @@ def measure_drafts(pages: dict | None = None, mig: str | None = None, carriers: 
     return {"total": len(rows), "ok": sum(r["ok"] for r in rows), "rows": rows}
 
 
+# ── AI6 PER PAGE ────────────────────────────────────────────────────────────────────────────────────────────────────
+# ★THE GATE GRADES FUNCTIONS, SO NO PAGE COULD BE TOLD ITS OWN AI6 (2026-11-03). measure() grades every AI function
+# that writes a human-read domain table, and measure_drafts() the curated pages whose AI fills a form a person saves.
+# Neither says what AI6 is on a given PAGE - and the CX-UX banker (tools/bank_cx_ux_rows.py) closes a page's AI class
+# only when every dim of it is accounted for there, AI6 included. So the report also carries `pages`: for each roster
+# page, AI6 is MEASURED over the AI writes the page can reach (the writer rows above, and its own draft targets), or
+# N/A when it reaches none - "this page's AI answers, or there is no AI, but nothing it does writes a domain row".
+# REACH IS CONSERVATIVE BY CONSTRUCTION, because a false N/A would close a cell on a write nobody checked: a page
+# reaches a function when the page or ANY local script it loads (followed through every '*.js' it names, so a helper
+# injected at run time counts) names the function - in a quoted string or a /functions/v1/ path - and a function reaches
+# every function its own source (and its _shared imports) names. Over-reaching only turns an N/A into a measurement
+# of writers that are already graded; under-reaching is the only way to be wrong, so every doubt reaches. A local
+# script that cannot be read leaves the page WITHOUT a verdict, never with an N/A.
+ROSTER = ROOT / "substrate" / "reference" / "page_roster.json"
+_SCRIPT_SRC = re.compile(r"""<script[^>]*\bsrc=["']([^"'#?]+?\.js)""", re.I)
+_JS_NAMED = re.compile(r"""["'`]([\w./-]+?\.js)["'`?#]""")
+_NAMED_FN = re.compile(r"""functions/v1/([a-z0-9][a-z0-9-]*)|["'`]([a-z0-9][a-z0-9-]*)["'`]""")
+_SHARED_IMPORT = re.compile(r"""from\s+["'](\.\./_shared/[\w./-]+?\.ts)["']""")
+
+
+def _fn_names() -> set[str]:
+    return {d.name for d in FNS.iterdir() if d.is_dir() and not d.name.startswith("_") and (d / "index.ts").exists()}
+
+
+def _named(text: str, names: set[str]) -> set[str]:
+    return {a or b for a, b in _NAMED_FN.findall(text)} & names
+
+
+def fn_graph(names: set[str]) -> dict:
+    """fn -> the functions its source (and the _shared modules it imports) names."""
+    graph = {}
+    for n in names:
+        seen, queue, text = set(), [FNS / n / "index.ts"], ""
+        while queue:
+            f = queue.pop()
+            if f in seen or not f.exists():
+                continue
+            seen.add(f)
+            src = _strip_comments(f.read_text(encoding="utf-8", errors="replace"))
+            text += "\n" + src
+            queue += [(f.parent / rel).resolve() for rel in _SHARED_IMPORT.findall(src)]
+        graph[n] = _named(text, names) - {n}
+    return graph
+
+
+def page_text(rel: str) -> tuple[str, list]:
+    """A page and every local script it loads, transitively - and the local scripts that could not be read."""
+    text, unread, seen = "", [], set()
+    queue = [rel]
+    while queue:
+        cur = queue.pop()
+        if cur in seen:
+            continue
+        seen.add(cur)
+        f = ROOT / cur
+        try:
+            src = f.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            unread.append(cur)
+            continue
+        text += "\n" + (src if cur.endswith(".html") else _strip_comments(src))
+        # a <script src> is LOADED, so a missing one leaves the page without a verdict; a '*.js' named in a script's
+        # string is only POSSIBLY loaded (a run-time injection), so it is followed when the file exists
+        # (a '<script src=...>' written INSIDE a script is a string too - floating-ai.js, renamed away long ago, is
+        # still named in one - so only an HTML page's own tags count as loaded)
+        is_html = cur.endswith(".html")
+        refs = [(r, True) for r in (_SCRIPT_SRC.findall(src) if is_html else [])]
+        refs += [(r, False) for r in (_JS_NAMED.findall(src) if not is_html else [])]
+        for ref, loaded in refs:
+            if re.match(r"^[a-z]+:|^//", ref, re.I):
+                continue                                         # a CDN script never names our functions
+            p = (ROOT / ref.lstrip("/")) if ref.startswith("/") else ((ROOT / cur).parent / ref)
+            try:
+                r = p.resolve().relative_to(ROOT.resolve()).as_posix()
+            except ValueError:
+                continue
+            if r.startswith("workhive/") and not (ROOT / r).exists():
+                r = r[len("workhive/"):]                         # the app is SERVED under /workhive/; the repo is its root
+            if r.startswith("vendor/"):
+                continue                                         # third-party bundles (supabase-js) call no function of ours by name
+            if loaded or (ROOT / r).is_file():
+                queue.append(r)
+    return text, unread
+
+
+def page_ai6(text: str, names: set, graph: dict, writers: dict, draft_rows: list | None) -> dict:
+    """AI6 on one page. writers: fn -> [measure() row]; draft_rows: this page's measure_drafts() rows, [] when the page
+    has no draft target, None when its targets exist but were not measured."""
+    direct = _named(text, names)
+    reach, queue = set(), list(direct)
+    while queue:
+        f = queue.pop()
+        if f in reach:
+            continue
+        reach.add(f)
+        queue += list(graph.get(f, ()))
+    hit = sorted(f for f in reach if f in writers)
+    if draft_rows is None:
+        return {"verdict": None, "pct": None, "note": "the page has AI draft targets whose check was not run"}
+    if not hit and not draft_rows:
+        return {"verdict": "N/A", "pct": None, "reaches": sorted(reach),
+                "note": ("neither the page nor a script it loads reaches an AI function that writes a human-read "
+                         "domain table" + (f" (it reaches {', '.join(sorted(reach)[:6])})" if reach else ""))}
+    graded = [bool(r["accountable"]) for f in hit for r in writers[f]] + [bool(r["ok"]) for r in draft_rows]
+    pct = round(100 * sum(graded) / len(graded))
+    return {"verdict": "MEASURED", "pct": pct, "reaches": hit,
+            "note": f"{sum(graded)}/{len(graded)} AI write(s) the page can reach declare machine authorship"
+                    + (f" ({', '.join(hit)})" if hit else "") + (" + its AI-drafted form(s)" if draft_rows else "")}
+
+
+def measure_pages(rows: list, drafts: dict | None) -> dict:
+    names = _fn_names()
+    graph = fn_graph(names)
+    writers: dict = {}
+    for r in rows:
+        writers.setdefault(r["fn"], []).append(r)
+    try:
+        roster = sorted({str(x["path"]) for x in json.loads(ROSTER.read_text(encoding="utf-8"))["pages"]})
+    except (OSError, ValueError, KeyError, TypeError):
+        roster = []
+    out = {}
+    for rel in roster:
+        if not (ROOT / rel).is_file():
+            continue
+        text, unread = page_text(rel)
+        if unread:
+            out[rel] = {"AI6": {"verdict": None, "pct": None,
+                                "note": f"could not read the script(s) it loads: {', '.join(unread[:4])}"}}
+            continue
+        targets = [t for t in PAGE_DRAFTS if t["page"] == rel]
+        dr = ([r for r in drafts["rows"] if r["page"] == rel] if drafts else None) if targets else []
+        out[rel] = {"AI6": page_ai6(text, names, graph, writers, dr)}
+    return out
+
+
 def self_test() -> bool:
     ok = True
+    # AI6 per page: reach is transitive, an unaccountable writer is a 0, a page reaching no writer is N/A
+    names = {"ai-gateway", "fmea-populator", "tts-speak"}
+    graph = {"ai-gateway": {"fmea-populator"}, "fmea-populator": set(), "tts-speak": set()}
+    good = {"fmea-populator": [{"fn": "fmea-populator", "table": "rcm_fmea_modes", "accountable": True}]}
+    bad = {"fmea-populator": [{"fn": "fmea-populator", "table": "rcm_fmea_modes", "accountable": False}]}
+    for label, text, writers, want in (
+        ("a page calling the gateway reaches the writer behind it", "db.functions.invoke('ai-gateway')", good, ("MEASURED", 100)),
+        ("an unaccountable writer the page reaches is a 0", "fetch(u + '/functions/v1/ai-gateway')", bad, ("MEASURED", 0)),
+        ("a page reaching only a non-writer is N/A", "invoke('tts-speak')", good, ("N/A", None)),
+        ("a page naming no function is N/A", "<p>terms</p>", good, ("N/A", None)),
+    ):
+        v = page_ai6(text, names, graph, writers, [])
+        if (v["verdict"], v["pct"]) != want:
+            print(f"{R}selftest FAIL: AI6 per page - {label}: got {v['verdict']} {v['pct']}{X}"); ok = False
+    if page_ai6("<p>x</p>", names, graph, good, None)["verdict"] is not None:
+        print(f"{R}selftest FAIL: a page whose draft targets were not measured must get no verdict{X}"); ok = False
+    if page_ai6("<p>x</p>", names, graph, good, [{"ok": False}])["pct"] != 0:
+        print(f"{R}selftest FAIL: a page's failing AI-drafted form must make its AI6 a 0, not an N/A{X}"); ok = False
     accountable = '''const x = await db.from("fault_knowledge").insert({
         hive_id, problem: draft.problem, worker_name, source: "ai_visual_capture" });'''
     bare = '''const x = await db.from("fault_knowledge").insert({
@@ -546,6 +699,7 @@ def main() -> int:
         print(f"{G}baseline accepted: AI6 = {m['pct']}%{X}")
         return 0
     m["drafts"] = d = measure_drafts()
+    m["pages"] = measure_pages(m["rows"], d)          # AI6 per page, for the CX-UX banker (see measure_pages)
     REPORT.write_text(json.dumps(m, indent=2), encoding="utf-8")
     if "--json" in sys.argv:
         print(json.dumps(m, indent=2)); return 0
