@@ -589,30 +589,10 @@ console.log(`[rubric-sweep] mean=${summary.mean} · >=90: ${summary.ge90} · >=8
 // the CX-UX banker, and re-running all ~60 pages to add four is the run this 8 GB host cannot finish. Never with --anon.
 if (args.includes('--merge') && PAGE_LIST && !ANON) {
   const MAIN = 'family_rubric_scoreboard.json';
-  const board = JSON.parse(readFileSync(MAIN, 'utf8'));
-  const took = Object.keys(pages).filter((f) => PAGES.includes(f) && pages[f].overall !== null && pages[f].dims);
-  for (const f of took) board.pages[f] = pages[f];
-  const agg = {};
-  for (const [f, p] of Object.entries(board.pages)) {
-    for (const d of (p.dims || [])) {
-      const a = (agg[d.dim] ||= { name: (board.perDim[d.dim] || perDim[d.dim] || {}).name, pcts: [], green: 0, fail: 0, na: 0, judged: 0, failPages: [] });
-      if (d.kind === 'N/A') a.na++;
-      else if (d.kind === 'JUDGED') a.judged++;
-      else if (d.pct === null) a.na++;
-      else { a.pcts.push(d.pct); if (d.pct === 100) a.green++; else { a.fail++; a.failPages.push(`${f.replace('.html', '')} ${d.pct}`); } }
-    }
-  }
-  for (const a of Object.values(agg)) { a.mean = a.pcts.length ? Math.round(a.pcts.reduce((s, x) => s + x, 0) / a.pcts.length) : null; delete a.pcts; }
-  const ov = Object.values(board.pages).map((p) => p.overall).filter((v) => v !== null && v !== undefined);
-  board.perDim = agg;
-  Object.assign(board.summary, {
-    measuredPages: ov.length, mean: ov.length ? Math.round(ov.reduce((s, v) => s + v, 0) / ov.length) : null,
-    ge90: ov.filter((v) => v >= 90).length, ge85: ov.filter((v) => v >= 85).length,
-    pageErrors: Object.values(board.pages).reduce((s, p) => s + (p.errors ? p.errors.length : 0), 0),
-  });
-  board.summary.merged = (board.summary.merged || []).concat([{ pages: took, ranAt: summary.ranAt, identity: EMAIL }]);
-  writeFileSync(MAIN, JSON.stringify(board, null, 2));
-  const refused = Object.keys(pages).filter((f) => !took.includes(f));
+  const { mergeIntoBoard } = await import('./lib/board_merge.mjs');   // pure, held by its own --self-test
+  const { board, took, refused } = mergeIntoBoard(JSON.parse(readFileSync(MAIN, 'utf8')), pages, PAGES,
+    { ranAt: summary.ranAt, identity: EMAIL });
+  if (took.length) writeFileSync(MAIN, JSON.stringify(board, null, 2));
   console.log(`[rubric-sweep] --merge: ${took.length} page(s) spliced into ${MAIN}` + (refused.length ? `; NOT merged (off the roster or no clean grade): ${refused.join(', ')}` : ''));
 }
 await browser.close();
