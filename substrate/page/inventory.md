@@ -2,13 +2,13 @@
 name: page-inventory
 type: page
 source: file:inventory.html
-source_sha: 24e9d8db2640d3bb
+source_sha: 9e3e121de53453e2
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `inventory.html` — Spare-Parts Inventory: WorkHive
 
-Size: 236KB · 76 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 238KB · 76 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (6): `asset_nodes.upsert`, `hive_audit_log.insert`, `inventory_items.update`, `inventory_items.upsert`, `inventory_transactions.insert`, `project_links.insert`
 **RPC calls**: `inventory_adjust`, `inventory_deduct`, `inventory_restock`

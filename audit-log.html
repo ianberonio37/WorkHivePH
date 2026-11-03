@@ -40,10 +40,10 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: #1d2e44;
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber); --purple: var(--wh-violet);
-      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80);
+      --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
       --border: rgba(255,255,255,0.07);
     }
     /* Same defect as alert-hub: this page <link>s Poppins above and then rendered
@@ -60,7 +60,7 @@
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 1.3rem; font-weight: 800; }
     .page-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-    .hive-pill { font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
+    .hive-pill { font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); }
 
     /* Filter bar */
     .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
@@ -71,10 +71,10 @@
     #date-filters { min-height: 44px; }
     .chip {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 12px; background: rgba(22,32,50,0.85);
+      padding: 6px 12px; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85);
       border: 1px solid var(--border); border-radius: 999px;
       font-family: inherit; font-size: 0.8rem; font-weight: 600;
-      color:rgba(255,255,255,0.80); cursor: pointer;
+      color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer;
       /* ★`all` ANIMATED WHATEVER HAPPENED TO CHANGE (design lens motion, 2026-09-15). These chips move
          three properties on hover and a fourth on .active, so a class flip rode one blanket curve and
          any property added later would join it silently. Named, and on the platform's ease-out token:
@@ -85,10 +85,10 @@
       min-height: 44px;
     }
     .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
-    .chip.active { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.3); }
+    .chip.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--gold); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
 
     .filter-select, .filter-input {
-      background: rgba(22,32,50,0.85);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85);
       border: 1px solid var(--border); border-radius: 8px;
       color: var(--text); font-family: inherit;
       font-size: 16px; /* iOS auto-zoom guard — never go below 16px on inputs */
@@ -126,7 +126,7 @@
     #feed { min-height: 400px; }
     .entry {
       display: flex; align-items: flex-start; gap: 12px;
-      padding: 12px 16px; background: rgba(22,32,50,0.85);
+      padding: 12px 16px; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85);
       border: 1px solid var(--border); border-radius: 12px;
       border-left-width: 3px;
     }
@@ -165,7 +165,7 @@
          row and the log shows thirty (design lens craft, 2026-09-15). The radius joins the platform's
          4px step at the same time. */
       letter-spacing: .06em; padding: 4px 8px; border-radius: 8px;
-      background: rgba(41,182,217,0.12); color: var(--blue);
+      background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue);
     }
     .entry-action {
       font-size: .82rem; font-weight: 700; color: var(--text);
@@ -190,7 +190,7 @@
     .entry-meta-toggle:hover { text-decoration: underline; }
     .entry-meta {
       margin-top: 6px; padding: 8px 10px;
-      background: rgba(15,25,35,0.7); border: 1px solid var(--border);
+      background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.7); border: 1px solid var(--border);
       border-radius: 8px;
       /* T28: this held a <pre> of raw JSON, so it was monospaced and pre-wrapped. It now holds
          labelled lines a person reads, so it takes the page's own typeface. */
@@ -207,7 +207,7 @@
     /* Empty / loading */
     .empty {
       text-align: center; padding: 48px 24px;
-      background: rgba(22,32,50,0.5); border: 1px solid var(--border);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1px solid var(--border);
       border-radius: 12px;
     }
     .empty-icon { font-size: 2rem; margin-bottom: 8px; }
@@ -220,7 +220,7 @@
     /* Gate cards (no hive / not supervisor) */
     .gate-card {
       text-align: center; padding: 40px 24px;
-      background: rgba(22,32,50,0.85); border: 1px solid var(--border);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85); border: 1px solid var(--border);
       border-radius: 16px; margin-top: 40px;
     }
     .gate-card h2 { font-size: 1.1rem; margin-bottom: 8px; }
@@ -236,8 +236,8 @@
     .gate-btn {
       display: inline-flex; align-items: center; justify-content: center;
       min-height: 44px; padding: 12px 24px;
-      background: rgba(41,182,217,0.15); color: var(--blue);
-      border: 1px solid rgba(41,182,217,0.3); border-radius: 8px;
+      background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15); color: var(--blue);
+      border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3); border-radius: 8px;
       text-decoration: none; font-size: .82rem; font-weight: 700;
     }
 
@@ -383,7 +383,7 @@
       <div data-i="p_usetheclearfiltersbuttonabov_a5d5" class="empty-sub">Use the "Clear filters" button above to see all entries.</div>
     </div>
     <div id="audit-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;min-height:44px;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
+      <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;min-height:44px;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);cursor:pointer;" data-i="loadmore">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
@@ -392,7 +392,7 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>

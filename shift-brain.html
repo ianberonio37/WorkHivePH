@@ -46,9 +46,9 @@
       --orange-wh: var(--wh-orange);
       --blue-wh:   var(--wh-blue);
       --navy-wh:   var(--wh-navy);
-      --muted:     rgba(255,255,255,0.80);
+      --muted:     var(--wh-text-muted, rgba(255,255,255,0.80));
       --border:    rgba(255,255,255,0.10);
-      --card-bg:   linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);
+      --card-bg:   linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7) 100%);
     }
     body {
       font-family: 'Poppins', sans-serif;
@@ -57,8 +57,8 @@
       min-height: 100vh;
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
       background-image:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(247,162,27,0.07) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(41,182,217,0.05) 0%, transparent 60%);
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(var(--wh-blue-rgb, 41, 182, 217), 0.05) 0%, transparent 60%);
     }
     #toast {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
@@ -139,7 +139,7 @@
       font-family: inherit;
     }
     .shift-pill.active {
-      background: rgba(247,162,27,0.15); border-color: rgba(247,162,27,0.45);
+      background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.45);
       color: var(--orange-wh);
     }
     .shift-pill:hover { color: #fff; }
@@ -167,8 +167,8 @@
       display: inline-block; padding: 2px 9px; border-radius: 999px;
       font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
     }
-    .status-draft     { background: rgba(247,162,27,0.18); color: var(--wh-orange-light); }   /* C2: AA-safe orange (was --wh-orange @ 4.44:1) */
-    .status-published { background: rgba(74,222,128,0.18); color: var(--wh-green); }
+    .status-draft     { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--wh-orange-light); }   /* C2: AA-safe orange (was --wh-orange @ 4.44:1) */
+    .status-published { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--wh-green); }
     .status-archived  { background: rgba(180,180,180,0.14); color: var(--muted); }
     .briefing-text { font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
 
@@ -234,14 +234,14 @@
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.875rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
-    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
-    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
-    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red-text); }
-    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     #sb-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #sb-summary-details.open { display:block; }
@@ -385,11 +385,11 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.75rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.75rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 
 <div class="wh-sources-item" data-wh-source-key="sb-summary-details">

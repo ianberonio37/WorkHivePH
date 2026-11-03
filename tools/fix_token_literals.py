@@ -60,9 +60,14 @@ def rgba(lit: str):
     return int(vals[0]), int(vals[1]), int(vals[2]), round(vals[3] if len(vals) > 3 else 1.0, 3)
 
 
+def _roots(tokens_css: str) -> str:
+    """Every :root { } block - tokens.css declares tokens in more than one (the first parse read only the first, and
+    never saw --wh-text-muted)."""
+    return "\n".join(m.group(1) for m in re.finditer(r":root\s*\{([^}]*)\}", tokens_css))
+
+
 def palette(tokens_css: str):
-    root = tokens_css[tokens_css.index(":root"):]
-    root = root[:root.index("}")]
+    root = _roots(tokens_css)
     exact, triplet = {}, {}
     for name, val in re.findall(r"(--wh-[\w-]+)\s*:\s*([^;]+);", root):
         val = val.strip()
@@ -156,6 +161,45 @@ def rewrite_html(html: str, exact: dict, triplet: dict) -> tuple[str, int]:
     return _ATTR.sub(att, _STYLE.sub(blk, html)), total
 
 
+# ★THE PROOF IS STATIC, NOT A SCREENSHOT (2026-11-03). A before/after computed-style diff of the live pages
+# (tools/prove_token_rewrite_invisible.mjs) cannot bound pages that move on their own - alert-hub's chart bars and
+# voice-journal's timed prompt changed between two loads of the SAME unrewritten file, at different elements each time.
+# So every file is proven before it is written: resolve each emitted var() to the TOKEN'S declared value in tokens.css
+# (never its fallback - that would prove nothing), normalise every colour on both sides to rgba(r,g,b,a), and the two
+# texts must be identical. That holds the token == the literal it replaced AND that nothing else in the file moved.
+_EMIT_VAR = re.compile(r"var\((--wh-[\w-]+), (?:" + _HEX + "|" + _RGB + r")\)")
+_EMIT_RGB = re.compile(r"rgba\(var\((--wh-[\w-]+-rgb), \d+, \d+, \d+\), ([\d.]+)\)")
+
+
+def _canon(css: str) -> str:
+    def c(m):
+        v = rgba(m.group(0))
+        return f"rgba({v[0]},{v[1]},{v[2]},{v[3]:.3f})" if v else m.group(0)
+    return COLOUR.sub(c, css)
+
+
+def proves_invisible(old: str, new: str, values: dict) -> tuple[bool, str]:
+    """values: token name -> its declared value in tokens.css."""
+    def var_val(m):
+        return values[m.group(1)] if m.group(1) in values else "UNRESOLVED(" + m.group(1) + ")"
+
+    def rgb_val(m):
+        v = values.get(m.group(1))
+        return f"rgba({v}, {m.group(2)})" if v else "UNRESOLVED(" + m.group(1) + ")"
+    # a var() the page ALREADY had resolves the same way on both sides; only what the rewrite emitted can differ
+    def resolve(css: str) -> str:
+        return _EMIT_VAR.sub(var_val, _EMIT_RGB.sub(rgb_val, css))
+    a, b = _canon(resolve(old)), _canon(resolve(new))
+    if a == b:
+        return True, ""
+    i = next((k for k in range(min(len(a), len(b))) if a[k] != b[k]), min(len(a), len(b)))
+    return False, f"differs at char {i}: before {a[max(0, i - 40):i + 40]!r} | after {b[max(0, i - 40):i + 40]!r}"
+
+
+def token_values(tokens_css: str) -> dict:
+    return {n: v.strip() for n, v in re.findall(r"(--wh-[\w-]+)\s*:\s*([^;]+);", _roots(tokens_css))}
+
+
 def targets(root: Path) -> list[str]:
     sys.path.insert(0, str(root / "tools"))
     from prove_design_source_drift import design_files  # noqa: E402 - the gate's own roster
@@ -164,8 +208,10 @@ def targets(root: Path) -> list[str]:
 
 
 def run(root: Path, apply: bool, only: set | None) -> int:
-    exact, triplet = palette((root / "tokens.css").read_text(encoding="utf-8"))
-    grand = 0
+    tok = (root / "tokens.css").read_text(encoding="utf-8")
+    exact, triplet = palette(tok)
+    values = token_values(tok)
+    grand, refused = 0, 0
     for f in targets(root):
         if only and f not in only:
             continue
@@ -174,14 +220,19 @@ def run(root: Path, apply: bool, only: set | None) -> int:
         text = raw.decode("utf-8")
         new, n = (rewrite_css(text, exact, triplet) if f.endswith(".css") else rewrite_html(text, exact, triplet))
         if n:
+            ok, why = proves_invisible(text, new, values)
+            if not ok:
+                refused += 1
+                print(f"  REFUSED {f}: the rewrite would change what renders - {why}")
+                continue
             grand += n
-            print(f"  {f:<40} {n:>5} literal(s)")
+            print(f"  {f:<40} {n:>5} literal(s)  proven invisible")
             if apply:
                 nl = "\r\n" if b"\r\n" in raw else "\n"
                 p.write_text(new.replace("\r\n", "\n"), encoding="utf-8", newline=nl)
-    print(f"{'rewrote' if apply else 'would rewrite'} {grand} literal(s); palette: {len(exact)} token values, "
-          f"{len(triplet)} -rgb triplets")
-    return 0
+    print(f"{'rewrote' if apply else 'would rewrite'} {grand} literal(s), each file proven invisible; palette: "
+          f"{len(exact)} token values, {len(triplet)} -rgb triplets" + (f"; {refused} file(s) REFUSED" if refused else ""))
+    return 1 if refused else 0
 
 
 def self_test() -> int:
@@ -212,6 +263,16 @@ def self_test() -> int:
     s2, n2 = rewrite_css(s, exact, triplet)
     t("idempotent: a second pass rewrites nothing", n2 == 0 and s2 == s)
     t("an unknown colour is left as it is", _rewrite_plain(".z{color:#123456}", exact, triplet)[1] == 0)
+    vals = token_values(tok)
+    src = ".a{color:#F7A21B}.b{background:rgba(247,162,27,.2)}.c{color:rgba(255,255,255,0.8)}"
+    new, _ = rewrite_css(src, exact, triplet)
+    t("the static proof holds a correct rewrite", proves_invisible(src, new, vals)[0])
+    t("teeth: a token whose value is NOT the literal is caught",
+      not proves_invisible(src, new, dict(vals, **{"--wh-orange": "#F7A21C"}))[0])
+    t("teeth: a rewrite that drops a neighbouring character is caught",
+      not proves_invisible(src, new.replace("}.b{", ".b{", 1), vals)[0])
+    t("teeth: a var() the tokens do not declare is caught",
+      not proves_invisible(src, new, {k: v for k, v in vals.items() if k != "--wh-orange-rgb"})[0])
     print("self-test " + ("PASS" if ok else "FAIL"))
     return 0 if ok else 1
 

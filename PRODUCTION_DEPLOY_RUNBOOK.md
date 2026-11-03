@@ -102,8 +102,8 @@ Two full runs were needed; the other two were the wrong loop.
 >   - the Wave ED cooling-tower vector: pump 6.087 kW, 7.5 kW motor (the old engine printed watts as kW and chose 90 kW),
 >     `source: python`;
 >   - the T1 calculators' oracle vectors via `tools/replay_calc_oracle_on_prod.py` (new, paced under the edge's
->     per-address ceiling): <replay result>.
-> - **Post-deploy smoke** (`post_deploy_smoke.mjs --tier=pages`, EXPECT_SW=v584): <smoke result>.
+>     per-address ceiling of 50 calls an hour, honouring Retry-After): 39/39 vectors hold on the served python engine, asked across two rate-limit windows (receipt calc_oracle_prod_replay.json). The first unpaced attempt read 9 x 429 - the edge protecting itself, recorded UNASKED, never a verdict.
+> - **Post-deploy smoke** (`post_deploy_smoke.mjs --tier=pages`, EXPECT_SW=v584): 145/146 pages load clean and 146/146 read clean at 390. The one red was engineering-design.html: jsdelivr closed the connection mid-download of mermaid.min.js (ERR_CONNECTION_CLOSED; the CDN then served it 200 three times). The signed-in app tier re-run alone: 26/26 load and read clean, engineering-design included.
 > - **IndexNow:** key file live and matching; 22 URLs (sitemap lastmod since the 10-31 receipt) accepted, HTTP 200.
 > - **Owed after M5:**
 >   - BRH509-513: one production assistant question.

@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: e5d28a11af2374aa
+source_sha: be7e5b7eefd0e372
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1509) — the 'what's already gated' brain
+## gate · registered validators (1513) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -416,7 +416,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1095)
+### Platform (1099)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -705,6 +705,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `cumulative-quota-enforce` ⚡ [fail] — Q1 Cumulative Quota Enforcement (hive_quotas.enforce_blocking flipped ON + generous abuse-ceiling caps backfilled + new-hive auto-seed + all 5 cumulative trigge
 - `cv-funnel` ⚡ [fail] — Conversion Funnel Bank (T1.4: cross-page rows keyed scenario-cell x CV oracle; verdicts NOT stored — re-derived every run from cta_activation_report + K1 journe
 - `cv-public-surface` ⚡ [fail] — Public Surface (T1.3: the 114 learn/tools funnel pages join a UX denominator — both auth doors present, zero waitlist CTAs, 'no sign-up needed' claims scoped to
+- `cx-ux-graded` ⚡ [fail] — CX-UX rows banked as graded or N/A still have every dim of their class answered on their own page (the critic's survey for the lens dims, each owner's record fo
 - `d9-knob-integrity` ⚡ [fail] — D9 KNOB INTEGRITY - the per-hive service knobs (migrations 20260731000007/8/9) must stay SAFE and stay READ. TIGHTEN-ONLY TRUST: per-hive trust thresholds are a
 - `data-fabric` ⚡ [fail] — Data Fabric Normalizer Phase 5 (9-layer scaffolding: migration + 10 sources + RLS + edge fn + 3 adapters + SHA-256 dedup + hive scoping + duplicate handling + n
 - `data-governance-kb` ⚡ [fail] — Data Governance Validator (ownership, metadata, write path, versioning)
@@ -733,6 +734,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `deploy-payload` ⚡ [fail] — Deploy Payload (BRH-N, Ian 2026-10-14: Vercel's free Deployment Storage (10 GB) was 75% used because every deployment stored 612.7 MB - the evidence banks, regi
 - `deploy-root-hygiene` ⚡ [fail] — Deploy Root Hygiene (T1.4: publish='.' serves every root file — no *-test/*.backup dev copies in the root (index.backup.html was publicly reachable), _fixtures/
 - `design-detector-ratchet` ⚡ [fail] — anti-slop ratchet: the Impeccable detector's primary-finding counts per (file, antipattern) never rise above design_detector_baseline.json; fixes lower the floo
+- `design-source-drift` ⚡ [fail] — design-source drift: no served page hard-codes more colours, font sizes or z-indexes than design_source_drift_baseline.json allows (Project Wallace css-analyzer
 - `design-tokens` ⚡ [fail] — Design Tokens (components.css :root canonical palette intact + no #e8920a drift + raw-brand-hex forward-only ratchet)
 - `destructive-proportional-confirm` ⚡ [regression] — T50: every destructive action is rostered + confirmed (build_destructive_control_registry roster current), no blank confirm, and the confirm roster is forward-o
 - `destructive_safety` ⚡ [fail] — Deepwalk D18: destructive-safety (delete/reset confirm-gated via shared whConfirm)
@@ -1091,6 +1093,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `oc-guard-speaks` ⚡ [fail] — T138: a concurrency guard that says nothing is a LOST EDIT. An optimistic-concurrency guard filters an UPDATE on the row's updated_at so a write loses if somebo
 - `oc-guard-speaks-selftest` [fail] — oc-guard-speaks' own teeth (2026-10-13): its window is now the rest of the handler that holds the guard (brace-matched, at most 150 lines) instead of a fixed 40
 - `oc-updated-at-backed` [fail] — Optimistic-concurrency backing (LIVE) — every client `updated_at` write must be backed by a real column (bug-hunt roadmap P6, 2026-07-17). Scans client pages fo
+- `od-rows-hold` ⚡ [fail] — every banked OD row still reads closed: its unit's hand-typed class at 0, its triplet declared with no hand tints left, its off-palette cluster gone, or its Pen
 - `offline-banner-fixed-nav` [fail] — offline-banner teeth: while offline, a page's fixed top nav drops below the banner and its Back link stays reachable at its own centre (W41399 / C12; the shared
 - `offline-is-not-no` ⚡ [fail] — SL CA4 (2026-10-16): a check that could not reach the server is never read as no - offline, Shift Brain sent a signed-in supervisor to sign in (getUser's AuthRe
 - `offline-queued` [fail] — T14: offline_queued family gate — T14's lock spoke (2026-08-25). Runs tools/prove_offline_queued.mjs across ALL 8 queue-page cases (the complete whCreateQueue r
@@ -1438,6 +1441,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `timers` ⚡ [fail] — Timer and Scheduled Job Hygiene
 - `toast-is-readable` [fail] — T182: a message shown too briefly was never shown. A toast is how this platform says 'saved', 'not saved', 'you cannot do that yet' - the entire receipt for mos
 - `toast-queue` ⚡ [fail] — C7 (critic deepwalk T9): RECEIPT TOASTS QUEUE instead of stomping. Walked live: a logbook save fires 'Entry saved' + '+15 XP' + a badge back-to-back and the sin
+- `token-fallbacks-agree` ⚡ [fail] — every var(--wh-x, colour) fallback in the served pages and the shared chrome equals the token tokens.css declares - the first paint shows the colour the platfor
 - `told-failures-logged` ⚡ [fail] — Told failures logged (SL L4): the sentence a page showed when something failed is logged once per load beside its code - the four sentence makers, the failure n
 - `tools-cta-honesty` ⚡ [fail] — T3/T153: the calculator pages state the account requirement. The 60 /tools/ pages are the top of the funnel - a searcher looking for 'OEE calculator' lands on o
 - `trajectory-registry` ⚡ [fail] — Trajectory Registry + Header Scoreboard (500-arc program SSOT: ids complete T1-T500, pct honest per status (any other value needs an in-flight status + written 

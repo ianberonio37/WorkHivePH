@@ -92,17 +92,31 @@ def current_board(health_path: Path = HEALTH, recheck_path: Path = RECHECK) -> d
     if not health_path.exists():
         return {}
     h = json.loads(health_path.read_text(encoding="utf-8"))
-    if recheck_path.exists():
+    # ★NEWER, NOT SAME-COMMIT (2026-11-04). The first version accepted a re-check only at the board's own commit - but
+    # --rerun-failed re-checks the LAST FULL BOARD's failures from whatever HEAD it runs at (tonight: f7e826ce against the
+    # 7fe88d66 board), so it was ignored and the board's two old reds came back as OPEN incidents. Every check written
+    # after the board - the --rerun-failed file and each --only run's file - supersedes the board for exactly the gates it
+    # ran, oldest first so the latest check of a gate wins; a file older than the board never touches it.
+    board_at = str(h.get("timestamp") or "")
+    later = []
+    for p in [recheck_path] + sorted(health_path.parent.glob("platform_health.only-*.json")):
+        if not p.exists():
+            continue
         try:
-            r = json.loads(recheck_path.read_text(encoding="utf-8"))
+            r = json.loads(p.read_text(encoding="utf-8"))
         except (OSError, ValueError):
-            r = {}
-        same = r.get("commit") and r.get("commit") == h.get("commit")
-        newer = str(r.get("timestamp") or "") > str(h.get("timestamp") or "")
-        if same and newer:
-            fresh = {v.get("id"): v for v in r.get("validators", []) if v.get("id")}
-            h = dict(h, validators=[fresh.get(v.get("id"), v) for v in h.get("validators", [])],
-                     rechecked={"timestamp": r.get("timestamp"), "ids": sorted(fresh)})
+            continue
+        if str(r.get("timestamp") or "") > board_at:
+            later.append(r)
+    fresh, ids = {}, []
+    for r in sorted(later, key=lambda r: str(r.get("timestamp") or "")):
+        for v in r.get("validators", []):
+            if v.get("id") and str(v.get("status", "")).upper() != "SKIP":
+                fresh[v["id"]] = v
+                ids.append(v["id"])
+    if fresh:
+        h = dict(h, validators=[fresh.get(v.get("id"), v) for v in h.get("validators", [])],
+                 rechecked={"files": len(later), "ids": sorted(set(ids))})
     return h
 
 

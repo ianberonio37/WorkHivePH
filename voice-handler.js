@@ -7122,7 +7122,7 @@
       if (!parts || !parts.length) return;
       const p = document.createElement('p');
       p.className = 'wh-voice-grounding';
-      p.style.cssText = 'margin:6px 0 0 36px;font-size:0.75rem;line-height:1.4;color:var(--wh-steel-bright, #c3cad3);';
+      p.style.cssText = 'margin:6px 0 0 36px;font-size:0.75rem;line-height:1.4;color:var(--wh-steel-bright, #CFD7E0);';
       p.textContent = 'Given with this answer: ' + parts.join(' · ') + '.';
       bubble.insertAdjacentElement('afterend', p);
     } catch (_) { /* empty-catch-allow: the line is context, never a blocker for the reply */ }

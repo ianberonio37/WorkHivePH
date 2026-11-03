@@ -2,13 +2,13 @@
 name: page-audit-log
 type: page
 source: file:audit-log.html
-source_sha: 7b7eccc6adc461cd
+source_sha: 31f843f2731a8a1d
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `audit-log.html` — Audit Log | WorkHive
 
-Size: 93KB · 34 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 94KB · 34 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: `audit_filter_vocab`

@@ -48,10 +48,10 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: #1d2e44;
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber);
-      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80);
+      --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
@@ -59,7 +59,7 @@
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 1.125rem; font-weight: 800; }   /* 20.8px was between the headline and display rungs */
     .page-sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
-    .role-pill { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 12px; border-radius: 999px; background: rgba(247,162,27,0.12); color: var(--gold); border: 1px solid rgba(247,162,27,0.25); }
+    .role-pill { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 12px; border-radius: 999px; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color: var(--gold); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25); }
 
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
     .card h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
@@ -76,21 +76,21 @@
     .num-right { text-align: right; font-variant-numeric: tabular-nums; }
     /* D3 (2026-10-16): the retention editor - labels above inputs, one column at 320px, 44px targets. */
     .pc-ret-form { display: grid; gap: 12px; margin: 16px 0 8px; }
-    .pc-ret-form label { display: grid; gap: 6px; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.86); }
+    .pc-ret-form label { display: grid; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--wh-text-faint, rgba(255,255,255,0.86)); }
     .pc-ret-form input { min-height: 44px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);
                          background: rgba(255,255,255,0.04); color: var(--text); font: inherit; font-variant-numeric: tabular-nums; }
     .pc-ret-form input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-    .pc-ret-form button { justify-self: start; min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid rgba(247,162,27,0.55);
-                          background: rgba(247,162,27,0.14); color: var(--gold); font-weight: 700; font-size: 0.875rem; font-family: inherit; cursor: pointer; }
+    .pc-ret-form button { justify-self: start; min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.55);
+                          background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color: var(--gold); font-weight: 700; font-size: 0.875rem; font-family: inherit; cursor: pointer; }
     .pc-ret-form button:disabled { opacity: 0.6; cursor: progress; }
     .pc-ret-hint { font-size: 0.75rem; color: var(--muted); margin: 0; }
     .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; }
-    .pill-green { background: rgba(74,222,128,0.12); color: var(--green); }
-    .pill-amber { background: rgba(247,162,27,0.12); color: var(--gold); }
-    .pill-red   { background: rgba(248,113,113,0.12); color: var(--red); }
+    .pill-green { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.12); color: var(--green); }
+    .pill-amber { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color: var(--gold); }
+    .pill-red   { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.12); color: var(--red); }
     .pill-grey  { background: rgba(255,255,255,0.06); color: var(--muted); }
 
-    .denied { padding: 1.25rem; border: 1px solid rgba(247,162,27,0.3); border-radius: 12px; background: rgba(247,162,27,0.06); text-align: center; }
+    .denied { padding: 1.25rem; border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius: 12px; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06); text-align: center; }
     .denied h2 { font-size: 1.125rem; margin-bottom: 0.4rem; }
     .denied p { font-size: 0.875rem; color:rgba(255,255,255,0.83); }
 
@@ -105,14 +105,14 @@
     .verdict-icon { font-size: 1.5rem; line-height: 1; font-weight: 800; }
     .verdict-text { font-size: 0.875rem; font-weight: 700; line-height: 1.35; }
     .verdict-text small { display: block; font-size: 0.75rem; font-weight: 500; color:rgba(255,255,255,0.83); margin-top: 4px; }
-    .verdict.healthy { background: rgba(74,222,128,0.07);  border-color: rgba(74,222,128,0.3); }
+    .verdict.healthy { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color: rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color: var(--green); }
-    .verdict.watch   { background: rgba(247,162,27,0.07);  border-color: rgba(247,162,27,0.3); }
+    .verdict.watch   { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
     .verdict.watch   .verdict-icon { color: var(--gold); }
-    .verdict.attn    { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.3); }
+    .verdict.attn    { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color: var(--red); }
-    .verdict.empty   { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
+    .verdict.empty   { background: var(--wh-surface-card, rgba(255,255,255,0.03)); border-color: rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 
     .simple-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
     .simple-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding:16px; }
@@ -121,7 +121,7 @@
    link components.css, so the rule must live here -- but it must MATCH the canonical
    or the same KPI renders a different size than every other page. (Drift healed 2026-07-15.) */
     .simple-card .sc-hero  { font-size: 1.5rem; font-weight: 800; line-height: 1.15; margin: 4px 0 2px; color: var(--text); font-variant-numeric: tabular-nums; }
-    .simple-card .sc-sub   { font-size: 0.75rem; color:rgba(255,255,255,0.80); line-height: 1.4; }
+    .simple-card .sc-sub   { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height: 1.4; }
     /* ★A LOCAL CLONE OF A SHARED RULE, DRIFTED FROM THE COPY THAT WAS ALREADY FIXED (2026-09-19, W45980
        craft lens). This page keeps its own .sc-label / .sc-tag / .sc-hero because it themes on
        var(--surface) rather than the shared palette - a documented exception in components.css. What
@@ -132,15 +132,15 @@
        the clone-debt class in miniature: an exception taken for ONE property quietly opts a rule out
        of every later fix to the original. Brought into line with the shared copy. */
     .simple-card .sc-tag   { display: inline-block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; margin-top: 8px; }
-    .simple-card.tag-green .sc-tag { background: rgba(74,222,128,0.16);  color: var(--green); }
-    .simple-card.tag-amber .sc-tag { background: rgba(247,162,27,0.16);  color: var(--gold); }
-    .simple-card.tag-red   .sc-tag { background: rgba(248,113,113,0.16); color: var(--red); }
-    .simple-card.tag-grey  .sc-tag { background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
+    .simple-card.tag-green .sc-tag { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.16);  color: var(--green); }
+    .simple-card.tag-amber .sc-tag { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.16);  color: var(--gold); }
+    .simple-card.tag-red   .sc-tag { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color: var(--red); }
+    .simple-card.tag-grey  .sc-tag { background: rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .simple-card .sc-next  { display:inline-flex; align-items:center; min-height:44px; margin-top:4px; font-size:0.875rem; font-weight:600; color: var(--wh-orange); text-decoration: underline; text-underline-offset: 3px; }
 
     .action-card {
-      background: rgba(41,182,217,0.06);
-      border: 1px solid rgba(41,182,217,0.25);
+      background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06);
+      border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25);
       border-radius: 12px;
       padding:16px;
       margin-bottom: 16px;
@@ -161,7 +161,7 @@
     .details-toggle {
       display: inline-flex; align-items: center; gap: 6px;
       background: transparent; border: 1px solid var(--border);
-      color:rgba(255,255,255,0.80);
+      color:var(--wh-text-muted, rgba(255,255,255,0.80));
       padding: 8px 16px; border-radius: 8px;
       font-family: inherit; font-size: 0.75rem; font-weight: 600;
       cursor: pointer; min-height: 44px;
@@ -188,7 +188,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              This tab bar switches CMMS ↔ Plant/IoT; one nav entry. Both pages kept on disk. -->
         <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
           <a role="tab" aria-selected="false" href="integrations.html" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:0.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">&larr; CMMS Integration</a>
-          <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:0.75rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Plant / IoT</span>
+          <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:0.75rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">Plant / IoT</span>
         </div>
       </div>
       <!-- wraps and may shrink: at 200% text the Refresh button and the role pill side by side were 474px in a 374px header -->
@@ -202,7 +202,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <!-- ★A REFRESH THAT CHANGED NOTHING LOOKED LIKE ONE THAT DID NOTHING (2026-10-12, W4592). The button reloads the page,
          and every "as of" on it has minute resolution - so a refresh within the same minute came back identical and the
          supervisor could not tell it had run. The reloaded page now says when it re-read. -->
-    <p id="pc-refreshed" role="status" aria-live="polite" hidden style="margin:4px 0 0; font-size:0.75rem; color:rgba(255,255,255,0.8);"></p>
+    <p id="pc-refreshed" role="status" aria-live="polite" hidden style="margin:4px 0 0; font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.8));"></p>
     <script>
       function whPcRefresh() {
         try { sessionStorage.setItem('wh_pc_refreshed_at', String(Date.now())); } catch (e) { /* empty-catch-allow: private mode - the reload still happens, unannounced */ }
@@ -228,11 +228,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.75rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.75rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 </div>
 </section>
@@ -305,7 +305,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <h2 data-i="pc_sup_only">Supervisor access only</h2>
           <p>${escHtml(_t('Supervisors manage CMMS integrations, sensor topics and gateway audits here. Ask your hive supervisor to share the view if you need access.', 'Ang Plant Connections ay surface para sa supervisor sa pamamahala ng CMMS integrations, sensor topics, at gateway audits. Hilingin sa supervisor ng hive mo na ibahagi ang view kung kailangan mo ng access.'))}</p>
           ${_unread ? `<p role="status" style="margin-top:0.75rem;">${escHtml(typeof whRoleUnreadNote === 'function' ? whRoleUnreadNote() : 'Your role could not be checked just now, so this is based on the role this device last saw. Reload the page to check again.')}</p>
-          <button type="button" onclick="location.reload()" style="margin-top:0.75rem; min-height:44px; padding:0.5rem 1rem; border-radius:8px; border:1px solid rgba(247,162,27,0.4); background:rgba(247,162,27,0.12); color:var(--wh-orange-light, #FDB94A); font:inherit; font-weight:700; cursor:pointer;">Reload</button>` : ''}
+          <button type="button" onclick="location.reload()" style="margin-top:0.75rem; min-height:44px; padding:0.5rem 1rem; border-radius:8px; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color:var(--wh-orange-light, #FDB94A); font:inherit; font-weight:700; cursor:pointer;">Reload</button>` : ''}
         </div>
       `;
     }

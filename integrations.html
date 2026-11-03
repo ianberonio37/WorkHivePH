@@ -49,17 +49,17 @@
     html:not(.wh-nonsup) #it-access-pending { display: none; }   /* a cached supervisor sees the console itself, not this line */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: var(--wh-navy); --card: var(--wh-navy-mid);   /* was #1d2e44, one unit from --wh-navy-mid (critique W45936) */
+      --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: var(--wh-navy-mid);   /* was #1d2e44, one unit from --wh-navy-mid (critique W45936) */
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --purple: var(--wh-violet);
-      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80);
+      --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px; }
 
     #toast {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-72px);
-      background: rgba(31,46,69,0.96); color: var(--text); padding: 0.5rem 1.25rem;
+      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.96); color: var(--text); padding: 0.5rem 1.25rem;
       border-radius: 12px; font-size: .75rem; font-weight: 500;
       /* ★THE RETIREMENT GREPPED THE TOKEN'S NAME, NOT ITS VALUE (design lens slop, 2026-09-15).
          tokens.css records that --wh-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1), was retired the same
@@ -84,15 +84,15 @@
     .step-num {
       width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;
       justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
-      background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); /* A11y: 0.3 failed contrast on the dark card */
+      background: rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); /* A11y: 0.3 failed contrast on the dark card */
       border: 1px solid rgba(255,255,255,0.1); transition: background-color .2s var(--wh-ease-out, ease-out), color .2s var(--wh-ease-out, ease-out), border-color .2s var(--wh-ease-out, ease-out);
     }
-    .step-dot.active   .step-num { background: rgba(247,162,27,0.15); color: var(--gold); border-color: rgba(247,162,27,0.4); }
-    .step-dot.done     .step-num { background: rgba(74,222,128,0.15); color: var(--green); border-color: rgba(74,222,128,0.4); }
-    .step-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing:.04em; margin-top: 4px; color:rgba(255,255,255,0.80); }
+    .step-dot.active   .step-num { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--gold); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); }
+    .step-dot.done     .step-num { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.15); color: var(--green); border-color: rgba(var(--wh-green-rgb, 74, 222, 128), 0.4); }
+    .step-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing:.04em; margin-top: 4px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .step-dot.active .step-label, .step-dot.done .step-label { color: rgba(255,255,255,0.85); }
     .step-line { flex: 1; height: 1px; background: rgba(255,255,255,0.06); margin: 0 8px; margin-bottom: 16px; }
-    .step-dot.done .step-line-after { background: rgba(74,222,128,0.3); }
+    .step-dot.done .step-line-after { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .step-inner { display: flex; flex-direction: column; align-items: center; }
     /* ★TWO TABS ON TWO LINES, AND A STEP OFF THE SCREEN, AT 320px (2026-10-12, W4332 fit lens). The tabs' padding was
        inline, so nothing could tighten it; it lives here now (nowrap), and the current tab's weight follows .active.
@@ -132,14 +132,14 @@
     .btn:disabled { opacity: .4; cursor: not-allowed; }
     .btn-gold  { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); border-color: transparent; }
     .btn-gold:hover:not(:disabled)  { opacity: .9; }
-    .btn-blue  { background: rgba(41,182,217,0.12); color: var(--blue);   border-color: rgba(41,182,217,0.35); }
-    .btn-blue:hover:not(:disabled)  { background: rgba(41,182,217,0.22); }
-    .btn-ghost { background: rgba(255,255,255,0.04); color:rgba(255,255,255,0.80); border-color: rgba(255,255,255,0.1); }
+    .btn-blue  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue);   border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.35); }
+    .btn-blue:hover:not(:disabled)  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.22); }
+    .btn-ghost { background: rgba(255,255,255,0.04); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border-color: rgba(255,255,255,0.1); }
     .btn-ghost:hover:not(:disabled) { background: rgba(255,255,255,0.08); }
 
     /* Source picker */
     .source-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-    /* ONE FILLED BOX, NOT TWO (2026-09-17). #step-1 uses the shared .card - solid rgb(22,32,50) plus a
+    /* ONE FILLED BOX, NOT TWO (2026-09-17). #step-1 uses the shared .card - solid var(--wh-navy, rgb(22,32,50)) plus a
        0.67px border - and holds three .source-card options that are themselves solid rgb(29,46,68) with a
        2px border. A filled box inside a filled box, and the CHILD's border is three times the parent's, which
        is what makes it read as depth rather than grouping. The options' border cannot go: it is the selection
@@ -158,10 +158,10 @@
       min-width: 0; overflow-wrap: break-word; /* a long name breaks inside its card at 200% text (OWN text grows) */
       transition: border-color .15s var(--wh-ease-out, ease-out), background-color .15s var(--wh-ease-out, ease-out), transform .15s var(--wh-ease-out, ease-out);
     }
-    .source-card:hover { border-color: rgba(247,162,27,0.3); background: rgba(247,162,27,0.04); }
+    .source-card:hover { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); }
     .source-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     .source-card:active { transform: scale(0.98); }
-    .source-card.selected { border-color: var(--gold); background: rgba(247,162,27,0.08); }
+    .source-card.selected { border-color: var(--gold); background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); }
     .source-card .sc-icon { font-size: 1.5rem; margin-bottom: 8px; }
     .source-card .sc-name { font-size: .75rem; font-weight: 700; color: var(--text); }
     .source-card .sc-desc { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
@@ -171,23 +171,23 @@
       border: 2px dashed rgba(255,255,255,0.12); border-radius: 12px;
       padding: 40px 24px; text-align: center; cursor: pointer; transition: border-color .2s var(--wh-ease-out, ease-out), background-color .2s var(--wh-ease-out, ease-out);
     }
-    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--blue); background: rgba(41,182,217,0.04); }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: var(--blue); background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.04); }
     .drop-zone:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-    .drop-zone.has-file { border-color: var(--green); background: rgba(74,222,128,0.04); }
+    .drop-zone.has-file { border-color: var(--green); background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.04); }
 
     /* Mapping table */
     .map-table { width: 100%; border-collapse: collapse; }
     .map-table th { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing:.04em; color: var(--muted); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
     .map-table td { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
     .map-table tr:last-child td { border-bottom: none; }
-    .req-badge { font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(248,113,113,0.12); color: var(--red); }
-    .opt-badge { font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); color:rgba(255,255,255,0.80); }
+    .req-badge { font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.12); color: var(--red); }
+    .opt-badge { font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,0.06); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 
     /* Preview table */
     .preview-table-wrap { overflow-x: auto; }
     .preview-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
     .preview-table th { background: rgba(0,0,0,0.2); padding: 8px 12px; text-align: left; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing:.04em; color: var(--muted); white-space: nowrap; }
-    .preview-table td { padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.04); color:rgba(255,255,255,0.86); white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+    .preview-table td { padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.04); color:var(--wh-text-faint, rgba(255,255,255,0.86)); white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
     .status-open   { color: var(--blue); font-weight: 600; }
     .status-closed { color: var(--green); font-weight: 600; }
 
@@ -214,14 +214,14 @@
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.875rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
-    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
-    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
-    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     /* Arc L · CLS reserve (page-scoped, measured h0→h1) — the above-the-fold
        command-center primitives are empty/placeholder at first paint and fill from
@@ -266,12 +266,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <!-- ★WHOSE CONNECTIONS (2026-10-28, the cube's U-on-S walk): connections belong to a hive, and the page said "Connections"
      and nothing more - the hive appeared only inside the CSV export - so a supervisor could not tell from the page whose
      systems these were. Filled from the hive the account seats, never the device's cached name. -->
-<p id="it-scope" hidden style="max-width:900px; margin:0 auto 1rem; font-size:0.875rem; line-height:1.5; color:rgba(255,255,255,0.80);"></p>
+<p id="it-scope" hidden style="max-width:900px; margin:0 auto 1rem; font-size:0.875rem; line-height:1.5; color:var(--wh-text-muted, rgba(255,255,255,0.80));"></p>
 <!-- STREAMLINE F7: integrations + plant-connections are ONE "Connections" surface
      (both connect external systems, same supervisor audience). One nav entry; this
      tab bar switches CMMS ↔ Plant/IoT. Both pages kept on disk (reachable via tabs). -->
 <div class="wh-conn-tabs" role="tablist" style="display:flex; gap:8px; max-width:900px; margin:0 auto 1.25rem; flex-wrap:wrap;">
-  <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--gold); font-size:.75rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);"><abbr title="computerized maintenance management system">CMMS</abbr> Integration</span>
+  <span role="tab" aria-selected="true" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--gold); font-size:.75rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);"><abbr title="computerized maintenance management system">CMMS</abbr> Integration</span>
   <a role="tab" aria-selected="false" href="plant-connections.html" style="padding:8px 16px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Plant / IoT &rarr;</a>
 </div>
 
@@ -289,9 +289,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div id="veh-wizard" class="hidden" style="margin-top:16px; border-top:1px solid var(--border); padding-top:16px;">
     <!-- Step 1: the vehicle -->
     <div id="veh-step-1">
-      <p data-i="p_stepyourvehicle_1a36" style="font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.80); margin:0 0 12px;">Step 1 · Your vehicle</p>
+      <p data-i="p_stepyourvehicle_1a36" style="font-size:0.75rem; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 12px;">Step 1 · Your vehicle</p>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
-        <button type="button" id="veh-preset-ranger" onclick="vehApplyRangerPreset()" class="veh-box" style="min-height:44px; padding:0 16px; border:1px solid rgba(247,162,27,0.4); background:rgba(247,162,27,0.08); color:var(--gold); font-weight:700; cursor:pointer;">Ford Ranger 2026 XLT preset</button>
+        <button type="button" id="veh-preset-ranger" onclick="vehApplyRangerPreset()" class="veh-box" style="min-height:44px; padding:0 16px; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); color:var(--gold); font-weight:700; cursor:pointer;">Ford Ranger 2026 XLT preset</button>
         <span data-i="p_orfillthefieldsyourselfevery_e4c7" style="font-size:0.75rem; color:rgba(255,255,255,0.75); align-self:center;">or fill the fields yourself - everything stays editable.</span>
       </div>
       <!-- Scope choice — hive members only (solo users have exactly one home). Workers can only
@@ -316,7 +316,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            upload the SCOPED pages, never the whole manual. Extraction only PROPOSES — the
            step-2/3 checklists stay the review rail between the reader and every write. -->
       <div class="veh-box" style="margin-top:12px; padding:12px 12px; border:1px dashed rgba(255,255,255,0.2);">
-        <p style="font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0 0 8px;">Have the manual? Upload just the <strong>maintenance-schedule</strong> or <strong>parts-list</strong> pages (PDF, Word, Excel, or text) and the schedule below fills itself from your own book - every row stays editable.</p>
+        <p style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 8px;">Have the manual? Upload just the <strong>maintenance-schedule</strong> or <strong>parts-list</strong> pages (PDF, Word, Excel, or text) and the schedule below fills itself from your own book - every row stays editable.</p>
         <input type="file" id="veh-doc-file" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt" style="font-size:0.75rem; max-width:100%;" onchange="vehHandleDocFile(this)" aria-label="Upload maintenance schedule or parts list pages" />
         <p id="veh-doc-status" role="status" style="min-height:1em; font-size:0.75rem; color:rgba(255,255,255,0.75); margin:8px 0 0;"></p>
         <!-- SL D4 (2026-10-19): where the file goes. It never leaves the browser - vehExtractText reads it here and only
@@ -333,7 +333,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     <!-- Step 2: the PM starter (every row editable + tickable; km rows carry an editable interval) -->
     <div id="veh-step-2" class="hidden">
-      <p style="font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.80); margin:0 0 8px;">Step 2 · Service schedule</p>
+      <p style="font-size:0.75rem; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 8px;">Step 2 · Service schedule</p>
       <p data-i="p_astarterschedulefromthemanuf_5e5d" style="font-size:0.75rem; color:rgba(255,255,255,0.78); margin:0 0 12px;">A starter schedule from the manufacturer-interval pattern. Untick what you don't want; edit any km interval - your manual's numbers win. Time-based rows keep you honest between odometer updates.</p>
       <div id="veh-pm-list" style="display:flex; flex-direction:column; gap:6px;"></div>
       <div style="display:flex; gap:8px; margin-top:12px;">
@@ -344,7 +344,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     <!-- Step 3: parts starter (unticked by default - part numbers vary by market) -->
     <div id="veh-step-3" class="hidden">
-      <p data-i="p_stepstarterpartsoptional_a80e" style="font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.80); margin:0 0 8px;">Step 3 · Starter parts (optional)</p>
+      <p data-i="p_stepstarterpartsoptional_a80e" style="font-size:0.75rem; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 8px;">Step 3 · Starter parts (optional)</p>
       <p data-i="p_ticktheconsumablesyouwanttra_ddd9" style="font-size:0.75rem; color:rgba(255,255,255,0.78); margin:0 0 12px;">Tick the consumables you want tracked in Inventory. Part numbers vary by market - edit them to match your manual; you can add the rest in Inventory any time.</p>
       <div id="veh-parts-list" style="display:flex; flex-direction:column; gap:6px;"></div>
       <div style="display:flex; gap:8px; margin-top:12px;">
@@ -354,7 +354,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
 
     <!-- Receipt -->
-    <div id="veh-receipt" class="hidden veh-box" style="border:1px solid rgba(74,222,128,0.3); background:rgba(74,222,128,0.06); padding:12px 16px; margin-top:4px;">
+    <div id="veh-receipt" class="hidden veh-box" style="border:1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.06); padding:12px 16px; margin-top:4px;">
       <h3 data-i="p_vehiclecreated_0fd0" style="margin:0 0 8px; font-size:.95rem; color:var(--wh-green, #4ade80);">Vehicle created ✓</h3>
       <div id="veh-receipt-body" style="font-size:.75rem; line-height:1.6;"></div>
     </div>
@@ -401,7 +401,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <!-- Getting Started workflow guide (dismissible) -->
   <div id="cmms-guide" style="margin-bottom:1.5rem; display:none;">
-    <div style="background:rgba(247,162,27,0.06); border:1px solid rgba(247,162,27,0.18); border-radius:12px; padding:16px 20px;">
+    <div style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); border-radius:12px; padding:16px 20px;">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
         <!-- Sentence case: a five-word HEADING is not a two-or-three-word status pill, which is what
              DESIGN.md reserves all-caps for, and 0.06em is over its 0.04em ceiling either way. -->
@@ -411,27 +411,27 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div style="display:flex; gap:0; align-items:stretch; flex-wrap:wrap;">
 
         <!-- Step 1 -->
-        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(247,162,27,0.07); border-radius:12px; margin-right:8px; margin-bottom:8px;">
+        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07); border-radius:12px; margin-right:8px; margin-bottom:8px;">
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-            <span style="width:22px; height:22px; border-radius:50%; background:rgba(247,162,27,0.2); border:1px solid rgba(247,162,27,0.4); color:var(--gold); font-size:0.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</span>
+            <span style="width:22px; height:22px; border-radius:50%; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); color:var(--gold); font-size:0.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">1</span>
             <p data-i="p_importfile_173d" style="font-size:.75rem; font-weight:700; color:var(--gold);">Import File</p>
           </div>
-          <p data-i="p_haveolddatainsapmaximooranyc_1d89" style="font-size:0.75rem; color:rgba(255,255,255,0.80); line-height:1.5;">Have old data in SAP, Maximo, or any CMMS? Export a CSV and upload it here. One upload brings your whole history into WorkHive.</p>
+          <p data-i="p_haveolddatainsapmaximooranyc_1d89" style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.5;">Have old data in SAP, Maximo, or any CMMS? Export a CSV and upload it here. One upload brings your whole history into WorkHive.</p>
           <!-- ★WHAT THE FILE LOOKS LIKE (T2 SE vicarious, 2026-10-27): the column map and the preview appear only after an upload,
                so a first-timer met "export a CSV" with no picture of the rows it wants. One example row in the importer's own
                fields (normalizeRow: external_id, machine, created_at, maintenance_type, problem, action, actual_hours, status). -->
-          <p class="int-example" style="margin-top:8px; font-size:0.75rem; color:rgba(255,255,255,0.80); line-height:1.5;"><strong>A work-order export reads like this:</strong>
+          <p class="int-example" style="margin-top:8px; font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.5;"><strong>A work-order export reads like this:</strong>
             one row per job, e.g. WO-1042 · C-201 · 2026-03-14 · Breakdown · bearing noise · replaced bearing 6205 · 1.5 h · Closed. The next step maps your column names to these.</p>
-          <button onclick="switchTab('import')" style="margin-top:12px; width:100%; padding:8px; min-height:44px; background:rgba(247,162,27,0.12); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:var(--wh-radius-sm); font-size:0.75rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="starthere">Start here →</button>
+          <button onclick="switchTab('import')" style="margin-top:12px; width:100%; padding:8px; min-height:44px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color:var(--gold); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius:var(--wh-radius-sm); font-size:0.75rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="starthere">Start here →</button>
         </div>
 
         <!-- Arrow -->
         <div style="display:flex; align-items:center; padding:0 2px; margin-bottom:8px; color:rgba(255,255,255,0.55); font-size:1.125rem;">→</div>
 
         <!-- Step 2 -->
-        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(41,182,217,0.06); border-radius:12px; margin:0 8px 8px 8px;">
+        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border-radius:12px; margin:0 8px 8px 8px;">
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-            <span style="width:22px; height:22px; border-radius:50%; background:rgba(41,182,217,0.15); border:1px solid rgba(41,182,217,0.35); color:var(--blue); font-size:0.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</span>
+            <span style="width:22px; height:22px; border-radius:50%; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.35); color:var(--blue); font-size:0.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">2</span>
             <p style="font-size:.75rem; font-weight:700; color:var(--blue);">Live Sync</p>
           </div>
           <!-- T63 (2026-08-26): this said "New SAP work orders then flow in daily, with no CSV
@@ -443,21 +443,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                orders are raised (that is genuinely automatic, from their side), and the push
                back, which cmms-push-completion fires from logbook.html when a job is closed.
                Copy now says those two things and stops promising the poll. -->
-          <p style="font-size:0.75rem; color:rgba(255,255,255,0.80); line-height:1.5;">After the import, turn on Live Sync. Give your CMMS the webhook address in this tab. New work orders then arrive the moment someone raises them, with no CSV exports. You can also run a sync yourself at any time. WorkHive pushes each finished job back to SAP automatically when you close it.</p>
-          <button onclick="switchTab('sync')" style="margin-top:12px; width:100%; padding:8px; min-height:44px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:var(--wh-radius-sm); font-size:0.75rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="setupsync">Set up sync →</button>
+          <p style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.5;">After the import, turn on Live Sync. Give your CMMS the webhook address in this tab. New work orders then arrive the moment someone raises them, with no CSV exports. You can also run a sync yourself at any time. WorkHive pushes each finished job back to SAP automatically when you close it.</p>
+          <button onclick="switchTab('sync')" style="margin-top:12px; width:100%; padding:8px; min-height:44px; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1); color:var(--blue); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3); border-radius:var(--wh-radius-sm); font-size:0.75rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="setupsync">Set up sync →</button>
         </div>
 
         <!-- Arrow -->
         <div style="display:flex; align-items:center; padding:0 2px; margin-bottom:8px; color:rgba(255,255,255,0.55); font-size:1.125rem;">→</div>
 
         <!-- Step 3 -->
-        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(167,139,250,0.06); border-radius:12px; margin-left:8px; margin-bottom:8px;">
+        <div style="flex:1; min-width:160px; padding:12px 16px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.06); border-radius:12px; margin-left:8px; margin-bottom:8px;">
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-            <span style="width:22px; height:22px; border-radius:50%; background:rgba(167,139,250,0.15); border:1px solid rgba(167,139,250,0.35); color:var(--purple); font-size:0.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</span>
+            <span style="width:22px; height:22px; border-radius:50%; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.15); border:1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.35); color:var(--purple); font-size:0.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;">3</span>
             <p style="font-size:.75rem; font-weight:700; color:var(--purple);">API Keys</p>
           </div>
-          <p data-i="p_optionalmakeakeysopowerbicus_c8af" style="font-size:0.75rem; color:rgba(255,255,255,0.80); line-height:1.5;">Optional. Make a key so Power BI, custom apps, or your tools can pull WorkHive data through the API. No one touches the raw database.</p>
-          <button onclick="switchTab('api')" style="margin-top:12px; width:100%; padding:8px; min-height:44px; background:rgba(167,139,250,0.1); color:var(--purple); border:1px solid rgba(167,139,250,0.3); border-radius:var(--wh-radius-sm); font-size:0.75rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="managekeys">Manage keys →</button>
+          <p data-i="p_optionalmakeakeysopowerbicus_c8af" style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.5;">Optional. Make a key so Power BI, custom apps, or your tools can pull WorkHive data through the API. No one touches the raw database.</p>
+          <button onclick="switchTab('api')" style="margin-top:12px; width:100%; padding:8px; min-height:44px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.1); color:var(--purple); border:1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.3); border-radius:var(--wh-radius-sm); font-size:0.75rem; font-weight:600; cursor:pointer; font-family:inherit;" data-i="managekeys">Manage keys →</button>
         </div>
 
       </div>
@@ -468,8 +468,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <!-- the tab rail is an inset line the active tab's underline paints over, not a border the tabs sit pressed against (K, 2026-10-15) -->
   <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:1.5rem; box-shadow:inset 0 -1px 0 var(--border);">
     <button id="tab-import" type="button" class="wh-toggle int-tab active" onclick="switchTab('import')" style="border-bottom-color:var(--gold); color:var(--gold);" translate="no" data-i="importfile">Import File</button>
-    <button id="tab-sync" type="button" class="wh-toggle int-tab" onclick="switchTab('sync')" style="color:rgba(255,255,255,0.80);" translate="no" data-i="livesync">Live Sync</button>
-    <button id="tab-api" type="button" class="wh-toggle int-tab" onclick="switchTab('api')" style="color:rgba(255,255,255,0.80);" translate="no">API Keys</button>
+    <button id="tab-sync" type="button" class="wh-toggle int-tab" onclick="switchTab('sync')" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));" translate="no" data-i="livesync">Live Sync</button>
+    <button id="tab-api" type="button" class="wh-toggle int-tab" onclick="switchTab('api')" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));" translate="no">API Keys</button>
   </div>
 
   <!-- Header -->
@@ -723,9 +723,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              set, so the change fires inside a region that is already in the accessibility tree);
              only the region itself was absent. assertive by role, because rows silently dropped
              from an equipment import is not something to mention at the next convenient pause. -->
-        <div id="import-error-section" class="card-sm hidden" role="alert" aria-live="assertive" style="margin-top:12px; border-color:rgba(248,113,113,0.2);">
+        <div id="import-error-section" class="card-sm hidden" role="alert" aria-live="assertive" style="margin-top:12px; border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.2);">
           <p data-i="p_somerowswereskippedmissingre_9a25" style="font-size:0.75rem; color:var(--red); margin-bottom:8px;">⚠ Some rows were skipped (missing required field):</p>
-          <p id="error-detail" style="font-size:0.75rem; color:rgba(255,255,255,0.80);"></p>
+          <p id="error-detail" style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));"></p>
         </div>
 
         <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
@@ -754,7 +754,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     data-rag-tile="integrations:api_config"
     data-rag-label="API configuration">
     <div style="margin-bottom:1.5rem;">
-      <span style="display:inline-block; font-size:0.75rem; font-weight:700; letter-spacing:.04em; padding:.2rem .6rem; border-radius:999px; background:rgba(167,139,250,0.12); color:var(--purple); border:1px solid rgba(167,139,250,0.3); margin-bottom:.5rem;">Phase 5 · Intelligence API</span>
+      <span style="display:inline-block; font-size:0.75rem; font-weight:700; letter-spacing:.04em; padding:.2rem .6rem; border-radius:999px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.12); color:var(--purple); border:1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.3); margin-bottom:.5rem;">Phase 5 · Intelligence API</span>
       <h2 style="font-size:1.125rem; font-weight:800;">API Keys</h2>
       <p data-i="p_accessworkhivebenchmarkdataf_b3d2" style="font-size:.75rem; color:var(--muted); margin-top:.25rem;">Access WorkHive benchmark data from your systems. Use these keys in the Authorization header of Intelligence API calls.</p>
     </div>
@@ -774,7 +774,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div id="api-keys-list"><p data-i="p_loading_b04b" style="font-size:.75rem; color:var(--muted);">Loading...</p></div>
     </div>
 
-    <div class="card" style="background:rgba(41,182,217,0.04); border-color:rgba(41,182,217,0.15);">
+    <div class="card" style="background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.04); border-color:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15);">
       <p style="font-size:.75rem; font-weight:700; margin-bottom:8px;">API Reference</p>
       <p style="font-size:0.75rem; color:var(--muted); margin-bottom:12px;">Base URL: <code style="color:var(--blue);">https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api</code></p>
       <div style="font-size:0.75rem; line-height:1.8;">
@@ -793,7 +793,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     data-rag-tile="integrations:sync_log"
     data-rag-label="Sync log">
     <div style="margin-bottom:1.5rem;">
-      <span style="display:inline-block; font-size:0.75rem; font-weight:700; letter-spacing:.04em; padding:.2rem .6rem; border-radius:999px; background:rgba(41,182,217,0.12); color:var(--blue); border:1px solid rgba(41,182,217,0.3); margin-bottom:.5rem;">Tier 2 · Scheduled API Sync</span>
+      <span style="display:inline-block; font-size:0.75rem; font-weight:700; letter-spacing:.04em; padding:.2rem .6rem; border-radius:999px; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color:var(--blue); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3); margin-bottom:.5rem;">Tier 2 · Scheduled API Sync</span>
       <h2 data-i="p_livesyncconfiguration_5b5a" style="font-size:1.125rem; font-weight:800;">Live Sync Configuration</h2>
       <!-- T63 (2026-08-26): said "WorkHive polls your CMMS API daily". It does not poll at all:
            26 cron jobs, none touching cmms-sync, which runs only when someone presses a button
@@ -811,7 +811,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <button type="button" id="int-csv-btn" onclick="exportIntegrations()"
               title="Export the connection list and sync status to CSV (no credentials)"
               aria-label="Export the connection list and sync status to CSV, without credentials"
-              style="min-height:44px; padding:0 .9rem; display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:rgba(255,255,255,0.80); font-size:.75rem; font-weight:600; cursor:pointer;">
+              style="min-height:44px; padding:0 .9rem; display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:.75rem; font-weight:600; cursor:pointer;">
         <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
       </button>
     </div>
@@ -914,7 +914,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 </div><!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="it-summary-details">
 <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="it-summary-details" data-i="showdetails">
@@ -930,7 +930,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <li><strong data-i="p_disabled_f4f4">Disabled</strong>: integrations turned off but still in the config table.</li>
       <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if any stale; amber if any disabled OR no integrations at all; green when all active integrations are fresh.</li>
     </ul>
-    <p data-i="p_thetabsbelowimportfilelivesy_4996" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size:0.75rem;">The 3 tabs below (Import File / Live Sync / API Keys) let you configure each integration type.</p>
+    <p data-i="p_thetabsbelowimportfilelivesy_4996" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:0.75rem;">The 3 tabs below (Import File / Live Sync / API Keys) let you configure each integration type.</p>
     <!-- Phase 4 (2026-06-10): interim cross-link — plant-connections is the supervisor
          MONITOR surface for everything configured here (sync health, sensor bridge,
          gateway audit); long-term these two pages merge into one. -->
@@ -1244,7 +1244,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             // conversion, shown so the person can verify against their own manual
             + (r.miOrig ? `<span style="font-size:0.75rem; color:rgba(255,255,255,0.65);">(your document says every ${Number(r.miOrig).toLocaleString()} mi; converted)</span>` : '')
           : `<span style="font-size:0.75rem; color:rgba(255,255,255,0.70);">${e(String(r.freq || '').toLowerCase())}</span>`)
-      + (r.src === 'doc' ? '<span class="veh-chip" style="font-size:0.75rem; font-weight:700; letter-spacing:.04em; color:var(--gold); border:1px solid rgba(247,162,27,0.35); padding:2px 8px;">FROM YOUR DOC</span>' : '')
+      + (r.src === 'doc' ? '<span class="veh-chip" style="font-size:0.75rem; font-weight:700; letter-spacing:.04em; color:var(--gold); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); padding:2px 8px;">FROM YOUR DOC</span>' : '')
       + '</div>').join('');
   }
   function vehRenderPartsList() {
@@ -1254,7 +1254,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       + `<label style="min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer;"><input type="checkbox" id="veh-part-on-${i}" ${p.on ? 'checked' : ''} style="width:20px; height:20px;" aria-label="Track: ${e(p.name)}" /></label>`
       + `<input id="veh-part-name-${i}" class="wh-input" value="${e(p.name)}" maxlength="80" style="flex:1; min-width:10rem; font-size:.75rem;" aria-label="Part name" />`
       + `<input id="veh-part-pn-${i}" class="wh-input" value="${e(p.pn || '')}" placeholder="Part number (from your manual)" maxlength="40" style="width:14rem; font-size:.75rem;" aria-label="Part number for ${e(p.name)}" />`
-      + (p.src === 'doc' ? '<span class="veh-chip" style="font-size:0.75rem; font-weight:700; letter-spacing:.04em; color:var(--gold); border:1px solid rgba(247,162,27,0.35); padding:2px 8px;">FROM YOUR DOC</span>' : '')
+      + (p.src === 'doc' ? '<span class="veh-chip" style="font-size:0.75rem; font-weight:700; letter-spacing:.04em; color:var(--gold); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); padding:2px 8px;">FROM YOUR DOC</span>' : '')
       + '</div>').join('');
   }
 
@@ -2113,7 +2113,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       return `<div style="padding:8px 12px; background:${bg} border-radius:8px; font-size:0.75rem; margin-bottom:8px;">${i.level === 'warn' ? '⚠' : 'ℹ'} ${escHtml(i.msg)}</div>`;
     }).join('');
     const skipWarn = missing > 0
-      ? `<div style="padding:8px 12px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:8px; font-size:0.75rem; color:var(--red); margin-bottom:8px;">⚠ ${missing} rows missing ${entityLabel} and will be skipped. Map the correct column in Step 3.</div>`
+      ? `<div style="padding:8px 12px; background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.08); border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.2); border-radius:8px; font-size:0.75rem; color:var(--red); margin-bottom:8px;">⚠ ${missing} rows missing ${entityLabel} and will be skipped. Map the correct column in Step 3.</div>`
       : '';
     warnings/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = skipWarn + issueHtml;
   }
@@ -2560,7 +2560,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     if (patterns.length) {
       document.getElementById('patterns-section').classList.remove('hidden');
       document.getElementById('patterns-list')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = patterns.map(p =>
-        `<div class="pattern-row"><div class="pattern-dot" style="background:${p.color};"></div><span style="color:rgba(255,255,255,0.86);">${escHtml(p.text)}</span></div>`
+        `<div class="pattern-row"><div class="pattern-dot" style="background:${p.color};"></div><span style="color:var(--wh-text-faint, rgba(255,255,255,0.86));">${escHtml(p.text)}</span></div>`
       ).join('');
     }
 
@@ -2857,7 +2857,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       _rb.id = 'it-load-retry';
       _rb.textContent = _t('Retry', 'Subukan ulit');
       _rb.style.cssText = 'display:inline-flex;align-items:center;min-height:44px;margin-top:0.6rem;padding:0 1.1rem;border-radius:8px;'
-        + 'font-weight:700;cursor:pointer;background:rgba(247,162,27,0.15);color:var(--wh-orange-text,#F7A21B);border:1px solid rgba(247,162,27,0.4);';
+        + 'font-weight:700;cursor:pointer;background:rgba(247,162,27,0.15);color:var(--wh-orange-text,#FDB94A);border:1px solid rgba(247,162,27,0.4);';
       _rb.addEventListener('click', function () { try { location.reload(); } catch (e) { console.debug('reload refused', e); } });
       actBox.insertAdjacentElement('afterend', _rb);
     }
@@ -2898,10 +2898,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       whList/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = data.map(c => {
         const whUrl = supabaseUrl + '/functions/v1/cmms-webhook-receiver?config_id=' + c.id;
         return `<div style="margin-bottom:8px;">
-          <p style="font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.80); margin-bottom:3px;">${escHtml(c.label || c.system_type)}</p>
+          <p style="font-size:0.75rem; font-weight:600; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom:3px;">${escHtml(c.label || c.system_type)}</p>
           <div style="display:flex; gap:6px; align-items:center;">
             <code style="flex:1; background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:8px; font-size:0.75rem; color:var(--blue); word-break:break-all;">${escHtml(whUrl)}</code>
-            <button onclick="navigator.clipboard.writeText('${escJsAttr(whUrl)}').then(()=>showToast('Copied!'))" style="padding:5px 12px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:8px; font-size:0.75rem; font-family:inherit; cursor:pointer; white-space:nowrap;">Copy</button>
+            <button onclick="navigator.clipboard.writeText('${escJsAttr(whUrl)}').then(()=>showToast('Copied!'))" style="padding:5px 12px; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1); color:var(--blue); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3); border-radius:8px; font-size:0.75rem; font-family:inherit; cursor:pointer; white-space:nowrap;">Copy</button>
           </div>
         </div>`;
       }).join('');
@@ -2913,7 +2913,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // U2 (WCAG 1.4.1): failure must be conveyed by more than the red date color —
       // add a visible "Failed" text badge (+ the error reason when available, escHtml'd).
       const statusBadge = c.last_sync_status === 'failed'
-        ? ' <span style="display:inline-block; font-size:0.75rem; font-weight:700; letter-spacing:.03em; color:var(--red); background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.35); border-radius:999px; padding:1px 8px;">Failed</span>'
+        ? ' <span style="display:inline-block; font-size:0.75rem; font-weight:700; letter-spacing:.03em; color:var(--red); background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.12); border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.35); border-radius:999px; padding:1px 8px;">Failed</span>'
           + (c.last_sync_error ? ' <span style="color:var(--red); font-size:0.75rem;">' + escHtml(String(c.last_sync_error)) + '</span>' : '')
         : '';
       return `<div class="card-sm" style="margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
@@ -3082,10 +3082,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
     const resEl = document.getElementById('new-key-result');
     resEl.style.display = 'block';
-    resEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="background:rgba(74,222,128,0.08); border:1px solid rgba(74,222,128,0.25); border-radius:8px; padding:12px 16px; margin-bottom:4px;">
+    resEl/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `<div style="background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.08); border:1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.25); border-radius:8px; padding:12px 16px; margin-bottom:4px;">
       <p style="font-size:0.75rem; color:var(--green); font-weight:700; margin-bottom:8px;">✓ ${escHtml(_t(`API key generated: copy it now, it won't be shown again.`, 'Nagawa na ang API key: kopyahin ito ngayon, hindi na ito ipapakita ulit.'))}</p>
       <code style="font-size:.75rem; color:var(--text); word-break:break-all;">${escHtml(rawKey)}</code>
-      <button onclick="navigator.clipboard.writeText('${escJsAttr(rawKey)}').then(()=>showToast('Copied!'))" style="display:block; margin-top:8px; padding:5px 12px; background:rgba(74,222,128,0.12); color:var(--green); border:1px solid rgba(74,222,128,0.3); border-radius:8px; font-size:0.75rem; cursor:pointer; font-family:inherit;">Copy Key</button>
+      <button onclick="navigator.clipboard.writeText('${escJsAttr(rawKey)}').then(()=>showToast('Copied!'))" style="display:block; margin-top:8px; padding:5px 12px; background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.12); color:var(--green); border:1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); border-radius:8px; font-size:0.75rem; cursor:pointer; font-family:inherit;">Copy Key</button>
     </div>`;
     document.getElementById('api-key-label').value = '';
     loadApiKeys();
@@ -3104,7 +3104,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <p style="font-size:.75rem; font-weight:600;">${escHtml(k.label || 'Unnamed')}</p>
           <p style="font-size:0.75rem; color:var(--muted);">${escHtml(k.key_prefix)}... · ${k.call_count || 0} calls · last: ${last}</p>
         </div>
-        <button onclick="revokeKey('${escJsAttr(k.id)}')" style="padding:5px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:8px; font-size:0.75rem; cursor:pointer; font-family:inherit;" data-i="revoke">Revoke</button>
+        <button onclick="revokeKey('${escJsAttr(k.id)}')" style="padding:5px 12px; background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.08); color:var(--red); border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.25); border-radius:8px; font-size:0.75rem; cursor:pointer; font-family:inherit;" data-i="revoke">Revoke</button>
       </div>`;
     }).join('');
   }
@@ -3168,7 +3168,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               <div style="font-size:.75rem; font-weight:600;">${escHtml(row.entity_type || 'work_order')} · ${escHtml((row.system_type || '').replace('sap_pm','SAP PM').replace('maximo','Maximo').replace('generic','Generic'))}</div>
               <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">${dt} · ${row.rows_written} written${row.rows_failed ? ` · ${row.rows_failed} failed` : ''}${avgQ !== null ? ` · <span style="color:${qColor};">${avgQ}% quality</span>` : ''}</div>
             </div>
-            ${canUndo ? `<button onclick="rollbackBatch('${escJsAttr(row.batch_id)}','${escJsAttr(row.entity_type)}','${escJsAttr(row.triggered_by || '')}','${escJsAttr(row.created_at)}')" style="padding:4px 12px; background:rgba(248,113,113,0.08); color:var(--red); border:1px solid rgba(248,113,113,0.25); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;" data-i="undo">↩ Undo</button>` : `<span style="font-size:0.75rem; color:var(--muted);">Expired</span>`}
+            ${canUndo ? `<button onclick="rollbackBatch('${escJsAttr(row.batch_id)}','${escJsAttr(row.entity_type)}','${escJsAttr(row.triggered_by || '')}','${escJsAttr(row.created_at)}')" style="padding:4px 12px; background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.08); color:var(--red); border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.25); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit; white-space:nowrap;" data-i="undo">↩ Undo</button>` : `<span style="font-size:0.75rem; color:var(--muted);">Expired</span>`}
           </div>`;
       }).join('');
       if (typeof whMoreNote === 'function') whMoreNote(list, { shown: data.length, more: _impMore, noun: 'imports', order: 'newest',
@@ -3340,11 +3340,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // the conflict list's paging and find field (HS L4); the card itself is the one the check always drew
   let _conflicts = [], _conflictShown = 30, _conflictHead = '';
   function _conflictCardHtml(c) {
-    return `          <div class="sync-conflict" data-log-id="${escHtml(String(c.logId))}" style="background:var(--card); border:1px solid rgba(248,113,113,0.2); border-radius:8px; padding:12px 12px; margin-bottom:8px;">
+    return `          <div class="sync-conflict" data-log-id="${escHtml(String(c.logId))}" style="background:var(--card); border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.2); border-radius:8px; padding:12px 12px; margin-bottom:8px;">
             <div style="font-size:.75rem; font-weight:700; margin-bottom:8px;">${escHtml(c.machine)}</div>
             <div style="display:flex; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
-              <span style="font-size:0.75rem; background:rgba(41,182,217,0.1); color:var(--blue); padding:2px 8px; border-radius:999px; border:1px solid rgba(41,182,217,0.25);">SAP: ${escHtml(c.extStatus)}</span>
-              <span style="font-size:0.75rem; background:rgba(247,162,27,0.1); color:var(--gold); padding:2px 8px; border-radius:999px; border:1px solid rgba(247,162,27,0.25);">WorkHive: ${escHtml(c.logStatus)}</span>
+              <span style="font-size:0.75rem; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1); color:var(--blue); padding:2px 8px; border-radius:999px; border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25);">SAP: ${escHtml(c.extStatus)}</span>
+              <span style="font-size:0.75rem; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1); color:var(--gold); padding:2px 8px; border-radius:999px; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);">WorkHive: ${escHtml(c.logStatus)}</span>
             </div>
             ${/* HS L1/L2 (2026-10-30): whose entry this is, and when - the WorkHive side of a conflict is one member's logbook
                  entry, and only its author can change it (logbook_update), so "Use SAP" is offered on the viewer's own entry
@@ -3352,14 +3352,14 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <div style="font-size:0.75rem; color:var(--muted); margin-bottom:8px;">${escHtml(_t('Logged by', 'Isinulat ni'))} <span translate="no">${escHtml(c.logWorker || '-')}</span>${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(c.logWorker) : '')}${c.logDate && typeof whFmtDate === 'function' ? ' · ' + escHtml(whFmtDate(c.logDate)) : ''}</div>
             <div style="display:flex; gap:6px;">
               ${c.logWorker === WORKER_NAME
-                ? `<button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.extStatus)}','sap','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(41,182,217,0.1); color:var(--blue); border:1px solid rgba(41,182,217,0.3); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Use SAP (${escHtml(c.extStatus)})</button>`
+                ? `<button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.extStatus)}','sap','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1); color:var(--blue); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Use SAP (${escHtml(c.extStatus)})</button>`
                 : (typeof whIsFormerMember === 'function' && whIsFormerMember(c.logWorker))
                 ? `<p style="flex:1; margin:0; font-size:0.75rem; color:var(--muted); line-height:1.4;"><span translate="no">${escHtml(c.logWorker)}</span>${escHtml(c.logStatus === 'Open'
                     // HS L5 (2026-10-30): an active supervisor may now close a departed member's OPEN job (mig 20261030000012)
                     ? ' has left the hive. Their entry is Open; as supervisor you can close it from the logbook (it stays logged as theirs). SAP says ' + c.extStatus + '.'
                     : ' has left the hive, so their entry stays ' + (c.logStatus || '') + ' - only its author could change it. SAP says ' + c.extStatus + '.')}</p>`
                 : `<p style="flex:1; margin:0; font-size:0.75rem; color:var(--muted); line-height:1.4;">${escHtml(_t('To match SAP, ', 'Para tumugma sa SAP, '))}<span translate="no">${escHtml(c.logWorker || '')}</span>${escHtml(_t(' sets their entry to ', ' ang magtatakda ng entry sa '))}${escHtml(c.extStatus)}.</p>`}
-              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.logStatus)}','workhive','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(247,162,27,0.1); color:var(--gold); border:1px solid rgba(247,162,27,0.3); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Keep WorkHive (${escHtml(c.logStatus)})</button>
+              <button onclick="resolveConflict('${escJsAttr(c.logId)}','${escJsAttr(c.logStatus)}','workhive','${escJsAttr(c.extId)}')" style="flex:1; padding:5px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1); color:var(--gold); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; font-family:inherit;">Keep WorkHive (${escHtml(c.logStatus)})</button>
             </div>
           </div>`;
   }

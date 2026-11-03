@@ -67,7 +67,7 @@
     }
     #levelup-overlay.hidden { display: none; }
     #levelup-card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.97), rgba(22,32,50,0.99));
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.99));
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 16px; padding: 2.5rem 2rem;
       text-align: center; width: 100%; max-width: 340px;
@@ -84,7 +84,7 @@
       text-transform: uppercase; color:var(--wh-orange-text); margin-bottom: 0.3rem;
     }
     #levelup-heading { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; }
-    #levelup-meta { font-size: 0.8rem; color:rgba(255,255,255,0.80); margin-bottom: 1.5rem; }
+    #levelup-meta { font-size: 0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom: 1.5rem; }
     #levelup-close {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); font-weight: 700; font-family: 'Poppins', sans-serif;
@@ -112,7 +112,7 @@
       width: 44px; height: 44px; border-radius: 0.5rem; flex-shrink: 0; /* tap-target floor */
       background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color:rgba(255,255,255,0.80); text-decoration: none;
+      cursor: pointer; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-decoration: none;
       transition: background 0.15s;
     }
     .back-btn:hover { background: rgba(255,255,255,0.1); }
@@ -120,7 +120,7 @@
 
     /* ── Hero band ── */
     .hero-card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.6), rgba(31,46,69,0.8));
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.8));
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 1rem; padding: 1.5rem;
       display: flex; gap: 1.25rem; align-items: center;
@@ -133,8 +133,8 @@
     #hero-tier-label {
       display: inline-block; font-size: 0.75rem; font-weight: 700;   /* sentence case: no all-caps tracked pills (critique lens) */
       padding: 2px 10px; border-radius: 999px;
-      background: rgba(247,162,27,0.15); color:var(--wh-orange-text);
-      border: 1px solid rgba(247,162,27,0.3); margin-bottom: 0.75rem;
+      background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange-text);
+      border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); margin-bottom: 0.75rem;
     }
 
     /* ── Pillar section headers ── */
@@ -164,7 +164,7 @@
     @media (max-width: 340px) { .domain-grid { grid-template-columns: 1fr; } }
 
     .domain-card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 1rem; padding: 0.9rem 0.75rem 0.75rem;
       cursor: pointer; transition: border-color 0.2s, transform 0.15s;
@@ -172,7 +172,7 @@
       text-align: center; position: relative; min-width: 0;
     }
     .domain-card:active { transform: scale(0.97); }
-    .domain-card.expanded { border-color: rgba(247,162,27,0.3); }
+    .domain-card.expanded { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
 
     .domain-badge-wrap { padding-bottom: 10px; flex-shrink: 0; }
     .domain-name {
@@ -180,7 +180,7 @@
       color: rgba(255,255,255,0.9); overflow-wrap: anywhere;
     }
     .domain-tier-label {
-      font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.80);
+      font-size: 0.75rem; font-weight: 600; color:var(--wh-text-muted, rgba(255,255,255,0.80));
     }
 
     /* XP bar */
@@ -195,7 +195,7 @@
       transition: width 0.3s cubic-bezier(0.2,0.8,0.2,1); /* a state indication: under 300 ms, ease-out (motion lens, 2026-09-15; was 0.6 s ease-in-out) */
     }
     .xp-text {
-      font-size: 0.75rem; color:rgba(255,255,255,0.80);
+      font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));
       white-space: normal; overflow-wrap: anywhere;
     }
 
@@ -207,31 +207,31 @@
       font-size: 0.75rem; padding: 0.3rem 0;
       border-top: 1px solid rgba(255,255,255,0.05);
     }
-    .event-label { flex: 1; color:rgba(255,255,255,0.80); min-width: 0;
+    .event-label { flex: 1; color:var(--wh-text-muted, rgba(255,255,255,0.80)); min-width: 0;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .event-xp { font-weight: 700; color: var(--wh-green); flex-shrink: 0; }
-    .event-time { color:rgba(255,255,255,0.80); flex-shrink: 0; }
+    .event-time { color:var(--wh-text-muted, rgba(255,255,255,0.80)); flex-shrink: 0; }
 
     /* Iron Worker card (full-width legendary) */
     .domain-card.legendary {
       grid-column: 1 / -1;
       flex-direction: row; text-align: left;
       padding: 1rem 1.25rem;
-      background: linear-gradient(145deg, rgba(42,61,88,0.7), rgba(31,46,69,0.9));
-      border-color: rgba(247,162,27,0.15);
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.7), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.9));
+      border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15);
       gap: 1rem;
     }
     .domain-card.legendary .domain-name { font-size: 0.9rem; }
     .domain-card.legendary .domain-tier-label { font-size: 0.8rem; }
     .legendary-info { flex: 1; min-width: 0; }
     .legendary-desc {
-      font-size: 0.8rem; color:rgba(255,255,255,0.80);
+      font-size: 0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));
       margin-top: 0.2rem; line-height: 1.4;
     }
 
     /* ── Recent activity ── */
     .section-card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.4), rgba(31,46,69,0.6));
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.4), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.6));
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 1rem; padding: 1rem;
       margin-bottom: 1rem;
@@ -249,21 +249,21 @@
     .activity-row:last-child { border-bottom: none; }
     .activity-icon-sm {
       width: 28px; height: 28px; border-radius: 0.5rem; flex-shrink: 0;
-      background: rgba(41,182,217,0.12); border: 1px solid rgba(41,182,217,0.2);
+      background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.2);
       display: flex; align-items: center; justify-content: center;
       font-size: 0.8rem;
     }
     .activity-body { flex: 1; min-width: 0; }
-    .activity-head { font-size: 0.8rem; color: rgba(255,255,255,0.80); padding: 0 0 0.5rem; }
+    .activity-head { font-size: 0.8rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); padding: 0 0 0.5rem; }
     .page-wrap p, .empty-note, .activity-head { max-width: 70ch; }   /* the craft floor's measure for any prose on the page */
-    .activity-count { font-weight: 500; color: rgba(255,255,255,0.80); }
+    .activity-count { font-weight: 500; color: var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* the label truncates, the marker after it never does (critic R6, 2026-10-13): at 320 the ellipsis cut "x30" and
        "(you)" - the part of the line that carries the information */
     .activity-name { font-size: 0.8rem; font-weight: 600;
       display: flex; align-items: baseline; gap: 0.25em; min-width: 0; }
     .activity-name > .nm, .standing-name > .nm { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .activity-name > .activity-count, .standing-name > .you-tag { flex-shrink: 0; white-space: nowrap; }
-    .activity-sub { font-size: 0.75rem; color:rgba(255,255,255,0.80); }
+    .activity-sub { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .activity-xp { font-size: 0.8rem; font-weight: 700; color: var(--wh-green); flex-shrink: 0; }
 
     /* ── Hive standings ── */
@@ -276,7 +276,7 @@
     .standing-rank {
       width: 24px; font-size: 0.8rem; font-weight: 800;
       text-align: center; flex-shrink: 0;
-      color:rgba(255,255,255,0.80);
+      color:var(--wh-text-muted, rgba(255,255,255,0.80));
     }
     .standing-rank.gold   { color: var(--wh-orange); }
     /* C2 2026-09-10: #94A3B8 (slate-400) measured 4.13:1 at 0.7rem against the 4.5:1 small text owes.
@@ -293,7 +293,7 @@
 
     /* ── Empty state ── */
     .empty-note {
-      font-size: 0.8rem; color:rgba(255,255,255,0.80);
+      font-size: 0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));
       text-align: center; padding: 1rem 0;
     }
 
@@ -329,7 +329,7 @@
     }
     .tier-sample-range {
       font-size: 0.75rem; font-weight: 600;
-      color:rgba(255,255,255,0.80);
+      color:var(--wh-text-muted, rgba(255,255,255,0.80));
       white-space: nowrap;
     }
     /* Plain-Read summary (Layer D — UX Contract) */
@@ -337,14 +337,14 @@
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size:0.8rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
-    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
-    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
-    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     #ac-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.8rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #ac-summary-details.open { display:block; }
@@ -381,7 +381,7 @@
 <body>
 <main>
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No achievements yet. Earn your first badge by logging work. <a data-i="p_logyourfirstentry_fd83" href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">Log your first entry →</a></div>
+  <div id="empty-state" class="empty-state" hidden>No achievements yet. Earn your first badge by logging work. <a data-i="p_logyourfirstentry_fd83" href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">Log your first entry →</a></div>
 
 
 
@@ -410,7 +410,7 @@
     </button>
     <h1 class="page-title" style="margin:0;" data-i="ach_growth">Growth</h1>
     <!-- T51 (2026-08-26): the current-hive chip - this page renders HIVE-SCOPED data, and a multi-hive contractor could not tell WHICH hive they were acting in (the single most important chrome question for that persona). Same visual pattern as pm-scheduler's chip; self-filling so no page init needs touching. -->
-    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
+    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:.75rem;font-weight:700;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
     <script>try{var _hn=localStorage.getItem('wh_hive_name');/* storage-key-allow: pre-utils chip paint */if(_hn){document.getElementById('wh-hive-chip-name').textContent=_hn;document.getElementById('wh-hive-chip').style.display='inline-flex';}}catch(_){/* empty-catch-allow: the chip is context decoration */}</script>
   </div>
   <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface (same worker
@@ -418,7 +418,7 @@
        Skills ↔ Achievements. Both pages kept on disk (reachable via tabs). -->
   <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 1rem 6px; flex-wrap:wrap;">
     <a data-i="p_skills_3784" role="tab" aria-selected="false" href="skillmatrix.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:0.8rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Skills</a>
-    <span data-i="p_achievements_a663" role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:0.8rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Achievements</span>
+    <span data-i="p_achievements_a663" role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:0.8rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">Achievements</span>
   </div>
   <!-- min-height reserves the chip's line before it renders: measured 2026-09-15 (design lens audit), the empty <p> growing
        into the chip moved the tiles, the action card and the verdict at 183 ms and 273 ms - a layout shift of 0.157. -->
@@ -503,7 +503,7 @@
          "points". It was labelled "pts", a unit this number has never been in; a worker
          comparing themselves on this board could not tell what they were being ranked by.
          The heading now names the criteria once for the list, and each row names its unit. -->
-    <p class="section-sub" style="margin:-2px 0 10px;font-size:0.8rem;color:rgba(255,255,255,0.80);">
+    <p class="section-sub" style="margin:-2px 0 10px;font-size:0.8rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));">
       Ranked by total achievement <strong>levels</strong> across all skill domains. One level per domain milestone, so three domains outrank one.
     </p>
     <div id="standings-list"></div>
@@ -516,11 +516,11 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.8rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.8rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 
 <div class="wh-sources-item" data-wh-source-key="ac-summary-details">
@@ -530,7 +530,7 @@
 <div id="ac-summary-details" role="region" aria-label="Achievements explainer"
     data-rag-tile="achievements:detail_panel"
     data-rag-label="Achievements detail">
-    <div data-i="p_standardworkhiveachievementt_6768" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
+    <div data-i="p_standardworkhiveachievementt_6768" style="font-size:0.8rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:6px;">Standard: WorkHive Achievement Tier Model (platform-internal, 5 tiers × 12 domains).</div>
     <ul style="margin:0;padding-left:20px;">
       <li><strong data-i="p_xpthisweek_c791">XP this week</strong>: XP entries from the past 7 days, summed.</li>
       <li><strong data-i="p_activedomains_5840">Active domains</strong>: domains where you've earned at least Level 1 (out of 12 total).</li>
@@ -538,7 +538,7 @@
       <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green if 50+ XP this week; amber if 1-49 XP; empty if no XP yet; never red (Achievements is purely motivational).</li>
     </ul>
     <strong data-i="p_whateachactionearns_5be5" style="display:block;margin:10px 0 6px;color:rgba(255,255,255,0.85);">What each action earns</strong>
-    <div data-i="p_theratesbelowaretheonesthepl_f626" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-bottom:6px;">The rates below are the ones the platform actually awards, so you can decide before you do the work rather than after.</div>
+    <div data-i="p_theratesbelowaretheonesthepl_f626" style="font-size:0.8rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:6px;">The rates below are the ones the platform actually awards, so you can decide before you do the work rather than after.</div>
     <ul style="margin:0;padding-left:20px;font-size:0.8rem;">
       <li><strong data-i="p_loganentry_6c8e">Log an entry</strong>: 20 XP, plus 20 more when problem, action and knowledge together run past 200 characters.</li>
       <li><strong data-i="p_closeajob_71ce">Close a job</strong>: 50 XP, plus 30 for a root cause, 15 for machine and downtime hours, and 25 if you close it within 24 hours. Up to 120.</li>
@@ -549,11 +549,11 @@
       <li><strong data-i="p_earnaskillbadge_c0f7">Earn a skill badge</strong>: 250 XP, the largest single award.</li>
       <li><strong data-i="p_runacalculator_8794">Run a calculator</strong>: 40 XP. <strong data-i="p_publishashiftplan_387d">Publish a shift plan</strong>: 40 XP. <strong data-i="p_addateammember_b06f">Add a team member</strong>: 50 XP.</li>
     </ul>
-    <div data-i="p_xpisarecordofworkdonehereiti_4b92" style="font-size:0.8rem;color:rgba(255,255,255,0.80);margin-top:6px;">XP is a record of work done here. It is not money, and it buys nothing. If the work behind an award is deleted, the XP is taken back with it.</div>
+    <div data-i="p_xpisarecordofworkdonehereiti_4b92" style="font-size:0.8rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-top:6px;">XP is a record of work done here. It is not money, and it buys nothing. If the work behind an award is deleted, the XP is taken back with it.</div>
   <div id="tier-guide-card" style="margin-top:12px;">
     <div class="section-heading" style="display:flex;align-items:center;justify-content:space-between;">
       <span data-i="p_tierguide_1d2f">Tier Guide</span>
-      <span data-i="p_visualkeywhateachranklooksli_ecd1" style="font-size:0.75rem;font-weight:500;text-transform:none;letter-spacing:normal;color:rgba(255,255,255,0.80);">Visual key: what each rank looks like</span>
+      <span data-i="p_visualkeywhateachranklooksli_ecd1" style="font-size:0.75rem;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Visual key: what each rank looks like</span>
     </div>
     <div id="tier-showcase"></div>
   </div>
@@ -1099,7 +1099,7 @@
         // computes the tier from verified completions and rating, and there is no stored counter anyone
         // can set by hand. Saying so is what turns a badge into a claim the holder can defend.
         '<div style="font-size:0.8rem;opacity:0.8;margin-top:0.35rem;">' + _t('WorkHive sets this from your verified completed jobs and rating. Nobody grants it by hand.', 'Itinatakda ito ng WorkHive mula sa mga na-verify mong natapos na trabaho at rating. Walang nagbibigay nito nang mano-mano.') + '</div>' +
-        '<a href="marketplace-seller.html" style="display:inline-flex;align-items:center;min-height:44px;margin-top:0.5rem;padding:0.5rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;font-size:0.8rem;" aria-label="' + _t('Open my service provider console', 'Buksan ang provider console ko') + '">' + _t('Open my provider console →', 'Buksan ang provider console ko →') + '</a>' +
+        '<a href="marketplace-seller.html" style="display:inline-flex;align-items:center;min-height:44px;margin-top:0.5rem;padding:0.5rem 0.9rem;border-radius:0.5rem;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;font-size:0.8rem;" aria-label="' + _t('Open my service provider console', 'Buksan ang provider console ko') + '">' + _t('Open my provider console →', 'Buksan ang provider console ko →') + '</a>' +
         '</div>';
     } catch (_) { /* empty-catch-allow: the tier card is additive; a failure leaves it silent */ }
   }
@@ -1180,7 +1180,7 @@
       <div class="standing-row">
         <div class="standing-rank ${rankClass(w.rank)}">${rankIcon(w.rank)}</div>
         <div class="standing-avatar-wrap">${renderWorkerAvatar(w.worker_name, tierMap[w.worker_name] || 0, 28)}</div>
-        <div class="standing-name"><span class="nm">${escHtml(w.worker_name)}</span>${w.worker_name === _meName ? '<span class="you-tag" style="font-size:0.75rem;color:rgba(255,255,255,0.80);">(you)</span>' : ''}</div>
+        <div class="standing-name"><span class="nm">${escHtml(w.worker_name)}</span>${w.worker_name === _meName ? '<span class="you-tag" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));">(you)</span>' : ''}</div>
         <div class="standing-score" title="Total achievement levels across all domains">${w.total} ${w.total === 1 ? _t('level', 'antas') : _t('levels', 'level')}</div>
       </div>`).join('');
 

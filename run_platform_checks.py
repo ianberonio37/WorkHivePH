@@ -14514,6 +14514,26 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # ★A FALLBACK IS A CACHED COPY OF THE TOKEN (2026-11-04). The shared chrome loads tokens.css async, so a
+        # var(--wh-x, <colour>) fallback IS the first paint. 30 fallbacks were the tokens' OLD values - --wh-orange-text
+        # was raised #F7A21B -> #FDB94A for APCA and ten fallbacks kept the faint one. Every fallback equals its token.
+        "id":      "token-fallbacks-agree",
+        "script":  "tools/fix_token_fallbacks.py",
+        "args":    [],
+        "label":   "every var(--wh-x, colour) fallback in the served pages and the shared chrome equals the token tokens.css declares - the first paint shows the colour the platform chose, not one it retired",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # the open-source design lens's banked rows (OD, 2026-11-04) still read closed on the instrument that opened them
+        "id":      "od-rows-hold",
+        "script":  "tools/bank_od_rows.py",
+        "args":    ["--check"],
+        "label":   "every banked OD row still reads closed: its unit's hand-typed class at 0, its triplet declared with no hand tints left, its off-palette cluster gone, or its Penpot comp passing at both widths",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         # ★THE RULE THAT REACHES NOTHING IT RENDERS (2026-09-18). validate_css_class_existence already proves the
         # other direction - every class the JS adds with classList.add is defined somewhere in CSS, 792 calls, 0
         # missing. Nothing proved that a rule the stylesheet WRITES ever reaches markup, and that is where this

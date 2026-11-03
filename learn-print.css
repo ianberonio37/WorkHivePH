@@ -38,14 +38,14 @@ nav[aria-label="Breadcrumb"] ~ nav,
 html,
 body {
   background: #fff !important;
-  color: #111 !important;
+  color: var(--wh-print-ink, #111) !important;
 }
 
 /* the site paints its type in near-white over a dark ground; on paper that inverts to unreadable */
 article,
 article * {
   background: transparent !important;
-  color: #111 !important;
+  color: var(--wh-print-ink, #111) !important;
   text-shadow: none !important;
   box-shadow: none !important;
 }

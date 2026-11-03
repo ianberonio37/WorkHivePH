@@ -309,7 +309,7 @@
         n.setAttribute('role', 'status');
         n.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9998;padding:0.7rem 1rem;'
           + 'background:rgba(247,162,27,0.14);border-top:1px solid rgba(247,162,27,0.4);'
-          + 'color:var(--wh-orange-text,#F7A21B);font-size:0.76rem;line-height:1.45;text-align:center;';
+          + 'color:var(--wh-orange-text,#FDB94A);font-size:0.76rem;line-height:1.45;text-align:center;';
         n.textContent = _tt(
           'You switched to ' + now + ' in another tab. This tab is still showing ' + was + '. Reload to catch up.',
           'Lumipat ka sa ' + now + ' sa ibang tab. Ang tab na ito ay nasa ' + was + ' pa rin. I-reload para maka-sabay.'

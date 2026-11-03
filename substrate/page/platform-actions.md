@@ -2,13 +2,13 @@
 name: page-platform-actions
 type: page
 source: file:platform-actions.html
-source_sha: d0047d57c96dece3
+source_sha: db6140667b7a4fcb
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `platform-actions.html` — Platform Actions · WorkHive
 
-Size: 165KB · 53 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 166KB · 53 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (4): `marketplace_listings.update`, `marketplace_sellers.update`, `platform_feedback.update`, `service_credit_topups.update`
 **RPC calls**: `adjudicate_service_dispute`, `admin_disputed_jobs`, `founder_active_hives`, `founder_anon_sessions`, `founder_dau_series`, `founder_feature_use`, `founder_mau`, `founder_page_heatmap`, `get_credit_ledger_totals`

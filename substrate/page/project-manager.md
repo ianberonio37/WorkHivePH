@@ -2,13 +2,13 @@
 name: page-project-manager
 type: page
 source: file:project-manager.html
-source_sha: d0fcdb3167edffc8
+source_sha: 949ad380bae96982
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `project-manager.html` — Project Manager | WorkHive
 
-Size: 261KB · 115 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 262KB · 115 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (10): `project_change_orders.insert`, `project_change_orders.update`, `project_items.insert`, `project_items.update`, `project_links.insert`, `project_progress_logs.insert`, `project_progress_logs.update`, `project_roles.insert`, `projects.insert`, `projects.update`
 **RPC calls**: `generate_change_order_number`, `generate_project_code`, `get_project_budget`, `project_rollups`, `set_project_budget`

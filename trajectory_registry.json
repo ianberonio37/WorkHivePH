@@ -1208405,8 +1208405,8 @@
     },
     {
       "id": "OD188",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-S",
       "title": "the design system owns this scale - --wh-navy-rgb · worker",
       "pages": [
@@ -1208454,12 +1208454,18 @@
         ],
         "instrument": "wallace css-analyzer (tools/open_design_census.py)",
         "closes": "the scale exists in tokens.css and its uses read from it"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by tools/bank_od_rows.py: --wh-navy-rgb declared in tokens.css; 0 hand-typed tint(s) of --wh-navy remain. HELD BY gate design-source-drift.",
+      "artifacts": {
+        "gates": [
+          "design-source-drift"
+        ]
       }
     },
     {
       "id": "OD189",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-S",
       "title": "the design system owns this scale - --wh-navy-light-rgb · worker",
       "pages": [
@@ -1208507,12 +1208513,18 @@
         ],
         "instrument": "wallace css-analyzer (tools/open_design_census.py)",
         "closes": "the scale exists in tokens.css and its uses read from it"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by tools/bank_od_rows.py: --wh-navy-light-rgb declared in tokens.css; 0 hand-typed tint(s) of --wh-navy-light remain. HELD BY gate design-source-drift.",
+      "artifacts": {
+        "gates": [
+          "design-source-drift"
+        ]
       }
     },
     {
       "id": "OD190",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-S",
       "title": "the design system owns this scale - --wh-violet-rgb · worker",
       "pages": [
@@ -1208560,6 +1208572,12 @@
         ],
         "instrument": "wallace css-analyzer (tools/open_design_census.py)",
         "closes": "the scale exists in tokens.css and its uses read from it"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by tools/bank_od_rows.py: --wh-violet-rgb declared in tokens.css; 0 hand-typed tint(s) of --wh-violet remain. HELD BY gate design-source-drift.",
+      "artifacts": {
+        "gates": [
+          "design-source-drift"
+        ]
       }
     },
     {

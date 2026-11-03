@@ -1269,7 +1269,7 @@
           background: rgba(255,255,255,0.05);
           border: 1px solid rgba(255,255,255,0.1);
           border-radius: var(--wh-radius-pill, 999px);
-          color: var(--wh-text-faint, rgba(255,255,255,0.72));
+          color: var(--wh-text-faint, rgba(255, 255, 255, 0.86));
           font-family: var(--wh-font, 'Poppins', sans-serif); font-size: 12px; font-weight: 600;
           letter-spacing: 0.02em; cursor: pointer;
           transition: background 0.15s ease, border-color 0.15s ease;
@@ -1281,7 +1281,7 @@
         }
         #wh-hub-conn-pill[data-state="offline"],
         #wh-hub-conn-pill[data-state="degraded"] {
-          background: rgba(248,113,113,0.16); border-color: rgba(248,113,113,0.5); color: var(--wh-red-text, #fecaca);
+          background: rgba(248,113,113,0.16); border-color: rgba(248,113,113,0.5); color: var(--wh-red-text, #FDC9C9);
         }
         #wh-hub-conn-pill[data-state="offline"] #wh-hub-conn-dot,
         #wh-hub-conn-pill[data-state="degraded"] #wh-hub-conn-dot {
@@ -1311,9 +1311,9 @@
           border-top: 1px solid rgba(255,255,255,0.05);
         }
         #wh-hub-conn-detail .wh-hub-conn-row:first-child { border-top: 0; }
-        #wh-hub-conn-detail .k { color: var(--wh-text-muted, rgba(255,255,255,0.62)); }
+        #wh-hub-conn-detail .k { color: var(--wh-text-muted, rgba(255, 255, 255, 0.80)); }
         #wh-hub-conn-detail .v { color: rgba(255,255,255,0.85); font-weight: 600; }
-        #wh-hub-conn-detail .help { margin-top: 6px; color: var(--wh-text-muted, rgba(255,255,255,0.5)); font-size: 12px; line-height: 1.4; }
+        #wh-hub-conn-detail .help { margin-top: 6px; color: var(--wh-text-muted, rgba(255, 255, 255, 0.80)); font-size: 12px; line-height: 1.4; }
 
         /* ── FAB-CONSOLIDATION: Assistant action row (Companion + Feedback) — token-built ── */
         /* ★THE ACTIONS SIT AT THE THUMB, NOT ABOVE THE TOOLS (Ian, 2026-10-28). Search, Companion, Feedback and Install

@@ -41,12 +41,12 @@
     }
     .aurora::before {
       content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%;
-      background: radial-gradient(ellipse, rgba(41,182,217,0.07) 0%, transparent 70%);
+      background: radial-gradient(ellipse, rgba(var(--wh-blue-rgb, 41, 182, 217), 0.07) 0%, transparent 70%);
       filter: blur(60px);
     }
     .aurora::after {
       content: ''; position: absolute; bottom: -20%; right: -10%; width: 60%; height: 60%;
-      background: radial-gradient(ellipse, rgba(247,162,27,0.05) 0%, transparent 70%);
+      background: radial-gradient(ellipse, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.05) 0%, transparent 70%);
       filter: blur(60px);
     }
     @media (max-width: 767px) { .aurora::before, .aurora::after { display: none; } }
@@ -54,7 +54,7 @@
     /* Header */
     .header {
       position: sticky; top: 0; z-index: 20;
-      background: rgba(22,32,50,0.92); backdrop-filter: blur(12px);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.92); backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255,255,255,0.07);
       padding: 0.875rem 1.25rem;
       /* Sticky at top:0, so the moment the feed scrolls this bar pins to the viewport edge and its
@@ -71,7 +71,7 @@
       font-size: 0.875rem; font-weight: 700; color: white;
     }
     .header-pill {
-      background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.25);   /* --wh-green's channel, not #22c55e (W46020) */
+      background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.12); border: 1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.25);   /* --wh-green's channel, not #22c55e (W46020) */
       color: var(--wh-green); font-size: 0.75rem; font-weight: 700; padding: 2px 8px;
       border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
     .header-btn {
@@ -89,7 +89,7 @@
        shorthand `background: transparent` DOES reset background-image to none - the browser computes
        exactly that, verified live - but a reader that resolves declarations without applying shorthand
        resets composites this text over the BASE rule's gradient and lands on amber-on-amber, 1.0:1.
-       Measured on the running page, these two links are rgb(253,185,74) on rgb(22,32,50): 9.49:1, four
+       Measured on the running page, these two links are var(--wh-orange-light, rgb(253,185,74)) on var(--wh-navy, rgb(22,32,50)): 9.49:1, four
        times over the floor. The rule is written out longhand so it states what it means to every
        reader, human or static; the computed style is byte-identical and nothing on screen moves. */
     /* ★FILIPINO IS LONGER, AND `nowrap` TURNS THAT INTO AN OFF-SCREEN BUTTON (measured at 320, 2026-09-29).
@@ -102,8 +102,8 @@
        that leaves the screen cannot be tapped at all. Short labels are unaffected — they have nothing to
        wrap. This is the recurring lane: a translated string is not the same width as the one it replaced. */
     @media (max-width: 400px) { .header-btn { white-space: normal; max-width: 100%; } }
-    .header-btn.secondary { background-color: transparent; background-image: none; border: 1px solid rgba(247,162,27,0.55); color: var(--wh-orange-text); }
-    .header-btn.secondary:hover { background: rgba(247,162,27,0.12); }
+    .header-btn.secondary { background-color: transparent; background-image: none; border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.55); color: var(--wh-orange-text); }
+    .header-btn.secondary:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); }
     .header-btn:hover { opacity: .9; }
 
     /* Main layout */
@@ -132,13 +132,13 @@
        status hue, NEVER a thick coloured border-left"). The badge says the category; the card is one surface for every
        post, and only a SAFETY post keeps a 1px tint of the red, so a hazard still stands out in the scroll. */
     .post-card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
       border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
       padding: 1rem; margin-bottom: 0.75rem; transition: border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
     }
     .post-card:hover { border-color: rgba(255,255,255,0.18); }
-    .post-card.post-safety { border-color: rgba(248,113,113,0.35); }
-    .post-card.post-safety:hover { border-color: rgba(248,113,113,0.55); }
+    .post-card.post-safety { border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.35); }
+    .post-card.post-safety:hover { border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.55); }
 
     .post-meta {
       display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;
@@ -148,10 +148,10 @@
       display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
       font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
-    .cat-general      { background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.86); } /* D1 a11y: 0.5→0.72 WCAG 1.4.3 */
-    .cat-safety       { background: rgba(248,113,113,0.15); color: var(--wh-red-text); } /* D1 U5: var(--wh-red)<4.5:1 on tinted bg → WCAG 1.4.3 */
-    .cat-technical    { background: rgba(41,182,217,0.12); color: var(--wh-blue-light); } /* C2: AA-safe blue (was --wh-blue @ 4.48:1, WCAG 1.4.3) */
-    .cat-announcement { background: rgba(167,139,250,0.14); color: var(--wh-violet-text, #C4B5FD); } /* D1 U5: var(--wh-violet)<4.5:1 → WCAG 1.4.3 */
+    .cat-general      { background: rgba(255,255,255,0.08); color:var(--wh-text-faint, rgba(255,255,255,0.86)); } /* D1 a11y: 0.5→0.72 WCAG 1.4.3 */
+    .cat-safety       { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.15); color: var(--wh-red-text); } /* D1 U5: var(--wh-red)<4.5:1 on tinted bg → WCAG 1.4.3 */
+    .cat-technical    { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--wh-blue-light); } /* C2: AA-safe blue (was --wh-blue @ 4.48:1, WCAG 1.4.3) */
+    .cat-announcement { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.14); color: var(--wh-violet-text, #C4B5FD); } /* D1 U5: var(--wh-violet)<4.5:1 → WCAG 1.4.3 */
     .post-time { font-size: 0.75rem; color:rgba(255,255,255,0.83); margin-left: auto; } /* D1 a11y: 0.3→0.66 WCAG 1.4.3 */
 
     /* ★THE MEASURE RAN 98 CHARACTERS A LINE AT DESKTOP (2026-09-18, W46015 craft). .main caps at
@@ -273,7 +273,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>

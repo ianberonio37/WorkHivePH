@@ -50,7 +50,7 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      background: #0f1923;
+      background: var(--wh-ink-deep, #0f1923);
       color: var(--wh-cloud);
       min-height: 100vh;
       padding-bottom:calc(80px + env(safe-area-inset-bottom));
@@ -66,7 +66,7 @@
     #toast {
       position: fixed; top: 1rem; left: 50%;
       transform: translateX(-50%) translateY(-72px);
-      background: rgba(31,46,69,0.96); color: var(--wh-cloud);
+      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.96); color: var(--wh-cloud);
       padding:0.5rem 1.25rem; border-radius: var(--wh-radius);
       font-size: 0.8rem; font-weight: 500;
       /* ★THE RETIRED BOUNCE, STILL HARD-CODED (design lens, 2026-09-16). tokens.css retired
@@ -95,11 +95,11 @@
     /* ── Header ── */
     .page-header { margin-bottom:1.5rem; }
     .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1.2; }
-    .page-header p { font-size: 0.75rem; color:rgba(255,255,255,0.86); margin-top:0.25rem; } /* D1 U5: --wh-steel <4.5:1 → WCAG 1.4.3 */
+    .page-header p { font-size: 0.75rem; color:var(--wh-text-faint, rgba(255,255,255,0.86)); margin-top:0.25rem; } /* D1 U5: --wh-steel <4.5:1 → WCAG 1.4.3 */
 
     /* ── Card ── */
     .card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 1rem;
       padding:1.5rem;
@@ -131,11 +131,11 @@
       padding:0.75rem 1rem;
       border-radius: 0.75rem;
       border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(22,32,50,0.55);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.55);
       cursor: pointer;
       transition: border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       font-family: 'Poppins', sans-serif;
-      color:rgba(255,255,255,0.80);
+      color:var(--wh-text-muted, rgba(255,255,255,0.80));
       font-size: 0.875rem; font-weight: 500;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
@@ -144,10 +144,10 @@
     .chip:active { transform: scale(0.96); }
     .chip.selected {
       border-color: var(--wh-orange);
-      background: rgba(247,162,27,0.1);
+      background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);
       color: rgba(255,255,255,0.9);
     }
-    .chip.ph3 { border-style: dashed; border-color: rgba(255,255,255,0.16); background: rgba(22,32,50,0.35); }
+    .chip.ph3 { border-style: dashed; border-color: rgba(255,255,255,0.16); background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.35); }
     .chip.ph3 .chip-dot { opacity: 0.45; }
     .chip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; opacity: 0.7; }
     .chip.selected .chip-dot { opacity: 1; }
@@ -160,18 +160,18 @@
       padding:0.125rem 0.375rem; border-radius: 999px;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1);
-      color:rgba(255,255,255,0.80);
+      color:var(--wh-text-muted, rgba(255,255,255,0.80));
       margin-left:auto; flex-shrink: 0;
     }
     .chips-count {
       font-size: 0.75rem; font-weight: 600;
-      color: rgba(247,162,27,0.75);
+      color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.75);
       margin-top:0.5rem; min-height: 1.1em;
     }
 
     /* ── Email input ── */
     .wh-input {
-      background: rgba(22,32,50,0.6);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.75rem;
       color: #fff; padding:0.75rem 1rem;
@@ -179,8 +179,8 @@
       font-family: 'Poppins', sans-serif;
       outline: none; transition: border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
     }
-    .wh-input:focus { border-color: rgba(247,162,27,0.5); }
-    .wh-input::placeholder { color:rgba(255,255,255,0.80); }
+    .wh-input:focus { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); }
+    .wh-input::placeholder { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .email-error { font-size: 0.75rem; color: var(--wh-red); margin-top:0.375rem; min-height: 1em; }
 
     /* ── Contacts ── */
@@ -192,26 +192,26 @@
     .add-contact-btn {
       font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
       padding:0.25rem 0.5rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--wh-radius-sm); /* R3: press rect */
-      background: rgba(247,162,27,0.1); border: 1px solid rgba(247,162,27,0.25);
+      background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);
       color:var(--wh-orange-text); cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
     }
-    .add-contact-btn:active { background: rgba(247,162,27,0.2); transform: scale(0.96); }
+    .add-contact-btn:active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); transform: scale(0.96); }
 
     .contacts-list { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom:0.5rem; }
-    .contacts-empty { font-size: 0.75rem; color:rgba(255,255,255,0.80); text-align: center; padding:0.5rem 0; }
+    .contacts-empty { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-align: center; padding:0.5rem 0; }
 
     .contact-chip {
       display: flex; align-items: center; gap: 0.75rem;
-      background: rgba(22,32,50,0.55); border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.55); border: 1px solid rgba(255,255,255,0.08);
       border-radius: 0.75rem; padding:0.5rem 1rem;
       cursor: pointer;
       transition: border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       -webkit-tap-highlight-color: transparent; min-height: 52px;
     }
     .contact-chip:active { transform: scale(0.98); }
-    .contact-chip.selected { border-color: var(--wh-orange); background: rgba(247,162,27,0.08); }
+    .contact-chip.selected { border-color: var(--wh-orange); background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); }
     .contact-avatar {
       width: 34px; height: 34px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
@@ -231,14 +231,14 @@
        worked; that is the whole difference. */
     .contact-tag {
       display: block; max-width: 100%;
-      font-size: 0.75rem; color:rgba(255,255,255,0.80);
+      font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .contact-check { opacity: 0; transition: opacity var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); flex-shrink: 0; }
     .contact-chip.selected .contact-check { opacity: 1; }
     .contact-delete {
       background: none; border: none; cursor: pointer;
-      color:rgba(255,255,255,0.80); font-size: 1rem; padding:0;
+      color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size: 1rem; padding:0;
       /* 28px -> 44px (F1, walked 2026-09-10 as a fleet supervisor on phone-390): this is the REMOVE
          control for a saved recipient - destructive, and it was the smallest target on the page at
          28x28. The chip is 65px tall with a 45px content box, so 44px fits inside it without changing
@@ -250,7 +250,7 @@
     }
     .contact-delete:active { background: rgba(239,68,68,0.15); color: var(--wh-red); }
 
-    .one-time-label { font-size: 0.75rem; color:rgba(255,255,255,0.80); margin-bottom:0.375rem; }
+    .one-time-label { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom:0.375rem; }
 
     /* ── Bottom sheet ── */
     .sheet-overlay {
@@ -283,12 +283,12 @@
          rule. Height-only fix: the width was already fine, so raising min-height cannot introduce the
          horizontal overflow the same prover checks in the same run. */
       min-height: 44px;
-      background: rgba(22,32,50,0.6); border: 1px solid rgba(255,255,255,0.1);
-      color:rgba(255,255,255,0.80); cursor: pointer;
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid rgba(255,255,255,0.1);
+      color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer;
       transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), border-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       -webkit-tap-highlight-color: transparent;
     }
-    .label-pill.active { background: rgba(247,162,27,0.15); border-color: var(--wh-orange); color: var(--wh-orange); }
+    .label-pill.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color: var(--wh-orange); color: var(--wh-orange); }
     .label-pill:active { transform: scale(0.95); }
 
     /* ── Report history ── */
@@ -296,20 +296,20 @@
     .history-list { display: flex; flex-direction: column; gap: 0.4rem; }
     .history-item {
       display: flex; align-items: center; gap: 0.75rem;
-      background: rgba(22,32,50,0.35);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.35);
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: 0.75rem; padding:0.75rem 1rem;
     }
     .history-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .history-body { flex: 1; min-width: 0; }
-    .history-type    { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.8); }
-    .history-meta    { font-size: 0.75rem; color:rgba(255,255,255,0.86); margin-top:0.125rem; } /* D1 a11y: 0.3→0.75 WCAG 1.4.3 (raised card) */
+    .history-type    { font-size: 0.75rem; font-weight: 600; color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
+    .history-meta    { font-size: 0.75rem; color:var(--wh-text-faint, rgba(255,255,255,0.86)); margin-top:0.125rem; } /* D1 a11y: 0.3→0.75 WCAG 1.4.3 (raised card) */
     .history-summary { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top:0.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     /* AI6 principle applied to a FORWARDABLE artefact: these summaries come from ai_reports
        (written by the scheduled report agent) and sit under a neutral "Recent Reports" heading
        with a Resend button - a supervisor could forward machine-written prose with nothing
        saying so. project-report.html already uses this pattern; this is consistency, not new UI. */
-    .history-ai-mark { font-size: 0.75rem; color:rgba(255,255,255,0.80); margin-top:0.125rem; letter-spacing: 0.02em; }
+    .history-ai-mark { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:0.125rem; letter-spacing: 0.02em; }
     .resend-btn {
       font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
       padding:0.375rem 0.5rem; border-radius: 0.5rem;
@@ -319,7 +319,7 @@
       transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       white-space: nowrap; flex-shrink: 0; min-height: 44px; /* D1 U2: 32→44 gloved-field tap target */
     }
-    .resend-btn:hover   { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+    .resend-btn:hover   { background: rgba(255,255,255,0.1); color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
     .resend-btn:active  { transform: scale(0.95); }
     .resend-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
@@ -328,10 +328,10 @@
     .mic-circle {
       width: 72px; height: 72px; border-radius: 50%;
       border: 2px dashed rgba(255,255,255,0.13);
-      background: rgba(22,32,50,0.4);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; transition: border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), opacity var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
-      color:rgba(255,255,255,0.80); opacity: 0.55;
+      color:var(--wh-text-muted, rgba(255,255,255,0.80)); opacity: 0.55;
       -webkit-tap-highlight-color: transparent;
       position: relative;
     }
@@ -341,7 +341,7 @@
     .mic-circle.ready {
       opacity: 0.82; border-style: solid;
       border-color: rgba(255,255,255,0.22);
-      color:rgba(255,255,255,0.80);
+      color:var(--wh-text-muted, rgba(255,255,255,0.80));
     }
     .mic-circle.listening {
       opacity: 1; border-style: solid;
@@ -349,7 +349,7 @@
     }
     .mic-circle.listening::before {
       content: ''; position: absolute; inset: -8px;
-      border-radius: 50%; border: 2px solid rgba(247,162,27,0.35);
+      border-radius: 50%; border: 2px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35);
       animation: mic-ripple 1.4s ease-out infinite;
       pointer-events: none;
     }
@@ -359,8 +359,8 @@
     }
     .mic-circle.processing {
       opacity: 0.9; border-style: solid;
-      border-color: rgba(247,162,27,0.4);
-      color: rgba(247,162,27,0.6);
+      border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);
+      color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.6);
       animation: spin 1s linear infinite;
     }
     .mic-circle.set {
@@ -368,11 +368,11 @@
       border-color: var(--wh-green); color: var(--wh-green);
     }
 
-    .mic-label { font-size: 0.75rem; color:rgba(255,255,255,0.80); text-align: center; font-weight: 500; }
+    .mic-label { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-align: center; font-weight: 500; }
 
     /* ── Voice context card ── */
     .voice-ctx {
-      background: rgba(22,32,50,0.6);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
       border: 1px solid rgba(34,197,94,0.25);
       border-radius: var(--wh-radius);
       padding:0.5rem 0.75rem;
@@ -384,12 +384,12 @@
     .voice-ctx-text { flex: 1; line-height: 1.35; font-style: italic; }
     .voice-ctx-clear {
       background: none; border: none; cursor: pointer;
-      color:rgba(255,255,255,0.80); font-size: 1rem;
+      color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size: 1rem;
       padding:0; line-height: 1; min-width: 28px; min-height: 28px;
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; -webkit-tap-highlight-color: transparent;
     }
-    .voice-ctx-clear:active { background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.80); }
+    .voice-ctx-clear:active { background: rgba(255,255,255,0.08); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 
     /* ── Send button ── */
     .send-btn {
@@ -405,7 +405,7 @@
     .send-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
     .send-why {
       min-height: 1em; margin-top:0.5rem; text-align: center;
-      font-size: 0.75rem; line-height: 1.4; color:rgba(255,255,255,0.86);
+      font-size: 0.75rem; line-height: 1.4; color:var(--wh-text-faint, rgba(255,255,255,0.86));
     }
     .send-why:empty { margin-top:0; }
 
@@ -424,7 +424,7 @@
     .proc-header { display: flex; align-items: center; gap: 0.75rem; align-self: flex-start; width: 100%; }
     .spinner {
       width: 20px; height: 20px; flex-shrink: 0;
-      border: 2px solid rgba(247,162,27,0.2);
+      border: 2px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2);
       border-top-color: var(--wh-orange); border-radius: 50%;
       animation: spin 0.85s linear infinite;
     }
@@ -434,7 +434,7 @@
     .proc-list { width: 100%; display: flex; flex-direction: column; gap: 0.4rem; }
     .proc-row {
       display: flex; align-items: center; gap: 0.625rem;
-      background: rgba(22,32,50,0.45); border-radius: var(--wh-radius);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.45); border-radius: var(--wh-radius);
       padding:0.5rem 1rem;
     }
     .proc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -443,15 +443,15 @@
     .proc-dot.err { background: var(--wh-red); }
     .proc-dot.spin-sm {
       width: 10px; height: 10px;
-      border: 1.5px solid rgba(247,162,27,0.25);
+      border: 1.5px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);
       border-top-color: var(--wh-orange);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
       background: transparent;
     }
-    .proc-label { flex: 1; font-size: 0.75rem; font-weight: 500; color:rgba(255,255,255,0.86); }
+    .proc-label { flex: 1; font-size: 0.75rem; font-weight: 500; color:var(--wh-text-faint, rgba(255,255,255,0.86)); }
     .proc-status { font-size: 0.75rem; }
-    .proc-status.pending { color:rgba(255,255,255,0.80); }
+    .proc-status.pending { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .proc-status.running { color: var(--wh-orange); }
     .proc-status.done { color: var(--wh-green); }
     .proc-status.err { color: var(--wh-red); }
@@ -481,13 +481,13 @@
     .email-status {
       display: flex; align-items: center; gap: 0.5rem;
       font-size: 0.75rem; font-weight: 600;
-      color:rgba(255,255,255,0.80);
+      color:var(--wh-text-muted, rgba(255,255,255,0.80));
     }
     .email-status.sent  { color: var(--wh-green); }
     .email-status.error { color: var(--wh-red); }
     .email-dot {
       width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-      border: 1.5px solid rgba(247,162,27,0.25);
+      border: 1.5px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);
       border-top-color: var(--wh-orange);
       animation: spin 0.8s linear infinite;
     }
@@ -502,7 +502,7 @@
     }
     .result-card {
       display: flex; align-items: flex-start; gap: 0.625rem;
-      background: rgba(22,32,50,0.5);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5);
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: var(--wh-radius); padding:0.75rem;
       text-align: left;
@@ -516,7 +516,7 @@
       font-family: 'Poppins', sans-serif; font-size: 0.875rem; font-weight: 600;
       padding:0.5rem 1.5rem; border-radius: var(--wh-radius-sm);
       border: 1px solid rgba(255,255,255,0.15); background: transparent;
-      color:rgba(255,255,255,0.80); cursor: pointer;
+      color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer;
       transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       min-height: 40px;
       -webkit-tap-highlight-color: transparent;
@@ -529,13 +529,13 @@
       display: flex; align-items: center; gap: 0.35rem;
       font-family: 'Poppins', sans-serif; font-size: 0.75rem; font-weight: 600;
       padding:0.5rem 0.75rem; min-height: 44px; border-radius: var(--wh-radius-sm);
-      background: rgba(247,162,27,0.12); border: 1px solid rgba(247,162,27,0.28);
+      background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.28);
       color:var(--wh-orange-text); cursor: pointer; white-space: nowrap;
       -webkit-tap-highlight-color: transparent;
       transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       flex-shrink: 0; margin-top:0.25rem;
     }
-    .install-icon-btn:active { background: rgba(247,162,27,0.22); transform: scale(0.96); }
+    .install-icon-btn:active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22); transform: scale(0.96); }
     .install-icon-btn.installed { display: none; }
 
     /* ── Install guide ── */
@@ -547,9 +547,9 @@
       font-size: 0.75rem;
     }
     .install-guide.android { background: rgba(var(--wh-green-rgb),0.07);  border: 1px solid rgba(var(--wh-green-rgb),0.2);  color:rgba(255,255,255,0.83); }
-    .install-guide.desktop { background: rgba(247,162,27,0.07); border: 1px solid rgba(247,162,27,0.2); color:rgba(255,255,255,0.83); }
-    .install-guide.ios-sf  { background: rgba(41,182,217,0.07); border: 1px solid rgba(41,182,217,0.2); color:rgba(255,255,255,0.83); }
-    .install-guide.ios-cr  { background: rgba(248,113,113,0.07);  border: 1px solid rgba(248,113,113,0.2);  color:rgba(255,255,255,0.83); }
+    .install-guide.desktop { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); color:rgba(255,255,255,0.83); }
+    .install-guide.ios-sf  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.07); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.2); color:rgba(255,255,255,0.83); }
+    .install-guide.ios-cr  { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.07);  border: 1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.2);  color:rgba(255,255,255,0.83); }
     .install-guide-icon { flex-shrink: 0; margin-top:0.125rem; }
     .install-guide-text { flex: 1; line-height: 1.55; }
     .install-guide-text strong { color: rgba(255,255,255,0.9); display: block; margin-bottom:0.25rem; font-size: 0.875rem; }
@@ -562,7 +562,7 @@
        wiring is the missing half; deleting it would erase the evidence that someone meant to. */
     .ios-hint-close {
       background: none; border: none; cursor: pointer;
-      color:rgba(255,255,255,0.80); font-size: 1rem;
+      color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size: 1rem;
       padding:0; min-width: 44px; min-height: 44px;   /* the platform floor; 28px was the styled-and-never-rendered value */
       display: flex; align-items: center; justify-content: center;
       border-radius: 50%; flex-shrink: 0;
@@ -583,14 +583,14 @@
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.875rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
-    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
-    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
-    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     #rs-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #rs-summary-details.open { display:block; }
@@ -630,7 +630,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                  breaking the "one-line strip that scrolls sideways" the comment above promises. Now they keep their
                  natural width and the strip scrolls. -->
             <a role="tab" aria-selected="false" href="analytics-report.html" data-i="p_analyticsreport_tab" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.75rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08); flex-shrink:0; white-space:nowrap;">&larr; Analytics report</a>
-            <span data-i="p_sendschedule_7b67" role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.75rem; font-weight:700; border:1px solid rgba(247,162,27,0.4); flex-shrink:0; white-space:nowrap;">Send / schedule</span>
+            <span data-i="p_sendschedule_7b67" role="tab" aria-selected="true" style="padding:6px 12px; min-height:34px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:.75rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); flex-shrink:0; white-space:nowrap;">Send / schedule</span>
           </div>
           <p id="report-sender-source-chip" hidden data-wh-sources-collapsed></p>
         </div>
@@ -690,7 +690,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
            thing; the prover's "example" was a saved contact's address at example.test. Stated as send-report-email
            builds it: the report inline in the email body plus a link back to its page - no attachment (see the
            meta description note above). -->
-      <p class="rs-example" style="margin:6px 0 0; max-width:55ch; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.8);">
+      <p class="rs-example" style="margin:6px 0 0; max-width:55ch; font-size:0.75rem; line-height:1.5; color:var(--wh-text-muted, rgba(255,255,255,0.8));">
         <strong style="color:rgba(255,255,255,0.92);">A sent report reads like this:</strong>
         PM Overdue and Failure Digest · to the plant manager · the figures in the email itself, with a link back to the page they came from.
       </p>
@@ -836,7 +836,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="rs-summary-details">
 <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="rs-summary-details" data-i="showdetails">
@@ -852,7 +852,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <li><strong data-i="p_savedcontacts_963f">Saved contacts</strong>: contacts persisted to your hive, reusable across sends.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when at least one report and one recipient are picked; empty otherwise.</li>
       </ul>
-      <p data-i="p_voicecontextisoptionaltapthe_08c2" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Voice context is optional: tap the mic to dictate a custom note that gets pre-pended to the email body.</p>
+      <p data-i="p_voicecontextisoptionaltapthe_08c2" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 12px;">Voice context is optional: tap the mic to dictate a custom note that gets pre-pended to the email body.</p>
     </div>
 </div>
 </div>
@@ -1711,7 +1711,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       if (!_contacts.length) {
         // A failed read with an empty backup is NOT "no contacts yet" — it is "we could not find out".
         list.innerHTML = _rsReadFailed
-          ? `<div class="contacts-empty" style="opacity:1;">Could not load your contacts.<br><span style="font-size: 0.75rem;">${escHtml(whReadError(_rsReadFailed, 'your contacts'))} This is a loading problem, not an empty contact list - do not add a contact you may already have, or assume a report has nowhere to go.</span><br><button data-i="rs2-retry" type="button" onclick="loadContacts();" style="margin-top:0.5rem;min-height:44px;padding:0 1rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange-text);">Retry</button></div>`
+          ? `<div class="contacts-empty" style="opacity:1;">Could not load your contacts.<br><span style="font-size: 0.75rem;">${escHtml(whReadError(_rsReadFailed, 'your contacts'))} This is a loading problem, not an empty contact list - do not add a contact you may already have, or assume a report has nowhere to go.</span><br><button data-i="rs2-retry" type="button" onclick="loadContacts();" style="margin-top:0.5rem;min-height:44px;padding:0 1rem;border-radius:8px;font-size:0.75rem;font-weight:600;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);color:var(--wh-orange-text);">Retry</button></div>`
           : `<div class="contacts-empty">${escHtml(_t('No saved contacts yet. Tap Add contact to save someone you send to often.', 'Wala pang naka-save na contact. Tapikin ang Add contact para i-save ang madalas mong padalhan.'))}</div>`;
         _rsSummaryAfterContacts();
         return;

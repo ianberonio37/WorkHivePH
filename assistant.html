@@ -25,21 +25,21 @@
       background-color: var(--wh-navy);
       min-height: 100vh;
       background-image:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(247,162,27,0.07) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(41,182,217,0.05) 0%, transparent 60%);
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(var(--wh-blue-rgb, 41, 182, 217), 0.05) 0%, transparent 60%);
     }
 
     .screen { display: none; }
     .screen.active { display: block; }
 
     .wh-card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.5) 0%, rgba(31,46,69,0.7) 100%);
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7) 100%);
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 1rem;
     }
 
     .wh-input {
-      background: rgba(22,32,50,0.6);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.75rem;
       color: white;
@@ -49,8 +49,8 @@
       transition: border-color 0.2s;
       outline: none;
     }
-    .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.08); }
-    .wh-input::placeholder { color:rgba(255,255,255,0.80); }
+    .wh-input:focus { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); box-shadow: 0 0 0 3px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); }
+    .wh-input::placeholder { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 
     .btn-primary {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
@@ -79,7 +79,7 @@
     .btn-ghost {
       background: transparent;
       border: 1px solid rgba(255,255,255,0.12);
-      color:rgba(255,255,255,0.80);
+      color:var(--wh-text-muted, rgba(255,255,255,0.80));
       font-weight: 500;
       border-radius: 0.75rem;
       padding: 0.875rem 1.5rem;
@@ -95,8 +95,8 @@
 
     /* Chat bubbles */
     .bubble-user {
-      background: linear-gradient(135deg, rgba(247,162,27,0.2), rgba(247,162,27,0.1));
-      border: 1px solid rgba(247,162,27,0.25);
+      background: linear-gradient(135deg, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2), rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1));
+      border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);
       border-radius: 16px 16px 8px 16px;
       padding: 0.75rem 1rem;
       color: white;
@@ -112,7 +112,7 @@
     }
 
     .bubble-assistant {
-      background: linear-gradient(145deg, rgba(42,61,88,0.6), rgba(31,46,69,0.8));
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.8));
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 16px 16px 16px 8px;
       padding: 0.75rem 1rem;
@@ -161,13 +161,13 @@
 
     /* Chat input area */
     .chat-input-area {
-      background: rgba(22,32,50,0.9);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.9);
       border-top: 1px solid rgba(255,255,255,0.07);
       padding: 16px;
     }
 
     .chat-textarea {
-      background: rgba(42,61,88,0.5);
+      background: rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.75rem;
       color: white;
@@ -182,8 +182,8 @@
       max-height: 120px;
       overflow-y: auto;
     }
-    .chat-textarea:focus { border-color: rgba(247,162,27,0.4); }
-    .chat-textarea::placeholder { color:rgba(255,255,255,0.80); }
+    .chat-textarea:focus { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); }
+    .chat-textarea::placeholder { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 
     /* Toast */
       /* env(safe-area-inset-bottom) added 2026-08-06: this toast sat a fixed distance from the
@@ -209,7 +209,7 @@
       line-height: 1.35;
       left: 50%;
       transform: translateX(-50%) translateY(4px);
-      background: linear-gradient(135deg, rgba(42,61,88,0.95), rgba(31,46,69,0.98));
+      background: linear-gradient(135deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.95), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.98));
       border: 1px solid rgba(255,255,255,0.12);
       color: white;
       padding: 0.625rem 1.25rem;
@@ -290,7 +290,7 @@
     .key-toggle {
       background: transparent;
       border: none;
-      color:rgba(255,255,255,0.80);
+      color:var(--wh-text-muted, rgba(255,255,255,0.80));
       cursor: pointer;
       padding: 0 0.5rem;
       transition: color 0.2s;
@@ -354,7 +354,7 @@
            and a skip link but no banner region, so a screen-reader user had no named way back to the page
            title and its intro. -->
       <header class="mb-8">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.2);">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2);">
           <span class="ic ic-back" aria-hidden="true"></span>
         </div>
         <h1 data-i="p_myworkassistant_1c06" class="text-2xl font-bold text-white mb-1">My Work Assistant</h1>
@@ -431,7 +431,7 @@
              gateway a context key it actually reads and prove it end to end first. -->
 
         <!-- Records summary -->
-        <div id="records-summary" class="rounded-xl p-4" style="background:rgba(41,182,217,0.06);border:1px solid rgba(41,182,217,0.15);">
+        <div id="records-summary" class="rounded-xl p-4" style="background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06);border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15);">
           <p data-i="p_recordsavailableforcontext_74c6" class="text-xs font-semibold text-blue-wh mb-2">Records available for context</p>
           <div id="records-list" class="space-y-1"></div>
           <!-- ★THE REMEDY NAMED MOVES NONE OF THE THREE NUMBERS SHOWN (design lens critique, 2026-09-15): this
@@ -480,7 +480,7 @@
          a title group at flex:1 1 auto that therefore grows until its content box is flush against the back
          button. Both assessments read it as one word off the screenshots, at both widths. The fit probe
          cannot see it - nothing overflows and nothing wraps - which is why it survived every walk. -->
-    <div class="flex items-center justify-between gap-3 px-4 py-3 flex-shrink-0" style="background:rgba(22,32,50,0.95);border-bottom:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;row-gap:2px;">
+    <div class="flex items-center justify-between gap-3 px-4 py-3 flex-shrink-0" style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.95);border-bottom:1px solid rgba(255,255,255,0.07);flex-wrap:wrap;row-gap:2px;">
       <button onclick="handleBack()" class="back-link flex items-center gap-2 text-white/80 hover:text-white/70 transition-colors text-sm font-medium" style="min-height:44px;"><!-- back-link: see setup-screen note; also the credited way back when a signed-in worker lands straight on chat -->
         <span class="ic ic-back" aria-hidden="true"></span>
         <span data-i="a_setup">Setup</span>
@@ -540,7 +540,7 @@
          worker with one unified surface. Both tabs share localStorage so
          persona changes propagate either way. -->
     <div class="flex-shrink-0 flex items-center gap-1 px-4 py-2"
-         style="background:rgba(22,32,50,0.6); border-bottom:1px solid rgba(255,255,255,0.05);"
+         style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border-bottom:1px solid rgba(255,255,255,0.05);"
          role="tablist" aria-label="Companion surface" data-ia="a_tabs">
       <!-- ★THE TABS ANNOUNCED PANELS THAT DID NOT EXIST (design lens critique, 2026-09-15). role=tablist,
            role=tab and aria-selected were all declared, and aria-controls and role=tabpanel appeared ZERO
@@ -551,14 +551,14 @@
               aria-controls="chat-messages" tabindex="0"
               onclick="switchAssistantTab('chat')" onkeydown="handleTabKey(event)"
               class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-              style="background:rgba(247,162,27,0.15); color:var(--wh-orange-text); border:1px solid rgba(247,162,27,0.30); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_chat">
+              style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange-text); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_chat">
         Chat
       </button>
       <button id="tab-journal" type="button" role="tab" aria-selected="false"
               aria-controls="journal-frame" tabindex="-1"
               onclick="switchAssistantTab('journal')" onkeydown="handleTabKey(event)"
               class="px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"
-              style="background:transparent; color:rgba(255,255,255,0.80); border:1px solid rgba(255,255,255,0.10); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_journal">
+              style="background:transparent; color:var(--wh-text-muted, rgba(255,255,255,0.80)); border:1px solid rgba(255,255,255,0.10); min-height:44px; display:inline-flex; align-items:center; justify-content:center;" data-i="a_journal">
         Journal
       </button>
       <!-- ★NOTHING SAID THAT A SLOW QUESTION LANDS HERE (design lens critique, 2026-09-15). When the
@@ -591,15 +591,15 @@
          screen was right about REACH and wrong about WHERE. One disclosure now: a single-line summary naming
          the hive and whether answers are grounded, with the full scope sentence, the journal sentence and
          the explainer inside it. Nothing honest is removed; it is one tap away instead of four lines tall. -->
-    <div style="flex-shrink:0; padding:2px 16px 4px; background:rgba(22,32,50,0.35);
+    <div style="flex-shrink:0; padding:2px 16px 4px; background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.35);
                 border-bottom:1px solid rgba(255,255,255,0.05);">
       <details class="wh-help" id="assistant-scope-details"
                style="margin:0; margin-inline:auto; max-width:min(32rem, 70ch); background:transparent;
                       border:0; padding:0;">
         <summary id="assistant-scope-summary"
-                 style="font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.80);"></summary>
+                 style="font-size:0.75rem; font-weight:600; color:var(--wh-text-muted, rgba(255,255,255,0.80));"></summary>
         <p id="assistant-scope-chip-chat" role="note"
-           style="margin:6px 0 0; font-size:0.75rem; line-height:1.4; color:rgba(255,255,255,0.80);"></p>
+           style="margin:6px 0 0; font-size:0.75rem; line-height:1.4; color:var(--wh-text-muted, rgba(255,255,255,0.80));"></p>
         <p id="assistant-journal-note-body"
            style="margin:6px 0 0; font-size:0.75rem; line-height:1.4; color:rgba(255,255,255,0.75);"></p>
       </details>
@@ -2066,8 +2066,8 @@ happens to know maintenance, not a manual.`;
       wrap.className = 'fade-up';
       wrap.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; max-width:32rem;';
       wrap/* xss-allow: static author-controlled prompt strings, escHtml'd */ .innerHTML =
-        `<h2 style="width:100%; font-size:0.75rem; color:rgba(255,255,255,0.80); margin:0 0 2px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;" data-i="tryasking">Try asking</h2>`
-        + prompts.map(p => `<button type="button" translate="no" class="starter-chip" style="font-size:0.8rem; line-height:1.25; color:var(--wh-orange-text); background:rgba(247,162,27,0.10); border:1px solid rgba(247,162,27,0.30); border-radius:999px; padding:8px 16px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(p)}</button>`).join('');
+        `<h2 style="width:100%; font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 2px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;" data-i="tryasking">Try asking</h2>`
+        + prompts.map(p => `<button type="button" translate="no" class="starter-chip" style="font-size:0.8rem; line-height:1.25; color:var(--wh-orange-text); background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius:999px; padding:8px 16px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(p)}</button>`).join('');
       container.appendChild(wrap);
       wrap.querySelectorAll('.starter-chip').forEach((chip, i) => {
         chip.addEventListener('click', () => {
@@ -3203,10 +3203,10 @@ happens to know maintenance, not a manual.`;
   </footer>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="assistant-scope-chip" hidden>
-<p class="wh-source-chip" id="assistant-scope-chip" role="status" aria-live="polite" style="font-size:0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;"></p>
+<p class="wh-source-chip" id="assistant-scope-chip" role="status" aria-live="polite" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0;padding:3px 0 0;line-height:1.35;"></p>
 </div>
 </div>
 </section>

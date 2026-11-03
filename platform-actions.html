@@ -10,7 +10,7 @@
   <title>Platform Actions · WorkHive</title>
   <style>
     :root { --navy:#0b0f1a; --navy-mid:#141b2d; --card:#1a2337; --border:rgba(255,255,255,0.08);
-            --gold:var(--wh-orange); --blue:var(--wh-blue); --green:var(--wh-green); --red:var(--wh-red); --muted:rgba(255,255,255,0.80); }
+            --gold:var(--wh-orange); --blue:var(--wh-blue); --green:var(--wh-green); --red:var(--wh-red); --muted:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     * { box-sizing:border-box; }
     body { margin:0; font-family:'Poppins',system-ui,sans-serif; background:linear-gradient(160deg,var(--navy) 0%,var(--navy-mid) 100%);
            color:#fff; min-height:100vh; padding:1.25rem; }
@@ -27,12 +27,12 @@
     .card-hdr h2 { font-size:1rem; font-weight:700; margin:0; }
     main, body { font-variant-numeric: tabular-nums; }   /* C4 (2026-09-05): every numeral on this console is a figure */
     .count { font-size:1.25rem; line-height:1; font-variant-numeric:tabular-nums; font-weight:700; padding:0.25rem 0.5rem; border-radius:999px; background:rgba(255,255,255,0.08); color:#f1f5f9;   /* C5: a 20 px numeral on the dim pill needs the near-white tint (Lc 60 -> 75+) */ }
-    .count.warn { background:rgba(247,162,27,0.14); color:#fde68a; }   /* C5: same step for the amber pill */
+    .count.warn { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color:#fde68a; }   /* C5: same step for the amber pill */
     /* --red on its own 18% tint measures 4.35:1 -- under the 4.5 AA floor for text this small, and
        axe flagged 11 nodes across the count badges and status pills. The gold pair already clears it
        at 5.41:1, so only the red needed lifting: #fca5a5 on the same tint measures 6.35:1. Chosen
        over darkening the tint because the tint is what makes a red pill READ as red at a glance. */
-    .count.fail { background:rgba(248,113,113,0.14); color:#fecaca; }   /* C5 (2026-09-05): a 20 px numeral on the red pill read Lc 60 with #fca5a5 - one tint lighter */
+    .count.fail { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.14); color:#fecaca; }   /* C5 (2026-09-05): a 20 px numeral on the red pill read Lc 60 with #fca5a5 - one tint lighter */
     .mod-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; padding:0.5rem 0;
                border-top:1px solid var(--border); flex-wrap:wrap; }
     .mod-row:first-child { border-top:0; }
@@ -51,11 +51,11 @@
     .mod-btn { padding:0.5rem 0.75rem; border-radius:0.5rem; font-weight:700; font-size:0.8rem; cursor:pointer;
                border:1px solid var(--border); background:rgba(255,255,255,0.05); color:#fff; min-height:44px; }
     .mod-btn.ok { background:rgba(52,211,153,0.14); color:var(--green); border-color:rgba(52,211,153,0.35); }
-    /* TEXT uses --wh-red-text, not --red. --wh-red (#f87171) is the danger FILL token and its own
+    /* TEXT uses --wh-red-text, not --red. --wh-red (var(--wh-red, #f87171)) is the danger FILL token and its own
        comment says so ("AA text = --wh-red-text"); using it as a label colour put "Reject" at APCA
        Lc 44 on this chip background — the four worst strings on the whole surface. The fill and the
        border keep the stronger red, so the button still reads as danger. */
-    .mod-btn.no { background:rgba(248,113,113,0.12); color:var(--wh-red-text); border-color:rgba(248,113,113,0.3); }
+    .mod-btn.no { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.12); color:var(--wh-red-text); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .mod-btn:disabled { opacity:0.5; cursor:default; }
     .mod-empty { color:var(--muted); font-size:0.85rem; padding:0.5rem 0; }
     /* a label beside a figure, a list's heading or its updated-time: muted like an empty state, but it says what IS
@@ -70,8 +70,8 @@
        now look and measure the same: a 44px target that reads as the way out. */
     .gate a.btn {
       display:inline-flex; align-items:center; min-height:44px; margin-top:.75rem; padding:0 1.25rem;
-      background:rgba(247,162,27,.12); border:1px solid rgba(247,162,27,.4); border-radius:var(--wh-radius, 0.75rem);
-      color:var(--wh-orange-text, #f7a21b); font-weight:700; text-decoration:none;
+      background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); border-radius:var(--wh-radius, 0.75rem);
+      color:var(--wh-orange-text, #FDB94A); font-weight:700; text-decoration:none;
     }
       /* env(safe-area-inset-bottom) added 2026-08-06: this toast sat a fixed distance from the
          bottom with NO home-indicator guard, so on an iPhone it could render under the indicator.
@@ -85,7 +85,7 @@
     .toast-msg { background:#1f2937; color:#fff; padding:0.75rem 1rem; border-radius:12px; font-size:0.85rem;
                  border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.4); }
     .toast-msg.success { border-color:rgba(52,211,153,0.5); }
-    .toast-msg.error { border-color:rgba(248,113,113,0.5); }
+    .toast-msg.error { border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.5); }
     /* ★THE ROW COULD NOT WRAP, SO THE BUTTON'S LABEL DID (phone-fit@320 FIL, 2026-09-29). This is a
        nowrap flex row holding the refresh button and the last-sync stamp, so at 320 the button was
        squeezed to 176px - 144px of text room once its 1rem side padding is taken - and its Filipino
@@ -97,8 +97,8 @@
        wrap gives the stamp somewhere to go. The label keeps one line at every width and the copy is
        untouched. */
     .row-controls { display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem; flex-wrap:wrap; }
-    .refresh-btn { padding:0.5rem 1rem; border-radius:0.5rem; background:rgba(41,182,217,0.12); color:var(--blue);
-                   border:1px solid rgba(41,182,217,0.3); font-weight:700; font-size:0.8rem; cursor:pointer; min-height:44px;
+    .refresh-btn { padding:0.5rem 1rem; border-radius:0.5rem; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color:var(--blue);
+                   border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3); font-weight:700; font-size:0.8rem; cursor:pointer; min-height:44px;
                    white-space:nowrap; }
 
     /* Feedback triage — lifted 2026-08-03 from the retired founder-console. Written in THIS page's
@@ -107,7 +107,7 @@
     .fb-tabs { display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.5rem; }
     .fb-tab { padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); font-size:0.78rem; font-weight:700; cursor:pointer;
               background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--muted); min-height:44px; }
-    .fb-tab[aria-selected="true"] { background:rgba(41,182,217,0.14); color:var(--blue); border-color:rgba(41,182,217,0.35); }
+    .fb-tab[aria-selected="true"] { background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.14); color:var(--blue); border-color:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.35); }
     .fb-filters { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem; }
     /* 16px, not 0.8rem. Below 16px iOS Safari ZOOMS the page on focus and does not zoom back, so a
        founder triaging on a phone gets thrown into a magnified, horizontally-scrolling layout by
@@ -124,13 +124,13 @@
     .fb-card:first-child { border-top:0; }
     /* SL LB3: a card the browser has not laid out yet keeps a card's height (top row, subject, two snippet lines) */
     #fb-list [data-fb-rows] > .fb-card { contain-intrinsic-size: auto 96px; }
-    .fb-card:hover { background:rgba(255,255,255,0.03); }
+    .fb-card:hover { background:var(--wh-surface-card, rgba(255,255,255,0.03)); }
     .fb-card:focus-visible { outline:2px solid var(--blue); outline-offset:-2px; }
     .fb-card-top { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; font-size: 0.75rem; color:var(--muted); }
     .fb-kind, .fb-status { padding:0.1rem 0.5rem; border-radius:var(--wh-radius-pill); font-weight:700; font-size: 0.75rem;
                            background:rgba(255,255,255,0.08); }
-    .fb-status.new { background:rgba(248,113,113,0.18); color:#fca5a5; }   /* 6.35:1; --red measured 4.35:1 */
-    .fb-status.triaged, .fb-status.in_progress { background:rgba(247,162,27,0.18); color:var(--gold); }
+    .fb-status.new { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.18); color:#fca5a5; }   /* 6.35:1; --red measured 4.35:1 */
+    .fb-status.triaged, .fb-status.in_progress { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color:var(--gold); }
     .fb-status.resolved, .fb-status.wontfix, .fb-status.duplicate { background:rgba(52,211,153,0.16); color:var(--green); }
     .fb-subject { font-weight:700; font-size:0.88rem; margin-top:0.25rem; }
     .fb-snippet { color:var(--muted); font-size:0.78rem; margin-top:0.25rem;
@@ -190,12 +190,12 @@
      from this page's script, and the gates that pin those mechanisms read them here. The boot below stops at this
      overlay, after the admin check and before any queue reads; the overlay starts hidden and opens only for an admin.
      To un-retire: delete this <div id="wh-retired-overlay"> block. -->
-<div id="wh-retired-overlay" role="main" style="position:fixed; inset:0; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); box-sizing:border-box; z-index:100000; background:rgba(11,15,26,0.98); color:rgba(244,246,250,0.92); display:none; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
+<div id="wh-retired-overlay" role="main" style="position:fixed; inset:0; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); box-sizing:border-box; z-index:100000; background:rgba(11,15,26,0.98); color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.92); display:none; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
-    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(247,162,27,0.95);">Platform Actions has moved into the operator console</h1>
-    <p style="color:rgba(244,246,250,0.6); font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">Its Operations tab now holds the top-ups and the receipts. It also holds the listings and sellers to review, and the feedback inbox.</p>
+    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.95);">Platform Actions has moved into the operator console</h1>
+    <p style="color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.6); font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">Its Operations tab now holds the top-ups and the receipts. It also holds the listings and sellers to review, and the feedback inbox.</p>
     <nav aria-label="Where this page moved" style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
-      <a href="founder-console.html#operations" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(247,162,27,0.12); color:var(--wh-orange-light, #FDB94A); border:1px solid rgba(247,162,27,0.4); text-decoration:none; font-weight:700; min-height:44px; border-radius:8px;">Open the Operations tab →</a>
+      <a href="founder-console.html#operations" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color:var(--wh-orange-light, #FDB94A); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); text-decoration:none; font-weight:700; min-height:44px; border-radius:8px;">Open the Operations tab →</a>
     </nav>
   </div>
 </div>
@@ -258,7 +258,7 @@
 
     <div id="local-bypass-note" role="status" hidden
          style="margin:-0.4rem 0 1rem; padding:0.7rem 0.9rem; border-radius:var(--wh-radius-sm); font-size:0.82rem;
-                background:rgba(247,162,27,0.12); border:1px solid rgba(247,162,27,0.35); color:var(--gold);"></div>
+                background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); color:var(--gold);"></div>
 
     <!-- LIFTED HERE 2026-08-03, the THIRD capability found stranded on the retired founder-console
          (after the top-up queue and the feedback triage) and the one that matters most to the money
@@ -430,7 +430,7 @@
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="usage-source" hidden>
 <p class="wh-source-chip" id="usage-source" style="font-size: 0.75rem; opacity:.8; margin:.5rem 0 0;">Live · active hives, people seen, signed-out sessions, daily actives, page opens · rolled up over the last 30 days, refreshed with the queues · times in Philippine Time (PHT)</p>

@@ -1,6 +1,6 @@
 {
   "_doc": "Layer AV adoption baselines. Floors forward-only. AV1 = offline chrome set; AV2 = session-timeout.js hygiene floor (split 2026-09-30).",
-  "generated": "2026-11-03T08:11:44.637007+00:00",
+  "generated": "2026-11-03T12:24:51.551009+00:00",
   "rows": [
     {
       "id": "AV1",

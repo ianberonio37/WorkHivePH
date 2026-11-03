@@ -93,8 +93,8 @@
  },
  "by_kind": {
   "live": 36619,
-  "prose": 81,
-  "none": 301
+  "prose": 84,
+  "none": 298
  },
  "open_by_family": {
   "other": 273,
@@ -132,7 +132,7 @@
   "receipts_only": 261
  },
  "mcp_rewalk_queue": {
-  "playwright-mcp + postgres-mcp": 296,
+  "playwright-mcp + postgres-mcp": 293,
   "raw-http fetch (no JS - what a crawler receives)": 67,
   "chrome-devtools-mcp": 11,
   "axe-mcp (MISSING - connect)": 2,
@@ -345199,9 +345199,9 @@
   {
    "id": "OD188",
    "wave": "OD-S",
-   "status": "specced",
-   "kind": "none",
-   "gated": false,
+   "status": "locking",
+   "kind": "prose",
+   "gated": true,
    "surface": "index.html",
    "lens": "the design system owns this scale",
    "family": "other",
@@ -345209,18 +345209,18 @@
     "F"
    ],
    "mcp": "playwright-mcp + postgres-mcp",
-   "mcp_used": false,
+   "mcp_used": true,
    "retracted_instrument": "",
-   "needs_mcp_rewalk": true,
+   "needs_mcp_rewalk": false,
    "receipt_red": false,
    "needs_w4_evidence": ""
   },
   {
    "id": "OD189",
    "wave": "OD-S",
-   "status": "specced",
-   "kind": "none",
-   "gated": false,
+   "status": "locking",
+   "kind": "prose",
+   "gated": true,
    "surface": "index.html",
    "lens": "the design system owns this scale",
    "family": "other",
@@ -345228,18 +345228,18 @@
     "F"
    ],
    "mcp": "playwright-mcp + postgres-mcp",
-   "mcp_used": false,
+   "mcp_used": true,
    "retracted_instrument": "",
-   "needs_mcp_rewalk": true,
+   "needs_mcp_rewalk": false,
    "receipt_red": false,
    "needs_w4_evidence": ""
   },
   {
    "id": "OD190",
    "wave": "OD-S",
-   "status": "specced",
-   "kind": "none",
-   "gated": false,
+   "status": "locking",
+   "kind": "prose",
+   "gated": true,
    "surface": "index.html",
    "lens": "the design system owns this scale",
    "family": "other",
@@ -345247,9 +345247,9 @@
     "F"
    ],
    "mcp": "playwright-mcp + postgres-mcp",
-   "mcp_used": false,
+   "mcp_used": true,
    "retracted_instrument": "",
-   "needs_mcp_rewalk": true,
+   "needs_mcp_rewalk": false,
    "receipt_red": false,
    "needs_w4_evidence": ""
   },

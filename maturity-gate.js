@@ -315,7 +315,7 @@
           a && a.href && a.label
             ? `<a href="${esc(a.href)}" style="display:inline-flex;align-items:center;min-height:44px;
                  padding:12px 20px;border-radius:10px;background:rgba(255,255,255,0.04);
-                 color:var(--wh-steel-bright, #A8B3C4);border:1px solid rgba(255,255,255,0.08);
+                 color:var(--wh-steel-bright, #CFD7E0);border:1px solid rgba(255,255,255,0.08);
                  font-size:12px;font-weight:700;text-decoration:none;">${esc(a.label)}</a>`
             : '')).join('') + `</div>`
       : '';

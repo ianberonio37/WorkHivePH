@@ -2110,7 +2110,7 @@ function _whSettleStuckLoaders() {
           _rb.className = 'wh-list-retry wh-settle-retry';
           _rb.textContent = _retryLbl;
           _rb.style.cssText = 'display:block;margin:0.5rem auto 0;min-height:44px;padding:0 1.1rem;border-radius:8px;'
-            + 'font-weight:700;cursor:pointer;background:rgba(247,162,27,0.15);color:var(--wh-orange-text,#F7A21B);'
+            + 'font-weight:700;cursor:pointer;background:rgba(247,162,27,0.15);color:var(--wh-orange-text,#FDB94A);'
             + 'border:1px solid rgba(247,162,27,0.4);';
           _rb.addEventListener('click', function () { try { location.reload(); } catch (e) { console.debug('reload refused', e); } });
           _pe.appendChild(_rb);
@@ -2337,7 +2337,7 @@ window.getDb = function(url, key) {
         d.setAttribute('role', 'alert');
         d.style.cssText = 'margin:12px;padding:12px 16px;border:1px solid rgba(248,113,113,.4);border-radius:10px;'
           // the AA text token, with the old literal as its fallback (component-purity, 2026-10-13)
-          + 'background:rgba(248,113,113,.08);color:var(--wh-red-text, #fca5a5);font:14px/1.5 system-ui,sans-serif;';
+          + 'background:rgba(248,113,113,.08);color:var(--wh-red-text, #FDC9C9);font:14px/1.5 system-ui,sans-serif;';
         d.appendChild(document.createTextNode('Part of this page did not arrive (its database connection script), so it cannot show your data. '));
         const b = document.createElement('button');
         b.type = 'button';
@@ -4678,7 +4678,7 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
     '.wh-more-note .wh-more-btn{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:var(--wh-cloud,#F4F6FA);font-family:inherit;font-size:0.8125rem;font-weight:600;cursor:pointer}' +
     '.wh-more-note .wh-more-btn:hover{border-color:rgba(255,255,255,0.32)}' +
     '.wh-more-note .wh-more-btn[disabled]{opacity:0.6;cursor:default}' +
-    '.wh-more-note .wh-more-link{display:inline-flex;align-items:center;min-height:44px;color:var(--wh-orange-text,#F7A21B);font-weight:600;text-decoration:underline;text-underline-offset:2px}' +
+    '.wh-more-note .wh-more-link{display:inline-flex;align-items:center;min-height:44px;color:var(--wh-orange-text,#FDB94A);font-weight:600;text-decoration:underline;text-underline-offset:2px}' +
     /* SL LB3: a long list's off-screen rows skip layout and paint until they near the viewport (whRenderRows long:true);
        the browser keeps each row's last real height, and the rows stay in find-in-page and the accessibility tree.
        ★ONLY A ROW THE BROWSER IS DRAWING IS A SCROLL ANCHOR (2026-10-22): on every frame that changes layout the
@@ -6317,7 +6317,7 @@ function renderRiskStrip(rows, opts) {
       +   '</div>'
       +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
       +     '<span style="font-size:0.75rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(mtbf) + '</span>'
-      +     '<span style="font-size:.75rem;font-weight:800;color:var(--wh-red-text,#FCA5A5);">' + pct + '%</span>'
+      +     '<span style="font-size:.75rem;font-weight:800;color:var(--wh-red-text,#FDC9C9);">' + pct + '%</span>'
       +   '</div>'
       + '</a>';
   }).join('');
@@ -6332,7 +6332,7 @@ function renderRiskStrip(rows, opts) {
    minimal compliant change and keeps the status hue doing its job. */
   return '<div class="oh-card" data-rag-tile="' + e(opts.ragTile || 'shared:risk_strip') + '" data-rag-label="' + e(opts.title) + '" style="padding:16px;border-left:1px solid var(--wh-red, #f87171);">'
     +   '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
-    +     '<p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-red-text,#FCA5A5);margin:0;">' + e(opts.title) + '</p>'
+    +     '<p style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--wh-red-text,#FDC9C9);margin:0;">' + e(opts.title) + '</p>'
     +     '<a href="asset-hub.html" style="font-size:.75rem;color:rgba(255,255,255,.6);text-decoration:none;display:inline-flex;align-items:center;min-height:44px;">' + e(_tt('All assets', 'Lahat ng asset')) + ' &#8594;</a>'
     +   '</div>' + inner + '</div>';
 }
@@ -6386,7 +6386,7 @@ function renderPmDueStrip(rows, opts) {
       +   '</div>'
       +   '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
       +     (crit ? '<span style="font-size:.75rem;color:rgba(255,255,255,.6);white-space:nowrap;">' + e(crit) + '</span>' : '')
-      +     '<span style="font-size:0.75rem;font-weight:700;color:' + (over ? 'var(--wh-red-text, #FCA5A5)' : 'var(--wh-orange-light, #FDB94A)') + ';white-space:nowrap;">' + e(status) + '</span>'
+      +     '<span style="font-size:0.75rem;font-weight:700;color:' + (over ? 'var(--wh-red-text, #FDC9C9)' : 'var(--wh-orange-light, #FDB94A)') + ';white-space:nowrap;">' + e(status) + '</span>'
       +   '</div>'
       + '</a>';
   }).join('');
@@ -8233,7 +8233,7 @@ function whAuditView(row) {
       ':where(.wh-fig){position:relative}' +
       ':where(.wh-fig)::after{content:"";position:absolute;inset:min(0px, calc((100% - 48px) / 2))}' +
       '.wh-fig:hover,.wh-fig:focus-visible{text-decoration:underline dotted;text-decoration-thickness:1px;text-underline-offset:0.2em}' +
-      '.wh-fig:focus-visible{outline:2px solid var(--wh-amber, #F7A21B);outline-offset:2px}' +
+      '.wh-fig:focus-visible{outline:2px solid var(--wh-amber, #facc15);outline-offset:2px}' +
       '.wh-fig-card code{font:600 0.8125rem ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--wh-cyan-light, #5FCCE8);overflow-wrap:anywhere}';
     (document.head || document.documentElement).appendChild(s);
   }
@@ -9041,7 +9041,7 @@ const ACHIEVEMENT_TIERS = [
   // 2026-07-16 and Silver kept its original value. Lightened same-hue to slate-300, the same move.
   { id: 'silver',   min: 26, color: '#CBD5E1', label: 'Silver'   },
   { id: 'bronze',   min: 11, color: '#E8B27A', label: 'Bronze'   },
-  { id: 'iron',     min:  0, color: 'var(--wh-steel-bright, #A9B6C4)', label: 'Iron'     },
+  { id: 'iron',     min:  0, color: 'var(--wh-steel-bright, #CFD7E0)', label: 'Iron'     },
 ];
 
 function getWorkerTier(topLevel) {
@@ -9957,7 +9957,7 @@ function whAuthRequiredToast(action, opts) {
     + '<div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">'
     + '<a href="index.html?signin=1&return=' + ret + '" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border-radius:var(--wh-radius, 12px);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);font-weight:700;text-decoration:none;">Sign in</a>'
     + (allowSignup
-      ? '<a href="index.html?signup=1&return=' + ret + '" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border-radius:var(--wh-radius, 12px);background:rgba(var(--wh-orange-rgb, 247, 162, 27),0.12);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27),0.45);color:var(--wh-orange-text,#FFC65C);font-weight:700;text-decoration:none;">Create a free account</a>'
+      ? '<a href="index.html?signup=1&return=' + ret + '" style="display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border-radius:var(--wh-radius, 12px);background:rgba(var(--wh-orange-rgb, 247, 162, 27),0.12);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27),0.45);color:var(--wh-orange-text,#FDB94A);font-weight:700;text-decoration:none;">Create a free account</a>'
       : '')
     + '</div>';
   document.body.appendChild(card);

@@ -19,10 +19,10 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: #1d2e44;
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --purple: var(--wh-violet); --yellow: var(--wh-orange);
-      --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80);
+      --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
       --border: rgba(255,255,255,0.07);
     }
     body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 80px;
@@ -56,7 +56,7 @@
     /* MTBF bar chart */
     .mtbf-bar-wrap { display: flex; flex-direction: column; gap: 10px; }
     .mtbf-row { display: grid; grid-template-columns: 180px 1fr 60px; gap: 10px; align-items: center; }
-    .mtbf-cat { font-size: .75rem; font-weight: 600; color: rgba(255,255,255,0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mtbf-cat { font-size: .75rem; font-weight: 600; color: var(--wh-text-muted, rgba(255,255,255,0.8)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .mtbf-bar-bg { background: rgba(255,255,255,0.05); border-radius: 999px; height: 8px; overflow: hidden; }
     .mtbf-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
     /* ★600ms ON A LAYOUT PROPERTY WITH AN EASE-IN CURVE - three of the standard's rules in one
@@ -74,14 +74,14 @@
 
     /* Failure modes */
     .fm-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .fm-rank { font-size: 0.75rem; font-weight: 800; color:rgba(255,255,255,0.80); width: 20px; flex-shrink: 0; }
+    .fm-rank { font-size: 0.75rem; font-weight: 800; color:var(--wh-text-muted, rgba(255,255,255,0.80)); width: 20px; flex-shrink: 0; }
     .fm-name { flex: 1; font-size: .78rem; color: rgba(255,255,255,0.85); }
     .fm-bar-bg { width: 80px; background: rgba(255,255,255,0.05); border-radius: 999px; height: 4px; flex-shrink: 0; }
     .fm-bar-fill { height: 100%; border-radius: 999px; background: var(--red); }
     .fm-pct { font-size: 0.75rem; color: var(--muted); width: 32px; text-align: right; flex-shrink: 0; }
 
     /* Narrative */
-    .narrative-block { background: rgba(247,162,27,0.04); border: 1px solid rgba(247,162,27,0.15); border-radius: 12px; padding: 16px 18px; font-size: .78rem; line-height: 1.65; color: rgba(255,255,255,0.8); }
+    .narrative-block { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-radius: 12px; padding: 16px 18px; font-size: .78rem; line-height: 1.65; color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
 
     /* Your plant compare */
     .compare-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -90,14 +90,14 @@
     .cr-network { font-size: 0.75rem; color: var(--muted); }
 
     /* CTA */
-    .cta-card { background: linear-gradient(135deg, rgba(247,162,27,0.08), rgba(41,182,217,0.05)); border: 1px solid rgba(247,162,27,0.2); border-radius: 16px; padding: 28px 24px; text-align: center; }
+    .cta-card { background: linear-gradient(135deg, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08), rgba(var(--wh-blue-rgb, 41, 182, 217), 0.05)); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); border-radius: 16px; padding: 28px 24px; text-align: center; }
     .cta-card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
     .cta-card p { font-size: .78rem; color: var(--muted); margin-bottom: 16px; }
-    .btn-gold { display: inline-block; padding: 12px 28px; background: rgba(247,162,27,0.15); color: var(--gold); border: 1px solid rgba(247,162,27,0.4); border-radius: 8px; font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); }
+    .btn-gold { display: inline-block; padding: 12px 28px; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--gold); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); border-radius: 8px; font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); }
     /* `all` animates every animatable property a rule has - present and future, so a property added
        next year joins the timeline silently - and puts layout and paint on the same clock as colour.
        The only thing :hover changes here is background, so that is what the timeline carries. */
-    .btn-gold:hover { background: rgba(247,162,27,0.25); }
+    .btn-gold:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25); }
 
     /* API section */
     .api-endpoint { font-family: ui-monospace, monospace; font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 10px 16px; border-radius: 8px; color: var(--blue); margin-bottom: 8px; word-break: break-all; }
@@ -107,14 +107,14 @@
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
-    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
-    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
-    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     #ph-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #ph-summary-details.open { display:block; }
@@ -254,7 +254,7 @@
     <!-- AI Recommendation -->
     <div class="card" id="recommendation-card" style="display:none;">
       <div class="sec-head"><span data-i="p_workhiverecommendation_50fa" class="sec-title">WorkHive Recommendation</span></div>
-      <p id="recommendation-text" class="narrative-block" style="border-color:rgba(74,222,128,0.2); background:rgba(74,222,128,0.04);"></p>
+      <p id="recommendation-text" class="narrative-block" style="border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.2); background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.04);"></p>
     </div>
 
     <!-- API section -->
@@ -294,11 +294,11 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.80); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.80); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 
 <div class="wh-sources-item" data-wh-source-key="ph-summary-details" hidden>
@@ -313,11 +313,11 @@
         <li><strong data-i="p_reportfreshness_7e9b">Report freshness</strong>: days since the report was generated. Nothing regenerates it on a schedule, so this is the number to read before trusting the figures.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when report has 3+ plants and was generated in last 45 days; empty otherwise.</li>
       </ul>
-      <p data-i="p_onlymembersofahivethatoptedi_d5ac" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
+      <p data-i="p_onlymembersofahivethatoptedi_d5ac" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 12px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
     </div>
 </div>
 <div class="wh-sources-item" data-wh-source-key="source-line-1">
-<p class="wh-source-chip" role="status" aria-live="polite" data-i="p_ph_source_chip" style="font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
+<p class="wh-source-chip" role="status" aria-live="polite" data-i="p_ph_source_chip" style="font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
 </div>
 </div>
 </section>
@@ -393,7 +393,7 @@
       const main = document.querySelector('main') || document.body;
       const _btn = 'display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 18px;border-radius:var(--wh-radius,12px);font-weight:700;text-decoration:none;';
       const _primary = _btn + 'background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);';
-      const _secondary = _btn + 'background:rgba(var(--wh-orange-rgb,247,162,27),0.12);border:1px solid rgba(var(--wh-orange-rgb,247,162,27),0.45);color:var(--wh-orange-text,#FFC65C);';
+      const _secondary = _btn + 'background:rgba(var(--wh-orange-rgb,247,162,27),0.12);border:1px solid rgba(var(--wh-orange-rgb,247,162,27),0.45);color:var(--wh-orange-text,#FDB94A);';
       const _ret = encodeURIComponent('ph-intelligence.html');
       const _way = WORKER_NAME
         ? '<a href="hive.html" style="' + _primary + '">Go to Hive</a>'

@@ -47,7 +47,7 @@
        light text against white: eight contrast 'failures' that never render. Paper's white now comes first and the
        dark page is screen-only, so no medium depends on an override. */
     @media print { body { background: #ffffff; } }
-    @media screen { body { background: #0f1923; } }
+    @media screen { body { background: var(--wh-ink-deep, #0f1923); } }
     body {
       font-family: 'Poppins', sans-serif;
       color: var(--wh-cloud);
@@ -55,7 +55,7 @@
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
     }
     /* renderSourceChip() is authored for the DARK app shell: it inlines
-       color:rgba(255,255,255,0.80) on its <p> and .wh-method. Dropped onto this WHITE print
+       color:var(--wh-text-muted, rgba(255,255,255,0.80)) on its <p> and .wh-method. Dropped onto this WHITE print
        document that is white-on-white — measured 1:1, i.e. INVISIBLE (the lens caught it the
        run after I added the chip; the same trap as .doc-logo's brand lilac at 2.6:1).
        Re-ink the shared component for THIS surface instead of forking it: #555 is the shade
@@ -101,8 +101,8 @@
     .ar-header p  { font-size: 0.75rem; color: #9AA8B6; margin-top: 0.2rem; }
     .ar-badge {
       font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 999px;   /* 9.6px -> 12px, on the 4px grid (design lens slop, 2026-09-15) */
-      background: rgba(167,139,250,0.15); color: var(--wh-violet);
-      border: 1px solid rgba(167,139,250,0.3); white-space: nowrap; margin-top: 0.25rem;
+      background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.15); color: var(--wh-violet);
+      border: 1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.3); white-space: nowrap; margin-top: 0.25rem;
     }
 
     /* ── The no-hive gate (ENH-C, 2026-10-22) ── it sat outside <main> as bare centred text, so a solo owner's screen
@@ -112,7 +112,7 @@
       padding: 2rem 1.25rem; margin-bottom: 1rem; background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; }
     #hive-gate h2 { font-size: 1.125rem; font-weight: 700; }
-    #hive-gate p  { color: rgba(255,255,255,0.80); font-size: 0.875rem; max-width: 360px; }
+    #hive-gate p  { color: var(--wh-text-muted, rgba(255,255,255,0.80)); font-size: 0.875rem; max-width: 360px; }
     #hive-gate a  { display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
       padding: 0 1.25rem; margin-top: 0.75rem; border-radius: var(--wh-radius-sm); background: var(--wh-orange);
       color: var(--wh-navy); font-weight: 700; font-size: 0.875rem; text-decoration: none; }
@@ -126,7 +126,7 @@
       border-radius: 0.75rem /* S1 2026-09-05: 10px was off the 8/12/16 scale */;
     }
     .toolbar-label {
-      font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.80);   /* "Period" and "Audience" told him what the toolbar does, at 9.6px in tracked capitals */
+      font-size: 0.75rem; font-weight: 600; color:var(--wh-text-muted, rgba(255,255,255,0.80));   /* "Period" and "Audience" told him what the toolbar does, at 9.6px in tracked capitals */
       margin-right: 0.4rem;
     }
     .pill-btn {
@@ -137,8 +137,8 @@
       transition: color .15s ease, background .15s ease, border-color .15s ease, transform .12s var(--wh-ease-out);   /* was `all`: it animated layout properties too (design lens motion, 2026-09-15) */
     }
     .pill-btn.active {
-      background: rgba(167,139,250,0.15);
-      border-color: rgba(167,139,250,0.4);
+      background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.15);
+      border-color: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.4);
       color: var(--wh-violet-text);
     }
     .pill-btn:hover:not(.active) { color: rgba(255,255,255,0.85); }
@@ -174,14 +174,14 @@
 
     /* ── Empty / loading ── */
     .ar-status {
-      padding: 2.5rem 1rem; text-align: center; color:rgba(255,255,255,0.80);
+      padding: 2.5rem 1rem; text-align: center; color:var(--wh-text-muted, rgba(255,255,255,0.80));
       background: rgba(255,255,255,0.02);
       border: 1px dashed rgba(255,255,255,0.08);
       border-radius: 0.75rem; font-size: 0.85rem;
     }
     .ar-spinner {
       width: 32px; height: 32px; margin: 0 auto 0.75rem;
-      border: 3px solid rgba(167,139,250,0.2);
+      border: 3px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.2);
       border-top-color: var(--wh-violet);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
@@ -201,8 +201,8 @@
 
     .ar-error {
       padding: 1.25rem; border-radius: 0.75rem /* S1 2026-09-05: 10px was off the 8/12/16 scale */;
-      background: rgba(248,113,113,0.08);
-      border: 1px solid rgba(248,113,113,0.25);
+      background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.08);
+      border: 1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.25);
       color: var(--wh-red-text); font-size: 0.8rem;
     }
 
@@ -452,9 +452,9 @@
        own hue; .red and .purple reached for the brand FILL tokens instead and were the only two that
        failed. Found 2026-08-06 walking the generated analytics report: axe reported 9 colour-contrast
        violations, all of them these chips ("INCREASE FREQUENCY" and siblings) at 11px/700.
-       Measured, not guessed: --wh-red #f87171 on #fee2e2 was ratio 2.26 against the 4.5 AA bar; #991b1b
+       Measured, not guessed: --wh-red var(--wh-red, #f87171) on #fee2e2 was ratio 2.26 against the 4.5 AA bar; #991b1b
        is 6.80, which lands it exactly alongside amber-800 (6.37) and green-800 (6.78). --wh-violet
-       #a78bfa on #ede9fe was 2.29; #7c3aed is 4.80 — and tokens.css:109 already names that value in its
+       var(--wh-violet, #a78bfa) on #ede9fe was 2.29; #7c3aed is 4.80 — and tokens.css:109 already names that value in its
        own comment, "AA light-surface = #7c3aed", so both were documented misuses rather than missing
        tokens, the same shape as --wh-red vs --wh-red-text on the dark surfaces.
        Worth stating why the perceptual lens did NOT catch these: it scored them Lc 42.1 against a floor
@@ -464,7 +464,7 @@
     .doc-panel .sev-chip.red    { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
     .doc-panel .sev-chip.amber  { background: #fef3c7; color: #92400e; border: 1px solid var(--wh-amber); }
     .doc-panel .sev-chip.green  { background: #d1fae5; color: #065f46; border: 1px solid var(--wh-green); }
-    .doc-panel .sev-chip.gray   { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+    .doc-panel .sev-chip.gray   { background: #f3f4f6; color: #374151; border: 1px solid var(--wh-paper-rule, #e5e7eb); }
 
     /* Asset cards — used in Findings (problem assets) and Predictive (risk assets) */
     .doc-panel .asset-card-grid {
@@ -473,7 +473,7 @@
     }
     @media (max-width: 720px) { .doc-panel .asset-card-grid { grid-template-columns: 1fr; } }
     .doc-panel .asset-card {
-      border: 1px solid #e5e7eb; border-radius: 0.5rem;
+      border: 1px solid var(--wh-paper-rule, #e5e7eb); border-radius: 0.5rem;
       padding: 0.75rem 0.85rem; background: #fff;
       page-break-inside: avoid;
     }
@@ -491,7 +491,7 @@
     .doc-panel .asset-card-stats b { color: #1a1132; font-weight: 600; }
     .doc-panel .asset-card-why {
       font-size: 0.8rem; color: #666; font-style: italic; line-height: 1.45;
-      border-top: 1px dashed #e5e7eb; padding-top: 0.35rem; margin-top: 0.35rem;
+      border-top: 1px dashed var(--wh-paper-rule, #e5e7eb); padding-top: 0.35rem; margin-top: 0.35rem;
     }
 
     /* CSS-only horizontal bar chart (rows of label + bar + value) */
@@ -519,7 +519,7 @@
     /* Stacked bar (one row, multiple colored segments — for RCM consequence split) */
     .doc-panel .stack-bar {
       height: 28px; border-radius: 999px; overflow: hidden;
-      display: flex; margin: 0.5rem 0; border: 1px solid #e5e7eb;
+      display: flex; margin: 0.5rem 0; border: 1px solid var(--wh-paper-rule, #e5e7eb);
     }
     .doc-panel .stack-bar > div {
       display: flex; align-items: center; justify-content: center;
@@ -576,7 +576,7 @@
     @media (max-width: 720px) { .doc-panel .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
     .doc-panel .kpi-cell {
       padding: 0.65rem 0.75rem; border-radius: 0.5rem;
-      background: #fafafa; border: 1px solid #e5e7eb;
+      background: #fafafa; border: 1px solid var(--wh-paper-rule, #e5e7eb);
     }
     .doc-panel .kpi-cell.warn { background: #fffbeb; border-color: var(--wh-amber); }
     .doc-panel .kpi-cell.bad  { background: #fef2f2; border-color: #fecaca; }
@@ -713,7 +713,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
                its ITEMS could still shrink, so at 320 flex squeezed both tabs and "Analytics report" / "Send / schedule" broke
                onto two lines (the same class report-sender's tabs were fixed for at 390, W41441). Fixed items make the strip
                scroll sideways as its own comment promises. -->
-          <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4); flex-shrink:0; white-space:nowrap;"><span data-i="artab1">Analytics report</span></span>
+          <span role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); flex-shrink:0; white-space:nowrap;"><span data-i="artab1">Analytics report</span></span>
           <a role="tab" aria-selected="false" href="report-sender.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08); flex-shrink:0; white-space:nowrap;"><span data-i="artab2">Send / schedule &rarr;</span></a>
         </div>
       </div>
@@ -782,7 +782,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <!-- ★WHAT A FINISHED ONE HOLDS (T2 SE vicarious, 2026-10-27): before anything was generated the page offered a period, an
            audience and a button, and nothing of what the document would be. The outline names the report's own numbered
            sections; generation replaces this mount, so the outline leaves with the line above it. -->
-      <p class="ar-outline" style="margin:12px auto 0; max-width:640px; font-size:0.75rem; line-height:1.55; color:rgba(255,255,255,0.8); text-align:center;">
+      <p class="ar-outline" style="margin:12px auto 0; max-width:640px; font-size:0.75rem; line-height:1.55; color:var(--wh-text-muted, rgba(255,255,255,0.8)); text-align:center;">
         A finished report reads like this: 1 Executive summary · 2 Findings (worst offenders, root causes, failure consequences,
         parts used, whether PMs prevent failures) · 3 Predictive outlook (assets to watch, health scores) · 4 Action plan · 5 Sign-off.
       </p>
@@ -790,7 +790,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="source-line-1">
 <p data-i="p_builtondemandfromthishiveslo_8457" class="wh-source-chip" role="status" aria-live="polite" style="font-size:.75rem; opacity:.9; margin:4px 0 0; max-width:70ch;">Built on demand · from this hive's logbook, PM completions and asset history · nothing is stored until you save the PDF</p>
@@ -1080,7 +1080,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             escHtml(_arTimedOut ? err.message : whAiError(err, 'Could not generate report: ' + (err && err.message ? err.message : String(err)))) +
             '<div style="margin-top:0.75rem;"><button type="button" id="ar-retry-btn" ' +
               'style="min-height:44px;padding:0 1.25rem;border-radius:8px;font-weight:700;cursor:pointer;' +
-              'background:rgba(247,162,27,0.15);color:var(--wh-orange-text,#F7A21B);border:1px solid rgba(247,162,27,0.4);" data-i="retry">Retry</button></div>' +
+              'background:rgba(247,162,27,0.15);color:var(--wh-orange-text,#FDB94A);border:1px solid rgba(247,162,27,0.4);" data-i="retry">Retry</button></div>' +
           '</div>';
         // listener, not inline onclick: the CSP inline-handler ratchet holds at its floor
         document.getElementById('ar-retry-btn')?.addEventListener('click', function () { generateReport(); });

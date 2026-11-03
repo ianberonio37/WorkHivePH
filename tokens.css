@@ -133,6 +133,27 @@ button.btn-secondary:disabled, button.btn-ghost:disabled { cursor: not-allowed; 
      var(--wh-green) and haloed them in a hand-picked rgba(34,197,94) - a different green on the
      same 8px element. orange and blue already had their channel tokens; green did not. */
   --wh-green-rgb:    74, 222, 128;
+
+  /* ── OD-S, the open-source design lens (2026-11-03): what the pages kept improvising ────────────────────────
+     Measured by tools/prove_design_source_drift.py (Project Wallace css-analyzer) over 164 served files. These
+     are ADDITIVE - each names a value the pages already type by hand, so declaring it changes nothing a person sees;
+     the pages move onto it through tools/fix_token_literals.py (representation only, same RGB, same alpha).
+     The deep background: rgb(15,25,35) is the card/page base the APCA notes above solve against, typed on 23 files,
+     and the learn/calculator glass header's rgb(13,24,36) (252 uses) is its delta-E < 3 twin. */
+  --wh-ink-deep:       #0F1923;
+  --wh-ink-deep-rgb:   15, 25, 35;
+  /* A tint needs a triplet: without one every page types rgba(r,g,b,a) by hand (navy-mid alone: 730 uses). */
+  --wh-cloud-rgb:      244, 246, 250;
+  --wh-navy-rgb:       22, 32, 50;
+  --wh-navy-mid-rgb:   31, 46, 69;
+  --wh-navy-light-rgb: 42, 61, 88;
+  --wh-red-rgb:        248, 113, 113;
+  --wh-violet-rgb:     167, 139, 250;
+  /* Print is its own medium (dark ink on paper): the @media print blocks of five pages and learn-print.css type
+     these, and report pages rule their light tables with Tailwind's gray-200. */
+  --wh-print-ink:      #111111;
+  --wh-print-rule:     #BBBBBB;
+  --wh-paper-rule:     #E5E7EB;
 }
 
 /* ── THE TEXT UTILITIES MUST USE THE -text HUES, NOT THE FILL HUES ─────────

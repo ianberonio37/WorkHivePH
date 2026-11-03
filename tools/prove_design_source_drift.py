@@ -81,8 +81,20 @@ def measure(root: Path, files: list[str]) -> dict:
     return json.loads(r.stdout)
 
 
+# ★THE RATCHET COUNTS WHAT A PAGE TYPES, NOT WHICH BUCKET IT LANDS IN (2026-11-03). The first version ratcheted exact,
+# tint and off separately - so declaring the token a page already typed (OD-S: --wh-ink-deep for rgb(15,25,35)) MOVED
+# its literals from 'off' to 'exact' and read as a rise: growing the design system failed the gate built to grow it.
+# A file's colour total (exact + tint + off) cannot rise when a token is added and can only fall when a literal becomes
+# var(); the buckets stay in the report, where they say what kind of fix each literal needs.
+RATCHETED = ("colour", "neutral", "fontSizes", "families", "zIndexes")
+
+
 def counts(m: dict) -> dict[str, int]:
-    return {f"{f} :: {k}": v[k] for f, v in m["files"].items() for k in METRICS if v.get(k)}
+    out = {}
+    for f, v in m["files"].items():
+        row = dict(v, colour=v.get("exact", 0) + v.get("tint", 0) + v.get("off", 0))
+        out.update({f"{f} :: {k}": row[k] for k in RATCHETED if row.get(k)})
+    return out
 
 
 def compare(now: dict[str, int], base: dict[str, int]) -> tuple[list[str], list[str]]:
@@ -158,13 +170,19 @@ def self_test() -> int:
         (root / "a.html").write_text(page.replace(".q{z-index:5}", ".q{z-index:5}.n{border-color:#00ff00}"),
                                      encoding="utf-8")
         rose, _ = compare(counts(measure(root, ["a.html"])), base)
-        t("teeth: a new off-palette colour rises", any("a.html :: off" in r for r in rose))
+        t("teeth: a new off-palette colour rises", any("a.html :: colour" in r for r in rose))
         (root / "b.html").write_text("<style>.k{color:#010203}</style>", encoding="utf-8")
         rose, _ = compare(counts(measure(root, ["a.html", "b.html"])), base)
-        t("teeth: a new page outside the baseline counts from 0", any(r.startswith("b.html :: off") for r in rose))
+        t("teeth: a new page outside the baseline counts from 0", any(r.startswith("b.html :: colour") for r in rose))
         (root / "a.html").write_text(page.replace(".z{color:#123456}", ".z{color:var(--wh-orange)}"), encoding="utf-8")
         rose, fell = compare(counts(measure(root, ["a.html"])), base)
-        t("a fix (literal -> var) falls and nothing rises", not rose and any("a.html :: off" in f for f in fell))
+        t("a fix (literal -> var) falls and nothing rises", not rose and any("a.html :: colour" in f for f in fell))
+        # declaring a token the page already types moves its literal from off to exact - never a rise
+        (root / "a.html").write_text(page, encoding="utf-8")
+        (root / "tokens.css").write_text((root / "tokens.css").read_text(encoding="utf-8").replace("}", "--x:#123456;}"),
+                                         encoding="utf-8")
+        rose, _ = compare(counts(measure(root, ["a.html"])), base)
+        t("a new token for a typed colour reclassifies it without a rise", not rose)
     print("self-test " + ("PASS" if ok else "FAIL"))
     return 0 if ok else 1
 

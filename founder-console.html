@@ -18,7 +18,7 @@
   <style>
     /* ── Design tokens (mirrors platform-health.html / hive.html) ── */
     :root {
-      --bg:        #0f1923;
+      --bg:        var(--wh-ink-deep, #0f1923);
       --surface:   var(--wh-navy);
       --card:      #1d2e44;
       --border:    rgba(255,255,255,0.07);
@@ -54,15 +54,15 @@
     a.btn {
       display: inline-flex; align-items: center; gap: .35rem;
       min-height: 44px; padding: 0 16px; border-radius: 8px;
-      background: rgba(247,162,27,.12); border: 1px solid rgba(247,162,27,.4);
-      color: var(--wh-orange-text, #f7a21b); font-weight: 700; font-size: .78rem;
+      background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);
+      color: var(--wh-orange-text, #FDB94A); font-weight: 700; font-size: .78rem;
       text-decoration: none;
     }
-    a.btn:hover { background: rgba(247,162,27,.2); }
+    a.btn:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); }
 
     .gate a.btn {
       margin-top:.6rem; display:inline-block; padding:.6rem 1.4rem;
-      background:rgba(247,162,27,.12); border:1px solid rgba(247,162,27,.4);
+      background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);
       border-radius:.75rem; color:var(--gold); font-weight:700; text-decoration:none;
     }
     .spinner {
@@ -74,7 +74,7 @@
 
     /* ── Header / Hero ── */
     .hdr {
-      background:linear-gradient(135deg,#0f1923,var(--wh-navy));
+      background:linear-gradient(135deg,var(--wh-ink-deep, #0f1923),var(--wh-navy));
       border-bottom:1px solid var(--border);
       padding:1rem 1.5rem;
       display:flex; align-items:center; justify-content:space-between;
@@ -98,11 +98,11 @@
     .refresh-btn {
       display:inline-flex; align-items:center; gap:.35rem; min-height:44px; /* D1 U2 */
       padding:.45rem .9rem; border-radius:.5rem; cursor:pointer; user-select:none;
-      background:rgba(247,162,27,.12); border:1px solid rgba(247,162,27,.4);
+      background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);
       color:var(--gold); font-family:inherit; font-size: .78rem; font-weight:700;
       transition:all .15s;
     }
-    .refresh-btn:hover:not(:disabled) { background:rgba(247,162,27,.22); }
+    .refresh-btn:hover:not(:disabled) { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22); }
     .refresh-btn:active:not(:disabled) { transform:scale(.97); }
     .refresh-btn:disabled { opacity:.4; cursor:not-allowed; }
     .refresh-btn.spinning .refresh-ico { animation:spin .8s linear infinite; display:inline-block; }
@@ -153,7 +153,7 @@
     /* I1 (2026-09-05, measured at 1280x720): #sec-alive's grid panels paint at ~100px and settle at 2065px
        (tech-health, audit-stream) / 440px (memento-health, companion-eval), pushing the second row out of
        the first screen - CLS 0.42-0.52. Hold the settled boxes open from first paint on desktop widths. */
-    @media (min-width:1024px) { #tech-health, #audit-stream { min-height:2065px; } #memento-health, #companion-eval { min-height:440px; } }   /* C5 (2026-09-05): the semantic red #f87171 read Lc 47/60 at 23px; the lighter text-red keeps the meaning and clears 60 */
+    @media (min-width:1024px) { #tech-health, #audit-stream { min-height:2065px; } #memento-health, #companion-eval { min-height:440px; } }   /* C5 (2026-09-05): the semantic red var(--wh-red, #f87171) read Lc 47/60 at 23px; the lighter text-red keeps the meaning and clears 60 */
     .ring-pct .n, .stat .n, .tech-chip .n, .big { font-variant-numeric: tabular-nums; }  /* C4: 8/16 numeric els were proportional */
     .stat .n.good { color:var(--green); }
     .stat .n.warn { color:var(--yellow); }
@@ -178,15 +178,15 @@
     /* ── TL;DR strip (one-line "what to know in 5 sec") ── */
     .tldr {
       margin:0 1.5rem 1rem;
-      background:linear-gradient(135deg,rgba(74,222,128,.08),rgba(41,182,217,.04));
-      border:1px solid rgba(74,222,128,.25); border-radius:.75rem;
+      background:linear-gradient(135deg,rgba(var(--wh-green-rgb, 74, 222, 128), 0.08),rgba(var(--wh-blue-rgb, 41, 182, 217), 0.04));
+      border:1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.25); border-radius:.75rem;
       padding:.75rem 1.1rem;
       display:flex; flex-direction:column; gap:.3rem;
     }
-    .tldr.warn { background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(247,162,27,.04));
+    .tldr.warn { background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04));
                   border-color:rgba(251,191,36,.35); }
-    .tldr.fail { background:linear-gradient(135deg,rgba(248,113,113,.1),rgba(247,162,27,.04));
-                  border-color:rgba(248,113,113,.4); }
+    .tldr.fail { background:linear-gradient(135deg,rgba(var(--wh-red-rgb, 248, 113, 113), 0.1),rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04));
+                  border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.4); }
     .tldr-line { font-size: .78rem; font-weight:600; color:var(--text); display:flex; gap:.5rem; flex-wrap:wrap; }
     .tldr-line .ok   { color:var(--green); }
     .tldr-line .amb  { color:var(--yellow); }
@@ -261,12 +261,12 @@
       background:rgba(255,255,255,.04); border:1px solid var(--border);
       transition:background-color .15s ease-out, color .15s ease-out, border-color .15s ease-out;
     }
-    .opc-tabs [role="tab"]:hover { color:var(--text); border-color:rgba(247,162,27,.35); }
+    .opc-tabs [role="tab"]:hover { color:var(--text); border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
     .opc-tabs [role="tab"][aria-selected="true"] {
-      background:rgba(247,162,27,.15); color:var(--wh-amber-text, #FDB94A); border-color:rgba(247,162,27,.4);
+      background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-amber-text, #FDB94A); border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);
     }
     .opc-tabs [role="tab"]:focus-visible { outline:2px solid var(--wh-amber-text, #FDB94A); outline-offset:2px; }
-    .opc-panel:focus-visible { outline:2px solid rgba(247,162,27,.5); outline-offset:4px; border-radius:12px; }
+    .opc-panel:focus-visible { outline:2px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); outline-offset:4px; border-radius:12px; }
     @media (prefers-reduced-motion: reduce) { .opc-tabs [role="tab"] { transition:none; } }
     /* at 390 the four tabs measured 419px and Developer sat clipped behind a sideways scroll nobody would find */
     @media (max-width:420px) { .opc-tabs { padding:.5rem 1rem; gap:.3rem; } .opc-tabs [role="tab"] { padding:.35rem .75rem; } }
@@ -325,7 +325,7 @@
 
     /* ── Honesty empty-state pattern (mirrors maturity-gate.js doctrine) ── */
     .honest-empty {
-      background:rgba(247,162,27,.04); border:1px solid rgba(247,162,27,.2);
+      background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2);
       border-radius:.75rem; padding:1rem 1.15rem; color:var(--text);
       font-size:.78rem; line-height:1.55;
     }
@@ -338,7 +338,7 @@
     /* ── Memento Memory Cache panel (P6) ── */
     .memento-headline {
       font-size:.78rem; color:var(--text); margin-bottom:.85rem;
-      padding:.5rem .65rem; background:rgba(41,182,217,.06);
+      padding:.5rem .65rem; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06);
       border-left:2px solid var(--blue); border-radius:12px;
     }
     .memento-grid {
@@ -416,8 +416,8 @@
     }
     .fail-item {
       display:flex; align-items:flex-start; gap:.55rem;
-      padding:.6rem .85rem; background:rgba(248,113,113,.06);
-      border:1px solid rgba(248,113,113,.25); border-radius:.5rem;
+      padding:.6rem .85rem; background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.06);
+      border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.25); border-radius:.5rem;
     }
     .fail-dot { width:8px; height:8px; border-radius:50%; background:var(--red); margin-top:.4rem; flex-shrink:0; }
     .fail-label { flex:1; font-size: .78rem; color:var(--text); }
@@ -443,7 +443,7 @@
       padding:.2rem .15rem; background:rgba(255,255,255,.02); border-radius:8px;
     }
     .spark-bar {
-      flex:1; background:linear-gradient(180deg,var(--green),rgba(74,222,128,.4));
+      flex:1; background:linear-gradient(180deg,var(--green),rgba(var(--wh-green-rgb, 74, 222, 128), 0.4));
       min-height:2px; border-radius:0; transition:height .4s;
     }
     .spark-axis {
@@ -483,12 +483,12 @@
        The console's own mod-*/fb-* rules styled the copies those queues replaced. The module's toast is #opc-toast,
        so it and the console's toast never write one node. */
     .count { font-size:1.25rem; line-height:1; font-variant-numeric:tabular-nums; font-weight:700; padding:0.25rem 0.5rem; border-radius:999px; background:rgba(255,255,255,0.08); color:#f1f5f9;   /* C5: a 20 px numeral on the dim pill needs the near-white tint (Lc 60 -> 75+) */ }
-    .count.warn { background:rgba(247,162,27,0.14); color:#fde68a; }   /* C5: same step for the amber pill */
+    .count.warn { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color:#fde68a; }   /* C5: same step for the amber pill */
     /* --red on its own 18% tint measures 4.35:1 -- under the 4.5 AA floor for text this small, and
        axe flagged 11 nodes across the count badges and status pills. The gold pair already clears it
        at 5.41:1, so only the red needed lifting: #fca5a5 on the same tint measures 6.35:1. Chosen
        over darkening the tint because the tint is what makes a red pill READ as red at a glance. */
-    .count.fail { background:rgba(248,113,113,0.14); color:#fecaca; }   /* C5 (2026-09-05): a 20 px numeral on the red pill read Lc 60 with #fca5a5 - one tint lighter */
+    .count.fail { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.14); color:#fecaca; }   /* C5 (2026-09-05): a 20 px numeral on the red pill read Lc 60 with #fca5a5 - one tint lighter */
     .mod-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; padding:0.5rem 0;
                border-top:1px solid var(--border); flex-wrap:wrap; }
     .mod-row:first-child { border-top:0; }
@@ -507,11 +507,11 @@
     .mod-btn { padding:0.5rem 0.75rem; border-radius:0.5rem; font-weight:700; font-size:0.8rem; cursor:pointer;
                border:1px solid var(--border); background:rgba(255,255,255,0.05); color:#fff; min-height:44px; }
     .mod-btn.ok { background:rgba(52,211,153,0.14); color:var(--green); border-color:rgba(52,211,153,0.35); }
-    /* TEXT uses --wh-red-text, not --red. --wh-red (#f87171) is the danger FILL token and its own
+    /* TEXT uses --wh-red-text, not --red. --wh-red (var(--wh-red, #f87171)) is the danger FILL token and its own
        comment says so ("AA text = --wh-red-text"); using it as a label colour put "Reject" at APCA
        Lc 44 on this chip background — the four worst strings on the whole surface. The fill and the
        border keep the stronger red, so the button still reads as danger. */
-    .mod-btn.no { background:rgba(248,113,113,0.12); color:var(--wh-red-text); border-color:rgba(248,113,113,0.3); }
+    .mod-btn.no { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.12); color:var(--wh-red-text); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .mod-btn:disabled { opacity:0.5; cursor:default; }
     .mod-empty { color:var(--muted); font-size:0.85rem; padding:0.5rem 0; }
     /* a label beside a figure, a list's heading or its updated-time: muted like an empty state, but it says what IS
@@ -519,7 +519,7 @@
     .toast-msg { background:#1f2937; color:#fff; padding:0.75rem 1rem; border-radius:12px; font-size:0.85rem;
                  border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.4); }
     .toast-msg.success { border-color:rgba(52,211,153,0.5); }
-    .toast-msg.error { border-color:rgba(248,113,113,0.5); }
+    .toast-msg.error { border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.5); }
     /* ★THE ROW COULD NOT WRAP, SO THE BUTTON'S LABEL DID (phone-fit@320 FIL, 2026-09-29). This is a
        nowrap flex row holding the refresh button and the last-sync stamp, so at 320 the button was
        squeezed to 176px - 144px of text room once its 1rem side padding is taken - and its Filipino
@@ -533,7 +533,7 @@
     .fb-tabs { display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.5rem; }
     .fb-tab { padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); font-size:0.78rem; font-weight:700; cursor:pointer;
               background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--muted); min-height:44px; }
-    .fb-tab[aria-selected="true"] { background:rgba(41,182,217,0.14); color:var(--blue); border-color:rgba(41,182,217,0.35); }
+    .fb-tab[aria-selected="true"] { background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.14); color:var(--blue); border-color:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.35); }
     .fb-filters { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem; }
     /* 16px, not 0.8rem. Below 16px iOS Safari ZOOMS the page on focus and does not zoom back, so a
        founder triaging on a phone gets thrown into a magnified, horizontally-scrolling layout by
@@ -550,13 +550,13 @@
     .fb-card:first-child { border-top:0; }
     /* SL LB3: a card the browser has not laid out yet keeps a card's height (top row, subject, two snippet lines) */
     #fb-list [data-fb-rows] > .fb-card { contain-intrinsic-size: auto 96px; }
-    .fb-card:hover { background:rgba(255,255,255,0.03); }
+    .fb-card:hover { background:var(--wh-surface-card, rgba(255,255,255,0.03)); }
     .fb-card:focus-visible { outline:2px solid var(--blue); outline-offset:-2px; }
     .fb-card-top { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; font-size: 0.75rem; color:var(--muted); }
     .fb-kind, .fb-status { padding:0.1rem 0.5rem; border-radius:var(--wh-radius-pill); font-weight:700; font-size: 0.75rem;
                            background:rgba(255,255,255,0.08); }
-    .fb-status.new { background:rgba(248,113,113,0.18); color:#fca5a5; }   /* 6.35:1; --red measured 4.35:1 */
-    .fb-status.triaged, .fb-status.in_progress { background:rgba(247,162,27,0.18); color:var(--gold); }
+    .fb-status.new { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.18); color:#fca5a5; }   /* 6.35:1; --red measured 4.35:1 */
+    .fb-status.triaged, .fb-status.in_progress { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color:var(--gold); }
     .fb-status.resolved, .fb-status.wontfix, .fb-status.duplicate { background:rgba(52,211,153,0.16); color:var(--green); }
     .fb-subject { font-weight:700; font-size:0.88rem; margin-top:0.25rem; }
     .fb-snippet { color:var(--muted); font-size:0.78rem; margin-top:0.25rem;
@@ -636,7 +636,7 @@
          desktop and makes a guarded and an unguarded rule look identical. */
     .toast {
       position:fixed; bottom:calc(1.5rem + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(8px);
-      background:linear-gradient(135deg,rgba(42,61,88,.96),rgba(31,46,69,.98));
+      background:linear-gradient(135deg,rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.96),rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.98));
       border:1px solid rgba(255,255,255,.12); color:var(--text);
       padding:.6rem 1.2rem; border-radius:999px; font-size:.78rem; font-weight:500;
       opacity:0; transition:opacity .3s,transform .3s; pointer-events:none; z-index:9999;
@@ -821,7 +821,7 @@
           <h2>Money and moderation</h2>
           <span data-i="p_needsyouraction_06b8" class="section-tag">Needs your action</span>
         </div>
-        <div id="local-bypass-note" role="status" hidden style="margin:0 0 1rem; padding:0.7rem 0.9rem; border-radius:var(--wh-radius-sm); font-size:0.82rem; background:rgba(247,162,27,0.12); border:1px solid rgba(247,162,27,0.35); color:var(--gold);"></div>
+        <div id="local-bypass-note" role="status" hidden style="margin:0 0 1rem; padding:0.7rem 0.9rem; border-radius:var(--wh-radius-sm); font-size:0.82rem; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); color:var(--gold);"></div>
         <div class="section-grid">
           <!-- ★ONE CONSOLE, THE MAINTAINED QUEUES (OPC, 2026-10-22). These are Platform Actions' queues, moved with their
                code (operator-actions.js): while this console was retired, Platform Actions held the money and moderation
@@ -1300,7 +1300,7 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
@@ -2450,7 +2450,7 @@
       // Regressions block (was PASS, now FAIL)
       const regs = (tech.regressions || []);
       const regHtml = regs.length > 0
-        ? '<div class="honest-empty" style="margin-top:.85rem;background:rgba(248,113,113,.06);border-color:rgba(248,113,113,.3);">'
+        ? '<div class="honest-empty" style="margin-top:.85rem;background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.06);border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3);">'
           + '<div class="hetitle" style="color:var(--red);">' + regs.length + ' regression(s) detected</div>'
           + '<ul style="margin:.3rem 0 0 1.1rem;font-size: 0.75rem;">'
           + regs.slice(0, 6).map(r => '<li title="' + escHtml(r.label || '') + '">'

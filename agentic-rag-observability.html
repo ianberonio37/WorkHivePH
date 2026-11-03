@@ -162,7 +162,7 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #0f1923; --surface: var(--wh-navy); --card: #1d2e44;
+      --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: #1d2e44;
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --muted: rgba(255,255,255,0.7); /* D1 a11y: was 0.4 (~2.5:1) → 0.7 meets WCAG 1.4.3 4.5:1 */
       --text: var(--wh-cloud); --border: rgba(255,255,255,0.07);
@@ -199,16 +199,16 @@
     table.tbl tr:hover td { background: rgba(255,255,255,0.02); }
     .num-right { text-align: right; font-variant-numeric: tabular-nums; }
     .route-chip { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px;
-      background: rgba(41,182,217,0.12); color: var(--blue); border: 1px solid rgba(41,182,217,0.25); }
-    .route-chip.temporal  { background: rgba(167,139,250,0.12); color: var(--wh-violet); border-color: rgba(167,139,250,0.25); }
+      background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); }
+    .route-chip.temporal  { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.12); color: var(--wh-violet); border-color: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.25); }
     .route-chip.cold_archive { background: rgba(251,146,60,0.12); color: var(--amber); border-color: rgba(251,146,60,0.25); }
 
     .pass-pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.12rem 0.45rem; border-radius: 999px; }
-    .pass-pill.yes { background: rgba(74,222,128,0.14); color: var(--green); }
-    .pass-pill.no  { background: rgba(248,113,113,0.14); color: var(--red); }
+    .pass-pill.yes { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.14); color: var(--green); }
+    .pass-pill.no  { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.14); color: var(--red); }
 
     .empty-state { padding: 24px; text-align: center; color: var(--muted); font-size: 0.85rem; }
-    .hive-gate { display: none; position: fixed; inset: 0; background: rgba(15,25,35,0.96); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+    .hive-gate { display: none; position: fixed; inset: 0; background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.96); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
     .hive-gate .box { max-width: 360px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; }
     .hive-gate a { color: var(--gold); font-weight: 700; }
     .hive-gate .box h2 { font-size: 1.05rem; font-weight: 700; }   /* the gate's own title: h2 under the page h1 (F5) */
@@ -235,16 +235,16 @@
 <!-- RETIRED (Operator-Console → Grafana arc P3, 2026-07-18): agentic-RAG trace metrics (traces, grader/checker
      pass, citations, retries, latency, tokens) are now Founder-Ops Grafana panels (16 + 19). Admin-only operator
      page. Reversible: delete this overlay div. rgba-only, 0 design-token debt; content preserved (scanners pass). -->
-<div id="wh-retired-overlay" role="main" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:rgba(244,246,250,0.92); display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
+<div id="wh-retired-overlay" role="main" style="position:fixed; inset:0; z-index:100000; background:rgba(11,15,26,0.98); color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.92); display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
     <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
-    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(247,162,27,0.95);">Agentic-RAG Observability has moved into the operator console</h1>
+    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.95);">Agentic-RAG Observability has moved into the operator console</h1>
     <!-- OPC (2026-10-22): the console's Developer tab carries these panels across every hive (this page read only the
          viewer's own hive's latest 500 traces); this overlay sent founders to Grafana and to Platform Actions. -->
-    <p style="color:rgba(244,246,250,0.6); font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">Its Developer tab now shows the traces, the routes and the pass rates. It also lists the heaviest questions.</p>
+    <p style="color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.6); font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">Its Developer tab now shows the traces, the routes and the pass rates. It also lists the heaviest questions.</p>
     <nav aria-label="Where this page moved" style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
       <!-- link-allow: #developer is the console's hash route to its Developer tab (opcShowTab reads location.hash), not a static id -->
-      <a href="founder-console.html#developer" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(247,162,27,0.12); color:var(--wh-orange-light, #FDB94A); border:1px solid rgba(247,162,27,0.4); text-decoration:none; font-weight:700; min-height:44px; border-radius:8px;">Open the Developer tab →</a>
+      <a href="founder-console.html#developer" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color:var(--wh-orange-light, #FDB94A); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); text-decoration:none; font-weight:700; min-height:44px; border-radius:8px;">Open the Developer tab →</a>
       <a href="http://127.0.0.1:3001/d/workhive-founder-ops" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(52,211,153,0.14); color:rgba(52,211,153,0.95); border:1px solid rgba(52,211,153,0.4); text-decoration:none; font-weight:700; min-height:44px; border-radius:8px;">📊 Founder Ops dashboard →</a>
     </nav>
     <!-- T69 (2026-08-25, extended 2026-09-08): the Grafana credential POINTER ('login: admin · password in infra/mcp/.env.mcp') is removed. It was taken out of marketplace-admin.html on 2026-08-25 and left on three pages that are not auth-gated at all, so it rendered for any visitor. A pointer to where a secret lives is the part worth removing, which is why this is a deletion rather than a rewording. The dashboard link stays. --><!-- was 0.35 = 3.03:1 at 12px, under the 4.5 floor (live-walk render-contract, 2026-09-06) -->
@@ -345,7 +345,7 @@
     </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>

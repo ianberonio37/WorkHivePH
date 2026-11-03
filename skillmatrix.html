@@ -22,7 +22,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Poppins', sans-serif;
-      background: #0f1923;
+      background: var(--wh-ink-deep, #0f1923);
       color: var(--wh-cloud);
       min-height: 100vh;
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
@@ -50,7 +50,7 @@
     /* ── Toast ── */
     #toast {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px);
-      background: rgba(31,46,69,0.97); border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.8rem;
       color: #fff; z-index: 9999; transition: transform 0.25s ease-out;
       display: flex; align-items: center; gap: 0.5rem; max-width: 320px;
@@ -60,7 +60,7 @@
 
     /* ── Cards ── */
     .card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
       border: 1px solid rgba(255,255,255,0.07);
       border-radius: 1rem; padding: 1.25rem;
     }
@@ -84,7 +84,7 @@
     .discipline-cards { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
 
     .disc-card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.5), rgba(31,46,69,0.7));
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7));
       /* a 1px tint of the discipline's colour all round, not a 4px stripe down the left (critique W46048, 2026-10-13):
          DESIGN.md - "accent borders are 1px tints ... NEVER a thick coloured border-left". The badge, the dots and the bar
          already carry the colour. --disc-tint is that colour at 40% as a plain rgba(), set per card (color-mix() was
@@ -133,7 +133,7 @@
     /* mobile: stepper rows need ~195px min-content each → 2 cols overflow a 371px viewport by 86px. Single column. */
     @media (max-width: 480px) { .target-grid { grid-template-columns: 1fr; } }
     #header-sub { color: var(--wh-text-muted, rgba(255,255,255,0.80)); }  /* was inherited var(--wh-steel) = 4.46:1 (fails AA); then slate-400 #94A3B8 (passes, off-token); now the platform's muted-text token, brighter than both (W46048) */
-    .target-item { display: flex; align-items: center; justify-content: space-between; background: rgba(22,32,50,0.4); border-radius: 0.75rem; padding: 0.5rem 0.75rem; }
+    .target-item { display: flex; align-items: center; justify-content: space-between; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4); border-radius: 0.75rem; padding: 0.5rem 0.75rem; }
     .target-name { font-size: 0.75rem; font-weight: 600; color: var(--wh-cloud); flex: 1; }
     .stepper { display: flex; align-items: center; gap: 0.35rem; }
     .step-btn {
@@ -164,7 +164,7 @@
     .primary-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.25rem; }
     .primary-option {
       padding: 0.75rem 0.5rem; border-radius: 0.75rem; border: 2px solid rgba(255,255,255,0.1);
-      background: rgba(22,32,50,0.4); cursor: pointer; font-size: 0.75rem; font-weight: 600;
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4); cursor: pointer; font-size: 0.75rem; font-weight: 600;
       color: var(--wh-steel-bright); transition: all 0.2s; text-align: center;
     }
     .primary-option:active { transform: scale(0.96); }
@@ -199,7 +199,7 @@
     .modal-subtitle { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.25rem; }
     .modal-close-btn {
       width: 36px; height: 36px; border-radius: 0.5rem; border: none;
-      background: rgba(255,255,255,0.07); color:rgba(255,255,255,0.80);
+      background: rgba(255,255,255,0.07); color:var(--wh-text-muted, rgba(255,255,255,0.80));
       cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
       min-width: 44px; min-height: 44px;
     }
@@ -207,7 +207,7 @@
     .modal-footer { padding: 0.75rem 1.25rem 1rem; border-top: 1px solid rgba(255,255,255,0.06); }
 
     /* ── Lesson modal ── */
-    .lesson-body { font-size: 0.82rem; color: rgba(255,255,255,0.8); line-height: 1.7; }
+    .lesson-body { font-size: 0.82rem; color: var(--wh-text-muted, rgba(255,255,255,0.8)); line-height: 1.7; }
     .lesson-body h3 { font-size: 0.9rem; font-weight: 700; color: #fff; margin: 1.25rem 0 0.5rem; }
     .lesson-body p { margin-bottom: 0.75rem; }
     .lesson-read-gate {
@@ -225,7 +225,7 @@
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
     .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
     .btn-ghost {
-      width: 100%; background: transparent; color:rgba(255,255,255,0.80);
+      width: 100%; background: transparent; color:var(--wh-text-muted, rgba(255,255,255,0.80));
       border: 1px solid rgba(255,255,255,0.12); border-radius: 0.75rem;
       padding: 0.75rem 1.5rem; font-size: 0.85rem; cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s; margin-top: 0.5rem;
@@ -241,22 +241,22 @@
     .exam-options { display: flex; flex-direction: column; gap: 0.5rem; }
     .exam-option {
       display: flex; align-items: center; gap: 0.75rem;
-      background: rgba(22,32,50,0.5); border: 1.5px solid rgba(255,255,255,0.1);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1.5px solid rgba(255,255,255,0.1);
       border-radius: 0.75rem; padding: 1rem 1rem;
       cursor: pointer; transition: all 0.15s; font-size: 0.82rem; color: var(--wh-cloud);
       min-height: 56px; text-align: left; width: 100%;
       font-family: 'Poppins', sans-serif;
     }
-    .exam-option:active { background: rgba(41,182,217,0.1); }
-    .exam-option.selected { border-color: var(--wh-blue); background: rgba(41,182,217,0.1); color: #fff; }
-    .exam-option.correct { border-color: var(--wh-green); background: rgba(74,222,128,0.1); color: var(--wh-green); }
-    .exam-option.wrong { border-color: var(--wh-red); background: rgba(248,113,113,0.1); color: var(--wh-red); }
-    .exam-option.reveal-correct { border-color: var(--wh-green); background: rgba(74,222,128,0.07); }
+    .exam-option:active { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1); }
+    .exam-option.selected { border-color: var(--wh-blue); background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1); color: #fff; }
+    .exam-option.correct { border-color: var(--wh-green); background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.1); color: var(--wh-green); }
+    .exam-option.wrong { border-color: var(--wh-red); background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); color: var(--wh-red); }
+    .exam-option.reveal-correct { border-color: var(--wh-green); background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.07); }
     .option-letter {
       width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       font-size: 0.75rem; font-weight: 700;
-      background: rgba(255,255,255,0.08); color:rgba(255,255,255,0.80);
+      background: rgba(255,255,255,0.08); color:var(--wh-text-muted, rgba(255,255,255,0.80));
     }
     .exam-option.selected .option-letter { background: var(--wh-blue); color: var(--wh-navy); }
     .exam-option.correct .option-letter { background: var(--wh-green); color: var(--wh-navy); }
@@ -288,11 +288,11 @@
     @keyframes badgePop { from { transform: scale(0) rotate(-15deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
     .result-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.25rem; }
     .result-score { font-size: 0.85rem; color: var(--wh-steel-bright); margin-bottom: 0.5rem; }
-    .result-msg { font-size: 0.8rem; color:rgba(255,255,255,0.80); line-height: 1.6; }
+    .result-msg { font-size: 0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height: 1.6; }
     .result-review { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.35rem; }
     .result-review-item {
       display: flex; align-items: flex-start; gap: 0.5rem;
-      font-size: 0.75rem; color:rgba(255,255,255,0.80); padding: 0.5rem 0;
+      font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding: 0.5rem 0;
       border-bottom: 1px solid rgba(255,255,255,0.05);
     }
     .result-review-item .ri-icon { font-size: 0.8rem; flex-shrink: 0; margin-top: 1px; }
@@ -315,14 +315,14 @@
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
     .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
-    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
-    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
-    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     #sm-summary-details { display:none; padding:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #sm-summary-details.open { display:block; }
@@ -349,7 +349,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
 
 <main class="page">
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden>No skills logged yet. Skill badges build from logged work. <a data-i="p_logworkinthelogbook_52bd" href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(247,162,27,0.12);border:1px solid rgba(247,162,27,0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">Log work in the Logbook →</a></div>
+  <div id="empty-state" class="empty-state" hidden>No skills logged yet. Skill badges build from logged work. <a data-i="p_logworkinthelogbook_52bd" href="logbook.html" class="empty-cta" style="display:inline-block;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);color:var(--wh-orange);font-weight:600;text-decoration:none;">Log work in the Logbook →</a></div>
 
 
   <!-- Header -->
@@ -370,7 +370,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
          platform: skill_profiles, skill_badges and skill_exam_attempts are all RLS'd to
          `auth_uid = auth.uid()` - private to you, invisible even to your supervisor. Read off the
          policies, not assumed. -->
-    <p data-i="p_privatetoyouyourskillsbadges_adcc" style="font-size: 0.75rem;color:var(--wh-steel-bright,rgba(255,255,255,0.72));margin:2px 0 0;">
+    <p data-i="p_privatetoyouyourskillsbadges_adcc" style="font-size: 0.75rem;color:var(--wh-steel-bright,#CFD7E0);margin:2px 0 0;">
       Private to you. No one else sees your skills, badges or exam attempts: not your
       supervisor, not your teammates.
     </p>
@@ -378,12 +378,12 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
          the chip answers the multi-hive contractor's separate question - which hive am I acting in
          while I read the hive-scoped lesson content. Same pattern as pm-scheduler's chip;
          self-filling so no page init needs touching. -->
-    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size: 0.75rem;font-weight:700;background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
+    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size: 0.75rem;font-weight:700;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
     <script>try{var _hn=localStorage.getItem('wh_hive_name');/* storage-key-allow: pre-utils chip paint */if(_hn){document.getElementById('wh-hive-chip-name').textContent=_hn;document.getElementById('wh-hive-chip').style.display='inline-flex';}}catch(_){/* empty-catch-allow: the chip is context decoration */}</script>
     <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface. This tab bar
          switches Skills ↔ Achievements; one nav entry. Both pages kept on disk. -->
     <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
-      <span data-i="p_skills_e092" role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(247,162,27,0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(247,162,27,0.4);">Skills</span>
+      <span data-i="p_skills_e092" role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">Skills</span>
       <a data-i="p_achievements_641a" role="tab" aria-selected="false" href="achievements.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.08);">Achievements &rarr;</a>
       <!-- This page says, in its own words, that a worker's skills, badges and exam attempts are private to
            them - and offered no way to take that record anywhere. A competence record a
@@ -392,7 +392,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
            logbook and the inventory, scope preamble included. -->
       <button id="btn-export-skills" type="button" role="tab" aria-selected="false"
               title="Export my skill record to CSV" aria-label="Export my skill record to CSV"
-              style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; gap:6px; border-radius:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.80); font-size:0.8rem; font-weight:600; cursor:pointer;">
+              style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; gap:6px; border-radius:8px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.8rem; font-weight:600; cursor:pointer;">
         <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
       </button>
     </div>
@@ -484,7 +484,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
         <strong data-i="p_yourskillscanearnontheside_ac29">Your skills can earn on the side</strong>
         <div data-i="p_registerasaserviceprovideran_69cf" style="font-size:0.78rem;opacity:0.8;margin-top:0.15rem;">Register as a service provider and get hailed for jobs near you. Your skills and badges on this page back you up.</div>
       </div>
-      <a data-i="p_becomeaprovider_b6a6" href="marketplace-seller.html?tab=services" style="display:inline-flex;align-items:center;padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);background:transparent;border:1px solid rgba(247,162,27,0.55);color:var(--wh-orange-text, #FDB94A);font-weight:700;font-size:0.8rem;text-decoration:none;min-height:44px;box-sizing:border-box;">Become a provider →</a>
+      <a data-i="p_becomeaprovider_b6a6" href="marketplace-seller.html?tab=services" style="display:inline-flex;align-items:center;padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);background:transparent;border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.55);color:var(--wh-orange-text, #FDB94A);font-weight:700;font-size:0.8rem;text-decoration:none;min-height:44px;box-sizing:border-box;">Become a provider →</a>
     </div>
     <div class="action-card">
       <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
@@ -522,7 +522,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
   </div><!-- /main-content -->
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="sm-summary-details" hidden>
 <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sm-summary-details" data-i="showdetails">
@@ -532,7 +532,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
     data-rag-tile="skillmatrix:detail_panel"
     data-rag-label="Skill matrix detail">
       <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
-      <div data-i="p_standardworkhiveskilltiermod_f8ed" style="font-size: 12px;color:rgba(255,255,255,0.80);margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
+      <div data-i="p_standardworkhiveskilltiermod_f8ed" style="font-size: 12px;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
       <ul style="margin:0;padding-left:20px;">
         <li><strong data-i="p_ontarget_412a">On target</strong>: disciplines where your actual level (highest consecutive badge from L1) meets or exceeds your target level.</li>
         <li><strong data-i="p_quizzesavailable_e065">Quizzes available</strong>: disciplines where the next level is within reach (actual + 1 &lt;= target + 1) and not yet on cooldown.</li>
@@ -579,7 +579,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
            to withhold it. The numbers are the product's own, not invented: every exam in skill-content.js
            holds exactly 10 questions and submitExam() passes at `score >= 7`. Stated as a fraction rather
            than a percentage because the exam is answered in questions, not points. -->
-      <p id="lesson-pass-mark" style="font-size: 0.75rem; color:rgba(255,255,255,0.80); margin:0 0 0.5rem; line-height:1.5;">
+      <p id="lesson-pass-mark" style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 0.5rem; line-height:1.5;">
         <strong data-i="p_ofcorrect_4062">7 of 10 correct</strong> to pass. Passing awards the badge for this level; a failed attempt
         can be retaken after its cooldown.
       </p>

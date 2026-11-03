@@ -24,7 +24,7 @@
 <style>
   /* ★FIVE OF THIS PAGE'S SEVEN PALETTE DECLARATIONS WERE DEAD, AND TWO OF THEM WERE SELF-REFERENTIAL
      (2026-09-18, W46049 slop lens). The block read as the page's palette. Measured on the running page,
-     it is not: --wh-navy resolves to var(--wh-navy,#162032) and not the #0f1b2d declared here, --wh-amber to #facc15
+     it is not: --wh-navy resolves to var(--wh-navy,#162032) and not the #0f1b2d declared here, --wh-amber to var(--wh-amber, #facc15)
      and not the var(--wh-orange) var(--wh-orange,#F7A21B) this block asks for, and --wh-blue / --wh-green / --wh-red to
      the platform's values. tokens.css is linked AFTER this <style>, so for every name both files
      declare, tokens wins the cascade and the line here never applies.
@@ -123,8 +123,8 @@
      it with a hairline in its own hue: the platform's existing verdict vocabulary (a 0.07 face and a
      0.3 border), so a down service reads as a red CARD rather than a grey card wearing a red tab. */
   .card { background: var(--wh-navy-2); border-radius: 12px; padding:16px; border: 1px solid rgba(255,255,255,0.08); }
-  .card.ok      { background: rgba(74,222,128,0.07);  border-color: rgba(74,222,128,0.30); }
-  .card.down    { background: rgba(248,113,113,0.07); border-color: rgba(248,113,113,0.30); }
+  .card.ok      { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color: rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
+  .card.down    { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
   .card.slow    { background: rgba(250,204,21,0.07);  border-color: rgba(250,204,21,0.30); }
   .card.nohealth{ background: var(--wh-navy-2);       border-color: rgba(255,255,255,0.08); }
   /* T198: silence is amber, never red — a probe that timed out did not observe an outage. Kept
@@ -304,7 +304,7 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>

@@ -21,9 +21,9 @@
 <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
 <style>
   :root {
-    --bg: #0f1923; --surface: var(--wh-navy); --card: var(--wh-navy-mid); --card-hover: #243a55;   /* --card was #1d2e44, one unit from --wh-navy-mid (critique W46006) */
+    --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: var(--wh-navy-mid); --card-hover: #243a55;   /* --card was #1d2e44, one unit from --wh-navy-mid (critique W46006) */
     --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green); --amber: var(--wh-amber); --red: var(--wh-red);
-    --text: var(--wh-cloud); --muted: rgba(255,255,255,0.80); --border: rgba(255,255,255,0.08);
+    --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80)); --border: rgba(255,255,255,0.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Poppins', system-ui, sans-serif; background: var(--bg); color: var(--text); padding-top: 60px; min-height: 100vh; }
@@ -42,7 +42,7 @@
   button.primary, .btn.primary { background: var(--gold); color: var(--wh-navy); border-color: var(--gold); }
   button.primary:hover { background: var(--wh-orange); }
   button.ghost { background: transparent; }
-  button.danger { color: var(--wh-red); border-color: rgba(248,113,113,0.4); }
+  button.danger { color: var(--wh-red); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.4); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   input, select, textarea {
     font-family: inherit; font-size: 16px; /* iOS no-zoom */
@@ -97,7 +97,7 @@
     display: inline-block; background: rgba(255,255,255,0.08); color: var(--muted);
     border-radius: 999px; padding: 1px 8px; font-size: 0.75rem; font-weight: 600; margin-left: 6px;
   }
-  .tab-strip button.active .tab-count { background: rgba(247,162,27,0.22); color: var(--gold); }
+  .tab-strip button.active .tab-count { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22); color: var(--gold); }
 
   /* ── Status group headers (All tab grouped view) ─────────── */
   .group {
@@ -151,17 +151,17 @@
     display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
   }
-  .ptype-workorder  { background: rgba(41,182,217,0.18); color: var(--blue); }
-  .ptype-shutdown   { background: rgba(248,113,113,0.18);  color: var(--wh-red-text, #FDC9C9); }
-  .ptype-capex      { background: rgba(247,162,27,0.18); color: var(--gold); }
-  .ptype-contractor { background: rgba(74,222,128,0.18); color: var(--green); }
+  .ptype-workorder  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--blue); }
+  .ptype-shutdown   { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.18);  color: var(--wh-red-text, #FDC9C9); }
+  .ptype-capex      { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--gold); }
+  .ptype-contractor { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
   .nature-pill {
     display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border: 1px solid transparent;
   }
-  .nature-reactive   { background: rgba(248,113,113,0.14);  color: var(--wh-red-text, #FDC9C9); border-color: rgba(248,113,113,0.3); }
-  .nature-preventive { background: rgba(74,222,128,0.14); color: var(--green); border-color: rgba(74,222,128,0.3); }
-  .nature-project    { background: rgba(247,162,27,0.14); color: var(--gold);  border-color: rgba(247,162,27,0.3); }
+  .nature-reactive   { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.14);  color: var(--wh-red-text, #FDC9C9); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
+  .nature-preventive { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.14); color: var(--green); border-color: rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
+  .nature-project    { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color: var(--gold);  border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
   .pname { font-size: 1rem; font-weight: 700; margin: 4px 0 8px; line-height: 1.25; }
   .pmeta { font-size: 0.78rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
   .progress { height: 6px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
@@ -172,10 +172,10 @@
   .pcard-foot { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
   .status-pill { padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; }
   .status-planning  { background: rgba(255,255,255,0.08); color: var(--muted); }
-  .status-active    { background: rgba(74,222,128,0.18); color: var(--green); }
+  .status-active    { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
   .status-on_hold   { background: rgba(250,204,21,0.18); color: var(--amber); }
-  .status-complete  { background: rgba(41,182,217,0.18); color: var(--blue); }
-  .status-cancelled { background: rgba(248,113,113,0.18);  color: var(--wh-red-text, #FDC9C9); }
+  .status-complete  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--blue); }
+  .status-cancelled { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.18);  color: var(--wh-red-text, #FDC9C9); }
   .status-archived  { background: rgba(255,255,255,0.04); color: var(--muted); }
   /* A scope item's status pill is a BUTTON (2026-10-12, W4673). It was a <span onclick>: utils.js's polyfill made it
      focusable, but as a bare "in progress, button" - a name that never said pressing it changes the task's status -
@@ -229,7 +229,7 @@
   table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
   th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   th { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
-  tr.critical td { background: rgba(248,113,113,0.06); }
+  tr.critical td { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.06); }
   tr.done td { opacity: 0.55; }
 
   /* ── Modal ────────────────────────────────────────────────── */
@@ -248,7 +248,7 @@
 
   /* ── Hive gate ────────────────────────────────────────────── */
   #hive-gate {
-    display: none; position: fixed; inset: 0; background: rgba(22,32,50,0.96);
+    display: none; position: fixed; inset: 0; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.96);
     z-index: 500; align-items: center; justify-content: center; padding: 32px; text-align: center;
   }
   #hive-gate .gate-card {
@@ -303,7 +303,7 @@
   .wizard-progress { display: flex; gap: 6px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted); }
   .wizard-progress .step { flex: 1; padding: 6px 12px; background: var(--card); border-radius: 8px; text-align: center; }
   .wizard-progress .step.active { background: var(--gold); color: var(--wh-navy); font-weight: 700; }
-  .wizard-progress .step.done { background: rgba(74,222,128,0.18); color: var(--green); }
+  .wizard-progress .step.done { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
   .wizard-pane { display: none; }
   .wizard-pane.active { display: block; }
   .wizard-foot { display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-top: 16px; }
@@ -316,7 +316,7 @@
     padding: 16px 20px; cursor: pointer; transition: background-color 0.15s var(--wh-ease-out, ease-out), border-color 0.15s var(--wh-ease-out, ease-out), transform 0.15s var(--wh-ease-out, ease-out);
   }
   .type-tile:hover { border-color: var(--gold); transform: translateY(-1px); }
-  .type-tile.selected { border-color: var(--gold); background: rgba(247,162,27,0.08); }
+  .type-tile.selected { border-color: var(--gold); background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); }
   .type-tile-icon { font-size: 1.6rem; margin-bottom: 6px; }
   .type-tile-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
   .type-tile-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
@@ -328,7 +328,7 @@
     padding: 12px 16px; cursor: pointer; transition: background-color 0.15s var(--wh-ease-out, ease-out), border-color 0.15s var(--wh-ease-out, ease-out);
   }
   .template-card:hover { border-color: var(--gold); background: var(--card-hover); }
-  .template-card.selected { border-color: var(--gold); background: rgba(247,162,27,0.08); }
+  .template-card.selected { border-color: var(--gold); background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); }
   .template-card-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
   .template-card-meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
   .template-card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
@@ -351,13 +351,13 @@
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap;
   }
   .phase-pre        { background: rgba(255,255,255,0.08); color: var(--muted); }
-  .phase-execute    { background: rgba(41,182,217,0.18); color: var(--blue); }
-  .phase-commission { background: rgba(74,222,128,0.18); color: var(--green); }
-  .phase-close      { background: rgba(247,162,27,0.18); color: var(--gold); }
+  .phase-execute    { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--blue); }
+  .phase-commission { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
+  .phase-close      { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--gold); }
   .phase-fel1       { background: rgba(255,255,255,0.08); color: var(--muted); }
-  .phase-fel2       { background: rgba(41,182,217,0.18); color: var(--blue); }
-  .phase-fel3       { background: rgba(74,222,128,0.18); color: var(--green); }
-  .phase-gate       { background: rgba(248,113,113,0.18); color: var(--wh-red-text, #FDC9C9); }
+  .phase-fel2       { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--blue); }
+  .phase-fel3       { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
+  .phase-gate       { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.18); color: var(--wh-red-text, #FDC9C9); }
   .item-remove { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; font-size: 1.1rem; }
   .item-remove:hover { color: var(--red); }
   .add-custom-row {
@@ -378,14 +378,14 @@
 .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
 .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
 .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
-.verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+.verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
 .verdict.healthy .verdict-icon { color:var(--wh-green); }
-.verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+.verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
 .verdict.watch   .verdict-icon { color:var(--wh-orange); }
-.verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+.verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
 .verdict.attn    .verdict-icon { color:var(--wh-red); }
-.verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-.verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
+.verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+.verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
 /* ── CLS reservation (Arc L) — reserve settled heights of above-the-fold async growers ──
    Each container below renders empty/placeholder at first paint then fills from a DB read,
@@ -459,7 +459,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
       <div style="display:flex; align-items:center; gap:10px;">
         <!-- Phase B merge: project-report.html now reachable as a button here -->
         <a data-i="p_printreport_06ec" href="project-report.html" id="project-print-btn" title="Open print-ready Project Report"
-           style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; min-height:44px; background:rgba(247,162,27,0.12); color:var(--orange-wh); border:1px solid rgba(247,162,27,0.3); border-radius:8px; font-size:0.78rem; font-weight:600; text-decoration:none;">
+           style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; min-height:44px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color:var(--orange-wh); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius:8px; font-size:0.78rem; font-weight:600; text-decoration:none;">
           📄 Print Report
         </a>
         <span id="hive-tag" class="small" style="color: var(--muted);"></span>
@@ -533,7 +533,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     data-rag-tile="project-manager:project_cards"
     data-rag-label="Project card grid"></div>
     <div id="pm-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);cursor:pointer;" data-i="loadmore">Load More</button>
+      <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);cursor:pointer;" data-i="loadmore">Load More</button>
     </div>
   </div>
 
@@ -569,7 +569,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="pm-summary-details">
 <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
@@ -583,7 +583,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <li><strong data-i="p_onholdorplanning_0ca5">On hold or planning</strong>: on hold or planning: work that's not moving yet.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ past end date; amber if any past end OR blocked count exceeds active; green when active &gt; blocked and nothing overdue.</li>
       </ul>
-      <p data-i="p_usethestatustabsbelowforthep_6863" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Use the status tabs below for the per-project drilldown.</p>
+      <p data-i="p_usethestatustabsbelowforthep_6863" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 12px;">Use the status tabs below for the per-project drilldown.</p>
     </div>
 </div>
 </div>
@@ -673,7 +673,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <input type="number" id="wiz-budget" min="0" step="100" placeholder="e.g. 250000">
         <div class="field-hint">Required for Earned Value tracking. Hidden for work-order and shutdown types unless you want it. WorkHive applies no VAT adjustment: the figure is stored exactly as you enter it, so use the basis your finance team tracks (VAT-inclusive or exclusive) and keep it consistent.</div>
       </div>
-      <div class="field"><label for="wiz-desc" data-i="description">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="wiz-desc-count" style="text-align:right;font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
+      <div class="field"><label for="wiz-desc" data-i="description">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="wiz-desc-count" style="text-align:right;font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 2000</p></div>
 
       <div style="margin: 16px 0 6px;">
         <strong data-i="p_scopeitems_b736" style="font-size:0.92rem;">Scope items</strong>
@@ -731,7 +731,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
           <div class="field-hint">WorkHive applies no VAT adjustment: the figure is stored exactly as you enter it, so use the basis your finance team tracks (VAT-inclusive or exclusive) and keep it consistent.</div>
         </div>
       </div>
-      <div class="field"><label for="f-desc" data-i="description">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="f-desc-count" style="text-align:right;font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
+      <div class="field"><label for="f-desc" data-i="description">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="f-desc-count" style="text-align:right;font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 2000</p></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-project')" data-i="cancel">Cancel</button>
         <button type="submit" class="btn primary" id="f-submit" data-i="create">Create</button>
@@ -788,7 +788,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <select id="s-preds" multiple style="min-height: 80px;"></select>
         <div data-i="p_holdctrlcmdtoselectmultipled_889a" class="field-hint">Hold Ctrl/Cmd to select multiple. Drives critical-path calculation. Defaults to the previous item.</div>
       </div>
-      <div class="field"><label for="s-notes" data-i="notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes (not the phase, that's above)."></textarea><p id="s-notes-count" style="text-align:right;font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 1000</p></div>
+      <div class="field"><label for="s-notes" data-i="notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes (not the phase, that's above)."></textarea><p id="s-notes-count" style="text-align:right;font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 1000</p></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-scope')" data-i="cancel">Cancel</button>
         <button type="submit" class="btn primary" data-i="save">Save</button>
@@ -893,7 +893,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <h3 data-i="raiseco">Raise change order</h3>
     <form id="form-co" onsubmit="event.preventDefault(); saveChangeOrder();">
       <div class="field"><label for="co-title" data-i="title">Title *</label><input type="text" id="co-title" required maxlength="200" placeholder="e.g. Add seismic anchor restraints"></div>
-      <div class="field"><label for="co-scope" data-i="scopechange">Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea><p id="co-scope-count" style="text-align:right;font-size: 0.75rem;color:rgba(255,255,255,0.80);margin:4px 0 0;">0 / 2000</p></div>
+      <div class="field"><label for="co-scope" data-i="scopechange">Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea><p id="co-scope-count" style="text-align:right;font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 2000</p></div>
       <div class="field"><label for="co-reason" data-i="reason">Reason</label>
         <select id="co-reason">
           <option value="">-</option>
@@ -2818,7 +2818,7 @@ function renderLinked() {
     </div>`;
   }).join('');
   const suggestionBanner = _linkSuggestions.length ? `
-    <div style="background: rgba(247,162,27,0.06); border: 1px solid rgba(247,162,27,0.28); border-radius: 12px; padding: 10px 16px; margin-bottom: 12px;">
+    <div style="background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.28); border-radius: 12px; padding: 10px 16px; margin-bottom: 12px;">
       <div style="font-weight: 600; margin-bottom: 4px; font-size: 0.92rem;">💡 ${_linkSuggestions.length}${_linkSuggestionsMore ? '+' : ''} open logbook ${(_linkSuggestions.length === 1 && !_linkSuggestionsMore) ? 'entry' : 'entries'} from the last 30 days</div>
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">Consider linking related work to this project.</div>
       <div>
@@ -3162,7 +3162,7 @@ function renderCpm() {
   if (res && Array.isArray(res.overloaded_days) && res.overloaded_days.length) {
     resHtml = `
       <h3 style="font-size: 0.92rem; margin-top: 16px;">Resource Overload</h3>
-      <div style="background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); border-radius: 12px; padding: 10px 16px;">
+      <div style="background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.08); border: 1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); border-radius: 12px; padding: 10px 16px;">
         <div style="font-weight: 600; margin-bottom: 6px;">⚠ ${res.overloaded_days.length} overloaded day-worker pair${res.overloaded_days.length === 1 ? '' : 's'} (>${res.daily_hours}h capacity)</div>
         <div class="small" style="color: var(--muted); margin-bottom: 6px;">Worker / day combinations exceeding daily capacity:</div>
         <ul style="font-size: 0.82rem; padding-left: 20px; line-height: 1.5;">

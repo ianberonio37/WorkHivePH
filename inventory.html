@@ -46,11 +46,11 @@
        pm-scheduler and community already use) - no moving layers, nothing to clip. */
     .aurora-bg::before {
       content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%;
-      background: radial-gradient(ellipse, rgba(247,162,27,0.08) 0%, transparent 70%); filter: blur(60px);
+      background: radial-gradient(ellipse, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08) 0%, transparent 70%); filter: blur(60px);
     }
     .aurora-bg::after {
       content: ''; position: absolute; bottom: -20%; right: -10%; width: 60%; height: 60%;
-      background: radial-gradient(ellipse, rgba(41,182,217,0.06) 0%, transparent 70%); filter: blur(60px);
+      background: radial-gradient(ellipse, rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06) 0%, transparent 70%); filter: blur(60px);
     }
 
     .hex-pattern {
@@ -60,7 +60,7 @@
 
     /* Card */
     .card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.9) 100%);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 1rem;
     }
@@ -70,7 +70,7 @@
        row past the viewport (measured a 1952px non-wrapping <p> -> horizontal page scroll). */
     .part-card p, .part-card .flex-1 { overflow-wrap: anywhere; word-break: break-word; min-width: 0; }
     .part-card {
-      background: linear-gradient(145deg, rgba(42,61,88,0.6) 0%, rgba(22,32,50,0.9) 100%);
+      background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.9) 100%);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 1rem;
       /* the stock hue stays on a 1px edge (2026-10-12, the W45941 motion walk): the craft floor refuses a coloured
@@ -101,7 +101,7 @@
 
     /* Inputs */
     .wh-input {
-      background: rgba(22,32,50,0.6);
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 0.75rem;
       color: white;
@@ -111,8 +111,8 @@
       transition: border-color 0.2s, box-shadow 0.2s;
       outline: none;
     }
-    .wh-input:focus { border-color: rgba(247,162,27,0.5); box-shadow: 0 0 0 3px rgba(247,162,27,0.1); }
-    .wh-input::placeholder { color:rgba(255,255,255,0.80); }
+    .wh-input:focus { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); box-shadow: 0 0 0 3px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1); }
+    .wh-input::placeholder { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     textarea.wh-input { resize: vertical; min-height: 80px; }
 
     /* Buttons */
@@ -123,7 +123,7 @@
       cursor: pointer; border: none; min-height: 44px;
       transition: opacity 0.2s, transform 0.1s;
     }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(247,162,27,0.35); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
 
     .btn-secondary {
@@ -136,32 +136,32 @@
     .btn-secondary:hover { background: rgba(255,255,255,0.1); }
 
     .btn-danger {
-      background: rgba(248,113,113,0.1); color: var(--wh-red-text);
+      background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); color: var(--wh-red-text);
       font-weight: 700; border-radius: var(--wh-radius-sm);
       padding: 0.5rem 1rem; font-size: 0.75rem;
-      cursor: pointer; border: 1px solid rgba(248,113,113,0.2); min-height: 44px;
+      cursor: pointer; border: 1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.2); min-height: 44px;
       transition: background 0.2s;
     }
-    .btn-danger:hover { background: rgba(248,113,113,0.2); }
+    .btn-danger:hover { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.2); }
 
     .btn-green {
-      background: rgba(74,222,128,0.12); color: var(--wh-green);
+      background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.12); color: var(--wh-green);
       font-weight: 700; border-radius: var(--wh-radius-sm);
       padding: 0.5rem 1rem; font-size: 0.75rem;
-      cursor: pointer; border: 1px solid rgba(74,222,128,0.25); min-height: 44px;
+      cursor: pointer; border: 1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.25); min-height: 44px;
       transition: background 0.2s;
     }
-    .btn-green:hover { background: rgba(74,222,128,0.2); }
+    .btn-green:hover { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.2); }
 
     /* Marketplace bridge (Inventory <-> Marketplace parts-flow fabric) */
     .mkt-bridge-btn {
-      background: rgba(41,182,217,0.12); color: var(--wh-blue-light);   /* C2: AA-safe blue (was --wh-blue @ 4.43:1) */
+      background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--wh-blue-light);   /* C2: AA-safe blue (was --wh-blue @ 4.43:1) */
       font-weight: 700; border-radius: var(--wh-radius-sm);
       padding: 0.5rem 1rem; font-size: 0.75rem;
-      cursor: pointer; border: 1px solid rgba(41,182,217,0.3); min-height: 44px;
+      cursor: pointer; border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3); min-height: 44px;
       transition: background 0.2s;
     }
-    .mkt-bridge-btn:hover { background: rgba(41,182,217,0.22); }
+    .mkt-bridge-btn:hover { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.22); }
 
     /* Label */
     /* ★THESE LABELS ARE FIELD NAMES, NOT BADGES (design lens slop, 2026-09-15). uppercase +
@@ -172,7 +172,7 @@
     .wh-label {
       display: block; font-size: 0.75rem; font-weight: 600;
       letter-spacing: 0.01em;
-      color:rgba(255,255,255,0.80); margin-bottom: 0.5rem;
+      color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom: 0.5rem;
     }
 
     /* Stat pill */
@@ -208,14 +208,14 @@
       font-size: 0.75rem; font-weight: 600; cursor: pointer;
       border: 1px solid rgba(255,255,255,0.1);
       background: rgba(255,255,255,0.04);
-      color:rgba(255,255,255,0.80);
+      color:var(--wh-text-muted, rgba(255,255,255,0.80));
       transition: all 0.15s; user-select: none;
       /* the trailing `min-height: 36px` that used to sit here is REMOVED, not just overridden: it came
          AFTER the 44px declaration in the same rule, so last-wins made my first fix a no-op and the
          prover still measured 36. A duplicate property in one block is the quietest kind of override. */
     }
-    .asset-tag:hover { border-color: rgba(41,182,217,0.35); color: var(--wh-blue); }
-    .asset-tag.selected { background: rgba(41,182,217,0.15); border-color: rgba(41,182,217,0.4); color: var(--wh-blue); }
+    .asset-tag:hover { border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.35); color: var(--wh-blue); }
+    .asset-tag.selected { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15); border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.4); color: var(--wh-blue); }
 
     /* Photo */
     .photo-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 0.5rem; border: 1px solid rgba(255,255,255,0.1); }
@@ -230,7 +230,7 @@
     .empty-state { opacity: 1; }
 
     /* Search highlight */
-    mark { background: rgba(247,162,27,0.3); color: var(--wh-orange-light); border-radius: 0; padding: 0 2px; }
+    mark { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); color: var(--wh-orange-light); border-radius: 0; padding: 0 2px; }
 
     /* Scrollbar */
     ::-webkit-scrollbar { width: 6px; }
@@ -242,14 +242,14 @@
     .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
     .verdict-text { font-size:0.875rem; font-weight:700; line-height:1.35; }   /* 0.9rem was 14.4px, a step nothing else uses (W45938) */
     .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }   /* 3px was off-grid (W45938) */
-    .verdict.healthy { background:rgba(74,222,128,0.07);  border-color:rgba(74,222,128,0.3); }
+    .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
-    .verdict.watch   { background:rgba(247,162,27,0.07);  border-color:rgba(247,162,27,0.3); }
+    .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
     .verdict.watch   .verdict-icon { color:var(--wh-orange); }
-    .verdict.attn    { background:rgba(248,113,113,0.07); border-color:rgba(248,113,113,0.3); }
+    .verdict.attn    { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .verdict.attn    .verdict-icon { color:var(--wh-red); }
-    .verdict.empty   { background:rgba(255,255,255,0.03); border-color:rgba(255,255,255,0.08); }
-    .verdict.empty   .verdict-icon { color:rgba(255,255,255,0.80); }
+    .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:rgba(255,255,255,0.08); }
+    .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
     #inv-summary-details { display:none; padding:12px 16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; font-size:0.75rem; line-height:1.5;   /* 0.78rem was 12.48px, a step nothing else uses (W45938) */ color:rgba(255,255,255,0.83); margin-bottom:16px; }
     #inv-summary-details.open { display:block; }
@@ -264,7 +264,7 @@
   <div class="hex-pattern fixed inset-0 z-0 pointer-events-none opacity-60"></div>
 
   <!-- NAVBAR -->
-  <nav class="relative z-10 border-b border-white/[0.06]" style="background: rgba(22,32,50,0.85); backdrop-filter: blur(16px);">
+  <nav class="relative z-10 border-b border-white/[0.06]" style="background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85); backdrop-filter: blur(16px);">
     <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
       <!-- T113 (2026-08-27): min-w-0 so this group may SHRINK. Without it a flex item refuses to go
            below its content width, so "Inventory Monitor" held the row open and pushed the Back link
@@ -279,7 +279,7 @@
         <!-- T125/T51 (2026-08-25): the hive stamp — same pattern as logbook/pm-scheduler.
              Screenshots of this page must carry WHOSE hive they show; a multi-hive contractor
              must see which hive is on the glass. Hidden until wh_hive_name resolves. -->
-        <div id="hive-chip" data-wh-hive-chip class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(247,162,27,0.1);border:1px solid rgba(247,162,27,0.25);color:var(--wh-orange-text);">
+        <div id="hive-chip" data-wh-hive-chip class="hidden items-center gap-1.5 px-2.5 py-1 rounded-full text-xs" style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);color:var(--wh-orange-text);">
           <span class="ic ic-community" aria-hidden="true"></span>
           <span id="hive-chip-name" data-wh-hive-name class="font-semibold truncate max-w-[110px]"></span>
         </div>
@@ -322,13 +322,13 @@
                including the scope preamble, so the file still says what it is once it is off the page. -->
           <button id="btn-export-inventory" type="button" class="text-xs py-2 px-3 flex items-center gap-1.5"
                   title="Export to CSV" aria-label="Export the current inventory to CSV"
-                  style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:rgba(255,255,255,0.80); cursor:pointer; font-weight:600; white-space:nowrap;">
+                  style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor:pointer; font-weight:600; white-space:nowrap;">
             <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
           </button>
           <!-- D3 (2026-10-16): a removed part waits here for 30 days, with its stock ledger. -->
           <button id="btn-recently-deleted" type="button" class="text-xs py-2 px-3" aria-haspopup="dialog" aria-expanded="false"
                   onclick="typeof whRecentlyDeleted === 'function' && whRecentlyDeleted(db, 'inventory_items', { hiveId: HIVE_ID || null, title: 'Recently deleted parts', opener: this, onRestored: () => initData() })"
-                  style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:rgba(255,255,255,0.80); cursor:pointer; font-weight:600; white-space:nowrap;">
+                  style="min-height:44px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor:pointer; font-weight:600; white-space:nowrap;">
             Recently deleted
           </button>
           <button id="btn-add-part" class="btn-primary text-xs py-2 px-4 flex items-center gap-1.5">
@@ -378,7 +378,7 @@
 
     <!-- Low stock alert banner -->
     <div id="low-stock-banner" class="hidden rounded-xl px-5 py-3 mb-6 flex items-center gap-3"
-         style="background: rgba(247,162,27,0.08); border: 1px solid rgba(247,162,27,0.2);">
+         style="background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2);">
       <span class="ic ic-back" aria-hidden="true"></span>
       <span id="low-stock-banner-text" class="text-sm font-semibold" style="color:var(--wh-orange-text)"></span>
     </div>
@@ -429,8 +429,8 @@
 
     <!-- Load More -->
     <div id="inv-load-more-wrap" class="hidden mt-1 pb-4">
-      <button onclick="loadMoreInventory()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(247,162,27,0.1);color:var(--wh-orange-text);border:1px solid rgba(247,162,27,0.3);" data-i="loadmore">Load More</button>
-      <p id="inv-count-label" class="text-center text-xs mt-2" style="color:rgba(255,255,255,0.80);"></p>
+      <button onclick="loadMoreInventory()" class="w-full py-3 rounded-xl text-sm font-semibold" style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);" data-i="loadmore">Load More</button>
+      <p id="inv-count-label" class="text-center text-xs mt-2" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));"></p>
     </div>
 
     <!-- Empty state -->
@@ -452,7 +452,7 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:rgba(255,255,255,0.80);">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="inv-summary-details">
 <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="inv-summary-details" data-i="showdetails">
@@ -468,7 +468,7 @@
         <li><strong data-i="p_pendingparts_262d">Pending parts</strong>: parts a worker added in this hive that need a supervisor sign-off before Use / Restock unlocks.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if any out-of-stock for critical parts; amber if any low-stock OR pending; green when fully stocked.</li>
       </ul>
-      <p data-i="p_usethesearchandcategoryfilte_8a66" style="margin-top:8px;color:rgba(255,255,255,0.80);font-size: 12px;">Use the search and category filter below for the part-by-part drill-down.</p>
+      <p data-i="p_usethesearchandcategoryfilte_8a66" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 12px;">Use the search and category filter below for the part-by-part drill-down.</p>
     </div>
 </div>
 </div>
@@ -480,7 +480,7 @@
   <!-- TOAST -->
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden" role="alert" aria-live="polite">
     <div class="rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 shadow-xl"
-         style="background: linear-gradient(135deg, rgba(42,61,88,0.97), rgba(22,32,50,0.97)); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px);">
+         style="background: linear-gradient(135deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97)); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(12px);">
       <svg id="toast-icon" class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
       </svg>
@@ -507,7 +507,7 @@
               <datalist id="existing-part-numbers"></datalist>
               <!-- Phase E.3d: Scan barcode / QR to auto-fill Part Number -->
               <button type="button" id="inv-scan-btn" aria-label="Scan part barcode with camera"
-                      style="min-width:44px; min-height:44px; padding:0 10px; display:flex; align-items:center; justify-content:center; background:rgba(247,162,27,0.12); color:var(--wh-orange); border:1px solid rgba(247,162,27,0.3); border-radius:0.75rem; cursor:pointer;">
+                      style="min-width:44px; min-height:44px; padding:0 10px; display:flex; align-items:center; justify-content:center; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color:var(--wh-orange); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius:0.75rem; cursor:pointer;">
                 <span class="ic ic-scan" aria-hidden="true"></span>
               </button>
             </div>
@@ -568,7 +568,7 @@
                  placeholder="Find a machine by tag or name" aria-label="Find a machine by tag or name" />
           <p id="asset-linker-nomatch" class="text-xs text-white/80 mt-1 hidden" role="status"></p>
           <div id="asset-linker" class="flex flex-wrap gap-2 mt-1 rounded-xl p-3 min-h-[52px]"
-               style="background:rgba(22,32,50,0.4); border:1px solid rgba(255,255,255,0.08);">
+               style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4); border:1px solid rgba(255,255,255,0.08);">
             <p data-i="p_noassetsregisteredregisteras_140d" id="asset-linker-empty" class="text-xs text-white/80 self-center">No assets registered. Register assets in the Logbook first.</p>
           </div>
         </div>
@@ -585,7 +585,7 @@
           <input id="f-photo-input" type="file" accept="image/*" capture="environment" class="hidden" />
           <label id="f-photo-dropzone" for="f-photo-input"
             class="flex items-center gap-3 cursor-pointer rounded-xl px-4 py-3 border border-dashed border-white/15 hover:border-white/30 transition-colors"
-            style="background:rgba(255,255,255,0.03);">
+            style="background:var(--wh-surface-card, rgba(255,255,255,0.03));">
             <span class="ic ic-image" aria-hidden="true"></span>
             <span class="text-xs text-white/80" data-i="tapattach">Tap to attach photo</span>
           </label>
@@ -600,13 +600,13 @@
             <img id="f-photo-thumb" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="photo-thumb cursor-pointer" title="Tap to replace"
                  role="button" tabindex="0" alt="Attached photo. Activate to replace it." />
             <button id="f-photo-remove"
-              style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:rgba(30,30,40,0.95);border:1.5px solid rgba(255,255,255,0.18);border-radius:50%;color:rgba(255,255,255,0.86);font-size: 12px;display:flex;align-items:center;justify-content:center;cursor:pointer;" aria-label="Remove">
+              style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:rgba(30,30,40,0.95);border:1.5px solid rgba(255,255,255,0.18);border-radius:50%;color:var(--wh-text-faint, rgba(255,255,255,0.86));font-size: 12px;display:flex;align-items:center;justify-content:center;cursor:pointer;" aria-label="Remove">
               &#x2715;
             </button>
           </div>
         </div>
         <div role="alert" aria-live="assertive" id="part-form-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
-             style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.2);"></div>
+             style="background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.2);"></div>
         <div class="flex gap-2 pt-1">
           <button id="part-submit-btn" class="btn-primary flex-1" data-i="savepart">Save Part</button>
           <button id="part-cancel-btn" class="btn-secondary px-4" data-i="cancel">Cancel</button>
@@ -634,7 +634,7 @@
           <input id="use-job-ref" type="text" class="wh-input" placeholder="e.g. WO-2042, PM April Batch" autocomplete="off" maxlength="200">
         </div>
         <div role="alert" aria-live="assertive" id="use-modal-error" class="hidden text-xs text-red-400 rounded-lg px-3 py-2"
-             style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.2);"></div>
+             style="background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.2);"></div>
         <div class="flex gap-2">
           <button id="use-submit-btn" class="btn-primary flex-1" data-i="confirmuse">Confirm Use</button>
           <button id="use-cancel-btn" class="btn-secondary px-4" data-i="cancel">Cancel</button>
@@ -1046,19 +1046,19 @@ function catBadge(cat) {
 
 function approvalBadge(item) {
   if (!HIVE_ID) return ''; // solo: no approval flow
-  if (item.status === 'pending')  return `<span class="badge" style="background:rgba(247,162,27,0.15);color:var(--wh-orange);border:1px solid rgba(247,162,27,0.35);">Pending Approval</span>`;
-  if (item.status === 'rejected') return `<span class="badge" style="background:rgba(248,113,113,0.12);color:var(--wh-red);border:1px solid rgba(248,113,113,0.28);">Rejected</span>`;
+  if (item.status === 'pending')  return `<span class="badge" style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15);color:var(--wh-orange);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35);">Pending Approval</span>`;
+  if (item.status === 'rejected') return `<span class="badge" style="background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.12);color:var(--wh-red);border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.28);">Rejected</span>`;
   return '';
 }
 
 function assetBadge(id) {
-  return `<span class="badge" style="background:rgba(41,182,217,0.1);color:var(--wh-blue-light);border:1px solid rgba(41,182,217,0.18);">${escHtml(id)}</span>`;
+  return `<span class="badge" style="background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1);color:var(--wh-blue-light);border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18);">${escHtml(id)}</span>`;
 }
 
 function txnIcon(type) {
-  if (type === 'add'    || type === 'restock')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size: 12px;font-weight:900;background:rgba(74,222,128,0.2);color:var(--wh-green);flex-shrink:0;">+</span>`;
-  if (type === 'use')                              return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:rgba(248,113,113,0.15);color:var(--wh-red);flex-shrink:0;">−</span>`;
-  if (type === 'adjust' || type === 'adjustment') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size: 12px;font-weight:900;background:rgba(41,182,217,0.15);color:var(--wh-blue-text);flex-shrink:0;">~</span>`;
+  if (type === 'add'    || type === 'restock')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size: 12px;font-weight:900;background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.2);color:var(--wh-green);flex-shrink:0;">+</span>`;
+  if (type === 'use')                              return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.15);color:var(--wh-red);flex-shrink:0;">−</span>`;
+  if (type === 'adjust' || type === 'adjustment') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size: 12px;font-weight:900;background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15);color:var(--wh-blue-text);flex-shrink:0;">~</span>`;
   return '';
 }
 
@@ -2668,12 +2668,12 @@ function openDetailModal(id) {
       ${invPhotoImg(item, 'Inventory item photo', 'class="photo-thumb flex-shrink-0"')}
     </div>
     ${item.status === 'pending' && HIVE_ID ? `
-    <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(247,162,27,0.07);border:1px solid rgba(247,162,27,0.22);">
+    <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22);">
       <span class="ic ic-back" aria-hidden="true"></span>
       <p class="text-xs font-semibold" style="color:var(--wh-orange-text);">Awaiting supervisor approval: Use and Restock are locked until this part is approved.</p>
     </div>` : ''}
     ${item.status === 'rejected' && HIVE_ID ? `
-    <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.22);">
+    <div class="rounded-xl px-4 py-3 mb-4 flex items-start gap-2.5" style="background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07);border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.22);">
       <span class="ic ic-back" aria-hidden="true"></span>
       <p class="text-xs font-semibold text-red-400">Rejected by supervisor. Edit the part details and save to resubmit for approval.</p>
     </div>` : ''}
@@ -2700,7 +2700,7 @@ function openDetailModal(id) {
     </div>` : ''}
 
     ${item.notes ? `
-    <div class="rounded-xl px-4 py-3 mb-5" style="background:rgba(247,162,27,0.06);border:1px solid rgba(247,162,27,0.12);">
+    <div class="rounded-xl px-4 py-3 mb-5" style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12);">
       <p class="text-xs text-orange-wh uppercase tracking-widest font-semibold mb-1.5">Notes</p>
       <p class="text-sm text-white/85 leading-relaxed">${escHtml(item.notes)}</p>
     </div>` : ''}

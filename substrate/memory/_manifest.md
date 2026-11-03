@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1076-files
-source_sha: 56ba195816b1b585
+source: memory-curated:1077-files
+source_sha: 9f0f54a8eae8b9ce
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1076 durable topic files)
+## memory · curated auto-memory (1077 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=680 · project=304 · reference=92
+**By type:** feedback=681 · project=304 · reference=92
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -77,6 +77,7 @@ Entries (name · type · sha):
 - `feedback_a_duplicate_id_means_merge_not_register_twice` · feedback · 2518875c9d1ecf5b
 - `feedback_a_failed_read_offered_first_run_onboarding` · feedback · 036155b5fa8927c7
 - `feedback_a_fallback_chain_needs_the_whole_chain` · feedback · c256e859265753b1
+- `feedback_a_fallback_is_a_cached_copy_of_the_token` · feedback · 873b84610bc41ee4
 - `feedback_a_false_red_hides_which_cell_broke` · feedback · 38921d8dbd6c2b2f
 - `feedback_a_family_that_measures_identically_is_a_reason_to_read_the_generator` · feedback · 8e3d0c61c0c2b3a4
 - `feedback_a_figure_about_someone_else_is_the_viewers_rls_slice` · feedback · 8d024cced63a4024
@@ -515,7 +516,6 @@ Entries (name · type · sha):
 - `feedback_rail_grader_correlated_blindspot_2026_06_14` · feedback · 7c06b0def9240439
 - `feedback_reachable_somewhere_is_not_reachable_from_here` · feedback · 9d550121ebd94ca6
 - `feedback_read_vercel_not_its_shadow` · feedback · 242b5b67e00167c9
-- `feedback_real_documents_taught_the_miner_eight_lessons` · feedback · c5842d03ea187873
-- … +576 more (all included in the fingerprint)
+- … +577 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]
