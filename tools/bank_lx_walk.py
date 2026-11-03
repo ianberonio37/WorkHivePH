@@ -397,11 +397,16 @@ def judge(layer: str, persona: str, v: dict, page: str, ctx: dict) -> tuple[str,
         # ★BLANK AND RECOVERED ARE MEASURED AGAINST THE PAGE'S OWN SIZE (2026-11-03, CX-FND). The walker calls a reading
         # blank under 120 characters and the slow load recovered at 200; both assume a page with content. A founder page's
         # whole answer to a non-admin is 73 characters, so its refused read ("could not load" and a Retry, 46 characters)
-        # read as blank, and its late load could never reach 200. For a page that is itself a short screen, blank means
-        # under half of what it normally shows, and recovered means all of it; a page of content is judged as before.
+        # read as blank, and its late load could never reach 200. For a page that is itself a short screen, recovered means
+        # all of what it normally shows; a page of content is judged as before.
+        # ...and blank means it said NOTHING (same day, marketplace-admin 175 and platform-actions 363 characters to a
+        # non-admin): "blank" exists for a page of content that falls to a bare line and loses everything a person was
+        # reading. A state screen (under 600 characters - the line CA draws for empty, choice and refusal screens) has no
+        # content to lose; with its reads refused, the sentence naming the failure IS its whole answer. So such a screen
+        # is blank only when it names no failure; a page of content that falls under 120 is blank, as it always was.
         healthy_n = sl.get("healthyChars") or h.get("chars") or 0
         blank = dn.get("blank")
-        if blank and healthy_n < 120 and ((v.get("down") or {}).get("chars") or 0) >= 0.5 * healthy_n:
+        if blank and healthy_n < 600 and dn.get("saysFailure"):
             blank = False
         down_ok = bool(dn.get("saysFailure")) and not blank
         early = sl.get("early") or {}

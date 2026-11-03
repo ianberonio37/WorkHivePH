@@ -13651,6 +13651,16 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        "id":      "founder-rpc-refusal",
+        "script":  os.path.join("tools", "prove_founder_rpc_refusal.py"),
+        "args":    ["--check"],
+        "label":   "Founder RPC refusal (2026-11-03, CX-FND: every RPC a founder page's own code calls, asked DIRECTLY as a "
+                   "non-admin supervisor, a non-admin worker and a visitor, is refused - 42501, or empty where the admin's "
+                   "identical call is full; an answer equal to the admin's is a leak and fails)",
+        "group":   "Security",
+        "skip_if_fast": False,
+    },
+    {
         # ★THE OTHER HALF OF THE SAME BOUNDARY: NOT "may a stranger read it" BUT "does a REVOKED member stop"
         # (LAYER-UX §LX, AU layer, 2026-10-05). An access token is a signed bearer string with its own expiry, so
         # revoking a membership does not revoke it. The only thing between a dismissed worker and their old hive is

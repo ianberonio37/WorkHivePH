@@ -446,10 +446,23 @@
      filtered entries to CSV" instead of the not-a-supervisor gate - the pre-gate above acts only on a cached NO.
      The membership row is asked now, beside the session settle below, and the gate decides on the server's role. */
   const _roleReady = (typeof whReconcileHiveRole === 'function') ? _hiveSeated.then(() => whReconcileHiveRole(db)).catch(() => null) : Promise.resolve(null);
+  /* ★A HIDDEN PAGE IS NOT A WAIT (CX-FND walk, 2026-11-03). The cached NO hides the chrome at once, and the card that
+     says why waits for the server's role (SL AU2) - so with the reads 8 s late a worker saw the header and nothing
+     under it, no answer and no sign one was coming, for as long as the round trip took. The founder pages' rule ("a
+     blank screen is not a wait"): one line, announced, that the page is checking, gone the moment the gate decides. */
+  let _prePend = null;
+  const _settleGate = () => { if (_prePend && _prePend.parentNode) _prePend.parentNode.removeChild(_prePend); _prePend = null; };
   try {
     const _preHive = (typeof whHiveId === 'function' ? whHiveId() : '') || '';
     const _preMain = document.getElementById('main-content');
-    if (_preMain && _preHive && _preRole && !_IS_SUPERVISOR) _preMain.style.display = 'none';
+    if (_preMain && _preHive && _preRole && !_IS_SUPERVISOR) {
+      _preMain.style.display = 'none';
+      _prePend = document.createElement('p');
+      _prePend.className = 'loading';
+      _prePend.setAttribute('role', 'status');
+      _prePend.textContent = 'Checking your access…';
+      _preMain.parentNode.insertBefore(_prePend, _preMain);
+    }
   } catch (_) { /* empty-catch-allow: a storage read that fails leaves the async gate to decide, as before */ }
 
   logPageView(db);
@@ -491,18 +504,23 @@
      at the top of this IIFE, so the second read is gone with the second comparison. */
   const mainEl = document.getElementById('main-content');
   if (!HIVE_ID) {
+    _settleGate();
     if (mainEl) mainEl.style.display = 'none';
     document.getElementById('gate-no-hive').style.display = 'block';
     return;
   }
   const _rr = await _roleReady;          // { was, now } only when the server disagreed with this device
   if (_rr) _IS_SUPERVISOR = _isSupRole(_rr.now);
+  _settleGate();
   if (!_IS_SUPERVISOR) {                 // the single comparison hoisted to the top of this IIFE
     if (mainEl) mainEl.style.display = 'none';
     document.getElementById('gate-not-supervisor').style.display = 'block';
     return;
   }
-  if (_rr && mainEl) mainEl.style.display = '';   // promoted since this device last looked: the cached-NO pre-gate hid it
+  // promoted since this device last looked: the cached-NO pre-gate hid it. Not only when the reconcile reports a
+  // disagreement - the hive seat above can carry the server's role first, and then nothing disagrees and the
+  // page stayed hidden from a supervisor. Here the person is a supervisor of a hive, so the page shows.
+  if (mainEl && mainEl.style.display === 'none') mainEl.style.display = '';
 
   // main-content already VISIBLE (shipped without display:none) so it paints once
   // in final layout — no JS reveal here (that was the ~0.7 CLS bomb; Arc L L1).
