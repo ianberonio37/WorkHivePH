@@ -85,6 +85,21 @@ def main():
         parts = ln.split('|')
         solo_email[parts[0].strip()] = parts[1].strip() if len(parts) > 1 else ''
 
+    # ★ON A FOUNDER PAGE, OVERSIGHT IS THE PLATFORM STAFF IT IS NAMED FOR (2026-11-04, CX-UX). The persona resolves to a
+    # supervisor for the field pages (the rule above), and that is the cast the cube means there. But the cube casts
+    # `oversight` on a founder surface precisely because it is "the platform-staff persona" (sublayer_inventory.casts),
+    # and those pages open only for a platform admin: an ordinary supervisor gets "Founder access only", and a walk
+    # banked on that would grade the refusal as the page. So a walk whose path touches a founder page is cast as a
+    # platform admin who supervises a hive (the walker still refuses to bank a refusal screen if this ever drifts).
+    try:
+        from sublayer_inventory import FOUNDER_PAGES as _FOUNDER
+    except Exception:
+        _FOUNDER = ()
+    _admin = psql("SELECT u.email, m.hive_id FROM marketplace_platform_admins a JOIN hive_members m "
+                  "ON m.worker_name = a.worker_name AND m.status = 'active' AND m.role = 'supervisor' "
+                  "JOIN auth.users u ON u.id = m.auth_uid ORDER BY a.worker_name, m.hive_id LIMIT 1;")
+    platform_admin = tuple(p.strip() for p in _admin[0].split('|')) if _admin else None
+
     def member_of(hive_id, role):
         # an ORDINARY member first (a platform admin sees doors the persona does not - the J27 lesson), and a
         # deterministic pick: `LIMIT 1` with no ORDER BY let the planner choose the cast, run to run
@@ -133,6 +148,9 @@ def main():
                 note = 'oversight - admin cast, ROUTE-only'
             elif persona == 'anon':
                 note = 'anon - signed out'
+        elif persona == 'oversight' and set(pages) & set(_FOUNDER) and platform_admin:
+            email, hive_id = platform_admin
+            note = 'oversight on a founder page - platform admin %s' % email.split('@')[0]
         else:
             role = PERSONA_ROLE.get(persona, 'worker')
             vkey = vertical.strip()

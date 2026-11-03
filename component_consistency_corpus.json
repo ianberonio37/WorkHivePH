@@ -1,10 +1,10 @@
 {
   "_doc": "① Component battery corpus. Static spine; live DOM confirm = __UFAI.component().",
   "pages": [
+    "about/index.html",
     "achievements.html",
     "ai-quality.html",
     "alert-hub.html",
-    "analytics-report.html",
     "analytics.html",
     "asset-hub.html",
     "assistant.html",
@@ -12,21 +12,140 @@
     "community.html",
     "dayplanner.html",
     "engineering-design.html",
+    "feedback/index.html",
     "hive.html",
     "index.html",
     "integrations.html",
     "inventory.html",
+    "learn/ai-companion-hezekiah-zaniah-personas/index.html",
+    "learn/ai-quality-and-roi-stage-2-plants/index.html",
+    "learn/ai-work-assistant-maintenance-technicians/index.html",
+    "learn/asset-brain-360-one-machine-history-philippine-plant/index.html",
+    "learn/autonomous-shift-planning-philippine-plants/index.html",
+    "learn/best-free-cmms-software-philippines/index.html",
+    "learn/bms-facilities-maintenance-peza-buildings/index.html",
+    "learn/building-asset-register-zero-budget/index.html",
+    "learn/cmms-vs-excel-spreadsheet-maintenance/index.html",
+    "learn/connecting-workhive-to-sap-maximo-cmms/index.html",
+    "learn/dilo-wilo-day-planner-supervisors/index.html",
+    "learn/dole-iso-audit-trail-from-logbook/index.html",
+    "learn/fmea-worked-example-philippine-bottling-line/index.html",
+    "learn/food-beverage-plant-maintenance-philippines/index.html",
+    "learn/four-phases-maintenance-analytics-philippine-plants/index.html",
+    "learn/free-engineering-calculators-philippine-plants/index.html",
+    "learn/free-pm-checklist-templates/index.html",
+    "learn/gamifying-maintenance-for-engagement/index.html",
+    "learn/index.html",
+    "learn/industrial-community-of-practice-philippines/index.html",
+    "learn/industrial-marketplace-philippine-specialists/index.html",
+    "learn/joining-and-growing-your-hive/index.html",
+    "learn/loto-procedures-dole-oshs-template/index.html",
+    "learn/maintenance-metrics-reliability-guide/index.html",
+    "learn/maintenance-project-planning-template/index.html",
+    "learn/maintenance-shift-handover-template/index.html",
+    "learn/mtbf-vs-mttr-for-supervisors/index.html",
+    "learn/ofw-engineer-portable-portfolio/index.html",
+    "learn/ph-industrial-benchmarks-intelligence/index.html",
+    "learn/ph-plant-compliance-guide/index.html",
+    "learn/philippine-plants-now-pay-the-highest-power-rates/index.html",
+    "learn/plant-alert-inbox-amc-daily-brief/index.html",
+    "learn/power-plant-reliability-metrics-philippines/index.html",
+    "learn/predictive-alert-thresholds-plants/index.html",
+    "learn/predictive-maintenance-on-a-budget-philippines/index.html",
+    "learn/print-ready-maintenance-analytics-report/index.html",
+    "learn/psme-iiee-piche-which-association-to-join/index.html",
+    "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
+    "learn/reduce-unplanned-downtime-guide/index.html",
+    "learn/reliability-centered-maintenance-philippine-plants/index.html",
+    "learn/resume-builder-for-filipino-industrial-workers/index.html",
+    "learn/sensor-cmms-gateway-operations/index.html",
+    "learn/skill-matrix-for-maintenance-technicians/index.html",
+    "learn/spare-parts-inventory-philippine-plants/index.html",
+    "learn/start-digital-logbook-philippine-factory/index.html",
+    "learn/start-digital-maintenance-guide/index.html",
+    "learn/tesda-nc-mapping-to-skill-matrix/index.html",
+    "learn/thermography-for-pm-philippine-plants/index.html",
+    "learn/vibration-analysis-on-a-phone-budget/index.html",
+    "learn/voice-to-text-maintenance-philippine-plant-floor/index.html",
+    "learn/what-is-oee-how-to-calculate/index.html",
+    "learn/what-is-workhive-complete-platform-guide/index.html",
+    "learn/workhive-ai-companion-complete-capabilities/index.html",
+    "learn/workhive-vs-maintainx-comparison/index.html",
+    "learn/workhive-vs-upkeep-free-cmms-comparison/index.html",
     "logbook.html",
+    "marketplace-seller.html",
     "marketplace.html",
     "ph-intelligence.html",
     "plant-connections.html",
     "pm-scheduler.html",
+    "privacy-policy/index.html",
     "project-manager.html",
     "project-report.html",
     "report-sender.html",
     "resume.html",
     "shift-brain.html",
     "skillmatrix.html",
+    "terms-of-service/index.html",
+    "tools/ahu-sizing-calculator/index.html",
+    "tools/beam-design-calculator/index.html",
+    "tools/bearing-life-calculator/index.html",
+    "tools/boiler-steam-calculator/index.html",
+    "tools/boiler-system-calculator/index.html",
+    "tools/bolt-torque-calculator/index.html",
+    "tools/cable-tray-sizing-calculator/index.html",
+    "tools/chiller-sizing-calculator/index.html",
+    "tools/clean-agent-suppression-calculator/index.html",
+    "tools/compressed-air-calculator/index.html",
+    "tools/cooling-tower-calculator/index.html",
+    "tools/domestic-water-demand-calculator/index.html",
+    "tools/drainage-pipe-sizing-calculator/index.html",
+    "tools/duct-sizing-calculator/index.html",
+    "tools/earthing-grounding-calculator/index.html",
+    "tools/elevator-traffic-calculator/index.html",
+    "tools/expansion-tank-calculator/index.html",
+    "tools/fcu-selection-calculator/index.html",
+    "tools/fire-alarm-battery-calculator/index.html",
+    "tools/fire-pump-calculator/index.html",
+    "tools/fire-sprinkler-calculator/index.html",
+    "tools/generator-sizing-calculator/index.html",
+    "tools/grease-trap-calculator/index.html",
+    "tools/harmonic-distortion-calculator/index.html",
+    "tools/heat-exchanger-calculator/index.html",
+    "tools/hoist-capacity-calculator/index.html",
+    "tools/hot-water-demand-calculator/index.html",
+    "tools/hvac-cooling-load-calculator/index.html",
+    "tools/hydraulic-cylinder-calculator/index.html",
+    "tools/lighting-design-calculator/index.html",
+    "tools/lightning-protection-calculator/index.html",
+    "tools/load-estimation-calculator/index.html",
+    "tools/load-schedule-calculator/index.html",
+    "tools/mtbf-calculator/index.html",
+    "tools/noise-acoustics-calculator/index.html",
+    "tools/oee-calculator/index.html",
+    "tools/pipe-sizing-calculator/index.html",
+    "tools/power-factor-correction-calculator/index.html",
+    "tools/pressure-vessel-calculator/index.html",
+    "tools/pump-tdh-calculator/index.html",
+    "tools/refrigerant-pipe-calculator/index.html",
+    "tools/roof-drain-calculator/index.html",
+    "tools/septic-tank-calculator/index.html",
+    "tools/sewer-drainage-calculator/index.html",
+    "tools/shaft-design-calculator/index.html",
+    "tools/short-circuit-calculator/index.html",
+    "tools/solar-pv-calculator/index.html",
+    "tools/stairwell-pressurization-calculator/index.html",
+    "tools/storm-drain-calculator/index.html",
+    "tools/transformer-sizing-calculator/index.html",
+    "tools/ups-sizing-calculator/index.html",
+    "tools/v-belt-drive-calculator/index.html",
+    "tools/ventilation-ach-calculator/index.html",
+    "tools/vibration-isolation-calculator/index.html",
+    "tools/voltage-drop-calculator/index.html",
+    "tools/wastewater-stp-calculator/index.html",
+    "tools/water-softener-calculator/index.html",
+    "tools/water-supply-pipe-calculator/index.html",
+    "tools/water-treatment-calculator/index.html",
+    "tools/wire-sizing-calculator/index.html",
     "voice-journal.html"
   ],
   "corpus": {
@@ -36,12 +155,11 @@
         "simple-card": [
           {
             "shape": [
-              "sc-hero",
-              "sc-label",
-              "sc-sub",
-              "sc-tag"
+              "sc-label"
             ],
-            "missing_required": [],
+            "missing_required": [
+              "sc-hero"
+            ],
             "modifiers": [
               "tag-grey"
             ]
@@ -69,9 +187,19 @@
             "modifiers": [
               "tag-grey"
             ]
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -158,7 +286,9 @@
             "missing_required": [],
             "modifiers": []
           }
-        ]
+        ],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -212,7 +342,9 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -226,23 +358,6 @@
       "capabilities": [
         "alert_dashboard"
       ]
-    },
-    "analytics-report.html": {
-      "page": "analytics-report.html",
-      "primitives": {
-        "simple-card": [],
-        "sum-card": []
-      },
-      "census": {
-        "view-tab": 0,
-        "filter-chip": 0,
-        "phase-tab": 0,
-        "shift-pill": 0,
-        "chip": 0,
-        "pill": 0,
-        "stepper": 0
-      },
-      "capabilities": []
     },
     "analytics.html": {
       "page": "analytics.html",
@@ -276,8 +391,7 @@
             "shape": [
               "sc-hero",
               "sc-label",
-              "sc-sub",
-              "sc-tag"
+              "sc-sub"
             ],
             "missing_required": [],
             "modifiers": [
@@ -285,7 +399,9 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -339,7 +455,9 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -358,7 +476,9 @@
       "page": "assistant.html",
       "primitives": {
         "simple-card": [],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -375,7 +495,9 @@
       "page": "audit-log.html",
       "primitives": {
         "simple-card": [],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -392,7 +514,9 @@
       "page": "community.html",
       "primitives": {
         "simple-card": [],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -446,7 +570,9 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 4,
@@ -463,7 +589,9 @@
       "page": "engineering-design.html",
       "primitives": {
         "simple-card": [],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -508,7 +636,9 @@
             "modifiers": []
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -525,7 +655,9 @@
       "page": "index.html",
       "primitives": {
         "simple-card": [],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -579,7 +711,9 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -633,7 +767,9 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -650,11 +786,105 @@
       "page": "logbook.html",
       "primitives": {
         "simple-card": [],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
         "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "marketplace-seller.html": {
+      "page": "marketplace-seller.html",
+      "primitives": {
+        "simple-card": [
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          }
+        ],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 4,
         "phase-tab": 0,
         "shift-pill": 0,
         "chip": 0,
@@ -671,8 +901,7 @@
             "shape": [
               "sc-hero",
               "sc-label",
-              "sc-sub",
-              "sc-tag"
+              "sc-sub"
             ],
             "missing_required": [],
             "modifiers": [
@@ -690,9 +919,43 @@
             "modifiers": [
               "tag-grey"
             ]
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -746,7 +1009,9 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -776,7 +1041,9 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -784,7 +1051,7 @@
         "phase-tab": 0,
         "shift-pill": 0,
         "chip": 0,
-        "pill": 8,
+        "pill": 9,
         "stepper": 0
       },
       "capabilities": []
@@ -821,8 +1088,7 @@
             "shape": [
               "sc-hero",
               "sc-label",
-              "sc-sub",
-              "sc-tag"
+              "sc-sub"
             ],
             "missing_required": [],
             "modifiers": [
@@ -830,11 +1096,13 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
-        "filter-chip": 4,
+        "filter-chip": 5,
         "phase-tab": 0,
         "shift-pill": 0,
         "chip": 0,
@@ -884,7 +1152,9 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -901,7 +1171,9 @@
       "page": "project-report.html",
       "primitives": {
         "simple-card": [],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -955,7 +1227,9 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -972,7 +1246,9 @@
       "page": "resume.html",
       "primitives": {
         "simple-card": [],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -1026,7 +1302,9 @@
             ]
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -1078,9 +1356,19 @@
             "modifiers": [
               "tag-grey"
             ]
+          },
+          {
+            "shape": [],
+            "missing_required": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "modifiers": []
           }
         ],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -1097,7 +1385,9 @@
       "page": "voice-journal.html",
       "primitives": {
         "simple-card": [],
-        "sum-card": []
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
       },
       "census": {
         "view-tab": 0,
@@ -1111,22 +1401,3063 @@
       "capabilities": [
         "audio_tts_browser"
       ]
+    },
+    "about/index.html": {
+      "page": "about/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "feedback/index.html": {
+      "page": "feedback/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 6,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/ai-companion-hezekiah-zaniah-personas/index.html": {
+      "page": "learn/ai-companion-hezekiah-zaniah-personas/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/ai-quality-and-roi-stage-2-plants/index.html": {
+      "page": "learn/ai-quality-and-roi-stage-2-plants/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/ai-work-assistant-maintenance-technicians/index.html": {
+      "page": "learn/ai-work-assistant-maintenance-technicians/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/asset-brain-360-one-machine-history-philippine-plant/index.html": {
+      "page": "learn/asset-brain-360-one-machine-history-philippine-plant/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/autonomous-shift-planning-philippine-plants/index.html": {
+      "page": "learn/autonomous-shift-planning-philippine-plants/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/best-free-cmms-software-philippines/index.html": {
+      "page": "learn/best-free-cmms-software-philippines/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/bms-facilities-maintenance-peza-buildings/index.html": {
+      "page": "learn/bms-facilities-maintenance-peza-buildings/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/building-asset-register-zero-budget/index.html": {
+      "page": "learn/building-asset-register-zero-budget/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/cmms-vs-excel-spreadsheet-maintenance/index.html": {
+      "page": "learn/cmms-vs-excel-spreadsheet-maintenance/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/connecting-workhive-to-sap-maximo-cmms/index.html": {
+      "page": "learn/connecting-workhive-to-sap-maximo-cmms/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/dilo-wilo-day-planner-supervisors/index.html": {
+      "page": "learn/dilo-wilo-day-planner-supervisors/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/dole-iso-audit-trail-from-logbook/index.html": {
+      "page": "learn/dole-iso-audit-trail-from-logbook/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/fmea-worked-example-philippine-bottling-line/index.html": {
+      "page": "learn/fmea-worked-example-philippine-bottling-line/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/food-beverage-plant-maintenance-philippines/index.html": {
+      "page": "learn/food-beverage-plant-maintenance-philippines/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/four-phases-maintenance-analytics-philippine-plants/index.html": {
+      "page": "learn/four-phases-maintenance-analytics-philippine-plants/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/free-engineering-calculators-philippine-plants/index.html": {
+      "page": "learn/free-engineering-calculators-philippine-plants/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/free-pm-checklist-templates/index.html": {
+      "page": "learn/free-pm-checklist-templates/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/gamifying-maintenance-for-engagement/index.html": {
+      "page": "learn/gamifying-maintenance-for-engagement/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/index.html": {
+      "page": "learn/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          },
+          {
+            "shape": [
+              "card-title",
+              "pill"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 7,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 54,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/industrial-community-of-practice-philippines/index.html": {
+      "page": "learn/industrial-community-of-practice-philippines/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/industrial-marketplace-philippine-specialists/index.html": {
+      "page": "learn/industrial-marketplace-philippine-specialists/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/joining-and-growing-your-hive/index.html": {
+      "page": "learn/joining-and-growing-your-hive/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/loto-procedures-dole-oshs-template/index.html": {
+      "page": "learn/loto-procedures-dole-oshs-template/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/maintenance-metrics-reliability-guide/index.html": {
+      "page": "learn/maintenance-metrics-reliability-guide/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/maintenance-project-planning-template/index.html": {
+      "page": "learn/maintenance-project-planning-template/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/maintenance-shift-handover-template/index.html": {
+      "page": "learn/maintenance-shift-handover-template/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/mtbf-vs-mttr-for-supervisors/index.html": {
+      "page": "learn/mtbf-vs-mttr-for-supervisors/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/ofw-engineer-portable-portfolio/index.html": {
+      "page": "learn/ofw-engineer-portable-portfolio/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/ph-industrial-benchmarks-intelligence/index.html": {
+      "page": "learn/ph-industrial-benchmarks-intelligence/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/ph-plant-compliance-guide/index.html": {
+      "page": "learn/ph-plant-compliance-guide/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/philippine-plants-now-pay-the-highest-power-rates/index.html": {
+      "page": "learn/philippine-plants-now-pay-the-highest-power-rates/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/plant-alert-inbox-amc-daily-brief/index.html": {
+      "page": "learn/plant-alert-inbox-amc-daily-brief/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/power-plant-reliability-metrics-philippines/index.html": {
+      "page": "learn/power-plant-reliability-metrics-philippines/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/predictive-alert-thresholds-plants/index.html": {
+      "page": "learn/predictive-alert-thresholds-plants/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/predictive-maintenance-on-a-budget-philippines/index.html": {
+      "page": "learn/predictive-maintenance-on-a-budget-philippines/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/print-ready-maintenance-analytics-report/index.html": {
+      "page": "learn/print-ready-maintenance-analytics-report/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/psme-iiee-piche-which-association-to-join/index.html": {
+      "page": "learn/psme-iiee-piche-which-association-to-join/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/ra-11285-energy-efficiency-plant-checklist/index.html": {
+      "page": "learn/ra-11285-energy-efficiency-plant-checklist/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/reduce-unplanned-downtime-guide/index.html": {
+      "page": "learn/reduce-unplanned-downtime-guide/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/reliability-centered-maintenance-philippine-plants/index.html": {
+      "page": "learn/reliability-centered-maintenance-philippine-plants/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/resume-builder-for-filipino-industrial-workers/index.html": {
+      "page": "learn/resume-builder-for-filipino-industrial-workers/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/sensor-cmms-gateway-operations/index.html": {
+      "page": "learn/sensor-cmms-gateway-operations/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/skill-matrix-for-maintenance-technicians/index.html": {
+      "page": "learn/skill-matrix-for-maintenance-technicians/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/spare-parts-inventory-philippine-plants/index.html": {
+      "page": "learn/spare-parts-inventory-philippine-plants/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/start-digital-logbook-philippine-factory/index.html": {
+      "page": "learn/start-digital-logbook-philippine-factory/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/start-digital-maintenance-guide/index.html": {
+      "page": "learn/start-digital-maintenance-guide/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/tesda-nc-mapping-to-skill-matrix/index.html": {
+      "page": "learn/tesda-nc-mapping-to-skill-matrix/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/thermography-for-pm-philippine-plants/index.html": {
+      "page": "learn/thermography-for-pm-philippine-plants/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/vibration-analysis-on-a-phone-budget/index.html": {
+      "page": "learn/vibration-analysis-on-a-phone-budget/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/voice-to-text-maintenance-philippine-plant-floor/index.html": {
+      "page": "learn/voice-to-text-maintenance-philippine-plant-floor/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/what-is-oee-how-to-calculate/index.html": {
+      "page": "learn/what-is-oee-how-to-calculate/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/what-is-workhive-complete-platform-guide/index.html": {
+      "page": "learn/what-is-workhive-complete-platform-guide/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/workhive-ai-companion-complete-capabilities/index.html": {
+      "page": "learn/workhive-ai-companion-complete-capabilities/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/workhive-vs-maintainx-comparison/index.html": {
+      "page": "learn/workhive-vs-maintainx-comparison/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "learn/workhive-vs-upkeep-free-cmms-comparison/index.html": {
+      "page": "learn/workhive-vs-upkeep-free-cmms-comparison/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": [
+          {
+            "shape": [
+              "avatar",
+              "meta"
+            ],
+            "missing_required": [],
+            "modifiers": []
+          }
+        ]
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "privacy-policy/index.html": {
+      "page": "privacy-policy/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "terms-of-service/index.html": {
+      "page": "terms-of-service/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 1,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/ahu-sizing-calculator/index.html": {
+      "page": "tools/ahu-sizing-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/beam-design-calculator/index.html": {
+      "page": "tools/beam-design-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/bearing-life-calculator/index.html": {
+      "page": "tools/bearing-life-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/boiler-steam-calculator/index.html": {
+      "page": "tools/boiler-steam-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/boiler-system-calculator/index.html": {
+      "page": "tools/boiler-system-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/bolt-torque-calculator/index.html": {
+      "page": "tools/bolt-torque-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/cable-tray-sizing-calculator/index.html": {
+      "page": "tools/cable-tray-sizing-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/chiller-sizing-calculator/index.html": {
+      "page": "tools/chiller-sizing-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/clean-agent-suppression-calculator/index.html": {
+      "page": "tools/clean-agent-suppression-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/compressed-air-calculator/index.html": {
+      "page": "tools/compressed-air-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/cooling-tower-calculator/index.html": {
+      "page": "tools/cooling-tower-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/domestic-water-demand-calculator/index.html": {
+      "page": "tools/domestic-water-demand-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/drainage-pipe-sizing-calculator/index.html": {
+      "page": "tools/drainage-pipe-sizing-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/duct-sizing-calculator/index.html": {
+      "page": "tools/duct-sizing-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/earthing-grounding-calculator/index.html": {
+      "page": "tools/earthing-grounding-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/elevator-traffic-calculator/index.html": {
+      "page": "tools/elevator-traffic-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/expansion-tank-calculator/index.html": {
+      "page": "tools/expansion-tank-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/fcu-selection-calculator/index.html": {
+      "page": "tools/fcu-selection-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/fire-alarm-battery-calculator/index.html": {
+      "page": "tools/fire-alarm-battery-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/fire-pump-calculator/index.html": {
+      "page": "tools/fire-pump-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/fire-sprinkler-calculator/index.html": {
+      "page": "tools/fire-sprinkler-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/generator-sizing-calculator/index.html": {
+      "page": "tools/generator-sizing-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/grease-trap-calculator/index.html": {
+      "page": "tools/grease-trap-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/harmonic-distortion-calculator/index.html": {
+      "page": "tools/harmonic-distortion-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/heat-exchanger-calculator/index.html": {
+      "page": "tools/heat-exchanger-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/hoist-capacity-calculator/index.html": {
+      "page": "tools/hoist-capacity-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/hot-water-demand-calculator/index.html": {
+      "page": "tools/hot-water-demand-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/hvac-cooling-load-calculator/index.html": {
+      "page": "tools/hvac-cooling-load-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/hydraulic-cylinder-calculator/index.html": {
+      "page": "tools/hydraulic-cylinder-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/lighting-design-calculator/index.html": {
+      "page": "tools/lighting-design-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/lightning-protection-calculator/index.html": {
+      "page": "tools/lightning-protection-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/load-estimation-calculator/index.html": {
+      "page": "tools/load-estimation-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/load-schedule-calculator/index.html": {
+      "page": "tools/load-schedule-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/mtbf-calculator/index.html": {
+      "page": "tools/mtbf-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/noise-acoustics-calculator/index.html": {
+      "page": "tools/noise-acoustics-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/oee-calculator/index.html": {
+      "page": "tools/oee-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/pipe-sizing-calculator/index.html": {
+      "page": "tools/pipe-sizing-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/power-factor-correction-calculator/index.html": {
+      "page": "tools/power-factor-correction-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/pressure-vessel-calculator/index.html": {
+      "page": "tools/pressure-vessel-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/pump-tdh-calculator/index.html": {
+      "page": "tools/pump-tdh-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/refrigerant-pipe-calculator/index.html": {
+      "page": "tools/refrigerant-pipe-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/roof-drain-calculator/index.html": {
+      "page": "tools/roof-drain-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/septic-tank-calculator/index.html": {
+      "page": "tools/septic-tank-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/sewer-drainage-calculator/index.html": {
+      "page": "tools/sewer-drainage-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/shaft-design-calculator/index.html": {
+      "page": "tools/shaft-design-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/short-circuit-calculator/index.html": {
+      "page": "tools/short-circuit-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/solar-pv-calculator/index.html": {
+      "page": "tools/solar-pv-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/stairwell-pressurization-calculator/index.html": {
+      "page": "tools/stairwell-pressurization-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/storm-drain-calculator/index.html": {
+      "page": "tools/storm-drain-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/transformer-sizing-calculator/index.html": {
+      "page": "tools/transformer-sizing-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/ups-sizing-calculator/index.html": {
+      "page": "tools/ups-sizing-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/v-belt-drive-calculator/index.html": {
+      "page": "tools/v-belt-drive-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/ventilation-ach-calculator/index.html": {
+      "page": "tools/ventilation-ach-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/vibration-isolation-calculator/index.html": {
+      "page": "tools/vibration-isolation-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/voltage-drop-calculator/index.html": {
+      "page": "tools/voltage-drop-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/wastewater-stp-calculator/index.html": {
+      "page": "tools/wastewater-stp-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/water-softener-calculator/index.html": {
+      "page": "tools/water-softener-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/water-supply-pipe-calculator/index.html": {
+      "page": "tools/water-supply-pipe-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/water-treatment-calculator/index.html": {
+      "page": "tools/water-treatment-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
+    },
+    "tools/wire-sizing-calculator/index.html": {
+      "page": "tools/wire-sizing-calculator/index.html",
+      "primitives": {
+        "simple-card": [],
+        "sum-card": [],
+        "article-card": [],
+        "author-card": []
+      },
+      "census": {
+        "view-tab": 0,
+        "filter-chip": 0,
+        "phase-tab": 0,
+        "shift-pill": 0,
+        "chip": 0,
+        "pill": 0,
+        "stepper": 0
+      },
+      "capabilities": []
     }
   },
   "groups": {
     "primitives": {
       "simple-card": {
         "label": "KPI tile (.simple-card)",
-        "instances": 48,
+        "instances": 63,
         "modal_shape": [
           "sc-hero",
           "sc-label",
           "sc-sub",
           "sc-tag"
         ],
-        "modal_count": 45,
-        "distinct_shapes": 2,
+        "modal_count": 41,
+        "distinct_shapes": 5,
         "minority_shapes": [
+          {
+            "shape": [],
+            "count": 15,
+            "pages": [
+              "achievements",
+              "marketplace",
+              "marketplace-seller",
+              "skillmatrix"
+            ],
+            "delta_vs_modal": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub",
+              "sc-tag"
+            ]
+          },
+          {
+            "shape": [
+              "sc-hero",
+              "sc-label",
+              "sc-sub"
+            ],
+            "count": 3,
+            "pages": [
+              "analytics",
+              "marketplace",
+              "pm-scheduler"
+            ],
+            "delta_vs_modal": [
+              "sc-tag"
+            ]
+          },
           {
             "shape": [
               "sc-hero"
@@ -1140,17 +4471,39 @@
               "sc-sub",
               "sc-tag"
             ]
+          },
+          {
+            "shape": [
+              "sc-label"
+            ],
+            "count": 1,
+            "pages": [
+              "achievements"
+            ],
+            "delta_vs_modal": [
+              "sc-hero",
+              "sc-sub",
+              "sc-tag"
+            ]
           }
         ],
         "missing_required": [
           {
-            "page": "hive.html",
+            "page": "achievements.html",
             "missing": [
-              "sc-label"
+              "sc-hero"
             ],
             "shape": [
-              "sc-hero"
+              "sc-label"
             ]
+          },
+          {
+            "page": "achievements.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
           },
           {
             "page": "hive.html",
@@ -1169,6 +4522,127 @@
             "shape": [
               "sc-hero"
             ]
+          },
+          {
+            "page": "hive.html",
+            "missing": [
+              "sc-label"
+            ],
+            "shape": [
+              "sc-hero"
+            ]
+          },
+          {
+            "page": "marketplace-seller.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace-seller.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace-seller.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace-seller.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace-seller.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace-seller.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace-seller.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace-seller.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace-seller.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "marketplace.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
+          },
+          {
+            "page": "skillmatrix.html",
+            "missing": [
+              "sc-label",
+              "sc-hero"
+            ],
+            "shape": []
           }
         ]
       },
@@ -1180,6 +4654,30 @@
           "sn"
         ],
         "modal_count": 4,
+        "distinct_shapes": 1,
+        "minority_shapes": [],
+        "missing_required": []
+      },
+      "article-card": {
+        "label": "Learn library card (.article-card → .pill/.card-title)",
+        "instances": 54,
+        "modal_shape": [
+          "card-title",
+          "pill"
+        ],
+        "modal_count": 54,
+        "distinct_shapes": 1,
+        "minority_shapes": [],
+        "missing_required": []
+      },
+      "author-card": {
+        "label": "Guide byline card (.author-card → .avatar/.meta)",
+        "instances": 35,
+        "modal_shape": [
+          "avatar",
+          "meta"
+        ],
+        "modal_count": 35,
         "distinct_shapes": 1,
         "minority_shapes": [],
         "missing_required": []
@@ -1209,13 +4707,16 @@
         }
       },
       "filter-chip": {
-        "pages": 4,
-        "total": 24,
+        "pages": 7,
+        "total": 42,
         "by_page": {
           "analytics": 12,
           "community": 6,
-          "pm-scheduler": 4,
-          "voice-journal": 2
+          "marketplace-seller": 4,
+          "pm-scheduler": 5,
+          "voice-journal": 2,
+          "feedback/index": 6,
+          "learn/index": 7
         }
       },
       "phase-tab": {
@@ -1233,10 +4734,50 @@
         }
       },
       "pill": {
-        "pages": 1,
-        "total": 8,
+        "pages": 41,
+        "total": 102,
         "by_page": {
-          "plant-connections": 8
+          "plant-connections": 9,
+          "about/index": 1,
+          "feedback/index": 1,
+          "learn/ai-companion-hezekiah-zaniah-personas/index": 1,
+          "learn/ai-quality-and-roi-stage-2-plants/index": 1,
+          "learn/ai-work-assistant-maintenance-technicians/index": 1,
+          "learn/best-free-cmms-software-philippines/index": 1,
+          "learn/building-asset-register-zero-budget/index": 1,
+          "learn/cmms-vs-excel-spreadsheet-maintenance/index": 1,
+          "learn/connecting-workhive-to-sap-maximo-cmms/index": 1,
+          "learn/dilo-wilo-day-planner-supervisors/index": 1,
+          "learn/dole-iso-audit-trail-from-logbook/index": 1,
+          "learn/free-engineering-calculators-philippine-plants/index": 1,
+          "learn/free-pm-checklist-templates/index": 1,
+          "learn/gamifying-maintenance-for-engagement/index": 1,
+          "learn/index": 54,
+          "learn/industrial-community-of-practice-philippines/index": 1,
+          "learn/industrial-marketplace-philippine-specialists/index": 1,
+          "learn/joining-and-growing-your-hive/index": 1,
+          "learn/maintenance-metrics-reliability-guide/index": 1,
+          "learn/maintenance-project-planning-template/index": 1,
+          "learn/maintenance-shift-handover-template/index": 1,
+          "learn/mtbf-vs-mttr-for-supervisors/index": 1,
+          "learn/ph-industrial-benchmarks-intelligence/index": 1,
+          "learn/ph-plant-compliance-guide/index": 1,
+          "learn/predictive-alert-thresholds-plants/index": 1,
+          "learn/predictive-maintenance-on-a-budget-philippines/index": 1,
+          "learn/reduce-unplanned-downtime-guide/index": 1,
+          "learn/sensor-cmms-gateway-operations/index": 1,
+          "learn/skill-matrix-for-maintenance-technicians/index": 1,
+          "learn/spare-parts-inventory-philippine-plants/index": 1,
+          "learn/start-digital-logbook-philippine-factory/index": 1,
+          "learn/start-digital-maintenance-guide/index": 1,
+          "learn/voice-to-text-maintenance-philippine-plant-floor/index": 1,
+          "learn/what-is-oee-how-to-calculate/index": 1,
+          "learn/what-is-workhive-complete-platform-guide/index": 1,
+          "learn/workhive-ai-companion-complete-capabilities/index": 1,
+          "learn/workhive-vs-maintainx-comparison/index": 1,
+          "learn/workhive-vs-upkeep-free-cmms-comparison/index": 1,
+          "privacy-policy/index": 1,
+          "terms-of-service/index": 1
         }
       },
       "stepper": {
@@ -1249,10 +4790,21 @@
     },
     "candidates": [
       {
-        "key": "sweep:component:simple-card:missing-sc-label:hive",
-        "page": "hive.html",
+        "key": "sweep:component:simple-card:missing-sc-hero:achievements",
+        "page": "achievements.html",
         "wave": 0,
-        "title": ".simple-card on hive is missing required .sc-label",
+        "title": ".simple-card on achievements is missing required .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:achievements",
+        "page": "achievements.html",
+        "wave": 0,
+        "title": ".simple-card on achievements is missing required .sc-label, .sc-hero",
         "pillar": "U/Component",
         "severity": "Minor",
         "effort": "S",
@@ -1275,6 +4827,171 @@
         "page": "hive.html",
         "wave": 0,
         "title": ".simple-card on hive is missing required .sc-label",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label:hive",
+        "page": "hive.html",
+        "wave": 0,
+        "title": ".simple-card on hive is missing required .sc-label",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace-seller",
+        "page": "marketplace-seller.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace-seller is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace-seller",
+        "page": "marketplace-seller.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace-seller is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace-seller",
+        "page": "marketplace-seller.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace-seller is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace-seller",
+        "page": "marketplace-seller.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace-seller is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace-seller",
+        "page": "marketplace-seller.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace-seller is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace-seller",
+        "page": "marketplace-seller.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace-seller is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace-seller",
+        "page": "marketplace-seller.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace-seller is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace-seller",
+        "page": "marketplace-seller.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace-seller is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace-seller",
+        "page": "marketplace-seller.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace-seller is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace",
+        "page": "marketplace.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace",
+        "page": "marketplace.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace",
+        "page": "marketplace.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:marketplace",
+        "page": "marketplace.html",
+        "wave": 0,
+        "title": ".simple-card on marketplace is missing required .sc-label, .sc-hero",
+        "pillar": "U/Component",
+        "severity": "Minor",
+        "effort": "S",
+        "flag": "TASTE",
+        "should_be": "the .simple-card primitive's contract is ['.sc-label', '.sc-hero'] (modal shape ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']); this instance drifts — add the missing sub-part or justify the variant. (component battery, static-window; confirm via __UFAI.component('.simple-card'))."
+      },
+      {
+        "key": "sweep:component:simple-card:missing-sc-label-sc-hero:skillmatrix",
+        "page": "skillmatrix.html",
+        "wave": 0,
+        "title": ".simple-card on skillmatrix is missing required .sc-label, .sc-hero",
         "pillar": "U/Component",
         "severity": "Minor",
         "effort": "S",
@@ -1285,12 +5002,12 @@
         "key": "sweep:component:simple-card:shape-variants",
         "page": "achievements.html",
         "wave": 0,
-        "title": ".simple-card renders in 2 different shapes across pages",
+        "title": ".simple-card renders in 5 different shapes across pages",
         "pillar": "U/Component",
         "severity": "Polish",
         "effort": "M",
         "flag": "TASTE",
-        "should_be": "the modal .simple-card shape is ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag'] (45 instances); 1 minority variant(s) exist e.g. on hive (delta ['.sc-label', '.sc-sub', '.sc-tag']). Converge to one shape (Jakob/consistency) or document the intentional variant."
+        "should_be": "the modal .simple-card shape is ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag'] (41 instances); 4 minority variant(s) exist e.g. on achievements, marketplace, marketplace-seller, skillmatrix (delta ['.sc-hero', '.sc-label', '.sc-sub', '.sc-tag']). Converge to one shape (Jakob/consistency) or document the intentional variant."
       }
     ]
   }

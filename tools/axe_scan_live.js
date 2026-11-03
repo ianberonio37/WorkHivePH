@@ -59,6 +59,13 @@ const SL_CLASS = new Map();
 for (const t of REG.trajectories) if (t.sl && t.sl.page && t.status !== 'descoped') SL_CLASS.set(t.sl.page, t.sl.page_class);
 for (const f of SL_CLASS.keys()) if (!PAGES.includes(f) && fs.existsSync(path.join(ROOT, f))) PAGES.push(f);
 const PUBLIC = (f) => SL_CLASS.get(f) === 'public';
+// --page a,b (2026-11-04): scan a subset. The report MERGES (the pages not scanned keep their last reading) and the
+// baseline only tightens for the pages scanned, so a subset can neither erase nor loosen what the full run holds.
+const PAGE_ONLY = process.argv.includes('--page') ? process.argv[process.argv.indexOf('--page') + 1] : null;
+if (PAGE_ONLY) {
+  const want = PAGE_ONLY.split(',').map((s) => s.trim()).filter(Boolean);
+  PAGES.splice(0, PAGES.length, ...PAGES.filter((p) => want.includes(p)));
+}
 
 // Seeded supervisor of the test hive (same identity the live deep-walk uses).
 // HIVE_ID fixed 2026-07-19: was the STALE fixture 9b4eaeac (leandromarquez is NOT a member → RLS returned
@@ -189,12 +196,21 @@ function resolveHive(key, session) {
       if (bounced) { detail[p] = { skipped: true, reason: 'auth gate (session not accepted)', url_after: after, nodes: 0 }; continue; }
       await pg.addScriptTag({ content: AXE_SRC });
       const res = await pg.evaluate(async (tags) => {
-        const r = await axe.run(document, { runOnly: { type: 'tag', values: tags }, resultTypes: ['violations'] });
+        const r = await axe.run(document, { runOnly: { type: 'tag', values: tags }, resultTypes: ['violations', 'passes'] });
         const byRule = {}; let nodes = 0;
         for (const v of r.violations) { byRule[v.id] = { impact: v.impact, nodes: v.nodes.length }; nodes += v.nodes.length; }
-        return { byRule, nodes, els: document.querySelectorAll('*').length };
+        return { byRule, nodes, els: document.querySelectorAll('*').length, passed: r.passes.length, violated: r.violations.length };
       }, WCAG_TAGS);
-      detail[p] = { skipped: false, els: res.els, nodes: res.nodes, byRule: res.byRule, as: PUBLIC(p) ? 'signed out' : SUPERVISOR };
+      // ★F2 PER PAGE (2026-11-04, CX-UX). The rubric's F2 (Accessibility, WCAG/POUR) is the battery's; the lens defers
+      // to axe and the family board only JUDGES it, so no page had an F2 reading with a denominator. axe's own result
+      // supplies one: of the WCAG 2.2 AA rules that APPLY to this page (a rule with no matching element is inapplicable
+      // and in neither list), how many pass. 0 violated -> 100. An honest rule-level ratio, not a node-level guess.
+      const applicable = res.passed + res.violated;
+      const f2 = applicable ? { verdict: 'MEASURED', pct: Math.round((100 * res.passed) / applicable),
+        note: `${res.passed}/${applicable} applicable WCAG 2.2 AA rules pass (axe-core${PUBLIC(p) ? ', signed out' : ''}, 390px)`
+          + (res.violated ? ` - violated: ${Object.keys(res.byRule).join(', ')}` : '') } : null;
+      detail[p] = { skipped: false, els: res.els, nodes: res.nodes, byRule: res.byRule, rules_passed: res.passed,
+        rules_violated: res.violated, F2: f2, as: PUBLIC(p) ? 'signed out' : SUPERVISOR };
     } catch (e) {
       detail[p] = { skipped: true, reason: String(e && e.message || e).slice(0, 160), nodes: 0 };
     }
@@ -209,9 +225,16 @@ function resolveHive(key, session) {
   const regressed = [];
   for (const p of scanned) if (baseline[p] !== undefined && current[p] > baseline[p]) regressed.push(`${p}: ${baseline[p]} -> ${current[p]}`);
 
+  let outPages = current, outDetail = detail;
+  if (PAGE_ONLY && fs.existsSync(REPORT_PATH)) {
+    try {
+      const prev = JSON.parse(fs.readFileSync(REPORT_PATH, 'utf8'));
+      if (!prev.skipped) { outPages = { ...(prev.pages || {}), ...current }; outDetail = { ...(prev.detail || {}), ...detail }; }
+    } catch (_) { /* empty-catch-allow: an unreadable earlier report is replaced */ }
+  }
   fs.writeFileSync(REPORT_PATH, JSON.stringify({
     generated: new Date().toISOString(), base: BASE, wcag_tags: WCAG_TAGS,
-    authed_as: `${SUPERVISOR} (supervisor)`, pages: current, regressed, detail,
+    authed_as: `${SUPERVISOR} (supervisor)`, pages: outPages, regressed, detail: outDetail,
   }, null, 2));
 
   const firstRun = !fs.existsSync(BASELINE_PATH);

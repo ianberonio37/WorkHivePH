@@ -13668,6 +13668,46 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # ★S2 PER PAGE (2026-11-04, CX-UX). Shared-chrome parity had only a platform proxy (W2's mean), so no page could
+        # say it had been graded on S. tools/prove_shared_chrome_parity.py reads each public page's skip link, banner,
+        # primary nav, main and footer against the DECLARED template (build_pillar_pages.py SITE_HEADER/site_footer, read
+        # from the module) and writes shared_chrome_parity.json, which the CX-UX banker reads for S2. This holds that
+        # record to the pages: --check runs the self-test (each part given teeth on synthetic markup), then FAILs when
+        # the written record differs from a fresh measurement - a stale record is evidence of nothing.
+        "id":      "shared-chrome-parity",
+        "script":  os.path.join("tools", "prove_shared_chrome_parity.py"),
+        "args":    ["--check"],
+        "label":   "Shared-chrome parity per page (S2): each public page's skip link, banner, nav, main and footer measured against the declared template, and the written record current",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE S3 CORPUS IS CURRENT AND COVERS THE GENERATED FAMILIES (2026-11-04, CX-UX). component_consistency_corpus.json
+        # scanned the root pages only, and had been left 3.5 months behind them (48 simple-card instances recorded where
+        # the pages held 63). It now records every learn, calculator and public-root page too, with their own card
+        # primitives pinned; --check runs the self-test, then FAILs on a page it should record and does not, or a record
+        # that no longer matches a fresh harvest.
+        "id":      "component-corpus-current",
+        "script":  os.path.join("tools", "survey_component_consistency.py"),
+        "args":    ["--check"],
+        "label":   "Component corpus (S3) records every page it should, root and generated families, and matches the pages as they are now",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★CV2/CV3 PER PAGE (2026-11-04, CX-UX). The conversion journeys (prove_journey J1-J3, LA8/LA10/LA11/LA12) each
+        # speak for the one page they walk. tools/prove_page_conversion.mjs walks a roster of public pages signed out:
+        # every wall reachable from the page must offer both doors with ?return= (CV2), and the funnel through the
+        # page's own sign-up door - real signup, worker_profiles row via psql, attribution - must not fall below its
+        # floor (CV3; the probe account is deleted). Self-test first (the verdict logic, no browser).
+        "id":      "page-conversion",
+        "script":  os.path.join("tools", "prove_page_conversion.mjs"),
+        "args":    ["--check"],
+        "label":   "Conversion per page (CV2 + CV3): every auth wall reachable from a public page is doored with ?return=, and the funnel through the page's own sign-up door completes to a DB-verified account",
+        "group":   "Platform",
+        "skip_if_fast": True,
+    },
+    {
         "id":      "founder-rpc-refusal",
         "script":  os.path.join("tools", "prove_founder_rpc_refusal.py"),
         "args":    ["--check"],

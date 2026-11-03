@@ -77,12 +77,40 @@ PRIMITIVES = {
         "optional": [],
         "window": 240,
     },
+    # ★THE PUBLIC FAMILIES' OWN CARD PRIMITIVES (2026-11-04, CX-UX). The corpus scanned the root *.html pages only, so
+    # S3 ("peer pages use the SAME card primitive") had no reading of any learn or calculator page and 21 CX-UX rows
+    # could never close. Those families declare their cards in their generators, not in components.css: the learn
+    # hub's `.article-card` (one per guide: the topic `.pill` and the `.card-title`) and the guides' `.author-card`
+    # byline (`.avatar` + `.meta`, build_pillar_pages.py's STYLE). Pinned from that markup so a card that lost a part
+    # is a drift candidate like any other.
+    "article-card": {
+        "label": "Learn library card (.article-card → .pill/.card-title)",
+        "required": ["pill", "card-title"],
+        "optional": [],
+        "window": 1200,
+    },
+    "author-card": {
+        "label": "Guide byline card (.author-card → .avatar/.meta)",
+        "required": ["avatar", "meta"],
+        "optional": [],
+        "window": 600,
+    },
 }
 # lighter primitives we only CENSUS (shape contract not pinned) — surfaced so the
 # inventory is complete; consistency of these is a live component() check.
 CENSUS_ONLY = ["view-tab", "filter-chip", "phase-tab", "shift-pill", "chip", "pill", "stepper"]
 
 CAP_RE = re.compile(r"<!--\s*capability:\s*([a-z0-9_]+)\b", re.I)
+
+
+def generated_pages() -> list:
+    """The learn hub and guides, the calculators and the four public-root pages - the cube's own served set
+    (seed_expansion_wave4.served_pages, read by sublayer_inventory.page_classes), never a glob typed here."""
+    if str(ROOT / "tools") not in sys.path:
+        sys.path.insert(0, str(ROOT / "tools"))
+    from seed_expansion_wave4 import served_pages
+    sp = served_pages()
+    return sorted(p for fam in ("learn", "calc", "public") for p in (sp.get(fam) or []) if (ROOT / p).is_file())
 
 
 def norm(s: str) -> str:
@@ -272,7 +300,7 @@ def render_md(corpus: dict, g: dict) -> str:
     return "\n".join(L) + "\n"
 
 
-def main() -> int:
+def harvest_all() -> dict:
     nav_pages = set(re.findall(r"href:\s*'([a-z0-9-]+\.html)'",
                                (ROOT / "nav-hub.js").read_text(encoding="utf-8", errors="ignore")
                                if (ROOT / "nav-hub.js").exists() else ""))
@@ -284,6 +312,87 @@ def main() -> int:
         if not (class_re("simple-card").search(html) or p.name in nav_pages):
             continue
         corpus[p.name] = harvest_page(p.name, html)
+    # the generated public families, EVERY page of them, keyed by the path a reader asks for: a page with no card
+    # primitive is a census of zero - itself the answer - not a page left out (the root filter above keeps only pages
+    # that carry a card or sit in the hub, because those are the app pages whose cards could drift)
+    for rel in generated_pages():
+        corpus[rel] = harvest_page(rel, (ROOT / rel).read_text(encoding="utf-8", errors="ignore"))
+    return corpus
+
+
+def corpus_problems(written: dict, fresh: dict, must: list) -> list:
+    """Why the WRITTEN corpus is not evidence of the pages as they are now: a page it should record and does not, a
+    page whose record no longer matches a fresh harvest, or a page it records that is gone. (A corpus left 3.5 months
+    behind its pages read 48 simple-card instances where the pages held 63 - found 2026-11-04.)"""
+    probs = [f"{p}: not recorded" for p in must if p not in written]
+    probs += [f"{p}: recorded, but its cards changed since" for p in fresh
+              if p in written and json.loads(json.dumps(fresh[p])) != written[p]]
+    probs += [f"{p}: recorded, but no longer a page the corpus scans" for p in written if p not in fresh]
+    return probs
+
+
+def _self_test() -> int:
+    fails = []
+    good = ('<a class="article-card"><span class="pill pill-orange">Energy</span>'
+            '<h3 class="card-title">T</h3></a><div class="author-card"><div class="avatar">WH</div>'
+            '<div class="meta"><p>x</p></div></div>')
+    h = harvest_page("learn/index.html", good)
+    if [i["missing_required"] for i in h["primitives"]["article-card"]] != [[]] or \
+            [i["missing_required"] for i in h["primitives"]["author-card"]] != [[]]:
+        fails.append(f"a whole article-card and author-card must carry every part: {h['primitives']}")
+    bad = good.replace('<span class="pill pill-orange">Energy</span>', "").replace('<div class="meta"><p>x</p></div>', "")
+    hb = harvest_page("learn/index.html", bad)
+    if hb["primitives"]["article-card"][0]["missing_required"] != ["pill"] or \
+            hb["primitives"]["author-card"][0]["missing_required"] != ["meta"]:
+        fails.append(f"a card that lost a part must name it: {hb['primitives']}")
+    empty = harvest_page("tools/x/index.html", "<main><p>no cards</p></main>")
+    if any(empty["primitives"].values()):
+        fails.append("a page with no card primitive is a census of zero")
+    gen = generated_pages()
+    for must in ("learn/index.html", "about/index.html", "terms-of-service/index.html"):
+        if must not in gen:
+            fails.append(f"{must} must be in the generated families the corpus scans")
+    if not any(p.startswith("tools/") for p in gen) or not any(p.startswith("learn/") and p.count("/") == 2 for p in gen):
+        fails.append("the calculators and the guides must be in the generated families")
+    # the currency check's teeth
+    fresh = {"learn/index.html": h, "tools/x/index.html": empty}
+    if corpus_problems(json.loads(json.dumps(fresh)), fresh, list(fresh)):
+        fails.append("a corpus equal to a fresh harvest must be current")
+    if not corpus_problems({"learn/index.html": json.loads(json.dumps(h))}, fresh, list(fresh)):
+        fails.append("a corpus missing a page it must record must FAIL")
+    if not corpus_problems(json.loads(json.dumps({"learn/index.html": hb, "tools/x/index.html": empty})), fresh, list(fresh)):
+        fails.append("a corpus whose record no longer matches the page must FAIL")
+    print("FAIL survey_component_consistency self-test - " + "; ".join(fails) if fails else
+          "self-test OK: article-card and author-card whole, a lost part named, a cardless page a census of zero, the "
+          "generated families in scope, and a stale or incomplete corpus refused")
+    return 1 if fails else 0
+
+
+def run_check() -> int:
+    if _self_test():
+        return 1
+    path = ROOT / "component_consistency_corpus.json"
+    try:
+        written = (json.loads(path.read_text(encoding="utf-8")).get("corpus") or {})
+    except (OSError, ValueError) as e:
+        print(f"FAIL component-corpus-current - {path.name} unreadable: {e}")
+        return 1
+    fresh = harvest_all()
+    probs = corpus_problems(written, fresh, generated_pages())
+    for p in probs[:20]:
+        print("  " + p)
+    print(f"{'FAIL' if probs else 'PASS'} component-corpus-current - {len(written)} page(s) recorded, "
+          f"{len(probs)} not matching the pages as they are now"
+          + (" - re-run python tools/survey_component_consistency.py" if probs else ""))
+    return 1 if probs else 0
+
+
+def main() -> int:
+    if "--self-test" in sys.argv:
+        return _self_test()
+    if "--check" in sys.argv:
+        return run_check()
+    corpus = harvest_all()
 
     g = compute(corpus)
 
