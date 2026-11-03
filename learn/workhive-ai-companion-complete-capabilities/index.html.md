@@ -179,4 +179,4 @@ It grounds its safety guidance in Philippine rules: the workplace-safety law RA 
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 63a98546fca19a3c -->
+<!-- md-twin source-sha: 8ef718fec5ec51c5 -->

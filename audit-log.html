@@ -40,7 +40,7 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: #1d2e44;
+      --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: var(--wh-navy-mid, #1F2E45);
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --amber: var(--wh-orange); --yellow: var(--wh-amber); --purple: var(--wh-violet);
       --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
@@ -262,14 +262,14 @@
        blocks, and its numbers reach paper through the report sender instead.
        Print = black-on-white content, chrome gone, no dark-background ink disasters. */
     @media print {
-      body { background: #fff !important; color: #111 !important; }
-      body * { background: transparent !important; color: #111 !important;
+      body { background: #fff !important; color: var(--wh-print-ink, #111) !important; }
+      body * { background: transparent !important; color: var(--wh-print-ink, #111) !important;
                box-shadow: none !important; text-shadow: none !important; }
       #wh-hub-fab, #wh-nav-hub, [id^="wh-hub"], #wh-feedback-fab, #wh-feedback-panel,
       #toast, .sheet-overlay, .sheet, [role=dialog], button, .btn-primary, .btn-ghost,
       #offline-banner, .connectivity-widget, #wh-voice-overlay { display: none !important; }
       a { text-decoration: none !important; }
-      .card, .wh-card, .entry-card { border: 1px solid #bbb !important; page-break-inside: avoid; }
+      .card, .wh-card, .entry-card { border: 1px solid var(--wh-print-rule, #bbb) !important; page-break-inside: avoid; }
       table { page-break-inside: auto; }
       tr { page-break-inside: avoid; page-break-after: auto; }
     }

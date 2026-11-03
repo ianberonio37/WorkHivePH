@@ -867,7 +867,7 @@
     /* ── Sticky mobile CTA bar ── */
     #sticky-mobile-cta {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 40;
-      background: rgba(13,24,36,0.97);
+      background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.97);
       border-top: 1px solid rgba(255,255,255,0.08);
       padding: 12px 84px 12px 20px;
       padding-bottom: max(12px, env(safe-area-inset-bottom));
@@ -1614,7 +1614,7 @@
 <!-- ═══════════════════════════════════════════════
      HERO
 ═══════════════════════════════════════════════ -->
-<section class="relative min-h-screen flex items-center pt-16 hex-pattern grain overflow-hidden" style="background: linear-gradient(135deg, rgba(13,24,36,0.72) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.68) 40%, rgba(26,38,56,0.72) 100%); position: relative; z-index: 1; padding-top:calc(4rem + env(safe-area-inset-top, 0px));">
+<section class="relative min-h-screen flex items-center pt-16 hex-pattern grain overflow-hidden" style="background: linear-gradient(135deg, rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.72) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.68) 40%, rgba(26,38,56,0.72) 100%); position: relative; z-index: 1; padding-top:calc(4rem + env(safe-area-inset-top, 0px));">
 
   <!-- TWO FLOATING BLOBS BECAME ONE DIRECTIONAL WASH (2026-09-17). This was a 600px circle of full-strength
        --wh-orange and a 500px circle of full-strength --wh-blue, each at opacity-20 under blur(80px), parked
@@ -2544,7 +2544,7 @@
 <!-- ═══════════════════════════════════════════════
      CTA: JOIN
 ═══════════════════════════════════════════════ -->
-<section id="join" class="py-24 lg:py-32 hex-pattern grain relative overflow-hidden" style="background: linear-gradient(135deg, rgba(13,24,36,0.72) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.68) 100%); z-index: 1;">
+<section id="join" class="py-24 lg:py-32 hex-pattern grain relative overflow-hidden" style="background: linear-gradient(135deg, rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.72) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.68) 100%); z-index: 1;">
   <!-- TWO STACKED BLOBS BECAME ONE POOL OF LIGHT (2026-09-17). An amber ellipse at opacity-25 under
        blur(80px) with a blue one at opacity-20 under blur(60px) sat concentrically on the same centre point,
        so the second only muddied the first. The closing call to action does want its own light - it is a
@@ -2626,7 +2626,7 @@
 <!-- ═══════════════════════════════════════════════
      FOOTER
 ═══════════════════════════════════════════════ -->
-<footer class="py-12 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.80); position: relative; z-index: 1;">
+<footer class="py-12 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.8); position: relative; z-index: 1;">
   <div class="max-w-7xl mx-auto px-5 sm:px-8">
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
       <div class="lg:col-span-2">

@@ -141,7 +141,7 @@
     /* -text variant, not the fill token: tokens.css annotates the base as a FILL and names the AA-safe text variant. Measured APCA below the 60 floor as small text; the variant already exists. */
     .icon-del { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.08); border: 1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.25); color: var(--wh-red-text);
       width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 1rem; flex-shrink: 0; }
-    .icon-mv { background: rgba(148,163,184,0.10); border: 1px solid rgba(148,163,184,0.30); color: #cbd5e1;
+    .icon-mv { background: rgba(148,163,184,0.10); border: 1px solid rgba(148,163,184,0.30); color: var(--wh-steel-bright, #CFD7E0);
       width: 44px; height: 44px; min-height: 44px; border-radius: 0.5rem; font-size: 0.75rem; flex-shrink: 0; }
     .item-actions { display: flex; align-items: center; gap: 0.5rem; }
     /* ★THE DESTRUCTIVE CONTROL SAT 6px FROM THE ONE PEOPLE PRESS MOST (walked 2026-09-11, J31, a solo
@@ -231,7 +231,7 @@
     /* #9fb0c0 -> #b6c4d1. Measured live 2026-08-06: at this 14px size the old colour composites to
        APCA Lc 57.7 on the card, 2.3 short of the 60 floor; #b6c4d1 gives 69.3. Chosen from a measured
        ladder rather than picked - it is the smallest step that clears with real margin, so the
-       secondary-text feel is kept (slate-300 #cbd5e1 would have jumped to 79.8 and read as body text).
+       secondary-text feel is kept (slate-300 var(--wh-steel-bright, #CFD7E0) would have jumped to 79.8 and read as body text).
        FIXED ON THE CLASS, not on the node the lens named. The lens reported the failure on
        `#upload-card > label.opt-toggle > span > b` - the <b>Off by default</b> - because that is the
        only LEAF text node here: the surrounding <span> contains both text and the <b>, so it has
@@ -325,7 +325,7 @@
       padding: 0.6rem 0.8rem calc(0.6rem + env(safe-area-inset-top)); background: var(--wh-navy); border-bottom: 1px solid rgba(255,255,255,0.08); }
     .pv-templates { display: flex; gap: 0.4rem; }
     .pv-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-    .pv-tpl { background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.12); }
+    .pv-tpl { background: rgba(255,255,255,0.06); color: var(--wh-steel-bright, #CFD7E0); border: 1px solid rgba(255,255,255,0.12); }
     .pv-tpl.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--wh-orange-light); border-color: var(--wh-orange); }
     .preview-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 1rem 1rem calc(1rem + env(safe-area-inset-bottom)); }
     #resume-paper { box-shadow: 0 8px 40px rgba(0,0,0,0.5); border-radius: 8px; }

@@ -124,4 +124,4 @@ The Department of Labor and Employment (DOLE) requires plants to implement a pre
 
 - ISO 10816-1, **Mechanical vibration: Evaluation of machine vibration by measurements on non-rotating parts: Part 1: General guidelines** (its annex holds the Class I–IV severity zones quoted above; superseded by ISO 20816-1:2016). ISO 20816-3:2022, which replaced ISO 10816-3, covers industrial machines above 15 kW by Group 1 and Group 2 instead of these classes.
 
-<!-- md-twin source-sha: 1b710e18bf7d2418 -->
+<!-- md-twin source-sha: 571a7d3278c850e2 -->

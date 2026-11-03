@@ -85,4 +85,4 @@ These terms are governed by the laws of the Republic of the Philippines. Any dis
 
 Email [admin@workhiveph.com](mailto:admin@workhiveph.com) with any question about these terms. Owner: WorkHive Engineering Services (DTI Business Name 8080496), Ian Lumayno Beronio, sole proprietor.
 
-<!-- md-twin source-sha: 3edb3239f3060f41 -->
+<!-- md-twin source-sha: 616d65f24c33b27c -->

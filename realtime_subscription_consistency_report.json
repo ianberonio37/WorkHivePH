@@ -58,67 +58,67 @@
         {
           "table": "hive_readiness",
           "allowed": true,
-          "offset": 252596
+          "offset": 252623
         },
         {
           "table": "hive_adoption_score",
           "allowed": true,
-          "offset": 266297
+          "offset": 266324
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 373796
+          "offset": 373823
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 374213
+          "offset": 374240
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 375338
+          "offset": 375365
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 376293
+          "offset": 376320
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 378234
+          "offset": 378261
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 426959
+          "offset": 426986
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 427414
+          "offset": 427441
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 428408
+          "offset": 428435
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 428871
+          "offset": 428898
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 430465
+          "offset": 430492
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 430992
+          "offset": 431019
         }
       ],
       "drift": []
@@ -148,7 +148,7 @@
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 127605
+          "offset": 127669
         }
       ],
       "drift": []
@@ -196,7 +196,7 @@
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 101784
+          "offset": 101915
         }
       ],
       "drift": []
@@ -428,27 +428,27 @@
         {
           "table": "projects",
           "allowed": false,
-          "offset": 257389
+          "offset": 257431
         },
         {
           "table": "project_items",
           "allowed": false,
-          "offset": 257533
+          "offset": 257575
         },
         {
           "table": "project_progress_logs",
           "allowed": false,
-          "offset": 257703
+          "offset": 257745
         },
         {
           "table": "project_change_orders",
           "allowed": false,
-          "offset": 258162
+          "offset": 258204
         },
         {
           "table": "project_roles",
           "allowed": false,
-          "offset": 258340
+          "offset": 258382
         }
       ],
       "drift": []
@@ -523,7 +523,7 @@
         {
           "table": "worker_achievements",
           "allowed": false,
-          "offset": 82434
+          "offset": 82458
         }
       ],
       "drift": []
@@ -556,42 +556,42 @@
         {
           "table": "sensor_readings",
           "allowed": false,
-          "offset": 205227
+          "offset": 205412
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 303324
+          "offset": 303509
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 303874
+          "offset": 304059
         },
         {
           "table": "rcm_fmea_modes",
           "allowed": false,
-          "offset": 304547
+          "offset": 304732
         },
         {
           "table": "asset_risk_scores",
           "allowed": false,
-          "offset": 305723
+          "offset": 305908
         },
         {
           "table": "rcm_strategies",
           "allowed": false,
-          "offset": 306406
+          "offset": 306591
         },
         {
           "table": "weibull_fits",
           "allowed": true,
-          "offset": 307268
+          "offset": 307453
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 325656
+          "offset": 325841
         }
       ],
       "drift": []

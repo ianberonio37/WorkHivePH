@@ -270,7 +270,7 @@
          survives a greyscale office printer. (C2, 2026-07-15) */
       /* the navy the brand actually pairs with: 14.8:1 on this white page, and it survives a greyscale
          office printer exactly as the purple did (design lens critique, 2026-09-15) */
-      color: #0f1e30; letter-spacing: 0.04em;
+      color: var(--wh-navy, #162032); letter-spacing: 0.04em;
       /* MERGED from a second `.doc-panel .doc-logo` rule that sat directly above (2026-09-28).
          Two rules for ONE selector is drift by construction, and it had already cost something: the
          analytics-UFAI invariant reads the FIRST matching rule for this selector to check the print
@@ -329,7 +329,7 @@
     }
     .doc-panel .rag-green  { background: #ecfdf5; border-color: var(--wh-green); color: #065f46; }
     .doc-panel .rag-amber  { background: #fffbeb; border-color: var(--wh-amber); color: #78350f; }
-    .doc-panel .rag-red    { background: #fef2f2; border-color: #fecaca; color: #7f1d1d; }
+    .doc-panel .rag-red    { background: #fef2f2; border-color: var(--wh-red-text, #FDC9C9); color: #7f1d1d; }
     /* C1: .rag-tile-num (1.5rem) and .kpi-value (1.45rem) are the SAME THING -- a KPI number --
        rendered 1px apart, which is meaningless variation, not hierarchy: the page showed THREE
        display tiers (24/23/20) where the rule allows <=2. Unified onto the .kpi-value tier, and
@@ -420,7 +420,7 @@
       border: 1px solid; background: #fff;
       page-break-inside: avoid;
     }
-    .doc-panel .insight-card.red    { border-color: #fecaca; background: #fef2f2; }
+    .doc-panel .insight-card.red    { border-color: var(--wh-red-text, #FDC9C9); background: #fef2f2; }
     .doc-panel .insight-card.amber  { border-color: var(--wh-amber); background: #fffbeb; }
     .doc-panel .insight-card.green  { border-color: #bbf7d0; background: #f0fdf4; }
     .doc-panel .insight-card.purple { border-color: #ddd6fe; background: #f5f3ff; }
@@ -461,10 +461,10 @@
        of 30, because the floor table hands anything under 14px the lenient small-UI threshold. An 11px
        BOLD LABEL is not small UI, so that floor is too permissive for text and is recorded as a lens
        calibration gap — axe was right here and the lens was wrong. */
-    .doc-panel .sev-chip.red    { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .doc-panel .sev-chip.red    { background: #fee2e2; color: #991b1b; border: 1px solid var(--wh-red-text, #FDC9C9); }
     .doc-panel .sev-chip.amber  { background: #fef3c7; color: #92400e; border: 1px solid var(--wh-amber); }
     .doc-panel .sev-chip.green  { background: #d1fae5; color: #065f46; border: 1px solid var(--wh-green); }
-    .doc-panel .sev-chip.gray   { background: #f3f4f6; color: #374151; border: 1px solid var(--wh-paper-rule, #e5e7eb); }
+    .doc-panel .sev-chip.gray   { background: var(--wh-cloud, #F4F6FA); color: #374151; border: 1px solid var(--wh-paper-rule, #e5e7eb); }
 
     /* Asset cards — used in Findings (problem assets) and Predictive (risk assets) */
     .doc-panel .asset-card-grid {
@@ -502,11 +502,11 @@
     }
     .doc-panel .hbar-label { color: #1a1132; font-weight: 500; }
     .doc-panel .hbar-track {
-      height: 12px; background: #f3f4f6; border-radius: 999px; overflow: hidden;
+      height: 12px; background: var(--wh-cloud, #F4F6FA); border-radius: 999px; overflow: hidden;
     }
     .doc-panel .hbar-fill {
       /* ★A BAR IS A GRAPHICAL OBJECT AND NEEDS 3:1 AGAINST ITS TRACK (design lens critique, 2026-09-15):
-         the dark-theme violet measured 2.47:1 on the #f3f4f6 track of this WHITE document, and the red 2.51:1.
+         the dark-theme violet measured 2.47:1 on the var(--wh-cloud, #F4F6FA) track of this WHITE document, and the red 2.51:1.
          These are the darker steps of the same hues - the document's own ink, not the app shell's. */
       height: 100%; border-radius: 999px;
       background: #0E5E8A;   /* the document's accent; the deep violet was the AI palette on paper (K) */
@@ -579,7 +579,7 @@
       background: #fafafa; border: 1px solid var(--wh-paper-rule, #e5e7eb);
     }
     .doc-panel .kpi-cell.warn { background: #fffbeb; border-color: var(--wh-amber); }
-    .doc-panel .kpi-cell.bad  { background: #fef2f2; border-color: #fecaca; }
+    .doc-panel .kpi-cell.bad  { background: #fef2f2; border-color: var(--wh-red-text, #FDC9C9); }
     .doc-panel .kpi-cell.good { background: #f0fdf4; border-color: #bbf7d0; }
     /* #6b7280 fell under 4.5:1 on the .bad tint (#fef2f2); #4b5563 clears it on white AND on every KPI tint (C2). */
     .doc-panel .kpi-label { font-size: 0.75rem; color: #4b5563; font-weight: 700; }
@@ -614,7 +614,7 @@
     .doc-panel .appendix-note {
       font-size: 0.8rem; color: #6b7280; font-style: italic;
       margin: 0.4rem 0 0.75rem; padding: 0.55rem 0.75rem;
-      background: #f9fafb; border-left: 3px solid #d1d5db; border-radius: 12px;
+      background: var(--wh-cloud, #F4F6FA); border-left: 3px solid var(--wh-steel-bright, #CFD7E0); border-radius: 12px;
     }
     .doc-panel .appendix-section table { font-size: 0.8rem; }
     .doc-panel .appendix-section th { font-size: 0.75rem; padding: 0.3rem 0.4rem; }

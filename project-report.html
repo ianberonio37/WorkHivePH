@@ -28,7 +28,7 @@
   <style>
   :root {
     --paper: #FFFFFF; --ink: #1F2A37; --muted: #5B6878;
-    --accent: #0E5E8A; --rule: #D7DDE5; --cell-bg: #F7F9FC;
+    --accent: #0E5E8A; --rule: #D7DDE5; --cell-bg: var(--wh-cloud, #F4F6FA);
     /* RAG inks are PAPER inks, not screen fills. Measured live 2026-08-06 on the rendered report,
        whose --paper is #FFFFFF: --green #1F7A3A already passed comfortably (WCAG 5.38, APCA Lc 79.1)
        but --amber and --red were pointed at the brand SCREEN fills --wh-orange var(--wh-orange,#f7a21b) (2.07 / Lc 42.8)
@@ -46,7 +46,7 @@
        pale #FBEED2 pill at 11px/700, ratio 1.80. Auditing EVERY usage against its ACTUAL background
        (not just the paper) also caught my own amber falling short: --amber is used on .status-on_hold,
        another #FBEED2 pill, where #b45309 gives only 4.37 against the 4.5 bar.
-       #92400e (amber-800) clears BOTH surfaces - 6.17 on the #FBEED2 pill and higher on the #F7F9FC
+       #92400e (amber-800) clears BOTH surfaces - 6.17 on the #FBEED2 pill and higher on the var(--wh-cloud, #F4F6FA)
        card - and sits with the sibling phase tags, which run 4.53 to 5.89. --gold points at it too: its
        only use in this file is that same pill.
        The lesson recorded: a token fix has to be measured against every background the token is USED
@@ -91,11 +91,11 @@
   #ar-print-wrapper.pr-unloaded > div:not(#exec-summary):not(.doc-cover) { display: none; }
   .toolbar button, .toolbar a.btn {
     font-family: inherit; font-size: 0.9rem; font-weight: 600;
-    background: var(--wh-navy-mid); color: var(--shell-text);   /* was #1d2e44, one unit off the token (W46013) */
+    background: var(--wh-navy-mid); color: var(--shell-text);   /* was var(--wh-navy-mid, #1F2E45), one unit off the token (W46013) */
     border: 1px solid rgba(255,255,255,0.08); border-radius: var(--wh-radius, 12px);   /* was 10px, off the 8/12/16 scale (critic batch S1) */
     padding: 8px 16px; min-height: 44px; display: inline-flex;   /* 14px was off the 4px rhythm on all five toolbar controls (W46008) */ align-items: center; justify-content: center; gap: 6px; cursor: pointer; text-decoration: none;
   }
-  .toolbar button:hover, .toolbar a.btn:hover { background: #243a55; }
+  .toolbar button:hover, .toolbar a.btn:hover { background: var(--wh-navy-light, #2A3D58); }
   .toolbar .primary { background: var(--wh-orange); color: var(--wh-navy); border-color: var(--wh-orange); }
   .toolbar .primary:hover { background: var(--wh-orange); }
   /* ★DISABLED, BUT DRAWN AS LIVE (critique W46013, 2026-10-13). With no project chosen - or one not found, refused or

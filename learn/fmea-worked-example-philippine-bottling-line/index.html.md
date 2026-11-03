@@ -131,4 +131,4 @@ Use a standard formula to calculate the cost of downtime, taking into account fa
 - DOLE OSHS, 'Guidelines on Occupational Safety and Health in the Philippines'
 - IIEE Code, 'Code of Practice for Electrical Safety in the Philippines'
 
-<!-- md-twin source-sha: b4e5ba9c6dd6421c -->
+<!-- md-twin source-sha: 2d1bcfce80f8ecdc -->

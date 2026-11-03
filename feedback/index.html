@@ -82,15 +82,15 @@
     .kind-question { background:rgba(96,165,250,.18);  color:#bfdbfe; }
     .kind-review   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18);  color:#fed7aa; }
     .kind-praise   { background:rgba(134,239,172,.18); color:#bbf7d0; }
-    .kind-other    { background:rgba(255,255,255,.08); color:#cbd5e1; }
+    .kind-other    { background:rgba(255,255,255,.08); color:var(--wh-steel-bright, #CFD7E0); }
     .status-pill { display:inline-block; font-size:.75rem; padding:4px 8px; border-radius:999px;
       font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
     .status-new          { background:rgba(252,211,77,.18); color:#fef3c7; }
     .status-triaged      { background:rgba(96,165,250,.18); color:#bfdbfe; }
     .status-in_progress  { background:rgba(96,165,250,.28); color:#dbeafe; }
     .status-resolved     { background:rgba(134,239,172,.22); color:#bbf7d0; }
-    .status-wontfix      { background:rgba(255,255,255,.08); color:#cbd5e1; }
-    .status-duplicate    { background:rgba(255,255,255,.08); color:#cbd5e1; }
+    .status-wontfix      { background:rgba(255,255,255,.08); color:var(--wh-steel-bright, #CFD7E0); }
+    .status-duplicate    { background:rgba(255,255,255,.08); color:var(--wh-steel-bright, #CFD7E0); }
 
     .vote-btn { display:flex; flex-direction:column; align-items:center; justify-content:center;
       min-width:54px; min-height:54px;             /* mobile-maestro: 44px+ */
@@ -174,7 +174,7 @@
 
 
 <!-- Nav -->
-<header class="border-b border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
+<header class="border-b border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <!-- SIDEWAYS SCROLL AT PHONE WIDTH (2026-09-16): this header was the only one on the site that did not
        fit. Measured at 390: the document scrolled to 460px against a 375px content box because the logo
        (121px) and a five-link nav (339px) were locked in one non-wrapping row - this is the only page whose

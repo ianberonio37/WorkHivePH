@@ -102,8 +102,16 @@ def _in_var_fallback(text: str, pos: int) -> bool:
     return False
 
 
+# ★PRINT IS ITS OWN MEDIUM - until it has its own tokens (2026-11-04). The default leaves @media print alone: dark ink on
+# paper is not the screen palette. OD-S then declared --wh-print-ink / --wh-print-rule / --wh-paper-rule, so a print
+# block's #111 IS a token's value; --include-print rewrites inside print blocks too, under the same static proof.
+INCLUDE_PRINT = False
+
+
 def rewrite_css(css: str, exact: dict, triplet: dict) -> tuple[str, int]:
-    """Rewrite one stretch of CSS; @media print blocks are left exactly as they are."""
+    """Rewrite one stretch of CSS; @media print blocks are left exactly as they are (unless INCLUDE_PRINT)."""
+    if INCLUDE_PRINT:
+        return _rewrite_plain(css, exact, triplet)
     out, n, i = [], 0, 0
     for m in re.finditer(r"@media\s+print[^{]*\{(?:[^{}]|\{[^{}]*\})*\}", css):
         seg, k = _rewrite_plain(css[i:m.start()], exact, triplet)
@@ -141,6 +149,18 @@ def _alpha(a: float) -> str:
 
 _STYLE = re.compile(r"(<style[^>]*>)(.*?)(</style>)", re.S | re.I)
 _ATTR = re.compile(r"""(\sstyle\s*=\s*")([^"]*)(")""", re.I)
+
+
+def _apply_html(html: str, fn) -> tuple[str, int]:
+    """fn over each <style> block and style="" attribute of a page - the CSS a page carries itself."""
+    total = 0
+
+    def sub(m):
+        nonlocal total
+        s, k = fn(m.group(2))
+        total += k
+        return m.group(1) + s + m.group(3)
+    return _ATTR.sub(sub, _STYLE.sub(sub, html)), total
 
 
 def rewrite_html(html: str, exact: dict, triplet: dict) -> tuple[str, int]:
@@ -196,6 +216,84 @@ def proves_invisible(old: str, new: str, values: dict) -> tuple[bool, str]:
     return False, f"differs at char {i}: before {a[max(0, i - 40):i + 40]!r} | after {b[max(0, i - 40):i + 40]!r}"
 
 
+# ★A NEAR-TWIN IS RETIRED ONLY BELOW WHAT AN EYE CAN TELL APART (2026-11-04). OD-S found colours typed a hair off a token
+# - the learn/calculator glass header's rgb(13,24,36) x256 against --wh-ink-deep (15,25,35), delta-E 1.63. Moving them
+# onto the token IS a value change, so it is not the invisible rewrite and does not borrow its proof: --retire-near-twins
+# moves a colour only when CIE76 delta-E <= JND (2.3), keeps its alpha, and proves_within_jnd() holds that every
+# difference between the files is one such colour and nothing else. Above the JND (#e5e7eb's six light greys, 2.44-2.82)
+# a colour is a distinct one - a design call per page, never automated.
+JND = 2.3
+RETIRE = False
+
+
+def _lab3(rgb):
+    import open_design_census as odc  # noqa: E402 - one Lab conversion for the census and this
+    return odc._lab(list(rgb))
+
+
+def _near_token(c, values: dict):
+    """(token name, its rgb) of the closest colour token within the JND, or None."""
+    import math
+    best = None
+    for name, v in values.items():
+        if name.endswith("-rgb") or not COLOUR.fullmatch(v.strip()):
+            continue
+        t = rgba(v)
+        if not t or t[3] < 1:
+            continue
+        d = math.dist(_lab3(c[:3]), _lab3(t[:3]))
+        if 0 < d <= JND and (best is None or d < best[2]):
+            best = (name, t[:3], d)
+    return best
+
+
+def retire_plain(css: str, values: dict) -> tuple[str, int]:
+    out, n, last = [], 0, 0
+    for m in COLOUR.finditer(css):
+        if _in_var_fallback(css, m.start()):
+            continue
+        c = rgba(m.group(0))
+        hit = _near_token(c, values) if c else None
+        if not hit:
+            continue
+        name, t, _d = hit
+        trip = f"{name}-rgb"
+        if c[3] >= 1:
+            rep = f"var({name}, #{t[0]:02X}{t[1]:02X}{t[2]:02X})"
+        elif trip in values:
+            rep = f"rgba(var({trip}, {t[0]}, {t[1]}, {t[2]}), {_alpha(c[3])})"
+        else:
+            continue
+        out += [css[last:m.start()], rep]
+        last = m.end()
+        n += 1
+    return "".join(out + [css[last:]]), n
+
+
+def proves_within_jnd(old: str, new: str, values: dict) -> tuple[bool, str]:
+    """Every difference is one colour moved by delta-E <= JND with its alpha kept; nothing else changed."""
+    import math
+
+    def resolve(css: str) -> str:
+        css = _EMIT_RGB.sub(lambda m: f"rgba({values.get(m.group(1), 'X')}, {m.group(2)})", css)
+        return _EMIT_VAR.sub(lambda m: values.get(m.group(1), "UNRESOLVED"), css)
+    a, b = _canon(resolve(old)), _canon(resolve(new))
+    split = re.compile(r"(rgba\(\d+,\d+,\d+,[\d.]+\))")
+    pa, pb = split.split(a), split.split(b)
+    if len(pa) != len(pb):
+        return False, "the colour count differs"
+    for x, y in zip(pa, pb):
+        if x == y:
+            continue
+        cx, cy = split.fullmatch(x), split.fullmatch(y)
+        if not (cx and cy):
+            return False, f"non-colour text changed: {x[:60]!r} -> {y[:60]!r}"
+        vx, vy = rgba(x), rgba(y)
+        if abs(vx[3] - vy[3]) > 1e-3 or math.dist(_lab3(vx[:3]), _lab3(vy[:3])) > JND:
+            return False, f"{x} -> {y} moves more than the JND or changes alpha"
+    return True, ""
+
+
 def token_values(tokens_css: str) -> dict:
     return {n: v.strip() for n, v in re.findall(r"(--wh-[\w-]+)\s*:\s*([^;]+);", _roots(tokens_css))}
 
@@ -224,19 +322,22 @@ def run(root: Path, apply: bool, only: set | None) -> int:
         p = root / f
         raw = p.read_bytes()
         text = raw.decode("utf-8")
-        new, n = (rewrite_css(text, exact, triplet) if f.endswith(".css") else rewrite_html(text, exact, triplet))
+        if RETIRE:
+            new, n = (retire_plain(text, values) if f.endswith(".css") else _apply_html(text, lambda c: retire_plain(c, values)))
+        else:
+            new, n = (rewrite_css(text, exact, triplet) if f.endswith(".css") else rewrite_html(text, exact, triplet))
         if n:
-            ok, why = proves_invisible(text, new, values)
+            ok, why = (proves_within_jnd if RETIRE else proves_invisible)(text, new, values)
             if not ok:
                 refused += 1
                 print(f"  REFUSED {f}: the rewrite would change what renders - {why}")
                 continue
             grand += n
-            print(f"  {f:<40} {n:>5} literal(s)  proven invisible")
+            print(f"  {f:<40} {n:>5} literal(s)  {'proven within the JND' if RETIRE else 'proven invisible'}")
             if apply:
                 nl = "\r\n" if b"\r\n" in raw else "\n"
                 p.write_text(new.replace("\r\n", "\n"), encoding="utf-8", newline=nl)
-    print(f"{'rewrote' if apply else 'would rewrite'} {grand} literal(s), each file proven invisible; palette: "
+    print(f"{'rewrote' if apply else 'would rewrite'} {grand} literal(s), each file {'proven within the JND' if RETIRE else 'proven invisible'}; palette: "
           f"{len(exact)} token values, {len(triplet)} -rgb triplets" + (f"; {refused} file(s) REFUSED" if refused else ""))
     return 1 if refused else 0
 
@@ -279,6 +380,17 @@ def self_test() -> int:
       not proves_invisible(src, new.replace("}.b{", ".b{", 1), vals)[0])
     t("teeth: a var() the tokens do not declare is caught",
       not proves_invisible(src, new, {k: v for k, v in vals.items() if k != "--wh-orange-rgb"})[0])
+    vals2 = dict(vals, **{"--wh-ink-deep": "#0F1923", "--wh-ink-deep-rgb": "15, 25, 35"})
+    src2 = ".h{background:rgba(13,24,36,0.85)}.g{color:#c0c0c0}.k{color:#123456}"
+    new2, n2 = retire_plain(src2, vals2)
+    t("retire: a JND-close tint moves onto the token's triplet, alpha kept",
+      "rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85)" in new2)
+    t("retire: a colour with no token within the JND is left alone", ".k{color:#123456}" in new2 and n2 == 1)
+    t("retire: the JND proof holds a sub-JND move", proves_within_jnd(src2, new2, vals2)[0])
+    t("teeth: the JND proof refuses a move past the JND",
+      not proves_within_jnd(".a{color:#123456}", ".a{color:#FFFFFF}", vals2)[0])
+    t("teeth: the JND proof refuses a changed non-colour character",
+      not proves_within_jnd(src2, new2.replace("background", "backgrounx"), vals2)[0])
     print("self-test " + ("PASS" if ok else "FAIL"))
     return 0 if ok else 1
 
@@ -287,10 +399,15 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--only", default="")
+    ap.add_argument("--include-print", action="store_true", help="also rewrite inside @media print (print tokens exist)")
+    ap.add_argument("--retire-near-twins", action="store_true", help="move colours within the JND (delta-E <= 2.3) onto their token")
     ap.add_argument("--self-test", action="store_true")
     a = ap.parse_args()
     if a.self_test:
         return self_test()
+    global INCLUDE_PRINT, RETIRE
+    INCLUDE_PRINT = a.include_print
+    RETIRE = a.retire_near_twins
     return run(ROOT, a.apply, {x.strip() for x in a.only.split(",") if x.strip()} or None)
 
 

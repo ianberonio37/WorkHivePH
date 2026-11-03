@@ -240,7 +240,7 @@
       font-size: 0.75rem; font-weight: 700; font-family: 'Poppins', sans-serif;
     }
     .badge-tier.bronze { background: rgba(205,127,50,0.2); color: var(--wh-orange-light); border: 1px solid rgba(205,127,50,0.3); }   /* C2: AA-safe orange (was --wh-orange @ 4.42:1) */
-    .badge-tier.silver { background: rgba(192,192,192,0.15); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.3); }
+    .badge-tier.silver { background: rgba(192,192,192,0.15); color: var(--wh-print-rule, #BBBBBB); border: 1px solid rgba(192,192,192,0.3); }
     .badge-tier.gold   { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--wh-orange-light); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
     .badge-verified {
       padding: 0.25rem 0.5rem; border-radius: 999px;   /* 0.2rem was 3.2px (W45965) */
@@ -3773,7 +3773,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       const rows = all.slice(0, _pfaLimit);
       rail.innerHTML = rows.map(r => `
         <button class="pfa-card" role="listitem" translate="no" data-listing-id="${e(r.listing_id)}"
-          style="flex:0 0 auto;min-width:158px;max-width:200px;text-align:left;background:#141922;border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25);border-radius:8px;padding:0.6rem 0.7rem;cursor:pointer;min-height:44px;">
+          style="flex:0 0 auto;min-width:158px;max-width:200px;text-align:left;background:var(--wh-ink-deep, #0F1923);border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25);border-radius:8px;padding:0.6rem 0.7rem;cursor:pointer;min-height:44px;">
           <div style="font-size: 0.75rem;font-weight:700;color:var(--wh-blue-text);font-family:monospace;">#${e(r.part_number)}</div>
           <div style="font-size:0.78rem;font-weight:600;color:var(--wh-cloud);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e(r.title)}</div>
           <div style="font-size: 0.75rem;color:var(--wh-steel-bright);">${r.price != null ? whFmtPeso(r.price) : 'Negotiable'}${r.location ? ' · ' + e(r.location) : ''}</div>

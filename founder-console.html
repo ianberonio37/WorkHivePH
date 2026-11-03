@@ -20,7 +20,7 @@
     :root {
       --bg:        var(--wh-ink-deep, #0f1923);
       --surface:   var(--wh-navy);
-      --card:      #1d2e44;
+      --card:      var(--wh-navy-mid, #1F2E45);
       --border:    rgba(255,255,255,0.07);
       --gold:      var(--wh-orange);
       --blue:      var(--wh-blue);
@@ -148,7 +148,7 @@
        column width. One shared rule for every numeric display on the page, not per-element
        patches - the same treatment achievements.html uses for its hero stats. */
     .stat .n, .ring-pct .n, .tech-chip .n, .stat .trend { font-variant-numeric: tabular-nums; }
-    .stat .n  { font-size:1.375rem; font-weight:800; line-height:1.1; color:#f3f4f6; min-width:0; overflow-wrap:anywhere; }
+    .stat .n  { font-size:1.375rem; font-weight:800; line-height:1.1; color:var(--wh-cloud, #F4F6FA); min-width:0; overflow-wrap:anywhere; }
     @media (max-width:420px) { .stat .l { overflow-wrap:anywhere; } }   /* phone fit (2026-09-06): '10,000,000' and 'Value listed' spilled their tiles at 390px; the number keeps its tier (a phone-only 18px added an 11th size, C1) and wraps via min-width:0 + overflow-wrap */   /* A1/C1 (2026-09-05): 23/22/21px were three big tiers beside the 27px ring - one 22px stat tier + the ring = a 2-tier scale */
     /* I1 (2026-09-05, measured at 1280x720): #sec-alive's grid panels paint at ~100px and settle at 2065px
        (tech-health, audit-stream) / 440px (memento-health, companion-eval), pushing the second row out of
@@ -383,7 +383,7 @@
     .tech-chip.pass .n { color:#86efac; }   /* C5 (2026-09-05): the semantic green/red read Lc 45/60 at 21px; lighter text tints keep the meaning */
     .tech-chip.fail .n { color:#fca5a5; }
     .tech-chip.warn .n, .tech-chip.skip .n { color:#fcd34d; }   /* C5: the amber/orange numeral read Lc 51/60 at 21px; the lighter amber clears */
-    .tech-chip .n { color:#f3f4f6; }  /* neutral default for any other state */
+    .tech-chip .n { color:var(--wh-cloud, #F4F6FA); }  /* neutral default for any other state */
     .tech-chip.warn .n { color:var(--yellow); }
     .tech-chip.skip .n { color:var(--blue); }
     .tech-chip.total .n { color:var(--text); }
@@ -482,13 +482,13 @@
     /* ── The action queues (OPC, 2026-10-22): Platform Actions' rules, moved with its queues (operator-actions.js). ──
        The console's own mod-*/fb-* rules styled the copies those queues replaced. The module's toast is #opc-toast,
        so it and the console's toast never write one node. */
-    .count { font-size:1.25rem; line-height:1; font-variant-numeric:tabular-nums; font-weight:700; padding:0.25rem 0.5rem; border-radius:999px; background:rgba(255,255,255,0.08); color:#f1f5f9;   /* C5: a 20 px numeral on the dim pill needs the near-white tint (Lc 60 -> 75+) */ }
+    .count { font-size:1.25rem; line-height:1; font-variant-numeric:tabular-nums; font-weight:700; padding:0.25rem 0.5rem; border-radius:999px; background:rgba(255,255,255,0.08); color:var(--wh-cloud, #F4F6FA);   /* C5: a 20 px numeral on the dim pill needs the near-white tint (Lc 60 -> 75+) */ }
     .count.warn { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color:#fde68a; }   /* C5: same step for the amber pill */
     /* --red on its own 18% tint measures 4.35:1 -- under the 4.5 AA floor for text this small, and
        axe flagged 11 nodes across the count badges and status pills. The gold pair already clears it
        at 5.41:1, so only the red needed lifting: #fca5a5 on the same tint measures 6.35:1. Chosen
        over darkening the tint because the tint is what makes a red pill READ as red at a glance. */
-    .count.fail { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.14); color:#fecaca; }   /* C5 (2026-09-05): a 20 px numeral on the red pill read Lc 60 with #fca5a5 - one tint lighter */
+    .count.fail { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.14); color:var(--wh-red-text, #FDC9C9); }   /* C5 (2026-09-05): a 20 px numeral on the red pill read Lc 60 with #fca5a5 - one tint lighter */
     .mod-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; padding:0.5rem 0;
                border-top:1px solid var(--border); flex-wrap:wrap; }
     .mod-row:first-child { border-top:0; }

@@ -49,7 +49,7 @@
     html:not(.wh-nonsup) #it-access-pending { display: none; }   /* a cached supervisor sees the console itself, not this line */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: var(--wh-navy-mid);   /* was #1d2e44, one unit from --wh-navy-mid (critique W45936) */
+      --bg: var(--wh-ink-deep, #0f1923); --surface: var(--wh-navy); --card: var(--wh-navy-mid);   /* was var(--wh-navy-mid, #1F2E45), one unit from --wh-navy-mid (critique W45936) */
       --gold: var(--wh-orange); --blue: var(--wh-blue); --green: var(--wh-green);
       --red: var(--wh-red); --purple: var(--wh-violet);
       --text: var(--wh-cloud); --muted: var(--wh-text-muted, rgba(255,255,255,0.80));
@@ -140,7 +140,7 @@
     /* Source picker */
     .source-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
     /* ONE FILLED BOX, NOT TWO (2026-09-17). #step-1 uses the shared .card - solid var(--wh-navy, rgb(22,32,50)) plus a
-       0.67px border - and holds three .source-card options that are themselves solid rgb(29,46,68) with a
+       0.67px border - and holds three .source-card options that are themselves solid var(--wh-navy-mid, #1F2E45) with a
        2px border. A filled box inside a filled box, and the CHILD's border is three times the parent's, which
        is what makes it read as depth rather than grouping. The options' border cannot go: it is the selection
        affordance (role=button, aria-pressed, amber on hover). So the STEP container drops its fill and keeps

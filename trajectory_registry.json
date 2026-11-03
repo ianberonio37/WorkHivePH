@@ -1205313,8 +1205313,8 @@
     },
     {
       "id": "OD132",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-D",
       "title": "its colours come from tokens.css - privacy-policy/index.html · anon",
       "pages": [
@@ -1205364,6 +1205364,12 @@
         ],
         "instrument": "wallace css-analyzer (tools/prove_design_source_drift.py)",
         "closes": "prove_design_source_drift reads 0 colour literals for this unit and its ratchet holds the floor"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by tools/bank_od_rows.py: privacy-policy/index.html reads 0 hand-typed colour literal(s) (prove_design_source_drift). HELD BY gate design-source-drift.",
+      "artifacts": {
+        "gates": [
+          "design-source-drift"
+        ]
       }
     },
     {
@@ -1206793,8 +1206799,8 @@
     },
     {
       "id": "OD158",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-D",
       "title": "its colours come from tokens.css - terms-of-service/index.html · anon",
       "pages": [
@@ -1206844,6 +1206850,12 @@
         ],
         "instrument": "wallace css-analyzer (tools/prove_design_source_drift.py)",
         "closes": "prove_design_source_drift reads 0 colour literals for this unit and its ratchet holds the floor"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by tools/bank_od_rows.py: terms-of-service/index.html reads 0 hand-typed colour literal(s) (prove_design_source_drift). HELD BY gate design-source-drift.",
+      "artifacts": {
+        "gates": [
+          "design-source-drift"
+        ]
       }
     },
     {
@@ -1207822,8 +1207834,8 @@
     },
     {
       "id": "OD177",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-S",
       "title": "the design system owns this colour - #0f1923 · worker",
       "pages": [
@@ -1207871,12 +1207883,18 @@
         ],
         "instrument": "wallace css-analyzer (tools/open_design_census.py)",
         "closes": "the token exists and no unit types the literal or a near-twin"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by tools/bank_od_rows.py: #0f1923: a token holds it; 0 literal use(s) of it or a near-twin remain. HELD BY gate design-source-drift.",
+      "artifacts": {
+        "gates": [
+          "design-source-drift"
+        ]
       }
     },
     {
       "id": "OD178",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-S",
       "title": "the design system owns this colour - #111111 · worker",
       "pages": [
@@ -1207924,6 +1207942,12 @@
         ],
         "instrument": "wallace css-analyzer (tools/open_design_census.py)",
         "closes": "the token exists and no unit types the literal or a near-twin"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by tools/bank_od_rows.py: #111111: a token holds it; 0 literal use(s) of it or a near-twin remain. HELD BY gate design-source-drift.",
+      "artifacts": {
+        "gates": [
+          "design-source-drift"
+        ]
       }
     },
     {

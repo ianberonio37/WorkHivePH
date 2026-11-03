@@ -167,7 +167,7 @@
       /* a classification label, which is the 600 step (design lens craft, 2026-09-15) */
       font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
     }
-    .crit-low      { background: rgba(180,180,180,0.18); color: #d6dbe3; }
+    .crit-low      { background: rgba(180,180,180,0.18); color: var(--wh-steel-bright, #CFD7E0); }
     .crit-medium   { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18);  color: var(--wh-blue-light); }   /* C2: AA-safe blue (was --wh-blue @ 3.9:1) */
     .crit-high     { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2);  color: var(--wh-orange-light); }   /* C2: AA-safe orange on the 20% tint (was --wh-orange @ 4.27:1) */
     .crit-critical { background: rgba(239,87,87,0.22);   color: var(--wh-red-text); }
@@ -352,7 +352,7 @@
       font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
     }
     .fmea-source-manual    { background: rgba(255,255,255,0.06); color: var(--muted); }
-    .fmea-source-ai        { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.18); color: #c7b6fb; }
+    .fmea-source-ai        { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.18); color: var(--wh-violet-text, #C4B5FD); }
     .fmea-status-pending   { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color:var(--wh-orange-text); }
     .fmea-status-approved  { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.16); color: var(--wh-green); }
     .fmea-row-actions {
@@ -394,7 +394,7 @@
     .rcm-decision-scheduled_on_condition { background: rgba(56,189,248,0.18);  color: var(--wh-blue); }
     .rcm-decision-scheduled_restoration  { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18);  color: var(--wh-green); }
     .rcm-decision-scheduled_discard      { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18);  color:var(--wh-orange-text); }
-    .rcm-decision-failure_finding        { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.2); color: #c7b6fb; }
+    .rcm-decision-failure_finding        { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.2); color: var(--wh-violet-text, #C4B5FD); }
     .rcm-decision-redesign_required      { background: rgba(239,87,87,0.20);   color:var(--wh-red-text); }
     .rcm-task-text  { color: rgba(255,255,255,0.78); }
     .rcm-interval   { color: var(--muted); font-size: 0.75rem; }
@@ -409,7 +409,7 @@
       background: rgba(255,255,255,0.06); color: var(--muted);
     }
     .weibull-pattern-infant   { background: rgba(56,189,248,0.20);  color: var(--wh-blue); }
-    .weibull-pattern-random   { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.2); color: #c7b6fb; }
+    .weibull-pattern-random   { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.2); color: var(--wh-violet-text, #C4B5FD); }
     .weibull-pattern-wearout  { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2);  color:var(--wh-orange-text); }
 
     /* Arc Y Y4 — inline WORKED EXAMPLE: a novice reads the number, not the acronym.
@@ -424,7 +424,7 @@
     .rel-worked-example b { color: rgba(255,255,255,0.85); font-weight: 700; }
     .rel-worked-example .rwe-tag {
       display: inline-block; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.07em;
-      text-transform: uppercase; color: #c7b6fb; margin-right: 6px;
+      text-transform: uppercase; color: var(--wh-violet-text, #C4B5FD); margin-right: 6px;
     }
     .weibull-pattern-insufficient_data { background: rgba(255,255,255,0.06); color: var(--muted); }
 
@@ -758,14 +758,14 @@
            is one tap behind this toggle, so a technician isn't shown S/O/D·RPN·β/η cold.
            The choice persists per device (wh_asset_view). -->
       <button id="asset-view-toggle" type="button" class="add-edge-btn"
-              style="width:100%; min-height:44px; margin:0.4rem 0 0.6rem; padding:10px 16px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.12); border-color:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.3); color:#c7b6fb; font-size:0.8rem; font-weight:700; cursor:pointer;"
+              style="width:100%; min-height:44px; margin:0.4rem 0 0.6rem; padding:10px 16px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.12); border-color:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.3); color:var(--wh-violet-text, #C4B5FD); font-size:0.8rem; font-weight:700; cursor:pointer;"
               aria-expanded="false" aria-controls="reliability-card" data-i="showworkbench">&#128295; Show Reliability Workbench (engineer view)</button>
       <!-- Phase R.2: Reliability Engineering Workbench (FMEA / RCM / Weibull / P-F) -->
       <div class="section-card" id="reliability-card" style="display:none; ">
         <div class="section-title" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
           <span>Reliability</span>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button id="reliability-report-btn" class="add-edge-btn" style="min-height:44px; padding:8px 16px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.18); border-color:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.35); color:#c7b6fb; font-size:0.8rem;" title="Print-ready Reliability Report (Phase R.7): assembles FMEA + RCM + Weibull + P-F into one auditor-friendly document." data-i="printreport">Print Report</button>
+            <button id="reliability-report-btn" class="add-edge-btn" style="min-height:44px; padding:8px 16px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.18); border-color:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.35); color:var(--wh-violet-text, #C4B5FD); font-size:0.8rem;" title="Print-ready Reliability Report (Phase R.7): assembles FMEA + RCM + Weibull + P-F into one auditor-friendly document." data-i="printreport">Print Report</button>
             <span style="font-size:0.75rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--wh-violet-text);">SAE JA1011 / AIAG-VDA</span>
           </div>
         </div>
@@ -794,7 +794,7 @@
           </div>
           <div style="display:flex; gap:8px; margin-top:0.65rem; flex-wrap:wrap;">
             <button id="fmea-add-btn" class="add-edge-btn" data-i="addfailmode" style="flex:1; min-width:160px; min-height:44px;">+ Add failure mode</button>
-            <button id="fmea-suggest-btn" class="add-edge-btn" style="flex:1; min-width:200px; min-height:44px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.18); border-color:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.35); color:#c7b6fb;" title="Cluster the last 365 days of corrective logbook entries by root cause and let the AI draft FMEA rows for supervisor review." data-i="suggesthistory">Suggest from history (AI)</button>
+            <button id="fmea-suggest-btn" class="add-edge-btn" style="flex:1; min-width:200px; min-height:44px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.18); border-color:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.35); color:var(--wh-violet-text, #C4B5FD);" title="Cluster the last 365 days of corrective logbook entries by root cause and let the AI draft FMEA rows for supervisor review." data-i="suggesthistory">Suggest from history (AI)</button>
           </div>
           <div id="fmea-suggest-status" style="font-size:0.8rem; color:var(--muted); margin-top:0.45rem; min-height:1.1em;"></div>
         </div>

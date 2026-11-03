@@ -48,8 +48,8 @@
     }
     .wh-input:focus { border-color: var(--wh-orange); }
     .wh-input::placeholder { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
-    select.wh-input option { background: #1e2d45; color: white; }
-    select option { background: #1e2d45; color: white; }
+    select.wh-input option { background: var(--wh-navy-mid, #1F2E45); color: white; }
+    select option { background: var(--wh-navy-mid, #1F2E45); color: white; }
 
     /* T113 (2026-08-26): AT THE 320 FLOOR THE COMPLETION SHEET'S PRIMARY ACTION OVERFLOWED ITS
        PANEL BY 21px. btn-primary is width:100% by design (it is a full-width action nearly
@@ -309,7 +309,7 @@
     }
     .sheet-overlay.open { display: flex; }
     .sheet-panel {
-      background: linear-gradient(145deg, rgba(30,44,65,0.98), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.99));
+      background: linear-gradient(145deg, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.98), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.99));
       border: 1px solid rgba(255,255,255,0.1); border-radius: 16px 16px 0 0;
       width: 100%; max-width: 640px; padding: 1.5rem 1.25rem;
       animation: sheetUp 0.25s ease;
@@ -364,15 +364,15 @@
        chrome, sheets and toasts in the flow. Print = black-on-white content, chrome gone.
        (project-report already had print CSS; this brings the printable set to two.) */
     @media print {
-      body { background: #fff !important; color: #111 !important; }
-      body * { background: transparent !important; color: #111 !important;
+      body { background: #fff !important; color: var(--wh-print-ink, #111) !important; }
+      body * { background: transparent !important; color: var(--wh-print-ink, #111) !important;
                box-shadow: none !important; text-shadow: none !important; }
       #wh-hub-fab, #wh-nav-hub, [id^="wh-hub"], #wh-feedback-fab, #wh-feedback-panel,
       #toast, .sheet-overlay, .sheet, #completion-sheet, [role=dialog],
       button, .btn-primary, .btn-ghost, #offline-banner, .connectivity-widget,
       #wh-voice-overlay { display: none !important; }
       a { text-decoration: none !important; }
-      .asset-card, .wh-card { border: 1px solid #bbb !important; page-break-inside: avoid; }
+      .asset-card, .wh-card { border: 1px solid var(--wh-print-rule, #bbb) !important; page-break-inside: avoid; }
     }
   </style>
 </head>

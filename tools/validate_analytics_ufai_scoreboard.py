@@ -174,7 +174,10 @@ def main() -> int:
     _m = re.search(r"\.doc-panel \.doc-logo\s*\{(.*?)\}", rep, re.S)
     if _m:
         _logo_rule = re.sub(r"/\*(?![\"']).*?\*/", "", _m.group(1), flags=re.S)
-    _logo_color = (re.search(r"color:\s*(#[0-9a-fA-F]{3,6})", _logo_rule) or [None, ""])[1]
+    # ★THE TOKEN FORM IS THE SAME INK (2026-11-04): OD's token rewrite writes `color: var(--wh-navy, #162032)`; the fallback
+    # hex is the token's value (fix_token_literals proves it), so it is read the same as a bare hex - or the check reads
+    # MISSING on every page that moved onto the design system, and a lilac regression would hide behind a var().
+    _logo_color = (re.search(r"color:\s*(?:var\(\s*--[\w-]+\s*,\s*)?(#[0-9a-fA-F]{3,6})", _logo_rule) or [None, ""])[1]
     check("C2", bool(_logo_color) and _logo_color.lower() != "#a78bfa",
           f"[report] .doc-logo ink is {_logo_color or 'MISSING'} -- not the dark-shell lilac (~2.6:1 on white print)")
     check("C2", "color:#888" not in rep,

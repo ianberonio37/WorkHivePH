@@ -491,14 +491,14 @@
        blocks, and its numbers reach paper through the report sender instead.
        Print = black-on-white content, chrome gone, no dark-background ink disasters. */
     @media print {
-      body { background: #fff !important; color: #111 !important; }
-      body * { background: transparent !important; color: #111 !important;
+      body { background: #fff !important; color: var(--wh-print-ink, #111) !important; }
+      body * { background: transparent !important; color: var(--wh-print-ink, #111) !important;
                box-shadow: none !important; text-shadow: none !important; }
       #wh-hub-fab, #wh-nav-hub, [id^="wh-hub"], #wh-feedback-fab, #wh-feedback-panel,
       #toast, .sheet-overlay, .sheet, [role=dialog], button, .btn-primary, .btn-ghost,
       #offline-banner, .connectivity-widget, #wh-voice-overlay { display: none !important; }
       a { text-decoration: none !important; }
-      .card, .wh-card, .entry-card { border: 1px solid #bbb !important; page-break-inside: avoid; }
+      .card, .wh-card, .entry-card { border: 1px solid var(--wh-print-rule, #bbb) !important; page-break-inside: avoid; }
       table { page-break-inside: auto; }
       tr { page-break-inside: avoid; page-break-after: auto; }
     }

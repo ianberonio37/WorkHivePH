@@ -9,7 +9,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Platform Actions · WorkHive</title>
   <style>
-    :root { --navy:#0b0f1a; --navy-mid:#141b2d; --card:#1a2337; --border:rgba(255,255,255,0.08);
+    :root { --navy:#0b0f1a; --navy-mid:#141b2d; --card:var(--wh-navy, #162032); --border:rgba(255,255,255,0.08);
             --gold:var(--wh-orange); --blue:var(--wh-blue); --green:var(--wh-green); --red:var(--wh-red); --muted:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     * { box-sizing:border-box; }
     body { margin:0; font-family:'Poppins',system-ui,sans-serif; background:linear-gradient(160deg,var(--navy) 0%,var(--navy-mid) 100%);
@@ -26,13 +26,13 @@
     .card-hdr { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:0.75rem; }
     .card-hdr h2 { font-size:1rem; font-weight:700; margin:0; }
     main, body { font-variant-numeric: tabular-nums; }   /* C4 (2026-09-05): every numeral on this console is a figure */
-    .count { font-size:1.25rem; line-height:1; font-variant-numeric:tabular-nums; font-weight:700; padding:0.25rem 0.5rem; border-radius:999px; background:rgba(255,255,255,0.08); color:#f1f5f9;   /* C5: a 20 px numeral on the dim pill needs the near-white tint (Lc 60 -> 75+) */ }
+    .count { font-size:1.25rem; line-height:1; font-variant-numeric:tabular-nums; font-weight:700; padding:0.25rem 0.5rem; border-radius:999px; background:rgba(255,255,255,0.08); color:var(--wh-cloud, #F4F6FA);   /* C5: a 20 px numeral on the dim pill needs the near-white tint (Lc 60 -> 75+) */ }
     .count.warn { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color:#fde68a; }   /* C5: same step for the amber pill */
     /* --red on its own 18% tint measures 4.35:1 -- under the 4.5 AA floor for text this small, and
        axe flagged 11 nodes across the count badges and status pills. The gold pair already clears it
        at 5.41:1, so only the red needed lifting: #fca5a5 on the same tint measures 6.35:1. Chosen
        over darkening the tint because the tint is what makes a red pill READ as red at a glance. */
-    .count.fail { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.14); color:#fecaca; }   /* C5 (2026-09-05): a 20 px numeral on the red pill read Lc 60 with #fca5a5 - one tint lighter */
+    .count.fail { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.14); color:var(--wh-red-text, #FDC9C9); }   /* C5 (2026-09-05): a 20 px numeral on the red pill read Lc 60 with #fca5a5 - one tint lighter */
     .mod-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; padding:0.5rem 0;
                border-top:1px solid var(--border); flex-wrap:wrap; }
     .mod-row:first-child { border-top:0; }

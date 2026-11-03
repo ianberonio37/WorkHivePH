@@ -2,7 +2,7 @@
 name: page-hive
 type: page
 source: file:hive.html
-source_sha: c25e857a60e543da
+source_sha: 35f7b5fb39380fa5
 last_verified: 2026-07-13
 supersedes: null
 ---

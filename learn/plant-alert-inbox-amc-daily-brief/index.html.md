@@ -117,4 +117,4 @@ WorkHive provides support and training for Alert Hub, ensuring a smooth rollout 
 - TESDA (Technical Education and Skills Development Authority of the Philippines)
 - Related WorkHive guides: [Autonomous shift planning](https://workhiveph.com/learn/autonomous-shift-planning-philippine-plants/) · [Predictive alert thresholds](https://workhiveph.com/learn/predictive-alert-thresholds-plants/) · [Predictive maintenance on a budget](https://workhiveph.com/learn/predictive-maintenance-on-a-budget-philippines/)
 
-<!-- md-twin source-sha: 56c5242a16588622 -->
+<!-- md-twin source-sha: 277b5f11310ef7b8 -->
