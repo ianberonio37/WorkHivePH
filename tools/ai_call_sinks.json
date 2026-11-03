@@ -449,7 +449,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "dfd1a6bbd38aa18a"
+      "source_sha256": "cc379f456b9a9396"
     },
     "engineering-calc-agent": {
       "calls_model": true,
@@ -473,7 +473,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "e7d00fd6048768e6"
+      "source_sha256": "659d8c3ef86aa6a0"
     },
     "failure-signature-scan": {
       "calls_model": true,
@@ -1233,7 +1233,7 @@
   },
   "sources": {
     "audio": "90269617fcdcb96e",
-    "chain": "cd1225fa33732416",
+    "chain": "0ee6a0292a1267ec",
     "collector": "53a95f629b86d8b4",
     "cost_log": "974b18019517c9b1",
     "embedding": "a1603b1a8a35238a",

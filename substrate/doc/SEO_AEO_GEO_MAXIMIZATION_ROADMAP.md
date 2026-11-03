@@ -2,7 +2,7 @@
 name: doc-SEO_AEO_GEO_MAXIMIZATION_ROADMAP
 type: doc
 source: file:SEO_AEO_GEO_MAXIMIZATION_ROADMAP.md
-source_sha: 2b8f21c15e0b1938
+source_sha: 414540e8dd046fb4
 last_verified: 2026-07-13
 supersedes: null
 ---

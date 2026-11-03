@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: cdb3ead1ff474b46
+source_sha: e5d28a11af2374aa
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1495) — the 'what's already gated' brain
+## gate · registered validators (1509) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -255,9 +255,20 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-headers` ⚡ [fail] — Wave-4 layer-H stories: every H-layer row's page serves the correct CSP / X-Frame-Options / Permissions-Policy / Cache-Control (the local vercel.json substitute
 - `w4-layer-regression` ⚡ [fail] — Wave-4 layer-CI stories: every CI-layer row's page is watched by a registered gate (the phone-fit sweep + the trajectory-registry gate + any dedicated validator
 
-### Engineering Calculator (2)
+### Engineering Calculator (13)
+- `calc-input-reach` ⚡ [fail] — Engineering design I1: every key a calculator form's collectInputs() sends is read by its python engine, or is recorded-only by a stated decision; a NEW value s
 - `calc-integration` [fail] — Calc Integration Test (L3 — live edge function)
+- `calc-served-engine` ⚡ [fail] — Engineering design E1: every calculator the oracle-verified Python engine answered on its form's own default payload (tools/fixtures/ed_default_payloads.json) s
 - `calc-suite` ⚡ [blocker] — Engineering Calc Suite (L1+L2a+L2b)
+- `door-examples-are-keys` [fail] — Calculator door pages: every worked example computes what it names (2026-11-02). Each door page runs its module on an example and prints it as 'an X in Y'; thre
+- `engineering-boms` [fail] — Engineering design BOM/SOW (ED B1): every calculator's bill of materials and scope, generated through the page's own generateBomSowChecklist() by the real engin
+- `engineering-drawings` [fail] — Engineering design drawings (ED D1): every drawn calculator's drawing, produced by the page's own _runDrawing from the served Python engine's answer on the form
+- `engineering-forms` [fail] — Engineering design forms (ED F1): every calculator's form, walked field by field with the engine call held at the network (nothing computes or spends AI quota),
+- `engineering-guides` [fail] — Engineering design guides (ED G1/GR): every built calculator has a Guide; no guide text under 0.8 opacity or 14px, no hole in a formula block, every formula a h
+- `engineering-reports` [fail] — Engineering design reports (ED R1): every built calculator's report, rendered from the served Python engine's answer on the form's own payload, states the headl
+- `engineering-saved-reports` [fail] — Engineering design History (ED S1): every calculator's report, saved through the page's own saveCalc() into engineering_calcs (a real insert through RLS), read 
+- `form-option-reach` [fail] — Calculator forms (ED I1, by value): every CHOICE a form offers reaches its engine as that choice (2026-11-02). census_calc_input_reach proves each key is read; 
+- `selection-ceiling` [fail] — Engineering engines: a duty above the size list is never handed the largest size as if it were enough (2026-11-02). 44 picks in 29 engines were `next((s for s i
 
 ### Forward-Build (2)
 - `fb2-browser-ci-persona` ⚡ [regression] — FB2 Browser-CI Multi-Persona Live Floor Ratchet (every page walked HEADLESS as field-tech/supervisor/new-worker/admin = role x viewport x hive; the persona-delt
@@ -405,7 +416,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1093)
+### Platform (1095)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -1103,6 +1114,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `outbox-delivery` [fail] — C12 (SERVICE_HAILING_ROADMAP §4b) durable side-effects: a boundary-crossing effect must survive a consumer that is down. 12 live invariants over `service_outbox
 - `own_anchor_back` [fail] — OWN anchor-back (public pages at 390 and 1280: after in-page jumps one Back leaves, and each jump still lands with focus)
 - `own_back_one_press` [fail] — OWN back-one-press (13 pages at 390: Back leaves from rest in one press; sheets, modals and the hub panel close first, never trap; a hub tile replaces the hub's
+- `own_text_grows` [fail] — OWN text grows / colours taken away (136 pages at 390 and 1280): with WCAG 1.4.12 text spacing and the text at 200% nothing scrolls sideways, clips or loses a c
 - `p6-concurrency-class` [fail] — P6 concurrent-edit disposition gate (LIVE + static teeth) — locks the concurrency-safety CLASS of the 9 remaining P6-partial pages so each reaches gated-100, co
 - `page-battery` [fail] — Platform-wide page battery (LIVE headless Playwright, real Baguio supervisor sign-in) - PER_PAGE_BUGHUNT_ROADMAP section 5 mechanical floor across ALL ~30 inter
 - `page-contrast` [fail] — T116: the contrast zero that IS certified, and the one page where it is not. tools/prove_page_contrast.mjs is a mature TWO-ORACLE instrument - axe for WCAG 2.x,
@@ -1266,6 +1278,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `rendered-i18n` ⚡ [fail] — English prose written by JS onto pages that CLAIM to be bilingual - the stamp survives, the translation does not (forward-only ratchet)
 - `repaint-spares-typing` [fail] — T142: a live update must not evict a typist. The recorded incident is precise - a 15-second poll rebuilt a region while somebody was typing in it and the repain
 - `report-clobber-guard` ⚡ [fail] — INSTRUMENT INTEGRITY: a spot-check must never destroy a full sweep's report (2026-08-27). MEASURED, not hypothesised — prove_retry_path.mjs wrote retry_path_rep
+- `report-grids-reflow` [fail] — ED R1: a report's fixed multi-column grid collapses on a phone (2026-11-02). Engineering reports lay out signature rows and summary tiles with INLINE grids (gri
 - `report-link-fidelity` ⚡ [fail] — T106's arrival-fidelity oracle for EMAIL. Every 'View in WorkHive' link in send-report-email pointed at a bare page root, so a PM Overdue report - a document wh
 - `report-reason-deliberate` ⚡ [fail] — Critic-deepwalk T31 lock: reporting a post requires a DELIBERATE reason and the audit row names whose post it was. Walked live: the select DEFAULTED to 'Harassm
 - `report-sender` ⚡ [fail] — Report Sender Validator (32 checks: structure + UI + logic + PWA)
@@ -1557,7 +1570,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `calc-method-defaults-split` [fail] — Calculator method notes state the standard default and where to change it as two short sentences, and their markdown twins agree
 - `learn-provenance` ⚡ [fail] — Learn provenance (every article names its sources and says how fresh it is)
 
-### Security (37)
+### Security (38)
 - `admin-is-an-account` ⚡ [fail] — Admin is an account (renaming yourself or founding a hive under an admin's name grants nothing; the real admin stays one; a solo owner reads his own record)
 - `boundary-legible` [fail] — Boundary legible (a refusal is addressed to a person: nothing leaked, something to act on)
 - `credential-pointers` ⚡ [fail] — Credential pointers (no page tells a reader where a secret lives)
@@ -1566,6 +1579,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `destructive-sweep` [fail] — Destructive sweep (every destructive control that can be reached is guarded; unreached surfaces are named)
 - `federated-consent` ⚡ [fail] — Cross-hive figures come only from hives that consented: _shared/federated-consent.ts reads hives.federated_benchmark_opted_in and fails closed; benchmark-comput
 - `fn-contracts` [fail] — Function contracts (a foreign-hive request refused with a sentence, a provider failure that degrades legibly, a documented shape somebody calls)
+- `founder-rpc-refusal` ⚡ [fail] — Founder RPC refusal (2026-11-03, CX-FND: every RPC a founder page's own code calls, asked DIRECTLY as a non-admin supervisor, a non-admin worker and a visitor, 
 - `gated-offers` ⚡ [fail] — BRH-L (Ian 2026-10-14: "founder/admin pages button should also be visible to only founder/admin"): a page that refuses some people is offered only to the people
 - `handler-values-escaped` ⚡ [fail] — SL S4 (2026-10-15): every value interpolated into an inline event handler (onclick="...") goes through escJsAttr - escHtml is not enough there, because the brow
 - `hostile-personas` [fail] — Hostile personas (ex-employee, scraper, self-rater, bulk abuser, spoofer, false disputer, insider - each refused on their own token)

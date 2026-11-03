@@ -2,7 +2,7 @@
 name: edge-fn-engineering-calc-agent
 type: edge-fn
 source: file:supabase/functions/engineering-calc-agent/index.ts
-source_sha: e7d00fd6048768e6
+source_sha: 659d8c3ef86aa6a0
 last_verified: 2026-07-13
 supersedes: null
 ---

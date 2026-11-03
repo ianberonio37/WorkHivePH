@@ -39,4 +39,4 @@ Where these figures come from
 Worked example computed when this page was built · the planner calculates on your device from what you enter · no live data
  /wh-sources
 
-<!-- md-twin source-sha: f4cb9554494832e7 -->
+<!-- md-twin source-sha: 9f4e14cbf993d811 -->

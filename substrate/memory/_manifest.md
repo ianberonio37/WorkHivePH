@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1069-files
-source_sha: abade4e326bee8a3
+source: memory-curated:1073-files
+source_sha: 9e2decf6a394e974
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1069 durable topic files)
+## memory · curated auto-memory (1073 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=676 · project=303 · reference=90
+**By type:** feedback=680 · project=303 · reference=90
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -211,6 +211,8 @@ Entries (name · type · sha):
 - `feedback_a_truth_view_exposes_the_flag_callers_must_filter` · feedback · 179705228b426243
 - `feedback_a_typeof_guard_made_the_missing_file_silent` · feedback · a706437e4ce648ea
 - `feedback_a_valid_session_is_not_a_cast_persona` · feedback · b26dc65169c62fb9
+- `feedback_a_value_that_is_not_a_key_falls_back_silently` · feedback · ec7fdf78192bca96
+- `feedback_a_vector_copied_from_the_engine_locks_its_error` · feedback · 040d25e4b7747168
 - `feedback_a_vector_search_tested_with_literals_hides_its_real_plan` · feedback · b22348ed24e36f57
 - `feedback_a_vocabulary_that_rejects_the_real_fix` · feedback · 25aae3586b5a58bf
 - `feedback_a_walked_cell_is_not_a_banked_cell` · feedback · 5998c3c3aa4126a2
@@ -228,6 +230,7 @@ Entries (name · type · sha):
 - `feedback_ai_write_accountability_ai6` · feedback · 0e9f455eea85a173
 - `feedback_an_appended_rewalk_reads_as_its_retracted_past` · feedback · 7cbc07e1a5b4b666
 - `feedback_an_aria_label_on_a_generic_is_spoken_nowhere` · feedback · aae7445cac93ff7f
+- `feedback_an_evidence_chunk_held_the_sidebar` · feedback · fee26eb3ffb8e810
 - `feedback_an_exempt_childs_words_came_back_through_its_parent` · feedback · 00e52515d6edfcba
 - `feedback_an_exit_animation_played_before_the_write` · feedback · 5d7b6aae40ca9add
 - `feedback_an_ignored_flag_ran_the_whole_board` · feedback · c656114d5352dc0d
@@ -513,9 +516,6 @@ Entries (name · type · sha):
 - `feedback_reachable_somewhere_is_not_reachable_from_here` · feedback · 9d550121ebd94ca6
 - `feedback_read_vercel_not_its_shadow` · feedback · 242b5b67e00167c9
 - `feedback_real_documents_taught_the_miner_eight_lessons` · feedback · c5842d03ea187873
-- `feedback_recall_the_disposition_before_declaring_a_bug` · feedback · 0cf581764691c269
-- `feedback_records_that_outlive_the_action` · feedback · 28052b4dca8cda3e
-- `feedback_red_gate_may_be_inaccuracy_not_backlog` · feedback · 6f62315a62c1a606
-- … +569 more (all included in the fingerprint)
+- … +573 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

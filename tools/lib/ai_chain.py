@@ -115,9 +115,6 @@ _CHAIN: list[_Provider] = [
               "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}),
     # v8 (2026-10-07): code-specialist models are last resorts for general calls (mirrors the TS chain).
     _Provider("mistral", "https://api.mistral.ai/v1", "codestral-latest",     "MISTRAL_API_KEY", last_resort=True),
-    _Provider("openrouter", "https://openrouter.ai/api/v1", "poolside/laguna-s-2.1:free",
-              "OPENROUTER_API_KEY", extra_headers={"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"},
-              last_resort=True),
 ]
 
 

@@ -1,16 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:745
-source_sha: 3090b42b989a69eb
+source: dir:supabase/migrations:746
+source_sha: c42cb3e4b3f1a24f
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (745 migrations)
+## migration · catalog (746 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260820000066_the_low_stock_tile_counted_a_capped_array` — fns:get_hive_dashboard
 - `20260820000067_the_pm_overdue_tile_had_no_denominator` — fns:get_hive_dashboard
 - `20260820000068_v_sensor_recent_dropped_the_unit_its_reader_needs` — (misc DDL/DML)
 - `20260820000069_xp_reversal_rpcs_were_callable_by_any_signed_in_user` — (misc DDL/DML)
@@ -210,6 +209,7 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261030000015_project_rollups_every_item` — fns:project_rollups
 - `20261031000001_a_dispute_has_a_screen` — fns:adjudicate_service_dispute,admin_disputed_jobs,fanout_completion_push,raise_service_objection
 - `20261031000002_the_counters_grant_is_written` — (misc DDL/DML)
+- `20261103000001_register_ed_standards` — (misc DDL/DML)
 
 (showing last 200)
 

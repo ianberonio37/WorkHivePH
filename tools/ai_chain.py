@@ -121,7 +121,6 @@ PROVIDER_CHAIN = [
     {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "dots-studio/dots-3-note-preview:free",                    "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
     # v8 (2026-10-07): code-specialist models are last resorts for general calls (mirrors the TS chain).
     {"provider": "mistral",  "base_url": "https://api.mistral.ai/v1",        "model": "codestral-latest",                          "env_key": "MISTRAL_API_KEY"},
-    {"provider": "openrouter", "base_url": "https://openrouter.ai/api/v1",  "model": "poolside/laguna-s-2.1:free",                  "env_key": "OPENROUTER_API_KEY", "extra_headers": {"HTTP-Referer": "https://workhiveph.com", "X-Title": "WorkHive"}},
 ]
 
 

@@ -182,4 +182,4 @@ No. Utilization only measures how much time the equipment ran versus calendar ti
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 62c058ca2753cecc -->
+<!-- md-twin source-sha: 1037a8e26bcdc162 -->

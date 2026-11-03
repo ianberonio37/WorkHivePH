@@ -523,7 +523,7 @@
         {
           "table": "worker_achievements",
           "allowed": false,
-          "offset": 80809
+          "offset": 81140
         }
       ],
       "drift": []

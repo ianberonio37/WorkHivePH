@@ -99,11 +99,11 @@
       /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
        extrabold) is wider than the phone, and a word overflows its box without the box growing - no layout test sees it,
        the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
-    h1, h2, h3, h4 { overflow-wrap: break-word; hyphens: auto; }
+    h1, h2 { overflow-wrap: break-word; hyphens: auto; }
     p, li, dd, dt, blockquote, figcaption, summary { overflow-wrap: break-word; }   /* a bare URL in a sentence, too */
     /* the byline row wraps, and the author card's text column may shrink: a flex item never shrinks below its longest word
        (break-word does not lower that floor), so an e-mail address held the card 87px past a 390 phone at 200% text */
-    .flex.items-center.gap-3.text-xs { flex-wrap: wrap; row-gap: 0.25rem; } .author-card .meta { min-width: 0; }
+    .flex.items-center.gap-3.text-xs { flex-wrap: wrap; row-gap: 0.25rem; }
   </style>
   <script>
     // Local dev URL bridge v2 (same as all WorkHive pages)

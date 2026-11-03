@@ -131,7 +131,7 @@ def calculate(inputs: dict) -> dict:
     outdoor_db    = float(inputs.get("outdoor_temp",         35))   # dry bulb °C
     indoor_db     = float(inputs.get("indoor_temp",          24))
     indoor_rh     = float(inputs.get("indoor_rh_pct",        55))   # %
-    # The default outdoor air was 35 C at 80% RH (31 C dew point), which no Manila design condition reaches (ASHRAE: 34.6 C
+    # The default outdoor air was 35 C at 80% RH (31 C dew point), which no Manila design condition reaches (ASHRAE climatic design data: 34.6 C
     # DB / 26.5 C MCWB). Now 35 C DB / 28 C WB, about the 0.4% enthalpy design point; an explicit RH or WB still wins.
     if inputs.get("outdoor_rh_pct") not in (None, ""):
         outdoor_rh = float(inputs["outdoor_rh_pct"])

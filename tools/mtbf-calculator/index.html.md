@@ -41,4 +41,4 @@ Where these figures come from
 Worked example computed when this page was built · the calculator works on your device from what you enter · no live data
  /wh-sources
 
-<!-- md-twin source-sha: c0e1c76e857890e4 -->
+<!-- md-twin source-sha: 2a2112924e5a8a46 -->

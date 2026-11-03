@@ -144,4 +144,4 @@ On the logbook entry for the job. It carries a LOTO checkbox and an optional per
 - IIEE Code: Philippine Electrical Code
 - ISO 14224: Petroleum, Petrochemical and Natural Gas Industries - Reliability, Availability and Maintainability (RAM) Data Exchange
 
-<!-- md-twin source-sha: c6a19d8f766270fd -->
+<!-- md-twin source-sha: 6a386a208c765e24 -->

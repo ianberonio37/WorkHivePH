@@ -40,7 +40,9 @@ PATTERN = re.compile(r"(?:results|_?r)\??\.\w+\s*\|\|[^;]{0,90}\|\|\s*0\b")
 # 2026-07-09: G1 per-field audit — 229 DANGEROUS display sites converted to _orNA (fan-out judged +
 # adversarial/skeptic verified; 84 LEGIT keys + 11 skeptic-refuted plausible-real-zero keys left as-is).
 # Alias-chain-||0 count dropped 127->77.
-BASELINE = 77
+# 2026-11-03 (M5): Wave ED added four (solar strings, elevator stops x dwell, the isolator's k twice) and dropped two;
+# all four now resolve or print '-', and the count is 75.
+BASELINE = 75
 
 
 def run():
