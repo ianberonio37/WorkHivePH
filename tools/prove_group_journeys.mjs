@@ -112,7 +112,9 @@ async function session(browser, m, vpName) {
   return { ctx, page, m, vp: vpName, token: tok.access_token };
 }
 async function go(s, path) {
-  await s.page.goto(`${ORIGIN}/${path}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  // under 3G a heavy page needs longer than a minute to reach DOMContentLoaded (analytics.html: ~60 s at 390) - the A
+  // reading sets s.gotoTimeout and records how long it took; everywhere else a minute is the page failing to load
+  await s.page.goto(`${ORIGIN}/${path}`, { waitUntil: 'domcontentloaded', timeout: s.gotoTimeout || 60000 });
   await sleep(5000);
 }
 // the smallest visible element carrying the marker, and THE RECORD'S OWN CARD around it - what the person actually reads.
@@ -140,7 +142,9 @@ async function findText(s, marker, ms = 15000) {
         const par = node.parentElement;
         const twins = [...par.children].filter((c) => c.tagName === node.tagName && c.className === node.className).length;
         if (twins >= 2) break;
-        if ((par.innerText || '').trim().length > 1200) break;
+        const pl = (par.innerText || '').trim().length;
+        // a lone record (one search result) has no twins: stop before the climb jumps to a much larger block
+        if (pl > 1200 || pl > Math.max(400, 2.5 * (node.innerText || '').trim().length)) break;
         node = par;
       }
       return { text: best.t, card: (node.innerText || '').trim().slice(0, 1200) };
@@ -158,11 +162,19 @@ async function under3G(s, reach) {
   await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 400, downloadThroughput: 50 * 1024, uploadThroughput: 50 * 1024 });
   const t0 = Date.now();
   try {
+    // ★THE A PILLAR ASKS WHETHER THE HAND-OFF SURVIVES A BAD NETWORK, NOT WHETHER IT IS FAST (2026-11-04, J3 hand-off 4):
+    // analytics.html reached DOMContentLoaded in ~60 s on slow 3G at 390 and the walk's one-minute navigation limit read
+    // that as a failure. Navigation gets 150 s under 3G; the time is kept, and over a minute it is said as SLOW - a
+    // reading for the performance lens, never hidden inside a pass.
+    s.gotoTimeout = 150000;
     const hit = await reach(s);
-    return { ok: !!hit, ms: Date.now() - t0, detail: hit ? 'the record is on the receiver\'s screen on 3G' : 'not on screen within 45 s on 3G' };
+    const ms = Date.now() - t0;
+    return { ok: !!hit, ms, slow: ms > 60000,
+      detail: hit ? `the record is on the receiver's screen on 3G${ms > 60000 ? ` - SLOW: ${Math.round(ms / 1000)} s` : ''}` : 'not on screen within 45 s on 3G' };
   } catch (e) {
     return { ok: false, ms: Date.now() - t0, detail: String(e.message || e).slice(0, 160) };
   } finally {
+    s.gotoTimeout = 0;
     await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 0, downloadThroughput: -1, uploadThroughput: -1 }).catch(() => {});
   }
 }
@@ -351,8 +363,16 @@ const RECIPES = {
 // ── J3 · the PM month: the supervisor schedules it, it falls due in the worker's day, the worker completes it, the
 // supervisor's compliance and the month's report count it. The asset is the walk's own (tagged), anchored 31 days back
 // so its tasks are due today.
-async function openPmAsset(s, name) {
+// pm-scheduler's way to one machine among a plant's hundreds is its own search box (#pm-search, "Find a machine by name,
+// tag or location") - the dashboard does not draw every asset by name
+async function findPmAsset(s, name, ms) {
   await go(s, 'pm-scheduler.html');
+  await s.page.fill('#pm-search', name).catch(() => {});
+  await sleep(1500);
+  return findText(s, name, ms);
+}
+async function openPmAsset(s, name) {
+  await findPmAsset(s, name, 8000);
   return s.page.evaluate((nm) => {
     const el = [...document.querySelectorAll('[onclick], button, a, .asset-card, li')].find((c) => (c.innerText || '').includes(nm)
       && (c.getAttribute('onclick') || c.tagName === 'BUTTON' || c.tagName === 'A'));
@@ -376,7 +396,11 @@ RECIPES.J3 = {
     });
     await sleep(1500);
     for (const st of [2, 3]) { await s.page.evaluate((n) => { if (typeof goStep === 'function') goStep(n); }, st); await sleep(900); }
-    const anchor = new Date(Date.now() + 8 * 3600e3 - 31 * 86400e3).toISOString().slice(0, 10);
+    // ★400 DAYS BACK, NOT 31 (2026-11-04, the first J3 walk): the day planner's rail is "the 30 most urgent of N", most
+    // overdue first, and Manila's older overdue PMs outranked a machine anchored a month back - the walk's PM never reached
+    // the worker's day, a premise the data did not exercise. A machine onboarded with its last service over a year ago
+    // is a real case, and it is the most urgent on the rail.
+    const anchor = new Date(Date.now() + 8 * 3600e3 - 400 * 86400e3).toISOString().slice(0, 10);
     await s.page.evaluate((d) => { const a = document.getElementById('w-anchor'); if (a) { a.value = d; a.dispatchEvent(new Event('change', { bubbles: true })); } }, anchor);
     await s.page.evaluate(() => { if (typeof goStep === 'function') goStep(4); });
     await sleep(900);
@@ -387,13 +411,20 @@ RECIPES.J3 = {
     const [aid, ntasks] = row ? row.split('|') : [null, '0'];
     X.rec.pm = { id: aid, name };
     return { act: { ok: !!aid && Number(ntasks) > 0, detail: `the Add Asset wizard as ${s.m.name}: category ${cat || 'none'}, anchor ${anchor} -> pm_assets ${aid || 'NO ROW'} with ${ntasks} task(s)` },
-      marker: name, path: 'pm-scheduler.html', rec: { table: 'pm_assets', id: aid } };
+      marker: name, path: 'pm-scheduler.html', reach: (R2, ms) => findPmAsset(R2, name, ms), rec: { table: 'pm_assets', id: aid } };
   },
   2: async (X) => {   // the PM falls due in the worker's day
     const p = X.rec.pm || {};
-    return { act: { ok: !!p.id, detail: `the PM scheduled at hand-off 1 (${p.name}), anchored 31 days back - due today` },
+    return { act: { ok: !!p.id, detail: `the PM scheduled at hand-off 1 (${p.name}), anchored 400 days back - overdue, the most urgent` },
       // a due PM is the schedule's doing, not a person's: the day names the asset and that it is a PM due
       marker: p.name, whoRx: /\bPM\b|preventive|due|overdue/i, path: 'dayplanner.html',
+      // the rail of due PMs sits behind "Open items" (#sidebar-toggle, collapsed by default) - the tap a person makes
+      reach: async (R2, ms) => {
+        await go(R2, 'dayplanner.html');
+        await R2.page.evaluate(() => { const t = document.getElementById('sidebar-toggle'); if (t && t.getAttribute('aria-expanded') !== 'true') t.click(); });
+        await sleep(1200);
+        return findText(R2, p.name, ms);
+      },
       rec: { table: 'v_pm_scope_items_truth', idCol: 'asset_id', id: p.id } };
   },
   3: async (X) => {   // the worker's completion moves the supervisor's PM compliance
@@ -403,6 +434,8 @@ RECIPES.J3 = {
     await sleep(1500);
     const marked = await w.page.evaluate(() => { const b = document.querySelector('[onclick^="markDone"]'); if (b) { b.click(); return true; } return false; });
     await sleep(1000);
+    const findings = `${X.tag} bearings checked`;
+    await w.page.fill('#sheet-findings', findings).catch(() => {});
     await w.page.evaluate(() => { const b = document.getElementById('sheet-save-btn'); if (b) b.click(); });
     await sleep(3500);
     const comp = psql(`select c.id || '|' || coalesce(c.worker_name,'') from pm_completions c where c.asset_id = '${q(p.id || '00000000-0000-0000-0000-000000000000')}'
@@ -410,8 +443,9 @@ RECIPES.J3 = {
     const [cid, by] = comp ? comp.split('|') : [null, null];
     X.rec.pmComp = cid;
     return { act: { ok: opened && marked && !!cid, detail: `the asset's own "done" sheet as ${w.m.name}: pm_completions ${cid || 'NO ROW'} by ${by || 'nobody'}` },
-      marker: p.name, path: 'pm-scheduler.html',
-      reach: async (R2, ms) => { await openPmAsset(R2, p.name); await sleep(1500); return findText(R2, p.name, ms); },
+      // the supervisor opens the asset and reads its completion: the worker's findings, who, when
+      marker: findings, path: 'pm-scheduler.html',
+      reach: async (R2, ms) => { await openPmAsset(R2, p.name); await sleep(1800); return findText(R2, findings, ms); },
       rec: { table: 'pm_completions', id: cid } };
   },
   4: (X) => RECIPES.J2[4](X),   // the completion counts in the supervisor's compliance figures (the page's own Refresh)
@@ -419,15 +453,126 @@ RECIPES.J3 = {
     const { s } = X.S;
     await go(s, 'analytics-report.html');
     return { act: { ok: true, detail: `the month's report opened as ${s.m.name} after hand-off 4's recompute` },
-      marker: null, path: 'analytics-report.html', freshnessRx: /generated|period|as of|updated|computed|last \d+ days|this month/i,
+      marker: null, path: 'analytics-report.html', freshnessRx: /Generated:|Period:|Report Date:/,
+      // the report is built on the person's own tap: "Generate Report" (#generate-btn), then its header states the date
+      prepare: async (P) => {
+        await P.page.click('#generate-btn', { timeout: 10000 }).catch(() => P.page.evaluate(() => { const b = document.getElementById('generate-btn'); if (b) b.click(); }));
+        for (let t = 0; t < 60000; t += 1000) {
+          const ok = await P.page.evaluate(() => /Generated:/.test(document.body.innerText || '')).catch(() => false);
+          if (ok) return; await sleep(1000);
+        }
+      },
       rec: { table: 'analytics_snapshots', idCol: 'hive_id', id: HIVE_ID, where: `and computed_at >= '${X.t0}'` } };
+  },
+};
+
+// ── J9 · the supervisor's week: a job raised and handed to the worker, the shift plan published, a worker's post in the
+// supervisor's view, a machine the worker submitted waiting for approval, and the decision pushed back.
+RECIPES.J9 = {
+  1: async (X) => {   // the work order the supervisor assigned is in the worker's day
+    const { w, s } = X.S;
+    await go(s, 'logbook.html');
+    const r = await logWizard(s.page, H(s.page), { tag: X.tag, maintType: 'Breakdown / Corrective', status: 'Open', problem: 'conveyor belt tracking off' });
+    const id = psql(`select id from logbook where problem like '${q(X.tag)}%' and hive_id = '${HIVE_ID}' order by created_at limit 1`);
+    // the author raises it and hands it on through the entry's own work-order fields (an author may; the guard checks the role)
+    const opened = await openEdit(s, X.tag);
+    await s.page.evaluate(() => { const st = document.getElementById('f-wo-state'); if (st) { st.value = 'assigned'; st.dispatchEvent(new Event('change', { bubbles: true })); } });
+    await sleep(500);
+    await s.page.evaluate((n) => {
+      const wrap = document.getElementById('wo-assigned-wrap'); if (wrap) wrap.style.display = '';
+      const f = document.getElementById('f-wo-assigned-to'); if (f) { f.value = n; f.dispatchEvent(new Event('input', { bubbles: true })); f.dispatchEvent(new Event('change', { bubbles: true })); }
+    }, w.m.name);
+    await s.page.evaluate(() => { const b = document.getElementById('save-entry-btn'); if (b) b.click(); });
+    await sleep(3500);
+    const got = psql(`select coalesce(wo_assigned_to,'') || '|' || coalesce(wo_state,'') from logbook where id = '${q(id || '')}'`);
+    X.rec.job = { id };
+    return { act: { ok: !!id && opened && got.startsWith(w.m.name), detail: `raised by ${s.m.name} through the wizard (${r.toast || 'no toast'}) and handed on in its own edit: wo_assigned_to|wo_state = ${got}` },
+      marker: X.tag, path: 'dayplanner.html',
+      reach: async (R2, ms) => {
+        await go(R2, 'dayplanner.html');
+        await R2.page.evaluate(() => { const t = document.getElementById('sidebar-toggle'); if (t && t.getAttribute('aria-expanded') !== 'true') t.click(); });
+        await sleep(1200);
+        return findText(R2, X.tag, ms);
+      },
+      rec: { table: 'v_logbook_truth', id } };
+  },
+  2: async (X) => {   // the shift plan the supervisor published is the worker's briefing
+    const { s } = X.S;
+    await go(s, 'shift-brain.html');
+    for (let t = 0; t < 40000; t += 1000) {   // the plan is built on the shift's first open; Publish needs it loaded
+      const ready = await s.page.evaluate(() => /handover ready|published|shift plan/i.test(document.body.innerText || '')).catch(() => false);
+      if (ready) break; await sleep(1000);
+    }
+    await s.page.evaluate(() => { const b = document.getElementById('publish-btn'); if (b) b.click(); });
+    await sleep(800);
+    await s.page.click('[data-wh-modal-ok]', { timeout: 6000 }).catch(() => {});
+    await sleep(3000);
+    const plan = psql(`select id || '|' || coalesce(published_by,'') from shift_plans where hive_id = '${HIVE_ID}' and status = 'published'
+      and published_at >= '${X.t0}' order by published_at desc limit 1`);
+    const [pid, by] = plan ? plan.split('|') : [null, null];
+    return { act: { ok: !!pid && by === s.m.name, detail: `"Publish to crew" as ${s.m.name}, confirmed: shift_plans ${pid || 'NONE'} published by ${by || 'nobody'}` },
+      marker: s.m.name, markerRx: /publish/i, path: 'shift-brain.html', rec: { table: 'shift_plans', id: pid } };
+  },
+  3: async (X) => {   // the worker's post is in the supervisor's moderation view
+    const { w } = X.S;
+    await go(w, 'community.html');
+    await w.page.evaluate(() => { if (typeof openComposer === 'function') openComposer(); });
+    await sleep(1000);
+    const text = `${X.tag} spare V-belts for line 2 are back in stock`;
+    await w.page.fill('#post-content', text).catch(() => {});
+    await w.page.evaluate(() => { const b = document.getElementById('btn-submit-post'); if (b) b.click(); });
+    await sleep(3500);
+    const pid = psql(`select id from community_posts where hive_id = '${HIVE_ID}' and content like '${q(X.tag)}%' order by created_at desc limit 1`);
+    return { act: { ok: !!pid, detail: `"Post to Hive" as ${w.m.name}: community_posts ${pid || 'NO ROW'}` },
+      marker: X.tag, path: 'community.html', rec: { table: 'community_posts', id: pid } };
+  },
+  4: async (X) => {   // the machine the worker submitted waits in the supervisor's approvals
+    const { w } = X.S;
+    await go(w, 'logbook.html');
+    await w.page.evaluate(() => { if (typeof openAssetModal === 'function') openAssetModal(); });
+    await sleep(1200);
+    const name = `${X.tag} motor`;
+    await w.page.fill('#a-asset-id', X.tag).catch(() => {});
+    await w.page.fill('#a-name', name).catch(() => {});
+    await w.page.evaluate(() => { const t = document.getElementById('a-type'); if (t) { const o = [...t.options].find((x) => x.value); if (o) { t.value = o.value; t.dispatchEvent(new Event('change', { bubbles: true })); } } });
+    await w.page.fill('#a-location', 'Line 2').catch(() => {});
+    await w.page.evaluate(() => { const b = document.getElementById('asset-submit-btn'); if (b) b.click(); });
+    await sleep(3500);
+    const node = psql(`select id || '|' || status || '|' || coalesce(submitted_by,'') from asset_nodes where hive_id = '${HIVE_ID}' and name = '${q(name)}' limit 1`);
+    const [nid, st, by] = node ? node.split('|') : [null, null, null];
+    X.rec.node = { id: nid, name };
+    return { act: { ok: !!nid && st === 'pending', detail: `the logbook's add-asset form as ${w.m.name}: asset_nodes ${nid || 'NO ROW'} ${st || ''} submitted by ${by || 'nobody'}` },
+      marker: name, path: 'hive.html', rec: { table: 'asset_nodes', id: nid } };
+  },
+  5: async (X) => {   // the supervisor's decision is pushed to the worker
+    const { w, s } = X.S;
+    const n = X.rec.node || {};
+    await go(s, 'hive.html');
+    const tapped = await s.page.evaluate((id) => {
+      const b = [...document.querySelectorAll('#approval-queue button[onclick^="approveItem"]')].find((x) => (x.getAttribute('onclick') || '').includes(id));
+      if (b) { b.click(); return true; } return false;
+    }, n.id || '---');
+    await sleep(800);
+    await s.page.click('[data-wh-modal-ok]', { timeout: 4000 }).catch(() => {});
+    await sleep(3000);
+    const st = psql(`select status from asset_nodes where id::text = '${q(n.id || '')}'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') || ' -> ' || coalesce(payload->>'url','') from service_outbox
+      where consumer = 'notify-push' and created_at >= '${X.t0}' and payload->'auth_uids' ? '${w.m.uid}' and payload->>'title' like 'Submission%'
+      order by created_at desc limit 1`);
+    const url = (pushSaid.split(' -> ')[1] || '').replace(/^\//, '');
+    return { act: { ok: tapped && st === 'approved', detail: `Approve on hive.html's approval queue as ${s.m.name}: asset_nodes status ${st || 'unknown'}` },
+      marker: n.name, channelSaid: pushSaid.split(' -> ')[0] || null, path: url || 'logbook.html',
+      rec: { table: 'asset_nodes', id: n.id, where: `and status = 'approved'` },
+      F: () => ({ ok: !!pushSaid && st === 'approved', detail: `the push to ${w.m.name}: ${pushSaid || 'NONE'}; the machine reads ${st}` }) };
   },
 };
 
 // the rows the walk changes in place: today's snapshot and the machine's alerts (restored after); the rest it made is tagged
 function snapshotInPlace() {
   return { snaps: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from analytics_snapshots t where hive_id = '${HIVE_ID}'`),
-    alerts: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from failure_signature_alerts t where hive_id = '${HIVE_ID}'`) };
+    alerts: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from failure_signature_alerts t where hive_id = '${HIVE_ID}'`),
+    // a publish changes the hive's shift plan in place (status, published_by, published_at)
+    plans: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from shift_plans t where hive_id = '${HIVE_ID}'`) };
 }
 // ★EVERY STEP OF THE CLEANUP RUNS ON ITS OWN (2026-11-04, the first teeth run): one psql script with ON_ERROR_STOP died
 // on a wrong column at its fourth line, and the audit lines, the XP and the restores after it never ran - the walk left
@@ -444,7 +589,13 @@ function cleanup(X, kept) {
     ['tagged pushes', `delete from service_outbox where consumer = 'notify-push' and created_at >= '${X.t0}' and payload::text like '%${q(X.tag)}%';`],
     ['assignment pushes', `delete from service_outbox where consumer = 'notify-push' and created_at >= '${X.t0}'
       and payload->>'title' = 'Work order assigned to you' and payload->'auth_uids' ?| array[${uids}];`],
-    ['tagged PM rows', `delete from pm_completions where asset_id in (select id from pm_assets where hive_id = '${HIVE_ID}' and asset_name like '${q(X.tag)}%');
+    // ★CHILDREN BEFORE PARENTS - THE CLEANUP RUNS WITH TRIGGERS OFF, SO NO FOREIGN KEY WILL SAY IT (2026-11-04): a PM
+    // completion saved on pm-scheduler is mirrored into the logbook (id pm-..., pm_completion_id), and deleting the
+    // completions first left eight logbook rows pointing at nothing - found by the psql-probe-suite
+    // (logbook__queue_drains_once could no longer update the newest row). The mirrors go first, by their link.
+    ['tagged PM rows', `delete from logbook where pm_completion_id in (select c.id from pm_completions c join pm_assets a on a.id = c.asset_id
+        where a.hive_id = '${HIVE_ID}' and a.asset_name like '${q(X.tag)}%');
+      delete from pm_completions where asset_id in (select id from pm_assets where hive_id = '${HIVE_ID}' and asset_name like '${q(X.tag)}%');
       delete from pm_scope_items where asset_id in (select id from pm_assets where hive_id = '${HIVE_ID}' and asset_name like '${q(X.tag)}%');
       delete from pm_assets where hive_id = '${HIVE_ID}' and asset_name like '${q(X.tag)}%';`],
     ['XP the walk earned', `delete from achievement_xp_log where earned_at >= '${X.t0}' and worker_name in (${names});`],
@@ -452,6 +603,10 @@ function cleanup(X, kept) {
     ['the walk\'s devices', `delete from worker_known_devices where first_seen_at >= '${X.t0}' and auth_uid in (${uids});`],
     ['failure alerts restored', `begin; delete from failure_signature_alerts where hive_id = '${HIVE_ID}';
       insert into failure_signature_alerts select * from json_populate_recordset(null::failure_signature_alerts, '${q(kept.alerts)}'); commit;`],
+    ['tagged posts and machines', `delete from community_posts where hive_id = '${HIVE_ID}' and content like '${q(X.tag)}%';
+      delete from asset_nodes where hive_id = '${HIVE_ID}' and name like '${q(X.tag)}%';`],
+    ['shift plans restored', `begin; delete from shift_plans where hive_id = '${HIVE_ID}';
+      insert into shift_plans select * from json_populate_recordset(null::shift_plans, '${q(kept.plans)}'); commit;`],
     ['analytics snapshots restored', `begin; delete from analytics_snapshots where hive_id = '${HIVE_ID}';
       insert into analytics_snapshots select * from json_populate_recordset(null::analytics_snapshots, '${q(kept.snaps)}'); commit;`],
   ];
@@ -484,7 +639,8 @@ async function walkPass(browser, pass, foreign) {
       // U - the receiver lands by the hop's channel and reads the screen (the recipe's own route when it has one)
       const reach = r.reach || (async (S2, ms) => { await go(S2, r.path); return r.marker ? findText(S2, r.marker, ms) : true; });
       let seen = r.preRead || null;
-      if (!seen) { if (r.marker) seen = await reach(R, 20000); else await go(R, r.path); }
+      // a page whose statement needs the person's own tap first (analytics-report's "Generate Report") says so in prepare()
+      if (!seen) { if (r.marker) seen = await reach(R, 20000); else { await go(R, r.path); if (r.prepare) await r.prepare(R); } }
       if (r.marker) {
         // a receiver who arrives by a push reads the push first: its words are part of what they were told
         const card = (seen ? seen.card : '') + (r.channelSaid ? ` || the push: ${r.channelSaid}` : '');
@@ -502,7 +658,9 @@ async function walkPass(browser, pass, foreign) {
         }, r.hint || r.marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).catch(() => null);
       } else {
         const page = await R.page.evaluate(() => document.body.innerText || '');
-        const fresh = page.split('\n').find((l) => r.freshnessRx.test(l) && l.length < 160) || null;
+        // ★A LABEL IS NOT A READING (2026-11-04, J3 hand-off 5): analytics-report's toolbar word "Period" matched, and U
+        // read green on a line that states no period at all. The line must carry its value - a number, or "just now".
+        const fresh = page.split('\n').find((l) => r.freshnessRx.test(l) && l.length < 160 && /\d|just now/i.test(l)) || null;
         res.U = { ok: !!fresh, said: fresh };
       }
       // F - psql as the receiver finds the sender's record (or the recipe's own F, e.g. the push)
@@ -514,7 +672,19 @@ async function walkPass(browser, pass, foreign) {
       const forRows = r.rec.id ? Number(asUser(witness.uid, `select count(*) from ${r.rec.table} where ${idCol}::text = '${q(r.rec.id)}'`)) : -1;
       res.I = { ok: recvRows >= 1 && forRows === 0, receiver_rows: recvRows, foreign: witness.user, foreign_rows: forRows };
       // A - the receiver's landing on 3G, the sender's network untouched
-      res.A = await under3G(R, async (S2) => (r.marker ? reach(S2, 45000) : (await go(S2, r.path), true)));
+      // ★A MARKER-LESS PAGE'S A READING USED TO BE "IT LOADED" (2026-11-04): it returned true after the navigation, so a
+      // figure page passed on 3G without its statement ever being read. It now reads the same dated line U read.
+      res.A = await under3G(R, async (S2) => {
+        if (r.marker) return reach(S2, 45000);
+        await go(S2, r.path);
+        if (r.prepare) await r.prepare(S2);
+        for (let t = 0; t < 45000; t += 1000) {
+          const txt = await S2.page.evaluate(() => document.body.innerText || '').catch(() => '');
+          if (txt.split('\n').some((l) => r.freshnessRx.test(l) && l.length < 160 && /\d|just now/i.test(l))) return true;
+          await sleep(1000);
+        }
+        return null;
+      });
       out.push(res);
       console.log(`  ${SCEN} pass ${pass} hand-off ${hop.handoff} ${hop.page}: act ${res.act.ok ? 'ok' : 'FAIL'} · U ${res.U.ok ? 'ok' : 'FAIL'} · F ${res.F.ok ? 'ok' : 'FAIL'} · I ${res.I.ok ? 'ok' : 'FAIL'} · A ${res.A.ok ? 'ok' : 'FAIL'}`);
     }

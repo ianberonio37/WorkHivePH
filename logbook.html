@@ -5530,6 +5530,14 @@ async function openModal(id) {
     <div id="wo-actions" class="pt-2 mt-2">
       <p class="text-xs mb-2" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">As supervisor you move its work order: assign it, approve it, verify the work or reject it. What ${escHtml(entry.worker_name || 'they')} wrote stays theirs.</p>
       <button type="button" onclick="pickWorkOrderMove('${escJsAttr(entry.id)}')" class="btn-secondary w-full text-sm">Move the work order</button>
+    </div>` : ''}
+    ${_canAdvanceAssigned(entry) ? `
+    <div id="wo-assignee-actions" class="pt-2 mt-2">
+      <p class="text-xs mb-2" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">This job is assigned to you${entry.wo_state && entry.wo_state !== 'assigned' ? ' (now ' + escHtml(String(entry.wo_state).replace('_', ' ')) + ')' : ''}. Say where it stands; what ${escHtml(entry.worker_name || 'they')} wrote stays theirs.</p>
+      <div class="flex gap-2">
+        <button type="button" onclick="advanceAssigned('${escJsAttr(entry.id)}', 'in_progress')" class="btn-secondary flex-1 text-sm">Started</button>
+        <button type="button" onclick="advanceAssigned('${escJsAttr(entry.id)}', 'completed')" class="btn-primary flex-1 text-sm">Work done</button>
+      </div>
     </div>` : ''}`}
   `;
 
@@ -8177,8 +8185,47 @@ document.getElementById('parts-picker-register-btn').addEventListener('click', f
 // ────────────────────────────────────────────
 // OPEN JOBS PANEL
 // ────────────────────────────────────────────
+// ★A JOB ASSIGNED TO YOU WAS NOWHERE IN YOUR LOGBOOK (2026-11-04, found preparing the group-journey walk GJ J9). Every
+// personal list here is the entries you WROTE (_mineFilter is author-only, rightly - it decides what you may edit). So a
+// job a supervisor raised and handed to you was pushed to you ("...was assigned to you by ... Open the Logbook to see
+// it", /logbook.html?status=Open) and then appeared nowhere on that page. The open-jobs panel at the top - where the
+// push lands - now also lists the hive's open jobs assigned to you by name, saying who raised each; editing stays the
+// author's, and the assignee moves the job forward through advance_assigned_wo (mig 20261104000002).
+let _assignedToMe = [], _assignedMore = false, _assignedState = 'idle';
+async function loadAssignedToMe() {
+  if (!HIVE_ID || !WORKER_NAME || !db) return;
+  _assignedState = 'loading';
+  // canonical-allow: the same base-table read the team search makes - logbook's SELECT policy is hive-scoped
+  const { data, error } = await db.from('logbook')
+    .select('id, date, machine, problem, status, worker_name, auth_uid, wo_state, wo_assigned_to, updated_at, deleted_at')
+    .eq('hive_id', HIVE_ID).eq('wo_assigned_to', WORKER_NAME).eq('status', 'Open').is('deleted_at', null)
+    .order('date', { ascending: false }).order('id').limit(50 + 1);   // more-said: by renderOpenJobs (the 50 newest assigned to you)
+  if (error) { _assignedState = 'failed'; console.warn('assigned-to-me read failed:', error.message); renderOpenJobs(_allEntries); return; }
+  _assignedMore = (data || []).length > 50;
+  _assignedToMe = (data || []).slice(0, 50).filter(r => !_isMine(r));
+  _assignedState = 'loaded';
+  renderOpenJobs(_allEntries);
+}
+function _isAssignedToMe(entry) {
+  return !!entry && !!entry.wo_assigned_to && !!WORKER_NAME
+    && String(entry.wo_assigned_to).trim().toLowerCase() === String(WORKER_NAME).trim().toLowerCase();
+}
+function _canAdvanceAssigned(entry) {
+  return _isAssignedToMe(entry) && !_canWriteEntry(entry) && (entry.status || 'Open') === 'Open' && !entry.deleted_at && !entry._offline;
+}
+async function advanceAssigned(id, state) {
+  const { error } = await db.rpc('advance_assigned_wo', { p_entry_id: String(id), p_state: state });
+  if (error) { showToast(whWriteError(error, 'The job was NOT moved - it is as it was.'), 'error'); return; }
+  showToast(state === 'completed' ? 'Marked done. Whoever raised it can now verify and close it.' : 'Marked as started.', 'success');
+  await loadAssignedToMe();
+  await _afterDepartedChange();
+}
+
 function renderOpenJobs(entries) {
-  const openEntries = entries.filter(e => (e.status || 'Open') === 'Open');
+  if (_assignedState === 'idle') loadAssignedToMe();   // once per page: the jobs handed to this person
+  const mineOpen = entries.filter(e => (e.status || 'Open') === 'Open');
+  const assigned = (_assignedToMe || []).filter(a => !mineOpen.some(e => e.id === a.id));
+  const openEntries = assigned.concat(mineOpen);
   const panel = document.getElementById('open-jobs-panel');
   const list  = document.getElementById('open-jobs-list');
   const badge = document.getElementById('open-jobs-count');
@@ -8186,11 +8233,13 @@ function renderOpenJobs(entries) {
   if (!openEntries.length) { panel.classList.add('hidden'); return; }
 
   panel.classList.remove('hidden');
-  badge.textContent = openEntries.length + (openEntries.length === 1 ? ' open job' : ' open jobs');
+  badge.textContent = openEntries.length + (openEntries.length === 1 ? ' open job' : ' open jobs')
+    + (assigned.length ? ` · ${assigned.length}${_assignedMore ? '+' : ''} assigned to you` : '');
 
-  const displayed = openEntries.slice(0, 3);
-  const overflowMsg = openEntries.length > 3
-    ? `<p class="text-xs text-center mt-1" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">+${openEntries.length - 3} more: use the "Open" filter below</p>`
+  // every job handed to you is shown (they are not in your own list below); your own open jobs keep their top three
+  const displayed = assigned.concat(mineOpen.slice(0, 3));
+  const overflowMsg = mineOpen.length > 3
+    ? `<p class="text-xs text-center mt-1" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">+${mineOpen.length - 3} more of your own: use the "Open" filter below</p>`
     : '';
   list.innerHTML = displayed.map(e => `
     <div class="rounded-xl p-3 mb-2 cursor-pointer" style="background:rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.06); border:1px solid rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.15);"
@@ -8202,6 +8251,7 @@ function renderOpenJobs(entries) {
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white truncate">${escHtml(e.machine || 'Unknown machine')}</p>
           ${e.problem ? '<p class="text-xs mt-0.5 truncate" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">' + escHtml(e.problem) + '</p>' : ''}
+          ${(_isAssignedToMe(e) && !_isMine(e)) ? '<p class="text-xs mt-0.5" style="color:var(--wh-blue-text, rgba(41,182,217,1));">Assigned to you · raised by ' + escHtml(e.worker_name || 'a teammate') + (e.wo_state && e.wo_state !== 'assigned' ? ' · ' + escHtml(String(e.wo_state).replace('_', ' ')) : '') + '</p>' : ''}
         </div>
         <div class="text-right flex-shrink-0 ml-2">
           <p class="text-xs" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month:'short', day:'numeric' }) : ''}</p>

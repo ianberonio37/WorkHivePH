@@ -1462,7 +1462,11 @@ async function loadLogbook() {
     // and kept the open ones in the browser, so an entry still open but older than the newest 1,000 was simply absent -
     // "No open items" while one waited (the busiest local worker holds 3,666). The database now returns only open
     // entries, and one past the cap says more exist.
-    const { data, error } = await whReadPaged((a, b) => db.from('v_logbook_truth').select(typeof whRowCols === 'function' ? whRowCols('v_logbook_truth') : '*').or(_mineFilter() || 'worker_name.eq."' + String(WORKER_NAME || '') + '"')
+    // ★A JOB ASSIGNED TO YOU WAS NOT IN YOUR DAY (2026-11-04, the group-journey walk GJ J9). "Mine" is the entries you
+    // wrote, so a job a supervisor raised and handed to you never reached the day you plan. Your open items now include
+    // the jobs assigned to you by name (wo_assigned_to); the card says who raised each. RLS keeps the read to your hives.
+    const _assignedTerm = WORKER_NAME ? ',wo_assigned_to.eq.' + JSON.stringify(String(WORKER_NAME)) : '';
+    const { data, error } = await whReadPaged((a, b) => db.from('v_logbook_truth').select(typeof whRowCols === 'function' ? whRowCols('v_logbook_truth') : '*').or((_mineFilter() || 'worker_name.eq."' + String(WORKER_NAME || '') + '"') + _assignedTerm)
       .not('status', 'in', '(Closed,Resolved)')
       .order('date', { ascending: false }).order('id').range(a, b), 1000 + 1);   // more-said: by renderSidebar (paged: the API's 1,000-row ceiling)
     if (error) throw error;
@@ -1741,6 +1745,8 @@ function renderSidebar() {
           <div class="lb-card-title">${escHtml(item.machine) || 'Unknown Machine'}</div>
           ${item.problem ? `<div class="lb-card-problem">${escHtml(item.problem.length > 80 ? item.problem.substring(0, 80) + '…' : item.problem)}</div>` : ''}
           <div class="lb-card-meta">${item.date ? escHtml(whFmtDate(item.date, { year: false })) : ''} &bull; ${escHtml(item.category) || ''}</div>
+          ${(item.wo_assigned_to && WORKER_NAME && String(item.wo_assigned_to).trim().toLowerCase() === String(WORKER_NAME).trim().toLowerCase()
+             && (item.worker_name || '') !== String(WORKER_NAME)) ? `<div class="lb-card-meta">Assigned to you &bull; raised by ${escHtml(item.worker_name || 'a teammate')}</div>` : ''}
         </div>
         <div class="lb-card-side">
           ${schedBadge}
