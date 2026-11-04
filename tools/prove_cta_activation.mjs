@@ -226,7 +226,10 @@ async function probePage(browser, entry) {
   return { results, walked };
 }
 
-const roster = PAGE_ONLY ? ROSTER.filter((r) => r.slug.includes(PAGE_ONLY)) : ROSTER;
+// --page takes one slug fragment (`--page learn` walks every learn slug, as before) or a comma list of EXACT slugs
+// (2026-11-04: `--page about,roadmap,privacy-policy` - six CX-UX pages in one browser, not six launches)
+const WANT = PAGE_ONLY && PAGE_ONLY.includes(',') ? new Set(PAGE_ONLY.split(',').map((s) => s.trim()).filter(Boolean)) : null;
+const roster = !PAGE_ONLY ? ROSTER : WANT ? ROSTER.filter((r) => WANT.has(r.slug)) : ROSTER.filter((r) => r.slug.includes(PAGE_ONLY));
 const browser = await chromium.launch();
 const all = [];
 const pages = {};

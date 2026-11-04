@@ -4625,6 +4625,19 @@
     if (_entry.get('signin') === '1') {
       openSignIn(null, true);   // T8: force past the cached-name guard — the link's intent IS the modal
     } else if (_entry.get('signup') === '1') {
+      // T1 attribution for the doors on OTHER pages (CV3, CX-UX 2026-11-04). whPrimaryCta records which door made an
+      // account, but only the doors on this page call it: the 119 public pages link straight here with ?signup=1, so
+      // every account they produced reached GA4 as signup_completed with no source - CV3 read 83% on about, the
+      // roadmap, the learn hub, a guide, privacy and terms for exactly that step. Arriving here IS pressing a door,
+      // so the door is recorded now: the src= a caller passed, else the same-site page the visitor came from, else
+      // "deep-link" (a typed or external link). It replaces an older value: the latest door is the one that worked.
+      try {
+        let _door = String(_entry.get('src') || '').replace(/[^\w:\/.-]/g, '').slice(0, 80);
+        if (!_door && document.referrer) {
+          try { const _ref = new URL(document.referrer); if (_ref.origin === location.origin) _door = 'page:' + _ref.pathname; } catch (_) { /* empty-catch-allow: an unparseable referrer is no door */ }
+        }
+        sessionStorage.setItem('wh_signup_source', _door || 'deep-link');
+      } catch (_) { /* empty-catch-allow: private mode - attribution is best-effort */ }
       openSignUp(null, true);
     }
 

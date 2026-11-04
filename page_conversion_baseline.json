@@ -1,0 +1,11 @@
+{
+ "cv3": {
+  "about/index.html": 100,
+  "feedback/index.html": 100,
+  "learn/index.html": 100,
+  "learn/philippine-plants-now-pay-the-highest-power-rates/index.html": 100,
+  "privacy-policy/index.html": 100,
+  "terms-of-service/index.html": 100
+ },
+ "note": "per-page CV3 floors; only --accept or a first run writes them"
+}

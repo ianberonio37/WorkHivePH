@@ -9910,8 +9910,9 @@ function whPrimaryCta(source, ev) {
     return;
   }
   if (typeof window.openSignUp === 'function') { window.openSignUp(ev || null); return; }
-  // Not on index (no modal here): carry the intent through the deep link the resolver honors.
-  window.location.href = 'index.html?signup=1';
+  // Not on index (no modal here): carry the intent AND the door through the deep link the resolver honors - index
+  // records src= as the source on arrival, so it must travel with the link (it would otherwise read the referrer).
+  window.location.href = 'index.html?signup=1&src=' + encodeURIComponent(src);
 }
 if (typeof window !== 'undefined') window.whPrimaryCta = whPrimaryCta;
 
