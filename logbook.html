@@ -2709,6 +2709,56 @@ async function assignDepartedEntry(id) {
   await _afterDepartedChange();
 }
 
+// ★A SUPERVISOR MOVES A TEAMMATE'S WORK ORDER (2026-11-04, the group-journey walk GJ J2 hand-off 2). The form below says
+// "supervisors approve, assign, and verify", and tg_guard_approval reserves those states for them - but logbook's UPDATE
+// policy is the author's alone, so on anyone else's entry a supervisor met "Only the person who wrote an entry can edit or
+// delete it" and the job could not be handed to anybody. set_logbook_wo (mig 20261104000001) moves ONLY wo_state and
+// wo_assigned_to, for an active supervisor of the entry's hive, writes the trail line and pushes the assignee; what the
+// worker wrote stays theirs. Probe: tools/psql_probes/logbook__a_supervisor_moves_a_work_order.sql.
+function _canMoveWorkOrder(entry) {
+  return !!entry && !!(window.WHRoles && window.WHRoles.isSupervisor()) && !entry.deleted_at && !entry._offline && !_canWriteEntry(entry);
+}
+async function pickWorkOrderMove(id) {
+  const box = document.getElementById('wo-actions');
+  if (!box) return;
+  const entry = (_viewMode === 'team' ? _teamEntries : _allEntries).find(e => e.id === id) || {};
+  const open = (entry.status || 'Open') === 'Open';
+  // canonical-allow: the active members a supervisor may hand the job to - a picker over the membership rows, not a worker figure
+  const { data, error } = await db.from('hive_members').select('worker_name')
+    .eq('hive_id', HIVE_ID).eq('status', 'active').order('worker_name').order('id').limit(500);   // limit-as-count-allow: a picker's rows, nothing counts them
+  if (error) { showToast(whReadError(error, 'the hive\'s members'), 'error'); return; }
+  const opts = (open ? [['assigned', 'Assign it to a member'], ['approved', 'Approve it']] : [])
+    .concat([['verified', 'Verify the work'], ['rejected', 'Reject it']]);
+  box.innerHTML = `<label for="wo-move-state" class="text-xs block mb-1" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">What happens to this work order</label>
+    <select id="wo-move-state" class="w-full text-sm rounded-lg px-3 mb-2" style="min-height:44px;background:var(--wh-white-06, rgba(255,255,255,0.06));border:1px solid var(--wh-white-18, rgba(255,255,255,0.18));color:inherit;"
+      onchange="document.getElementById('wo-move-who-wrap').hidden = this.value !== 'assigned'">
+      ${opts.map(([v, l]) => `<option value="${v}">${escHtml(l)}</option>`).join('')}
+    </select>
+    <div id="wo-move-who-wrap" ${open ? '' : 'hidden'}>
+      <label for="wo-move-who" class="text-xs block mb-1" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">Who takes it</label>
+      <select id="wo-move-who" class="w-full text-sm rounded-lg px-3 mb-2" style="min-height:44px;background:var(--wh-white-06, rgba(255,255,255,0.06));border:1px solid var(--wh-white-18, rgba(255,255,255,0.18));color:inherit;">
+        <option value="" disabled selected>Choose who takes it</option>
+        ${(data || []).map(m => `<option value="${escHtml(m.worker_name)}">${escHtml(m.worker_name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="flex gap-2">
+      <button type="button" onclick="saveWorkOrderMove('${escJsAttr(id)}')" class="btn-primary flex-1 text-sm">Save</button>
+      <button type="button" onclick="openModal('${escJsAttr(id)}')" class="btn-secondary flex-1 text-sm">Back</button>
+    </div>`;
+  const sel = document.getElementById('wo-move-state');
+  if (sel) sel.focus();
+}
+async function saveWorkOrderMove(id) {
+  const state = (document.getElementById('wo-move-state') || {}).value;
+  const who = state === 'assigned' ? (document.getElementById('wo-move-who') || {}).value : null;
+  if (state === 'assigned' && !who) { showToast('Choose who takes this job first.', 'info'); return; }
+  const { data, error } = await db.rpc('set_logbook_wo', { p_entry_id: String(id), p_state: state, p_assignee: who });
+  if (error) { showToast(whWriteError(error, 'The work order was NOT changed - it is as it was.'), 'error'); return; }
+  const said = { assigned: `Assigned to ${(data && data.wo_assigned_to) || who}. They are notified.`, approved: 'Work order approved.',
+                 verified: 'Work verified.', rejected: 'Work order rejected.' }[state] || 'Work order updated.';
+  showToast(said, 'success');
+  await _afterDepartedChange();
+}
 function _canWriteEntry(entry) {
   if (!entry) return false;
   if (entry._offline) return true;                       // not yet on the server; it is still yours
@@ -5475,7 +5525,12 @@ async function openModal(id) {
     <div class="flex items-center gap-2 pt-2 border-t border-white/[0.07] mt-2">
       <span class="ic ic-secure" aria-hidden="true"></span>
       <p class="text-xs" style="color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.55);">Logged by ${escHtml((entry.worker_name || 'a teammate') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(entry.worker_name) : ''))}. Only the person who wrote an entry can edit or delete it.</p>
-    </div>`}
+    </div>
+    ${_canMoveWorkOrder(entry) ? `
+    <div id="wo-actions" class="pt-2 mt-2">
+      <p class="text-xs mb-2" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">As supervisor you move its work order: assign it, approve it, verify the work or reject it. What ${escHtml(entry.worker_name || 'they')} wrote stays theirs.</p>
+      <button type="button" onclick="pickWorkOrderMove('${escJsAttr(entry.id)}')" class="btn-secondary w-full text-sm">Move the work order</button>
+    </div>` : ''}`}
   `;
 
   if (typeof whPhotoHydrate === 'function') whPhotoHydrate(db, document.getElementById('modal-content'));

@@ -1615,7 +1615,13 @@
         .eq('alert_kind', 'signature')
         .order('detected_at', { ascending: false })
         .order('alert_id')   // MR4 tiebreaker: the sort above is not total on its own
-        .limit(20),   // more-said: by renderFeed (SL LB1: the 20 newest of an exact count - a hive held 64)
+        // ★THE 20 NEWEST WERE ALL A SUPERVISOR COULD EVER REACH (2026-11-04, the group-journey walk GJ J2 hand-off 5).
+        // A standing pattern keeps the date it was first detected (failure-signature-scan, by design), so a pattern
+        // re-confirmed by this week's breakdowns sat among October's - Baguio held 50 current patterns and the page read
+        // the 20 newest, said "the 20 newest of 50", and offered no way to the other 30: Load more only paged what was
+        // fetched. Current patterns are bounded (three rules per machine, each expiring after 14 days), so the feed now
+        // reads up to 500 and pages them 30 at a time like every other alert; past 500 it still says so.
+        .limit(500),   // more-said: by renderFeed (SL LB1: the 500 newest of an exact count, said under the feed)
 
       db.from('parts_staging_recommendations')
         // failure_mode is stored on every recommendation ('Repeat bearing failure pattern') and was

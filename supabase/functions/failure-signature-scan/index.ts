@@ -236,14 +236,22 @@ async function scanHive(
   // still current keeps the date it was first detected (and an acknowledgement it was given); one that was resolved or
   // had expired is a re-emergence, dated now.
   // canonical-allow: the scanner's own write-path read; it needs resolved and expired rows too, which a read model for people omits
+  // ★THE DAILY SCAN ASKED THE MODEL TO RE-WRITE EVERY STANDING ALERT, EVERY DAY (2026-11-04, found by the group-journey
+  // walk GJ J2 hand-off 5): one scan of Baguio upserted 42 alerts and made 42 AI calls, though 41 of them were the same
+  // pattern on the same evidence as yesterday - the shared free-tier quota (OpenRouter 200/day) spent on sentences
+  // that already existed. A current alert whose evidence is unchanged keeps the detail it was given; only a new,
+  // re-emerged or changed alert is written by the model.
   const { data: standing } = await db
     .from("failure_signature_alerts")
-    .select("machine, rule_id, status, detected_at, expires_at")
+    .select("machine, rule_id, status, detected_at, expires_at, alert_detail, detail_source, evidence")
     .eq("hive_id", hiveId);
-  const keep = new Map<string, { detected_at: string; status: string }>();
+  const keep = new Map<string, { detected_at: string; status: string; detail: string | null; source: string | null; evidence: string }>();
   for (const s of standing || []) {
     const current = s.status !== "resolved" && (!s.expires_at || Date.parse(s.expires_at) > now.getTime());
-    if (current && s.detected_at) keep.set(`${s.machine}::${s.rule_id}`, { detected_at: s.detected_at, status: s.status });
+    if (current && s.detected_at) keep.set(`${s.machine}::${s.rule_id}`, {
+      detected_at: s.detected_at, status: s.status, detail: s.alert_detail ?? null, source: s.detail_source ?? null,
+      evidence: JSON.stringify(s.evidence ?? null),
+    });
   }
 
   // Group by machine
@@ -277,7 +285,11 @@ async function scanHive(
     if (r3) alerts.push(r3);
 
     for (const alert of alerts) {
-      const { detail, source: detailSource } = await generateAlertDetail(alert);
+      const prev = keep.get(`${alert.machine}::${alert.rule_id}`);
+      const unchanged = !!(prev && prev.detail && prev.evidence === JSON.stringify(alert.evidence ?? null));
+      const { detail, source: detailSource } = unchanged
+        ? { detail: prev!.detail as string, source: (prev!.source === "ai" ? "ai" : "rule") as "ai" | "rule" }
+        : await generateAlertDetail(alert);
       const expiresAt = new Date(now.getTime() + 14 * 86400000).toISOString();
 
       const row = {

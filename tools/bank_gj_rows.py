@@ -91,30 +91,49 @@ def _holds(g: dict, cells: dict) -> tuple[bool, str]:
 
 
 def _cube_closed() -> set:
-    """(page, layer, pillar, persona-or-*) of every CLOSED cube row - the contract half of a GJ row."""
+    """(page, layer, pillar, persona) and (page, layer, pillar, '*') of every CLOSED row - the contract half of a GJ row.
+    ★THE SAME RULE THE CUBE COUNTS BY (cube_census.have_cells), not "the cube's row": the cube seeded only the cells no
+    earlier row answered, so a cell an LX / SL / W4 row already holds has no CX row at all, and asking for one held 245
+    of J2's contract rows open against rows that were never going to exist (2026-11-04, the first bank)."""
     if not MANIFEST.exists():
         return set()
     m = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    closed = {r["id"] for r in m.get("rows") or [] if r.get("closed") is True}
+    # the ledger's own closure rule, asked of the ledger (never re-derived: the manifest carries no `closed` flag - a row
+    # closes as a live, gated row at locking or locked, which only live_walk_manifest.row_closed knows)
+    from live_walk_manifest import row_closed
+    closed = {r["id"] for r in m.get("rows") or [] if row_closed(r)}
     out = set()
     for t in rio.load_doc()["trajectories"]:
-        cx = t.get("cx") or {}
-        if cx.get("kind") == "cube" and t["id"] in closed:
-            out.add((cx.get("page"), cx.get("layer"), cx.get("pillar"), cx.get("persona") or "*"))
+        if t["id"] not in closed or (t.get("gj") or {}).get("kind") == "group-journey":
+            continue
+        pages = t.get("pages") or []
+        if not pages:
+            continue
+        for u in t.get("ufai") or []:
+            for L in t.get("layers") or []:
+                out.add((pages[-1], L, u, t.get("persona")))
+                out.add((pages[-1], L, u, "*"))
     return out
 
 
 def check() -> int:
+    """★AGREEMENT, NOT PROOF (the registry's receipt-agreement rule): group_journeys_report.json is a generated receipt
+    that *_report.json keeps out of git, so a fresh checkout has none. A banked row whose scenario has a receipt on disk
+    is judged against it and a contradiction FAILS; a row with no receipt on disk is counted as UNJUDGED - said, never
+    read as a pass, and never a reason to delete evidence to get green."""
     rep = _report()
-    bad, n = [], 0
+    bad, n, unjudged = [], 0, 0
     for t in rio.load_doc()["trajectories"]:
         g = t.get("gj") or {}
         if g.get("kind") != "group-journey" or g.get("cls") == "ux" or t.get("status") not in ("locking", "locked"):
             continue
         n += 1
         r = rep.get(g["scenario"])
-        if not r or r.get("teeth"):
-            bad.append(f"{t['id']}: banked, but no walk of {g['scenario']} is in {REPORT.name}")
+        if not r:
+            unjudged += 1
+            continue
+        if r.get("teeth"):
+            bad.append(f"{t['id']}: banked, but the {g['scenario']} receipt on disk is a --teeth run")
             continue
         cells = _hop_cells(r, g["handoff"])
         ok, why = _holds(g, cells) if cells else (False, "the latest walk has no reading of this hand-off")
@@ -122,7 +141,8 @@ def check() -> int:
             bad.append(f"{t['id']}: banked, but the latest walk of {g['scenario']} hand-off {g['handoff']} says: {why}")
     for b in bad[:25]:
         print("  FAIL " + b)
-    print(f"{'PASS' if not bad else 'FAIL'} gj-rows-hold - {n} banked GJ row(s), {len(bad)} contradicted by the latest group walk")
+    print(f"{'PASS' if not bad else 'FAIL'} gj-rows-hold - {n} banked GJ row(s): {n - unjudged - len(bad)} held by the latest "
+          f"group walk, {len(bad)} contradicted, {unjudged} unjudged (no receipt on disk - not a pass)")
     return 0 if not bad else 1
 
 

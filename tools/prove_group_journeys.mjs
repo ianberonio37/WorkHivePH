@@ -115,7 +115,11 @@ async function go(s, path) {
   await s.page.goto(`${ORIGIN}/${path}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await sleep(5000);
 }
-// the smallest visible element carrying the marker, and the card around it - what the person actually reads
+// the smallest visible element carrying the marker, and THE RECORD'S OWN CARD around it - what the person actually reads.
+// ★THE "CARD" WAS ONCE THE LARGEST BLOCK UNDER 900 CHARACTERS (2026-11-04, the first J2 walk): on the logbook that was a
+// container holding the "All workers" filter, so the sender's name was "found" in a dropdown and U's who-reading proved
+// nothing. The card is now the nearest record-shaped ancestor of the marker (an entry card, a list item, a row, an
+// article), never a block that merely contains it.
 async function findText(s, marker, ms = 15000) {
   for (let t = 0; t < ms; t += 500) {
     const hit = await s.page.evaluate((mk) => {
@@ -123,29 +127,38 @@ async function findText(s, marker, ms = 15000) {
       for (const el of document.querySelectorAll('body *')) {
         if (!el.checkVisibility || !el.checkVisibility()) continue;
         const tx = (el.innerText || '').trim();
-        if (tx.includes(mk) && (!best || tx.length < best.length)) best = tx;
+        if (tx.includes(mk) && (!best || tx.length < best.t.length)) best = { el, t: tx };
       }
       if (!best) return null;
-      let card = null;
-      for (const el of document.querySelectorAll('body *')) {
-        const tx = (el.innerText || '').trim();
-        if (tx.includes(mk) && tx.length < 900 && (!card || tx.length > card.length)) card = tx;
+      // climb until the node is one of a REPEATED set of siblings (a list's item: same tag and class beside it) - that is
+      // the record; stop before a block grows past a card's size
+      // a record that names itself (the logbook's cards carry data-entry-id) is the card; otherwise the sibling climb
+      const named = best.el.closest('[data-entry-id], [data-alert-id], [data-node-id], [data-record-id]');
+      if (named && (named.innerText || '').trim().length < 1500) return { text: best.t, card: (named.innerText || '').trim() };
+      let node = best.el;
+      for (let i = 0; i < 10 && node.parentElement; i++) {
+        const par = node.parentElement;
+        const twins = [...par.children].filter((c) => c.tagName === node.tagName && c.className === node.className).length;
+        if (twins >= 2) break;
+        if ((par.innerText || '').trim().length > 1200) break;
+        node = par;
       }
-      return { text: best, card: card || best };
+      return { text: best.t, card: (node.innerText || '').trim().slice(0, 1200) };
     }, marker).catch(() => null);
     if (hit) return hit;
     await sleep(500);
   }
   return null;
 }
-async function under3G(s, path, marker) {
+// the receiver's route, re-walked under 3G: `reach(s)` is the same route the U reading took (a page, or a page and the
+// controls a person taps to bring the record up), so the A row asks exactly what U asked, on a bad network
+async function under3G(s, reach) {
   const cdp = await s.ctx.newCDPSession(s.page);
   await cdp.send('Network.enable');
   await cdp.send('Network.emulateNetworkConditions', { offline: false, latency: 400, downloadThroughput: 50 * 1024, uploadThroughput: 50 * 1024 });
   const t0 = Date.now();
   try {
-    await s.page.goto(`${ORIGIN}/${path}`, { waitUntil: 'domcontentloaded', timeout: 90000 });
-    const hit = marker ? await findText(s, marker, 45000) : true;
+    const hit = await reach(s);
     return { ok: !!hit, ms: Date.now() - t0, detail: hit ? 'the record is on the receiver\'s screen on 3G' : 'not on screen within 45 s on 3G' };
   } catch (e) {
     return { ok: false, ms: Date.now() - t0, detail: String(e.message || e).slice(0, 160) };
@@ -156,11 +169,14 @@ async function under3G(s, path, marker) {
 // open the logbook card carrying `marker` and its "Edit Entry", the controls a person taps
 async function openEdit(s, marker) {
   await go(s, 'logbook.html');
-  const opened = await s.page.evaluate((t) => {
+  const openCard = () => s.page.evaluate((t) => {
     const card = [...document.querySelectorAll('#entries-list .entry-card, #entries-list [onclick*="openModal"], .entry-card')]
       .find((c) => (c.textContent || '').includes(t));
     if (!card) return false; (card.querySelector('[onclick*="openModal"]') || card).click(); return true;
   }, marker);
+  let opened = await openCard();
+  // a supervisor's logbook opens on the query-first Team Feed: a teammate's entry is reached by Search Team
+  if (!opened) { await reachTeam(s, marker, 15000); opened = await openCard(); }
   await sleep(900);
   const edited = await s.page.evaluate(() => {
     const b = [...document.querySelectorAll('button')].find((x) => /edit entry/i.test(x.textContent) && /openEditModal/.test(x.getAttribute('onclick') || ''));
@@ -168,6 +184,29 @@ async function openEdit(s, marker) {
   });
   await sleep(900);
   return opened && edited;
+}
+
+// A supervisor's logbook opens on the TEAM feed, which is query-first by design: a teammate's new entry raises the live
+// "N new team entries" badge and is never prepended under the reader (logbook.html subscribeLogbookRealtime). So the
+// route to a teammate's record is: the logbook, Team Feed, Search Team (or the badge, which runs the same search).
+async function reachTeam(R, marker, ms) {
+  await go(R, 'logbook.html');
+  await R.page.evaluate(() => { const t = document.getElementById('btn-view-team'); if (t && t.getAttribute('aria-pressed') !== 'true') t.click(); });
+  await sleep(800);
+  await R.page.evaluate(() => { const b = document.getElementById('btn-search-team'); if (b) b.click(); });
+  return findText(R, marker, ms);
+}
+// the live badge on an open logbook: its words, or null when nothing arrived within `ms`
+async function liveBadge(s, ms = 15000) {
+  for (let t = 0; t < ms; t += 500) {
+    const txt = await s.page.evaluate(() => {
+      const b = document.getElementById('logbook-live-badge');
+      return b && !b.classList.contains('hidden') && b.checkVisibility && b.checkVisibility() ? (b.innerText || '').trim() : null;
+    }).catch(() => null);
+    if (txt) return txt;
+    await sleep(500);
+  }
+  return null;
 }
 
 // ── the recipes: per scenario, per hand-off. Each returns { act, land, marker, rec:{table,id}, F(), extra } ───────────
@@ -180,34 +219,47 @@ const RECIPES = {
       const r = await logWizard(w.page, H(w.page), { tag: X.tag, maintType: 'Breakdown / Corrective', status: 'Open', problem: 'bearing noise drive end' });
       const [id, machine, node] = psql(`select id, machine, asset_node_id from logbook where problem like '${q(X.tag)}%' and hive_id = '${HIVE_ID}' order by created_at limit 1`).split('|');
       X.rec.entry = { id, machine, node };
-      const live = await findText(s, X.tag, 15000);             // no reload: did the feed bring it?
+      // no reload: did the feed tell the supervisor? The badge is the page's live signal; tapping it runs the team search
+      const badge = await liveBadge(s, 15000);
+      let seen = null;
+      if (badge) {
+        await s.page.evaluate(() => { const b = document.getElementById('logbook-live-badge'); if (b) b.click(); });
+        seen = await findText(s, X.tag, 15000);
+      }
       return { act: { ok: !!id, detail: `logbook wizard as ${w.m.name}: ${r.toast || 'no toast'}${id ? ` -> entry ${id} on ${machine}` : ' -> NO ROW'}` },
-        marker: X.tag, path: 'logbook.html', live: !!live, preRead: live, rec: { table: 'logbook', id } };
+        marker: X.tag, path: 'logbook.html', live: !!badge, liveSaid: badge, preRead: seen,
+        reach: (R2, ms) => reachTeam(R2, X.tag, ms), rec: { table: 'logbook', id } };
     },
     2: async (X) => {   // the supervisor assigns the work order; the worker is pushed and lands on the open list
       const { w, s } = X.S;
       const e = X.rec.entry;
-      let ok = false;
+      // a supervisor cannot edit a teammate's entry (logbook's UPDATE is the author's); the entry's view offers the
+      // supervisor "Move the work order" (set_logbook_wo, mig 20261104000001) - the control this hop exists to prove
+      let ok = false, toast = '';
       if (!X.faults.has('push-never-fires')) {
-        ok = await openEdit(s, X.tag);
-        await s.page.evaluate(() => {
-          const st = document.getElementById('f-wo-state');
-          if (st) { st.value = 'assigned'; st.dispatchEvent(new Event('change', { bubbles: true })); }
-        });
-        await sleep(400);
-        await s.page.evaluate((n) => {
-          const wrap = document.getElementById('wo-assigned-wrap'); if (wrap) wrap.style.display = '';
-          const f = document.getElementById('f-wo-assigned-to');
-          if (f) { f.value = n; f.dispatchEvent(new Event('input', { bubbles: true })); f.dispatchEvent(new Event('change', { bubbles: true })); }
-        }, w.m.name);
-        await s.page.evaluate(() => { const b = document.getElementById('save-entry-btn'); if (b) b.click(); });
-        await sleep(3500);
+        await reachTeam(s, X.tag, 15000);
+        ok = await s.page.evaluate((t) => {
+          const card = [...document.querySelectorAll('#entries-list .entry-card, #entries-list [onclick*="openModal"], .entry-card')]
+            .find((c) => (c.textContent || '').includes(t));
+          if (!card) return false; (card.querySelector('[onclick*="openModal"]') || card).click(); return true;
+        }, X.tag);
+        await sleep(900);
+        const moved = await s.page.evaluate(() => { const b = document.querySelector('#wo-actions button'); if (b) { b.click(); return true; } return false; });
+        await sleep(1500);
+        await s.page.selectOption('#wo-move-state', 'assigned').catch(() => {});
+        await s.page.selectOption('#wo-move-who', w.m.name).catch(() => {});
+        await s.page.click('#wo-actions .btn-primary', { timeout: 5000 }).catch(() => {});
+        await sleep(2500);
+        toast = await s.page.evaluate(() => { const t = document.getElementById('toast-text'); return t ? t.textContent.trim() : ''; }).catch(() => '');
+        ok = ok && moved;
       }
       const got = psql(`select coalesce(wo_assigned_to,'') || '|' || coalesce(wo_state,'') from logbook where id = '${q(e.id)}'`);
       const push = psql(`select count(*) from service_outbox where consumer = 'notify-push' and created_at >= '${X.t0}'
         and payload->'auth_uids' ? '${w.m.uid}' and payload->>'title' = 'Work order assigned to you' and payload->>'url' = '/logbook.html?status=Open'`);
-      return { act: { ok: ok && got.startsWith(w.m.name), detail: `assigned through the entry's own edit modal as ${s.m.name}: wo_assigned_to|wo_state = ${got}` },
-        marker: X.tag, path: 'logbook.html?status=Open', rec: { table: 'logbook', id: e.id },
+      const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+        where consumer = 'notify-push' and created_at >= '${X.t0}' and payload->'auth_uids' ? '${w.m.uid}' order by created_at desc limit 1`);
+      return { act: { ok: ok && got.startsWith(w.m.name), detail: `"Move the work order" on the entry's view as ${s.m.name} (toast: ${toast || 'none'}): wo_assigned_to|wo_state = ${got}` },
+        marker: X.tag, path: 'logbook.html?status=Open', channelSaid: pushSaid || null, rec: { table: 'logbook', id: e.id },
         F: () => ({ ok: Number(push) >= 1 && got.startsWith(w.m.name),
           detail: `service_outbox notify-push to ${w.m.name} with /logbook.html?status=Open: ${push}; the entry reads assigned to ${got.split('|')[0] || 'nobody'}` }) };
     },
@@ -229,7 +281,7 @@ const RECIPES = {
     4: async (X) => {   // the repair counts in the supervisor's downtime and repair time - after the page's own Refresh
       const { s } = X.S;
       await go(s, 'analytics.html');
-      const before = psql(`select coalesce(max(updated_at)::text,'') from analytics_snapshots where hive_id = '${HIVE_ID}'`);
+      const before = psql(`select coalesce(max(computed_at)::text,'') from analytics_snapshots where hive_id = '${HIVE_ID}'`);
       const tapped = await s.page.evaluate(() => {
         const b = [...document.querySelectorAll('button')].find((x) => /refresh|recompute/i.test((x.innerText || '') + ' ' + (x.getAttribute('aria-label') || '')));
         if (b) { b.click(); return (b.innerText || b.getAttribute('aria-label') || '').trim(); } return null;
@@ -237,18 +289,26 @@ const RECIPES = {
       let after = before;
       for (let t = 0; t < 90000 && after === before; t += 3000) {
         await sleep(3000);
-        after = psql(`select coalesce(max(updated_at)::text,'') from analytics_snapshots where hive_id = '${HIVE_ID}'`);
+        after = psql(`select coalesce(max(computed_at)::text,'') from analytics_snapshots where hive_id = '${HIVE_ID}'`);
       }
       return { act: { ok: !!tapped && after !== before, detail: `the page's own "${tapped || 'no Refresh control'}" as ${s.m.name}: snapshot ${before || 'none'} -> ${after || 'none'}` },
         marker: null, path: 'analytics.html', freshnessRx: /recomputed|just now|updated|minute|today/i,
-        rec: { table: 'analytics_snapshots', idCol: 'hive_id', id: HIVE_ID, where: `and updated_at >= '${X.t0}'` } };
+        rec: { table: 'analytics_snapshots', idCol: 'hive_id', id: HIVE_ID, where: `and computed_at >= '${X.t0}'` } };
     },
     5: async (X) => {   // a repeat of the same breakdown raises the failure-signature alert the supervisor reads
       const { w, s } = X.S;
-      const e = X.rec.entry;
-      // the worker logs the same breakdown twice more with the first one's root cause, through the API the page writes to
-      psql(`update logbook set root_cause = 'Wear' where id = '${q(e.id)}'`);
-      for (let i = 1; i <= 2; i++) {
+      // ★ON A MACHINE WITH NO STANDING ALERT (2026-11-04, the third J2 walk): the hop-1 machine already carried a
+      // repeat-failure alert from the seed, and the scan keeps a standing alert's first-detected date by design - so the
+      // walk re-confirmed an October alert instead of raising one, and the hop's premise was never exercised. The machine
+      // is the home hive's first asset with no signature alert of any rule (read from the database, never typed).
+      const quiet = psql(`select a.id || '|' || a.tag from asset_nodes a where a.hive_id = '${HIVE_ID}' and a.deleted_at is null
+        and a.tag is not null and not exists (select 1 from failure_signature_alerts f where f.hive_id = a.hive_id and f.machine = a.tag)
+        order by a.tag limit 1`);
+      const [qnode, qmachine] = quiet ? quiet.split('|') : [null, null];
+      const e = { machine: qmachine, node: qnode };
+      if (!qmachine) X.notes.push('hand-off 5: the hive has no asset without a standing signature alert');
+      // the worker logs the same breakdown three times, through the API the logbook writes to
+      for (let i = 1; i <= 3; i++) {
         const r = await fetch(`${SB}/rest/v1/logbook`, { method: 'POST', headers: { apikey: KEY, Authorization: `Bearer ${w.token}`,
           'Content-Type': 'application/json', Prefer: 'return=minimal' },
           body: JSON.stringify({ id: `${X.tag}-r${i}`, worker_name: w.m.name, auth_uid: w.m.uid, hive_id: HIVE_ID, machine: e.machine,
@@ -263,9 +323,104 @@ const RECIPES = {
       const alert = psql(`select id || '|' || alert_title from failure_signature_alerts where hive_id = '${HIVE_ID}' and machine = '${q(e.machine)}'
         and rule_id = 'repeat_failure' and status in ('active','acknowledged') order by detected_at desc limit 1`);
       const [aid, title] = alert ? alert.split('|') : [null, null];
-      return { act: { ok: !!aid, detail: `3 Wear breakdowns on ${e.machine} as ${w.m.name}; failure-signature-scan as ${s.m.name}: HTTP ${scan.status} ${body}` },
-        marker: e.machine, markerRx: /repeat/i, path: 'alert-hub.html', rec: { table: 'v_alert_truth', idCol: 'alert_id', id: aid }, alertTitle: title };
+      return { act: { ok: !!aid, detail: `3 Wear breakdowns on ${e.machine} (no standing alert before) as ${w.m.name}; failure-signature-scan as ${s.m.name}: HTTP ${scan.status} ${body}` },
+        // the feed lists 30, critical before high: a new "high" pattern sits under older criticals, so the route is the
+        // page's own Patterns filter (#filters .chip[data-kind=pattern]), the view a supervisor checking patterns takes
+        reach: async (R2, ms) => {
+          await go(R2, 'alert-hub.html');
+          await R2.page.click('#filters .chip[data-kind="pattern"]', { timeout: 8000 }).catch(() => {});
+          await sleep(1200);
+          // ...and a "high" pattern can still sit under 30 older criticals: the page's own Load more, as a person pages
+          for (let i = 0; i < 5; i++) {
+            const hit = await findText(R2, title || e.machine, i === 0 ? Math.min(ms, 8000) : 4000);
+            if (hit) { X.notes.push(`hand-off 5: the new alert was reached after ${i} "Load more" tap(s) under the Patterns filter`); return hit; }
+            const more = await R2.page.evaluate(() => { const b = document.querySelector('#alert-load-more-wrap:not(.hidden) button'); if (b) { b.click(); return true; } return false; });
+            if (!more) break;
+            await sleep(1200);
+          }
+          return null;
+        },
+        // a system-raised hand-off: the alert names no person (the daily scan raised it) - its "who" is where it came
+        // from, the repeats it counts; the marker is the alert's own title, so a second rule's alert on the same machine
+        // ("Increasing failure rate") is never read in its place
+        marker: title || e.machine, whoRx: /\d+\s*×|repeat/i, markerRx: /repeat/i, hint: 'repeat|signature|failure|' + e.machine, path: 'alert-hub.html', rec: { table: 'v_alert_truth', idCol: 'alert_id', id: aid }, alertTitle: title };
     },
+  },
+};
+
+// ── J3 · the PM month: the supervisor schedules it, it falls due in the worker's day, the worker completes it, the
+// supervisor's compliance and the month's report count it. The asset is the walk's own (tagged), anchored 31 days back
+// so its tasks are due today.
+async function openPmAsset(s, name) {
+  await go(s, 'pm-scheduler.html');
+  return s.page.evaluate((nm) => {
+    const el = [...document.querySelectorAll('[onclick], button, a, .asset-card, li')].find((c) => (c.innerText || '').includes(nm)
+      && (c.getAttribute('onclick') || c.tagName === 'BUTTON' || c.tagName === 'A'));
+    if (!el) return false; el.click(); return true;
+  }, name);
+}
+RECIPES.J3 = {
+  1: async (X) => {   // the PM the supervisor scheduled is on the worker's list
+    const { s } = X.S;
+    const name = `${X.tag} pump`;
+    await go(s, 'pm-scheduler.html');
+    await s.page.evaluate(() => { const b = document.getElementById('tab-add'); if (b) b.click(); });
+    await sleep(1500);
+    await s.page.fill('#w-name', name).catch(() => {});
+    await s.page.fill('#w-tag', X.tag.slice(-10)).catch(() => {});
+    await s.page.fill('#w-location', 'Line 1').catch(() => {});
+    const cat = await s.page.evaluate(() => {
+      const sel = document.getElementById('w-category'); if (!sel) return null;
+      const opt = [...sel.options].find((o) => o.value); if (!opt) return null;
+      sel.value = opt.value; sel.dispatchEvent(new Event('change', { bubbles: true })); return opt.value;
+    });
+    await sleep(1500);
+    for (const st of [2, 3]) { await s.page.evaluate((n) => { if (typeof goStep === 'function') goStep(n); }, st); await sleep(900); }
+    const anchor = new Date(Date.now() + 8 * 3600e3 - 31 * 86400e3).toISOString().slice(0, 10);
+    await s.page.evaluate((d) => { const a = document.getElementById('w-anchor'); if (a) { a.value = d; a.dispatchEvent(new Event('change', { bubbles: true })); } }, anchor);
+    await s.page.evaluate(() => { if (typeof goStep === 'function') goStep(4); });
+    await sleep(900);
+    await s.page.evaluate(() => { const b = document.getElementById('btn-save-asset'); if (b) b.click(); });
+    await sleep(4000);
+    const row = psql(`select a.id || '|' || (select count(*) from pm_scope_items p where p.asset_id = a.id) from pm_assets a
+      where a.hive_id = '${HIVE_ID}' and a.asset_name = '${q(name)}' and a.deleted_at is null limit 1`);
+    const [aid, ntasks] = row ? row.split('|') : [null, '0'];
+    X.rec.pm = { id: aid, name };
+    return { act: { ok: !!aid && Number(ntasks) > 0, detail: `the Add Asset wizard as ${s.m.name}: category ${cat || 'none'}, anchor ${anchor} -> pm_assets ${aid || 'NO ROW'} with ${ntasks} task(s)` },
+      marker: name, path: 'pm-scheduler.html', rec: { table: 'pm_assets', id: aid } };
+  },
+  2: async (X) => {   // the PM falls due in the worker's day
+    const p = X.rec.pm || {};
+    return { act: { ok: !!p.id, detail: `the PM scheduled at hand-off 1 (${p.name}), anchored 31 days back - due today` },
+      // a due PM is the schedule's doing, not a person's: the day names the asset and that it is a PM due
+      marker: p.name, whoRx: /\bPM\b|preventive|due|overdue/i, path: 'dayplanner.html',
+      rec: { table: 'v_pm_scope_items_truth', idCol: 'asset_id', id: p.id } };
+  },
+  3: async (X) => {   // the worker's completion moves the supervisor's PM compliance
+    const { w } = X.S;
+    const p = X.rec.pm || {};
+    const opened = await openPmAsset(w, p.name);
+    await sleep(1500);
+    const marked = await w.page.evaluate(() => { const b = document.querySelector('[onclick^="markDone"]'); if (b) { b.click(); return true; } return false; });
+    await sleep(1000);
+    await w.page.evaluate(() => { const b = document.getElementById('sheet-save-btn'); if (b) b.click(); });
+    await sleep(3500);
+    const comp = psql(`select c.id || '|' || coalesce(c.worker_name,'') from pm_completions c where c.asset_id = '${q(p.id || '00000000-0000-0000-0000-000000000000')}'
+      order by c.completed_at desc limit 1`);
+    const [cid, by] = comp ? comp.split('|') : [null, null];
+    X.rec.pmComp = cid;
+    return { act: { ok: opened && marked && !!cid, detail: `the asset's own "done" sheet as ${w.m.name}: pm_completions ${cid || 'NO ROW'} by ${by || 'nobody'}` },
+      marker: p.name, path: 'pm-scheduler.html',
+      reach: async (R2, ms) => { await openPmAsset(R2, p.name); await sleep(1500); return findText(R2, p.name, ms); },
+      rec: { table: 'pm_completions', id: cid } };
+  },
+  4: (X) => RECIPES.J2[4](X),   // the completion counts in the supervisor's compliance figures (the page's own Refresh)
+  5: async (X) => {   // the completion is in the month's report
+    const { s } = X.S;
+    await go(s, 'analytics-report.html');
+    return { act: { ok: true, detail: `the month's report opened as ${s.m.name} after hand-off 4's recompute` },
+      marker: null, path: 'analytics-report.html', freshnessRx: /generated|period|as of|updated|computed|last \d+ days|this month/i,
+      rec: { table: 'analytics_snapshots', idCol: 'hive_id', id: HIVE_ID, where: `and computed_at >= '${X.t0}'` } };
   },
 };
 
@@ -289,6 +444,9 @@ function cleanup(X, kept) {
     ['tagged pushes', `delete from service_outbox where consumer = 'notify-push' and created_at >= '${X.t0}' and payload::text like '%${q(X.tag)}%';`],
     ['assignment pushes', `delete from service_outbox where consumer = 'notify-push' and created_at >= '${X.t0}'
       and payload->>'title' = 'Work order assigned to you' and payload->'auth_uids' ?| array[${uids}];`],
+    ['tagged PM rows', `delete from pm_completions where asset_id in (select id from pm_assets where hive_id = '${HIVE_ID}' and asset_name like '${q(X.tag)}%');
+      delete from pm_scope_items where asset_id in (select id from pm_assets where hive_id = '${HIVE_ID}' and asset_name like '${q(X.tag)}%');
+      delete from pm_assets where hive_id = '${HIVE_ID}' and asset_name like '${q(X.tag)}%';`],
     ['XP the walk earned', `delete from achievement_xp_log where earned_at >= '${X.t0}' and worker_name in (${names});`],
     ['audit lines', `delete from hive_audit_log where hive_id = '${HIVE_ID}' and created_at >= '${X.t0}';`],
     ['the walk\'s devices', `delete from worker_known_devices where first_seen_at >= '${X.t0}' and auth_uid in (${uids});`],
@@ -323,18 +481,25 @@ async function walkPass(browser, pass, foreign) {
       let r;
       try { r = await recipe(X); } catch (e) { out.push({ ...res, act: { ok: false, detail: String(e.message || e).slice(0, 200) } }); continue; }
       res.act = r.act;
-      // U - the receiver lands by the hop's channel and reads the screen
+      // U - the receiver lands by the hop's channel and reads the screen (the recipe's own route when it has one)
+      const reach = r.reach || (async (S2, ms) => { await go(S2, r.path); return r.marker ? findText(S2, r.marker, ms) : true; });
       let seen = r.preRead || null;
-      if (!seen) { await go(R, r.path); seen = r.marker ? await findText(R, r.marker, 20000) : null; }
+      if (!seen) { if (r.marker) seen = await reach(R, 20000); else await go(R, r.path); }
       if (r.marker) {
-        const card = seen ? seen.card : '';
+        // a receiver who arrives by a push reads the push first: its words are part of what they were told
+        const card = (seen ? seen.card : '') + (r.channelSaid ? ` || the push: ${r.channelSaid}` : '');
         const who = S[hop.sender].m.name.split(' ')[0];
-        const hasWho = new RegExp(who, 'i').test(card);
+        const hasWho = r.whoRx ? r.whoRx.test(card) : new RegExp(who, 'i').test(card);
         const hasWhen = /\d{1,2}:\d{2}|ago|today|just now|\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w* \d{1,2}|\d{4}-\d{2}-\d{2}/i.test(card);
         const rxOk = r.markerRx ? r.markerRx.test(card) : true;
-        res.U = { ok: !!seen && hasWho && hasWhen && rxOk, live: r.live ?? null, who: hasWho, when: hasWhen,
+        res.U = { ok: !!seen && hasWho && hasWhen && rxOk, live: r.live ?? null, live_said: r.liveSaid || null, who: hasWho, when: hasWhen,
           said: seen ? card.replace(/\s+/g, ' ').slice(0, 300) : null };
         if (seen && !hasWho) res.U.why = `the screen shows the record but not who did it (${S[hop.sender].m.name})`;
+        // a reading that found nothing says what WAS on the screen, so the receipt explains itself (the closest lines)
+        if (!seen) res.U.screen = await R.page.evaluate((src) => {
+          const re = new RegExp(src, 'i');
+          return [...new Set((document.body.innerText || '').split('\n').map((l) => l.trim()).filter((l) => l && l.length < 200 && re.test(l)))].slice(0, 8);
+        }, r.hint || r.marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).catch(() => null);
       } else {
         const page = await R.page.evaluate(() => document.body.innerText || '');
         const fresh = page.split('\n').find((l) => r.freshnessRx.test(l) && l.length < 160) || null;
@@ -349,7 +514,7 @@ async function walkPass(browser, pass, foreign) {
       const forRows = r.rec.id ? Number(asUser(witness.uid, `select count(*) from ${r.rec.table} where ${idCol}::text = '${q(r.rec.id)}'`)) : -1;
       res.I = { ok: recvRows >= 1 && forRows === 0, receiver_rows: recvRows, foreign: witness.user, foreign_rows: forRows };
       // A - the receiver's landing on 3G, the sender's network untouched
-      res.A = await under3G(R, r.path, r.marker);
+      res.A = await under3G(R, async (S2) => (r.marker ? reach(S2, 45000) : (await go(S2, r.path), true)));
       out.push(res);
       console.log(`  ${SCEN} pass ${pass} hand-off ${hop.handoff} ${hop.page}: act ${res.act.ok ? 'ok' : 'FAIL'} · U ${res.U.ok ? 'ok' : 'FAIL'} · F ${res.F.ok ? 'ok' : 'FAIL'} · I ${res.I.ok ? 'ok' : 'FAIL'} · A ${res.A.ok ? 'ok' : 'FAIL'}`);
     }
