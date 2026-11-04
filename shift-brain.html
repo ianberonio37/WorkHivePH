@@ -821,7 +821,15 @@
       document.getElementById('brief-window').textContent = _activePlan.shift_window;
       document.getElementById('brief-date').textContent   = fmtDate(_activePlan.generated_at);
       const statusEl = document.getElementById('brief-status');
-      statusEl.textContent = _activePlan.status;
+      // ★THE CREW COULD NOT TELL WHO RELEASED THEIR SHIFT PLAN (2026-11-04, the group-journey walk GJ J9 hand-off 2).
+      // Publishing tells the supervisor "released under your name", and the plan is read with published_by and
+      // published_at - but the crew saw only the word "published", so a worker could not tell who stood behind the
+      // plan they were working from, or since when. The pill now says it: "Published by <name> · <Manila time>".
+      const _pubBy = _activePlan.status === 'published' && _activePlan.published_by;
+      statusEl.textContent = _pubBy
+        ? 'Published by ' + _activePlan.published_by
+          + (_activePlan.published_at && typeof whFmtDate === 'function' ? ' · ' + whFmtDate(_activePlan.published_at, { year: false, time: true }) : '')
+        : _activePlan.status;
       statusEl.className   = 'status-pill status-' + e(_activePlan.status);
       // E4 digest-don't-dump: reflow any crammed asset-code run onto short scannable rows
       // (pre-wrap renders the \n) so a 19-code isolation line stays readable instead of a wall.

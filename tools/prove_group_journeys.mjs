@@ -567,6 +567,199 @@ RECIPES.J9 = {
   },
 };
 
+// ── J22 · one machine's whole life: the supervisor commissions it (the logbook's asset form, then the hive's approval
+// queue - the product's own two steps), the worker works on it, the supervisor sets its PM plan, its repairs count, and
+// the trail names who did what.
+async function fileMachine(s, tag, name) {   // the logbook's add-asset form; a hive machine starts pending
+  await go(s, 'logbook.html');
+  await s.page.evaluate(() => { if (typeof openAssetModal === 'function') openAssetModal(); });
+  await sleep(1200);
+  await s.page.fill('#a-asset-id', tag).catch(() => {});
+  await s.page.fill('#a-name', name).catch(() => {});
+  await s.page.evaluate(() => { const t = document.getElementById('a-type'); if (t) { const o = [...t.options].find((x) => x.value); if (o) { t.value = o.value; t.dispatchEvent(new Event('change', { bubbles: true })); } } });
+  await s.page.fill('#a-location', 'Line 3').catch(() => {});
+  await s.page.evaluate(() => { const b = document.getElementById('asset-submit-btn'); if (b) b.click(); });
+  await sleep(3500);
+  const node = psql(`select id || '|' || status from asset_nodes where hive_id = '${HIVE_ID}' and name = '${q(name)}' limit 1`);
+  return node ? { id: node.split('|')[0], status: node.split('|')[1] } : { id: null, status: null };
+}
+async function approveInQueue(s, nodeId) {   // hive.html's approval queue, as a supervisor taps it
+  await go(s, 'hive.html');
+  const tapped = await s.page.evaluate((id) => {
+    const b = [...document.querySelectorAll('#approval-queue button[onclick^="approveItem"]')].find((x) => (x.getAttribute('onclick') || '').includes(id));
+    if (b) { b.click(); return true; } return false;
+  }, nodeId || '---');
+  await sleep(800);
+  await s.page.click('[data-wh-modal-ok]', { timeout: 4000 }).catch(() => {});
+  await sleep(3000);
+  return tapped;
+}
+async function logOnMachine(p, tag, nodeId, problem) {   // the logbook wizard, the machine chosen through the picker's search
+  await go(p, 'logbook.html');
+  await p.page.click('#asset-picker-btn', { timeout: 6000 }).catch(() => {});
+  await sleep(800);
+  await p.page.fill('#asset-picker-search', tag).catch(() => {});
+  await sleep(900);
+  await p.page.click(`button[data-asset-ref="${nodeId}"]`, { timeout: 6000 }).catch(() => {});
+  await sleep(600);
+  await p.page.selectOption('#f-maint-type', { label: 'Breakdown / Corrective' }).catch(() => p.page.selectOption('#f-maint-type', { value: 'Breakdown' }).catch(() => {}));
+  await p.page.fill('#f-problem', `${tag} ${problem}`).catch(() => {});
+  await p.page.selectOption('#f-category', { label: 'Mechanical' }).catch(() => {});
+  await p.page.click('.btn-next:visible').catch(() => {});
+  await sleep(450);
+  await p.page.fill('#f-action', 'replaced the seal, ran for 30 minutes, no leak').catch(() => {});
+  await p.page.evaluate(() => { const b = [...document.querySelectorAll('.consequence-btn')].find((x) => /stopped production/i.test((x.getAttribute('data-value') || '') + ' ' + x.textContent)); if (b) b.click(); });
+  await p.page.click('#save-entry-btn').catch(() => {});
+  await sleep(3500);
+  return psql(`select id || '|' || coalesce(asset_node_id::text,'') from logbook where problem like '${q(tag)}%' and hive_id = '${HIVE_ID}' order by created_at desc limit 1`);
+}
+RECIPES.J22 = {
+  1: async (X) => {   // the machine the supervisor commissioned is in the worker's list
+    const { s } = X.S;
+    const name = `${X.tag} pump`;
+    const filed = await fileMachine(s, X.tag, name);
+    const approved = await approveInQueue(s, filed.id);
+    const st = psql(`select status from asset_nodes where id::text = '${q(filed.id || '')}'`);
+    X.rec.node = { id: filed.id, name };
+    return { act: { ok: !!filed.id && approved && st === 'approved', detail: `filed on the logbook's asset form (${filed.status || 'no row'}) and approved in hive.html's queue by ${s.m.name}: ${st || 'unknown'}` },
+      // the list card is lean (name, place, criticality); the machine's own page says "Added and approved by <name> on
+      // <date>" - the worker searches the list, opens the machine, and reads that line
+      marker: `by ${s.m.name}`, path: 'asset-hub.html',
+      reach: async (R2, ms) => {
+        await go(R2, 'asset-hub.html');
+        await R2.page.fill('#asset-search', name).catch(() => {});
+        await sleep(1500);
+        await R2.page.evaluate((nm) => {
+          const el = [...document.querySelectorAll('[onclick], button, a, [role="button"], li')].find((c) => (c.innerText || '').includes(nm) && (c.innerText || '').length < 400);
+          if (el) el.click();
+        }, name);
+        await sleep(2000);
+        return findText(R2, `by ${s.m.name}`, ms);
+      },
+      rec: { table: 'asset_nodes', id: filed.id, where: `and status = 'approved'` } };
+  },
+  2: async (X) => {   // the worker's work on it reads on the supervisor's logbook
+    const { w } = X.S;
+    const n = X.rec.node || {};
+    const row = await logOnMachine(w, X.tag, n.id, 'pump seal weeping at the gland');
+    const [id, node] = row ? row.split('|') : [null, null];
+    return { act: { ok: !!id && node === n.id, detail: `the logbook wizard on ${n.name} (chosen through the picker's search) as ${w.m.name}: entry ${id || 'NO ROW'} on node ${node || 'none'}` },
+      marker: X.tag, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, X.tag, ms), rec: { table: 'logbook', id } };
+  },
+  3: (X) => RECIPES.J3[1](X),   // the PM plan the supervisor set is the worker's (the same machine name, the Add Asset wizard)
+  4: (X) => RECIPES.J2[4](X),   // its failures and repairs in the supervisor's numbers (the page's own Refresh)
+  5: async (X) => {   // the trail names who did what across its life
+    const { w } = X.S;
+    const line = psql(`select id || '|' || actor from hive_audit_log where hive_id = '${HIVE_ID}' and created_at >= '${X.t0}'
+      and action = 'create_logbook_entry' and actor = '${q(w.m.name)}' order by created_at desc limit 1`);
+    const [aid, actor] = line ? line.split('|') : [null, null];
+    return { act: { ok: !!aid, detail: `the trail line the worker's entry wrote: ${aid || 'NONE'} by ${actor || 'nobody'}` },
+      marker: X.tag, path: 'audit-log.html', rec: { table: 'hive_audit_log', id: aid } };
+  },
+};
+
+// ── J23 · one spare part: the supervisor adds it to the shelf, the worker issues it against a job, the count moves for the
+// supervisor, and the machine's history carries the job.
+async function openPart(p, name, id) {   // inventory's own search, then the part's "Open item details" button
+  await go(p, 'inventory.html');
+  await p.page.fill('#search-input', name).catch(() => {});
+  await sleep(1500);
+  await p.page.evaluate(([nm, pid]) => {
+    const btn = pid && document.querySelector(`button[onclick="openDetailModal('${pid}')"]`);
+    if (btn) { btn.click(); return; }
+    const el = [...document.querySelectorAll('[onclick], button, [role="button"]')].find((c) => (c.innerText || '').includes(nm) && (c.innerText || '').length < 500);
+    if (el) el.click();
+  }, [name, id || '']);
+  await sleep(1800);
+}
+RECIPES.J23 = {
+  1: async (X) => {   // the part the supervisor received is on the worker's shelf
+    const { s } = X.S;
+    const name = `${X.tag} V-belt B52`;
+    await go(s, 'inventory.html');
+    await s.page.click('#btn-add-part', { timeout: 6000 }).catch(() => s.page.evaluate(() => { if (typeof openAddModal === 'function') openAddModal(); }));
+    await sleep(1000);
+    await s.page.fill('#f-part-name', name).catch(() => {});
+    await s.page.fill('#f-part-number', X.tag.slice(-10)).catch(() => {});
+    await s.page.fill('#f-qty', '10').catch(() => {});
+    await s.page.fill('#f-min-qty', '2').catch(() => {});
+    await s.page.click('#part-submit-btn', { timeout: 6000 }).catch(() => {});
+    await sleep(3500);
+    const row = psql(`select id || '|' || coalesce(qty_on_hand::text,'') || '|' || coalesce(status,'') from inventory_items where hive_id = '${HIVE_ID}' and part_name = '${q(name)}' limit 1`);
+    const [id, qty, st] = row ? row.split('|') : [null, null, null];
+    X.rec.part = { id, name, qty: Number(qty) };
+    return { act: { ok: !!id, detail: `inventory's Add Part as ${s.m.name}: inventory_items ${id || 'NO ROW'} qty ${qty || '?'} ${st || ''}` },
+      marker: `Added by ${s.m.name}`, path: 'inventory.html',
+      reach: async (R2, ms) => { await openPart(R2, name, id); return findText(R2, `Added by ${s.m.name}`, ms); },
+      rec: { table: 'inventory_items', id } };
+  },
+  2: async (X) => {   // the part the worker issued is on the job entry
+    const { w } = X.S;
+    const pt = X.rec.part || {};
+    await go(w, 'logbook.html');
+    await w.page.click('#asset-picker-btn', { timeout: 6000 }).catch(() => {});
+    await sleep(800);
+    await w.page.click('button[data-asset-id]', { timeout: 6000 }).catch(() => {});
+    await sleep(600);
+    await w.page.selectOption('#f-maint-type', { label: 'Breakdown / Corrective' }).catch(() => {});
+    await w.page.fill('#f-problem', `${X.tag} belt slipping on the drive`).catch(() => {});
+    await w.page.selectOption('#f-category', { label: 'Mechanical' }).catch(() => {});
+    await w.page.click('.btn-next:visible').catch(() => {});
+    await sleep(450);
+    await w.page.fill('#f-action', 'replaced the V-belt and re-tensioned').catch(() => {});
+    // the part used: the form's own picker, searched by name
+    await w.page.evaluate(() => { if (typeof openPartsPicker === 'function') openPartsPicker(); });
+    await sleep(900);
+    await w.page.fill('#parts-picker-search', pt.name || '').catch(() => {});
+    await sleep(900);
+    const picked = await w.page.evaluate(([nm, pid]) => {
+      const b = [...document.querySelectorAll('[onclick^="selectPart"]')].find((x) => (x.getAttribute('onclick') || '').includes(pid) || (x.innerText || '').includes(nm));
+      if (b) { b.click(); return true; }
+      return [...document.querySelectorAll('[onclick^="selectPart"]')].length;
+    }, [pt.name || '---', pt.id || '---']);
+    if (picked !== true) X.notes.push(`hand-off 2: the parts picker did not offer ${pt.name} (${picked} part(s) listed)`);
+    await sleep(600);
+    await w.page.evaluate(() => { const b = [...document.querySelectorAll('.consequence-btn')].find((x) => /stopped production/i.test((x.getAttribute('data-value') || '') + ' ' + x.textContent)); if (b) b.click(); });
+    await w.page.click('#save-entry-btn').catch(() => {});
+    await sleep(4000);
+    const row = psql(`select id || '|' || coalesce(asset_node_id::text,'') || '|' || coalesce(parts_used::text,'') from logbook where problem like '${q(X.tag)}%' and hive_id = '${HIVE_ID}' order by created_at desc limit 1`);
+    const [id, node, parts] = row ? [row.split('|')[0], row.split('|')[1], row.split('|').slice(2).join('|')] : [null, null, ''];
+    X.rec.entry = { id, node };
+    return { act: { ok: !!id && (parts || '').includes(pt.name || '---'), detail: `the logbook wizard with the part picked from its own picker, as ${w.m.name}: entry ${id || 'NO ROW'}, parts_used ${parts ? parts.slice(0, 120) : 'none'}` },
+      marker: pt.name, path: 'logbook.html',
+      // the supervisor finds the job on the team feed and opens it: the part is on the entry
+      reach: async (R2, ms) => {
+        await reachTeam(R2, X.tag, 15000);
+        await R2.page.evaluate((t) => {
+          const card = [...document.querySelectorAll('#entries-list .entry-card, #entries-list [onclick*="openModal"], .entry-card')].find((c) => (c.textContent || '').includes(t));
+          if (card) (card.querySelector('[onclick*="openModal"]') || card).click();
+        }, X.tag);
+        await sleep(1200);
+        return findText(R2, pt.name, ms);
+      },
+      rec: { table: 'logbook', id } };
+  },
+  3: async (X) => {   // the issue moved the count the supervisor reads
+    const { w } = X.S;
+    const pt = X.rec.part || {};
+    const now = psql(`select coalesce(qty_on_hand::text,'') from inventory_items where id = '${q(pt.id || '')}'`);
+    const tx = psql(`select id || '|' || coalesce(qty_after::text,'') || '|' || coalesce(worker_name,'') from inventory_transactions where item_id = '${q(pt.id || '')}'
+      and created_at >= '${X.t0}' order by created_at desc limit 1`);
+    const [tid, after, by] = tx ? tx.split('|') : [null, null, null];
+    return { act: { ok: !!tid && Number(now) === pt.qty - 1, detail: `the issue at hand-off 2 moved ${pt.name}: ${pt.qty} -> ${now}; transaction ${tid || 'NONE'} (stock after ${after}) by ${by || 'nobody'}` },
+      marker: `Stock after: ${after}`, path: 'inventory.html',
+      reach: async (R2, ms) => { await openPart(R2, pt.name, pt.id); return findText(R2, `Stock after: ${after}`, ms); },
+      rec: { table: 'inventory_transactions', id: tid } };
+  },
+  4: async (X) => {   // the part shows in the machine's history
+    const e = X.rec.entry || {};
+    const pt = X.rec.part || {};
+    return { act: { ok: !!e.id && !!e.node, detail: `the job of hand-off 2 (entry ${e.id || 'none'}) on node ${e.node || 'none'}` },
+      marker: X.tag, markerRx: new RegExp(String(pt.name || '---').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').split(' ').slice(-2).join(' '), 'i'),
+      path: e.node ? `asset-hub.html?node_id=${e.node}` : 'asset-hub.html', rec: { table: 'v_logbook_truth', id: e.id } };
+  },
+};
+
 // the rows the walk changes in place: today's snapshot and the machine's alerts (restored after); the rest it made is tagged
 function snapshotInPlace() {
   return { snaps: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from analytics_snapshots t where hive_id = '${HIVE_ID}'`),
@@ -603,9 +796,16 @@ function cleanup(X, kept) {
     ['the walk\'s devices', `delete from worker_known_devices where first_seen_at >= '${X.t0}' and auth_uid in (${uids});`],
     ['failure alerts restored', `begin; delete from failure_signature_alerts where hive_id = '${HIVE_ID}';
       insert into failure_signature_alerts select * from json_populate_recordset(null::failure_signature_alerts, '${q(kept.alerts)}'); commit;`],
+    ['tagged parts and their movements', `delete from inventory_transactions where item_id in (select id from inventory_items where hive_id = '${HIVE_ID}' and part_name like '${q(X.tag)}%');
+      delete from inventory_items where hive_id = '${HIVE_ID}' and part_name like '${q(X.tag)}%';`],
     ['tagged posts and machines', `delete from community_posts where hive_id = '${HIVE_ID}' and content like '${q(X.tag)}%';
       delete from asset_nodes where hive_id = '${HIVE_ID}' and name like '${q(X.tag)}%';`],
-    ['shift plans restored', `begin; delete from shift_plans where hive_id = '${HIVE_ID}';
+    // ★A PLAN THE PRODUCT MADE IS KEPT, UNPUBLISHED (2026-11-04, J9 pass b): shift-brain builds the shift's plan on its
+    // first open (a model call), and deleting it with the restore left pass b with no plan to publish and no fresh build.
+    // The plans that existed before the walk come back exactly; one the walk caused stays, set back to draft.
+    ['shift plans restored', `begin;
+      update shift_plans set status = 'draft', published_at = null, published_by = null where hive_id = '${HIVE_ID}' and created_at >= '${X.t0}';
+      delete from shift_plans where hive_id = '${HIVE_ID}' and created_at < '${X.t0}';
       insert into shift_plans select * from json_populate_recordset(null::shift_plans, '${q(kept.plans)}'); commit;`],
     ['analytics snapshots restored', `begin; delete from analytics_snapshots where hive_id = '${HIVE_ID}';
       insert into analytics_snapshots select * from json_populate_recordset(null::analytics_snapshots, '${q(kept.snaps)}'); commit;`],
@@ -646,7 +846,9 @@ async function walkPass(browser, pass, foreign) {
         const card = (seen ? seen.card : '') + (r.channelSaid ? ` || the push: ${r.channelSaid}` : '');
         const who = S[hop.sender].m.name.split(' ')[0];
         const hasWho = r.whoRx ? r.whoRx.test(card) : new RegExp(who, 'i').test(card);
-        const hasWhen = /\d{1,2}:\d{2}|ago|today|just now|\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w* \d{1,2}|\d{4}-\d{2}-\d{2}/i.test(card);
+        // a push is delivered with its own time on the device - a receiver who arrives by one is told when by it
+        const hasWhen = /\d{1,2}:\d{2}|ago|today|just now|\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w* \d{1,2}|\d{4}-\d{2}-\d{2}/i.test(card)
+          || !!r.channelSaid;
         const rxOk = r.markerRx ? r.markerRx.test(card) : true;
         res.U = { ok: !!seen && hasWho && hasWhen && rxOk, live: r.live ?? null, live_said: r.liveSaid || null, who: hasWho, when: hasWhen,
           said: seen ? card.replace(/\s+/g, ' ').slice(0, 300) : null };
