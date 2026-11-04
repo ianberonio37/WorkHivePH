@@ -29,14 +29,14 @@
  },
  "summary": {
   "pages": 119,
-  "at_100": 96,
-  "mean": 89.7,
+  "at_100": 100,
+  "mean": 90.4,
   "pages_failing_part": {
    "skip-link": 0,
    "banner": 19,
    "primary-nav": 19,
    "main": 0,
-   "footer": 23
+   "footer": 19
   }
  },
  "pages": {
@@ -44,8 +44,8 @@
    "family": "public",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 80,
-    "note": "4/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
@@ -61,8 +61,7 @@
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -70,8 +69,8 @@
    "family": "public",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 80,
-    "note": "4/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - footer: the footer lacks /, /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
@@ -87,8 +86,7 @@
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /, /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -1528,8 +1526,8 @@
    "family": "public",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 80,
-    "note": "4/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
@@ -1545,8 +1543,7 @@
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -1554,8 +1551,8 @@
    "family": "public",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 80,
-    "note": "4/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
@@ -1571,8 +1568,7 @@
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
