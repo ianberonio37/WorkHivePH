@@ -86,7 +86,7 @@ async function signIn(context, w) {
     try {
       const db = window._whSupabaseClient || window.getDb('http://127.0.0.1:54321', window.SUPABASE_KEY || key);
       const { data, error } = await db.auth.signInWithPassword({ email, password: 'test1234' });
-      if (error) return { ok: false, err: String(error.message || error) };
+      if (error) return { ok: false, err: [error.name, error.status, error.message].filter(Boolean).join(' ') || String(error) };
       let realHive = hive;
       if (!solo) {
         try {
@@ -145,7 +145,13 @@ try {
       await ctx.route('**/functions/v1/**', (r) => r.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"dependency down (critic-walk probe)"}' }));
     }
     let signErr = null;
-    if (!isAnon(w)) { const s = await signIn(ctx, w); if (!s.ok) signErr = s.err || 'sign-in failed'; }
+    // one retry after a pause (2026-11-04): on a loaded host the first sign-ins of a run came back with an empty
+    // retryable-fetch error while the same cast signed in a minute later - a transport hiccup, not a refused cast
+    if (!isAnon(w)) {
+      let s = await signIn(ctx, w);
+      if (!s.ok) { console.log(`    note ${w.ids[0]}: sign-in failed (${s.err || '?'}) - retrying once`); await new Promise((r) => setTimeout(r, 4000)); s = await signIn(ctx, w); }
+      if (!s.ok) signErr = s.err || 'sign-in failed';
+    }
     if (signErr) { failed++; console.log(`  FAIL ${w.ids[0]} sign-in: ${signErr}`); await ctx.close(); continue; }
 
     // offline-3g: PRIME the SW cache by visiting every page ONLINE first (each page caches on first
