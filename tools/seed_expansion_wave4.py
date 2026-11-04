@@ -776,9 +776,11 @@ def _lx_state(scoped: list[dict]) -> tuple[dict, set, list]:
     # ★AND THE HIVE AT THIRTY (HS, 2026-10-29), a fourth time: its 486 rows put workers and supervisors onto 24 pages'
     # lists, and the replay renamed LXP1548/1549's wave (LXP-RL -> LXP-LB) on rows nobody touched. Excluded the moment the
     # gate said so - the "before seeding" rule above names the class; the next wave's author should add it first.
+    # ...and the group journeys (GJ, 2026-11-04), added BEFORE seeding: they live in their own shard, which the validator's
+    # LXP replay never reads (it is fed the main file), but a caller handing this the union must not see them either.
     scoped = [t for t in scoped if (t.get("lx") or {}).get("kind") not in ("layer-ux", "layer-floor", "llm")
               and (t.get("brh") or {}).get("kind") != "bug-hunt"
-              and not t.get("sl") and not t.get("enh") and not t.get("opc") and not t.get("hs")]
+              and not t.get("sl") and not t.get("enh") and not t.get("opc") and not t.get("hs") and not t.get("gj")]
     for t in scoped:
         # ★"REACHES" IS ANY APP PAGE ON THE JOURNEY, NOT ITS LAST ONE. _path() appends the platform's
         # own continuation until a journey spans four pages, so pages[-1] is where the route ENDS, not
@@ -2520,6 +2522,125 @@ def journey_condition_rows(existing: list[dict], replay: bool = False) -> list[d
     return rows
 
 
+# ★GROUP JOURNEYS (GJ1..; Ian, 2026-11-04: "add the numbers of trajectories in our trajectories roadmap ... personas,
+# group of personas, journey scenarios, full stack saas layers, production/founder/public pages" - "use the existing
+# trajectories roadmap" - "the open trajectories are set in milestones, and at every milestone we push"). The cube asks
+# what ONE person can tell / may do / finds wired on a page; a team meets the HAND-OFF: A acts, B must see it, C must not.
+# One row per cell of tools/group_journey_census.py (the one place that decides the size, the casts read from the
+# database and the blocks M7-M11): (scenario, hand-off, layer applicable to the receiving page, pillar U/F/I per member)
+# + A once per (hand-off, layer) + one UX row per (scenario, member). Lives in its own shard (registry_io.SHARDS["GJ"]).
+GJ_PREFIX = "GJ"
+GJ_PILLAR = {
+    "U": ("this member can tell who did it, when, from where and what it now enables", ["U"]),
+    "F": ("the sender's act is wired into what this member sees here", ["F"]),
+    "I": ("this member may act on it exactly as the roles allow, and not beyond", ["I"]),
+    "A": ("the hand-off survives the receiver's bad network while the sender's is fine, viewports swapped", ["A"]),
+}
+GJ_INSTRUMENT = "playwright-mcp + postgres-mcp (tools/prove_group_journeys.mjs, one browser context per member)"
+GJ_UX_INSTRUMENT = "playwright-mcp + critic deepwalk (the member's screens across the scenario, 33 rubric classes)"
+
+
+def _gj_route(page: str, cls: str, persona: str, want: str, admitted: dict) -> tuple[list[str], str]:
+    """The route THIS member takes to the receiving page. A member whose role the page's own route admits walks it
+    (_outcome_route - the same route the journey-paths gate accepts); a member it does not admit holds a link, and
+    the I row asks for the refusal. A machine has no route: its readings are the API's."""
+    if persona == "machine-client":
+        return [page], "direct"
+    if want == "hub-nav" and (cls == "public" or persona == "anon" or persona in admitted.get(page, [])):
+        return _outcome_route(page, persona)
+    if want == "hub-nav":
+        return [page], "deep-link"
+    return [page], want
+
+
+def group_journey_rows(existing: list[dict], replay: bool = False) -> list[dict]:
+    """One row per cell of the group-journey census, grouped by wave (PROD, FND, PUB, UX) and block (M7..M11) so the
+    ids ascend with the milestones. replay=True returns what was SEEDED, in id order."""
+    if replay:
+        seeded = sorted((x for x in existing if (x.get("gj") or {}).get("kind") == "group-journey"),
+                        key=lambda x: int(str(x["id"])[len(GJ_PREFIX):] or 0))
+        group_journey_rows.arithmetic = {}
+        return [{"wave": t["wave"], "gj": t["gj"]} for t in seeded]
+    import cube_census as cc
+    import group_journey_census as gc
+    c = gc.census(existing)
+    classes = cc.page_classes()
+    admitted = cc.admitted_personas(classes, [t for t in existing if t.get("status") != "descoped"])
+    scen = {s["code"]: s for s in c["scenarios"]}
+    meta = {s["code"]: s for s in gc.SCENARIOS}
+    rows: list[dict] = []
+    for cell in c["cells"]:
+        s, sc = scen[cell["scenario"]], meta[cell["scenario"]]
+        cast = s["cast"]
+        page, cls, L, u, mk = cell["page"], cell["cls"], cell["layer"], cell["pillar"], cell["member"]
+        snd, rcv, ch = cell["sender"], cell["receiver"], cell["channel"]
+        who_key = mk or rcv                                     # the A row is read on the receiver's screen
+        persona = cast[who_key]["persona"]
+        role = "receiver" if who_key == rcv else "sender" if who_key == snd else "third member"
+        want = ch if role == "receiver" else ("deep-link" if persona == "adversary" else "hub-nav")
+        pages, entry = _gj_route(page, cls, persona, want, admitted)
+        ask, _dims = LAYER_LENS[L]
+        frame, ufai = GJ_PILLAR[u]
+        nh = len(s["hops"])
+        sp, rp = cast[snd]["persona"], cast[rcv]["persona"]
+        rows.append({
+            "wave": gc.GJ_WAVE[cls],
+            "title": (f"{s['code']} hand-off {cell['handoff']}/{nh}: {cell['what'][:64]} - {u} as the {role} ({persona}) · "
+                      f"{L} · {_short(page)}"),
+            "pages": list(pages), "layers": [L], "ufai": list(ufai), "persona": persona, "device": "any", "entry": entry,
+            "framing": "person",
+            "story": (f"{s['title']}. Hand-off {cell['handoff']} of {nh}: {sp} ({cast[snd]['user']}) acted and {rp} "
+                      f"({cast[rcv]['user']}) arrives at {_short(page)} by {ch} - {cell['what']}. Read as the {role}, "
+                      f"{persona} ({cast[who_key]['user']}), on the {L} layer's ask - {ask} - through the {u} lens: {frame}. "
+                      f"One group walk of {s['code']} (one browser context per member, {' and '.join(LX_VIEWPORTS)} swapped "
+                      f"between them, the effect read in the database as the receiver) answers every row of the scenario "
+                      f"whose layer it exercised; the contract sub-layers close by the registered library provers"),
+            "journey": {"archetype": f"GJ-{s['code']}", "stage": s["stage"], "vertical": s["home"],
+                        "pair": " x ".join(v["persona"] for v in cast.values()), "language": "en", "moment": "present",
+                        "condition": "normal", "tier": "A", "pages": list(pages)},
+            "axis": {"device": "phone-390", "language": "en"},
+            "gj": {"kind": "group-journey", "scenario": s["code"], "handoff": cell["handoff"], "page": page, "cls": cls,
+                   "layer": L, "pillar": u, "member": mk, "persona": persona, "role": role, "sender": snd, "receiver": rcv,
+                   "channel": ch, "what": cell["what"], "home": s["home"],
+                   "cast": {k: {"persona": v["persona"], "user": v["user"], "hive": v["hive"]} for k, v in cast.items()},
+                   "milestone": cell["block"], "viewports": list(LX_VIEWPORTS), "instrument": GJ_INSTRUMENT,
+                   "closes": (f"hand-off {cell['handoff']} of {s['code']} read on {_short(page)} as the {role} through the "
+                              f"{u} lens on the {L} layer, in a group walk with a receipt")},
+        })
+    for ux in c["ux"]:
+        s = scen[ux["scenario"]]
+        m = s["cast"][ux["member"]]
+        persona = m["persona"]
+        first = ux["pages"][0] if ux["pages"] else s["hops"][0][0]
+        rows.append({
+            "wave": gc.GJ_WAVE["ux"],
+            "title": f"{s['code']} as {persona} ({ux['member']}): every screen this member meets in the scenario, graded",
+            "pages": list(ux["pages"]), "layers": ["F"], "ufai": ["U"], "persona": persona, "device": "any",
+            "entry": "hub-nav" if persona not in ("anon", "machine-client") else "direct", "framing": "person",
+            "story": (f"{s['title']}. The critic deepwalk grades every screen {persona} ({m['user']}) meets across "
+                      f"{s['code']} - {' -> '.join(_short(p) for p in ux['pages'])} - on the 33 rubric classes "
+                      f"(ufai-rubric-spec.json), at {' and '.join(LX_VIEWPORTS)}, as the member lives them in the group walk"),
+            "journey": {"archetype": f"GJ-{s['code']}", "stage": s["stage"], "vertical": s["home"],
+                        "pair": " x ".join(v["persona"] for v in s["cast"].values()), "language": "en", "moment": "present",
+                        "condition": "normal", "tier": "A", "pages": list(ux["pages"])},
+            "axis": {"device": "phone-390", "language": "en"},
+            "gj": {"kind": "group-journey", "scenario": s["code"], "handoff": 0, "page": first, "cls": "ux", "layer": None,
+                   "pillar": "UX", "member": ux["member"], "persona": persona, "role": "member", "home": s["home"],
+                   "pages": list(ux["pages"]),
+                   "cast": {k: {"persona": v["persona"], "user": v["user"], "hive": v["hive"]} for k, v in s["cast"].items()},
+                   "milestone": "M11", "viewports": list(LX_VIEWPORTS), "instrument": GJ_UX_INSTRUMENT,
+                   "closes": f"{persona}'s screens across {s['code']} graded on the rubric, findings fixed"},
+        })
+    worder = {w: i for i, w in enumerate(gc.GJ_WAVE.values())}
+    rows = [r for _i, r in sorted(enumerate(rows), key=lambda ir: (worder[ir[1]["wave"]],
+                                                                    int(ir[1]["gj"]["milestone"][1:]), ir[0]))]
+    group_journey_rows.arithmetic = {"by_wave": Counter(r["wave"] for r in rows),
+                                     "by_block": Counter(r["gj"]["milestone"] for r in rows),
+                                     "floors": c["floors"], "walks": c["walks"], "handoffs": c["handoffs"],
+                                     "refused": c["refused"], "already": c["already_answered"]}
+    return rows
+
+
 def _place_by_wave(existing: list, created: list) -> list:
     """Each new row goes directly after the last row of its own wave, or after the last row of its id space for a
     wave's first row, so every wave stays one contiguous block in the order validate_trajectory_registry replays.
@@ -2588,6 +2709,9 @@ def main() -> int:
                     help="ED (2026-10-31): one row per empty cell of tools/engineering_design_census.py - each calculator")
     ap.add_argument("--add-open-design", action="store_true",
                     help="OD (2026-11-03): one row per cell of tools/open_design_census.py - Penpot comps, token drift, system tokens")
+    ap.add_argument("--add-group-journeys", action="store_true",
+                    help="GJ (2026-11-04): one row per cell of tools/group_journey_census.py - the hand-offs between the "
+                         "people of one scenario, per layer, per pillar, per member, cut into milestones M7-M11")
     ap.add_argument("--add-self-efficacy", action="store_true",
                     help="SE (2026-10-26): one row per (page, source of self-efficacy) - tools/trajectory_outcome_gaps.py")
     ap.add_argument("--add-outcomes", action="store_true",
@@ -2730,8 +2854,11 @@ def main() -> int:
         seed_missing()
         print("\n" + f"  wrote {len(created)} {label} row(s) into {REGISTRY.name} (registry now {doc['count']})")
         return 0
-    if args.add_cube or args.add_own or args.add_hive_scale or args.add_engineering_design or args.add_open_design:
-        if args.add_cube:
+    if args.add_cube or args.add_own or args.add_hive_scale or args.add_engineering_design or args.add_open_design             or args.add_group_journeys:
+        if args.add_group_journeys:
+            rows, label, prefix = group_journey_rows(existing), "GJ group journeys", GJ_PREFIX
+            a = group_journey_rows.arithmetic
+        elif args.add_cube:
             rows, label, prefix = cube_rows(existing, only_class=args.only_class), "CX cube", CX_PREFIX
             a = cube_rows.arithmetic
         elif args.add_hive_scale:
@@ -2756,6 +2883,13 @@ def main() -> int:
                 print(f"    {cls:<11} pages {t['pages']:>4} · walk cells {t['walk_cells']:>4} · U/F/I x layer x persona empty "
                       f"{t['persona_empty']:>6} of {t['persona_cells']:>6} · A x layer empty {t['layer_empty']:>4} of {t['layer_cells']:>5} · UX {t['ux_empty']:>4}")
             print("    by wave  " + " · ".join(f"{k} {v}" for k, v in a["by_wave"].items()) + f"  ({a['walk_cells']} walk cells in all)")
+        elif args.add_group_journeys:
+            print(f"    {a['walks']} scenario walks · {a['handoffs']} hand-offs · already answered {a['already']}")
+            print("    floors   " + " · ".join(f"{k} = {v}" for k, v in a["floors"].items()))
+            print("    by wave  " + " · ".join(f"{k} {v}" for k, v in a["by_wave"].items()))
+            print("    by block " + " · ".join(f"{k} {a['by_block'][k]}" for k in sorted(a["by_block"], key=lambda m: int(m[1:]))))
+            for r in a["refused"]:
+                print(f"    REFUSED {r['code']}: {r['reason']}")
         else:
             print("    population  " + " · ".join(f"{k} {v}" for k, v in a["population"].items()))
             print("    by lens     " + " · ".join(f"{k} {v}" for k, v in a["by_lens"].items()))

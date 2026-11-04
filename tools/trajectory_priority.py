@@ -28,8 +28,12 @@ Inside a tier the score is lexicographic: evidence first (fixing 0 · walked 1 �
 the page class (production 0 · founder 1 · public 2), then the pillar (F 0 · I 1 · U 2 · A 3: what a worker loses money
 on before what merely slows them), then the persona by how many rows the program already found worth walking as it
 (worker before supervisor before ... before machine-client - a measured proxy, not a ranking of people), then the
-layer's closure (weakest first). MILESTONES are tier boundaries: when T1 is empty the roadmap proposes a production push
-(the push itself is Ian's gate and the runbook's procedure), and again at each tier after it.
+layer's closure (weakest first). MILESTONES are blocks of the open book, and every block ends in a production push (the
+runbook's procedure): M1..M6 are the tier boundaries (when T1 has no row left to build, then T2 ...); every later wave
+declares its own blocks in its rows (Wave GJ, 2026-11-04: `gj.milestone`, M7..M11, named in
+tools/group_journey_census.GJ_MILESTONES - Ian: "the open trajectories are set in milestones, and at every milestone we
+push"). A row's TIER is its rank; its MILESTONE is its block. The queue is block-major, so a later block's rows come after
+every earlier block's, and inside a block the order is the score below.
 
     python tools/trajectory_priority.py            # the table; writes trajectory_priority.json
     python tools/trajectory_priority.py --head 40  # the next 40 ids in order
@@ -113,6 +117,16 @@ def tier_of(r: dict, classes: dict, trip_units: set) -> tuple[int, str]:
     own = r.get("own") or {}
     ka = r.get("ka") or {}
     cx = r.get("cx") or {}
+    gj = r.get("gj") or {}
+    if gj:
+        # the group journeys (GJ, 2026-11-04): a hand-off on a production page is a journey walked start to end by its
+        # people (T4); founder and public hand-offs wait with their cube (T5); the group's UX face is the long tail (T6).
+        # The tier is the row's rank; its milestone (M7..M11) is its block - milestone_of
+        if gj.get("cls") == "ux":
+            return 6, "group journeys: the group's UX face"
+        if gj.get("cls") == "production":
+            return 4, "group journeys: a hand-off on a production page"
+        return 5, f"group journeys: a hand-off on a {gj.get('cls')} page"
     if wave.startswith("BRH") or wave.startswith("BRP"):
         return 1, "a measured defect site (bug-hunt / bug-repro)"
     ed = r.get("ed") or {}
@@ -181,6 +195,19 @@ def tier_of(r: dict, classes: dict, trip_units: set) -> tuple[int, str]:
     return 5, "an open row on a founder or public page"
 
 
+def milestone_of(r: dict, tier: int) -> str:
+    """The block a row closes in: its wave's declared milestone (GJ: gj.milestone), else its tier's (M1..M6)."""
+    return (r.get("gj") or {}).get("milestone") or f"M{tier}"
+
+
+def _gj_blocks() -> dict:
+    try:
+        from group_journey_census import GJ_MILESTONES
+        return {m: v["name"] for m, v in GJ_MILESTONES.items()}
+    except Exception:
+        return {}
+
+
 def score_of(r: dict, tier: int, classes: dict, layer_pct: dict, persona_rank: dict) -> tuple:
     page = _target(r)
     pc = _page_class(page, classes)
@@ -210,10 +237,13 @@ def compute(rows=None, manifest=None) -> dict:
         except Exception:
             trip_units = set()
     ranked = []
+    mile = {}
     for r in open_rows:
         tier, why = tier_of(r, classes, trip_units)
+        mile[r["id"]] = milestone_of(r, tier)
         ranked.append((tier, score_of(r, tier, classes, layer_pct, persona_rank), r["id"], why))
-    ranked.sort(key=lambda x: (x[0], x[1]))
+    # block-major: M1..M6 are the tiers themselves, so for every row before Wave GJ this is the order it always had
+    ranked.sort(key=lambda x: (int(mile[x[2]][1:]), x[0], x[1]))
     tiers = []
     by_tier = defaultdict(list)
     for tier, score, rid, why in ranked:
@@ -225,11 +255,17 @@ def compute(rows=None, manifest=None) -> dict:
                       "locking": sum(1 for rid, _w in items if status.get(rid) == "locking"),
                       "first": [rid for rid, _w in items[:40]],
                       "why": dict(Counter(w for _r, w in items).most_common(6))})
+    blocks = _gj_blocks()
+    in_block = Counter(mile.values())
+    locking_in = Counter(mile[rid] for rid in mile if status.get(rid) == "locking")
     cumulative, milestones = 0, []
-    for t in tiers:
-        cumulative += t["count"]
-        milestones.append({"milestone": f"M{t['tier'][1]}", "when": f"{t['tier']} has no row left to build",
-                           "rows_to_close": cumulative,
+    tier_ms = [f"M{n}" for n in range(1, 7)]
+    for m in tier_ms + [b for b in blocks if b not in tier_ms]:
+        cumulative += in_block.get(m, 0)
+        n = int(m[1:])
+        milestones.append({"milestone": m, "name": TIER_NAMES[n] if n <= 6 else blocks[m],
+                           "when": (f"T{n} has no row left to build" if n <= 6 else f"{blocks[m]} have no row left to build"),
+                           "count": in_block.get(m, 0), "locking": locking_in.get(m, 0), "rows_to_close": cumulative,
                            "then": "the release, run through PRODUCTION_DEPLOY_RUNBOOK.md and reported after"})
     return {
         "_doc": "GENERATED by tools/trajectory_priority.py - the open book in the order it is worked, the less important last; "
@@ -238,7 +274,7 @@ def compute(rows=None, manifest=None) -> dict:
         "open": len(open_rows), "in_scope": len(scoped), "closed": len(scoped) - len(open_rows),
         "tiers": tiers, "milestones": milestones,
         "order": [rid for _t, _s, rid, _w in ranked],
-        "rows": {rid: {"tier": t, "rank": i + 1} for i, (t, _s, rid, _w) in enumerate(ranked)},
+        "rows": {rid: {"tier": t, "rank": i + 1, "milestone": mile[rid]} for i, (t, _s, rid, _w) in enumerate(ranked)},
     }
 
 
@@ -258,18 +294,21 @@ def header_lines(doc: dict | None = None) -> list[str]:
     rule = ("the release is mine to run at each milestone, through PRODUCTION_DEPLOY_RUNBOOK.md, reported after - Ian, "
             "2026-10-27: \"we deploy functions and push frontend to production when we achieved considerable important "
             "closed trajectories\"")
-    pending = [(m, t) for m, t in zip(doc["milestones"], doc["tiers"]) if m["milestone"] not in done]
+    pending = [m for m in doc["milestones"] if m["milestone"] not in done]
     if not pending:
         lines.append(f"- **MILESTONE → push**: released {said or 'none yet'}; every milestone is out.")
         return lines
-    m, t = pending[0]
-    build = t["count"] - t.get("locking", 0)
+    m = pending[0]
+    build = m.get("count", 0) - m.get("locking", 0)
     if build == 0:
-        state = (f"{m['milestone']} is DUE - {t['tier']} has no row left to build"
-                 + (f" ({t['count']} at locking - the board's)" if t["count"] else ""))
+        state = (f"{m['milestone']} is DUE - {m['when']}"
+                 + (f" ({m['count']} at locking - the board's)" if m.get("count") else ""))
     else:
-        state = (f"next {m['milestone']} when {m['when']} ({t['count']} open, {t.get('locking', 0)} of them at locking - "
-                 f"the board's)")
+        state = (f"next {m['milestone']} ({m.get('name', '')}) when {m['when']} ({m.get('count', 0)} open, "
+                 f"{m.get('locking', 0)} of them at locking - the board's)")
+    later = [f"{x['milestone']} {x.get('count', 0)}" for x in pending[1:]]
+    if later:
+        state += "; then " + " · ".join(later)
     lines.append(f"- **MILESTONE → push** ({rule}): released {said or 'none yet'}; {state}.")
     return lines
 
@@ -280,7 +319,7 @@ def released() -> dict[str, str]:
     if RUNBOOK.exists():
         for line in RUNBOOK.read_text(encoding="utf-8", errors="replace").splitlines():
             if line.startswith("#"):
-                for m, d in re.findall(r"\b(M\d)(?: release)? \((\d{4}-\d{2}-\d{2})\) ✅ DEPLOYED", line):
+                for m, d in re.findall(r"\b(M\d+)(?: release)? \((\d{4}-\d{2}-\d{2})\) ✅ DEPLOYED", line):
                     out.setdefault(m, d)
     return out
 

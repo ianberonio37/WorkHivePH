@@ -681,7 +681,8 @@ export const JOURNEYS = [
 ];
 
 // ─── logbook add-entry wizard driver (shared by LOG1/LOG2/LOG3) ────────────────
-async function logWizard(page, h, { tag, maintType = 'Breakdown / Corrective', status = 'Open', downtime = null, problem = 'bearing noise drive end', action = 'inspected, scheduled fix' }) {
+// exported (2026-11-04) so tools/prove_group_journeys.mjs drives the SAME wizard as LOG1-3 - one driver, never a copy
+export async function logWizard(page, h, { tag, maintType = 'Breakdown / Corrective', status = 'Open', downtime = null, problem = 'bearing noise drive end', action = 'inspected, scheduled fix' }) {
   await h.click('#asset-picker-btn').catch(() => {});
   const pickedAsset = await h.waitFor('button[data-asset-id]', 6000);
   if (pickedAsset) await h.click('button[data-asset-id]').catch(() => {});

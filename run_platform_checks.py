@@ -14579,6 +14579,16 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # the group journeys' banked rows (GJ, 2026-11-04) are still held by the latest group walk of their scenario:
+        # the sender's act, and the row's pillar (the receiver's screen, psql as the receiver, another hive refused, 3G)
+        "id":      "gj-rows-hold",
+        "script":  "tools/bank_gj_rows.py",
+        "args":    ["--check"],
+        "label":   "every banked GJ row is still held by the latest group walk of its scenario (tools/prove_group_journeys.mjs): the act, the receiver's screen, psql as the receiver, another hive refused, the landing on 3G",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
         # ★THE RULE THAT REACHES NOTHING IT RENDERS (2026-09-18). validate_css_class_existence already proves the
         # other direction - every class the JS adds with classList.add is defined somewhere in CSS, 792 calls, 0
         # missing. Nothing proved that a rule the stylesheet WRITES ever reaches markup, and that is where this

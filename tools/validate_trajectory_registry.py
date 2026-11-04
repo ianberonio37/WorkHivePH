@@ -333,7 +333,7 @@ try:
     from seed_expansion_wave4 import (cube_rows as _cx_rows_fn, journey_condition_rows as _js_rows_fn, outcome_rows as _out_rows_fn,
                                       own_rows as _own_rows_fn, self_efficacy_rows as _se_rows_fn,
                                       hive_scale_rows as _hs_rows_fn, engineering_design_rows as _ed_rows_fn,
-                                      open_design_rows as _od_rows_fn)
+                                      open_design_rows as _od_rows_fn, group_journey_rows as _gj_rows_fn)
     _reg_rows_1026 = _rio.load_doc()["trajectories"]
     for _set, _fn, _pfx, _src in (("_own", _own_rows_fn, "OWN", _MAIN_ROWS), ("_se", _se_rows_fn, "SE", _MAIN_ROWS),
                                   ("_out", _out_rows_fn, "OUT", _MAIN_ROWS), ("_js", _js_rows_fn, "JS", _MAIN_ROWS),
@@ -344,7 +344,10 @@ try:
                                   ("_ed", _ed_rows_fn, "ED", _MAIN_ROWS),
                                   # the open-source design lens (OD1.., 2026-11-03), registered in the change that seeds it
                                   ("_od", _od_rows_fn, "OD", _MAIN_ROWS),
-                                  ("_cx", _cx_rows_fn, "CX", _reg_rows_1026)):
+                                  ("_cx", _cx_rows_fn, "CX", _reg_rows_1026),
+                                  # the group journeys (GJ1.., 2026-11-04) - their own shard, read after the cube's in the
+                                  # union, registered in the change that seeds them
+                                  ("_gj", _gj_rows_fn, "GJ", _reg_rows_1026)):
         globals()[_set] = _fn(_src, replay=True)
         for _i, _r in enumerate(globals()[_set], start=1):
             NAMED_WAVES.setdefault(_r["wave"], []).append(f"{_pfx}{_i}")

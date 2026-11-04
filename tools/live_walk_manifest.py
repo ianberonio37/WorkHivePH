@@ -765,6 +765,12 @@ def build() -> dict:
         # tools/bank_od_rows.py --restamp to name the instrument that took the reading, and P keeps both of its MCP halves.
         if (r.get("od") or {}).get("kind") == "open-design":
             want = (r.get("od") or {}).get("instrument") or want
+        # a GJ row (the group journeys, 2026-11-04) declares its instrument: one browser context per member of the cast,
+        # the effect read in the database as the receiver - a hand-off is not answerable by one person's walk, so the lens
+        # words of its layer must not route it to a single-walker instrument. DISCLOSED: added in the change that seeds the
+        # wave; every GJ row is open when it lands.
+        if (r.get("gj") or {}).get("kind") == "group-journey":
+            want = (r.get("gj") or {}).get("instrument") or want
         # ...and so does every SL / ENH / OPC row (2026-10-14): a contract sub-layer names its batch prover, a walk row
         # the chrome-devtools + postgres walk - a title's keywords must not re-route either
         if _meta_1014(r):

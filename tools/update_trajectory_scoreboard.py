@@ -148,6 +148,15 @@ WAVE_NAMES.update({
     "OD-D": "Open design: a page's own CSS takes its colours, font sizes and z-indexes from tokens.css",
     "OD-S": "Open design: the design system owns what the pages improvise (missing tokens, -rgb triplets, scales)",
 })
+# the group journeys (GJ, 2026-11-04) - named from the census's own wave table, registered in the change that seeds them
+try:
+    from group_journey_census import GJ_WAVE as _GJ_WAVE
+    WAVE_NAMES.update({w: (f"Group journeys ({cls} pages): each hand-off between the people of one scenario, per layer, "
+                           f"U/F/I per member and A once" if cls != "ux" else
+                           "Group journeys, UX face: every screen each member meets across the scenario, graded")
+                       for cls, w in _GJ_WAVE.items()})
+except Exception:
+    WAVE_NAMES.update({w: f"Group journeys: {w}" for w in ("GJ-PROD", "GJ-FND", "GJ-PUB", "GJ-UX")})
 # SL / ENH / OPC = the three waves of 2026-10-14 (the sub-layers, the enhancements, the operator console), named from
 # their own tables in the SAME change that seeds them, or render() raises KeyError on the first new row.
 try:

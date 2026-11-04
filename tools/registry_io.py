@@ -25,9 +25,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 MAIN = ROOT / "trajectory_registry.json"
-SHARDS = {"CX": ROOT / "trajectory_registry_cx.json"}            # id prefix -> file (the cube)
+SHARDS = {"CX": ROOT / "trajectory_registry_cx.json",            # id prefix -> file (the cube)
+          "GJ": ROOT / "trajectory_registry_gj.json"}            # the group journeys (2026-11-04, Wave GJ)
 CRITIC_MAIN = ROOT / "critic_registry.json"
-CRITIC_SHARDS = {"CX": ROOT / "critic_registry_cx.json"}
+CRITIC_SHARDS = {"CX": ROOT / "critic_registry_cx.json", "GJ": ROOT / "critic_registry_gj.json"}
 
 
 def _read(path: Path) -> dict | None:
