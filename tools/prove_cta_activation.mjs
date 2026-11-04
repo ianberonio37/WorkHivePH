@@ -49,6 +49,20 @@ const ROSTER = [
   // ...and since PATH_BASE added /workhive to every walk (2026-08-28) this entry's own prefix doubled it to
   // /workhive/workhive/tools/..., a 404 every run (found 2026-10-13); the base supplies the prefix now.
   { page: 'tools/ahu-sizing-calculator/index.html', slug: 'tools-exemplar' },
+  // ★AN EXEMPLAR ANSWERS FOR ITSELF, NOT FOR ITS NEIGHBOURS (2026-11-04, CX-UX). The roster is curated to the surfaces
+  // a signed-out visitor converts FROM, and the template families ride on two exemplars because their instances share
+  // one generator. That holds for "does the template's CTA work"; it does not hold for "was CV1 graded on THIS page",
+  // which the cube asks per page - and these six are not template instances of the exemplars: the learn HUB (its own
+  // markup), a guide from the 19-article chrome variant whose header CTA is a bare orange "Sign Up Free" the learn
+  // exemplar does not carry, and the four public-root pages (about, the public roadmap, privacy, terms), which a
+  // visitor reaches from the landing footer and where a sign-up door is - or is not - the next step. Each is walked
+  // under its own path; a page whose walk finds no primary CTA now says so in `pages` instead of writing nothing.
+  { page: 'learn/index.html', slug: 'learn-hub' },
+  { page: 'learn/philippine-plants-now-pay-the-highest-power-rates/index.html', slug: 'learn-power-rates' },
+  { page: 'about/index.html', slug: 'about' },
+  { page: 'feedback/index.html', slug: 'roadmap' },
+  { page: 'privacy-policy/index.html', slug: 'privacy-policy' },
+  { page: 'terms-of-service/index.html', slug: 'terms-of-service' },
 ];
 
 const VIEWPORTS = [{ w: 390, h: 780, name: '390' }, { w: 1280, h: 900, name: '1280' }];
@@ -64,15 +78,34 @@ const FIND_CTAS = () => {
     const cls = String(el.className || '').trim().split(/\s+/).slice(0, 2).join('.');
     return el.tagName.toLowerCase() + (cls ? '.' + cls : '');
   };
+  // ★PRIMARY-STYLED IS WHAT IT LOOKS LIKE, NOT ONLY WHAT IT IS CALLED (2026-11-04). The class vocabulary missed the
+  // 19-guide header's "Sign Up Free" - a solid brand-orange button styled with utility classes (bg-orange-wh) and no
+  // cta/btn-primary name - so a walk of such a page found "no primary CTA" while one sat in the header. A control
+  // whose computed fill IS the brand primary is primary-styled too. The fill is resolved from the token on the page
+  // itself (a probe element painted with var(--wh-orange)), so a palette change moves the ruler with it. The skip
+  // link shares the fill and is not a CTA (it is parked off-screen until focused), so it is excluded by name.
+  const brand = (() => {
+    try {
+      const p = document.createElement('span');
+      p.style.cssText = 'position:absolute;left:-9999px;background:var(--wh-orange, #F7A21B)';
+      document.body.appendChild(p);
+      const c = getComputedStyle(p).backgroundColor;
+      p.remove();
+      return c;
+    } catch (_) { return 'rgb(247, 162, 27)'; }
+  })();
   const out = [];
   document.querySelectorAll('a,button').forEach((el, i) => {
     if (isShell(el)) return;
-    if (!/btn-primary|cta-pulse|cta-btn|header-btn|\bcta\b/i.test(String(el.className || ''))) return;
+    if (el.classList && el.classList.contains('wh-skip-link')) return;
+    const named = /btn-primary|cta-pulse|cta-btn|header-btn|\bcta\b/i.test(String(el.className || ''));
+    const filled = !named && getComputedStyle(el).backgroundColor === brand;
+    if (!named && !filled) return;
     const inert = !!(el.inert || (el.closest && el.closest('[inert]')));
     if (!inert && !vis(el)) return;   // inert ones are kept even when visually parked off-screen
     el.setAttribute('data-cta-probe', String(i));
     out.push({ idx: i, sel: sel(el), text: (el.innerText || '').trim().slice(0, 40),
-               href: el.getAttribute('href'), inert });
+               href: el.getAttribute('href'), inert, by: named ? 'class' : 'fill' });
   });
   return out;
 };
@@ -129,6 +162,9 @@ async function consequenceOfClick(page, idx) {
 
 async function probePage(browser, entry) {
   const results = [];
+  // what each viewport's walk FOUND, written even when it found no primary CTA: an absent record cannot tell "walked,
+  // nothing primary here" from "never walked", and only the first is an answer (CV1 N/A: no primary CTA on the page)
+  const walked = {};
   for (const vp of VIEWPORTS) {
     const ctx = await browser.newContext({ viewport: { width: vp.w, height: vp.h }, timezoneId: 'Asia/Manila' });
     await ctx.addInitScript(ALL_ROWS_DRAWN);
@@ -142,6 +178,7 @@ async function probePage(browser, entry) {
       await page.evaluate(() => window.scrollTo(0, Math.min(document.body.scrollHeight, innerHeight * 2)));
       await page.waitForTimeout(700);
       const ctas = await page.evaluate(FIND_CTAS);
+      walked[vp.name] = { ctas: ctas.length, byFill: ctas.filter((c) => c.by === 'fill').length };
       for (const c of ctas) {
         // Re-check inert AFTER the reveal gesture: still inert = stuck, and that is the record.
         const stillInert = await page.evaluate((i) => {
@@ -182,32 +219,53 @@ async function probePage(browser, entry) {
       }
     } catch (e) {
       results.push({ page: entry.slug, vp: vp.name, cta: '(page)', verdict: 'walk-error: ' + String(e.message || e).slice(0, 80), dead: false });
+      walked[vp.name] = { error: String(e.message || e).slice(0, 80) };
     }
     await ctx.close();
   }
-  return results;
+  return { results, walked };
 }
 
-const roster = PAGE_ONLY ? ROSTER.filter((r) => r.slug.includes(PAGE_ONLY)) : ROSTER;
+// --page takes one slug fragment (`--page learn` walks every learn slug, as before) or a comma list of EXACT slugs
+// (2026-11-04: `--page about,roadmap,privacy-policy` - six CX-UX pages in one browser, not six launches)
+const WANT = PAGE_ONLY && PAGE_ONLY.includes(',') ? new Set(PAGE_ONLY.split(',').map((s) => s.trim()).filter(Boolean)) : null;
+const roster = !PAGE_ONLY ? ROSTER : WANT ? ROSTER.filter((r) => WANT.has(r.slug)) : ROSTER.filter((r) => r.slug.includes(PAGE_ONLY));
 const browser = await chromium.launch();
 const all = [];
+const pages = {};
 for (const entry of roster) {
-  const rs = await probePage(browser, entry);
+  const { results: rs, walked } = await probePage(browser, entry);
   all.push(...rs);
+  pages[entry.slug] = { page: entry.page, walked };
   const dead = rs.filter((r) => r.dead).length;
-  console.log(`[CTA] ${entry.slug.padEnd(16)} ${rs.length} probe(s), ${dead} dead`);
+  console.log(`[CTA] ${entry.slug.padEnd(18)} ${rs.length} probe(s), ${dead} dead`
+    + Object.entries(walked).map(([v, w]) => `  ${v}:${w.error ? 'ERROR' : w.ctas + ' cta' + (w.byFill ? ` (${w.byFill} by fill)` : '')}`).join(''));
 }
 await browser.close();
 
 const dead = all.filter((r) => r.dead);
-const report = { ts: new Date().toISOString(), origin: ORIGIN, probes: all.length, dead: dead.length, results: all };
+// ★A --page RUN MERGES, IT DOES NOT CLOBBER (2026-11-04). The report is per page now (the CX-UX banker reads CV1 for one
+// page at a time), and a subset run that rewrote the whole file erased every other page's reading. The walked slugs are
+// replaced; the rest are kept as the earlier full run recorded them.
+let report = { ts: new Date().toISOString(), origin: ORIGIN, results: all, pages };
+if (PAGE_ONLY && existsSync('cta_activation_report.json')) {
+  try {
+    const prev = JSON.parse(readFileSync('cta_activation_report.json', 'utf8'));
+    const mine = new Set(roster.map((r) => r.slug));
+    report.results = (prev.results || []).filter((r) => !mine.has(r.page)).concat(all);
+    report.pages = Object.assign({}, Object.fromEntries(Object.entries(prev.pages || {}).filter(([s]) => !mine.has(s))), pages);
+  } catch (_) { /* empty-catch-allow: an unreadable earlier report is replaced by this run's */ }
+}
+report.probes = report.results.length;
+report.dead = report.results.filter((r) => r.dead).length;
 writeFileSync('cta_activation_report.json', JSON.stringify(report, null, 2));
 
 const BASE = 'cta_activation_baseline.json';
 let baseline = 0;
 if (existsSync(BASE)) baseline = JSON.parse(readFileSync(BASE, 'utf8')).dead ?? 0;
 else writeFileSync(BASE, JSON.stringify({ dead: dead.length, established: true }, null, 2));
-if (ACCEPT || dead.length < baseline) writeFileSync(BASE, JSON.stringify({ dead: dead.length, accepted: ACCEPT || undefined }, null, 2));
+// only a FULL run may lower the baseline: a subset that found 0 dead says nothing about the pages it skipped
+if (ACCEPT || (!PAGE_ONLY && dead.length < baseline)) writeFileSync(BASE, JSON.stringify({ dead: dead.length, accepted: ACCEPT || undefined }, null, 2));
 
 console.log(`\n[CTA] ${all.length} probes · ${dead.length} dead (baseline ${baseline})`);
 for (const d of dead) console.log(`  DEAD  ${d.page}@${d.vp}  "${d.cta}"  ${d.verdict}`);

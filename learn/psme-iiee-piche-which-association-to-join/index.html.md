@@ -134,4 +134,4 @@ The ASEAN Federation of Engineering Organizations (AFEFO) aims to promote engine
 - [Professional Regulation Commission (PRC)](https://www.prc.gov.ph/), **Republic Act 10912 (CPD Act of 2016)** and **PRC Resolution No. 2019-1146** (effective 1 March 2019, reducing the required CPD units). The PRC and its Professional Regulatory Boards set the CPD requirement and administer licensure.
 - **PSME** (Philippine Society of Mechanical Engineers), **IIEE** (Institute of Integrated Electrical Engineers) and **PIChE** (Philippine Institute of Chemical Engineers): each publishes its own current membership schedule, chapter list and event calendar. Take fees from the association, not from a summary.
 
-<!-- md-twin source-sha: 87dec4efc56856b8 -->
+<!-- md-twin source-sha: ec44d9bdeb54a8b5 -->

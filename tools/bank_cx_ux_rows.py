@@ -108,31 +108,50 @@ FINDING_RE = re.compile(r"^(?P<pid>[A-Za-z0-9_.\-]+):\s+(?P<dim>[A-Z]+\d+)\s+(?P
 #               there too but always JUDGED: the sweep has no axe verdict for it, so the board never answers F2.
 #   corpus      survey_component_consistency.py writes component_consistency_corpus.json (tracked);
 #               `corpus[<page>].primitives` lists every card-primitive instance and its missing_required parts - S3.
-#               It scans the root *.html pages only.
+#               It scanned the root *.html pages only until 2026-11-04; it now records EVERY page of the generated
+#               public families too (learn hub + guides, calculators, the four public-root pages), with their own
+#               card primitives pinned (.article-card, .author-card), and its --check holds the record current.
 #   cta         prove_cta_activation.mjs writes cta_activation_report.json; `results[]` per click, keyed by its ROSTER's
 #               slug (read from the prover) - CV1. It walks a five-page roster, and writes nothing for a page whose
 #               walk found no primary CTA, so only a MEASURED reading exists.
+#   chrome      prove_shared_chrome_parity.py writes shared_chrome_parity.json (tracked, 2026-11-04); `pages[<page>].S2`
+#               = {verdict MEASURED, pct, note}: the five shared-chrome parts (skip link, banner, primary nav, main,
+#               footer) against the DECLARED public template (build_pillar_pages.py). Static; the public families
+#               only - the app pages draw their chrome at runtime (the lens's W2), so it writes no record for them.
+#   conversion  prove_page_conversion.mjs writes page_conversion_cv.json (tracked, 2026-11-04); `pages[<page>].CV2|CV3`
+#               = {verdict, pct, note}, walked signed out FROM that page: CV2 every wall reachable from it doored (N/A
+#               when no wall is reachable, with the links followed), CV3 the six funnel steps through its own door.
+#   cta (again) since 2026-11-04 the CTA report also carries `pages[<slug>].walked` - what each viewport's walk found -
+#               so a page walked at 390 and 1280 with no primary-styled CTA reads N/A instead of "no record".
 OWNER_SOURCES = {
     "journey":    {"file": "journey_ux_dims_report.json", "tracked": False, "dims": ("J3", "G5", "S4"),
                    "needs": "run", "how": "python tools/validate_journey_ux_dims.py  (static)"},
     "provenance": {"file": "ai_write_provenance_report.json", "tracked": False, "dims": ("AI6",),
                    "needs": "run", "how": "python tools/validate_ai_write_provenance.py  (static)"},
-    "board":      {"file": "family_rubric_scoreboard.json", "tracked": True, "dims": ("I1", "D2", "F2"),
+    "board":      {"file": "family_rubric_scoreboard.json", "tracked": True, "dims": ("I1", "D2"),
                    "needs": "run", "how": "node tools/family_rubric_sweep.mjs --page <page>  (browser)"},
+    # F2 left the board on 2026-11-04: the board only ever JUDGES it (no axe verdict in the sweep). The battery's axe
+    # kernel runs live in tools/axe_scan_live.js, which now records per page the applicable WCAG 2.2 AA rules that pass.
+    "axe":        {"file": "axe_live_violations_report.json", "tracked": False, "dims": ("F2",),
+                   "needs": "run", "how": "node tools/axe_scan_live.js --page <page>  (browser)"},
     "corpus":     {"file": "component_consistency_corpus.json", "tracked": True, "dims": ("S3",),
-                   "needs": "structure", "how": "survey_component_consistency.py scans root *.html only - add the page"},
+                   "needs": "run", "how": "python tools/survey_component_consistency.py  (static)"},
     "cta":        {"file": "cta_activation_report.json", "tracked": False, "dims": ("CV1",),
-                   "needs": "structure", "how": "prove_cta_activation.mjs walks its ROSTER only - add the page"},
+                   "needs": "structure", "how": "node tools/prove_cta_activation.mjs  (browser; walks its ROSTER - "
+                                                "a page off it needs adding first)"},
+    "chrome":     {"file": "shared_chrome_parity.json", "tracked": True, "dims": ("S2",),
+                   "needs": "run", "how": "python tools/prove_shared_chrome_parity.py --write  (static)"},
+    "conversion": {"file": "page_conversion_cv.json", "tracked": True, "dims": ("CV2", "CV3"),
+                   "needs": "run", "how": "node tools/prove_page_conversion.mjs --page <page>  (browser, signed out)"},
 }
 SOURCE_OF = {d: s for s, o in OWNER_SOURCES.items() for d in o["dims"]}
 # dims whose owner writes NO per-page record anywhere - a missing instrument, not a missing run (read from each owner's
-# source 2026-11-03): S2 is a platform mean (rubric_coverage.py proxies it with W2); CV2/CV3 are journey verdicts
-# (prove_journey.mjs J1-J3, journeys LA8/LA10/LA11) with no page in them; JA1-JA3 are the journey validator's
-# ratchet totals, not yet in its per-page record.
+# source 2026-11-03): JA1-JA3 are the journey validator's ratchet totals, not yet in its per-page record. (2026-11-04:
+# S2 left this list - tools/prove_shared_chrome_parity.py measures it per page, the "chrome" owner; and CV2/CV3 left it
+# - the journeys that answered them (prove_journey J1-J3, LA8/LA10/LA11/LA12) each speak for the ONE page they walked,
+# so reading LA11's verdict for about/ would credit a page with a walk that never opened it. tools/
+# prove_page_conversion.mjs walks each page itself with those journeys' steps - the "conversion" owner.)
 NO_INSTRUMENT = {
-    "S2":  "shared-chrome parity has no per-page instrument (rubric_coverage.py reports a platform proxy from W2)",
-    "CV2": "auth-wall doors are judged per journey (prove_journey.mjs J1-J3, LA8/LA10), never per page",
-    "CV3": "funnel completion is one journey (LA11), not a property of a page",
     "JA1": "the journey validator records deep-link arrival as a ratchet total, not per page",
     "JA2": "the journey validator records the return promise as a ratchet total, not per page",
     "JA3": "the journey validator records back-dismiss as a ratchet total, not per page",
@@ -312,9 +331,15 @@ class OwnerSources:
         """Could a RUN of this owner, as built, ever record this page? False means it needs structure first: the
         corpus scans the root *.html pages only, and the CTA prover walks its roster only."""
         if src == "corpus":
-            return "/" not in page
+            # every generated public page is scanned; a root page unless the corpus excludes it by name
+            if "/" in page:
+                return True
+            from survey_component_consistency import EXCLUDE_RE
+            return not EXCLUDE_RE.search(page)
         if src == "cta":
             return page in self.cta_roster()
+        if src == "chrome":
+            return "/" in page                   # the static-chrome public families; app chrome is the lens's W2
         return True
 
     def doc(self, src: str):
@@ -345,13 +370,25 @@ class OwnerSources:
         f = OWNER_SOURCES[src]["file"]
         if d is None:
             return None, f"{f} is not on disk - run its owner"
-        if src in ("journey", "provenance"):
+        if src in ("journey", "provenance", "chrome", "conversion"):
             rec = ((d.get("pages") or {}).get(page) or {}).get(dim)
             if not rec:
                 return None, f"{f} has no record of {page}" + ("" if d.get("pages") else " (an older report with no per-page record)")
             if rec.get("verdict") is None:
                 return None, f"{f}: {dim} on {page} has no verdict - {rec.get('note') or '?'}"
             return (rec["verdict"], rec.get("pct"), str(rec.get("note") or "")), src
+        if src == "axe":
+            if d.get("skipped"):
+                return None, f"{f} is a skipped run ({d.get('reason') or '?'}) - run its owner again"
+            p = (d.get("detail") or {}).get(page)
+            if not p:
+                return None, f"{f} has no record of {page}"
+            if p.get("skipped"):
+                return None, f"{f}: {page} was skipped ({p.get('reason') or '?'})"
+            x = p.get("F2")
+            if not x:
+                return None, f"{f}: {page} was scanned by an older run that recorded no rule totals - run it again"
+            return (x.get("verdict"), x.get("pct"), str(x.get("note") or "")), src
         if src == "board":
             p = (d.get("pages") or {}).get(page)
             if not p:
@@ -363,7 +400,7 @@ class OwnerSources:
         if src == "corpus":
             p = (d.get("corpus") or {}).get(page)
             if not p:
-                return None, f"{f} has no record of {page} (it scans the root *.html pages only)"
+                return None, f"{f} has no record of {page}"
             inst = [i for v in (p.get("primitives") or {}).values() for i in (v or [])]
             if not inst:
                 return ("N/A", None, "no card primitive on the page (the corpus's census of it)"), src
@@ -376,6 +413,16 @@ class OwnerSources:
                 return None, f"{page} is not on prove_cta_activation.mjs's roster"
             res = [r for r in (d.get("results") or []) if r.get("page") == slug
                    and not str(r.get("verdict") or "").startswith("walk-error")]
+            walked = ((d.get("pages") or {}).get(slug) or {}).get("walked") or {}
+            if not res and walked:
+                # the prover's own record of the walk (2026-11-04): N/A only when EVERY viewport was walked to the end
+                # and found no primary-styled control - an error, or a viewport never walked, answers nothing
+                errs = [v for v, w in walked.items() if (w or {}).get("error")]
+                if errs or set(walked) != {"390", "1280"}:
+                    return None, f"{f}: the walk of {page} did not finish at {', '.join(errs) or 'both viewports'}"
+                if all(int((w or {}).get("ctas") or 0) == 0 for w in walked.values()):
+                    return ("N/A", None, "walked as anon at 390 and 1280: no primary-styled CTA on the page (by class "
+                                         "or by brand fill)"), src
             if not res:
                 return None, f"{f} holds no click on {page} (a walk with no primary CTA writes nothing to tell apart)"
             alive = sum(1 for r in res if not r.get("dead"))
@@ -876,7 +923,7 @@ def _self_test() -> int:
         "provenance": {"pages": {ABOUT: {"AI6": {"verdict": "N/A", "pct": None, "note": "reaches no AI writer"}},
                                  "privacy-policy/index.html": {"AI6": {"verdict": "N/A", "pct": None, "note": "x"}}}},
         "board": {"pages": {ABOUT: {"dims": [{"dim": "I1", "kind": "JUDGED", "pct": None, "note": "no CWV"}]}}},
-        "corpus": None, "cta": None,
+        "corpus": None, "cta": None, "chrome": {"pages": {}},
     }
     owners = OwnerSources(data=owner_data, cta_roster={})
 
@@ -930,8 +977,25 @@ def _self_test() -> int:
     if b["CX13"] != "c" or "judged-only" not in needs["CX13"]:
         fails.append("H1 N/A + H2 JUDGED (a lens-owned judged dim) accounts for H but is neither a grade nor an N/A - "
                      f"open as judged-only, got {b['CX13']} {needs['CX13']}")
-    if b["CX14"] != "c" or "no-instrument" not in needs["CX14"]:
-        fails.append(f"S2 has no per-page instrument - S must stay open, named as a missing instrument, got {needs['CX14']}")
+    if b["CX14"] != "c" or needs["CX14"] != ["run:chrome"]:
+        fails.append("S2's owner (the shared-chrome record) has no reading of about here - S must stay open and name "
+                     f"its owner's run, got {b['CX14']} {needs['CX14']}")
+    # once the chrome record measures S2 on about, S1 N/A (lens) + S2 MEASURED (its owner) is GRADED; a record of
+    # S2 for a DIFFERENT page answers nothing here; an app page is outside what that owner can ever record
+    od_s = copy.deepcopy(owner_data)
+    od_s["chrome"] = {"pages": {ABOUT: {"S2": {"verdict": "MEASURED", "pct": 80, "note": "4/5 parts: footer"}}}}
+    s_ok = classify(row("CX16", ABOUT, "S"), by_page, members, dimcls, lens, spec, receipts,
+                    OwnerSources(data=od_s, cta_roster={}))
+    s_other = classify(row("CX17", TERMS, "S"), by_page, members, dimcls, lens, spec, receipts,
+                       OwnerSources(data=od_s, cta_roster={}))
+    s_app = classify(row("CX18", HIVE, "S", cls="production", cast="supervisor"), by_page, members, dimcls, lens,
+                     spec, receipts, OwnerSources(data=od_s, cta_roster={}))
+    if s_ok["bucket"] != "a" or s_ok["owned"].get("S2", (None,))[0][:2] != ("MEASURED", 80):
+        fails.append(f"S2 MEASURED in the chrome record of about must grade S there, got {s_ok['bucket']} {s_ok['missing']}")
+    if s_other["bucket"] != "c" or [m[1] for m in s_other["missing"]] != ["run:chrome"]:
+        fails.append(f"S2 recorded for about must not answer terms, got {s_other['bucket']} {s_other['missing']}")
+    if not any(m[1] == "structure:chrome" for m in s_app["missing"]):
+        fails.append(f"an app page is outside the static chrome record - a structure gap, got {s_app['missing']}")
     # the board has no record of TERMS: if it has only ever JUDGED I1, a run cannot help (a missing instrument); once it
     # MEASURES I1 on some page, a run on terms is the move
     i_terms = row("CX15", TERMS, "I")
@@ -960,6 +1024,38 @@ def _self_test() -> int:
                        cta_roster={"index.html": "index", "public-feed.html": "feed"})
     if cta.reading("index.html", "CV1")[0][:2] != ("MEASURED", 50) or cta.reading("public-feed.html", "CV1")[0] is not None:
         fails.append("CV1 from the CTA report: 1 of 2 clicks alive is 50%; a walk-error is no reading")
+    # the prover's per-page walk record: walked at both viewports with no primary CTA is N/A; a walk that errored or
+    # missed a viewport is no reading; a page the record does not name is no reading
+    roster = {"about/index.html": "about", "terms-of-service/index.html": "terms", "privacy-policy/index.html": "privacy"}
+    walks = OwnerSources(data={"cta": {"results": [], "pages": {
+        "about": {"walked": {"390": {"ctas": 0}, "1280": {"ctas": 0}}},
+        "terms": {"walked": {"390": {"ctas": 0}, "1280": {"error": "timeout"}}},
+        "privacy": {"walked": {"390": {"ctas": 0}}}}}}, cta_roster=roster)
+    if (walks.reading("about/index.html", "CV1")[0] or ("",))[0] != "N/A":
+        fails.append("CV1: a page walked at 390 and 1280 with no primary CTA must read N/A from the walk record")
+    if walks.reading("terms-of-service/index.html", "CV1")[0] is not None or \
+            walks.reading("privacy-policy/index.html", "CV1")[0] is not None:
+        fails.append("CV1: a walk that errored, or one that never reached a viewport, must not read as N/A")
+    # CV2/CV3 from the per-page conversion walk, each page under its own path
+    conv = OwnerSources(data={"conversion": {"pages": {ABOUT: {
+        "CV2": {"verdict": "N/A", "pct": None, "note": "no auth wall reachable - 0 link(s) to app pages followed"},
+        "CV3": {"verdict": "MEASURED", "pct": 83, "note": "5/6 steps"}}}}})
+    if (conv.reading(ABOUT, "CV2")[0] or ("",))[0] != "N/A" or (conv.reading(ABOUT, "CV3")[0] or ("", 0))[:2] != ("MEASURED", 83):
+        fails.append(f"CV2/CV3 from the conversion record of about: {conv.reading(ABOUT, 'CV2')} {conv.reading(ABOUT, 'CV3')}")
+    if conv.reading(TERMS, "CV3")[0] is not None:
+        fails.append("CV3 walked from about must not answer terms")
+    # F2 from the live axe scan: a scanned page with rule totals answers; a page scanned before the totals were
+    # recorded, a skipped page, and a skipped run do not
+    ax = OwnerSources(data={"axe": {"detail": {
+        ABOUT: {"skipped": False, "F2": {"verdict": "MEASURED", "pct": 100, "note": "31/31 rules pass"}},
+        TERMS: {"skipped": False, "nodes": 0},
+        FEED: {"skipped": True, "reason": "auth gate"}}}})
+    if (ax.reading(ABOUT, "F2")[0] or ("", 0))[:2] != ("MEASURED", 100):
+        fails.append(f"F2 from the axe record of about must read MEASURED 100: {ax.reading(ABOUT, 'F2')}")
+    if ax.reading(TERMS, "F2")[0] is not None or ax.reading(FEED, "F2")[0] is not None:
+        fails.append("F2: a page scanned without rule totals, or skipped, must be no reading")
+    if OwnerSources(data={"axe": {"skipped": True, "reason": "GoTrue down"}}).reading(ABOUT, "F2")[0] is not None:
+        fails.append("F2: a skipped axe run is evidence of nothing")
 
     # --apply: appended LAST, gate named, idempotent on a second run
     reg_rows = copy.deepcopy(rows)
@@ -1013,8 +1109,9 @@ def _self_test() -> int:
     print("FAIL bank_cx_ux_rows self-test - " + "; ".join(fails) if fails else
           "self-test OK: (a) on a measured dim of the page itself, (b) only when EVERY dim is N/A - the lens's and its "
           "owners' (AI1 + AI6, J1-J2 + J3) - with each reason; an owner dim missing for the page, or recorded only for a "
-          "DIFFERENT page, keeps the row open and names the owner's run; a battery dim the board only judges, S2 with no "
-          "instrument, and a judged-only class stay open; a class graded on a DIFFERENT page refused (where the census's "
+          "DIFFERENT page, keeps the row open and names the owner's run; S2 graded from the shared-chrome record of the "
+          "page itself (never another page's, an app page a structure gap); a battery dim the board only judges and a "
+          "judged-only class stay open; a class graded on a DIFFERENT page refused (where the census's "
           "_target rule would credit it); a reset row / a newer-than-bank file / a denied file / a null pct refused; a "
           "gated page banked only on its own cast; the S3 and CV1 readers per page; the basis appended once; and --check "
           "reddens on a reset row, a lost dim, a grown class, a moved dim, a deleted row, a dropped page, a lost owner "

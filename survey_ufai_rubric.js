@@ -480,10 +480,15 @@
     // (48) — precisely the pages validate_loads_utils_js.py's ALLOWLIST documents as brochures that
     // render no DB or user data. Two instruments had independently identified the same class; only one
     // of them acted on it.
+    // ★A DICTIONARY IS NOT A DATA LAYER (2026-11-04, CX-UX I on privacy-policy / terms-of-service). Both pages are
+    // static documents, yet I2 read 0 ("no reserved/optimistic block") while about - the same kind of page - read
+    // N/A: their inline #wh-fil-page script holds a fetch(), and the scan below took it for data streaming in. It
+    // fetches the page's Filipino dictionary, only when the reader chose Filipino, and swaps the text of [data-i]
+    // nodes in place - nothing arrives that space could be reserved for. That one script is set aside by its id.
     const _noDataClient = !document.querySelector('script[src*="utils.js"]')
       && typeof window.workhiveSupabase === 'undefined'
       && typeof window.supabase === 'undefined'
-      && !$$('script:not([src])', document).some(
+      && !$$('script:not([src]):not(#wh-fil-page)', document).some(
         (s) => /fetch\(|XMLHttpRequest|createClient|supabase/i.test(s.textContent || ''));
     const isStaticDoc = _noDataClient;
     // ★A PERMISSION WALL IS A DIFFERENT SCREEN WEARING THE SAME FILENAME (2026-09-10). audit-log walked

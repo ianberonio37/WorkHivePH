@@ -60,7 +60,14 @@ const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
 const isAnon = (w) => w.persona === 'anon';
 const wantAnon = SUBSET === 'anon' || SUBSET === 'all';
 const wantHive = SUBSET === 'hive' || SUBSET === 'all';
+// --ids W1,W2 / --pages a.html,b.html (2026-11-04): run only the walks a task needs - those holding one of the critic ids,
+// or whose path touches one of the pages - instead of the whole pending queue
+const listArg = (name) => { const i = args.indexOf(name); return i >= 0 ? new Set(String(args[i + 1] || '').split(',').map((s) => s.trim()).filter(Boolean)) : null; };
+const ONLY_IDS = listArg('--ids');
+const ONLY_PAGES = listArg('--pages');
 const walks = manifest.filter((w) => {
+  if (ONLY_IDS && !w.ids.some((id) => ONLY_IDS.has(id))) return false;
+  if (ONLY_PAGES && !w.pages.some((p) => ONLY_PAGES.has(p))) return false;
   if ((w.condition || 'normal') !== COND) return false;                    // only this condition
   if (MOMENT !== 'any' && (w.moment || 'present') !== MOMENT) return false; // only this moment
   if (isAnon(w)) return wantAnon;
@@ -79,7 +86,7 @@ async function signIn(context, w) {
     try {
       const db = window._whSupabaseClient || window.getDb('http://127.0.0.1:54321', window.SUPABASE_KEY || key);
       const { data, error } = await db.auth.signInWithPassword({ email, password: 'test1234' });
-      if (error) return { ok: false, err: String(error.message || error) };
+      if (error) return { ok: false, err: [error.name, error.status, error.message].filter(Boolean).join(' ') || String(error) };
       let realHive = hive;
       if (!solo) {
         try {
@@ -138,7 +145,13 @@ try {
       await ctx.route('**/functions/v1/**', (r) => r.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"dependency down (critic-walk probe)"}' }));
     }
     let signErr = null;
-    if (!isAnon(w)) { const s = await signIn(ctx, w); if (!s.ok) signErr = s.err || 'sign-in failed'; }
+    // one retry after a pause (2026-11-04): on a loaded host the first sign-ins of a run came back with an empty
+    // retryable-fetch error while the same cast signed in a minute later - a transport hiccup, not a refused cast
+    if (!isAnon(w)) {
+      let s = await signIn(ctx, w);
+      if (!s.ok) { console.log(`    note ${w.ids[0]}: sign-in failed (${s.err || '?'}) - retrying once`); await new Promise((r) => setTimeout(r, 4000)); s = await signIn(ctx, w); }
+      if (!s.ok) signErr = s.err || 'sign-in failed';
+    }
     if (signErr) { failed++; console.log(`  FAIL ${w.ids[0]} sign-in: ${signErr}`); await ctx.close(); continue; }
 
     // offline-3g: PRIME the SW cache by visiting every page ONLINE first (each page caches on first
@@ -186,13 +199,25 @@ try {
         // that finds nothing to act on is reported, never silent.
         if (PAGE_REVEAL[rel] && !(await revealWorkedState(page, rel))) console.log(`    note ${w.ids[0]}: ${rel} reveal found nothing to act on`);
         const pid = pageIdOf(rel);
-        const survey = await page.evaluate(({ src, pid }) => {
+        const survey = await page.evaluate(({ src, pid, rel, anon }) => {
           eval('(' + src + ')')();
           const out = window.__RUBRIC.survey({ pageId: pid });
-          out._denied = !!document.querySelector('[class*="access-denied"]');
+          // ★NOT THIS PAGE'S SCREEN IS A DENIAL TOO (2026-11-04, CX-UX). The guard knew one refusal - an access-denied
+          // class - and the founder pages refuse another way: their gate swaps the body for "Founder access only" (or
+          // "Your access cannot be checked right now"), with no such class, so a walk cast as an ordinary supervisor
+          // would have banked a survey of the refusal as the page. And a SIGNED-IN walk that was sent elsewhere (a
+          // sign-in wall onto index.html: the session was not accepted) is graded under THIS page's id by `pageId`
+          // above while showing another page. Each is named, and none is banked. (A SIGNED-OUT walk of a gated page
+          // keeps the 2026-10-13 rule: the landing it is sent to is the screen that row's visitor meets, graded as found.)
+          const h1 = [...document.querySelectorAll('h1')].map((h) => (h.textContent || '').trim()).join(' | ');
+          const refused = /founder access only|your access cannot be checked/i.test(h1);
+          const elsewhere = !anon && !decodeURIComponent(location.pathname).endsWith('/' + rel);
+          out._denied = !!document.querySelector('[class*="access-denied"]') || refused || elsewhere;
+          if (refused) out._deniedWhy = 'refusal screen: ' + h1.slice(0, 60);
+          else if (elsewhere) out._deniedWhy = 'landed on ' + location.pathname + location.search;
           out._css = innerWidth + 'x' + innerHeight;
           return out;
-        }, { src: RUBRIC_SRC, pid });
+        }, { src: RUBRIC_SRC, pid, rel: String(rel).split('?')[0], anon: isAnon(w) });
         if (survey._denied) anyDenied = true;
         const f = `${OUTDIR}/${w.ids[0]}_${pid.replace(/[^a-z0-9-]/gi, '_')}.json`;
         writeFileSync(f, JSON.stringify(survey));
@@ -209,7 +234,11 @@ try {
     console.log(`  ${APPLY ? 'bank' : 'dry'} ${w.ids.join(',')} [${w.persona} ${w.device} ${w.language}] ${files.length}pg failing=${totFail}${anyDenied ? ' ★DENIED' : ''}`
       + '  ' + files.map((x) => `${x.pid}:${x.failing}${x.denied ? 'D' : ''}`).join(' '));
 
-    if (anyDenied) { console.log(`    SKIP bank ${w.ids[0]}: a page rendered access-denied (mis-pin/entitlement) - not banking a denied survey`); continue; }
+    if (anyDenied) {
+      const why = files.map((x) => { try { return x.denied ? `${x.pid}: ${JSON.parse(readFileSync(x.f, 'utf8'))._deniedWhy || 'access-denied'}` : null; } catch (_) { return null; } }).filter(Boolean);
+      console.log(`    SKIP bank ${w.ids[0]}: not the page's own screen (${why.join('; ') || 'access-denied'}) - not banking a denied survey`);
+      continue;
+    }
     if (APPLY) {
       const condNote = COND === 'dependency-down'
         ? 'CONDITION dependency-down: every edge-function call stubbed to 503 for this context (browser-side, no DB mutation) - the survey grades the DEGRADED state (legible fallback vs crash). '

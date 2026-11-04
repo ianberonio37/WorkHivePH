@@ -1,0 +1,241 @@
+{
+ "_doc": "CV2 + CV3 per page, walked signed out at 390 by tools/prove_page_conversion.mjs (local stack).",
+ "pages": {
+  "about/index.html": {
+   "CV2": {
+    "verdict": "N/A",
+    "pct": null,
+    "note": "no auth wall reachable from this page signed out - 0 link(s) to app pages followed, none walled, and no in-page sign-in refusal in its markup"
+   },
+   "CV3": {
+    "verdict": "MEASURED",
+    "pct": 100,
+    "note": "6/6 funnel steps from this page's own sign-up door"
+   },
+   "walls": [],
+   "links_followed": 0,
+   "funnel": {
+    "arrival": {
+     "ok": true
+    },
+    "door": {
+     "ok": true,
+     "text": "Sign Up Free"
+    },
+    "door-opens-signup": {
+     "ok": true,
+     "landed": "/workhive/index.html?signup=1"
+    },
+    "account": {
+     "ok": true
+    },
+    "db-row": {
+     "ok": true
+    },
+    "attribution": {
+     "ok": true,
+     "source": "page:/workhive/about/index.html"
+    }
+   },
+   "account_cleaned": true
+  },
+  "feedback/index.html": {
+   "CV2": {
+    "verdict": "N/A",
+    "pct": null,
+    "note": "no auth wall reachable from this page signed out - 0 link(s) to app pages followed, none walled, and no in-page sign-in refusal in its markup"
+   },
+   "CV3": {
+    "verdict": "MEASURED",
+    "pct": 100,
+    "note": "6/6 funnel steps from this page's own sign-up door"
+   },
+   "walls": [],
+   "links_followed": 0,
+   "funnel": {
+    "arrival": {
+     "ok": true
+    },
+    "door": {
+     "ok": true,
+     "text": "Sign Up Free"
+    },
+    "door-opens-signup": {
+     "ok": true,
+     "landed": "/workhive/index.html?signup=1"
+    },
+    "account": {
+     "ok": true
+    },
+    "db-row": {
+     "ok": true
+    },
+    "attribution": {
+     "ok": true,
+     "source": "page:/workhive/feedback/index.html"
+    }
+   },
+   "account_cleaned": true
+  },
+  "learn/index.html": {
+   "CV2": {
+    "verdict": "MEASURED",
+    "pct": 100,
+    "note": "1/1 wall(s) met from this page offer both doors with ?return="
+   },
+   "CV3": {
+    "verdict": "MEASURED",
+    "pct": 100,
+    "note": "6/6 funnel steps from this page's own sign-up door"
+   },
+   "walls": [
+    {
+     "from": "\"My Hive\" -> hive.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=hive.html: both doors, return=hive.html"
+    }
+   ],
+   "links_followed": 1,
+   "funnel": {
+    "arrival": {
+     "ok": true
+    },
+    "door": {
+     "ok": true,
+     "text": "Sign Up Free"
+    },
+    "door-opens-signup": {
+     "ok": true,
+     "landed": "/workhive/index.html?signup=1"
+    },
+    "account": {
+     "ok": true
+    },
+    "db-row": {
+     "ok": true
+    },
+    "attribution": {
+     "ok": true,
+     "source": "page:/workhive/learn/index.html"
+    }
+   },
+   "account_cleaned": true
+  },
+  "learn/philippine-plants-now-pay-the-highest-power-rates/index.html": {
+   "CV2": {
+    "verdict": "N/A",
+    "pct": null,
+    "note": "no auth wall reachable from this page signed out - 0 link(s) to app pages followed, none walled, and no in-page sign-in refusal in its markup"
+   },
+   "CV3": {
+    "verdict": "MEASURED",
+    "pct": 100,
+    "note": "6/6 funnel steps from this page's own sign-up door"
+   },
+   "walls": [],
+   "links_followed": 0,
+   "funnel": {
+    "arrival": {
+     "ok": true
+    },
+    "door": {
+     "ok": true,
+     "text": "Sign Up Free"
+    },
+    "door-opens-signup": {
+     "ok": true,
+     "landed": "/workhive/index.html?signup=1"
+    },
+    "account": {
+     "ok": true
+    },
+    "db-row": {
+     "ok": true
+    },
+    "attribution": {
+     "ok": true,
+     "source": "page:/workhive/learn/philippine-plants-now-pay-the-highest-power-rates/index.html"
+    }
+   },
+   "account_cleaned": true
+  },
+  "privacy-policy/index.html": {
+   "CV2": {
+    "verdict": "N/A",
+    "pct": null,
+    "note": "no auth wall reachable from this page signed out - 0 link(s) to app pages followed, none walled, and no in-page sign-in refusal in its markup"
+   },
+   "CV3": {
+    "verdict": "MEASURED",
+    "pct": 100,
+    "note": "6/6 funnel steps from this page's own sign-up door"
+   },
+   "walls": [],
+   "links_followed": 0,
+   "funnel": {
+    "arrival": {
+     "ok": true
+    },
+    "door": {
+     "ok": true,
+     "text": "Sign Up Free"
+    },
+    "door-opens-signup": {
+     "ok": true,
+     "landed": "/workhive/index.html?signup=1"
+    },
+    "account": {
+     "ok": true
+    },
+    "db-row": {
+     "ok": true
+    },
+    "attribution": {
+     "ok": true,
+     "source": "page:/workhive/privacy-policy/index.html"
+    }
+   },
+   "account_cleaned": true
+  },
+  "terms-of-service/index.html": {
+   "CV2": {
+    "verdict": "N/A",
+    "pct": null,
+    "note": "no auth wall reachable from this page signed out - 0 link(s) to app pages followed, none walled, and no in-page sign-in refusal in its markup"
+   },
+   "CV3": {
+    "verdict": "MEASURED",
+    "pct": 100,
+    "note": "6/6 funnel steps from this page's own sign-up door"
+   },
+   "walls": [],
+   "links_followed": 0,
+   "funnel": {
+    "arrival": {
+     "ok": true
+    },
+    "door": {
+     "ok": true,
+     "text": "Sign Up Free"
+    },
+    "door-opens-signup": {
+     "ok": true,
+     "landed": "/workhive/index.html?signup=1"
+    },
+    "account": {
+     "ok": true
+    },
+    "db-row": {
+     "ok": true
+    },
+    "attribution": {
+     "ok": true,
+     "source": "page:/workhive/terms-of-service/index.html"
+    }
+   },
+   "account_cleaned": true
+  }
+ },
+ "ts": "2026-11-04T01:34:26.037Z"
+}

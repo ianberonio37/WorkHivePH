@@ -265,7 +265,14 @@ def _write_bank(reg, by, ids, lens_sha, graded, findings, note) -> int:
                                      f"none of its {len(prior)} earlier finding(s) recur; lock = family-rubric-ratchet on the full board"]
             closed += 1
     tmp = str(CRITIC) + ".tmp"
-    io.open(tmp, "w", encoding="utf-8").write(json.dumps(reg, indent=1, ensure_ascii=False))
+    # ★KEEP THE FILE'S OWN INDENT (2026-11-04). This wrote indent=1 while registry_io.save_critic (every other writer)
+    # keeps the file at 2, so one bank reformatted all 61 MB: a whole-file diff that cannot merge with any other branch's
+    # edit of the registry. The indent is read from the file itself, as bank_cx_ux_rows._save reads its registry's.
+    with io.open(CRITIC, encoding="utf-8") as fh:
+        fh.readline()
+        second = fh.readline()
+    indent = max(1, len(second) - len(second.lstrip(" "))) if second.strip() else 2
+    io.open(tmp, "w", encoding="utf-8").write(json.dumps(reg, indent=indent, ensure_ascii=False) + "\n")
     # Windows refuses to replace a file another process has OPEN (an editor, an indexer, a reader script) - the lock
     # serialises writers, not readers. Five banks in one batch run failed on exactly this; a short retry clears it.
     import time as _t
