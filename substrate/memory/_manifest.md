@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1083-files
-source_sha: 31ff00b0795e205b
+source_sha: 57728c08879f59d3
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -483,7 +483,7 @@ Entries (name · type · sha):
 - `feedback_operate_at_full_capability` · feedback · 187c49ce68044fd2
 - `feedback_ops_views_over_granted_to_anon` · feedback · 6f422d53c4a320f5
 - `feedback_outlasting_the_guard_is_not_an_ender` · feedback · da646f1097d9bcf6
-- `feedback_over_driving_8gb_host_crashed_docker_and_session` · feedback · dccf79724ca4de65
+- `feedback_over_driving_8gb_host_crashed_docker_and_session` · feedback · 4a8b38e992e222dd
 - `feedback_overflow_clip_hides_real_content_loss` · feedback · a8c2bb93234f31af
 - `feedback_overloaded_word_draft_nearly_mislabelled_user_work` · feedback · c2bec0a1dc682c83
 - `feedback_p6_disposition_gate_and_double_submit` · feedback · 7dfd86aae044c473

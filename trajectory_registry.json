@@ -1115207,7 +1115207,7 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the low-end phone ask is proven on index.html with a receipt"
       },
-      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as worker (worker row), CPU 4x over CDP - calibrated x5.2 (a fixed loop 5 -> 23 ms; under 2.5x the run fails). Primary action: a real tap on #ops-home details > summary, #ops-home summary - expands the home's More (My Open Jobs + All Tools). 3 fresh loads: 168/56/48 ms, INP 168 ms within the 200 ms budget (slowest round: click on summary, input 55 + processing 6 + presentation 107 ms). Corroborated by the HM4 journey driven whole at 4x (live_page_journeys.mjs --phone --cpu 4, calibrated x7.1): live, slowest of its 3 timed interactions 152 ms (pointerdown summary). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp.",
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as worker (worker row), CPU 4x over CDP - calibrated x5.2 (a fixed loop 5 -> 23 ms; under 2.5x the run fails). Primary action: a real tap on #ops-home details > summary, #ops-home summary - expands the home's More (My Open Jobs + All Tools). 3 fresh loads: 168/56/48 ms, INP 168 ms within the 200 ms budget (slowest round: click on summary, input 55 + processing 6 + presentation 107 ms). Corroborated by the HM4 journey driven whole at 4x (live_page_journeys.mjs --phone --cpu 4, calibrated x7.1): live, slowest of its 3 timed interactions 152 ms (pointerdown summary). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp. || [2026-11-04] pct -> 60. MEASURED LIVE 2026-11-04 on index.html as Bryan Garcia: the Playwright MCP (browser_run_code_unsafe, .playwright-mcp/inp_walk.js) with a CDP session - Emulation.setCPUThrottlingRate 4 over the devtools protocol, 390x844 at dpr 3, mobile, touch - on the protocol of tools/prove_lowend_inp.mjs (gate own_lowend_inp): calibrated JIT-warm on about:blank (a ratio under 2.5 voids the row); per round load + networkidle + 2.5 s, the control scrolled into view, 400 ms, a real tap (page.tap, a trusted touch), INP read from the page's own Event Timing entries; 3 fresh loads, INP = the slowest, budget 200 ms. INP 120 ms within the 200 ms budget - rounds 120/56/72 ms, slowest click on SUMMARY: input 28 + processing 9 + presentation 84 ms; calibrated 7 -> 37 ms (x5.5); tapped summary \"More\"; first open had read 208 ms (presentation 186, the tool tiles' first raster); fixed the same day: utils.js whWarmPaint draws an invisible copy of the closed More at idle. Receipt .tmp/mcp_walks/OWN597.json.",
       "artifacts": {
         "gates": [
           "own_lowend_inp"
@@ -1115271,7 +1115271,7 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the low-end phone ask is proven on integrations.html with a receipt"
       },
-      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as solo (solo-owner row), CPU 4x over CDP - calibrated x5.9 (a fixed loop 4 -> 26 ms; under 2.5x the run fails). Primary action: a real tap on #veh-open - opens Add my vehicle. 3 fresh loads: 128/56/56 ms, INP 128 ms within the 200 ms budget (slowest round: click on button#veh-open, input 25 + processing 82 + presentation 21 ms). Corroborated by the IN1 journey driven whole at 4x (live_page_journeys.mjs --phone --cpu 4, calibrated x5.2): live, slowest of its 6 timed interactions 144 ms (pointerdown div.sc-name). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp.",
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as solo (solo-owner row), CPU 4x over CDP - calibrated x5.9 (a fixed loop 4 -> 26 ms; under 2.5x the run fails). Primary action: a real tap on #veh-open - opens Add my vehicle. 3 fresh loads: 128/56/56 ms, INP 128 ms within the 200 ms budget (slowest round: click on button#veh-open, input 25 + processing 82 + presentation 21 ms). Corroborated by the IN1 journey driven whole at 4x (live_page_journeys.mjs --phone --cpu 4, calibrated x5.2): live, slowest of its 6 timed interactions 144 ms (pointerdown div.sc-name). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp. || [2026-11-04] pct -> 60. MEASURED LIVE 2026-11-04 on integrations.html as junvanowner (hive-less owner): the Playwright MCP (browser_run_code_unsafe, .playwright-mcp/inp_walk.js) with a CDP session - Emulation.setCPUThrottlingRate 4 over the devtools protocol, 390x844 at dpr 3, mobile, touch - on the protocol of tools/prove_lowend_inp.mjs (gate own_lowend_inp): calibrated JIT-warm on about:blank (a ratio under 2.5 voids the row); per round load + networkidle + 2.5 s, the control scrolled into view, 400 ms, a real tap (page.tap, a trusted touch), INP read from the page's own Event Timing entries; 3 fresh loads, INP = the slowest, budget 200 ms. INP 136 ms within the 200 ms budget - rounds 136/72/64 ms, slowest click on veh-open: input 22 + processing 78 + presentation 36 ms; calibrated 7 -> 36 ms (x5.3); tapped #veh-open \"Add my vehicle\". Receipt .tmp/mcp_walks/OWN598.json.",
       "artifacts": {
         "gates": [
           "own_lowend_inp"
@@ -1115335,7 +1115335,7 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the low-end phone ask is proven on inventory.html with a receipt"
       },
-      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as worker (worker row), CPU 4x over CDP - calibrated x4.7 (a fixed loop 6 -> 27 ms; under 2.5x the run fails). Primary action: a real tap on #btn-add-part - opens Add Part. 3 fresh loads: 168/128/120 ms, INP 168 ms within the 200 ms budget (slowest round: click on span, input 23 + processing 102 + presentation 44 ms). Corroborated by the INV2 journey driven whole at 4x (live_page_journeys.mjs --phone --cpu 4, calibrated x4.6): live, slowest of its 3 timed interactions 72 ms (pointerdown button#use-submit-btn.btn-primary). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp.",
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as worker (worker row), CPU 4x over CDP - calibrated x4.7 (a fixed loop 6 -> 27 ms; under 2.5x the run fails). Primary action: a real tap on #btn-add-part - opens Add Part. 3 fresh loads: 168/128/120 ms, INP 168 ms within the 200 ms budget (slowest round: click on span, input 23 + processing 102 + presentation 44 ms). Corroborated by the INV2 journey driven whole at 4x (live_page_journeys.mjs --phone --cpu 4, calibrated x4.6): live, slowest of its 3 timed interactions 72 ms (pointerdown button#use-submit-btn.btn-primary). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp. || [2026-11-04] pct -> 60. MEASURED LIVE 2026-11-04 on inventory.html as Bryan Garcia: the Playwright MCP (browser_run_code_unsafe, .playwright-mcp/inp_walk.js) with a CDP session - Emulation.setCPUThrottlingRate 4 over the devtools protocol, 390x844 at dpr 3, mobile, touch - on the protocol of tools/prove_lowend_inp.mjs (gate own_lowend_inp): calibrated JIT-warm on about:blank (a ratio under 2.5 voids the row); per round load + networkidle + 2.5 s, the control scrolled into view, 400 ms, a real tap (page.tap, a trusted touch), INP read from the page's own Event Timing entries; 3 fresh loads, INP = the slowest, budget 200 ms. INP 168 ms within the 200 ms budget - rounds 168/112/104 ms, slowest click on SPAN: input 24 + processing 46 + presentation 99 ms; calibrated 7 -> 29 ms (x4.3); tapped #btn-add-part \"Add Part\"; had read 296-360 ms; fixed the same day: the full-screen backdrop-filter blur under the modal scrims removed (a 76 ms GPU task in the chrome-devtools MCP trace), the asset linker built one frame after the modal shows, and the form laid out once at idle (utils.js whWarmLayout). Receipt .tmp/mcp_walks/OWN599.json.",
       "artifacts": {
         "gates": [
           "own_lowend_inp"
@@ -1115399,7 +1115399,7 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the low-end phone ask is proven on marketplace-seller.html with a receipt"
       },
-      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as worker (buyer row), CPU 4x over CDP - calibrated x4.9 (a fixed loop 5 -> 23 ms; under 2.5x the run fails). Primary action: a real tap on button[data-action='edit'] - opens a listing's Edit form. 3 fresh loads: 88/88/72 ms, INP 88 ms within the 200 ms budget (slowest round: click on button, input 23 + processing 28 + presentation 37 ms). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp.",
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as worker (buyer row), CPU 4x over CDP - calibrated x4.9 (a fixed loop 5 -> 23 ms; under 2.5x the run fails). Primary action: a real tap on button[data-action='edit'] - opens a listing's Edit form. 3 fresh loads: 88/88/72 ms, INP 88 ms within the 200 ms budget (slowest round: click on button, input 23 + processing 28 + presentation 37 ms). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp. || [2026-11-04] pct -> 60. MEASURED LIVE 2026-11-04 on marketplace-seller.html as Bryan Garcia: the Playwright MCP (browser_run_code_unsafe, .playwright-mcp/inp_walk.js) with a CDP session - Emulation.setCPUThrottlingRate 4 over the devtools protocol, 390x844 at dpr 3, mobile, touch - on the protocol of tools/prove_lowend_inp.mjs (gate own_lowend_inp): calibrated JIT-warm on about:blank (a ratio under 2.5 voids the row); per round load + networkidle + 2.5 s, the control scrolled into view, 400 ms, a real tap (page.tap, a trusted touch), INP read from the page's own Event Timing entries; 3 fresh loads, INP = the slowest, budget 200 ms. INP 120 ms within the 200 ms budget - rounds 120/112/88 ms, slowest click on BUTTON: input 19 + processing 37 + presentation 64 ms; calibrated 5 -> 27 ms (x5.1); tapped button \"Edit\". Receipt .tmp/mcp_walks/OWN600.json.",
       "artifacts": {
         "gates": [
           "own_lowend_inp"
@@ -1115463,7 +1115463,7 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the low-end phone ask is proven on plant-connections.html with a receipt"
       },
-      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as supervisor (machine-client row), CPU 4x over CDP - calibrated x5.7 (a fixed loop 4 -> 22 ms; under 2.5x the run fails). Primary action: a real tap on #details-toggle-btn - opens the health details. 3 fresh loads: 88/64/80 ms, INP 88 ms within the 200 ms budget (slowest round: click on button#details-toggle-btn, input 22 + processing 4 + presentation 63 ms). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp.",
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as supervisor (machine-client row), CPU 4x over CDP - calibrated x5.7 (a fixed loop 4 -> 22 ms; under 2.5x the run fails). Primary action: a real tap on #details-toggle-btn - opens the health details. 3 fresh loads: 88/64/80 ms, INP 88 ms within the 200 ms budget (slowest round: click on button#details-toggle-btn, input 22 + processing 4 + presentation 63 ms). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp. || [2026-11-04] pct -> 60. MEASURED LIVE 2026-11-04 on plant-connections.html as Leandro Marquez: the Playwright MCP (browser_run_code_unsafe, .playwright-mcp/inp_walk.js) with a CDP session - Emulation.setCPUThrottlingRate 4 over the devtools protocol, 390x844 at dpr 3, mobile, touch - on the protocol of tools/prove_lowend_inp.mjs (gate own_lowend_inp): calibrated JIT-warm on about:blank (a ratio under 2.5 voids the row); per round load + networkidle + 2.5 s, the control scrolled into view, 400 ms, a real tap (page.tap, a trusted touch), INP read from the page's own Event Timing entries; 3 fresh loads, INP = the slowest, budget 200 ms. INP 112 ms within the 200 ms budget - rounds 88/112/96 ms, slowest click on details-toggle-btn: input 21 + processing 4 + presentation 87 ms; calibrated 7 -> 47 ms (x6.9); tapped #details-toggle-btn \"Show details\"; first open had read 208 ms; fixed the same day: the details pane laid out once at idle (utils.js whWarmLayout). Receipt .tmp/mcp_walks/OWN601.json.",
       "artifacts": {
         "gates": [
           "own_lowend_inp"
@@ -1115527,7 +1115527,7 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the low-end phone ask is proven on project-manager.html with a receipt"
       },
-      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as supervisor (fleet-supervisor row), CPU 4x over CDP - calibrated x5.7 (a fixed loop 4 -> 24 ms; under 2.5x the run fails). Primary action: a real tap on button.new-btn - opens the New project wizard. 3 fresh loads: 184/88/48 ms, INP 184 ms within the 200 ms budget (slowest round: click on button, input 23 + processing 17 + presentation 144 ms). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp.",
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as supervisor (fleet-supervisor row), CPU 4x over CDP - calibrated x5.7 (a fixed loop 4 -> 24 ms; under 2.5x the run fails). Primary action: a real tap on button.new-btn - opens the New project wizard. 3 fresh loads: 184/88/48 ms, INP 184 ms within the 200 ms budget (slowest round: click on button, input 23 + processing 17 + presentation 144 ms). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp. || [2026-11-04] pct -> 60. MEASURED LIVE 2026-11-04 on project-manager.html as Leandro Marquez: the Playwright MCP (browser_run_code_unsafe, .playwright-mcp/inp_walk.js) with a CDP session - Emulation.setCPUThrottlingRate 4 over the devtools protocol, 390x844 at dpr 3, mobile, touch - on the protocol of tools/prove_lowend_inp.mjs (gate own_lowend_inp): calibrated JIT-warm on about:blank (a ratio under 2.5 voids the row); per round load + networkidle + 2.5 s, the control scrolled into view, 400 ms, a real tap (page.tap, a trusted touch), INP read from the page's own Event Timing entries; 3 fresh loads, INP = the slowest, budget 200 ms. INP 176 ms within the 200 ms budget - rounds 176/64/112 ms, slowest click on BUTTON: input 27 + processing 10 + presentation 139 ms; calibrated 6 -> 32 ms (x5); tapped button \"+ New project\"; first open had read 240 ms; fixed the same day: the wizard drawn once at idle at 1% opacity (utils.js whWarmLayout paint), for its colour-emoji type tiles' first raster. Receipt .tmp/mcp_walks/OWN602.json.",
       "artifacts": {
         "gates": [
           "own_lowend_inp"
@@ -1115591,7 +1115591,7 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the low-end phone ask is proven on report-sender.html with a receipt"
       },
-      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as supervisor (fleet-supervisor row), CPU 4x over CDP - calibrated x5.1 (a fixed loop 4 -> 22 ms; under 2.5x the run fails). Primary action: a real tap on #add-contact-btn - opens Add contact. 3 fresh loads: 64/56/56 ms, INP 64 ms within the 200 ms budget (slowest round: click on button#add-contact-btn, input 19 + processing 9 + presentation 36 ms). Corroborated by the RS2 journey driven whole at 4x (live_page_journeys.mjs --phone --cpu 4, calibrated x5.8): live, slowest of its 6 timed interactions 112 ms (pointerdown button#add-contact-btn.add-contact-btn). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp.",
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as supervisor (fleet-supervisor row), CPU 4x over CDP - calibrated x5.1 (a fixed loop 4 -> 22 ms; under 2.5x the run fails). Primary action: a real tap on #add-contact-btn - opens Add contact. 3 fresh loads: 64/56/56 ms, INP 64 ms within the 200 ms budget (slowest round: click on button#add-contact-btn, input 19 + processing 9 + presentation 36 ms). Corroborated by the RS2 journey driven whole at 4x (live_page_journeys.mjs --phone --cpu 4, calibrated x5.8): live, slowest of its 6 timed interactions 112 ms (pointerdown button#add-contact-btn.add-contact-btn). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp. || [2026-11-04] pct -> 60. MEASURED LIVE 2026-11-04 on report-sender.html as Leandro Marquez: the Playwright MCP (browser_run_code_unsafe, .playwright-mcp/inp_walk.js) with a CDP session - Emulation.setCPUThrottlingRate 4 over the devtools protocol, 390x844 at dpr 3, mobile, touch - on the protocol of tools/prove_lowend_inp.mjs (gate own_lowend_inp): calibrated JIT-warm on about:blank (a ratio under 2.5 voids the row); per round load + networkidle + 2.5 s, the control scrolled into view, 400 ms, a real tap (page.tap, a trusted touch), INP read from the page's own Event Timing entries; 3 fresh loads, INP = the slowest, budget 200 ms. INP 120 ms within the 200 ms budget - rounds 120/72/88 ms, slowest click on add-contact-btn: input 37 + processing 22 + presentation 62 ms; calibrated 6 -> 23 ms (x3.8); tapped #add-contact-btn \"+ Add contact\". Receipt .tmp/mcp_walks/OWN603.json.",
       "artifacts": {
         "gates": [
           "own_lowend_inp"
@@ -1115655,7 +1115655,7 @@
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the low-end phone ask is proven on skillmatrix.html with a receipt"
       },
-      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as worker (worker row), CPU 4x over CDP - calibrated x5 (a fixed loop 4 -> 22 ms; under 2.5x the run fails). Primary action: a real tap on button.step-btn - steps a discipline's target level (not saved). 3 fresh loads: 80/64/64 ms, INP 80 ms within the 200 ms budget (slowest round: click on document, input 24 + processing 26 + presentation 30 ms). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp.",
+      "basis": "[2026-10-27] [2026-10-27] LOCKING->60. tools/prove_lowend_inp.mjs at 390x844 dpr3 touch, signed in as worker (worker row), CPU 4x over CDP - calibrated x5 (a fixed loop 4 -> 22 ms; under 2.5x the run fails). Primary action: a real tap on button.step-btn - steps a discipline's target level (not saved). 3 fresh loads: 80/64/64 ms, INP 80 ms within the 200 ms budget (slowest round: click on document, input 24 + processing 26 + presentation 30 ms). Teeth: a planted handler doing ~60 ms of work per tap read 400 ms and FAILED. Gate: own_lowend_inp. || [2026-11-04] pct -> 60. MEASURED LIVE 2026-11-04 on skillmatrix.html as Bryan Garcia: the Playwright MCP (browser_run_code_unsafe, .playwright-mcp/inp_walk.js) with a CDP session - Emulation.setCPUThrottlingRate 4 over the devtools protocol, 390x844 at dpr 3, mobile, touch - on the protocol of tools/prove_lowend_inp.mjs (gate own_lowend_inp): calibrated JIT-warm on about:blank (a ratio under 2.5 voids the row); per round load + networkidle + 2.5 s, the control scrolled into view, 400 ms, a real tap (page.tap, a trusted touch), INP read from the page's own Event Timing entries; 3 fresh loads, INP = the slowest, budget 200 ms. INP 112 ms within the 200 ms budget - rounds 80/112/88 ms, slowest click on a step button: input 34 + processing 19 + presentation 59 ms; calibrated 6 -> 34 ms (x5.5); tapped button \"-\" (a step button). Receipt .tmp/mcp_walks/OWN604.json.",
       "artifacts": {
         "gates": [
           "own_lowend_inp"
@@ -1198255,8 +1198255,8 @@
     },
     {
       "id": "OD6",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - analytics-report.html · worker",
       "pages": [
@@ -1198311,6 +1198311,12 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: analytics-report.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
@@ -1198370,7 +1198376,7 @@
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
       },
-      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board), the live page read by the Playwright library, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: analytics.html at 390 True, at 1280 True. HELD BY gate penpot-comps. || [2026-11-04] pct -> 60. MEASURED by tools/bank_od_rows.py: penpot_comps_report: analytics.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board), the live page read by the Playwright library, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: analytics.html at 390 True, at 1280 True. HELD BY gate penpot-comps. || [2026-11-04] pct -> 60. MEASURED by tools/bank_od_rows.py: penpot_comps_report: analytics.html at 390 True, at 1280 True. HELD BY gate penpot-comps. || [2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: analytics.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
       "artifacts": {
         "gates": [
           "penpot-comps"
@@ -1199569,8 +1199575,8 @@
     },
     {
       "id": "OD27",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - marketplace.html · worker",
       "pages": [
@@ -1199623,12 +1199629,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: marketplace.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD28",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - ph-intelligence.html · worker",
       "pages": [
@@ -1199683,12 +1199695,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: ph-intelligence.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD29",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - plant-connections.html · worker",
       "pages": [
@@ -1199741,6 +1199759,12 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: plant-connections.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
@@ -1199869,8 +1199893,8 @@
     },
     {
       "id": "OD32",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - privacy-policy/index.html · anon",
       "pages": [
@@ -1199921,12 +1199945,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: privacy-policy/index.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD33",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - project-manager.html · worker",
       "pages": [
@@ -1199979,12 +1200009,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: project-manager.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD34",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - project-report.html · worker",
       "pages": [
@@ -1200039,12 +1200075,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: project-report.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD35",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - public-feed.html · worker",
       "pages": [
@@ -1200097,12 +1200139,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: public-feed.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD36",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - report-sender.html · worker",
       "pages": [
@@ -1200155,12 +1200203,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: report-sender.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD37",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - resume.html · worker",
       "pages": [
@@ -1200215,12 +1200269,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: resume.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD38",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - shift-brain.html · worker",
       "pages": [
@@ -1200273,12 +1200333,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: shift-brain.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD39",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - skillmatrix.html · worker",
       "pages": [
@@ -1200331,12 +1200397,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: skillmatrix.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD40",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - status.html · oversight",
       "pages": [
@@ -1200385,12 +1200457,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: status.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD41",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - terms-of-service/index.html · anon",
       "pages": [
@@ -1200441,12 +1200519,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: terms-of-service/index.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD42",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - tools/ (generated calculator family) · anon",
       "pages": [
@@ -1200497,12 +1200581,18 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: tools/ahu-sizing-calculator/index.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {
       "id": "OD43",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "OD-P",
       "title": "its comp lives in the WorkHive Penpot file - voice-journal.html · anon",
       "pages": [
@@ -1200553,6 +1200643,12 @@
         ],
         "instrument": "penpot-mcp + playwright-mcp + odiff",
         "closes": "the comp's frames are in the Penpot file (ids in the receipt), every fill is a library colour, and odiff of its export against the live render is within threshold at both widths"
+      },
+      "basis": "[2026-11-04] pct -> 60. MEASURED by the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the live page taken by chrome-devtools-mcp, compared by odiff; banked by tools/bank_od_rows.py: penpot_comps_report: voice-journal.html at 390 True, at 1280 True. HELD BY gate penpot-comps.",
+      "artifacts": {
+        "gates": [
+          "penpot-comps"
+        ]
       }
     },
     {

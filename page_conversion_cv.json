@@ -235,7 +235,192 @@
     }
    },
    "account_cleaned": true
+  },
+  "learn/what-is-workhive-complete-platform-guide/index.html": {
+   "CV2": {
+    "verdict": "MEASURED",
+    "pct": 100,
+    "note": "18/18 wall(s) met from this page offer both doors with ?return="
+   },
+   "CV3": {
+    "verdict": "MEASURED",
+    "pct": 100,
+    "note": "6/6 funnel steps from this page's own sign-up door"
+   },
+   "walls": [
+    {
+     "from": "\"Digital Maintenance Logbook\" -> logbook.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=logbook.html: both doors, return=logbook.html"
+    },
+    {
+     "from": "\"Spare-Parts Inventory\" -> inventory.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=inventory.html: both doors, return=inventory.html"
+    },
+    {
+     "from": "\"Asset Hub\" -> asset-hub.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=asset-hub.html: both doors, return=asset-hub.html"
+    },
+    {
+     "from": "\"Skill Matrix\" -> skillmatrix.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=skillmatrix.html: both doors, return=skillmatrix.html"
+    },
+    {
+     "from": "\"PM Scheduler\" -> pm-scheduler.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=pm-scheduler.html: both doors, return=pm-scheduler.html"
+    },
+    {
+     "from": "\"Maintenance Day Planner\" -> dayplanner.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=dayplanner.html: both doors, return=dayplanner.html"
+    },
+    {
+     "from": "\"Shift Brain\" -> shift-brain.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=shift-brain.html: both doors, return=shift-brain.html"
+    },
+    {
+     "from": "\"Project Manager\" -> project-manager.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=project-manager.html: both doors, return=project-manager.html"
+    },
+    {
+     "from": "\"Alert Hub\" -> alert-hub.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=alert-hub.html: both doors, return=alert-hub.html"
+    },
+    {
+     "from": "\"Analytics Engine\" -> analytics.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=analytics.html: both doors, return=analytics.html"
+    },
+    {
+     "from": "\"PH Industrial Intelligence\" -> ph-intelligence.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=ph-intelligence.html: both doors, return=ph-intelligence.html"
+    },
+    {
+     "from": "\"AI Quality and ROI\" -> ai-quality.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=ai-quality.html: both doors, return=ai-quality.html"
+    },
+    {
+     "from": "\"Hive Live Board\" -> hive.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=hive.html: both doors, return=hive.html"
+    },
+    {
+     "from": "\"Community Forum\" -> community.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=community.html: both doors, return=community.html"
+    },
+    {
+     "from": "\"Analytics Report\" -> analytics-report.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=analytics-report.html: both doors, return=analytics-report.html"
+    },
+    {
+     "from": "\"Project Report\" -> project-report.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=project-report.html: both doors, return=project-report.html"
+    },
+    {
+     "from": "\"Audit Log and Compliance\" -> audit-log.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=audit-log.html: both doors, return=audit-log.html"
+    },
+    {
+     "from": "\"Engineering Design Calculator\" -> engineering-design.html",
+     "wall": true,
+     "doored": true,
+     "why": "the wall at index.html?signin=1&return=engineering-design.html: both doors, return=engineering-design.html"
+    }
+   ],
+   "links_followed": 20,
+   "funnel": {
+    "arrival": {
+     "ok": true
+    },
+    "door": {
+     "ok": true,
+     "text": "Sign Up Free"
+    },
+    "door-opens-signup": {
+     "ok": true,
+     "landed": "/workhive/index.html?signup=1"
+    },
+    "account": {
+     "ok": true
+    },
+    "db-row": {
+     "ok": true
+    },
+    "attribution": {
+     "ok": true,
+     "source": "page:/workhive/learn/what-is-workhive-complete-platform-guide/index.html"
+    }
+   },
+   "account_cleaned": true
+  },
+  "tools/ahu-sizing-calculator/index.html": {
+   "CV2": {
+    "verdict": "N/A",
+    "pct": null,
+    "note": "no auth wall reachable from this page signed out - 0 link(s) to app pages followed, none walled, and no in-page sign-in refusal in its markup"
+   },
+   "CV3": {
+    "verdict": "MEASURED",
+    "pct": 100,
+    "note": "6/6 funnel steps from this page's own sign-up door"
+   },
+   "walls": [],
+   "links_followed": 0,
+   "funnel": {
+    "arrival": {
+     "ok": true
+    },
+    "door": {
+     "ok": true,
+     "text": "Sign Up Free"
+    },
+    "door-opens-signup": {
+     "ok": true,
+     "landed": "/workhive/index.html?signup=1"
+    },
+    "account": {
+     "ok": true
+    },
+    "db-row": {
+     "ok": true
+    },
+    "attribution": {
+     "ok": true,
+     "source": "page:/workhive/tools/ahu-sizing-calculator/index.html"
+    }
+   },
+   "account_cleaned": true
   }
  },
- "ts": "2026-11-04T01:34:26.037Z"
+ "ts": "2026-11-04T05:28:10.535Z"
 }

@@ -36,6 +36,7 @@
 // OUTPUT  page_conversion_cv.json (tracked): {pages: {<page>: {CV2: {verdict,pct,note}, CV3: {...}, walls, funnel}}}
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { execSync } from 'child_process';
+import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const SEEDER = process.env.WH_TEST_BASE_URL || 'http://127.0.0.1:5000';
 const OUT = 'page_conversion_cv.json';
@@ -146,6 +147,9 @@ function adminQuery(sql) {
 
 async function newAnon(browser) {
   const ctx = await browser.newContext({ viewport: VIEW, serviceWorkers: 'block', timezoneId: 'Asia/Manila' });
+  // SL LB3: a wall's sentence on a long-list page (hive, logbook) can sit in a row the browser skipped drawing, and
+  // innerText leaves skipped rows out. This prover reads text and measures no rendering, so every row is drawn.
+  await ctx.addInitScript(ALL_ROWS_DRAWN);
   return ctx;
 }
 

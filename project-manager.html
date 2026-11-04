@@ -963,7 +963,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whReadError whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whTrash whUse">
+<script data-wh-skew-heal="whFmtDate whFreshnessFooter whListError whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whReadError whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whTrash whUse whWarmLayout">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1786,6 +1786,12 @@ const PROJECT_TEMPLATES = {
 
 /* ── Wizard state + handlers ───────────────────────────────── */
 let _wizardState = { step: 1, type: null, template_id: null, items: [] };
+
+// ★THE WIZARD'S FIRST OPEN (OWN602, 2026-11-04): 240 ms at 4x on a page's first "+ New project" (presentation 189 ms),
+// 80-88 ms after. Laid out once at idle - utils.js whWarmLayout. PAINTED, not only laid out: the type tiles are large
+// colour emoji, whose first raster is the cost. #modal-wizard is a .modal-bg with no role="dialog" and no .open class
+// while warmed, so neither whModalA11y nor nav-hub's stand-down reads it as open.
+if (typeof whWarmLayout === 'function') whWarmLayout('#modal-wizard', 'flex', { paint: true });
 
 function openNewProject() {
   _editingId = null;

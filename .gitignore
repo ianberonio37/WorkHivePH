@@ -68,6 +68,11 @@ platform_baseline.json
 lessons_report.json
 autofix_report.json
 *_report.json
+# a prover's --teeth run (the same walk against the pre-fix code) and its walk outputs: evidence regenerated per run,
+# read by the bankers, never shipped - the same class as *_report.json (2026-11-04: 13 sat untracked at the root)
+*_teeth.json
+*.prev.json
+companion_steering_walk.json
 
 # Leftover temp/scratch files
 lps_tmp.json

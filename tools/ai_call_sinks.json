@@ -251,7 +251,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "64600d6d02202b08"
+      "source_sha256": "7fc7b881f9bb394c"
     },
     "ai-gateway": {
       "calls_model": true,
@@ -302,7 +302,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "d9c785de1e7e1814"
+      "source_sha256": "ba769da21b14bb0f"
     },
     "amc-orchestrator": {
       "calls_model": true,
@@ -365,7 +365,7 @@
         }
       ],
       "findings": [],
-      "source_sha256": "9403cb4c14178edf"
+      "source_sha256": "5c4a72cef53ff20e"
     },
     "asset-brain-query": {
       "calls_model": true,
@@ -389,7 +389,7 @@
       "non_generation_model_calls": [],
       "output_writes": [],
       "findings": [],
-      "source_sha256": "f288025f0b6eaaf1"
+      "source_sha256": "05e857efa876ad3c"
     },
     "embed-entry": {
       "calls_model": true,
@@ -1237,7 +1237,7 @@
     "collector": "53a95f629b86d8b4",
     "cost_log": "974b18019517c9b1",
     "embedding": "a1603b1a8a35238a",
-    "tenant": "01f5c60c3c6751cd",
+    "tenant": "b6fea977a06e7169",
     "trace": "92e691909061665a",
     "writer": "532192003adf18a9"
   }

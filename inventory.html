@@ -264,7 +264,7 @@
   <div class="hex-pattern fixed inset-0 z-0 pointer-events-none opacity-60"></div>
 
   <!-- NAVBAR -->
-  <nav class="relative z-10 border-b border-white/[0.06]" style="background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85); backdrop-filter: blur(16px);">
+  <nav class="relative z-10 border-b border-white/[0.06]" style="background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85);">
     <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
       <!-- T113 (2026-08-27): min-w-0 so this group may SHRINK. Without it a flex item refuses to go
            below its content width, so "Inventory Monitor" held the row open and pushed the Back link
@@ -480,7 +480,7 @@
   <!-- TOAST -->
   <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden" role="alert" aria-live="polite">
     <div class="rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2.5 shadow-xl"
-         style="background: linear-gradient(135deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); backdrop-filter: blur(12px);">
+         style="background: linear-gradient(135deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));">
       <svg id="toast-icon" class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
       </svg>
@@ -489,7 +489,12 @@
   </div>
 
   <!-- ADD / EDIT PART MODAL -->
-  <div id="part-modal" role="dialog" aria-modal="true" aria-label="Add part" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75)); backdrop-filter:blur(6px);">
+  <!-- ★NO BLUR UNDER A SCRIM (OWN599, 2026-11-04). The four modal scrims here blurred the whole page under 75% black, where
+       the blur is barely visible. On a 4x-throttled 390 phone at dpr 3 that full-screen backdrop-filter made opening Add Part
+       296 ms (prove_lowend_inp; chrome-devtools trace: a 76 ms GPU task plus paint). With only the blur removed it read
+       168 ms. The nav (85% navy over a static page) and the toast (97% opaque) lost their blurs too: invisible at those
+       opacities, compositor work on every frame. design-taste-frontend agrees: no glass panels. -->
+  <div id="part-modal" role="dialog" aria-modal="true" aria-label="Add part" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75));">
     <div class="card w-full max-w-lg max-h-[90vh] overflow-y-auto p-7 relative">
       <button id="part-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
@@ -616,7 +621,7 @@
   </div>
 
   <!-- USE STOCK MODAL -->
-  <div id="use-modal" role="dialog" aria-modal="true" aria-label="Use stock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75)); backdrop-filter:blur(6px);">
+  <div id="use-modal" role="dialog" aria-modal="true" aria-label="Use stock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75));">
     <div class="card w-full max-w-sm p-7 relative">
       <button id="use-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
@@ -644,7 +649,7 @@
   </div>
 
   <!-- RESTOCK MODAL -->
-  <div id="restock-modal" role="dialog" aria-modal="true" aria-label="Restock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75)); backdrop-filter:blur(6px);">
+  <div id="restock-modal" role="dialog" aria-modal="true" aria-label="Restock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75));">
     <div class="card w-full max-w-sm p-7 relative">
       <button id="restock-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
@@ -669,7 +674,7 @@
   </div>
 
   <!-- DETAIL MODAL -->
-  <div id="detail-modal" role="dialog" aria-modal="true" aria-label="Part details" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75)); backdrop-filter:blur(6px);">
+  <div id="detail-modal" role="dialog" aria-modal="true" aria-label="Part details" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75));">
     <div class="card w-full max-w-lg max-h-[88vh] overflow-y-auto p-7 relative">
       <button id="detail-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
@@ -681,7 +686,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whFmtDate whFold whHiveContextNotice whListError whListSkeleton whLoadFormerMembers whMemberSuffix whPhotoDrop whPhotoHydrate whPhotoSettle whProgressStrip whReadError whRecentlyDeleted whRequireOnline whRowCols whSearchList whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWriteError">
+<script data-wh-skew-heal="whFmtDate whFold whHiveContextNotice whListError whListSkeleton whLoadFormerMembers whMemberSuffix whPhotoDrop whPhotoHydrate whPhotoSettle whProgressStrip whReadError whRecentlyDeleted whRequireOnline whRowCols whSearchList whSourcesSync whStartupHive whStatUnknown whStatValue whTrash whUse whWarmLayout whWriteError">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1909,9 +1914,16 @@ function openAddModal(prefillId) {
     document.getElementById('part-modal-title').textContent = 'Add Part';
   }
 
-  renderAssetLinker();
   document.getElementById('part-modal').style.display = 'flex';
-  _refreshAssetsForLinker();   // the machines as they are now - redrawn in place when the read lands
+  // ★THE LINKER AFTER THE FIRST FRAME (OWN599, 2026-11-04). Opening Add Part on a 4x-throttled 390 phone read 216-256 ms on
+  // a page's first open (prove_lowend_inp: presentation 147 ms, against 55 on later opens). The linker sits below the
+  // eighth field, out of sight when the modal appears, yet it was rebuilt (23 buttons, 1,212 px of wrapped tags) before
+  // the modal's first frame. It is built one frame later now, where nobody can see the difference, and the read that
+  // refreshes it starts there too.
+  requestAnimationFrame(() => setTimeout(() => {
+    renderAssetLinker();
+    _refreshAssetsForLinker();   // the machines as they are now - redrawn in place when the read lands
+  }, 0));
   // T42: hardware Back closes this modal instead of leaving the page. Its ONE owner is whModalA11y,
   // wired at DOMContentLoaded above: it pushes the entry when the modal shows, Back closes it through
   // its Close button, and an X/Cancel/backdrop/save close gives the entry back. (A second stack,
@@ -2910,6 +2922,10 @@ document.getElementById('inv-scan-btn')?.addEventListener('click', function () {
 });
 
 document.getElementById('btn-add-part').addEventListener('click',   () => openAddModal());
+// ★LAY THE FORM OUT ONCE WHILE NOBODY WAITS (OWN599, 2026-11-04). A page's first Add Part paid for the form's first style
+// resolution, text shaping and layout inside the tap (192-208 ms at 4x on round 1, 80-112 ms after; 80-104 ms on every
+// round with this). utils.js whWarmLayout says how, and why nothing sees it.
+if (typeof whWarmLayout === 'function') whWarmLayout('#part-modal', 'flex');
 
 // ★THE SPARE-PARTS REGISTER COULD NOT LEAVE THE SCREEN. No CSV, no print, no export of any kind - so
 // there was no reorder list to send a supplier, no stock-take sheet to carry into the store room, and

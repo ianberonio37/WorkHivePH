@@ -9988,6 +9988,84 @@ function whSignInWall() {
 }
 if (typeof window !== 'undefined') window.whSignInWall = whSignInWall;
 
+// ★A PAGE'S FIRST OPEN PAID FOR EVERY LATER ONE (OWN599/601/602, 2026-11-04). Walked at 390, CPU 4x, through the Playwright
+// MCP: the first time a page showed its primary panel (inventory's Add Part, project-manager's New project wizard,
+// plant-connections' details) the frame took 169-236 ms of presentation, and every later open 28-77 ms - the first
+// style resolution, text shaping and layout of a subtree nobody had drawn yet. whWarmLayout lays a CLOSED element out
+// once at idle after load: shown with visibility:hidden, measured, and closed again in the same task, so no frame ever
+// shows it and a MutationObserver sees only the final, closed state (whModalA11y arms nothing, nav-hub stands down for
+// nothing). What the browser keeps from that pass - shaped text, matched styles, loaded font faces - is what the first
+// real open was paying for. An element not yet in the page (drawn later by a template) is looked for again, up to
+// five times a second apart. `display` is what the element shows as when open (flex for a centred modal).
+// opts.paint: a layout pass rasterises nothing, and a panel of large colour emoji (project-manager's wizard tiles) still
+// paid for the glyphs' first raster - 240 ms on its first open through the MCP after the layout warm. With paint, the
+// element is shown at 1% opacity with pointer-events:none for two frames instead, so its glyphs are drawn once. Use it
+// only where no observer treats the element as a dialog while it is shown (no role="dialog", no .open class): a dialog
+// observer reading it as open would arm for those two frames.
+function whWarmLayout(target, display, opts) {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return;
+  var tries = 0;
+  var run = function () {
+    var el = typeof target === 'string' ? document.querySelector(target) : target;
+    if (!el) { if (++tries < 5) setTimeout(run, 1000); return; }
+    if (getComputedStyle(el).display !== 'none') return;   // already open, or shown by something else: nothing to warm
+    var vis = el.style.visibility, dsp = el.style.display, op = el.style.opacity, pe = el.style.pointerEvents;
+    if (opts && opts.paint) {
+      el.style.opacity = '0.01';
+      el.style.pointerEvents = 'none';
+      el.style.display = display || 'block';
+      requestAnimationFrame(function () { requestAnimationFrame(function () {
+        el.style.display = dsp; el.style.opacity = op; el.style.pointerEvents = pe;
+      }); });
+      return;
+    }
+    el.style.visibility = 'hidden';
+    el.style.display = display || 'block';
+    void el.offsetHeight;
+    el.style.display = dsp;
+    el.style.visibility = vis;
+  };
+  var idle = function () {
+    if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 4000 }); else setTimeout(run, 1500);
+  };
+  if (document.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
+}
+if (typeof window !== 'undefined') window.whWarmLayout = whWarmLayout;
+
+// whWarmPaint - the same first-open warm for content that cannot be shown without side effects: a closed <details>
+// (opening it fires `toggle`, which wh-ga4.js reports as faq_open) or anything an observer would read as opened. A COPY
+// of the content (ids stripped, aria-hidden, inert) is drawn instead, inside the same parent under a wrapper carrying
+// the source's parent classes so the page's own selectors style it alike, at 1% opacity with pointer-events:none, for
+// two frames, clipped to one screen - the part a first open actually paints. Index's "More" (OWN597, 2026-11-04) paid
+// 186 ms of presentation on a page's first open through the MCP, and 71-89 ms after, for its tool tiles' first raster.
+function whWarmPaint(source) {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return;
+  var tries = 0;
+  var run = function () {
+    var el = typeof source === 'string' ? document.querySelector(source) : source;
+    var parent = el && el.parentElement, host = parent && parent.parentElement;
+    if (!el || !host) { if (++tries < 5) setTimeout(run, 1000); return; }
+    var wrap = document.createElement('div');
+    wrap.className = parent.className || '';
+    wrap.setAttribute('aria-hidden', 'true');
+    wrap.inert = true;
+    wrap.style.cssText = 'position:fixed;left:0;top:0;width:100%;max-height:100vh;overflow:hidden;opacity:0.01;'
+      + 'pointer-events:none;z-index:2147483646;';
+    var copy = el.cloneNode(true);
+    copy.removeAttribute('id');
+    copy.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); });
+    wrap.appendChild(copy);
+    host.appendChild(wrap);
+    requestAnimationFrame(function () { requestAnimationFrame(function () { wrap.remove(); }); });
+  };
+  var idle = function () {
+    var later = function () { setTimeout(run, 1500); };   // after the page's first data draw has filled the content
+    if ('requestIdleCallback' in window) window.requestIdleCallback(later, { timeout: 4000 }); else later();
+  };
+  if (document.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
+}
+if (typeof window !== 'undefined') window.whWarmPaint = whWarmPaint;
+
 // ★A PRINTED PAGE SAID NOTHING ABOUT WHEN (SL C3, 2026-10-20). Printed with Ctrl+P (or Share, then Print, on a phone),
 // a page left the platform carrying no time and no period: the screen's "as of" line sits in the collapsed Sources area,
 // and the two pages that had a print stamp (logbook, audit-log) wrote "Printed:" with the time the page LOADED - print

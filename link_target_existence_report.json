@@ -1,7 +1,7 @@
 {
   "summary": {
     "pages_scanned": 38,
-    "total_links": 332,
+    "total_links": 334,
     "total_broken": 0,
     "baseline": 0
   },
@@ -53,7 +53,7 @@
     },
     {
       "page": "community.html",
-      "link_count": 10,
+      "link_count": 12,
       "broken": []
     },
     {

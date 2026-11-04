@@ -3185,7 +3185,7 @@
 </script>
 
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whClearIdentity whFmtAgo whFreshnessFooter whHiveId whIsDismissed whListError whListSkeleton whLogError whMoreNote whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whUse whWorker whWriteError">
+<script data-wh-skew-heal="whClearIdentity whFmtAgo whFreshnessFooter whHiveId whIsDismissed whListError whListSkeleton whLogError whMoreNote whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whUse whWarmPaint whWorker whWriteError">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -4661,6 +4661,10 @@
       // Marketing-chrome hide (footer/sticky-CTA/upgrade-banner) now lives in _initDashboard so
       // EVERY dashboard-render path applies it (not just this one). _initDashboard runs below.
       _initDashboard(name);
+      // ★MORE'S FIRST OPEN (OWN597, 2026-11-04): 208 ms at 4x through the MCP on a page's first tap of "More" (presentation
+      // 186 ms, the tool tiles' first raster), 71-89 ms after. Drawn once at idle as an invisible copy, never by opening
+      // the <details>, whose toggle wh-ga4.js reports as faq_open - utils.js whWarmPaint.
+      if (typeof whWarmPaint === 'function') whWarmPaint(document.querySelector('#oh-more > .oh-more-body'));
     };
     const _lsWorker = whWorker()
                   || /* storage-key-allow: legacy worker-name fallback (current writes use wh_last_worker) */ whWorker();

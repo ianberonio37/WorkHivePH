@@ -22,7 +22,7 @@
   <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whListError whListSkeleton whLoadFormerMembers whMemberSuffix whReadError whReconcileHiveRole whRoleUnreadNote whSourcesSync whStartupHive whUse whUseThen whWriteError">
+<script data-wh-skew-heal="whListError whListSkeleton whLoadFormerMembers whMemberSuffix whReadError whReconcileHiveRole whRoleUnreadNote whSourcesSync whStartupHive whUse whUseThen whWarmLayout whWriteError">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -588,6 +588,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       // Delegates to the shared utils.js wireDetailToggle (STREAMLINE S10).
       // Reads the pane from the button's aria-controls (here: #details-pane).
       if (typeof wireDetailToggle === 'function') wireDetailToggle();
+      // ★THE PANE'S FIRST OPEN (OWN601, 2026-11-04): 208 ms at 4x on a page's first "Show details" (presentation 169 ms),
+      // 72-88 ms after. The six cards are laid out once at idle, each time they are drawn - utils.js whWarmLayout.
+      if (typeof whWarmLayout === 'function') whWarmLayout(document.getElementById('details-pane'), 'block');
     }
 
     async function loadIntegrationConfigs() {

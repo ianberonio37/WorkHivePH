@@ -60,6 +60,238 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
+# M6 release (prepared 2026-11-04) ⏳ PREPARED, NOT DEPLOYED
+
+> **Prepared and verified locally on 2026-11-04. Nothing has been pushed, deployed or written to production.** Every
+> production fact below comes from a read-only query. The release ships what has landed since M5 (`9078cc3d`, production
+> serves `workhive-shell-v584`): 17 commits up to `b842b6de`, plus the uncommitted work the main session is still
+> finishing. **Re-measure the four legs if anything lands after 2026-11-04 03:10 UTC** (the commands are below).
+>
+> | Leg | Payload | Measured how |
+> |---|---|---|
+> | **A · DB** | **0 migrations** | Production ledger 746 versions, newest `20261103000001`; local 746 files, same newest; `md5(string_agg(version))` identical on both sides (`ae6c36cb...`). No file under `supabase/migrations` changed since `9078cc3d`, and none is uncommitted. |
+> | **B · Edge** | **51 of 62 functions** | One `_shared` change ripples to 51. `verify_function_builds.py --target prod`: 11/62 current, and the 51 stale are exactly the 51 whose tree stamp moved. Each of the 51 runs its M5 stamp, so production is M5 with no half-deploy drift. |
+> | **Render (python-api)** | **No redeploy** | `python-api/` unchanged since `9078cc3d`; nothing uncommitted. |
+> | **C · Frontend** | **293 shipped files, 0 deletions**, `sw.js` -> **`workhive-shell-v589`** | `deploy_payload.shipped()` over the files changed since `9078cc3d`, committed or not. |
+>
+> **Order: B -> C** (there is no Leg A). The edge change is copy only and nothing in the frontend depends on it, so the
+> order is the runbook's habit, not a dependency.
+
+### What a person using WorkHive will notice (release notes)
+
+> Public pages hang together better. The 19 learn guides that were built from an older template now carry the same
+> header as every other public page: Home, Learn, Sign In, Sign Up Free. A screen reader now finds a banner landmark on
+> all of them. The About, Roadmap (feedback), Privacy and Terms pages gain the shared footer links, FAQ and Join the
+> Hive. When someone signs up from a public page's own Sign Up door, the new account now records which page it came from.
+> A signed-out visitor who opens Community goes straight to sign-in, which returns them to Community afterwards (this
+> part is still uncommitted). The open-design pass moved the whole site onto one design vocabulary:
+> - a type scale and a stacking scale;
+> - a neutral overlay scale;
+> - every hand-typed colour written as its token.
+>
+> Almost all of it is proven invisible. Three changes can be seen up close:
+> - about 85 font sizes that sat between steps were snapped to the nearest step;
+> - colours a hair off their token, below the just-noticeable difference, now use the token;
+> - 30 stale fallbacks used to paint an old colour for a moment. The first paint now shows the token's own colour.
+>
+> One error message changed on the server side. When the membership check cannot answer, people now read "We could not
+> check your membership just now. Your access is unchanged. Try again in a moment." The AI quality check's refusals are
+> also worded plainly.
+
+### Leg A - DB: nothing to push
+
+Production's ledger and the repository's migration files are the same 746 versions. If a migration lands before the
+push, Leg A reopens. Then dry-run it, push it and read it back as in M5 (from `Z:`: `npx supabase db push --dry-run`,
+then `npx supabase db push`).
+
+### Leg B - Edge: 51 functions
+
+**What changed:** five files in `cadf57fa`, all of them string literals.
+- `_shared/tenant-context.ts`: the `membership_unverified` 503 message.
+- The same message, copied inline, in ai-orchestrator, analytics-orchestrator and asset-brain-query.
+- Four messages in ai-eval-runner.
+
+51 functions import `tenant-context.ts` directly (no other `_shared` module re-exports it into a function that does
+not). The 11 left alone (cmms-webhook-receiver, export-hive-data, gcash-receipt-inbound, intelligence-api, login,
+parts-staging-recommender, pdf-ingest, resend-webhook-receiver, supervisor-reset-password, tts-speak,
+walkthrough-analyzer) run the tree's code already.
+
+**Before deploying, do this first: `python tools/stamp_functions.py --write`, then commit `_shared/build_stamps.ts`.**
+- **Why:** `stamp_functions.py --check` FAILS today, 11/62 stamps current. No one rewrote `build_stamps.ts` after
+  `cadf57fa`.
+- **It blocks the push:** the gate `function-stamps` is in the fast board.
+- **And the deploy:** without the rewrite, the 51 would deploy reporting their OLD build, and the post-deploy
+  `verify_function_builds --target prod` could not tell a fresh function from a stale one.
+- The stamp excludes `build_stamps.ts` itself, so the rewrite changes no stamp. The 11 untouched functions need no
+  redeploy.
+
+**Deploy individually, not with `deploy-functions.ps1`.** The script deploys 59 functions: 9 of the 11 unchanged ones,
+and all but one of these 51. The one it leaves out is `gcash-receipt-ocr`, deliberately: it is `verify_jwt = true` in
+config.toml and the script forces `--no-verify-jwt` on every line. The other 50 are `verify_jwt = false` in
+config.toml, so the flag agrees with the config.
+
+```powershell
+python tools/edge_remote_deps_lock.py --online     # PASS 2026-11-04: 4 esm.sh modules re-fetched, 0 changed
+subst Z: "C:\Users\ILBeronio\Desktop\Industry 4.0\AI Maintenance Engineer\Self-learning Road-Map\Build & Sell with Claude Code\Website simple 1st"
+Z:
+# 1. the four whose own source changed (copy only)
+npx supabase functions deploy ai-orchestrator --no-verify-jwt
+npx supabase functions deploy analytics-orchestrator --no-verify-jwt
+npx supabase functions deploy asset-brain-query --no-verify-jwt
+npx supabase functions deploy ai-eval-runner --no-verify-jwt
+# 2. the 46 that bundle _shared/tenant-context.ts (config.toml verify_jwt = false for each)
+npx supabase functions deploy agent-memory-store --no-verify-jwt
+npx supabase functions deploy agentic-rag-loop --no-verify-jwt
+npx supabase functions deploy ai-gateway --no-verify-jwt
+npx supabase functions deploy amc-orchestrator --no-verify-jwt
+npx supabase functions deploy batch-risk-scoring --no-verify-jwt
+npx supabase functions deploy benchmark-compute --no-verify-jwt
+npx supabase functions deploy cmms-push-completion --no-verify-jwt
+npx supabase functions deploy cmms-sync --no-verify-jwt
+npx supabase functions deploy cold-archive-query --no-verify-jwt
+npx supabase functions deploy data-fabric-normalizer --no-verify-jwt
+npx supabase functions deploy embed-entry --no-verify-jwt
+npx supabase functions deploy engineering-bom-sow --no-verify-jwt
+npx supabase functions deploy engineering-calc-agent --no-verify-jwt
+npx supabase functions deploy equipment-label-ocr --no-verify-jwt
+npx supabase functions deploy failure-signature-scan --no-verify-jwt
+npx supabase functions deploy fmea-populator --no-verify-jwt
+npx supabase functions deploy hierarchical-summarizer --no-verify-jwt
+npx supabase functions deploy intelligence-report --no-verify-jwt
+npx supabase functions deploy marketplace-listing-assist --no-verify-jwt
+npx supabase functions deploy notify-push --no-verify-jwt
+npx supabase functions deploy pf-calculator --no-verify-jwt
+npx supabase functions deploy platform-gateway --no-verify-jwt
+npx supabase functions deploy platform-scraper --no-verify-jwt
+npx supabase functions deploy project-orchestrator --no-verify-jwt
+npx supabase functions deploy project-progress --no-verify-jwt
+npx supabase functions deploy resume-extract --no-verify-jwt
+npx supabase functions deploy resume-polish --no-verify-jwt
+npx supabase functions deploy scheduled-agents --no-verify-jwt
+npx supabase functions deploy semantic-fact-extractor --no-verify-jwt
+npx supabase functions deploy semantic-search --no-verify-jwt
+npx supabase functions deploy send-report-email --no-verify-jwt
+npx supabase functions deploy sensor-readings-ingest --no-verify-jwt
+npx supabase functions deploy shift-planner-orchestrator --no-verify-jwt
+npx supabase functions deploy temporal-rag-orchestrator --no-verify-jwt
+npx supabase functions deploy trigger-ml-retrain --no-verify-jwt
+npx supabase functions deploy vehicle-doc-extract --no-verify-jwt
+npx supabase functions deploy visual-defect-capture --no-verify-jwt
+npx supabase functions deploy voice-action-router --no-verify-jwt
+npx supabase functions deploy voice-embeddings --no-verify-jwt
+npx supabase functions deploy voice-journal-agent --no-verify-jwt
+npx supabase functions deploy voice-logbook-entry --no-verify-jwt
+npx supabase functions deploy voice-model-call --no-verify-jwt
+npx supabase functions deploy voice-report-intent --no-verify-jwt
+npx supabase functions deploy voice-semantic-rag --no-verify-jwt
+npx supabase functions deploy voice-transcribe --no-verify-jwt
+npx supabase functions deploy weibull-fitter --no-verify-jwt
+# 3. WITHOUT the flag: config.toml verify_jwt = TRUE governs (the session is its gate; not in deploy-functions.ps1)
+npx supabase functions deploy gcash-receipt-ocr
+subst Z: /d
+python tools/verify_function_builds.py --target prod   # expect 62/62
+```
+
+**The build was proven locally, without deno on the host.** All 51 entry points were bundled with the local edge
+container's own `edge-runtime bundle` (the eszip a deploy builds), one at a time:
+- **All 51 bundle**, and every eszip holds the new `tenant-context` message and none of the old.
+- **Teeth:** a copy with an unbalanced quote in `_shared/tenant-context.ts` failed with "could not be parsed ...
+  tenant-context.ts:162". So `_shared` is parsed through the import, and a broken literal cannot pass.
+- **Not used:** `node --strip-types --check`. It passed a broken copy, so it is not an instrument here.
+
+### Leg C - Frontend: `workhive-shell-v589`
+
+- **sw.js:** the active line is `const CACHE_NAME = 'workhive-shell-v589'` (v588 then v589 were bumped in the main session; HEAD before them had v587; production
+  serves v584, read from workhiveph.com/sw.js). v585-v587 were local bumps that never shipped. `sw-shell-membership`
+  PASS today: no precached file is newer than sw.js. **Any shell edit after this must bump it again (v589).**
+- **What ships:** the files changed since `9078cc3d` that `.vercelignore` lets through, 293 in all, none deleted.
+  - 155 HTML pages: all 120 sitemap pages and 35 pages outside the sitemap.
+    - The 120: index, 55 learn guides, 60 calculator pages under `tools/`, and about, feedback, privacy-policy and
+      terms-of-service.
+    - The 35: the app pages, plus status and public-feed.
+  - 65 `.html.md` twins.
+  - 9 stylesheets: `tokens.css`, `components.css`, `wh-help.css`, `learn-print.css` and five `wh-tw*.css`.
+  - 7 scripts: `utils.js`, `nav-hub.js`, `maturity-gate.js`, `operator-actions.js`, `session-timeout.js`,
+    `voice-handler.js` and `sw.js`.
+  - 2 JSON files: `family_rubric_scoreboard.json` and its `.page.json`.
+- **Of these, only `community.html` and `sw.js` are uncommitted.**
+- **Cadence (the first section of this runbook):**
+  1. Before the push, run the touched-gate check: `python run_platform_checks.py --rerun-failed --fast`.
+  2. Regenerate the derived files.
+  3. Run `python tools/build_substrate.py` LAST. This M6 section itself stales the substrate.
+  4. Run `python tools/derive_status_incidents.py`, then commit.
+  5. `git push origin master` is the one full run.
+
+### Post-deploy (production)
+
+1. **Edge:** `python tools/verify_function_builds.py --target prod` should read 62/62.
+   - A function that answers once with no build is a cold boot. Today's temporal-rag-orchestrator did that, and read
+     `962d34556687` on the re-ask, so re-ask before judging.
+2. **Smoke:** run the pages tier with the app credentials from `.env`:
+   `WH_SMOKE_BASE=https://workhiveph.com EXPECT_SW=v589 node tools/post_deploy_smoke.mjs --tier=pages`
+   - It should cover public 120 + app 26, with sign-in, the shared chrome on the 19 guides and the four
+     public-root footers in view.
+   - The flows tier asks the production assistant, which is a paid call. It waits for Ian's go.
+3. **Render, through the redeployed engineering-calc-agent:** `python tools/replay_calc_oracle_on_prod.py`.
+   - Python itself did not change, but engineering-calc-agent is in Leg B, and this proves its route to Render.
+   - The run is paced under the edge's limit of 50 calls an hour per address, so all 39 vectors take about an hour.
+   - For a quick proof of the route: `--match "Cooling Tower,Wire Sizing"`.
+   - A 429 is the edge protecting itself. It is recorded unasked, never a verdict.
+4. **IndexNow:** `python tools/indexnow_submit.py --verify --submit --changed`.
+   - The dry run today lists 1 URL, `/feedback/` (lastmod 2026-11-03), which M5's push already sent. So the push is a
+     harmless resend.
+   - All 120 sitemap pages changed in git. The other 119 changed only their chrome, their token spelling or, on
+     index, the sign-up attribution. Their `<lastmod>` rightly did not move, so KA-S (keyed to `<lastmod>`, not to git
+     dates) stays banked.
+   - If a page gets a real content refresh before the push, its lastmod moves and `--changed` picks it up.
+
+### Local pre-release checks, 2026-11-04 (static only, no browser, no board)
+
+The full board and every browser gate were deliberately not run, because the host has 8 GB and the main session's
+browser jobs were running. Gates that write a report or baseline were snapshotted and restored byte for byte.
+
+| check | result |
+|---|---|
+| `stamp_functions.py --check` (gate `function-stamps`) | **FAIL**, 11/62 current. Fix: `--write` + commit (Leg B, above) |
+| `edge_remote_deps_lock.py` / `--online` | PASS / PASS (4 esm.sh modules, 0 changed) |
+| edge bundle, all 51 (`edge-runtime bundle` in the local edge container) | **PASS 51/51**, new strings in, old out; teeth: a broken `_shared` literal FAILS |
+| `validate_migrations_are_additive.py` | PASS, 746 migrations, 0 non-additive |
+| `validate_migration_order.py` | PASS, all 4 checks |
+| `validate_migration_immutability.py` | 1 PASS 3 WARN 0 FAIL (the WARNs are its recency notes) |
+| `validate_migration_immutability_strict.py` | PASS, 746, 0 newly recorded |
+| `validate_sw_shell_membership.py` | PASS, 8 shell pages cache-versioned, nothing precached newer than sw.js |
+| `validate_sw_proxy_within_csp.py` | PASS, 3 proxied hosts all in connect-src |
+| `validate_deploy_root_hygiene.py` | PASS, 38 root pages, 0 strays |
+| `deploy_payload.py --check` | PASS, 445 files, 22.8 MB (budget 40 MB), every reference resolves |
+| `validate_no_em_dash.py --gate` | PASS, held at 0 |
+
+### Resolve before the push
+
+1. `python tools/stamp_functions.py --write` and commit `_shared/build_stamps.ts`. Today it FAILS a fast-board gate.
+2. Commit the uncommitted work: `community.html`, `sw.js` v588, `page_conversion_cv.json`. Re-bump sw.js if a shell
+   file changes after v588. **Done in the main session, 2026-11-04:** the `*_teeth.json`, `*.prev.json` and
+   `companion_steering_walk.json` files are prover outputs of the same class as `*_report.json` (none was ever
+   tracked), so `.gitignore` now names them instead of committing them. `community.html` changed a second time:
+   signed out, its no-hive branch now calls `whSignInWall()` itself, because the boot returns on a missing hive
+   before reaching its own wall. Walked: a visitor reaches `index.html?signin=1&return=community.html` in 0.9 s, a
+   signed-in person with no hive reaches `hive.html?return=community.html`, and a member gets the board. The platform
+   guide's CV2 is 18/18. **Then the shell changed again (v589):** the four OWN INP rows that failed through the MCP were fixed: no blur under inventory's modal scrims; the Add Part linker built one frame after the modal shows; and `utils.js` `whWarmLayout` / `whWarmPaint` draw a panel's first open at idle on inventory, project-manager, plant-connections and index. `prove_lowend_inp` now reads 8/8 PASS, with index at 72 ms and inventory at 112 ms. `utils.js`, `index.html`, `inventory.html`, `project-manager.html`, `plant-connections.html` and `community.html` therefore ship too. Re-measure Leg C's file count with `deploy_payload.shipped()` before the push.
+3. Rebuild the substrate last, which this section requires, then derive the incidents and commit.
+4. If a migration or a function lands after this measurement, re-run:
+   - `git diff --name-status 9078cc3d -- supabase/`;
+   - `python tools/stamp_functions.py --check`;
+   - `python tools/verify_function_builds.py --target prod`.
+
+   Leg A or Leg B then grows.
+- **Still owed from M5 (not this release's code):**
+  - BRH509-513: one production assistant question.
+  - OWN62: an admin walk of the founder console.
+  - BRH445: pg_net, a dashboard switch.
+  - KA-V: the monthly 45-prompt sheet.
+  - Render's `PYTHON_API_KEY`: it waits for Ian's one-time Render sign-in.
+
+---
+
 # M5 release (2026-11-03) ✅ DEPLOYED
 
 > **✅ M5 DEPLOYED 2026-11-03: T5 has nothing left to build.** Production serves `workhive-shell-v584` from `9078cc3d`

@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: 74ff96a41b24cfac
+source_sha: ec818fde84481617
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1516) — the 'what's already gated' brain
+## gate · registered validators (1519) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -416,7 +416,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1102)
+### Platform (1105)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -661,6 +661,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `compliance` ⚡ [fail] — Enterprise Compliance Baseline Validator
 - `compliance-claim-honesty` [fail] — T171: what an ISO-minded evaluator would check. Swept all 117 public pages for certification and compliance language, and the headline result is good AND worth 
 - `component-adoption` ⚡ [fail] — Component Adoption (canonical design-library adoption per registry row; forward-only floors, auto-tighten; no inline redefinitions)
+- `component-corpus-current` ⚡ [fail] — Component corpus (S3) records every page it should, root and generated families, and matches the pages as they are now
 - `component-purity` ⚡ [blocker] — Component Purity Ratchet (PLATFORM_CENTRALIZATION C-P0/Axis-2: shared-chrome SSOT files must not add RAW brand literals — use var(--wh-*, <fallback>); fallback-
 - `composer-audience` [fail] — T166: 'who sees this?' answered where it is WRITTEN. Every write surface makes a person decide how candid to be, and that decision happens at the composer - ans
 - `composer-caps-visible` [fail] — T168: a cap must announce itself. A maxlength with NO counter is a silent wall - the textarea simply stops accepting keystrokes, and the person typing does not 
@@ -1123,6 +1124,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `p6-concurrency-class` [fail] — P6 concurrent-edit disposition gate (LIVE + static teeth) — locks the concurrency-safety CLASS of the 9 remaining P6-partial pages so each reaches gated-100, co
 - `page-battery` [fail] — Platform-wide page battery (LIVE headless Playwright, real Baguio supervisor sign-in) - PER_PAGE_BUGHUNT_ROADMAP section 5 mechanical floor across ALL ~30 inter
 - `page-contrast` [fail] — T116: the contrast zero that IS certified, and the one page where it is not. tools/prove_page_contrast.mjs is a mature TWO-ORACLE instrument - axe for WCAG 2.x,
+- `page-conversion` [fail] — Conversion per page (CV2 + CV3): every auth wall reachable from a public page is doored with ?return=, and the funnel through the page's own sign-up door comple
 - `page-craft` ⚡ [fail] — SL F5 (2026-10-15): every page is built from the design tokens with nothing the design detector flags - the detector's own pipeline (motion antipatterns include
 - `page-crud` [fail] — Per-page P3 CRUD-at-DB gate (LIVE headless Playwright, real WORKER sign-in via live_page_journeys). Three invariant shapes, because not every entity is a worker
 - `page-fit` ⚡ [fail] — SL F2 (2026-10-15): every page fits at 320 and 390 wide and at 1280 - read from the phone-fit lens's own record (phone_fit_report.json, axes phone-fit@320/@390/
@@ -1358,6 +1360,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `settimeout-string` ⚡ [fail] — setTimeout/setInterval String Arg (string-form is eval-equivalent; forward-only ratchet)
 - `share-card-completeness` ⚡ [fail] — T156: a shared link should look intentional. T125 established what sharing here actually looks like - workers paste links into Viber and Messenger group chats -
 - `shared-button-invites-the-click` [fail] — T179 affordance parity (2026-08-27): 601 live interactive elements across 12 signed-in pages, and exactly ONE rendered without cursor:pointer - marketplace's .b
+- `shared-chrome-parity` ⚡ [fail] — Shared-chrome parity per page (S2): each public page's skip link, banner, nav, main and footer measured against the declared template, and the written record cu
 - `shared-component-i18n` ⚡ [fail] — Shared JS chrome speaks the platform's two languages (a component the pages around it translate, that does not - forward-only ratchet)
 - `shift-brain-no-manual-edit` [regression] — T76 (shift-brain generation & regeneration): the brief is a generated read-only artifact with NO manual-edit surface (no input/textarea/contenteditable/edit con
 - `shift-window-server-validated` [regression] — T423 (timezone-crossing shift at midnight): the shift window is a SERVER-side enum VALID_WINDOWS {06-14,14-22,22-06} with the midnight-crossing 22-06 first-clas

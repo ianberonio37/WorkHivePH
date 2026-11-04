@@ -145,6 +145,12 @@ OWNER_SOURCES = {
                    "needs": "run", "how": "node tools/prove_page_conversion.mjs --page <page>  (browser, signed out)"},
 }
 SOURCE_OF = {d: s for s, o in OWNER_SOURCES.items() for d in o["dims"]}
+
+
+def _owner_tool(src: str) -> str:
+    """The script that writes an owner's record, read from its `how` (e.g. tools/prove_page_conversion.mjs)."""
+    m = re.search(r"tools/[\w./-]+", OWNER_SOURCES[src]["how"])
+    return m.group(0) if m else OWNER_SOURCES[src]["how"]
 # dims whose owner writes NO per-page record anywhere - a missing instrument, not a missing run (read from each owner's
 # source 2026-11-03): JA1-JA3 are the journey validator's ratchet totals, not yet in its per-page record. (2026-11-04:
 # S2 left this list - tools/prove_shared_chrome_parity.py measures it per page, the "chrome" owner; and CV2/CV3 left it
@@ -586,7 +592,11 @@ def basis_sentence(v: dict, today: str) -> str:
         parts.append(f"critic row {c['id']} ({c.get('status')}, walked as {cast_of(c) or '?'}; {_src(c, ev)}) "
                      f"recorded {dims}")
     for d, (x, src) in sorted(v["owned"].items()):
-        parts.append(f"{d} from its owner's record, {OWNER_SOURCES[src]['file']}: {say(d, x)}"
+        # ★NAME THE INSTRUMENT, NOT ONLY ITS FILE (2026-11-04): CX18916/CX18938 cited cta_activation_report.json and
+        # page_conversion_cv.json alone, and live_walk_manifest read them as PROSE - a file name says where a reading
+        # sits, not what took it. The owner's tool (a browser prover, a static validator) is what the ledger judges.
+        parts.append(f"{d} from its owner's record, {OWNER_SOURCES[src]['file']} (written by {_owner_tool(src)}): "
+                     f"{say(d, x)}"
                      + (f" ('{x[2][:60]}')" if x[0] != "N/A" and x[2] else ""))
     head = (f"[{today}] pct -> 60. Rubric class {cls} GRADED on {page} - every dim accounted for by the instrument "
             f"that owns it" if not na else
@@ -607,16 +617,23 @@ def evidence_record(v: dict, today: str) -> dict:
             "banked": today}
 
 
-def bank(rows_by_id: dict, verdicts: list, today: str) -> tuple[list, list]:
-    """Write (a) and (b) onto their rows. Returns (banked ids, ids whose basis already carried this tool's sentence)."""
+def bank(rows_by_id: dict, verdicts: list, today: str, restamp: bool = False) -> tuple[list, list]:
+    """Write (a) and (b) onto their rows. Returns (banked ids, ids whose basis already carried this tool's sentence).
+    restamp: a row that carries this tool's sentence WITHOUT naming each owner's instrument gets the current sentence
+    appended (newest last), once - the sentence that named only the owners' files read as prose in the ledger."""
     banked, kept = [], []
     for v in verdicts:
         if v["bucket"] not in ("a", "b"):
             continue
         row = rows_by_id[v["id"]]
         prev = row.get("basis") or ""
+        tools_named = {_owner_tool(src) for _d, (_x, src) in v["owned"].items()}
         # ★IDEMPOTENT ON THE BASIS. A row that already carries this tool's sentence keeps it - a second --apply (or a
         # row reset to specced and banked again) must not grow the basis by one more copy of the same receipt.
+        if TOOL in prev and restamp and not all(f"(written by {t})" in prev for t in tools_named):
+            row["basis"] = prev + " || " + basis_sentence(v, today)
+            banked.append(row["id"])
+            continue
         if TOOL in prev:
             kept.append(row["id"])
         else:
@@ -736,7 +753,7 @@ def _need_label(need: str) -> str:
             "route": "a route repair"}.get(need, need)
 
 
-def run(apply: bool, receipts_dir: str, owners_dir: str) -> int:
+def run(apply: bool, receipts_dir: str, owners_dir: str, restamp: bool = False) -> int:
     spec = load_spec()
     dimcls, members = spec_classes(spec)
     lens = lens_dims()
@@ -748,6 +765,10 @@ def run(apply: bool, receipts_dir: str, owners_dir: str) -> int:
     by_page = index_critic(crit_rows)
     ux = [t for t in rows if t.get("wave") == WAVE]
     open_rows = [t for t in ux if t.get("status") == "specced"]
+    if restamp:
+        # the rows this tool already banked at locking (never a locked row - bank() writes locking 60), re-classified
+        # from today's receipts so the appended sentence is today's reading, not a copy of the old one
+        open_rows = [t for t in ux if t.get("status") == "locking" and TOOL in (t.get("basis") or "")]
     verdicts = [classify(t, by_page, members, dimcls, lens, spec, receipts, owners) for t in open_rows]
     A = [v for v in verdicts if v["bucket"] == "a"]
     B = [v for v in verdicts if v["bucket"] == "b"]
@@ -797,7 +818,7 @@ def run(apply: bool, receipts_dir: str, owners_dir: str) -> int:
     if not apply:
         print("\n(dry run - pass --apply to bank (a) and (b))")
         return 0
-    banked, kept = bank({t["id"]: t for t in rows}, A + B, date.today().isoformat())
+    banked, kept = bank({t["id"]: t for t in rows}, A + B, date.today().isoformat(), restamp=restamp)
     if banked:
         written = _save(reg)
         print(f"\nBANKED {len(banked)} row(s) -> locking 60 ({len(kept)} already carried this tool's sentence); "
@@ -1077,6 +1098,19 @@ def _self_test() -> int:
     banked2, kept2 = bank(by_id, vs, "2026-11-04")
     if by_id["CX1"]["basis"] != once or sorted(kept2) != sorted(banked2) or gates1.count(GATE_ID) != 1:
         fails.append("a second --apply must not duplicate the basis or the gate")
+    # --restamp: a basis from before the owner's instrument was named gets the current sentence once, never twice
+    owned_ids = [v["id"] for v in vs if v["bucket"] in ("a", "b") and v["owned"]]
+    if owned_ids:
+        rid = owned_ids[0]
+        by_id[rid]["basis"] = re.sub(r" \(written by [^)]*\)", "", by_id[rid]["basis"])
+        stripped = by_id[rid]["basis"]
+        bank(by_id, vs, "2026-11-05", restamp=True)
+        after_one = by_id[rid]["basis"]
+        bank(by_id, vs, "2026-11-06", restamp=True)
+        last = after_one.split(" || ")[-1]
+        if (after_one == stripped or by_id[rid]["basis"] != after_one or not last.startswith("[2026-11-05]")
+                or "(written by tools/" not in last):
+            fails.append("--restamp must append the instrument-naming sentence once to a row that lacked it, then keep it")
 
     # --check: green on intact evidence, red on each way it can be lost
     crit_by_id = {c["id"]: copy.deepcopy(c) for c in crit}
@@ -1124,6 +1158,8 @@ def main() -> int:
     ap.add_argument("--apply", action="store_true", help="bank (a) and (b)")
     ap.add_argument("--check", action="store_true", help="the gate: exit 1 when a banked row lost its evidence")
     ap.add_argument("--self-test", action="store_true")
+    ap.add_argument("--restamp", action="store_true", help="with --apply: append the current sentence to a banked row "
+                    "whose basis does not yet name each owner's instrument (once)")
     ap.add_argument("--receipts", default=str(RECEIPTS), help="the walk survey files (default .tmp/batchsurvey)")
     ap.add_argument("--owners", default=str(ROOT), help="where the owners' per-page records are (default: repo root)")
     a = ap.parse_args()
@@ -1131,7 +1167,7 @@ def main() -> int:
         return _self_test()
     if a.check:
         return run_check(a.owners)
-    return run(a.apply, a.receipts, a.owners)
+    return run(a.apply, a.receipts, a.owners, restamp=a.restamp)
 
 
 if __name__ == "__main__":

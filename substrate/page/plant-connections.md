@@ -2,13 +2,13 @@
 name: page-plant-connections
 type: page
 source: file:plant-connections.html
-source_sha: 20562164a7c62cfa
+source_sha: af2e8d82841857f6
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `plant-connections.html` — Plant Connections | WorkHive
 
-Size: 69KB · 26 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 70KB · 26 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: `set_hive_retention`

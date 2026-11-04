@@ -2,7 +2,7 @@
 name: skill-analytics-engineer
 type: skill
 source: skill:analytics-engineer
-source_sha: 32d0cafc2f00729a
+source_sha: a5bdb37fba54de84
 last_verified: 2026-07-13
 supersedes: null
 ---

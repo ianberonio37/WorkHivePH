@@ -945,7 +945,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whPresenceFit whQueryTimeout whReadError whRealtimeBackfill whRecentlyDeleted whReconcileHiveRole whRequireOnline whSafeSearchTerm whSourcesSync whStartupHive whStatValue whUse">
+<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whPresenceFit whQueryTimeout whReadError whRealtimeBackfill whRecentlyDeleted whReconcileHiveRole whRequireOnline whSafeSearchTerm whSignInWall whSourcesSync whStartupHive whStatValue whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -1032,7 +1032,21 @@
   // already exists there) can bring the person BACK to the conversation after join/create —
   // the membership crossing was dropping the task the same way the auth walls used to.
   // only once the ACCOUNT has been asked: a member whose device lost the hive is seated above, not sent to "join" one
-  if (!HIVE_ID)     { _hiveSeated.then(() => { if (!HIVE_ID) window.location.href = 'hive.html?return=community.html'; }); }
+  // ★A SIGNED-OUT VISITOR HAS NO HIVE EITHER (CV2, 2026-11-04): this branch sent them to hive.html first, so the sign-in wall
+  // they met was one hop away and its ?return named hive.html, not this page. Only a signed-in person without a hive is
+  // sent to join one; a visitor meets the sign-in wall HERE (whSignInWall), which returns them to this page. The boot
+  // below returns on a missing hive before its own whSignInWall, so leaving the visitor to it showed the board shell
+  // signed out with no wall at all (walked 2026-11-04: still on community.html after 15 s).
+  if (!HIVE_ID) {
+    _hiveSeated.then(async () => {
+      if (HIVE_ID) return;
+      let signedIn = false;
+      try { signedIn = !!(await db.auth.getSession()).data.session; } catch (_) { /* empty-catch-allow: read as signed out - the wall decides */ }
+      if (signedIn) window.location.href = 'hive.html?return=community.html';
+      else if (typeof whSignInWall === 'function') whSignInWall();
+      else window.location.href = 'index.html?signin=1&return=community.html';
+    });
+  }
 
   // nav-hub activity badge — per-hive "last seen" stamp read by nav-hub.js on every
   // other page to show an unread count on the Community tile + a dot on the FAB.
