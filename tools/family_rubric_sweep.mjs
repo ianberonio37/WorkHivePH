@@ -421,11 +421,20 @@ async function surveyPage(context, file) {
         const active = (el) => el.classList.contains('active') || el.getAttribute('aria-selected') === 'true' || el.getAttribute('aria-pressed') === 'true';
         const pool = [...document.querySelectorAll('summary, button[role="tab"], button.view-tab, button.tab-btn, [class*="view-switch"] button, [class*="filter-chip"]')]
           .filter((el) => vis(el) && el.tagName !== 'A' && !nav(el));
-        const cand = pool.find((el) => el.tagName === 'SUMMARY' || !active(el)) || pool[0];
-        if (!cand) return resolve({ na: true });
+        // ★THE PAGE'S OWN LAST CONTROL (2026-11-04, CX-UX D2 on about / privacy / terms). A static public page has no
+        // summary, tab or filter, so the probe found nothing and D2 stayed JUDGED on every one - yet each carries one
+        // in-page control a visitor can press: the feedback button, which opens its panel with no write. It is used only
+        // when the page offers nothing else, and the note names it, so a reading is never mistaken for the page's own.
+        const fab = document.getElementById('wh-feedback-fab');
+        // (a fixed-position button has no offsetParent, so `vis` would call it hidden: it is shown when it has a box)
+        const fabShown = !!fab && fab.getClientRects().length > 0 && getComputedStyle(fab).visibility !== 'hidden';
+        const cand = pool.find((el) => el.tagName === 'SUMMARY' || !active(el)) || pool[0] || (fabShown ? fab : null);
+        if (!cand) return resolve({ na: true, none: true });
+        const ctl = cand.id === 'wh-feedback-fab' ? 'the feedback button (the page has no other in-page control)'
+          : (cand.tagName.toLowerCase() + (cand.className && typeof cand.className === 'string' ? '.' + cand.className.trim().split(/\s+/)[0] : ''));
         let done = false; const t0 = performance.now();
         const finish = (r) => { if (!done) { done = true; try { obs.disconnect(); } catch (e) {} resolve(r); } };
-        const obs = new MutationObserver(() => finish({ ms: Math.round(performance.now() - t0) }));
+        const obs = new MutationObserver(() => finish({ ms: Math.round(performance.now() - t0), ctl }));
         obs.observe(document.body, { childList: true, subtree: true, attributes: true });
         // Guard against an unexpected unload: if the click DID navigate, the promise dies with
         // the context and the outer catch keeps res intact.
@@ -437,10 +446,19 @@ async function surveyPage(context, file) {
         setTimeout(() => finish({ na: true, noMutation: true }), 1200);
       }));
       const d2i = res.dims.findIndex((d) => d.dim === 'D2');
+      // ★NO IN-PAGE CONTROL IS AN ANSWER, NOT A GAP (2026-11-04, CX-UX D2 on about / privacy / terms). Those pages offer
+      // a visitor nothing to press but links - no summary, tab, filter, and the feedback button is not shown signed out -
+      // so there is no in-page response to time; a link's response is the next page's load, which I1 measures. Left
+      // JUDGED it read as 'nobody asked'; it is N/A with that reason. A control that exists but did not answer stays
+      // JUDGED (no mutation in 1.2 s, or a click that navigated) - that is unmeasured, not inapplicable.
+      if (d2i >= 0 && doherty.none) {
+        res.dims[d2i] = { dim: 'D2', name: 'Feedback < 400ms (Doherty, LIVE)', kind: 'N/A', pass: null, total: null, pct: null,
+          note: 'no in-page control to time: no disclosure, tab or filter, and no feedback button shown - every control navigates, and a page load is I1' };
+      }
       if (d2i >= 0 && !doherty.na) {
         const pass = doherty.ms < 400 ? 1 : 0;
         res.dims[d2i] = { dim: 'D2', name: 'Feedback < 400ms (Doherty, LIVE)', kind: 'MEASURED', pass, total: 1,
-          pct: pass * 100, note: `click->paint ${doherty.ms}ms${doherty.timeout ? ' (no mutation in 1.2s)' : ''}` };
+          pct: pass * 100, note: `click->paint ${doherty.ms}ms${doherty.ctl && /feedback button/.test(doherty.ctl) ? ' on ' + doherty.ctl : ''}${doherty.timeout ? ' (no mutation in 1.2s)' : ''}` };
       }
       } catch (probeErr) {
         errors.push('live-probe skipped: ' + String(probeErr).slice(0, 90));

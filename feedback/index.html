@@ -239,7 +239,10 @@
   <!-- D-layer provenance (Wave-4, W4 layer-D): the list below is domain data (platform_feedback), so the reader
        is told where it came from and how it is ordered - the platform's wh-source-chip idiom (see assistant.html). -->
   <span data-wh-source-anchor="source-line-1" hidden></span>
-  <div id="fb-roadmap-list" class="space-y-4" aria-live="polite">
+  <!-- the list's space is held while it loads (I2, CX-UX 2026-11-04): it arrived into a 150px "Loading" line and pushed
+       the sources section down as the cards painted. 16rem is about two cards, so the first ones land where the reader
+       is already looking and a short or empty list leaves no wide gap. -->
+  <div id="fb-roadmap-list" class="space-y-4" aria-live="polite" style="min-height:16rem;">
     <div data-i="p_loadingroadmap_6eda" class="text-center text-white/50 text-sm py-16">Loading roadmap…</div>
   </div>
 </div>
@@ -273,7 +276,7 @@
            unchanged. -->
       <div class="flex items-center gap-6" style="--wh-footer-tap:44px; flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/60 transition-colors" style="min-height:44px;display:inline-flex;align-items:center;" data-i="home">Home</a>
-      <a href="/#faq" class="hover:text-white/60 transition-colors" style="min-height:44px;display:inline-flex;align-items:center;" data-i="faq">FAQ</a>
+      <a href="/#faq" class="hover:text-white/60 transition-colors" style="min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;" data-i="faq">FAQ</a>
       <a data-i="p_about_6b21" href="/about/" class="hover:text-white/60 transition-colors" style="min-height:44px;display:inline-flex;align-items:center;">About</a>
       <a href="/learn/" class="hover:text-white/60 transition-colors" style="min-height:44px;display:inline-flex;align-items:center;" data-i="learn">Learn</a>
       <a data-i="p_privacy_cf01" href="/privacy-policy/" class="hover:text-white/60 transition-colors" style="min-height:44px;display:inline-flex;align-items:center;">Privacy</a>
