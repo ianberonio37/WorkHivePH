@@ -1054391,8 +1054391,8 @@
     },
     {
       "id": "KA2",
-      "status": "specced",
-      "pct": 5,
+      "status": "locking",
+      "pct": 60,
       "wave": "KA-R",
       "title": "this page's five freshness surfaces agree (JSON-LD dateModified, the visible Last-updated  - feedback/index.html · a person",
       "pages": [
@@ -1054449,6 +1054449,13 @@
         ],
         "instrument": "playwright-mcp + postgres-mcp",
         "closes": "the lens's instrument proves the unit, and the trip (freshness_trip.py) is quiet for it"
+      },
+      "basis": "[2026-11-04] pct -> 60. Measured live 2026-11-04T07:28Z - tools/prove_freshness_surfaces.mjs read the deployed origin for https://workhiveph.com/feedback/: HTTP 200; JSON-LD dateModified 2026-11-03; the visible 'Last updated' <time> 2026-11-03 at phone-390 and 2026-11-03 at desktop-1280 (rendered and visible); sitemap <lastmod> 2026-11-03; the deployed markdown twin is the repository's (current); IndexNow pushed 2026-11-04 (200), on or after the change; no refresh trip (inside its kind's window). One date on all five surfaces. Teeth: the same-day --teeth run moved a <lastmod> a day early and it read as disagreement. Gate freshness-surfaces (with sitemap-promise, md-twins-current, seo-trip).",
+      "artifacts": {
+        "gates": [
+          "freshness-surfaces",
+          "seo-trip"
+        ]
       }
     },
     {

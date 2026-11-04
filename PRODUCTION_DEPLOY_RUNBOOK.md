@@ -60,7 +60,27 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
-# M6 release (2026-11-04) ⏳ LEG B DEPLOYED, LEG C PUSHING
+# M6 release (2026-11-04) ✅ DEPLOYED
+
+> **✅ M6 DEPLOYED 2026-11-04: T6 has nothing left to build.** Production serves `workhive-shell-v589` from `d4f73189`
+> (`9078cc3d..d4f73189`).
+>
+> - **Leg A:** no migrations.
+> - **Leg B, 51 functions:** all deployed with no failures; `verify_function_builds.py --target prod` reads 62/62
+>   running the tree's code.
+> - **Leg C:** pushed on the second attempt. The first full board gave five reds, fixed in `d4f73189`: 147 "new AI
+>   seams" were page copies inside a leftover agent worktree (the scanner now skips `.claude/`), a drifted markdown twin
+>   and a stale destructive-action roster (both regenerated). The Memento retrieval-latency gate stays red on purpose:
+>   median 2.5 s against a 2.5 s limit on a host loaded all day; it measures the local memory search and touches
+>   nothing that ships.
+> - **Post-deploy, read on production:** public smoke 120/120 pages at `EXPECT_SW=v589`; IndexNow accepted the changed
+>   URL (HTTP 200); **KA2** (`feedback/`'s freshness line) banked.
+>
+> **Owed after M6 (58 rows, none buildable locally):** BRH509-513, BRH530/543/545 and OWN62 (Ian's production
+> sign-in), BRH515 (GitHub repository secrets), BRH445 (the database dashboard switch), BRH517 (the Vercel dashboard),
+> and the 45 KA-V rows the nightly share-of-voice run closes.
+>
+> The preparation notes below are kept as written before the push.
 
 > **Prepared and verified locally on 2026-11-04. Nothing has been pushed, deployed or written to production.** Every
 > production fact below comes from a read-only query. The release ships what has landed since M5 (`9078cc3d`, production
