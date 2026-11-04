@@ -30,11 +30,11 @@
     ],
     "community.html": [
       {
-        "line": 2561,
+        "line": 2575,
         "message_head": "Make this post public? Workers in every other hive will be able to read it in their Global feed."
       },
       {
-        "line": 3191,
+        "line": 3205,
         "message_head": "Copy this link:"
       }
     ],
@@ -146,11 +146,11 @@
     ],
     "inventory.html": [
       {
-        "line": 2356,
+        "line": 2368,
         "message_head": "${_uResv} ${_uUnit} of this part is staged for a predicted failure. Taking ${qty} spends the"
       },
       {
-        "line": 2834,
+        "line": 2846,
         "message_head": "Remove \"${item.part_name}\" (${item.part_number}) from inventory? You can restore it from Recently deleted for at least 30 days."
       }
     ],
@@ -282,35 +282,35 @@
     ],
     "project-manager.html": [
       {
-        "line": 1969,
+        "line": 1975,
         "message_head": "No scope items checked. Create an empty project?"
       },
       {
-        "line": 2261,
+        "line": 2267,
         "message_head": "Hide project"
       },
       {
-        "line": 2967,
+        "line": 2973,
         "message_head": "Remove this link?"
       },
       {
-        "line": 3305,
+        "line": 3311,
         "message_head": "Remove this role?"
       },
       {
-        "line": 3440,
+        "line": 3446,
         "message_head": "Approve this change order? Cost / schedule impact will be reflected in the project."
       },
       {
-        "line": 3467,
+        "line": 3473,
         "message_head": "Reason for rejection (visible to requester):"
       },
       {
-        "line": 3498,
+        "line": 3504,
         "message_head": "Cancel this change order? It will be hidden from the active queue but kept for history."
       },
       {
-        "line": 3741,
+        "line": 3747,
         "message_head": "Mark project as complete? ${WAY_BACK}"
       }
     ],
@@ -336,11 +336,11 @@
     ],
     "utils.js": [
       {
-        "line": 7024,
+        "line": 7026,
         "message_head": "Delete X?"
       },
       {
-        "line": 7027,
+        "line": 7029,
         "message_head": "Enter name"
       }
     ]

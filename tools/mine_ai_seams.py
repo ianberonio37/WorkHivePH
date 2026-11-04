@@ -99,6 +99,10 @@ SKIP_PARTS = {
     # index-*-test.html and engineering-design-test.html out of the served root into _fixtures/;
     # the seams inside them simply changed path and reported as NEW.
     "_fixtures",
+    # An agent's git WORKTREE is a whole checkout of the repo, and .claude/worktrees/ is where Claude Code puts them.
+    # The M6 push's board found 147 "new" seams, every one a page inside .claude/worktrees/agent-a496cf176061302fd/
+    # (2026-11-04): duplicates of real call sites, the same class as the backup trees above.
+    ".claude",
 }
 
 # ★NOR IS THE INSTRUMENT THAT TESTS A SEAM ONE OF ITS CALLERS (2026-08-27). The inventory's whole

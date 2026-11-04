@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 5,
+ "open": 1,
  "resolved": 1,
  "incidents": [
   {
@@ -17,47 +17,11 @@
    "status": "resolved"
   },
   {
-   "id": "gate-query-indexes",
+   "id": "gate-memory_health_gate",
    "source": "gate",
-   "title": "query-indexes",
+   "title": "memory_health_gate",
    "severity": "major",
-   "started_at": "2026-11-03T09:53:39.157226+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-md-twins-current",
-   "source": "gate",
-   "title": "md-twins-current",
-   "severity": "major",
-   "started_at": "2026-11-03T09:53:39.157226+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-at-cap-fits",
-   "source": "gate",
-   "title": "at-cap-fits",
-   "severity": "major",
-   "started_at": "2026-11-03T09:53:39.157226+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-read-battery",
-   "source": "gate",
-   "title": "read-battery",
-   "severity": "major",
-   "started_at": "2026-11-03T09:53:39.157226+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-scheduled-work",
-   "source": "gate",
-   "title": "scheduled-work",
-   "severity": "major",
-   "started_at": "2026-11-03T09:53:39.157226+00:00",
+   "started_at": "2026-11-04T06:59:44.438292+00:00",
    "ended_at": null,
    "status": "open"
   }

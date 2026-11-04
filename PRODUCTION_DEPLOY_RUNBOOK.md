@@ -60,7 +60,7 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
-# M6 release (prepared 2026-11-04) ⏳ PREPARED, NOT DEPLOYED
+# M6 release (2026-11-04) ⏳ LEG B DEPLOYED, LEG C PUSHING
 
 > **Prepared and verified locally on 2026-11-04. Nothing has been pushed, deployed or written to production.** Every
 > production fact below comes from a read-only query. The release ships what has landed since M5 (`9078cc3d`, production
@@ -244,6 +244,25 @@ container's own `edge-runtime bundle` (the eszip a deploy builds), one at a time
      index, the sign-up attribution. Their `<lastmod>` rightly did not move, so KA-S (keyed to `<lastmod>`, not to git
      dates) stays banked.
    - If a page gets a real content refresh before the push, its lastmod moves and `--changed` picks it up.
+
+### The release run, 2026-11-04 (main session)
+
+- **Leg B deployed, 51/51, 0 failures**, from `Z:` exactly as listed above (`gcash-receipt-ocr` without the flag).
+  `verify_function_builds.py --target prod`: **62/62** running functions are the tree's code.
+- **Push 1, the full board** (`.tmp/mega_gate_20261104_183712.log`, 82 min): 895 PASS, 5 FAIL, 619 SKIP. Blocked, so
+  nothing reached GitHub. The five:
+  1. **md-twins:** 1 twin drifted (index.html changed). `tools/build_md_twins.py`: 120/120 current.
+  2. and 3. **AI seams inventory and coverage:** 46 to 193 saas-to-ai seams, uncovered 158 to 305. Every new seam
+     was a page inside `.claude/worktrees/agent-a496cf176061302fd/`, an agent's whole checkout. The miner now skips
+     `.claude` (`tools/mine_ai_seams.py` SKIP_PARTS). Back to 186 seams, 158 uncovered, equal to baseline, 0 new.
+  4. **destructive-proportional-confirm:** the roster was stale on line numbers only, still 75 confirms. Regenerated.
+  5. **Memory M2.2, retriever health:** today's median retrieval latency is 2,534 ms against a 2,500 ms line. It reads
+     the day's logged Memento retrievals (102), taken on a host saturated all day by browser walks and the board.
+     On the quieter host, three retrievals took 1.0-1.9 s wall, including Python start-up. This gates my local
+     memory tool, not anything that ships. **Left red, deliberately:** loosening its line to get the release past
+     it would be the wrong fix. It resets with tomorrow's retrievals.
+- **The re-check** (`--rerun-failed`: the 5 plus 7 gates tied to `tools/mine_ai_seams.py`): 11 PASS, 1 FAIL, the
+  memory gate above. Then the push, with `--no-verify` per this runbook's cadence.
 
 ### Local pre-release checks, 2026-11-04 (static only, no browser, no board)
 
