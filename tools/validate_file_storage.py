@@ -147,7 +147,9 @@ def check_bucket(page: str, text: str) -> list[str]:
     if len(re.findall(re.escape(w["held"]) + r"\.commit\(\)", code)) < 1:
         bad.append(f"{page}: no save path commits the held upload - a save would be followed by deleting its own photo")
     btn = re.search(r"<button\b[^>]*\bid=\"" + re.escape(w["remove"]) + r"\"[^>]*>", text)
-    if not btn or not re.search(r"position:\s*relative[^\"]*z-index:\s*[1-9]", btn.group(0)):
+    # the stacking scale (OD-S, 2026-11-04) writes z-index: var(--wh-z-x, N) - the rung's value is the fallback, read
+    # through the var() (a bare `z-index:\s*[1-9]` went red on two correctly raised buttons the day it was respelled)
+    if not btn or not re.search(r"position:\s*relative[^\"]*z-index:\s*(?:var\(--[\w-]+,\s*)?[1-9]", btn.group(0)):
         bad.append(f"{page}: the Remove photo button is not raised above the zone's file input - a tap on it opens the picker")
     elif not re.search(r"min-height:\s*44px", btn.group(0)):
         bad.append(f"{page}: the Remove photo button is under the 44px target")
@@ -286,7 +288,10 @@ def self_test() -> int:
     expect("an upload never held fails", bool(check_bucket("marketplace.html", mk.replace("_postHeld.hold(up.key)", "_postHeld.key"))))
     expect("no commit before the reset fails", bool(check_bucket("marketplace.html", mk.replace("_postHeld.commit()", "_postHeld.key"))))
     expect("Remove under the input fails",
-           bool(check_bucket("marketplace-seller.html", sel.replace('id="edit-image-remove" style="position:relative;z-index:1;', 'id="edit-image-remove" style="'))))
+           bool(check_bucket("marketplace-seller.html", re.sub(r'id="edit-image-remove" style="position:relative;z-index:(?:var\([^)]*\)|\d+);',
+                                                               'id="edit-image-remove" style="', sel))))
+    expect("teeth: the mutation above actually removed the raise (a mutant equal to the page bites on nothing)",
+           re.sub(r'id="edit-image-remove" style="position:relative;z-index:(?:var\([^)]*\)|\d+);', 'X', sel) != sel)
     expect("the prev.photo fallback fails",
            bool(check_inline("inventory.html", inv.replace("const updated = { ...prev, ...payload };", "const updated = { ...prev, ...payload, photo: currentPhotoData || prev.photo || null };"), "inventory_items", "trg_inline_image_size_inventory")))
     expect("a missing size-cap trigger fails", bool(check_inline("inventory.html", inv, "inventory_items", "")))

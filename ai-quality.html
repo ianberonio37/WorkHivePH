@@ -50,31 +50,31 @@
     body { font-family: 'Poppins', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 90px; }
     .page { max-width: 680px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }   /* the app column (DESIGN.md); the fn table scrolls in wh-scroll-x */
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
-    .page-title { font-size: 1.3rem; font-weight: 800; }
-    .page-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .page-title { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 800; }
+    .page-sub { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); margin-top: 2px; }
     .page p, .verdict-text, .action-card .ac-text, .card .meta, .page-sub { max-width: 70ch; }   /* the craft floor's measure on a 900px column (design lens, 2026-09-15: 94ch measured at 1280) */
 
     .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
     .sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
-    .sum-card .sn { font-size: 1.6rem; font-weight: 800; display: block; line-height: 1; color: var(--gold); }
-    .sum-card .sl { font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-top: 4px; }   /* 12px floor, sentence case (design lens slop, 2026-09-15; was 9.3px all-caps) */
+    .sum-card .sn { font-size: var(--wh-fs-xl, 1.5rem); font-weight: 800; display: block; line-height: 1; color: var(--gold); }
+    .sum-card .sl { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; color: var(--muted); margin-top: 4px; }   /* 12px floor, sentence case (design lens slop, 2026-09-15; was 9.3px all-caps) */
     .sum-card.green .sn { color: var(--green); }
     .sum-card.red .sn   { color: var(--red); }
 
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .card h3, .card h2.card-h { font-size: 0.9rem; font-weight: 800; margin-bottom: 4px; }
-    .card .meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; }
+    .card h3, .card h2.card-h { font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 800; margin-bottom: 4px; }
+    .card .meta { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); margin-bottom: 12px; }
 
-    table.fn-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-    table.fn-table th { text-align: left; font-size: 0.75rem; font-weight: 700; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
+    table.fn-table { width: 100%; border-collapse: collapse; font-size: var(--wh-fs-xs, 0.8rem); }
+    table.fn-table th { text-align: left; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; color: var(--muted); padding: 7px 8px; border-bottom: 1px solid var(--border); }
     table.fn-table td { padding: 9px 8px; border-bottom: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); }
     table.fn-table tr:hover td { background: var(--wh-white-02, rgba(255,255,255,0.02)); }
     .num-right { text-align: right; font-variant-numeric: tabular-nums; }
 
     .roi-block { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .roi-block .hero { font-size: 2rem; font-weight: 800; color: var(--green); line-height: 1; }
-    .roi-block .hero-sub { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
-    .roi-confidence { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px; margin-top: 0.4rem;
+    .roi-block .hero { font-size: var(--wh-fs-2xl-plus, 1.875rem); font-weight: 800; color: var(--green); line-height: 1; }
+    .roi-block .hero-sub { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); margin-top: 4px; }
+    .roi-confidence { display: inline-block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px; margin-top: 0.4rem;
       background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.12); color: var(--green); border: 1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.25); }
     .roi-confidence.amber { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color: var(--gold); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
 
@@ -91,9 +91,9 @@
       padding:16px; margin-bottom: 16px;
       border-radius: 12px; border: 1px solid;
     }
-    .verdict-icon { font-size: 1.5rem; line-height: 1; font-weight: 800; }
-    .verdict-text { font-size: 0.95rem; font-weight: 700; line-height: 1.35; }
-    .verdict-text small { display: block; font-size: 0.8rem; font-weight: 500; color: var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 4px; }
+    .verdict-icon { font-size: var(--wh-fs-xl, 1.5rem); line-height: 1; font-weight: 800; }
+    .verdict-text { font-size: var(--wh-fs-md, 0.95rem); font-weight: 700; line-height: 1.35; }
+    .verdict-text small { display: block; font-size: var(--wh-fs-xs, 0.8rem); font-weight: 500; color: var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 4px; }
     .verdict.healthy { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.07); border-color: rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color: var(--green); }
     .verdict.watch   { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
@@ -105,13 +105,13 @@
 
     .simple-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
     .simple-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding:16px; }
-    .simple-card .sc-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); }   /* matches components.css after the 2026-09-15 floor; this page does not link it */
+    .simple-card .sc-label { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; color: var(--muted); }   /* matches components.css after the 2026-09-15 floor; this page does not link it */
     /* 1.5rem == the canonical KPI tier (components.css .sc-hero). This page does NOT
    link components.css, so the rule must live here -- but it must MATCH the canonical
    or the same KPI renders a different size than every other page. (Drift healed 2026-07-15.) */
-    .simple-card .sc-hero  { font-size: 1.5rem; font-weight: 800; line-height: 1.15; margin: 4px 0 2px; color: var(--text); font-variant-numeric: tabular-nums; }
-    .simple-card .sc-sub   { font-size: 0.75rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); line-height: 1.4; }
-    .simple-card .sc-tag   { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px; margin-top: 7px; }
+    .simple-card .sc-hero  { font-size: var(--wh-fs-xl, 1.5rem); font-weight: 800; line-height: 1.15; margin: 4px 0 2px; color: var(--text); font-variant-numeric: tabular-nums; }
+    .simple-card .sc-sub   { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-text-muted, rgba(255,255,255,0.80)); line-height: 1.4; }
+    .simple-card .sc-tag   { display: inline-block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; padding: 0.18rem 0.55rem; border-radius: 999px; margin-top: 7px; }
     .simple-card.tag-green .sc-tag { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.16);  color: var(--green); }
     .simple-card.tag-amber .sc-tag { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.16);  color: var(--gold); }
     .simple-card.tag-red   .sc-tag { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color: var(--red); }
@@ -125,17 +125,17 @@
       margin-bottom: 16px;
     }
     .action-card .ac-label {
-      font-size: 0.75rem; font-weight: 700; color: var(--blue);
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; color: var(--blue);
     }
-    .action-card .ac-text { font-size: 0.875rem; line-height: 1.5; margin-top: 6px; color: rgba(255,255,255,0.85); }
-    .action-card .ac-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; padding: 4px 12px; border-radius: 8px; background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.35); color: var(--blue); font-weight: 700; font-size: 0.8rem; text-decoration: none; }
+    .action-card .ac-text { font-size: var(--wh-fs-sm-plus, 0.875rem); line-height: 1.5; margin-top: 6px; color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
+    .action-card .ac-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; padding: 4px 12px; border-radius: 8px; background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.35); color: var(--blue); font-weight: 700; font-size: var(--wh-fs-xs, 0.8rem); text-decoration: none; }
 
     .details-toggle {
       display: inline-flex; align-items: center; gap: 6px;
       background: transparent; border: 1px solid var(--border);
       color: var(--wh-text-muted, rgba(255,255,255,0.80));
       padding: 8px 16px; border-radius: 8px;
-      font-family: inherit; font-size: 0.75rem; font-weight: 600;
+      font-family: inherit; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600;
       cursor: pointer; min-height: 44px;
     }
     .details-toggle:hover { color: var(--text); border-color: var(--wh-white-18, rgba(255,255,255,0.18)); }
@@ -165,7 +165,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
   <main class="page">
   <!-- List View Contract: declarative empty-state anchor (L-1.5) -->
-  <div id="empty-state" class="empty-state" hidden><h2 style="font-size:1rem;font-weight:700;margin-bottom:0.4rem;" data-i="aq_empty">No AI quality data yet</h2>Quality scores accrue as you draft entries with AI. <a data-i="p_openlogbook_8f75" href="logbook.html" class="empty-cta" style="min-height:44px;display:inline-flex;align-items:center;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color:var(--wh-navy);border:none;font-weight:700;text-decoration:none;">Open Logbook →</a></div>
+  <div id="empty-state" class="empty-state" hidden><h2 style="font-size:var(--wh-fs-base, 1rem);font-weight:700;margin-bottom:0.4rem;" data-i="aq_empty">No AI quality data yet</h2>Quality scores accrue as you draft entries with AI. <a data-i="p_openlogbook_8f75" href="logbook.html" class="empty-cta" style="min-height:44px;display:inline-flex;align-items:center;margin-top:0.5rem;padding:0.4rem 0.9rem;border-radius:0.5rem;background:linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color:var(--wh-navy);border:none;font-weight:700;text-decoration:none;">Open Logbook →</a></div>
 
     <header class="page-header">
       <div>
@@ -173,13 +173,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              surfaces the founder console launches into, and none of the six linked back, so a month-end
              pass across them returned through the public landing page each time. The console gates
              itself, so a reader without rights meets its refusal, not a broken door. -->
-        <p class="wh-back" style="margin:0 0 .35rem; font-size:.8rem;"><a data-i="p_hiveboard_45c9" href="hive.html" style="color:inherit; opacity:.85; text-decoration:underline;">Hive Board</a></p>
+        <p class="wh-back" style="margin:0 0 .35rem; font-size:var(--wh-fs-xs, .8rem);"><a data-i="p_hiveboard_45c9" href="hive.html" style="color:inherit; opacity:.85; text-decoration:underline;">Hive Board</a></p>
         <h1 class="page-title" translate="no">AI Quality + ROI</h1>
         <p data-i="p_honestvisibilityintoyouraisp_2edc" class="page-sub">Honest visibility into your AI spend, quality, and predicted savings.</p>
       </div>
       <!-- A1: the page's primary action is to DRIVE more AI-drafted entries (that's the ROI loop
            it measures) — a filled CTA to the logbook, matching the empty-state's own CTA. -->
-      <a href="logbook.html" data-i="aq_draft_cta" style="flex-shrink:0;min-height:44px;display:inline-flex;align-items:center;padding:0.5rem 1rem;border-radius:8px;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:0.8rem;text-decoration:none;">Draft with AI →</a>
+      <a href="logbook.html" data-i="aq_draft_cta" style="flex-shrink:0;min-height:44px;display:inline-flex;align-items:center;padding:0.5rem 1rem;border-radius:8px;background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light));color:var(--wh-navy);font-weight:700;font-size:var(--wh-fs-xs, 0.8rem);text-decoration:none;">Draft with AI →</a>
     </header>
 
     <div id="content">
@@ -187,11 +187,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:rgba(255,255,255,0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:rgba(255,255,255,0.62); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:var(--wh-fs-xs, 0.8rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.6); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:var(--wh-fs-xs, 0.8rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.62); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 </div>
 </section>
@@ -643,7 +643,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <div class="card">
           <h2 data-i="aq_roi_30d">Estimated 30-day ROI</h2>
           <p class="meta">Not estimated yet.</p>
-          <p style="font-size:0.85rem; color:var(--muted); line-height:1.5; margin-top:6px;">A return needs the downtime an AI answer saved. No logbook entry records that link yet, so this card shows what is measured: ${whFmtNum(s.totalCalls)} AI calls and ${rated} ${rated === 1 ? 'rating' : 'ratings'} in the last 30 days.</p>
+          <p style="font-size:var(--wh-fs-sm, 0.85rem); color:var(--muted); line-height:1.5; margin-top:6px;">A return needs the downtime an AI answer saved. No logbook entry records that link yet, so this card shows what is measured: ${whFmtNum(s.totalCalls)} AI calls and ${rated} ${rated === 1 ? 'rating' : 'ratings'} in the last 30 days.</p>
         </div>
       `;
     }
@@ -657,11 +657,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <h3 data-i="aq_worker_feedback">Worker feedback (👍 / 👎)</h3>
           <p class="meta">Last 30 days</p>
           <div style="display:flex;align-items:baseline;gap:16px;">
-            <span style="font-size:1.4rem;font-weight:800;color:var(--green);">${tup}</span>
-            <span style="font-size:0.8rem;color:var(--muted);">👍 ${_t('thumbs up', 'thumbs up')}</span>
-            <span style="font-size:1.4rem;font-weight:800;color:var(--red);margin-left:1rem;">${tdn}</span>
-            <span style="font-size:0.8rem;color:var(--muted);">👎 ${_t('thumbs down', 'thumbs down')}</span>
-            <span style="font-size:0.8rem;color:var(--muted);margin-left:auto;">${total === 0 ? '-' : pct + _t('% positive', '% positibo')}</span>
+            <span style="font-size:var(--wh-fs-xl, 1.5rem);font-weight:800;color:var(--green);">${tup}</span>
+            <span style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--muted);">👍 ${_t('thumbs up', 'thumbs up')}</span>
+            <span style="font-size:var(--wh-fs-xl, 1.5rem);font-weight:800;color:var(--red);margin-left:1rem;">${tdn}</span>
+            <span style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--muted);">👎 ${_t('thumbs down', 'thumbs down')}</span>
+            <span style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--muted);margin-left:auto;">${total === 0 ? '-' : pct + _t('% positive', '% positibo')}</span>
           </div>
         </div>
       `;

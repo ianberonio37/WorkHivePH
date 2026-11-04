@@ -15,5 +15,5 @@
 /* 0.74rem was 11.84px - over the 11px absolute floor but under DESIGN.md's 12px floor for anything a person
    READS, and this is the control that opens every inline-help disclosure in the product (design lens slop,
    2026-09-17, W46007). 0.75rem is 12px and is the ramp's existing smallest step, so it adds nothing new. */
-.wh-help > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-size: 0.75rem; font-weight: 700; color: rgba(255,255,255,0.85); }
+.wh-help > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
 .wh-help > p { margin: 4px 0; color: var(--wh-text-faint, rgba(255,255,255,0.86)); line-height: 1.5; }   /* FOURTH drift in this file: components.css and the utils.js fallback both say 4px 0 - 0.2rem is 3.2px and was the last off-grid value here too (W46008) */

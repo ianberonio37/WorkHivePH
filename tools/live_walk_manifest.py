@@ -36,6 +36,7 @@ import os
 import re
 import sys
 from collections import Counter, OrderedDict
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -172,6 +173,14 @@ MCP_FOR_KIND = [
     # marker - the basis must still name the deployed origin it fetched.
     ("raw-http fetch (the deployed origin serving the URL, and the IndexNow receipt that names it)",
      r"^this URL was pushed to the index \(an IndexNow receipt\)"),
+    # KA-E asks whether an EXTERNAL source the strategy cites is inside its TTL, and whether a changed re-fetch carries a
+    # recorded decision. Neither is a page state or a database row: the reading is the re-fetch of the source from its
+    # own origin (tools/night_crawler.py --refresh-stale) beside its change notes. It fell through to the generic
+    # browser + postgres pair, which reads neither. DISCLOSED: added 2026-11-04 in the session that restamps the 66
+    # banked KA-E rows (bank_ka_rows.py --lens E --restamp); it routes by the lens's sentence only and grants no marker -
+    # a library want closes only on a live basis, so each basis must still name the live re-fetch it rests on.
+    ("library run (tools/night_crawler.py re-fetching the source from its origin, and its change notes)",
+     r"^this external source is within its TTL"),
     ("playwright-mcp + postgres-mcp",
      r"a public table anyone holding the public key can read|an object production holds that no migration creates|"
      r"a view that runs as its owner, past the reader's row policies|a SECURITY DEFINER function anyone may execute|"
@@ -442,8 +451,18 @@ def _red_receipt_ids() -> set:
             continue
         for res in (doc.get("results") or []):
             rid = res.get("id")
-            if rid and (rid not in best or mtime >= best[rid][1]):
-                best[rid] = (res, mtime)
+            # ★A MERGED FILE'S MTIME IS NOT ITS RESULTS' AGE (2026-11-04). prove_w4_confusions.mjs merges by id with its
+            # prior file, so a result carried forward wore the file's newest mtime: a C24-C26 red from before their
+            # predicate existed read as newer than the 2026-10-12 green MCP walk and held W45827/30/33 open. A result
+            # that carries its own `at` is aged by it; one that does not keeps the file's mtime, as before.
+            ts = mtime
+            if res.get("at"):
+                try:
+                    ts = datetime.fromisoformat(str(res["at"]).replace("Z", "+00:00")).timestamp()
+                except ValueError:
+                    ts = mtime
+            if rid and (rid not in best or ts >= best[rid][1]):
+                best[rid] = (res, ts)
     return {rid for rid, (res, _m) in best.items()
             if not res.get("ok") or res.get("unbuilt")}
 
@@ -739,6 +758,13 @@ def build() -> dict:
         # must not route it elsewhere. DISCLOSED: added in the change that seeds the wave; every ED row is open when it lands.
         if (r.get("ed") or {}).get("kind") == "engineering-design":
             want = (r.get("ed") or {}).get("instrument") or want
+        # an OD row (the open-source design lens, 2026-11-03) declares its instrument too - the Wallace css-analyzer over the
+        # served files for D and S, the Penpot MCP plus a live-page MCP read for P. Its lens words ("colours", "comp") routed
+        # it to a person-shaped walk that no D/S reading could ever answer. DISCLOSED: added 2026-11-04, after 173 OD rows had
+        # banked at locking on bases that named the banker instead of the instrument; those bases are re-stamped by
+        # tools/bank_od_rows.py --restamp to name the instrument that took the reading, and P keeps both of its MCP halves.
+        if (r.get("od") or {}).get("kind") == "open-design":
+            want = (r.get("od") or {}).get("instrument") or want
         # ...and so does every SL / ENH / OPC row (2026-10-14): a contract sub-layer names its batch prover, a walk row
         # the chrome-devtools + postgres walk - a title's keywords must not re-route either
         if _meta_1014(r):
@@ -774,7 +800,9 @@ def build() -> dict:
         # Applying it to wave 4's "Lived start to end" rows would re-define the closure of thousands of
         # already-earned journeys and move the programme's denominator by 17 points - a scope change,
         # not a repair, and not mine to make silently.
-        _design_row = str(r.get("title", "")).startswith("Design lens")
+        # the OD comp row (OD-P) is the design lens's successor - Penpot replaced Figma on 2026-11-03 - and inherits its rule
+        _od_row = (r.get("od") or {}).get("kind") == "open-design"
+        _design_row = str(r.get("title", "")).startswith("Design lens") or _od_row
         extra_tags = ([t.strip().replace("-mcp", "").replace("-connector", "")
                        for t in want.split(" + ")[1:] if t.strip().endswith("-mcp")]
                       if (" + " in want and _design_row) else [])
@@ -888,6 +916,12 @@ def build() -> dict:
                 or any(m in low for m in MARKERS.get(tag.lower(), ())))
         if used and extra_tags:
             used = all(_seen(t) for t in extra_tags)   # both halves, or the row is not closed
+            # an OD comp's live-page half is an MCP read by name: the comp tool's own Playwright LIBRARY read draws the
+            # board, and the playwright marker family ("rendered", "viewport", "prove_") would accept it as the MCP
+            # ([[feedback_a_library_batch_is_not_an_mcp_walk]]). The basis must say which MCP read the live page.
+            if used and _od_row:
+                used = all(re.search(re.escape(t) + r"[- ]mcp", low) or (t == "playwright" and "chrome-devtools-mcp" in low)
+                           for t in extra_tags)
         # ★AND A RETRACTED INSTRUMENT IS NOT AN INSTRUMENT (2026-10-05). The marker tuples above accept the bare
         # prefix "prove_", which is deliberate for a browser walk that describes what it DID - but it also let
         # every library prover satisfy the playwright test, including the five Ian retracted. 916 rows read

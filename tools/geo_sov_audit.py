@@ -32,7 +32,12 @@ QUERIES = ROOT / "prompt_audit_queries.json"
 BASELINE = ROOT / "geo_sov_baseline.json"
 TEMPLATE_OUT = ROOT / ".tmp" / "geo_sov_results_template.json"
 
-ENGINES = ["chatgpt", "perplexity", "gemini", "ai_overviews", "claude"]
+# ★THE FREE ENGINES READ THEMSELVES (Ian, 2026-11-04: "find something else with a free tier, and delete this
+# Perplexity"). The first three are filled by tools/geo_sov_free_run.py from the providers' own free-tier APIs, each
+# searching the live web as it answers (Groq gpt-oss browser_search, Mistral web_search, Gemini grounded on Google
+# Search); the last three stay columns a person may fill from the consumer apps, whose terms forbid scripting them.
+# Perplexity is gone (its API is paid); the hand-filled Gemini column became gemini_grounded.
+ENGINES = ["groq_browser", "mistral_web", "gemini_grounded", "chatgpt", "ai_overviews", "claude"]
 # A recorded cell per (query, engine): each field is the operator's observation.
 CELL_FIELDS = {
     "cited": "bool — did the answer link/cite a workhiveph.com URL?",
@@ -126,6 +131,10 @@ def _ratchet(scorecard: dict) -> dict:
         "best_sov_pct": best,
         "last_sov_pct": scorecard["sov_pct"],
         "last_run": scorecard["generated_at"],
+        # ★THE NAME ITS READERS ASK FOR (2026-11-04): seo_scoreboard and prove_keep_abreast_board read `scored_at`, the
+        # freshness trip read `at`; this file only ever wrote `last_run`, so all three reported "never been scored" the
+        # morning after a scored run, and KA-V's voice trip held every V row shut on a fact that was false.
+        "scored_at": scorecard["generated_at"],
         "history": (prior.get("history", []) + [{"at": scorecard["generated_at"], "sov_pct": scorecard["sov_pct"]}])[-24:],
     }, indent=2), encoding="utf-8")
     return {"best_sov_pct": best, "regressed": regressed}
@@ -153,17 +162,18 @@ def self_test() -> int:
     # Synthetic results: 2 queries (1 en, 1 tl), engine cells set so the math is known.
     synth_q = [{"id": "q_en", "lang": "en"}, {"id": "q_tl", "lang": "tl"}]
     res = {"results": {
-        "q_en": {e: {"cited": e == "perplexity", "mentioned": e in ("perplexity", "chatgpt"),
-                     "recommended": e == "perplexity", "sentiment": 1} for e in ENGINES},
+        "q_en": {e: {"cited": e == "mistral_web", "mentioned": e in ("mistral_web", "chatgpt"),
+                     "recommended": e == "mistral_web", "sentiment": 1} for e in ENGINES},
         "q_tl": {e: {"cited": False, "mentioned": e == "chatgpt", "recommended": False, "sentiment": 0} for e in ENGINES},
     }}
     sc = score(res, synth_q)
-    # mentions: q_en → perplexity+chatgpt (2), q_tl → chatgpt (1) = 3 of 10 cells = 30%
-    ck(sc["sov_pct"] == 30.0, f"SOV = aggregate mention rate (got {sc['sov_pct']}, expected 30.0)")
-    # taglish: q_tl chatgpt mentioned (1) of 5 = 20%
-    ck(sc["taglish_sov_pct"] == 20.0, f"taglish SOV computed separately (got {sc['taglish_sov_pct']}, expected 20.0)")
-    ck(sc["per_engine"]["perplexity"]["cited_rate"] == 50.0, "per-engine cited rate (perplexity 1/2 = 50%)")
-    ck(sc["citation_rate"] == 10.0, f"citation rate aggregate (1 of 10 = 10%, got {sc['citation_rate']})")
+    # mentions: q_en → mistral_web+chatgpt (2), q_tl → chatgpt (1) = 3 of 12 cells = 25%
+    ck(sc["sov_pct"] == 25.0, f"SOV = aggregate mention rate (got {sc['sov_pct']}, expected 25.0)")
+    # taglish: q_tl chatgpt mentioned (1) of 6 = 16.7%
+    ck(sc["taglish_sov_pct"] == 16.7, f"taglish SOV computed separately (got {sc['taglish_sov_pct']}, expected 16.7)")
+    ck(sc["per_engine"]["mistral_web"]["cited_rate"] == 50.0, "per-engine cited rate (mistral_web 1/2 = 50%)")
+    ck(sc["citation_rate"] == 8.3, f"citation rate aggregate (1 of 12 = 8.3%, got {sc['citation_rate']})")
+    ck("perplexity" not in ENGINES, "Perplexity is not an engine (its API is paid; Ian, 2026-11-04)")
 
     print("=" * 55)
     print("\033[92m  self-test PASS\033[0m\n" if not fails else f"\033[91m  self-test FAIL — {fails}\033[0m\n")

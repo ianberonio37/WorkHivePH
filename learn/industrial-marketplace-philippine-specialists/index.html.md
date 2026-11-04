@@ -119,4 +119,4 @@ Reviews are tied to completed transactions only (no buying reviews without using
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 7133828367da0eb1 -->
+<!-- md-twin source-sha: 8485937bd5c31a8f -->

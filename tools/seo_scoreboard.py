@@ -146,7 +146,7 @@ def sov_baseline() -> tuple:
     except Exception:
         LIVE_REASONS["live SOV baseline run"] = "geo_sov_baseline.json does not parse"
         return 0, 1
-    at = d.get("scored_at") or d.get("scored") or d.get("generated_at")
+    at = d.get("scored_at") or d.get("last_run") or d.get("scored") or d.get("generated_at")   # last_run: the writer's name before 2026-11-04
     if not at:
         LIVE_REASONS["live SOV baseline run"] = "geo_sov_baseline.json exists but has never been scored"
         return 0, 1

@@ -53,6 +53,34 @@ MUST_PRINT = ["pm-scheduler.html", "audit-log.html", "logbook.html"]
 SKIP_DIRS = ("node_modules", "_fixtures", ".tmp", "test-data-seeder", "learn", "tools", ".git")
 
 
+# ★THE INK IS READ THROUGH ITS TOKEN (2026-11-04). OD-S declared the print palette (--wh-print-ink #111111) and the token
+# respell wrote audit-log's `color: #111` as `color: var(--wh-print-ink, #111)` - the same ink. A regex that wanted the
+# colour straight after the colon reported three correctly-reset pages as "light-on-white". The fallback IS the colour
+# (fix_token_literals proves the token equals it), so a var() is read through to it.
+_VIA = r"(?:var\(\s*--[\w-]+\s*,\s*)?"
+WHITE_BODY = re.compile(r"body\s*\{[^}]*background:\s*" + _VIA + r"(#fff|#ffffff|white)", re.I)
+DARK_BODY = re.compile(r"body\s*\{[^}]*color:\s*" + _VIA + r"(#111|#000|black|#222)", re.I)
+
+
+def _self_test() -> int:
+    cases = [
+        ("body { background: #fff; color: #111; }", True, True, "the literal reset"),
+        ("body { background: #fff; color: var(--wh-print-ink, #111); }", True, True, "the ink through its token"),
+        ("body { background: #fff; color: var(--wh-print-ink, #cccccc); }", True, False,
+         "teeth: a LIGHT colour behind a var() is still caught"),
+        ("body { background: var(--wh-navy, #162032); color: #111; }", False, True,
+         "teeth: a dark background behind a var() is still caught"),
+    ]
+    bad = []
+    for css, white, dark, why in cases:
+        if bool(WHITE_BODY.search(css)) != white or bool(DARK_BODY.search(css)) != dark:
+            bad.append(why)
+    print("FAIL print-is-readable self-test: " + "; ".join(bad) if bad
+          else f"self-test OK: {len(cases)} cases - the reset reads through a token, and a light ink or a dark sheet "
+               f"behind one is still caught")
+    return 1 if bad else 0
+
+
 def print_block(src: str):
     """EVERY @media print block on the page, concatenated.
 
@@ -133,10 +161,10 @@ def main() -> int:
                 token_only.append(p.name)
             continue
 
-        if not re.search(r"body\s*\{[^}]*background:\s*(#fff|#ffffff|white)", b, re.I):
+        if not WHITE_BODY.search(b):
             failures.append(f"{p.name}: print rules do not force a WHITE page background - the dark "
                             f"theme goes to the printer")
-        if not re.search(r"body\s*\{[^}]*color:\s*(#111|#000|black|#222)", b, re.I):
+        if not DARK_BODY.search(b):
             failures.append(f"{p.name}: print rules do not force DARK text - light-on-white is "
                             f"unreadable once the browser drops the background")
         if not re.search(r"body\s*\*\s*\{", b):
@@ -178,4 +206,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(_self_test() if "--self-test" in sys.argv else main())

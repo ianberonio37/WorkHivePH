@@ -22,7 +22,7 @@
     * { font-family: 'Poppins', sans-serif; }
     body { background-color: var(--wh-navy); min-height: 100vh; }
 
-    .aurora-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .aurora-bg { position: fixed; inset: 0; pointer-events: none; z-index: var(--wh-z-art, 0); overflow: hidden; }
     .aurora-bg::before {
       content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%;
       background: radial-gradient(ellipse, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07) 0%, transparent 70%); filter: blur(60px);
@@ -43,13 +43,13 @@
     .wh-input {
       width: 100%; background: var(--wh-white-07, rgba(255,255,255,0.07));
       border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius: 0.75rem;
-      padding: 0.75rem 1rem; color: white; font-size: 1rem; outline: none;
+      padding: 0.75rem 1rem; color: var(--wh-white, white); font-size: var(--wh-fs-base, 1rem); outline: none;
       transition: border-color 0.2s; -webkit-appearance: none; appearance: none;
     }
     .wh-input:focus { border-color: var(--wh-orange); }
     .wh-input::placeholder { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
-    select.wh-input option { background: var(--wh-navy-mid, #1F2E45); color: white; }
-    select option { background: var(--wh-navy-mid, #1F2E45); color: white; }
+    select.wh-input option { background: var(--wh-navy-mid, #1F2E45); color: var(--wh-white, white); }
+    select option { background: var(--wh-navy-mid, #1F2E45); color: var(--wh-white, white); }
 
     /* T113 (2026-08-26): AT THE 320 FLOOR THE COMPLETION SHEET'S PRIMARY ACTION OVERFLOWED ITS
        PANEL BY 21px. btn-primary is width:100% by design (it is a full-width action nearly
@@ -71,7 +71,7 @@
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); font-weight: 700;
       border-radius: 0.75rem; padding: 0.75rem 1.5rem; width: 100%;
-      font-size: 0.875rem; border: none; transition: filter 0.2s, transform 0.1s;
+      font-size: var(--wh-fs-sm-plus, 0.875rem); border: none; transition: filter 0.2s, transform 0.1s;
       cursor: pointer; display: block;
     }
     .btn-primary:hover { filter: brightness(0.95); }
@@ -79,19 +79,19 @@
     .btn-primary:disabled { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); cursor: not-allowed; }
 
     .btn-ghost {
-      min-height: 44px; background: transparent; color:rgba(255,255,255,0.83);
+      min-height: 44px; background: transparent; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83);
       font-weight: 600; border-radius: 0.75rem; padding: 0.75rem 1.5rem; width: 100%;
-      font-size: 0.875rem; border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
+      font-size: var(--wh-fs-sm-plus, 0.875rem); border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
       transition: border-color 0.2s, color 0.2s; cursor: pointer;
     }
-    .btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: white; }
+    .btn-ghost:hover { border-color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.4); color: var(--wh-white, white); }
     .btn-ghost:active { transform: scale(0.98); }
 
     .btn-danger {
       /* var(--wh-red) (red-400) on the var(--wh-navy) card = 5.9:1, clears WCAG 2.2 AA 4.5:1;
          the prior var(--wh-red) was 4.33:1 (PM PDDA A-axis). */
       min-height: 40px; background: transparent; color: var(--wh-red-text); font-weight: 600;
-      border-radius: 0.75rem; padding: 0.5rem 1rem; font-size: 0.8125rem;
+      border-radius: 0.75rem; padding: 0.5rem 1rem; font-size: var(--wh-fs-xs, 0.8rem);
       border: 1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.4); transition: background 0.2s; cursor: pointer;
     }
     .btn-danger:hover { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); }
@@ -103,7 +103,7 @@
       display: flex; align-items: flex-start; gap: 0.75rem;
       transition: border-color 0.2s;
     }
-    .scope-row:hover { border-color: rgba(255,255,255,0.14); }
+    .scope-row:hover { border-color: var(--wh-white-15, rgba(255, 255, 255, 0.15)); }
     .scope-row.included { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); }
     .scope-row.included .scope-check { background: var(--wh-orange); border-color: var(--wh-orange); }
     .scope-row.included .scope-check::after {
@@ -126,16 +126,16 @@
     .badge-overdue  { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.15); color: var(--wh-red-text); border: 1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .badge-duesoon  { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--wh-orange); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
     .badge-ontrack  { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.15);  color: var(--wh-green); border: 1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.25); }
-    /* C2 2026-09-10: #9ca3af (grey-400) on this tint measured 4.13:1 at 0.65rem uppercase, against the
+    /* C2 2026-09-10: var(--wh-slate, #9CA8B5) (grey-400) on this tint measured 4.13:1 at 0.65rem uppercase, against the
        4.5:1 that small text owes. There is no --wh-grey-text token, but the platform already tuned this
-       exact semantic once: utils.js renderKpiTile's "No data" row uses rgba(255,255,255,0.78), raised
+       exact semantic once: utils.js renderKpiTile's "No data" row uses rgba(var(--wh-white-rgb, 255, 255, 255), 0.78), raised
        from 0.6 on 2026-09-07 when a 24px APCA reading (Lc 0/45) showed WCAG had waved through what APCA
        would not. Reusing that value keeps one neutral for one meaning instead of a second opinion. */
-    .badge-nodata   { background: var(--wh-white-08, rgba(255,255,255,0.08)); color: rgba(255,255,255,0.78); border: 1px solid var(--wh-white-20, rgba(255,255,255,0.2)); }
+    .badge-nodata   { background: var(--wh-white-08, rgba(255,255,255,0.08)); color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.78); border: 1px solid var(--wh-white-20, rgba(255,255,255,0.2)); }
 
     .status-badge {
       display: inline-flex; align-items: center; padding: 4px 10px;
-      border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      border-radius: 999px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; text-transform: uppercase;
       letter-spacing: 0.05em; white-space: nowrap;
     }
 
@@ -153,26 +153,26 @@
     .asset-card.overdue  { border-left-color: var(--wh-red); }
     .asset-card.duesoon  { border-left-color: var(--wh-orange); }
     .asset-card.ontrack  { border-left-color: var(--wh-green); }
-    .asset-card.nodata   { border-left-color: rgba(255,255,255,0.25); }
+    .asset-card.nodata   { border-left-color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.25); }
 
     /* Category pill */
     .cat-pill {
       display: inline-flex; align-items: center; padding: 2px 8px;
-      border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;
+      border-radius: 999px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; white-space: nowrap;
     }
 
     /* Frequency badge */
     .freq-badge {
       display: inline-flex; padding: 1px 7px; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
     }
-    .freq-D  { background: rgba(244,114,182,0.15); color: var(--wh-red); }
-    .freq-W  { background: rgba(56,189,248,0.15);  color: var(--wh-blue); }
+    .freq-D  { background: rgba(var(--wh-pink-400-rgb, 244, 114, 182), 0.15); color: var(--wh-red); }
+    .freq-W  { background: rgba(var(--wh-sky-400-rgb, 56, 189, 248), 0.15);  color: var(--wh-blue); }
     .freq-M  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15); color: var(--wh-blue); }
     .freq-Q  { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.15); color: var(--wh-violet-text); }
     .freq-SA { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15);  color: var(--wh-orange); }
     .freq-Y  { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15);  color: var(--wh-orange); }
-    .freq-Other { background: var(--wh-white-08, rgba(255,255,255,0.08)); color:rgba(255,255,255,0.83); }
+    .freq-Other { background: var(--wh-white-08, rgba(255,255,255,0.08)); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); }
 
     /* Detail scope row */
     .detail-scope-row {
@@ -209,13 +209,13 @@
 
     /* Filter chip */
     .filter-chip {
-      padding: 6px 16px; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+      padding: 6px 16px; border-radius: 999px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
       border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color:var(--wh-text-muted, rgba(255,255,255,0.80));
       background: transparent; cursor: pointer; transition: all 0.15s; white-space: nowrap;
     }
     .filter-chip.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); color: var(--wh-orange); }
-    .filter-chip:hover:not(.active) { color: var(--wh-text-muted, rgba(255,255,255,0.8)); border-color: rgba(255,255,255,0.25); }
+    .filter-chip:hover:not(.active) { color: var(--wh-text-muted, rgba(255,255,255,0.8)); border-color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.25); }
 
     /* Completion checkbox in detail view */
     /* PM15 (PM deepwalk, 2026-07-28): measured 36x36 at a true 390px viewport. This is the PRIMARY
@@ -241,10 +241,10 @@
     #toast {
       position: fixed; bottom: calc(80px + env(safe-area-inset-bottom)); left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.95); color: white; border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
-      border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 500;
+      background: rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.95); color: var(--wh-white, white); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
+      border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 500;
       white-space: nowrap; opacity: 0; pointer-events: none;
-      transition: opacity 0.25s, transform 0.25s; z-index: 999;
+      transition: opacity 0.25s, transform 0.25s; z-index: var(--wh-z-toast-4, 1000);
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -276,7 +276,7 @@
     html { scroll-padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
 
     .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 30;
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: var(--wh-z-menu, 30);
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.95); border-top: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       backdrop-filter: blur(12px);
       padding-bottom: env(safe-area-inset-bottom);
@@ -284,7 +284,7 @@
     .nav-tab {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 3px; flex: 1; min-height: 56px; color:var(--wh-text-muted, rgba(255,255,255,0.80));
-      font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
       cursor: pointer; border: none; background: transparent; transition: color 0.15s;
     }
     .nav-tab.active { color: var(--wh-orange); }
@@ -302,7 +302,7 @@
 
     /* Bottom sheet */
     .sheet-overlay {
-      position: fixed; inset: 0; z-index: 50;
+      position: fixed; inset: 0; z-index: var(--wh-z-modal-2, 50);
       background: var(--wh-black-55, rgba(0,0,0,0.55)); backdrop-filter: blur(4px);
       display: none; align-items: flex-end; justify-content: center;
       padding-bottom: env(safe-area-inset-bottom);
@@ -325,9 +325,9 @@
 
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
-    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
+    .verdict-icon { font-size:var(--wh-fs-xl, 1.5rem); line-height:1; font-weight:800; }
+    .verdict-text { font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:500; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
@@ -338,33 +338,33 @@
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:16px; }
     .simple-card { background:var(--wh-navy); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:12px; padding:16px; }
-    .simple-card .sc-label { font-size: 0.75rem; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-transform:uppercase; letter-spacing:0.06em; }
-    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-    .simple-card .sc-sub   { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.4; }
-    .simple-card .sc-tag   { display:inline-block; font-size: 0.75rem; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:4px 8px; border-radius:999px; margin-top:8px; }
+    .simple-card .sc-label { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-transform:uppercase; letter-spacing:0.06em; }
+    .simple-card .sc-hero  { font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
+    .simple-card .sc-sub   { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:4px 8px; border-radius:999px; margin-top:8px; }
     .simple-card.tag-green .sc-tag { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.16);  color:var(--wh-green); }
     .simple-card.tag-amber .sc-tag { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.16);  color:var(--wh-orange-light); }   /* the AA text token, as components.css and alert-hub (2026-10-13): the fill read 4.93:1 here, borderline */
     .simple-card.tag-red   .sc-tag { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color:var(--wh-red-text); }
     .simple-card.tag-grey  .sc-tag { background:var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .action-card { background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); border-radius:12px; padding:16px; margin-bottom:16px; }
-    .action-card .ac-label { font-size: 0.75rem; font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
-    .action-card .ac-text { font-size:0.875rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+    .action-card .ac-label { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; color:var(--wh-blue-text); text-transform:uppercase; letter-spacing:0.07em; }
+    .action-card .ac-text { font-size:var(--wh-fs-sm-plus, 0.875rem); line-height:1.5; margin-top:6px; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
 /* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
    component CSS — no components.css link — so .ac-cta lives here too). */
-.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:12px 18px; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:12px 18px; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:var(--wh-fs-xs, 0.8rem); font-weight:800; border:none; border-radius:8px; cursor:pointer; text-decoration:none; transition:background 0.2s, transform 0.1s; }
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size: 0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:var(--wh-white-18, rgba(255,255,255,0.18)); }
-    #pm-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #pm-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:var(--wh-fs-xs, 0.8rem); line-height:1.5; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-bottom:16px; }
     #pm-summary-details.open { display:block; }
     /* T124 (2026-08-25): print reality — the PM schedule is the one page plants PIN TO A
        BOARD, and it printed as a dark dashboard: navy background swallowing toner, nav/FAB
        chrome, sheets and toasts in the flow. Print = black-on-white content, chrome gone.
        (project-report already had print CSS; this brings the printable set to two.) */
     @media print {
-      body { background: #fff !important; color: var(--wh-print-ink, #111) !important; }
+      body { background: var(--wh-white, #fff) !important; color: var(--wh-print-ink, #111) !important; }
       body * { background: transparent !important; color: var(--wh-print-ink, #111) !important;
                box-shadow: none !important; text-shadow: none !important; }
       #wh-hub-fab, #wh-nav-hub, [id^="wh-hub"], #wh-feedback-fab, #wh-feedback-panel,
@@ -629,7 +629,7 @@
             <option value="Yearly">Yearly</option>
           </select>
         </div>
-        <button class="btn-ghost mt-2" style="font-size:0.8125rem;padding:0.5rem 1rem;" onclick="addCustomItem()" data-i="plusaddtask">+ Add Task</button>
+        <button class="btn-ghost mt-2" style="font-size:var(--wh-fs-xs, 0.8rem);padding:0.5rem 1rem;" onclick="addCustomItem()" data-i="plusaddtask">+ Add Task</button>
       </div>
 
       <div class="flex gap-3 mt-6">
@@ -744,16 +744,16 @@
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <span id="det-cat" class="cat-pill"></span>
-        <span id="det-crit" class="status-badge text-[0.6rem]"></span>
+        <span id="det-crit" class="status-badge text-xs"></span>
         <span id="det-anchor" class="text-xs text-white/80"></span>
         <!-- SERVICE_HAILING P9 (§1c recurring-contract hook): a PM that keeps coming due is a
              standing outside-service candidate - hail it with the asset + PM context pre-composed
              (the same landing pad as asset-hub's CTA). href set in renderDetail. -->
         <button type="button" id="det-autohail-btn" onclick="toggleAutoHail()" aria-pressed="false"
           aria-label="Turn this asset's due PM work into a recurring service contract that hails a provider automatically"
-          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;font-size: 0.75rem;font-weight:700;cursor:pointer;background:var(--wh-white-06, rgba(255,255,255,0.06));color:inherit;border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));">🔁 Auto-hail when due</button>
+          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;font-size: var(--wh-fs-2xs, 0.75rem);font-weight:700;cursor:pointer;background:var(--wh-white-06, rgba(255,255,255,0.06));color:inherit;border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));">🔁 Auto-hail when due</button>
         <a id="det-hail-link" href="#" aria-label="Hail an outside specialist for this asset's PM work"
-          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size: 0.75rem;font-weight:700;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.13);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">🔧 Hail a specialist</a>
+          style="display:none;align-items:center;gap:5px;min-height:44px;padding:0 12px;border-radius:8px;text-decoration:none;font-size: var(--wh-fs-2xs, 0.75rem);font-weight:700;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.13);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">🔧 Hail a specialist</a>
       </div>
     </div>
 
@@ -804,14 +804,14 @@
 </div>
 
 <!-- ── EDIT PM ASSET MODAL (supervisor only in hive mode) ── -->
-<div id="pm-edit-modal" role="dialog" aria-modal="true" aria-label="Edit PM asset" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:1rem;">
+<div id="pm-edit-modal" role="dialog" aria-modal="true" aria-label="Edit PM asset" style="display:none;position:fixed;inset:0;z-index:var(--wh-z-modal-3, 80);background:var(--wh-black-75, rgba(0, 0, 0, 0.75));backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:1rem;">
   <div class="wh-card w-full p-6 relative" style="max-width:420px;">
     <!-- aria-label: the only content is a ✕ glyph, so without it a screen reader announces nothing usable
          for the one control that closes this dialog. The platform's convention is already this
          (inventory's #part-modal-close carries aria-label="Close", hive's handover close carries
          aria-label="Close handover sheet"); this button was the outlier. Found by
          tools/prove_dialog_a11y.mjs, which was the first check to open this dialog and read its controls. -->
-    <button onclick="closeEditPMAsset()" aria-label="Close" style="position:absolute;top:0.75rem;right:0.75rem;background:var(--wh-white-06, rgba(255,255,255,0.06));border:none;border-radius:0.5rem;width:44px;height:44px;color:var(--wh-text-muted, rgba(255,255,255,0.80));cursor:pointer;font-size:1.1rem;">✕</button>
+    <button onclick="closeEditPMAsset()" aria-label="Close" style="position:absolute;top:0.75rem;right:0.75rem;background:var(--wh-white-06, rgba(255,255,255,0.06));border:none;border-radius:0.5rem;width:44px;height:44px;color:var(--wh-text-muted, rgba(255,255,255,0.80));cursor:pointer;font-size:var(--wh-fs-lead-plus, 1.125rem);">✕</button>
 
     <h3 class="font-bold text-base text-white mb-4 pr-8" data-i="editasset">Edit Asset</h3>
 
@@ -2182,7 +2182,7 @@ function _pmRenderList() {
         <div class="progress-bar">
           <div class="progress-fill" style="
             --p:${totalItems ? Math.round(((totalItems - overdueItems) / totalItems) * 100) / 100 : 0};
-            background:${asset.overall === 'overdue' ? 'var(--wh-red)' : asset.overall === 'duesoon' ? 'var(--wh-orange)' : asset.overall === 'nodata' ? 'rgba(255,255,255,0.25)' : 'var(--wh-green)'};
+            background:${asset.overall === 'overdue' ? 'var(--wh-red)' : asset.overall === 'duesoon' ? 'var(--wh-orange)' : asset.overall === 'nodata' ? 'rgba(var(--wh-white-rgb, 255, 255, 255), 0.25)' : 'var(--wh-green)'};
           "></div>
         </div>
         <p class="text-xs text-white/80 mt-1">${totalItems} PM task${totalItems !== 1 ? 's' : ''}</p>
@@ -3111,7 +3111,7 @@ function renderScopeList() {
           <div class="flex items-center gap-2 mt-1.5">
             ${item.isCustom ? '<span class="text-xs text-orange-400 font-semibold">Custom</span>' : ''}
             <select class="text-xs font-semibold rounded-lg px-2 py-1 border outline-none transition-colors"
-              style="background:var(--wh-white-06, rgba(255,255,255,0.06));border-color:var(--wh-white-12, rgba(255,255,255,0.12));color:rgba(255,255,255,0.83);font-size:16px;"
+              style="background:var(--wh-white-06, rgba(255,255,255,0.06));border-color:var(--wh-white-12, rgba(255,255,255,0.12));color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83);font-size:var(--wh-fs-base, 1rem);"
               aria-label="Frequency for ${escHtml(item.text)}"
               onchange="updateItemFreq(${escJsAttr(idx)}, this.value)">
               ${freqOpts}
@@ -3369,7 +3369,7 @@ function renderTaskChips() {
       class="flex items-center justify-between gap-3 w-full text-left px-3 py-2 rounded-lg border text-sm transition-colors"
       style="background:${bg};border-color:${border};">
       <span class="leading-snug">${escHtml(t.text)}</span>
-      <span class="text-[0.65rem] font-semibold flex-shrink-0 px-1.5 py-0.5 rounded" style="background:var(--wh-white-06, rgba(255,255,255,0.06));color:${fc};">${t.freq}</span>
+      <span class="text-xs font-semibold flex-shrink-0 px-1.5 py-0.5 rounded" style="background:var(--wh-white-06, rgba(255,255,255,0.06));color:${fc};">${t.freq}</span>
     </button>`;
   }).join('');
 }
@@ -3625,7 +3625,7 @@ if (window.whModalA11y) {
     <!-- Description -->
     <div class="mb-3">
       <label for="add-task-text" class="block text-xs font-semibold mb-1.5" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));" data-i="taskdesc">TASK DESCRIPTION</label>
-      <input id="add-task-text" type="text" class="wh-input" placeholder="Describe the PM task..." style="font-size:16px;" maxlength="250">
+      <input id="add-task-text" type="text" class="wh-input" placeholder="Describe the PM task..." style="font-size:var(--wh-fs-base, 1rem);" maxlength="250">
     </div>
 
     <!-- Frequency -->
@@ -3647,7 +3647,7 @@ if (window.whModalA11y) {
 </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="pm-summary-details">
 <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
@@ -3656,14 +3656,14 @@ if (window.whModalA11y) {
 <div id="pm-summary-details" role="region" aria-label="PM compliance explainer"
     data-rag-tile="pm-scheduler:detail_panel"
     data-rag-label="PM detail breakdown">
-      <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How PM compliance is computed</strong>
+      <strong style="display:block;margin-bottom:6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">How PM compliance is computed</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong>Overdue</strong>: scope items where today &gt; last completion + each task's own interval (Weekly=7, Monthly=30, Quarterly=90, Semi-annual=180, Annual=365 days).</li>
         <li><strong>Due soon (14d)</strong>: scope items whose next due date falls within the next 14 days.</li>
         <li><strong>On track</strong>: everything else, including items with no completion history yet.</li>
         <li><strong>Compliance %</strong>: SMRP Metric 2.1.1, PM occurrences completed on schedule / occurrences due in the window (frequency-aware), via the canonical SMRP compliance calculation (same value Analytics shows). This is the Stair-2 gate metric, distinct both from the "on track now" snapshot count and from the "done on time" figure below it, which measures each PM against its own interval rather than against the schedule.</li>
       </ul>
-      <p style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 12px;">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
+      <p style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: var(--wh-fs-2xs, 0.75rem);">PM compliance feeds the Reliability dimension of your Maturity Stairway. Two consecutive weeks &gt; 80% is the gate to Stair 2.</p>
     </div>
 </div>
 </div>

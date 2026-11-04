@@ -45,7 +45,13 @@ export async function penpot(root = process.cwd()) {
       if (d.error) throw new Error(d.error.message || JSON.stringify(d.error));
       const text = ((d.result || {}).content || []).map((c) => c.text || '').join('');
       const out = parse(text);
-      if (out.error || /no plugin|not connected/i.test(text)) throw new Error(out.error || text.slice(0, 200));
+      // ★AN MCP ERROR IS AN ERROR, WHATEVER ITS WORDS (2026-11-04). The server reports a backgrounded tab as "Tool
+      // execution failed: ... the Penpot plugin tab appears to be suspended by the browser" with isError set; only "no
+      // plugin" / "not connected" were recognised, so it came back as `undefined` and every comp after it died later
+      // as "Cannot destructure property 'bound'" - 16 comps in one batch, none saying what had happened.
+      if (out.error || (d.result || {}).isError || /no plugin|not connected|suspended|tool execution failed|no penpot instance/i.test(text)) {
+        throw new Error('penpot: ' + (out.error || text.slice(0, 200)));
+      }
       return out.result;
     },
   };

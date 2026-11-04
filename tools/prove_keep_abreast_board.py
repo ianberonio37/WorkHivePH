@@ -182,7 +182,7 @@ def main() -> int:
         indep, agree = "geo_sov_baseline.json is not on disk", "never run" in own_sov
     else:
         d = json.loads(f.read_text(encoding="utf-8") or "{}")
-        at = d.get("scored_at") or d.get("scored") or d.get("generated_at")
+        at = d.get("scored_at") or d.get("last_run") or d.get("scored") or d.get("generated_at")   # last_run: the writer's name before 2026-11-04
         indep, agree = f"geo_sov_baseline.json scored {at or 'never'}", (str(at)[:10] in own_sov) if at else ("never been scored" in own_sov)
     put("KA360", agree, own_sov, indep + (" - the component says so" if agree else " - the component says otherwise"))
 

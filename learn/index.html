@@ -118,7 +118,7 @@
     }
     .pill {
       display: inline-block;
-      font-size: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem);
       font-weight: 700;
       padding: 4px 10px;
       border-radius: 999px;
@@ -134,10 +134,10 @@
       white-space: nowrap;
     }
     .pill-orange { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--wh-orange,#F7A21B); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
-    .pill-steel  { background: rgba(123,135,148,0.18); color: #9CA8B5; border: 1px solid rgba(123,135,148,0.35); }
+    .pill-steel  { background: rgba(var(--wh-steel-rgb, 123, 135, 148), 0.18); color: var(--wh-slate, #9CA8B5); border: 1px solid rgba(var(--wh-steel-rgb, 123, 135, 148), 0.35); }
     /* Learn-hub search + filter (mirrors the community.html filter-chip pattern) */
-    .filter-chip { padding: 8px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; cursor: pointer; min-height: 44px; min-width: 44px; justify-content: center; display: inline-flex; align-items: center; /* K2/F1 (2026-09-05): 31px tall / 43px wide chips at 390 */ background: var(--wh-white-04, rgba(255,255,255,0.04)); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color: rgba(255,255,255,0.6); min-height: 44px; transition: all .15s ease; }
-    .filter-chip:hover { border-color: rgba(255,255,255,0.55); color: rgba(255,255,255,0.85); }
+    .filter-chip { padding: 8px 16px; border-radius: 999px; font-size: var(--wh-fs-xs, 0.8rem); font-weight: 600; white-space: nowrap; cursor: pointer; min-height: 44px; min-width: 44px; justify-content: center; display: inline-flex; align-items: center; /* K2/F1 (2026-09-05): 31px tall / 43px wide chips at 390 */ background: var(--wh-white-04, rgba(255,255,255,0.04)); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.6); min-height: 44px; transition: all .15s ease; }
+    .filter-chip:hover { border-color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.55); color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
     .filter-chip.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); color: var(--wh-orange,#F7A21B); }
     /* T2 (2026-09-05): at 390 px a nowrap chip wider than its box clips - let chips wrap their label on narrow phones */
     /* phone fit (2026-09-06): the chip row is a horizontal scroller - chips never shrink or wrap (at 390px they shrank to 44px and broke into 3 lines) */
@@ -147,7 +147,7 @@
     .lh-hidden { display: none !important; }
     #lh-empty { display: none; }
     #lh-empty.show { display: block; }
-    nav a.nav-link { font-size: 0.9rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.82); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 0.25rem; } @media (max-width: 400px) { nav.flex { gap: 0.5rem; } } /* control-within-viewport (2026-09-05): at the floor viewport the gap-6 nav pushed 'Sign Up Free' 3px past the edge */ @media (max-width: 360px) { nav.flex { gap: 0.25rem; } } /* ...and with Poppins loaded the five links still ran 7px past 320 (control-within-viewport, 2026-10-13): 4px gaps between 44px targets keep every link */ /* 44px targets + Lc 60 at 14px (F1/K2/Z3/C5, 2026-09-05) */ header a, footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+    nav a.nav-link { font-size: var(--wh-fs-sm-plus, 0.875rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.82); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 0.25rem; } @media (max-width: 400px) { nav.flex { gap: 0.5rem; } } /* control-within-viewport (2026-09-05): at the floor viewport the gap-6 nav pushed 'Sign Up Free' 3px past the edge */ @media (max-width: 360px) { nav.flex { gap: 0.25rem; } } /* ...and with Poppins loaded the five links still ran 7px past 320 (control-within-viewport, 2026-10-13): 4px gaps between 44px targets keep every link */ /* 44px targets + Lc 60 at 14px (F1/K2/Z3/C5, 2026-09-05) */ header a, footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
     /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the header row and its nav WRAP - the links drop under the
        logo instead of running the page sideways. At normal sizes nothing moves: a row only wraps when it does not fit. */
     header > div:has(> nav) { flex-wrap: wrap; row-gap: 0.5rem; } header nav:has(> a.nav-link) { flex-wrap: wrap; row-gap: 0.25rem; }
@@ -213,7 +213,7 @@
 <link rel="stylesheet" href="/wh-tw-pub-site.css"><!-- Tailwind, compiled per config: tools/tw_public_build.mjs -->
 </head>
 <body class="bg-navy-wh text-white antialiased">
-<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn-hub" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px var(--wh-black-35, rgba(0,0,0,.35));transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn-hub" style="position:fixed;top:0;left:0;z-index:var(--wh-z-skip-link, 10001);transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:var(--wh-fs-sm-plus, 0.875rem);text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px var(--wh-black-35, rgba(0,0,0,.35));transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 
 <!-- ── Nav ── -->
 <header class="border-b border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
@@ -260,7 +260,7 @@
         <span data-wh-source-anchor="source-line-1" hidden></span><!-- G1+E3 -->
     <p class="text-lg text-white/85 leading-[1.7] max-w-2xl mx-auto font-light"><!-- C5: /70 sat at Lc 64/75 at 18px (2026-09-05) -->
       Practical writing on industrial maintenance, reliability, and operations. Built for every industrial worker, from field to management. Technicians, engineers, supervisors, planners and plant managers.</p>
-    <p style="margin-top:1.25rem;"><a href="../index.html" class="lh-cta bg-orange-wh" data-i="lh-cta" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 1.5rem; border-radius:12px;  color:#1a1132; font-weight:800; text-decoration:none;">Open WorkHive, free</a></p>
+    <p style="margin-top:1.25rem;"><a href="../index.html" class="lh-cta bg-orange-wh" data-i="lh-cta" style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 1.5rem; border-radius:12px;  color:var(--wh-violet-950, #1a1132); font-weight:800; text-decoration:none;">Open WorkHive, free</a></p>
   </div>
 </section>
 
@@ -783,7 +783,7 @@
 
     <p id="lh-empty" class="text-center text-white/45 py-12">No guides match that search. Try a different word, or tap <strong>All</strong>.</p>
     <div class="text-center mt-8">
-      <button id="lh-more" class="lh-more-btn" data-i="lh-more" style="display:none; padding:12px 28px; min-height:44px; border-radius:8px; border:1px solid rgba(255,255,255,0.35); background:var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(255,255,255,0.9); font-weight:600; cursor:pointer;">Show more guides</button>
+      <button id="lh-more" class="lh-more-btn" data-i="lh-more" style="display:none; padding:12px 28px; min-height:44px; border-radius:8px; border:1px solid rgba(var(--wh-white-rgb, 255, 255, 255), 0.35); background:var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.9); font-weight:600; cursor:pointer;">Show more guides</button>
     </div>
 
   </div>
@@ -792,10 +792,10 @@
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
 <div class="max-w-4xl mx-auto px-5 sm:px-8" data-wh-sources-column>
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="source-line-1">
-<p class="wh-source-chip" role="status" aria-live="polite" style="font-size:.75rem; opacity:.85; margin:.25rem 0 1rem;">Static · the Learn library index, rendered as of this page load · articles link to their own sources</p>
+<p class="wh-source-chip" role="status" aria-live="polite" style="font-size:var(--wh-fs-2xs, .75rem); opacity:.85; margin:.25rem 0 1rem;">Static · the Learn library index, rendered as of this page load · articles link to their own sources</p>
 </div>
 </div>
 </div>

@@ -162,10 +162,33 @@ def verdict(row, m, members, tokens_css, census, tints, comps) -> tuple[bool, st
     return False, "unknown OD key"
 
 
+def instrument_of(row, comps) -> str:
+    """The instrument that took the reading, by name - the row's declared od.instrument is what the ledger
+    (live_walk_manifest) routes it by, so a basis that names only this banker is a claim no instrument stands behind.
+    ★(2026-11-04) The first 173 bases named tools/bank_od_rows.py and nothing else; the ledger read them as prose."""
+    key = row["od"]["key"]
+    if key == "D":
+        return "the Wallace css-analyzer (tools/prove_design_source_drift.py, over the served files' own CSS)"
+    if key == "S":
+        return ("the open-design census (tools/open_design_census.py) over the Wallace css-analyzer's file set "
+                "(tools/prove_design_source_drift.py) and tokens.css")
+    rec = (comps.get("pages") or {}).get(row["od"]["page"]) or {}
+    readers = sorted({(rec.get(vp) or {}).get("live_reader") or "the Playwright library" for vp in ("390", "1280")})
+    return (f"the Penpot MCP (tools/penpot_comp_from_page.mjs drew each board) against a full-page screenshot of the "
+            f"live page taken by {' and '.join(readers)}, compared by odiff")
+
+
+def stamp(row, why, today, comps) -> str:
+    gate = GATE_P if row["od"]["key"] == "P" else GATE_D
+    return f"[{today}] pct -> 60. MEASURED by {instrument_of(row, comps)}; banked by {TOOL}: {why}. HELD BY gate {gate}."
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--apply", action="store_true")
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--restamp", action="store_true",
+                    help="re-read every banked OD row and append a segment naming the instrument (only rows that still read closed)")
     a = ap.parse_args()
     import registry_io
     doc = registry_io.load_doc()
@@ -187,6 +210,22 @@ def main() -> int:
             return 1
         print(f"PASS od-rows-hold - every banked OD row still reads closed")
         return 0
+    if a.restamp:
+        done, held_open = 0, []
+        for r in rows:
+            if r.get("status") not in ("locking", "locked") or TOOL not in (r.get("basis") or ""):
+                continue
+            ok, why = verdict(r, m, members, tokens_css, census, tints, comps)
+            if not ok:
+                held_open.append(r["id"])
+                continue
+            seg = stamp(r, why, today, comps)
+            if seg not in (r.get("basis") or ""):
+                r["basis"] = (r.get("basis") or "") + " || " + seg      # newest LAST (see --apply)
+                done += 1
+        _save(doc)
+        print(f"RESTAMPED {done} OD row(s); {len(held_open)} no longer read closed: {held_open[:10]}")
+        return 1 if held_open else 0
     can, by = [], Counter()
     for r in rows:
         if r.get("status") in ("locking", "locked", "descoped"):
@@ -205,19 +244,25 @@ def main() -> int:
     for r, why in can:
         gate = GATE_P if r["od"]["key"] == "P" else GATE_D
         if TOOL not in (r.get("basis") or ""):
-            r["basis"] = ((r.get("basis") or "").rstrip() + f" || [{today}] pct -> 60. MEASURED by {TOOL}: {why}. "
-                          f"HELD BY gate {gate}.").strip(" |")
+            # append-only, newest LAST, as bank_sl_walk._bank does: the registry gate reads the LAST "pct -> N" as the
+            # row's account of itself (SL3121, 2026-10-22)
+            r["basis"] = ((r.get("basis") or "") + " || " + stamp(r, why, today, comps)).strip(" |")
         r["status"], r["pct"] = "locking", 60
         r.setdefault("artifacts", {}).setdefault("gates", [])
         if gate not in r["artifacts"]["gates"]:
             r["artifacts"]["gates"].append(gate)
+    _save(doc)
+    print(f"BANKED {len(can)} OD row(s) -> locking 60")
+    return 0
+
+
+def _save(doc) -> None:
+    import registry_io
     # at the main file's own indent (the bank_tenant_refusal_rows pattern) - a save must never reformat the registry
     with io.open(ROOT / "trajectory_registry.json", encoding="utf-8") as fh:
         fh.readline()
         second = fh.readline()
     registry_io.save_doc(doc, indent=max(1, len(second) - len(second.lstrip(" "))) if second.strip() else 2)
-    print(f"BANKED {len(can)} OD row(s) -> locking 60")
-    return 0
 
 
 if __name__ == "__main__":

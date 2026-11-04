@@ -233,4 +233,4 @@ The opposite is more likely. The technicians most at risk from AI are the ones w
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: fbfab28332b8ba05 -->
+<!-- md-twin source-sha: 740b8959acef7e7b -->

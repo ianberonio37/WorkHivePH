@@ -57,7 +57,7 @@
         Array.prototype.slice.call(document.body.children).forEach(function (el) {
           if (!(el.classList && el.classList.contains('wh-offline-banner'))) el.remove();
         });
-        document.body.insertAdjacentHTML('beforeend', '<main style="font-family:sans-serif;color:#e6edf3;background:#0d1117;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;"><div><h1 style="font-size:1.1rem;">Founder access only</h1><p style="color:#94a3b8;font-size:.85rem;margin-top:.5rem;">This is an internal WorkHive page.</p><p style="margin-top:1rem;"><a href="index.html" style="color:var(--wh-blue);display:inline-flex;align-items:center;min-height:44px;padding:0 .5rem;">&larr; Back to WorkHive</a></p></div></main>');
+        document.body.insertAdjacentHTML('beforeend', '<main style="font-family:sans-serif;color:var(--wh-paper-rule, #E5E7EB);background:var(--wh-blue-950-b, #0d1117);min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;"><div><h1 style="font-size:var(--wh-fs-lead-plus, 1.125rem);">Founder access only</h1><p style="color:var(--wh-slate-400, #94a3b8);font-size:var(--wh-fs-sm, .85rem);margin-top:.5rem;">This is an internal WorkHive page.</p><p style="margin-top:1rem;"><a href="index.html" style="color:var(--wh-blue);display:inline-flex;align-items:center;min-height:44px;padding:0 .5rem;">&larr; Back to WorkHive</a></p></div></main>');
         document.documentElement.style.visibility = '';
       }
       // ★A LAPSED SESSION IS NOT A MISSING GRANT (SL AU1, 2026-10-14) - marketplace-admin's and founder-console's rule.
@@ -71,7 +71,7 @@
         var d = document.createElement('div');
         d.setAttribute('role', 'status');
         d.style.cssText = 'position:fixed;inset:0;z-index:9000;font-family:sans-serif;color:#e6edf3;background:#0d1117;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;';
-        d.innerHTML = '<div><h1 style="font-size:1.1rem;">Your access cannot be checked right now</h1><p style="color:#94a3b8;font-size:.85rem;margin-top:.5rem;max-width:32rem;"></p><p style="margin-top:1rem;"><a href="index.html" style="color:var(--wh-blue);display:inline-flex;align-items:center;min-height:44px;padding:0 .5rem;">&larr; Back to WorkHive</a></p></div>';
+        d.innerHTML = '<div><h1 style="font-size:var(--wh-fs-lead-plus, 1.125rem);">Your access cannot be checked right now</h1><p style="color:var(--wh-slate-400, #94a3b8);font-size:var(--wh-fs-sm, .85rem);margin-top:.5rem;max-width:32rem;"></p><p style="margin-top:1rem;"><a href="index.html" style="color:var(--wh-blue);display:inline-flex;align-items:center;min-height:44px;padding:0 .5rem;">&larr; Back to WorkHive</a></p></div>';
         d.querySelector('p').textContent = (typeof whAdminCheckOfflineText === 'function') ? whAdminCheckOfflineText('This internal page')
           : "You're offline. This internal page needs a connection to check your access.";
         document.body.appendChild(d);
@@ -129,43 +129,43 @@
   </script>
   <style>
     :root {
-      --bg: #0b1220; --bg2: #131b2e; --fg: #e7ecf3; --dim: #94a3b8;
+      --bg: var(--wh-blue-950, #0b1220); --bg2: var(--wh-navy, #162032); --fg: var(--wh-paper-rule, #E5E7EB); --dim: var(--wh-slate-400, #94a3b8);
       --accent: var(--wh-blue); --pass: var(--wh-green); --fail: var(--wh-red); --warn: var(--wh-orange);
-      --card: #19243d; --border: #2a3658;
+      --card: var(--wh-navy-mid, #1F2E45); --border: var(--wh-navy-light, #2A3D58);
     }
     *, *::before, *::after { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
     header { padding: 24px 28px 16px; border-bottom: 1px solid var(--border); background: var(--bg2); }
-    h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
-    .sub { color: var(--dim); font-size: 13px; }
+    h1 { margin: 0 0 6px; font-size: var(--wh-fs-xl, 1.5rem); font-weight: 600; letter-spacing: -0.01em; }
+    .sub { color: var(--dim); font-size: var(--wh-fs-xs, 0.8rem); }
     @media (max-width: 420px) { #meta { min-height: 58px; } }   /* I1 CLS (EX-PF F07, 2026-09-07): 'Loading…' is one line, the rollup sentence is three at 390 - the grid moved 40px after first paint */
     main { padding: 20px 28px; max-width: 1200px; margin: 0 auto; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 24px; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding:16px; }
     /* a KPI card's label names the figure; it is not a section heading (F5, 2026-10-15) */
-    .card .kpi-label { margin: 0 0 8px; font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
-    .card .big { font-size: 26px; font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
-    .card .delta { font-size: 12px; color: var(--dim); margin-top: 4px; }
+    .card .kpi-label { margin: 0 0 8px; font-size: var(--wh-fs-2xs, 0.75rem); color: var(--dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+    .card .big { font-size: var(--wh-fs-2xl, 1.75rem); font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
+    .card .delta { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--dim); margin-top: 4px; }
     .card.good .big { color: var(--pass); }
     .card.warn .big { color: var(--warn); }
     .card.bad  .big { color: var(--fail); }
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 8px 10px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border); }
-    th { color: var(--dim); font-weight: 500; text-transform: uppercase; font-size: 12px; letter-spacing: 0.04em; background: var(--bg2); }
-    tr:hover td { background: rgba(56, 189, 248, 0.05); }
+    th, td { padding: 8px 10px; text-align: left; font-size: var(--wh-fs-xs, 0.8rem); border-bottom: 1px solid var(--border); }
+    th { color: var(--dim); font-weight: 500; text-transform: uppercase; font-size: var(--wh-fs-2xs, 0.75rem); letter-spacing: 0.04em; background: var(--bg2); }
+    tr:hover td { background: rgba(var(--wh-sky-400-rgb, 56, 189, 248), 0.05); }
     .controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px /* R1 2026-09-05 */; }
-    select, button { background: var(--card); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 16px; min-height: 44px; outline: none; cursor: pointer; }
+    select, button { background: var(--card); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: var(--wh-fs-base, 1rem); min-height: 44px; outline: none; cursor: pointer; }
     button:hover { border-color: var(--accent); }
     /* U2: outline:none above strips the focus ring (focus-miss) — restore a visible keyboard indicator. font-size:16px + min-height:44px = no iOS auto-zoom + gloved-field tap target. */
     select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--accent); }
+    .id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--wh-fs-2xs, 0.75rem); color: var(--accent); }
     .meter { height: 6px; background: var(--bg2); border-radius: 999px; overflow: hidden; }
     .meter > div { height: 100%; background: var(--accent); }
     .empty { padding: 24px; text-align: center; color: var(--dim); }
-    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-    .pill.cache { background: rgba(52,211,153,0.15); color: var(--pass); }
-    .pill.live  { background: rgba(56,189,248,0.15); color: var(--accent); }
-    .pill.fall  { background: rgba(251,191,36,0.15); color: var(--warn); }
+    .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; }
+    .pill.cache { background: rgba(var(--wh-emerald-400-rgb, 52, 211, 153), 0.15); color: var(--pass); }
+    .pill.live  { background: rgba(var(--wh-sky-400-rgb, 56, 189, 248), 0.15); color: var(--accent); }
+    .pill.fall  { background: rgba(var(--wh-amber-400-rgb, 251, 191, 36), 0.15); color: var(--warn); }
     /* D1 U7 + D3 A1: at 360px the 28px side padding + wide per-task/per-hive tables (long ids)
        pushed scrollWidth past the viewport (387>360). Trim padding + let tables scroll within the
        page on narrow screens; desktop layout is unchanged. */
@@ -189,17 +189,17 @@
 <!-- RETIRED (Operator-Console → Grafana arc P3, 2026-07-18): all 7 LLM KPIs (calls, cache-hit, fallback,
      error, p50 latency, tokens, per-hive burn) are now Founder-Ops Grafana panels (17/18 + cost-by-provider 14).
      Admin-only operator page. Reversible: delete this overlay div. rgba-only, 0 design-token debt; content preserved. -->
-<div id="wh-retired-overlay" role="main" style="position:fixed; inset:0; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); box-sizing:border-box; z-index:100000; background:rgba(11,15,26,0.98); color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.92); display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
+<div id="wh-retired-overlay" role="main" style="position:fixed; inset:0; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); box-sizing:border-box; z-index:var(--wh-z-retired, 100000); background:rgba(var(--wh-ink-darkest-rgb, 11, 15, 26), 0.98); color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.92); display:flex; align-items:center; justify-content:center; padding:1.5rem; font-family:'Poppins',system-ui,sans-serif; text-align:center;">
   <div style="max-width:560px;">
-    <div style="font-size:2.4rem; margin-bottom:0.5rem;">📊</div>
-    <h1 style="font-size:1.6rem; font-weight:800; margin:0 0 0.6rem; color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.95);">LLM Observability has moved into the operator console</h1><!-- was an <h1>: the page carried TWO visible h1s (this banner + the title), rubric A1/heading-order 2026-09-05 -->
+    <div style="font-size:var(--wh-fs-3xl, 2.25rem); margin-bottom:0.5rem;">📊</div>
+    <h1 style="font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; margin:0 0 0.6rem; color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.95);">LLM Observability has moved into the operator console</h1><!-- was an <h1>: the page carried TWO visible h1s (this banner + the title), rubric A1/heading-order 2026-09-05 -->
     <!-- OPC (2026-10-22): the one operator console holds these panels now, across every hive and computed in the
          database, beside the Grafana panel they drill into; this page sent founders to Grafana and to Platform Actions. -->
-    <p style="color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.6); font-size:0.92rem; line-height:1.5; margin:0 0 1.6rem;">Its Developer tab now shows the calls, the cache hits and the errors. It also shows each hive's budget.</p>
+    <p style="color:rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.6); font-size:var(--wh-fs-md, 0.95rem); line-height:1.5; margin:0 0 1.6rem;">Its Developer tab now shows the calls, the cache hits and the errors. It also shows each hive's budget.</p>
     <nav aria-label="Where this page moved" style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
       <!-- link-allow: #developer is the console's hash route to its Developer tab (opcShowTab reads location.hash), not a static id -->
       <a href="founder-console.html#developer" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color:var(--wh-orange-light, #FDB94A); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); text-decoration:none; font-weight:700; min-height:44px; border-radius:8px;">Open the Developer tab →</a>
-      <a href="http://127.0.0.1:3001/d/workhive-founder-ops" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(52,211,153,0.14); color:rgba(52,211,153,0.95); border:1px solid rgba(52,211,153,0.4); text-decoration:none; font-weight:700; min-height:44px; border-radius:8px;">📊 Founder Ops dashboard →</a>
+      <a href="http://127.0.0.1:3001/d/workhive-founder-ops" style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.8rem 1.3rem; background:rgba(var(--wh-emerald-400-rgb, 52, 211, 153), 0.14); color:rgba(var(--wh-emerald-400-rgb, 52, 211, 153), 0.95); border:1px solid rgba(var(--wh-emerald-400-rgb, 52, 211, 153), 0.4); text-decoration:none; font-weight:700; min-height:44px; border-radius:8px;">📊 Founder Ops dashboard →</a>
     </nav>
     <!-- T69 (2026-08-25, extended 2026-09-08): the Grafana credential POINTER ('login: admin · password in infra/mcp/.env.mcp') is removed. It was taken out of marketplace-admin.html on 2026-08-25 and left on three pages that are not auth-gated at all, so it rendered for any visitor. A pointer to where a secret lives is the part worth removing, which is why this is a deletion rather than a rewording. The dashboard link stays. --><!-- was 0.35 = 3.03:1 at 12px, under the 4.5 floor (live-walk render-contract, 2026-09-06) -->
   </div>
@@ -207,19 +207,19 @@
   <main>
   <header><!-- moved INSIDE main 2026-09-05: the rubric's content root is <main>, so a header outside it left A1 reading h1=0 and G1 seeing no status region -->
     <h1>LLM Observability</h1>
-<p class="wh-back" style="margin:.25rem 0 0; font-size:.8rem;"><a data-i="p_backtoworkhive_13cc" href="index.html" style="color:inherit; opacity:.85; text-decoration:underline; display:inline-flex; align-items:center; min-height:44px;">&#8592;Back to WorkHive</a></p><!-- W1 (rubric 2026-09-05): an in-layout way back; the floating hub is not one -->
+<p class="wh-back" style="margin:.25rem 0 0; font-size:var(--wh-fs-xs, .8rem);"><a data-i="p_backtoworkhive_13cc" href="index.html" style="color:inherit; opacity:.85; text-decoration:underline; display:inline-flex; align-items:center; min-height:44px;">&#8592;Back to WorkHive</a></p><!-- W1 (rubric 2026-09-05): an in-layout way back; the floating hub is not one -->
     <div data-i="p_loadingthecostandcacherollup_016b" class="sub wh-source-chip" id="meta" role="status" aria-live="polite">Loading the cost and cache rollups...</div><!-- G1+E3 (2026-09-05): the freshness line IS the status region -->
   </header>
     <details class="wh-help"><summary data-i="p_howtoreadthispage_e6aa">How to read this page</summary><p data-i="p_eachnumberisacostorcachefigu_0713">Each number is a cost or cache figure for the AI calls the platform made in the chosen window. The Grafana link at the top has the live dashboards; this page keeps the rollups readable without leaving WorkHive.</p></details><!-- O2 (2026-09-05) -->
     <div class="controls">
-      <label for="window" style="font-size:.8rem;margin-right:.4rem;">Window</label><select id="window" aria-label="Time window">
+      <label for="window" style="font-size:var(--wh-fs-xs, .8rem);margin-right:.4rem;">Window</label><select id="window" aria-label="Time window">
         <option data-i="p_lasthour_61f1" value="1">Last 1 hour</option>
         <option data-i="p_lasthours_85dc" value="6">Last 6 hours</option>
         <option data-i="p_lasthours_99d6" value="24" selected>Last 24 hours</option>
         <option data-i="p_lastdays_df83" value="168">Last 7 days</option>
       </select>
       <button id="refresh" data-i="refresh">Refresh</button>
-      <span id="loaded-at" style="color: var(--dim); font-size: 12px;"></span>
+      <span id="loaded-at" style="color: var(--dim); font-size: var(--wh-fs-2xs, 0.75rem);"></span>
     </div>
 
     <!-- Top-line KPIs -->
@@ -233,7 +233,7 @@
     </div>
 
     <!-- Per-task routing -->
-    <h2 data-i="p_pertaskrouting_70fb" style="font-size: 15px; color: var(--fg); opacity: .85; text-transform: uppercase; letter-spacing: 0.06em;">Per-task routing</h2>
+    <h2 data-i="p_pertaskrouting_70fb" style="font-size: var(--wh-fs-md, 0.95rem); color: var(--fg); opacity: .85; text-transform: uppercase; letter-spacing: 0.06em;">Per-task routing</h2>
     <table id="by-task" aria-label="Per-task routing">
       <caption data-i="p_pertaskllmroutingcallscacheh_b31b" class="visually-hidden" style="position:absolute;left:-9999px;">Per-task LLM routing: calls, cache hit rate, p50 latency, provider mix</caption>
       <thead><tr><th>Task / Fn</th><th data-i="p_calls_0a19">Calls</th><th>Cache %</th><th>p50 ms</th><th>Provider mix</th></tr></thead>
@@ -241,7 +241,7 @@
     </table>
 
     <!-- Per-hive budget -->
-    <h2 data-i="p_perhivebudgetburn_8676" style="font-size: 15px; color: var(--fg); opacity: .85; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 24px /* R1 2026-09-05 */;">Per-hive budget burn</h2>
+    <h2 data-i="p_perhivebudgetburn_8676" style="font-size: var(--wh-fs-md, 0.95rem); color: var(--fg); opacity: .85; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 24px /* R1 2026-09-05 */;">Per-hive budget burn</h2>
     <table id="by-hive" aria-label="Per-hive budget burn">
       <caption data-i="p_perhivellmbudgetburncallsinw_0843" class="visually-hidden" style="position:absolute;left:-9999px;">Per-hive LLM budget burn: calls in window vs limit, last activity</caption>
       <thead><tr><th>Hive</th><th data-i="p_callswindow_633b">Calls (window)</th><th>Limit/hr</th><th>Budget burn</th><th data-i="p_lastcall_8254">Last call</th></tr></thead>
@@ -391,8 +391,8 @@
           <td><span class="id">${escHtml(hive.slice(0, 12))}…</span></td>
           <td>${num(h.calls)}</td>
           <td>${HIVE_CAP}</td>
-          <td><div class="meter"><div style="width:${burnPct.toFixed(0)}%; background: var(--${klass === 'bad' ? 'fail' : (klass === 'warn' ? 'warn' : 'pass')});"></div></div><div style="font-size: 12px;color:var(--dim);margin-top:2px;">${burnPct.toFixed(0)}% of window</div></td>
-          <td style="color:var(--dim);font-size:12px;">${(h.last || '').slice(11, 19)}</td>
+          <td><div class="meter"><div style="width:${burnPct.toFixed(0)}%; background: var(--${klass === 'bad' ? 'fail' : (klass === 'warn' ? 'warn' : 'pass')});"></div></div><div style="font-size: var(--wh-fs-2xs, 0.75rem);color:var(--dim);margin-top:2px;">${burnPct.toFixed(0)}% of window</div></td>
+          <td style="color:var(--dim);font-size:var(--wh-fs-2xs, 0.75rem);">${(h.last || '').slice(11, 19)}</td>
         </tr>`;
       })
       .join('');

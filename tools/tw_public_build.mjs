@@ -39,6 +39,7 @@ import fs from 'fs';
 import path from 'path';
 import vm from 'vm';
 import crypto from 'crypto';
+import { execFileSync } from 'child_process';
 
 const ORIGIN = 'http://localhost:5000';
 const MANIFEST = 'tools/tw_pub_families.json';
@@ -224,14 +225,20 @@ async function cmdBuild() {
         + `   config below. Do not edit by hand. A class added to a page that links this sheet needs a rebuild:\n`
         + `     node tools/tw_public_build.mjs build --family ${name}\n`
         + `   and the tw-public-sheets gate fails until it is done.\n`
+        + `   Token literals are then respelled var(--wh-*, <literal>) by tools/fix_token_literals.py --tailwind (proven invisible).\n`
         + `   config: ${JSON.stringify(config)} */\n`;
       fs.writeFileSync(sheet, head + css + (css.endsWith('\n') ? '' : '\n'));
+      // ★the token respelling runs after EVERY build (OD, 2026-11-04): the CDN writes literals, and a step that waits to
+      // be remembered does not happen. The fixer proves each sheet invisible before it writes it, and refuses otherwise.
+      for (const extra of [[], ['--type-scale']]) {
+        execFileSync('python', ['tools/fix_token_literals.py', '--tailwind', '--apply', '--only', sheet, ...extra], { stdio: 'inherit' });
+      }
       const names = cssClassNames(css);
       const nonUtil = [...h.classAttr].filter((c) => !names.has(c)).sort();   // the pages' own classes
       m.families[name] = {
         sheet, config_hash: h8(stable(config)), config, config_src: src, cdn_version: version,
         pages: files, local_scripts: h.scripts, harvested_tokens: h.all.size, class_tokens: h.classAttr.size,
-        bytes: Buffer.byteLength(head + css), classes_in_sheet: names.size, non_utility_classes: nonUtil,
+        bytes: fs.statSync(sheet).size, classes_in_sheet: names.size, non_utility_classes: nonUtil,
       };
       console.log(`${name.padEnd(10)} ${files.length} pages  ${h.all.size} tokens -> ${sheet} ${(Buffer.byteLength(css) / 1024).toFixed(1)} KB, `
         + `${names.size} classes, v${version}, ${((Date.now() - t0) / 1000).toFixed(1)} s`);

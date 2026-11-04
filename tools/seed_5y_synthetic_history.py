@@ -208,6 +208,29 @@ def fetch_hive_workers(url: str, key: str) -> Dict[str, List[str]]:
 # no account were rows their own author could never edit (author-can-edit-own-work after a clean reseed, 2026-10-27).
 _UID_OF: Dict[str, str] = {}
 
+# (hive, tag) -> asset_nodes.id, filled once in main(). ★A CLONED ROW MUST CARRY ITS LINK (2026-11-04): build_one_row wrote
+# `machine` and never `asset_node_id`, so every clone of a linked history was unlinked - 18,000 rows at 600 per asset,
+# which validate_logbook_asset_linkage reported and which made v_asset_truth count a machine's history short. The link
+# rule is the backfill's own (20260708000003): the same hive, `machine` EXACTLY the asset's tag.
+_ASSET_ID: Dict[tuple, str] = {}
+
+
+def fetch_asset_ids(url: str, key: str) -> Dict[tuple, str]:
+    import requests
+    out: Dict[tuple, str] = {}
+    offset = 0
+    while True:
+        r = requests.get(f"{url}/rest/v1/asset_nodes?select=id,hive_id,tag&order=id&limit=1000&offset={offset}",
+                         headers={"apikey": key, "Authorization": f"Bearer {key}"}, timeout=60)
+        r.raise_for_status()
+        chunk = r.json()
+        for a in chunk:
+            if a.get("hive_id") and a.get("tag"):
+                out.setdefault((a["hive_id"], a["tag"]), a["id"])
+        if len(chunk) < 1000:
+            return out
+        offset += 1000
+
 
 def fetch_profile_uids(url: str, key: str) -> Dict[str, str]:
     import requests
@@ -246,6 +269,7 @@ def build_one_row(
         "id":               str(uuid.uuid4()),    # logbook.id is NOT NULL without DEFAULT — client must generate
         "hive_id":          hive_id,
         "machine":          asset,
+        "asset_node_id":    _ASSET_ID.get((hive_id, asset)),
         "date":             when_utc.date().isoformat(),  # NOT NULL legacy day-grouping field
         "maintenance_type": maint_type,
         "category":         cat,
@@ -447,6 +471,7 @@ def main() -> int:
         hive_assets  = fetch_hive_assets(url, key)
         hive_workers = fetch_hive_workers(url, key)
         _UID_OF.update(fetch_profile_uids(url, key))
+        _ASSET_ID.update(fetch_asset_ids(url, key))
     else:
         url, key  = "http://127.0.0.1:54321", "DRY-RUN"
         templates = []

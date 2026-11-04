@@ -64,8 +64,8 @@
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
       background: var(--wh-navy-mid); border: 1px solid var(--border);
       border-radius: 0.75rem; padding: 0.65rem 1.1rem;
-      font-size: 0.75rem; font-weight: 600; z-index: 9999;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; z-index: var(--wh-z-toast-5, 9999);
+      box-shadow: 0 8px 32px var(--wh-black-55, rgba(0, 0, 0, 0.55));
       /* ★THE PAGE'S ONE AUTHORED MOMENT NAMED A DURATION AND NO CURVE (2026-09-18, W46039 motion lens).
          `transition: opacity 0.3s` is the toast that confirms a supervisor published a shift plan or
          re-ran it - the only motion this file declares. Two things were wrong with it and neither was
@@ -98,8 +98,8 @@
       cursor: pointer; color: var(--muted); text-decoration: none;
     }
     .back-btn:hover { background: var(--wh-white-10, rgba(255,255,255,0.1)); }
-    .page-title { font-size: 1.125rem; font-weight: 700; }
-    .page-sub   { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .page-title { font-size: var(--wh-fs-lead-plus, 1.125rem); font-weight: 700; }
+    .page-sub   { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); margin-top: 2px; }
 
     /* ★THE NO-HIVE SCREEN HAD NO TITLE, NO WAY BACK AND A 35px BUTTON (ENH-C, 2026-10-22). Anyone without an active
        hive - every solo owner - got this block instead of the board: centred text below a page whose header lived
@@ -113,13 +113,13 @@
       background: var(--card-bg); border: 1px solid var(--border); border-radius: 1rem;
       padding: 2rem 1.25rem;
     }
-    #hive-gate h2 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
-    #hive-gate p  { color: var(--muted); font-size: 0.875rem; max-width: 360px; }
+    #hive-gate h2 { font-size: var(--wh-fs-lead-plus, 1.125rem); font-weight: 700; margin-bottom: 0.5rem; }
+    #hive-gate p  { color: var(--muted); font-size: var(--wh-fs-sm-plus, 0.875rem); max-width: 360px; }
     #hive-gate .sb-gate-cta {
       display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
       margin-top: 1.25rem; padding: 0 1.25rem;
       background: var(--wh-orange); color: var(--wh-navy); border-radius: var(--wh-radius-sm);
-      font-weight: 700; font-size: 0.875rem; text-decoration: none;
+      font-weight: 700; font-size: var(--wh-fs-sm-plus, 0.875rem); text-decoration: none;
       transition: background var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
     }
     #hive-gate .sb-gate-cta:hover { background: var(--wh-orange-dark); }
@@ -134,7 +134,7 @@
       background: var(--wh-white-04, rgba(255,255,255,0.04)); border: 1px solid var(--border);
       border-radius: var(--wh-radius-sm); padding: 0.5rem 0.75rem;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 600; cursor: pointer;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; cursor: pointer;
       color: var(--muted); text-align: center;
       font-family: inherit;
     }
@@ -142,7 +142,7 @@
       background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.45);
       color: var(--orange-wh);
     }
-    .shift-pill:hover { color: #fff; }
+    .shift-pill:hover { color: var(--wh-white, #fff); }
 
     .briefing-card {
       background: var(--card-bg);
@@ -159,18 +159,18 @@
        under it, which is the only reason the line exists. Sentence case, same size, same colour; the
        0.55rem margin goes to 0.5rem in the same edit, the last value on this page off the 4px grid. */
     .briefing-meta {
-      font-size: 0.75rem; color: var(--muted); letter-spacing: 0.01em;
+      font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); letter-spacing: 0.01em;
       margin-bottom: 0.5rem;
       display: flex; align-items: center; gap: 0.5rem;
     }
     .status-pill {
       display: inline-block; padding: 2px 9px; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; letter-spacing: 0.05em;
     }
     .status-draft     { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--wh-orange-light); }   /* C2: AA-safe orange (was --wh-orange @ 4.44:1) */
     .status-published { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--wh-green); }
-    .status-archived  { background: rgba(180,180,180,0.14); color: var(--muted); }
-    .briefing-text { font-size: 0.95rem; line-height: 1.5; white-space: pre-wrap; }
+    .status-archived  { background: rgba(var(--wh-print-rule-rgb, 187, 187, 187), 0.14); color: var(--muted); }
+    .briefing-text { font-size: var(--wh-fs-md, 0.95rem); line-height: 1.5; white-space: pre-wrap; }
 
     .section-card {
       background: var(--card-bg);
@@ -186,23 +186,23 @@
          treatment chosen for 'PMs due' was inherited by a sentence, because one class serves
          both. A section heading is not a pill, so the caps go and the weight and size stay to
          mark it as a heading. */
-      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.01em;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; letter-spacing: 0.01em;
       color: var(--muted); margin-bottom: 0.75rem;
       display: flex; justify-content: space-between; align-items: center;
     }
     .section-count {
       background: var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 999px;
-      padding: 2px 8px; font-size: 0.75rem; color: var(--wh-cloud); font-weight: 700;
+      padding: 2px 8px; font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-cloud); font-weight: 700;
       letter-spacing: 0.02em; text-transform: none;
     }
 
     .row {
       padding: 0.5rem 0; border-bottom: 1px dashed var(--border);
-      font-size: 0.875rem;
+      font-size: var(--wh-fs-sm-plus, 0.875rem);
     }
     .row:last-child { border-bottom: none; }
-    .row-meta { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-    .empty-row { font-size: 0.875rem; color: var(--muted); padding: 0.5rem 0; }
+    .row-meta { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); margin-top: 2px; }
+    .empty-row { font-size: var(--wh-fs-sm-plus, 0.875rem); color: var(--muted); padding: 0.5rem 0; }
 
     .actions-row {
       display: flex; gap: 0.5rem; margin-top: 0.75rem;
@@ -216,7 +216,7 @@
        controls, so they take the ACTION radius (rubric S1 / NN/g #4). */
     .btn-primary, .btn-ghost {
       flex: 1; min-height: 44px; border-radius: var(--wh-radius-sm);
-      font-size: 0.75rem; font-weight: 600; font-family: inherit;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; font-family: inherit;
       cursor: pointer;
       display: inline-flex; align-items: center; justify-content: center;
     }
@@ -231,9 +231,9 @@
     }
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
-    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-    .verdict-text { font-size:0.875rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
+    .verdict-icon { font-size:var(--wh-fs-xl, 1.5rem); line-height:1; font-weight:800; }
+    .verdict-text { font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:500; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
@@ -243,7 +243,7 @@
     .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #sb-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #sb-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:var(--wh-fs-2xs, 0.75rem); line-height:1.5; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-bottom:16px; }
     #sb-summary-details.open { display:block; }
   </style>
 </head>
@@ -325,9 +325,9 @@
         <span id="brief-status" class="status-pill status-draft">draft</span>
         <!-- ★E3/C2: text #f7a21b over a 13%-alpha amber (#f59e0b22) composited to 2.02:1 on the dark navy theme (dark-on-dark).
              A warning chip must be self-sufficient: a SOLID bright-amber fill with near-black text reads on any background (~9:1). -->
-        <span data-i="p_stale_86c1" id="brief-stale" style="display:none; align-items:center; gap:4px; font-size: 0.75rem; font-weight:700; color:#1a1206; background:var(--wh-orange); border:1px solid var(--wh-orange); padding:2px 8px; border-radius:8px;" title="This plan is not for the current shift; regenerate before acting on it.">⚠ STALE</span>
+        <span data-i="p_stale_86c1" id="brief-stale" style="display:none; align-items:center; gap:4px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-print-ink, #111111); background:var(--wh-orange); border:1px solid var(--wh-orange); padding:2px 8px; border-radius:8px;" title="This plan is not for the current shift; regenerate before acting on it.">⚠ STALE</span>
       </div>
-      <div id="brief-degraded" role="alert" style="display:none; margin-top:8px; font-size:.75rem; font-weight:600; color:var(--wh-red); background:#ef444415; border:1px solid #ef444455; padding:8px 10px; border-radius:8px;"></div>
+      <div id="brief-degraded" role="alert" style="display:none; margin-top:8px; font-size:var(--wh-fs-2xs, .75rem); font-weight:600; color:var(--wh-red); background:rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.082); border:1px solid rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.333); padding:8px 10px; border-radius:8px;"></div>
       <div data-i="p_loadingbriefing_875d" class="briefing-text" id="brief-text" data-ai-generated>Loading briefing...</div>   <!-- the shift brief is LLM prose (generate-shift-plan): excluded from the copy lenses like hive's pattern alerts and report-sender's summary; its quality is graded by the AI-output gates, not by B3 (2026-09-06) -->
     </div>
 
@@ -357,7 +357,7 @@
            blocked splits cannot be rendered honestly — the definition instead says plainly that the
            bucket hides those three states and routes the reader to the person who knows. If a
            carry-reason field is ever added to the log, replace this line with the real breakdown. -->
-      <p style="font-size: 0.75rem; color:rgba(255,255,255,0.72); margin:4px 0 8px; line-height:1.5;" data-i="carrydef">Jobs still open from the prior shift. The log does not yet say <em>why</em> a job stays open. Not started, deferred (still due) and blocked all look the same here. Confirm the reason at handover before re-planning them.</p>
+      <p style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72); margin:4px 0 8px; line-height:1.5;" data-i="carrydef">Jobs still open from the prior shift. The log does not yet say <em>why</em> a job stays open. Not started, deferred (still due) and blocked all look the same here. Confirm the reason at handover before re-planning them.</p>
       <div id="carry-list"></div>
     </div>
 
@@ -376,7 +376,7 @@
       <div id="empty-supervisor" style="margin-top:0.6rem;display:none;">
         <button class="btn-primary" id="generate-btn" data-i="generatenow">Generate now</button>
       </div>
-      <div data-i="p_yoursupervisorneedstogenerat_69e5" id="empty-worker" style="margin-top:0.5rem;font-size:0.75rem;display:none;">
+      <div data-i="p_yoursupervisorneedstogenerat_69e5" id="empty-worker" style="margin-top:0.5rem;font-size:var(--wh-fs-2xs, 0.75rem);display:none;">
         Your supervisor needs to generate one. The automatic schedule runs at 06:00, 14:00, and 22:00 PHT once enabled.
       </div>
     </div>
@@ -385,11 +385,11 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 
 <div class="wh-sources-item" data-wh-source-key="sb-summary-details">
@@ -399,7 +399,7 @@
 <div id="sb-summary-details" role="region" aria-label="Shift plan explainer"
     data-rag-tile="shift-brain:detail_panel"
     data-rag-label="Shift brain detail">
-      <strong data-i="p_howthisshiftplanisbuilt_3632" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this shift plan is built</strong>
+      <strong data-i="p_howthisshiftplanisbuilt_3632" style="display:block;margin-bottom:6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">How this shift plan is built</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong data-i="p_topriskthisshift_6343">Top risk this shift</strong>: assets ranked by latest each asset's risk score; only <strong>high</strong> and <strong>critical</strong> bands shown (score &ge; 0.70). Low/medium assets live in the full risk register, not the shift brief.</li>
         <li><strong data-i="p_pmsdue_7b76">PMs due</strong>: frequency-aware <strong>overdue</strong> PMs (the next due date has passed, based on each task's own interval), one row per asset. Not the retired flat 30-day proxy.</li>
@@ -1273,7 +1273,7 @@
       const restId = elId + '-rest';
       el.innerHTML = rows.slice(0, cap).map(rowFn).join('')
         + `<div id="${restId}" style="display:none;">${rows.slice(cap).map(rowFn).join('')}</div>`
-        + `<button type="button" class="sb-showall" style="width:100%; margin-top:8px; min-height:44px; background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius:var(--wh-radius-sm); color:rgba(255,255,255,0.83); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer;">Show all ${rows.length} &#8595;</button>`;
+        + `<button type="button" class="sb-showall" style="width:100%; margin-top:8px; min-height:44px; background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius:var(--wh-radius-sm); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); font-family:inherit; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; cursor:pointer;">Show all ${rows.length} &#8595;</button>`;
       const btn = el.querySelector('.sb-showall');
       if (btn) btn.addEventListener('click', () => { const r = document.getElementById(restId); if (r) { r.style.display = 'block'; btn.style.display = 'none'; } });
     }
@@ -1289,7 +1289,7 @@
       // an incoming shift must verify zero-energy before touching the asset. The orchestrator
       // already carries loto_applied/permit_reference per row; surface it as a badge.
       const loto = r.loto_applied
-        ? `<span style="display:inline-flex; align-items:center; gap:4px; font-size: 0.75rem; font-weight:800; color:var(--wh-orange); background:#f59e0b22; border:1px solid #f59e0b66; padding:1px 7px; border-radius:8px; margin-left:6px;" title="Open job under energy isolation; verify zero-energy before touching">🔒 LOTO${r.permit_reference ? ' &middot; ' + e(r.permit_reference) : ''}</span>`
+        ? `<span style="display:inline-flex; align-items:center; gap:4px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; color:var(--wh-orange); background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.133); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); padding:1px 7px; border-radius:8px; margin-left:6px;" title="Open job under energy isolation; verify zero-energy before touching">🔒 LOTO${r.permit_reference ? ' &middot; ' + e(r.permit_reference) : ''}</span>`
         : '';
       // K2 (Ext-5 spine) — emit an "Add to my day" deep-link so a carry-forward open job flows
       // into the tech's Day Planner as a GROUNDED task (source_kind='shift') instead of the plan
@@ -1304,7 +1304,7 @@
         <div><strong>${e(r.machine || 'machine')}</strong> &middot; ${e(r.maintenance_type || '')}${loto}</div>
         <div class="row-meta">${e(r.problem || '').slice(0,140)}</div>
         <div class="row-meta">opened ${e(fmtDate(r.created_at))}${r.worker_name ? ' by ' + e(r.worker_name) : ''}</div>
-        <a href="${e(_addUrl)}" onclick="event.stopPropagation()" aria-label="Add this open job to my Day Planner" style="display:inline-flex; align-items:center; gap:4px; margin-top:2px; min-height:44px; font-size: 0.75rem; font-weight:700; color:var(--wh-blue); text-decoration:none;">+ Add to my day &#8594;</a>
+        <a href="${e(_addUrl)}" onclick="event.stopPropagation()" aria-label="Add this open job to my Day Planner" style="display:inline-flex; align-items:center; gap:4px; margin-top:2px; min-height:44px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-blue); text-decoration:none;">+ Add to my day &#8594;</a>
       </div>`;
     }
     // ★A DEVELOPER COMMAND IN FRONT OF A PLANT SUPERVISOR (SL AV2 walk, 2026-10-19). Whenever the planner could not be

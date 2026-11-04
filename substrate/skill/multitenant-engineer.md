@@ -2,7 +2,7 @@
 name: skill-multitenant-engineer
 type: skill
 source: skill:multitenant-engineer
-source_sha: 102acaac20be01b0
+source_sha: cc4652bbd31fd405
 last_verified: 2026-07-13
 supersedes: null
 ---

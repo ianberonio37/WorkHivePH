@@ -1,0 +1,54 @@
+{
+  "generated_at": "2026-11-03T23:16:33+00:00",
+  "queries_total": 55,
+  "sov_pct": 5.3,
+  "citation_rate": 5.3,
+  "recommendation_rate": 5.3,
+  "taglish_sov_pct": 0.0,
+  "cells_measured": 19,
+  "cells_total": 58,
+  "per_engine": {
+    "groq_browser": {
+      "cited_rate": 0.0,
+      "mention_rate": 0.0,
+      "recommend_rate": 0.0,
+      "sentiment_avg": 0.0,
+      "n_measured": 2
+    },
+    "mistral_web": {
+      "cited_rate": 5.9,
+      "mention_rate": 5.9,
+      "recommend_rate": 5.9,
+      "sentiment_avg": 0.06,
+      "n_measured": 17
+    },
+    "gemini_grounded": {
+      "cited_rate": null,
+      "mention_rate": null,
+      "recommend_rate": null,
+      "sentiment_avg": null,
+      "n_measured": 0
+    },
+    "chatgpt": {
+      "cited_rate": null,
+      "mention_rate": null,
+      "recommend_rate": null,
+      "sentiment_avg": null,
+      "n_measured": 0
+    },
+    "ai_overviews": {
+      "cited_rate": null,
+      "mention_rate": null,
+      "recommend_rate": null,
+      "sentiment_avg": null,
+      "n_measured": 0
+    },
+    "claude": {
+      "cited_rate": null,
+      "mention_rate": null,
+      "recommend_rate": null,
+      "sentiment_avg": null,
+      "n_measured": 0
+    }
+  }
+}

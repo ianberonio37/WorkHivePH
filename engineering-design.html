@@ -40,7 +40,7 @@
     #report-panel, #report-panel *, .doc-panel, .doc-panel *, #drawing-panel svg, #drawing-panel svg * { font-family: var(--wh-doc-font); }
     body { background-color: var(--wh-navy); min-height: 100vh; }
 
-    .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .aurora-bg { position: fixed; inset: 0; z-index: var(--wh-z-art, 0); pointer-events: none; overflow: hidden; }
     /* ★THE AURORA HOLDS STILL (K, 2026-10-15). Three 80px-blurred blobs drifted behind this page forever - DESIGN.md's
        "continuous decorative animation", blur as decoration, and the costliest paint on the low-end phones this
        tool is used on. The same ambient light, static: two soft radial glows on the layer itself (the pattern
@@ -63,16 +63,16 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
       border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
-      color: white;
+      color: var(--wh-white, white);
       padding: 0.75rem 1rem;
       width: 100%;
-      font-size: 1rem;
+      font-size: var(--wh-fs-base, 1rem);
       outline: none;
       transition: border-color 0.2s;
     }
     .wh-input:focus { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); }
     .wh-input::placeholder { color: var(--wh-text-muted, rgba(255,255,255,0.80)); }
-    select.wh-input option { background: var(--wh-navy-mid); color: white; }
+    select.wh-input option { background: var(--wh-navy-mid); color: var(--wh-white, white); }
 
     .btn-primary {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
@@ -80,7 +80,7 @@
       font-weight: 700;
       border-radius: 0.75rem;
       padding: 0.75rem 1.5rem;
-      font-size: 0.875rem;
+      font-size: var(--wh-fs-sm-plus, 0.875rem);
       border: none;
       cursor: pointer;
       transition: all 0.2s;
@@ -94,17 +94,17 @@
     /* An amber button lifting into an amber halo on a dark page - the coloured glow DESIGN.md
        forbids, and the third instance of this exact shape this wave after voice-journal's mic and
        primary. Neutral elevation: the lift still reads, and it reads as a lift rather than a bloom. */
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.45); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px var(--wh-black-45, rgba(0,0,0,0.45)); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
     .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .btn-ghost {
       background: transparent;
-      color:rgba(255,255,255,0.83);
+      color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83);
       font-weight: 500;
       border-radius: 0.75rem;
       padding: 0.75rem 1.5rem;
-      font-size: 0.875rem;
+      font-size: var(--wh-fs-sm-plus, 0.875rem);
       border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
       cursor: pointer;
       transition: all 0.2s;
@@ -114,7 +114,7 @@
       align-items: center;
       justify-content: center;
     }
-    .btn-ghost:hover { border-color: rgba(255,255,255,0.35); color: white; }
+    .btn-ghost:hover { border-color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.35); color: var(--wh-white, white); }
     /* the PDF button while the service wakes (engineering-design.js printReport): visibly busy, not merely dead */
     .btn-ghost.is-loading { cursor: progress; opacity: 0.6; }
 
@@ -128,7 +128,7 @@
       /* 0.625rem = 10px: a phantom radius in no token (rubric S1). Same control ROLE as
          analytics' .phase-tab, so it takes the same vocabulary. */
       border-radius: var(--wh-radius-sm);
-      font-size: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem);
       font-weight: 500;
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       cursor: pointer;
@@ -138,7 +138,7 @@
       white-space: nowrap;
     }
     @media (min-width: 480px) {
-      .page-tab { padding: 0.5rem 1.25rem; font-size: 0.875rem; }
+      .page-tab { padding: 0.5rem 1.25rem; font-size: var(--wh-fs-sm-plus, 0.875rem); }
     }
     .page-tab.active {
       background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15);
@@ -155,7 +155,7 @@
       /* R3 select-vocabulary = pill (family convention: filter-chips/reactions/discipline
          choosers are SELECTs → pill silhouette, distinct from the 12px PRESS rect of Run-Calc). */
       border-radius: 999px;
-      font-size: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem);
       font-weight: 600;
       text-align: center;
       cursor: pointer;
@@ -169,7 +169,7 @@
       justify-content: center;
     }
     @media (min-width: 480px) {
-      .discipline-pill { padding: 0.75rem 1rem; font-size: 0.875rem; }
+      .discipline-pill { padding: 0.75rem 1rem; font-size: var(--wh-fs-sm-plus, 0.875rem); }
     }
     .discipline-pill.active {
       border-color: var(--wh-orange);
@@ -196,7 +196,7 @@
     .toggle-btn {
       padding: 0.5rem 0.9rem;
       border-radius: 999px;
-      font-size: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem);
       font-weight: 500;
       border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
@@ -206,7 +206,7 @@
       min-height: 36px;
       touch-action: manipulation;
     }
-    .toggle-btn:hover { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); color: rgba(255,255,255,0.9); }
+    .toggle-btn:hover { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.9); }
     .toggle-btn.active {
       background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2);
       border-color: var(--wh-orange);
@@ -215,8 +215,8 @@
     }
 
     /* Input label */
-    .field-label { font-size: 0.75rem; font-weight: 500; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom: 0.25rem; }
-    .field-unit { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-left: 0.5rem; }
+    .field-label { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 500; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom: 0.25rem; }
+    .field-unit { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-left: 0.5rem; }
 
     /* Input with unit suffix */
     .input-group { position: relative; }
@@ -226,8 +226,8 @@
       right: 0.75rem;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 0.75rem;
-      /* W45911 audit: this was rgba(255,255,255,0.35) - 3.18:1 on the navy field, against a 4.5:1
+      font-size: var(--wh-fs-2xs, 0.75rem);
+      /* W45911 audit: this was rgba(var(--wh-white-rgb, 255, 255, 255), 0.35) - 3.18:1 on the navy field, against a 4.5:1
          floor - on the element that says what each number MEANS. "5" in a cooling-load field is not
          a value until the m² beside it is legible, and this is the one label a person checks when
          their answer looks wrong. tokens.css declares --wh-text-faint for exactly this tier and says
@@ -251,21 +251,21 @@
        face (K+, 2026-10-15): the reports whose renderers name no font of their own had inherited the app's
        Poppins here, beside reports in the document stack - two faces for one kind of paper. */
     #report-panel {
-      background: white;
-      color: #1a1a1a;
+      background: var(--wh-white, white);
+      color: var(--wh-grey-950, #1a1a1a);
       font-family: var(--wh-doc-font);
       border-radius: 0.75rem;
       padding: 2.5rem;
-      font-size: .875rem;
+      font-size: var(--wh-fs-sm-plus, .875rem);
       line-height: 1.7;
     }
     @media (max-width: 640px) {
-      #report-panel { padding: 1rem; font-size: 0.75rem; }
-      #report-panel h1 { font-size: 0.95rem; }
-      #report-panel h2 { font-size: 0.75rem; }
-      #report-panel table { font-size: 0.75rem; }
+      #report-panel { padding: 1rem; font-size: var(--wh-fs-2xs, 0.75rem); }
+      #report-panel h1 { font-size: var(--wh-fs-md, 0.95rem); }
+      #report-panel h2 { font-size: var(--wh-fs-2xs, 0.75rem); }
+      #report-panel table { font-size: var(--wh-fs-2xs, 0.75rem); }
       #report-panel th, #report-panel td { padding: 0.25rem 0.4rem; }
-      #report-panel .result-highlight .res-value { font-size: 1.125rem; }
+      #report-panel .result-highlight .res-value { font-size: var(--wh-fs-lead-plus, 1.125rem); }
       /* A-3/A-4 (deep-arc P6): any report/doc table wider than the viewport scrolls horizontally
          instead of overflowing the page (WCAG 1.4.10 reflow), regardless of which renderer emitted
          it or whether it was wrapped in .table-wrap. */
@@ -277,21 +277,21 @@
         max-width: 100%;
       }
     }
-    #report-panel h1 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.25rem; color: #1a1a1a; }
-    #report-panel h2 { font-size: .875rem; font-weight: 700; color: #1a1a1a; margin: 1.25rem 0 0.5rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    #report-panel h3 { font-size: 0.875rem; font-weight: 600; color: #333; margin: 0.75rem 0 0.25rem; }
+    #report-panel h1 { font-size: var(--wh-fs-lead-plus, 1.125rem); font-weight: 700; margin-bottom: 0.25rem; color: var(--wh-grey-950, #1a1a1a); }
+    #report-panel h2 { font-size: var(--wh-fs-sm-plus, .875rem); font-weight: 700; color: var(--wh-grey-950, #1a1a1a); margin: 1.25rem 0 0.5rem; border-bottom: 1.5px solid var(--wh-grey-200-b, #e0e0e0); padding-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    #report-panel h3 { font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 600; color: var(--wh-grey-900, #333); margin: 0.75rem 0 0.25rem; }
     #report-panel .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    #report-panel table { width: 100%; border-collapse: collapse; font-size: 0.875rem; margin: 0.5rem 0; min-width: 0; }
-    #report-panel th { background: var(--wh-cloud, #F4F6FA); text-align: left; padding: 0.4rem 0.5rem; border: 1px solid #ddd; font-weight: 600; font-size: 0.75rem; }
-    #report-panel td { padding: 0.4rem 0.5rem; border: 1px solid #ddd; }
+    #report-panel table { width: 100%; border-collapse: collapse; font-size: var(--wh-fs-sm-plus, 0.875rem); margin: 0.5rem 0; min-width: 0; }
+    #report-panel th { background: var(--wh-cloud, #F4F6FA); text-align: left; padding: 0.4rem 0.5rem; border: 1px solid var(--wh-grey-200, #ddd); font-weight: 600; font-size: var(--wh-fs-2xs, 0.75rem); }
+    #report-panel td { padding: 0.4rem 0.5rem; border: 1px solid var(--wh-grey-200, #ddd); }
     #report-panel td.num { text-align: right; font-family: monospace; }
-    #report-panel .total-row td { font-weight: 700; background: #f9f9f9; }
-    #report-panel .result-highlight { background: #fffbf0; border: 1.5px solid var(--wh-orange); border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 0.75rem 0; }
-    #report-panel .result-highlight .res-label { font-size: 0.75rem; color: #666; }
-    /* U-1 (deep-arc P3): --wh-orange-dark (var(--wh-orange-dark)) on cream #fffbf0 measured 2.68:1 — the
-       headline RESULT was the least-readable text on the page. #8a4b00 is a dark amber that
+    #report-panel .total-row td { font-weight: 700; background: var(--wh-white, #FFFFFF); }
+    #report-panel .result-highlight { background: var(--wh-amber-50, #fffbf0); border: 1.5px solid var(--wh-orange); border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 0.75rem 0; }
+    #report-panel .result-highlight .res-label { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-grey-700-b, #666); }
+    /* U-1 (deep-arc P3): --wh-orange-dark (var(--wh-orange-dark)) on cream var(--wh-amber-50, #fffbf0) measured 2.68:1 — the
+       headline RESULT was the least-readable text on the page. var(--wh-doc-amber-800, #885200) is a dark amber that
        stays on-brand and clears WCAG AA 4.5:1 on the cream highlight (verified live via axe). */
-    #report-panel .result-highlight .res-value { font-size: 1.3rem; font-weight: 700; color: #8a4b00; }
+    #report-panel .result-highlight .res-value { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 700; color: var(--wh-doc-amber-800, #885200); }
     #report-panel .sig-block { margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
     /* !important: 18 renderers set grid-template-columns:1fr 1fr 1fr INLINE, which beats this rule - their
        25-underscore signature lines cannot shrink, so three columns pushed the page to 513 px at 390 (STP walk,
@@ -303,17 +303,17 @@
        pushed the page to 402 px at 390. Two shrinkable columns let the labels wrap; print keeps three. */
     @media (max-width: 640px) { #report-panel .res-tiles, .doc-panel .res-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
     @media (max-width: 480px) { .toggle-btn { min-height: 44px; padding: 0.75rem 1rem; } }
-    #report-panel .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
+    #report-panel .sig-line { border-top: 1px solid var(--wh-grey-500, #999); padding-top: 0.25rem; font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-grey-700-b, #666); margin-top: 2rem; }
     #report-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 40px; display: inline-block; cursor: text; }
-    #report-panel .editable-field:focus { background: #fffbf0; border-radius: 8px; }
+    #report-panel .editable-field:focus { background: var(--wh-amber-50, #fffbf0); border-radius: 8px; }
     .doc-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 40px; cursor: text; display: inline; }
     .doc-panel .editable-field[style*="display:block"] { display: block !important; border-bottom: none; border: 1px dashed var(--wh-orange); padding: 0.25rem 0.4rem; border-radius: 8px; }
-    .doc-panel .editable-field:focus { background: #fffbf0; border-radius: 8px; }
-    .doc-panel .editable-field[style*="display:block"]:focus { background: #fffbf0; }
+    .doc-panel .editable-field:focus { background: var(--wh-amber-50, #fffbf0); border-radius: 8px; }
+    .doc-panel .editable-field[style*="display:block"]:focus { background: var(--wh-amber-50, #fffbf0); }
 
     /* Drawing panel: title block editable fields */
     #drawing-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 40px; cursor: text; display: block; }
-    #drawing-panel .editable-field:focus { background: #fffbf0; border-radius: 8px; }
+    #drawing-panel .editable-field:focus { background: var(--wh-amber-50, #fffbf0); border-radius: 8px; }
     @media print { #drawing-panel .editable-field { border-bottom: none; } }
     #drawing-panel.svg-edit-mode svg { cursor: crosshair; }
     #drawing-panel.svg-edit-mode svg text { cursor: move !important; user-select: none; }
@@ -325,7 +325,7 @@
     #drawing-panel.svg-edit-mode svg polygon,
     #drawing-panel.svg-edit-mode svg polyline,
     #drawing-panel.svg-edit-mode svg path { cursor: crosshair; }
-    #svg-edit-banner { display:none; background:#e3f2fd; border:1px solid var(--wh-blue); border-radius:12px; padding:0.25rem 0.85rem; font-size: 0.75rem; color:var(--wh-blue-text); margin-bottom:0.5rem; }
+    #svg-edit-banner { display:none; background:var(--wh-sky-50, #E8F4FF); border:1px solid var(--wh-blue); border-radius:12px; padding:0.25rem 0.85rem; font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-blue-text); margin-bottom:0.5rem; }
 
     /* History card */
     .hist-card {
@@ -348,11 +348,11 @@
          desktop and makes a guarded and an unguarded rule look identical. */
     #toast {
       position: fixed; bottom: calc(5rem + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
-      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); color: white;
+      background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); color: var(--wh-white, white);
       padding: 0.75rem 1.5rem; border-radius: 999px;
-      font-size: .875rem; font-weight: 500;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-      z-index: 9999; opacity: 0; transition: opacity 0.3s;
+      font-size: var(--wh-fs-sm-plus, .875rem); font-weight: 500;
+      box-shadow: 0 4px 20px var(--wh-black-35, rgba(0, 0, 0, 0.35));
+      z-index: var(--wh-z-toast-5, 9999); opacity: 0; transition: opacity 0.3s;
       /* ★AN INVISIBLE TOAST STILL TAKES THE TAP (nav-hub walk W41397, narrow-320 en, 2026-09-16):
          `opacity: 0` hides it from the eye, not from hit-testing, and with no text this fixed box
          collapses to ~1px at left:50% bottom:5rem - which at 320 is dead centre of #calc-search
@@ -383,7 +383,7 @@
     .bom-tab-btn {
       padding: 0.5rem 1rem;
       border-radius: 8px;
-      font-size: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem);
       font-weight: 500;
       border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
@@ -419,9 +419,9 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7);
       border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 8px;
-      color: white;
+      color: var(--wh-white, white);
       padding: 0.25rem 0.55rem;
-      font-size: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem);
       font-family: 'Poppins', sans-serif;
       outline: none;
     }
@@ -434,9 +434,9 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7);
       border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 8px;
-      color: white;
+      color: var(--wh-white, white);
       padding: 0.25rem 0.4rem;
-      font-size: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem);
       font-family: 'Poppins', sans-serif;
       outline: none;
       width: 90px;
@@ -444,15 +444,15 @@
     .bom-delete-btn {
       background: none;
       border: none;
-      color: rgba(255,255,255,0.25);
+      color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.25);
       cursor: pointer;
-      font-size: 0.95rem;
+      font-size: var(--wh-fs-md, 0.95rem);
       padding: 0.2rem 0.25rem;
       border-radius: 8px;
       flex-shrink: 0;
       transition: color 0.15s;
     }
-    .bom-delete-btn:hover { color: rgba(239,68,68,0.7); }
+    .bom-delete-btn:hover { color: rgba(var(--wh-red-strong-rgb, 239, 68, 68), 0.7); }
 
     .sow-checklist-item {
       padding: 0.75rem 0.75rem;
@@ -463,43 +463,43 @@
     }
     .sow-checklist-item.unchecked { opacity: 0.42; }
     .sow-item-header { display: flex; align-items: flex-start; gap: 0.65rem; cursor: pointer; }
-    .sow-item-body  { margin-top: 0.5rem; margin-left: 1.7rem; font-size: 0.76rem; color: rgba(255,255,255,0.45); line-height: 1.55; }
+    .sow-item-body  { margin-top: 0.5rem; margin-left: 1.7rem; font-size: var(--wh-fs-2xs, 0.75rem); color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.45); line-height: 1.55; }
 
     /* ── HVAC Drawing section ─────────────────────────────────── */
     #drawing-panel svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
 
     /* BOM and SOW white contractor document panels */
     .doc-panel {
-      background: white;
-      color: #1a1a1a;
+      background: var(--wh-white, white);
+      color: var(--wh-grey-950, #1a1a1a);
       border-radius: 0.75rem;
       padding: 2rem;
-      font-size: 0.84rem;
+      font-size: var(--wh-fs-sm, 0.85rem);
       font-family: var(--wh-doc-font);
       line-height: 1.7;
     }
-    @media (max-width: 640px) { .doc-panel { padding: 1rem; font-size: 0.77rem; } }
-    .doc-panel h1 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.2rem; color: #1a1a1a; }
-    .doc-panel h2 { font-size: 0.875rem; font-weight: 700; margin: 1.1rem 0 0.5rem; border-bottom: 1.5px solid #e0e0e0; padding-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; color: #1a1a1a; }
-    .doc-panel .doc-header-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 2px solid #1a1a1a; }
-    .doc-panel .doc-meta { font-size: 0.76rem; color: #555; line-height: 1.6; }
+    @media (max-width: 640px) { .doc-panel { padding: 1rem; font-size: var(--wh-fs-2xs, 0.75rem); } }
+    .doc-panel h1 { font-size: var(--wh-fs-lead-plus, 1.125rem); font-weight: 700; margin-bottom: 0.2rem; color: var(--wh-grey-950, #1a1a1a); }
+    .doc-panel h2 { font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 700; margin: 1.1rem 0 0.5rem; border-bottom: 1.5px solid var(--wh-grey-200-b, #e0e0e0); padding-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--wh-grey-950, #1a1a1a); }
+    .doc-panel .doc-header-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 2px solid var(--wh-grey-950, #1a1a1a); }
+    .doc-panel .doc-meta { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-grey-700, #555); line-height: 1.6; }
     .doc-panel .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .doc-panel table { width: 100%; border-collapse: collapse; font-size: 0.75rem; min-width: 0; }
-    .doc-panel th { background: #f0f0f0; text-align: left; padding: 0.4rem 0.55rem; border: 1px solid #ccc; font-weight: 600; font-size: 0.76rem; }
-    .doc-panel td { padding: 0.25rem 0.55rem; border: 1px solid #ddd; vertical-align: middle; }
+    .doc-panel table { width: 100%; border-collapse: collapse; font-size: var(--wh-fs-2xs, 0.75rem); min-width: 0; }
+    .doc-panel th { background: var(--wh-cloud, #F4F6FA); text-align: left; padding: 0.4rem 0.55rem; border: 1px solid var(--wh-grey-300, #ccc); font-weight: 600; font-size: var(--wh-fs-2xs, 0.75rem); }
+    .doc-panel td { padding: 0.25rem 0.55rem; border: 1px solid var(--wh-grey-200, #ddd); vertical-align: middle; }
     .doc-panel td input {
       border: none; outline: none; background: transparent;
       font-size: inherit; font-family: inherit;
-      color: #1a1a1a; width: 100%; padding: 0; min-width: 20px;
+      color: var(--wh-grey-950, #1a1a1a); width: 100%; padding: 0; min-width: 20px;
     }
     .doc-panel td input[type="number"] { width: 50px; text-align: center; }
     .doc-panel .sow-clause { margin: 0.75rem 0; }
     .doc-panel .sow-clause-header { font-weight: 700; display: flex; gap: 0.5rem; }
     .doc-panel .sow-clause-no { color: var(--wh-orange-dark); min-width: 2.5rem; }
-    .doc-panel .sow-clause-body { margin-top: 0.2rem; padding-left: 3rem; color: #333; }
+    .doc-panel .sow-clause-body { margin-top: 0.2rem; padding-left: 3rem; color: var(--wh-grey-900, #333); }
     .doc-panel .sig-block { margin-top: 2.5rem; display: flex; flex-wrap: wrap; gap: 2rem; }
     .doc-panel .sig-block > div { flex: 1 1 200px; }
-    .doc-panel .sig-line { border-top: 1px solid #999; padding-top: 0.25rem; font-size: 0.75rem; color: #666; margin-top: 2rem; }
+    .doc-panel .sig-line { border-top: 1px solid var(--wh-grey-500, #999); padding-top: 0.25rem; font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-grey-700-b, #666); margin-top: 2rem; }
     .doc-panel .editable-field { border-bottom: 1.5px dashed var(--wh-orange); outline: none; min-width: 60px; display: inline-block; background: transparent; }
 
     /* Print styles */
@@ -540,7 +540,7 @@
     .pill-count {
       display: inline-flex; align-items: center; justify-content: center;
       background: var(--wh-white-12, rgba(255,255,255,0.12)); border-radius: 999px;
-      font-size: 0.75rem; font-weight: 700; padding: 2px 6px; margin-left: 4px;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; padding: 2px 6px; margin-left: 4px;
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
     }
     .discipline-pill.active .pill-count {
@@ -552,9 +552,9 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.7);
       border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
-      color: white; width: 100%;
+      color: var(--wh-white, white); width: 100%;
       padding: 0.75rem 1rem 0.75rem 2.5rem;
-      font-size: 16px; outline: none;        /* exact 16px so iOS Safari does not auto-zoom on focus */
+      font-size: var(--wh-fs-base, 1rem); outline: none;        /* exact 16px so iOS Safari does not auto-zoom on focus */
       transition: border-color 0.2s;
     }
     #calc-search:focus { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); }
@@ -581,20 +581,20 @@
       background: rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.7);
       border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: var(--wh-radius, 12px); padding: 5px 12px; min-height: 44px;
-      font-size: 0.75rem; color:rgba(255,255,255,0.83);
+      font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83);
       cursor: pointer; white-space: nowrap;
       transition: border-color 0.2s, background 0.2s;
     }
     .recent-chip:hover {
       border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);
       background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08);
-      color: white;
+      color: var(--wh-white, white);
     }
 
     /* Subcategory headers in calc grid */
     .calc-subcat-header {
       grid-column: 1 / -1;
-      font-size: 0.75rem; font-weight: 700;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.1em;
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       padding: 0.5rem 0 0.25rem;
@@ -605,7 +605,7 @@
 
     /* Search result discipline tag */
     .calc-disc-tag {
-      font-size: 0.75rem; font-weight: 600;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600;
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       background: var(--wh-white-06, rgba(255,255,255,0.06));
       border-radius: 8px; padding: 2px 5px;
@@ -614,22 +614,22 @@
     }
     /* ENH-P: scenario A beside this result, and the share-link fallback. A card on the page (12px), outside
        #report-panel so the printed report stays the report. White at 0.8 and up on navy clears 4.5:1. */
-    .ed-compare { margin: 0 0 12px; padding: 12px 14px; border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.28); border-radius: 12px; background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); color: rgba(255,255,255,0.92); }
-    .ed-compare-h { font-size: 0.95rem; font-weight: 700; margin: 0 0 4px; }
-    .ed-compare-sub { font-size: 0.875rem; font-weight: 700; margin: 12px 0 4px; }
-    .ed-compare-note { font-size: 0.875rem; line-height: 1.5; color: var(--wh-text-muted, rgba(255,255,255,0.8)); margin: 0 0 8px; }
+    .ed-compare { margin: 0 0 12px; padding: 12px 14px; border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.28); border-radius: 12px; background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.92); }
+    .ed-compare-h { font-size: var(--wh-fs-md, 0.95rem); font-weight: 700; margin: 0 0 4px; }
+    .ed-compare-sub { font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 700; margin: 12px 0 4px; }
+    .ed-compare-note { font-size: var(--wh-fs-sm-plus, 0.875rem); line-height: 1.5; color: var(--wh-text-muted, rgba(255,255,255,0.8)); margin: 0 0 8px; }
     /* a pick the engine could not meet from its list (exceeds_catalog): stated above the report, on the report's paper */
-    .ed-catalog-notice { border: 1.5px solid #b3261e; border-left-width: 5px; border-radius: 8px; padding: 0.6rem 0.8rem; margin: 0 0 0.9rem; background: #fdf2f1; color: #3d0d09; font-size: 0.875rem; line-height: 1.5; }
+    .ed-catalog-notice { border: 1.5px solid var(--wh-red-700, #B91C1C); border-left-width: 5px; border-radius: 8px; padding: 0.6rem 0.8rem; margin: 0 0 0.9rem; background: var(--wh-red-50, #FEF2F2); color: var(--wh-red-ground, #3d0d09); font-size: var(--wh-fs-sm-plus, 0.875rem); line-height: 1.5; }
     .ed-catalog-notice ul { margin: 0.3rem 0 0; padding-left: 1.1rem; }
     .ed-compare-scroll { overflow-x: auto; }
-    .ed-compare-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+    .ed-compare-table { width: 100%; border-collapse: collapse; font-size: var(--wh-fs-sm-plus, 0.875rem); font-variant-numeric: tabular-nums; }
     .ed-compare-table th, .ed-compare-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); vertical-align: top; }
     .ed-compare-table thead th { font-weight: 600; color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
     .ed-compare-table tbody th { font-weight: 500; }
-    .ed-compare-table td.is-diff { font-weight: 700; color: #fff; }
+    .ed-compare-table td.is-diff { font-weight: 700; color: var(--wh-white, #fff); }
     .ed-compare-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .ed-share-box { margin: 0 0 12px; font-size: 0.875rem; line-height: 1.5; color: rgba(255,255,255,0.85); }
-    .ed-share-box input { display: block; width: 100%; margin-top: 4px; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--wh-white-20, rgba(255,255,255,0.2)); background: var(--wh-white-06, rgba(255,255,255,0.06)); color: #fff; font-size: 0.875rem; }
+    .ed-share-box { margin: 0 0 12px; font-size: var(--wh-fs-sm-plus, 0.875rem); line-height: 1.5; color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
+    .ed-share-box input { display: block; width: 100%; margin-top: 4px; min-height: 44px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--wh-white-20, rgba(255,255,255,0.2)); background: var(--wh-white-06, rgba(255,255,255,0.06)); color: var(--wh-white, #fff); font-size: var(--wh-fs-sm-plus, 0.875rem); }
   </style>
   <link rel="canonical" href="https://workhiveph.com/engineering-design.html" />
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -646,7 +646,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <!-- Hive Gate -->
 <div id="hive-gate" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97)">
   <div class="card p-8 max-w-sm w-full mx-4 text-center">
-    <div style="font-size:2.5rem;margin-bottom:1rem;">🔒</div>
+    <div style="font-size:var(--wh-fs-3xl, 2.25rem);margin-bottom:1rem;">🔒</div>
     <h2 data-i="p_hiverequired_14fe" class="text-xl font-bold mb-2">Hive Required</h2>
     <p data-i="p_theengineeringdesigncalculat_9feb" class="text-sm mb-6" style="color:var(--wh-text-muted, rgba(255,255,255,0.80))">The Engineering Design Calculator is a team feature. Join or create a Hive to access it.</p>
     <a data-i="p_gotohivesetup_5484" href="hive.html" class="btn-primary inline-block" style="text-decoration:none;">Go to Hive Setup</a>
@@ -668,7 +668,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   <div style="background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.8);border-bottom:1px solid var(--wh-white-07, rgba(255,255,255,0.07));backdrop-filter:blur(12px);top:calc(64px + env(safe-area-inset-top, 0px) + var(--wh-offline-banner-h, 0px));" class="sticky z-40" id="ed-pinned-header">
     <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-y-2">
       <div class="flex items-center gap-3 min-w-0 flex-1">
-        <a data-i="p_back_c32a" href="index.html" style="color:var(--wh-text-faint, rgba(255,255,255,0.86));font-size:0.75rem;text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
+        <a data-i="p_back_c32a" href="index.html" style="color:var(--wh-text-faint, rgba(255,255,255,0.86));font-size:var(--wh-fs-2xs, 0.75rem);text-decoration:none;min-height:44px;min-width:44px;" class="hidden sm:inline-flex sm:items-center">← Back</a>
         <div>
           <h1 class="font-bold text-sm" style="color:var(--wh-orange-text);margin:0;" data-i="ed_title">Engineering Design</h1>
           <div data-i="p_designcalculationtool_b1ec" class="text-xs" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">Design Calculation Tool</div>
@@ -754,7 +754,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
             <!-- A-6 (deep-arc P6): scoped SI/IP units toggle — converts DIMENSIONAL inputs only
                  (length/area/temp/pressure/mass/flow); electrical + dimensionless + ambiguous kW
                  stay untouched. The engine always receives SI (runCalculation normalizes). -->
-            <button id="units-toggle-btn" onclick="toggleUnitSystem()" translate="no" class="btn-ghost wh-toggle" style="font-size: 0.75rem;padding:0.25rem 0.75rem;min-height:44px;white-space:nowrap;border-radius:999px;" aria-label="Units: switch dimensional inputs between Metric (SI) and Imperial" data-i="unitsmetricsi">⇄ Units: Metric (SI)</button>
+            <button id="units-toggle-btn" onclick="toggleUnitSystem()" translate="no" class="btn-ghost wh-toggle" style="font-size: var(--wh-fs-2xs, 0.75rem);padding:0.25rem 0.75rem;min-height:44px;white-space:nowrap;border-radius:999px;" aria-label="Units: switch dimensional inputs between Metric (SI) and Imperial" data-i="unitsmetricsi">⇄ Units: Metric (SI)</button>
           </div>
           <div id="input-form-area">
             <p data-i="p_selectacalculationtypefirst_e3c7" class="text-sm" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">Select a calculation type first.</p>
@@ -774,7 +774,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       <div class="lg:w-3/5">
         <!-- Empty state -->
         <div id="report-empty" class="card p-10 text-center" style="min-height:400px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-          <div style="font-size:3rem;margin-bottom:1rem;">📐</div>
+          <div style="font-size:var(--wh-fs-4xl, 3rem);margin-bottom:1rem;">📐</div>
           <div data-i="p_noreportyet_51a2" class="font-semibold text-lg mb-2">No Report Yet</div>
           <!-- device-neutral (2026-10-13, the W45912 copy walk): "on the left and click" pointed a phone user at a column
                that stacks ABOVE this card, with a verb a finger does not do -->
@@ -786,9 +786,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <!-- Spinner -->
           <div class="spinner mb-6" style="width:48px;height:48px;border-width:4px;border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15);border-top-color:var(--wh-orange);"></div>
           <!-- Brand label -->
-          <div class="font-bold mb-3" style="color:var(--wh-orange-text);font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;">WorkHive Engineering AI</div>
+          <div class="font-bold mb-3" style="color:var(--wh-orange-text);font-size:var(--wh-fs-2xs, 0.75rem);letter-spacing:0.12em;text-transform:uppercase;">WorkHive Engineering AI</div>
           <!-- Rotating status message -->
-          <div data-i="p_preparingyourcalculation_276c" id="loading-status-msg" class="font-semibold mb-2" style="font-size:1rem;min-height:1.6rem;transition:opacity 0.4s;">Preparing your calculation...</div>
+          <div data-i="p_preparingyourcalculation_276c" id="loading-status-msg" class="font-semibold mb-2" style="font-size:var(--wh-fs-base, 1rem);min-height:1.6rem;transition:opacity 0.4s;">Preparing your calculation...</div>
           <!-- Sub-label -->
           <div data-i="p_standardsgradeanalysisinprog_79fc" class="text-sm" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">Standards-grade analysis in progress</div>
           <!-- no three-dot row (K+, 2026-10-15): the rotating status line above already says the work is moving -->
@@ -797,7 +797,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         <!-- Report output -->
         <div id="report-output" class="hidden">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-            <div data-i="p_reportpreview_592c" class="text-sm font-semibold" style="color:rgba(255,255,255,0.83);">Report Preview</div>
+            <div data-i="p_reportpreview_592c" class="text-sm font-semibold" style="color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83);">Report Preview</div>
             <div class="flex flex-wrap gap-2">
               <button id="pdf-btn" class="btn-ghost text-sm py-2 px-4 flex-1 sm:flex-none" onclick="printReport()" data-i="downloadpdf">⬇ Download PDF</button>
               <!-- id so saveCalc() can disable its own control while the insert is in flight: the inline
@@ -849,8 +849,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <!-- Checklist panel -->
           <div id="bom-checklist-panel" class="hidden card p-5 mt-4">
             <div class="flex items-center justify-between mb-4">
-              <div data-i="p_reviewandcustomize_c06e" class="font-semibold text-sm" style="color:rgba(255,255,255,0.85);">Review and customize</div>
-              <div data-i="p_checkitemstoincludeindocumen_d3bb" class="text-xs" style="color:rgba(255,255,255,0.35);">Check items to include in documents</div>
+              <div data-i="p_reviewandcustomize_c06e" class="font-semibold text-sm" style="color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">Review and customize</div>
+              <div data-i="p_checkitemstoincludeindocumen_d3bb" class="text-xs" style="color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.35);">Check items to include in documents</div>
             </div>
             <!-- Tabs -->
             <div class="flex gap-2 mb-4">
@@ -927,7 +927,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           <!-- Drawing output -->
           <div id="drawing-output" class="hidden card p-5 mt-4">
             <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-              <div class="font-semibold text-sm" id="drawing-output-title" style="color:rgba(255,255,255,0.85);">System Diagram</div>
+              <div class="font-semibold text-sm" id="drawing-output-title" style="color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">System Diagram</div>
               <!-- flex-wrap: four buttons in one unwrapping row ran a 390 px phone to 420 px whenever a drawing was shown -->
               <div class="flex flex-wrap gap-2">
                 <button onclick="regenerateDrawing()" class="btn-ghost text-xs py-1.5 px-3" data-i="regenerate">↺ Regenerate</button>
@@ -937,7 +937,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
               </div>
             </div>
             <div id="svg-edit-banner">✏ <strong>Edit mode:</strong> <strong>drag</strong> text to move it — <strong>double-click</strong> text to edit — <strong data-i="p_dragonemptyspace_f6be">drag on empty space</strong> to rubber-band select symbols, then drag the selection to move. Click <strong data-i="p_done_a135">✓ Done</strong> when finished.</div>
-            <div id="drawing-panel" style="background:#fff;border-radius:0.5rem;padding:1.5rem;overflow-x:auto;"></div>
+            <div id="drawing-panel" style="background:var(--wh-white, #fff);border-radius:0.5rem;padding:1.5rem;overflow-x:auto;"></div>
           </div>
 
         </div>
@@ -957,7 +957,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     </div>
     <div id="history-list">
       <div class="text-center py-16" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">
-        <div style="font-size:2rem;margin-bottom:0.75rem;">📋</div>
+        <div style="font-size:var(--wh-fs-2xl-plus, 1.875rem);margin-bottom:0.75rem;">📋</div>
         <div data-i="p_nosavedcalculationsyet_d21c">No saved calculations yet.</div>
       </div>
     </div>
@@ -977,7 +977,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>

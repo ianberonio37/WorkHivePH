@@ -1,16 +1,16 @@
 {
   "_doc": "Display anchor -> upstream source resolution (Phase B). RESOLVED* = anchor traces to a formula contract / kpi_source metric / Read-VERIFIED element-id->source bind (verified_anchor_binds.json). EXCLUDED_CHROME = a UI control/label/counter with no data provenance (excluded from the data denominator). NEEDS_JS_PARSE = data anchor not yet bound. resolved_pct is over DATA anchors (total - chrome) so it is honest, never chrome-inflated.",
   "totals": {
-    "anchors": 119,
+    "anchors": 127,
     "chrome_excluded": 37,
-    "data_anchors": 82,
+    "data_anchors": 90,
     "resolved": 67,
-    "resolved_pct": 81.7,
-    "resolved_pct_of_all": 56.3,
+    "resolved_pct": 74.4,
+    "resolved_pct_of_all": 52.8,
     "resolved_by_formula_or_kpi": 0,
     "resolved_by_js_heuristic": 9,
     "resolved_by_verified_bind": 58,
-    "needs_js_parse": 15
+    "needs_js_parse": 23
   },
   "anchors": [
     {
@@ -1087,7 +1087,7 @@
         "via": "js_parse_heuristic",
         "source": "v_logbook_truth",
         "source_kind": "table/view",
-        "confidence": "high"
+        "confidence": "medium"
       }
     },
     {
@@ -1882,6 +1882,62 @@
     },
     {
       "page": "founder-console.html",
+      "id": "svc-disputes-count",
+      "token": "dispute",
+      "bucket": "uncontracted",
+      "status": "NEEDS_JS_PARSE",
+      "source": null
+    },
+    {
+      "page": "founder-console.html",
+      "id": "decisions-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
+    },
+    {
+      "page": "founder-console.html",
+      "id": "gcash-receipts-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
+    },
+    {
+      "page": "founder-console.html",
+      "id": "mkt-listings-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
+    },
+    {
+      "page": "founder-console.html",
+      "id": "mkt-published-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
+    },
+    {
+      "page": "founder-console.html",
+      "id": "mkt-sellers-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
+    },
+    {
+      "page": "founder-console.html",
+      "id": "mkt-verified-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
+    },
+    {
+      "page": "founder-console.html",
       "id": "stat-aicost-trend",
       "token": "aicost-trend",
       "bucket": "raw",
@@ -1919,6 +1975,14 @@
       "source": {
         "via": "ui_chrome"
       }
+    },
+    {
+      "page": "founder-console.html",
+      "id": "svc-topups-count",
+      "token": "count",
+      "bucket": "raw",
+      "status": "RAW_NEEDS_JS_PARSE",
+      "source": null
     },
     {
       "page": "index.html",

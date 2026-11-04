@@ -1333,7 +1333,7 @@
       body.innerHTML = `
         <div class="fb-meta">${e(new Date(row.created_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }))} · ${e(row.kind)}
           · status: <strong>${e(row.status)}</strong>${row.priority ? ' · ' + e(String(row.priority).toUpperCase()) : ''}</div>
-        <div class="fb-subject" style="font-size:1rem;margin-top:.4rem">${e(row.subject || '(no subject)')}</div>
+        <div class="fb-subject" style="font-size:var(--wh-fs-base, 1rem);margin-top:.4rem">${e(row.subject || '(no subject)')}</div>
         ${stars}
         <div class="fb-body">${e(row.body || '')}</div>
         <div class="fb-meta">
@@ -1358,7 +1358,7 @@
         <label for="fb-d-note">Admin note (internal)</label>
         <textarea id="fb-d-note" placeholder="Triage notes for yourself…">${e(row.admin_note || '')}</textarea>
 
-        <label style="display:flex;align-items:center;gap:.5rem;margin-top:1rem;cursor:pointer;text-transform:none;letter-spacing:0;color:#fff">
+        <label style="display:flex;align-items:center;gap:.5rem;margin-top:1rem;cursor:pointer;text-transform:none;letter-spacing:0;color:var(--wh-white, #fff)">
           <input type="checkbox" id="fb-d-public"${row.is_public ? ' checked' : ''} style="width:auto;min-height:0;cursor:pointer" />
           <span>Show on the public roadmap (/feedback/)</span>
         </label>

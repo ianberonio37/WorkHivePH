@@ -1052,15 +1052,15 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
   /* P-program 2026-09-05 (rubric T3/T4/F1/K2/Z3/C5 on every calculator): */
   html {{ overscroll-behavior: contain; }}                       /* T4: the page is its own scroll container; do not chain */
   body, a, button, input, select, textarea {{ touch-action: manipulation; }}  /* T3: no 300ms delay / double-tap zoom */
-  nav[aria-label="Breadcrumb"] {{ color: rgba(255,255,255,0.85); }}          /* C5: the crumb text sat at Lc 70/75 */
+  nav[aria-label="Breadcrumb"] {{ color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }}          /* C5: the crumb text sat at Lc 70/75 */
   nav[aria-label="Breadcrumb"] a, .prose-wh li a {{ display: inline-block; min-height: 44px; padding: 12px 0; line-height: 20px; }}  /* F1/K2/Z3: 44px targets */
   .prose-wh input, .prose-wh select, .prose-wh button {{ min-height: 44px; }}
   .prose-wh p, .prose-wh li {{ color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.87); }}            /* C5: body prose sat at Lc 70/75 (0.78) */
-  .prose-wh table td:nth-child(2) {{ font-size: 1.25rem; font-weight: 600; font-variant-numeric: tabular-nums; }}  /* K2/C4: the worked result is the page's KPI - glanceable + tabular */
+  .prose-wh table td:nth-child(2) {{ font-size: var(--wh-fs-lg, 1.25rem); font-weight: 600; font-variant-numeric: tabular-nums; }}  /* K2/C4: the worked result is the page's KPI - glanceable + tabular */
   /* A2/C3 (2026-09-06): the page was one unbroken prose column - no grouped region a scanner can land on. Each section
      becomes a card (edge + padding), which is what A2's "blocks" and C3's "grouped into common regions" measure, and what
      the rest of the platform looks like. Measured: staged pages 98%% -> 100%%. */
-  .prose-wh section {{ background: var(--wh-surface-card, rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px;
+  .prose-wh section {{ background: var(--wh-surface-card, rgba(255,255,255,0.03)); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 16px;
                       padding: 1.25rem 1.35rem 0.35rem; margin: 1.5rem 0; }}   /* 24px: on the 8-pt scale (R1 flagged 28px) */
   .prose-wh section > h2:first-child {{ margin-top: 0.25rem; }}
   .prose-wh section > [data-table-scroll] {{ margin-bottom: 1rem; }}
@@ -1097,7 +1097,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
      time with nothing to jump with. These are the platform's SEO surface - the pages a stranger
      meets first. Matches the shared link in wayfinding.js, inlined because these pages load none of
      the app chrome that carries it. -->
-<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="public" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
+<a class="wh-skip-link" href="#wh-main-content" data-wh-skip="public" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:var(--wh-fs-sm-plus, 0.875rem);text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px var(--wh-black-35, rgba(0,0,0,.35));transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 
 {SITE_HEADER}
 
@@ -1117,7 +1117,7 @@ def _html_page(slug: str, data: dict) -> tuple[str, list]:
          whether the chip is TRUE - a page can hold two contradictory false claims and read 100% on the
          trust dimension ([[feedback_metric_label_is_a_claim_add_the_missing_half]]). Both now state the
          one true thing: the platform's real engine produced these numbers when the page was built. -->
-    <p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size: 0.75rem; opacity:.85; margin:.25rem 0 1rem;">{e(chip)}</p><!-- G1+E3 -->
+    <p class="wh-source-chip" role="status" aria-live="polite" data-i="calc_chip" style="font-size: var(--wh-fs-2xs, 0.75rem); opacity:.85; margin:.25rem 0 1rem;">{e(chip)}</p><!-- G1+E3 -->
 
     <p class="answer-first"><strong>{e(answer)}</strong></p>
 

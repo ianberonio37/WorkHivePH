@@ -72,6 +72,9 @@ export function measure(css, pal) {
     // first draft counting it as off-palette because rgbOf() cannot resolve a var().
     if (SKIP.test(lit) || /var\(/.test(lit)) continue;
     const c = rgbOf(lit);
+    // ★AN ALPHA OF 0 IS 'transparent' SPELLED ANOTHER WAY (2026-11-04): Tailwind's `0 0 #0000` ring/shadow reset and the
+    // pages' rgba(0,0,0,0) paint nothing; the keyword is skipped above, so its numeric spellings are skipped too.
+    if (c && +c[3] === 0) continue;
     if (!c) { out.off += n; offs.add(lit.toLowerCase()); continue; } // a named or hsl colour: not on the palette
     if ((pal.exact && pal.exact.has(fullKey(c))) || (pal.has(key(c)) && c[3] >= 1)) out.exact += n;
     else if (pal.has(key(c))) out.tint += n;
@@ -81,7 +84,11 @@ export function measure(css, pal) {
     else { out.off += n; offs.add(key(c)); }
   }
   out.offRgbs = [...offs].sort();
-  out.fontSizes = rawCount(r.values.fontSizes);
+  // ★A RELATIVE SIZE IS NOT A SCALE CHOICE (2026-11-04). `inherit`, `1em`, `80%` take the parent's size, which is where
+  // the scale is applied; counting them as raw drift asked the type scale to tokenise inheritance (Tailwind's preflight
+  // alone carries five). Only an absolute length a page picked (rem / px / pt) is a value the scale owns.
+  out.fontSizes = Object.keys((r.values.fontSizes && r.values.fontSizes.unique) || {})
+    .filter((v) => !/var\(/.test(v) && /^-?[\d.]+(rem|px|pt|pc|cm|mm|in|q)$/i.test(v.trim())).length;
   out.families = rawCount(r.values.fontFamilies);
   out.zIndexes = rawCount(r.values.zindexes);
   return out;

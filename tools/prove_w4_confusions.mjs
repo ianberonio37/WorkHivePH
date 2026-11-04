@@ -335,7 +335,9 @@ for (const t of rows) {
   if (!idKept) problems.push('identity did not survive the arrival');
   const ok = problems.length === 0 && new Set(steps.map((s) => s.page)).size >= 4;
   if (new Set(steps.map((s) => s.page)).size < 4) problems.push(`only ${new Set(steps.map((s) => s.page)).size} distinct pages walked`);
-  results.push({ id: t.id, ok, unbuilt: !who, instrument: 'tools/prove_w4_confusions.mjs', condition: 'normal', cast: who ? `${who.name} (${hive})` : `no cast in ${hive}`, problems,
+  // `at` (2026-11-04): this file is MERGED by id with its prior copy, so a result carried forward took the file's newest
+  // mtime - and live_walk_manifest's newest-wins read a pre-predicate red for C24-C26 as newer than their green MCP walk.
+  results.push({ id: t.id, at: new Date().toISOString(), ok, unbuilt: !who, instrument: 'tools/prove_w4_confusions.mjs', condition: 'normal', cast: who ? `${who.name} (${hive})` : `no cast in ${hive}`, problems,
     note: `${cid} ${predicate.ok ? 'LIVED CLEAN' : 'STILL CONFUSING'}: ${predicate.detail}`, metrics: { steps: steps.length, idKept, predicate: predicate.ok },
     w4: { axis: AXIS, confusion: cid, predicate: predicate.detail }, steps, confusions: [] });
   console.log(`  ${ok ? '\x1b[92mOK \x1b[0m' : '\x1b[91mBAD\x1b[0m'} ${t.id} ${cid.padEnd(4)} ${target.padEnd(28)} ${(who ? who.name : '?').padEnd(20)} ${predicate.ok ? 'lived clean' : 'still confusing'} - ${predicate.detail.slice(0, 110)}${problems.length && !problems[0].startsWith(cid) ? ' | ' + problems[0].slice(0, 90) : ''}`);

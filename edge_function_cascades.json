@@ -36,7 +36,8 @@
       "evidence": "functions/ai-eval-runner/index.ts:142",
       "downstream_pages": [
         "analytics-report",
-        "hive"
+        "hive",
+        "integrations"
       ],
       "disposition": "data_unmapped"
     },
@@ -85,8 +86,8 @@
         {
           "fn": "agentic-rag-loop",
           "to_table": "agentic_rag_traces",
-          "line": 867,
-          "evidence": "functions/agentic-rag-loop/index.ts:867",
+          "line": 890,
+          "evidence": "functions/agentic-rag-loop/index.ts:890",
           "downstream_pages": [
             "agentic-rag-observability"
           ],
@@ -95,8 +96,8 @@
         {
           "fn": "agentic-rag-loop",
           "to_table": "ai_rate_limits",
-          "line": 232,
-          "evidence": "functions/agentic-rag-loop/index.ts:232",
+          "line": 234,
+          "evidence": "functions/agentic-rag-loop/index.ts:234",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -118,8 +119,8 @@
         {
           "fn": "ai-eval-runner",
           "to_table": "ai_quality_log",
-          "line": 645,
-          "evidence": "functions/ai-eval-runner/index.ts:645",
+          "line": 658,
+          "evidence": "functions/ai-eval-runner/index.ts:658",
           "downstream_pages": [],
           "disposition": "infra"
         },
@@ -150,7 +151,8 @@
           "evidence": "functions/ai-eval-runner/index.ts:142",
           "downstream_pages": [
             "analytics-report",
-            "hive"
+            "hive",
+            "integrations"
           ],
           "disposition": "data_unmapped"
         },
@@ -167,6 +169,7 @@
         }
       ],
       "reads": [
+        "ai_quality_log",
         "hive_members",
         "v_hives_truth",
         "worker_profiles"
@@ -201,8 +204,8 @@
         {
           "fn": "analytics-orchestrator",
           "to_table": "analytics_snapshots",
-          "line": 1351,
-          "evidence": "functions/analytics-orchestrator/index.ts:1351",
+          "line": 1353,
+          "evidence": "functions/analytics-orchestrator/index.ts:1353",
           "downstream_pages": [
             "analytics"
           ],
@@ -234,8 +237,8 @@
         {
           "fn": "batch-risk-scoring",
           "to_table": "asset_risk_scores",
-          "line": 462,
-          "evidence": "functions/batch-risk-scoring/index.ts:462",
+          "line": 464,
+          "evidence": "functions/batch-risk-scoring/index.ts:464",
           "downstream_pages": [
             "alert-hub",
             "asset-hub"
@@ -245,8 +248,8 @@
         {
           "fn": "batch-risk-scoring",
           "to_table": "automation_log",
-          "line": 116,
-          "evidence": "functions/batch-risk-scoring/index.ts:116",
+          "line": 118,
+          "evidence": "functions/batch-risk-scoring/index.ts:118",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -277,8 +280,8 @@
         {
           "fn": "benchmark-compute",
           "to_table": "automation_log",
-          "line": 329,
-          "evidence": "functions/benchmark-compute/index.ts:329",
+          "line": 331,
+          "evidence": "functions/benchmark-compute/index.ts:331",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -319,8 +322,8 @@
         {
           "fn": "cmms-push-completion",
           "to_table": "automation_log",
-          "line": 283,
-          "evidence": "functions/cmms-push-completion/index.ts:283",
+          "line": 285,
+          "evidence": "functions/cmms-push-completion/index.ts:285",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -330,12 +333,11 @@
         {
           "fn": "cmms-push-completion",
           "to_table": "external_sync",
-          "line": 241,
-          "evidence": "functions/cmms-push-completion/index.ts:241",
+          "line": 243,
+          "evidence": "functions/cmms-push-completion/index.ts:243",
           "downstream_pages": [
             "asset-hub",
             "integrations",
-            "logbook",
             "plant-connections"
           ],
           "disposition": "data_mapped"
@@ -355,8 +357,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "automation_log",
-          "line": 507,
-          "evidence": "functions/cmms-sync/index.ts:507",
+          "line": 509,
+          "evidence": "functions/cmms-sync/index.ts:509",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -366,8 +368,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "cmms_audit_log",
-          "line": 515,
-          "evidence": "functions/cmms-sync/index.ts:515",
+          "line": 517,
+          "evidence": "functions/cmms-sync/index.ts:517",
           "downstream_pages": [
             "integrations"
           ],
@@ -381,7 +383,6 @@
           "downstream_pages": [
             "asset-hub",
             "integrations",
-            "logbook",
             "plant-connections"
           ],
           "disposition": "data_mapped"
@@ -399,8 +400,8 @@
         {
           "fn": "cmms-sync",
           "to_table": "integration_configs",
-          "line": 492,
-          "evidence": "functions/cmms-sync/index.ts:492",
+          "line": 494,
+          "evidence": "functions/cmms-sync/index.ts:494",
           "downstream_pages": [
             "integrations",
             "plant-connections"
@@ -445,7 +446,6 @@
           "downstream_pages": [
             "asset-hub",
             "integrations",
-            "logbook",
             "plant-connections"
           ],
           "disposition": "data_mapped"
@@ -514,8 +514,8 @@
         {
           "fn": "embed-entry",
           "to_table": "pm_knowledge",
-          "line": 377,
-          "evidence": "functions/embed-entry/index.ts:377",
+          "line": 379,
+          "evidence": "functions/embed-entry/index.ts:379",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -534,21 +534,19 @@
         {
           "fn": "export-hive-data",
           "to_table": "hive_audit_log",
-          "line": 164,
-          "evidence": "functions/export-hive-data/index.ts:164",
+          "line": 174,
+          "evidence": "functions/export-hive-data/index.ts:174",
           "downstream_pages": [
             "alert-hub",
             "asset-hub",
             "audit-log",
             "community",
-            "founder-console",
             "hive",
             "inventory",
             "logbook",
             "marketplace",
             "marketplace-admin",
             "marketplace-seller",
-            "platform-actions",
             "pm-scheduler"
           ],
           "disposition": "operational"
@@ -566,8 +564,8 @@
         {
           "fn": "failure-signature-scan",
           "to_table": "automation_log",
-          "line": 386,
-          "evidence": "functions/failure-signature-scan/index.ts:386",
+          "line": 418,
+          "evidence": "functions/failure-signature-scan/index.ts:418",
           "downstream_pages": [
             "alert-hub",
             "report-sender"
@@ -577,13 +575,14 @@
         {
           "fn": "failure-signature-scan",
           "to_table": "failure_signature_alerts",
-          "line": 269,
-          "evidence": "functions/failure-signature-scan/index.ts:269",
+          "line": 301,
+          "evidence": "functions/failure-signature-scan/index.ts:301",
           "downstream_pages": [],
           "disposition": "infra"
         }
       ],
       "reads": [
+        "failure_signature_alerts",
         "v_hives_truth",
         "v_logbook_truth"
       ],
@@ -631,8 +630,8 @@
         {
           "fn": "hierarchical-summarizer",
           "to_table": "canonical_period_summaries",
-          "line": 345,
-          "evidence": "functions/hierarchical-summarizer/index.ts:345",
+          "line": 350,
+          "evidence": "functions/hierarchical-summarizer/index.ts:350",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -757,8 +756,8 @@
         {
           "fn": "pdf-ingest",
           "to_table": "kb_chunks",
-          "line": 208,
-          "evidence": "functions/pdf-ingest/index.ts:208",
+          "line": 214,
+          "evidence": "functions/pdf-ingest/index.ts:214",
           "downstream_pages": [],
           "disposition": "infra"
         },
@@ -789,8 +788,8 @@
         {
           "fn": "pf-calculator",
           "to_table": "pf_intervals",
-          "line": 302,
-          "evidence": "functions/pf-calculator/index.ts:302",
+          "line": 304,
+          "evidence": "functions/pf-calculator/index.ts:304",
           "downstream_pages": [
             "asset-hub"
           ],
@@ -882,8 +881,8 @@
         {
           "fn": "semantic-fact-extractor",
           "to_table": "knowledge_graph_facts",
-          "line": 304,
-          "evidence": "functions/semantic-fact-extractor/index.ts:304",
+          "line": 310,
+          "evidence": "functions/semantic-fact-extractor/index.ts:310",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -971,14 +970,12 @@
             "asset-hub",
             "audit-log",
             "community",
-            "founder-console",
             "hive",
             "inventory",
             "logbook",
             "marketplace",
             "marketplace-admin",
             "marketplace-seller",
-            "platform-actions",
             "pm-scheduler"
           ],
           "disposition": "operational"
@@ -1004,8 +1001,8 @@
         {
           "fn": "temporal-rag-orchestrator",
           "to_table": "ai_rate_limits",
-          "line": 321,
-          "evidence": "functions/temporal-rag-orchestrator/index.ts:321",
+          "line": 346,
+          "evidence": "functions/temporal-rag-orchestrator/index.ts:346",
           "downstream_pages": [],
           "disposition": "infra"
         }
@@ -1044,8 +1041,8 @@
         {
           "fn": "visual-defect-capture",
           "to_table": "fault_knowledge",
-          "line": 506,
-          "evidence": "functions/visual-defect-capture/index.ts:506",
+          "line": 507,
+          "evidence": "functions/visual-defect-capture/index.ts:507",
           "downstream_pages": [
             "logbook"
           ],
@@ -1064,8 +1061,8 @@
         {
           "fn": "weibull-fitter",
           "to_table": "weibull_fits",
-          "line": 310,
-          "evidence": "functions/weibull-fitter/index.ts:310",
+          "line": 312,
+          "evidence": "functions/weibull-fitter/index.ts:312",
           "downstream_pages": [
             "asset-hub"
           ],

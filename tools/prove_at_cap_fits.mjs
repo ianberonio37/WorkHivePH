@@ -49,14 +49,29 @@ const FLOWS = [
                     if (!b) return 'no add-part control'; b.click(); return 'add-part clicked'; })()`,
     surface: '#part-modal', expect: 4 },
 
+  // ★A FORM IN A CLOSED SHEET IS NOT "AT REST" (2026-11-04). These three were 'rest' flows, and once the walk learned to
+  // measure only what a person can see they reached 0 fields on every run: #form-post, #form-inquiry and #form-rfq live
+  // in sheet overlays that are closed on load. They open the way the page's openSheet(name) opens them - `open` on
+  // #overlay-<name> and #sheet-<name>, the visibility toggle itself - applied directly, because openSheet lives inside
+  // the page's IIFE and is not reachable from window (the first cut called it and read 'no openSheet'); and not via
+  // openPostSheet / openRfqSheet, which first demand an account or a compare list the walk does not build.
   { id: 'marketplace-post', traj: 'T130', page: 'marketplace.html', role: 'worker',
-    open: `'rest'`, surface: '#form-post, #post-partnumber-wrap', expect: 4 },
+    open: `(() => { const o = document.getElementById('overlay-post'), s = document.getElementById('sheet-post');
+                    if (!o || !s) return 'no post sheet'; o.classList.add('open'); s.classList.add('open');
+                    return 'post sheet opened'; })()`,
+    surface: '#form-post, #post-partnumber-wrap', expect: 4 },
 
   { id: 'marketplace-inquiry', traj: 'T130', page: 'marketplace.html', role: 'worker',
-    open: `'rest'`, surface: '#form-inquiry', expect: 3 },
+    open: `(() => { const o = document.getElementById('overlay-inquiry'), s = document.getElementById('sheet-inquiry');
+                    if (!o || !s) return 'no inquiry sheet'; o.classList.add('open'); s.classList.add('open');
+                    return 'inquiry sheet opened'; })()`,
+    surface: '#form-inquiry', expect: 3 },
 
   { id: 'marketplace-rfq', traj: 'T130', page: 'marketplace.html', role: 'worker',
-    open: `'rest'`, surface: '#form-rfq', expect: 2 },
+    open: `(() => { const o = document.getElementById('overlay-rfq'), s = document.getElementById('sheet-rfq');
+                    if (!o || !s) return 'no rfq sheet'; o.classList.add('open'); s.classList.add('open');
+                    return 'rfq sheet opened'; })()`,
+    surface: '#form-rfq', expect: 2 },
 
   { id: 'community-composer', traj: 'T130', page: 'community.html', role: 'worker',
     open: `(() => { if (typeof openComposer !== 'function') return 'no openComposer';

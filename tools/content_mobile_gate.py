@@ -62,7 +62,10 @@ MEDIA_Q = re.compile(r"@media[^{]*\(")
 # which is the same wrong-proxy error as matching `\bwidth` inside `max-width`.
 TW_BREAKPOINTS = (" sm:", " md:", " lg:", " xl:", " 2xl:")
 VIEWPORT = re.compile(r'<meta[^>]+name=["\']viewport["\'][^>]*content=["\']([^"\']+)', re.I)
-PROSE_FS = re.compile(r"\.prose-wh\s*\{[^}]*font-size\s*:\s*([\d.]+)(rem|px)", re.S)
+# ★the type scale respells a size as var(--wh-fs-lead, 1.05rem) (OD-S, 2026-11-04): the first regex read only a bare
+# number, so every rewritten page fell to "no prose block" and passed BLIND. The fallback is the size (the rewrite
+# proves it equals the token), so it is read through the var().
+PROSE_FS = re.compile(r"\.prose-wh\s*\{[^}]*font-size\s*:\s*(?:var\(\s*--[\w-]+\s*,\s*)?([\d.]+)(rem|px)", re.S)
 
 
 def _strip_media_blocks(css: str) -> str:
@@ -181,6 +184,10 @@ def self_test() -> int:
        "a non-responsive viewport is caught")
     ck(not analyze('<style>.prose-wh{font-size:12px;}</style>')["readable_body"],
        "body prose below 16px is caught")
+    ck(not analyze('<style>.prose-wh{font-size:var(--wh-fs-xs, 0.8rem);}</style>')["readable_body"],
+       "teeth: small body prose behind a type-scale var() is still caught")
+    ck(analyze('<style>.prose-wh{font-size:var(--wh-fs-lead, 1.05rem);}</style>')["readable_body"],
+       "readable body prose behind a type-scale var() passes")
     ck(analyze('<style>.audience-label{font-size:11px;}</style>')["readable_body"],
        "small type on a LABEL is not a readability defect")
     r = audit()

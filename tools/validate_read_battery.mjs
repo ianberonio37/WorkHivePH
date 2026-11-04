@@ -33,7 +33,10 @@ function resolveHive() {
     const sql = "select hm.hive_id::text from hive_members hm "
       + "join worker_profiles wp on wp.auth_uid = hm.auth_uid "
       + "left join logbook l on l.hive_id = hm.hive_id "
-      + "where wp.username = 'leandromarquez' and hm.status = 'active' "
+      // ★THE HIVE MUST BE ONE WHERE HE IS THE SUPERVISOR (2026-11-04). Leandro is supervisor of 084c113b and a WORKER
+      // in b4f7fe63; once a seed made b4f7fe63 the more-populated of the two, "most logbook rows" chose it, and the
+      // supervisor-only pages (audit-log, integrations) showed their worker walls and read as broken reads.
+      + "where wp.username = 'leandromarquez' and hm.status = 'active' and hm.role = 'supervisor' "
       + "group by hm.hive_id order by count(l.id) desc, hm.hive_id asc limit 1";
     const out = execSync(
       `docker exec ${process.env.WH_DB_CONTAINER || 'supabase_db_workhive'} psql -U postgres -d postgres -t -A -c "${sql}"`,

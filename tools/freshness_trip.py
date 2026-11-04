@@ -246,7 +246,8 @@ def board_trips(today: date, urls: list[dict]) -> list[dict]:
         out.append({"kind": "push", "unit": "indexnow", "detail": f"the last IndexNow push ({last_push}) predates the newest sitemap change "
                     f"({newest_change}) - push the changed URLs", "age_days": _age(last_push, today), "grace_days": GRACE_DAYS})
     sov = json.loads(_rd(SOV_BASELINE) or "{}") if SOV_BASELINE.exists() else {}
-    sov_at = _d(sov.get("at") or sov.get("generated_at") or sov.get("recorded_at"))
+    # geo_sov_audit writes scored_at (and, before 2026-11-04, only last_run) - "at" was a name nothing wrote
+    sov_at = _d(sov.get("scored_at") or sov.get("last_run") or sov.get("at") or sov.get("generated_at") or sov.get("recorded_at"))
     if not sov_at:
         out.append({"kind": "voice", "unit": "geo_sov_baseline.json", "detail": "the AI share-of-voice sheet has never been scored "
                     "(python tools/geo_sov_audit.py --template, fill it monthly, --score) - the engines' verdict is unread",

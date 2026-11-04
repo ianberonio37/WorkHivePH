@@ -667,7 +667,7 @@ serveObserved("asset-brain-query", tracedReply("asset-brain-query", async (req, 
         .select("hive_status").eq("hive_id", hive_id).eq("auth_uid", _caller.id)
         .eq("hive_status", "active").maybeSingle();
       if (_memErr) {
-        return jsonResponse({ error: "Your membership could not be checked just now - the service did not answer. Nothing about your access has changed. Try again in a moment." }, 503, corsHeaders);
+        return jsonResponse({ error: "We could not check your membership just now. Your access is unchanged. Try again in a moment." }, 503, corsHeaders);
       }
       if (!_mem) {
         return jsonResponse({ error: "Caller is not an active member of this hive" }, 403, corsHeaders);

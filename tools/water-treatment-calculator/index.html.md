@@ -39,4 +39,4 @@ Where these figures come from
 Static · formula-only · worked example computed when this page was built · no live data
  /wh-sources
 
-<!-- md-twin source-sha: b6cdee702a174d0a -->
+<!-- md-twin source-sha: 0e67029ab5a157ad -->

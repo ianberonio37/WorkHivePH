@@ -28,25 +28,25 @@
       --red:       var(--wh-red);
       --yellow:    var(--wh-orange);
       --purple:    var(--wh-violet);
-      --muted:     rgba(255,255,255,0.85); /* D1 a11y: was 0.4 (~2.5:1) → 0.85 meets WCAG 1.4.3 4.5:1 incl. raised .stat cards */
+      --muted:     rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); /* D1 a11y: was 0.4 (~2.5:1) → 0.85 meets WCAG 1.4.3 4.5:1 incl. raised .stat cards */
       --text:      var(--wh-cloud);
     }
     *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
     body {
       font-family:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       background:var(--bg); color:var(--text);
-      min-height:100vh; font-size: .85rem; line-height:1.5;
+      min-height:100vh; font-size: var(--wh-fs-sm, .85rem); line-height:1.5;
     }
 
     /* ── Gate overlays ── */
     .gate {
-      position:fixed; inset:0; z-index:200;
+      position:fixed; inset:0; z-index:var(--wh-z-toast-2, 200);
       display:flex; align-items:center; justify-content:center; flex-direction:column;
       gap:1rem; padding:2rem; background:var(--bg); text-align:center;
     }
     .gate[hidden] { display: none !important; }
-    .gate h1, .gate h2 { font-size: 1.2rem; font-weight:700; color:var(--gold); }
-    .gate p  { font-size:.85rem; color:var(--muted); max-width:380px; }
+    .gate h1, .gate h2 { font-size: var(--wh-fs-lg, 1.25rem); font-weight:700; color:var(--gold); }
+    .gate p  { font-size:var(--wh-fs-sm, .85rem); color:var(--muted); max-width:380px; }
     /* U2 + U5 (deep UFAI probe, 2026-07-29): these two links carry class="btn" but NO rule
        existed for a bare .btn on this page, so they rendered as default-blue anchors - 1.88:1
        against the dark panel and only 21px tall. One shared rule restores both the contrast and
@@ -55,7 +55,7 @@
       display: inline-flex; align-items: center; gap: .35rem;
       min-height: 44px; padding: 0 16px; border-radius: 8px;
       background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);
-      color: var(--wh-orange-text, #FDB94A); font-weight: 700; font-size: .78rem;
+      color: var(--wh-orange-text, #FDB94A); font-weight: 700; font-size: var(--wh-fs-xs, 0.8rem);
       text-decoration: none;
     }
     a.btn:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); }
@@ -91,15 +91,15 @@
     .pulse.warn { background:var(--yellow); }
     .pulse.fail { background:var(--red); }
     .pulse.busy { background:var(--blue); }
-    .pulse.none { background:rgba(255,255,255,.45); }   /* nothing was read: not green - green would claim a pass */
-    h1 { font-size: 1rem; font-weight:700; color:var(--gold); }
-    .hdr-meta { font-size: 0.75rem; color:var(--muted); }
+    .pulse.none { background:rgba(var(--wh-white-rgb, 255, 255, 255), 0.45); }   /* nothing was read: not green - green would claim a pass */
+    h1 { font-size: var(--wh-fs-base, 1rem); font-weight:700; color:var(--gold); }
+    .hdr-meta { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); }
     .hdr-actions { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
     .refresh-btn {
       display:inline-flex; align-items:center; gap:.35rem; min-height:44px; /* D1 U2 */
       padding:.45rem .9rem; border-radius:.5rem; cursor:pointer; user-select:none;
       background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);
-      color:var(--gold); font-family:inherit; font-size: .78rem; font-weight:700;
+      color:var(--gold); font-family:inherit; font-size: var(--wh-fs-xs, 0.8rem); font-weight:700;
       transition:all .15s;
     }
     .refresh-btn:hover:not(:disabled) { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22); }
@@ -109,11 +109,11 @@
     .auto-select {
       padding:.4rem .7rem; border-radius:8px; min-height:44px; /* D1 U2: gloved-field tap target */
       background:var(--wh-white-04, rgba(255,255,255,.04)); border:1px solid var(--border);
-      color:var(--text); font-family:inherit; font-size:1rem; font-weight:600; /* 16px = no iOS auto-zoom */
+      color:var(--text); font-family:inherit; font-size:var(--wh-fs-base, 1rem); font-weight:600; /* 16px = no iOS auto-zoom */
     }
     .kbd {
       display:inline-block; font-family:ui-monospace,monospace;
-      font-size: 0.75rem; padding:.05rem .35rem; border:1px solid var(--border);
+      font-size: var(--wh-fs-2xs, 0.75rem); padding:.05rem .35rem; border:1px solid var(--border);
       border-radius:8px; color:var(--muted);
     }
 
@@ -132,10 +132,10 @@
                   transition:stroke-dashoffset .6s ease,stroke .4s; }
     .ring-pct { position:absolute; inset:0; display:flex; flex-direction:column;
                 align-items:center; justify-content:center; gap:0; }
-    .ring-pct .n { font-size:1.7rem; font-weight:800; line-height:1; }
-    .ring-pct .l { font-size: 0.75rem; font-weight:700; text-transform:uppercase;
+    .ring-pct .n { font-size:var(--wh-fs-2xl, 1.75rem); font-weight:800; line-height:1; }
+    .ring-pct .l { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase;
                    letter-spacing:.07em; color:var(--muted); margin-top:.2rem; }
-    .ring-label { font-size: 0.75rem; font-weight:700; color:var(--text); margin-top:.1rem; }
+    .ring-label { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--text); margin-top:.1rem; }
     .hero-stats {
       display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.7rem;
     }
@@ -148,7 +148,7 @@
        column width. One shared rule for every numeric display on the page, not per-element
        patches - the same treatment achievements.html uses for its hero stats. */
     .stat .n, .ring-pct .n, .tech-chip .n, .stat .trend { font-variant-numeric: tabular-nums; }
-    .stat .n  { font-size:1.375rem; font-weight:800; line-height:1.1; color:var(--wh-cloud, #F4F6FA); min-width:0; overflow-wrap:anywhere; }
+    .stat .n  { font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; line-height:1.1; color:var(--wh-cloud, #F4F6FA); min-width:0; overflow-wrap:anywhere; }
     @media (max-width:420px) { .stat .l { overflow-wrap:anywhere; } }   /* phone fit (2026-09-06): '10,000,000' and 'Value listed' spilled their tiles at 390px; the number keeps its tier (a phone-only 18px added an 11th size, C1) and wraps via min-width:0 + overflow-wrap */   /* A1/C1 (2026-09-05): 23/22/21px were three big tiers beside the 27px ring - one 22px stat tier + the ring = a 2-tier scale */
     /* I1 (2026-09-05, measured at 1280x720): #sec-alive's grid panels paint at ~100px and settle at 2065px
        (tech-health, audit-stream) / 440px (memento-health, companion-eval), pushing the second row out of
@@ -160,17 +160,17 @@
     .stat .n.bad  { color:var(--red); }
     /* C5 (2026-09-05): the semantic red/green read Lc 47/60 on the 23px hero stats; lighter text tints keep the
        meaning and clear 60. Declared AFTER the .bad/.good rules so the cascade order wins. */
-    .stat .n.bad  { color:#fca5a5; }
-    .stat .n.good { color:#86efac; }
+    .stat .n.bad  { color:var(--wh-red-300, #fca5a5); }
+    .stat .n.good { color:var(--wh-green-300, #86efac); }
     /* C4: every numeral in the console lines up (8/16 were proportional) */
     #console .n, #console td, #console .big, #console .val, #console .num, #console .count, #console .stat, #console .tech-chip { font-variant-numeric: tabular-nums; }
-    /* D1 U5: tiny stat labels used the alpha token rgba(255,255,255,.85) — its LIVE
+    /* D1 U5: tiny stat labels used the alpha token rgba(var(--wh-white-rgb, 255, 255, 255), 0.85) — its LIVE
        contrast is ~11.5:1 (fine), but axe flags semi-transparent text on 9.6px type as
        a contrast violation (compositing uncertainty). Use the SOLID composite equivalent
        (identical look, deterministic for axe). Scoped to .stat to keep --muted elsewhere. */
-    .stat .l  { font-size: 0.75rem; font-weight:700; text-transform:uppercase;
-                letter-spacing:.06em; color:#dce0e5; }
-    .stat .sub { font-size: 0.75rem; color:#dce0e5; margin-top:.1rem; }
+    .stat .l  { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase;
+                letter-spacing:.06em; color:var(--wh-paper-rule, #E5E7EB); }
+    .stat .sub { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-paper-rule, #E5E7EB); margin-top:.1rem; }
 
     /* ── Page main ── */
     .main { padding:1.25rem 1.5rem 4rem; max-width:1180px; margin:0 auto; }
@@ -183,17 +183,17 @@
       padding:.75rem 1.1rem;
       display:flex; flex-direction:column; gap:.3rem;
     }
-    .tldr.warn { background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04));
-                  border-color:rgba(251,191,36,.35); }
+    .tldr.warn { background:linear-gradient(135deg,rgba(var(--wh-amber-400-rgb, 251, 191, 36), 0.08),rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04));
+                  border-color:rgba(var(--wh-amber-400-rgb, 251, 191, 36), 0.35); }
     .tldr.fail { background:linear-gradient(135deg,rgba(var(--wh-red-rgb, 248, 113, 113), 0.1),rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04));
                   border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.4); }
-    .tldr-line { font-size: .78rem; font-weight:600; color:var(--text); display:flex; gap:.5rem; flex-wrap:wrap; }
+    .tldr-line { font-size: var(--wh-fs-xs, 0.8rem); font-weight:600; color:var(--text); display:flex; gap:.5rem; flex-wrap:wrap; }
     .tldr-line .ok   { color:var(--green); }
     .tldr-line .amb  { color:var(--yellow); }
     .tldr-line .bad  { color:var(--red); }
     .tldr-line .sep  { color:var(--muted); }
     .tldr-watch {
-      font-size: 0.75rem; color:var(--muted); margin-top:.05rem;
+      font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); margin-top:.05rem;
     }
     .tldr-watch.has-watch { color:var(--yellow); }
     .tldr-watch.has-watch::before { content:"⚠ "; }
@@ -209,11 +209,11 @@
       margin-bottom:1rem;
     }
     .section-hdr h2 {
-      font-size:.78rem; font-weight:800; color:var(--gold);
+      font-size:var(--wh-fs-xs, 0.8rem); font-weight:800; color:var(--gold);
       text-transform:uppercase; letter-spacing:.08em; flex:1;
     }
     .section-hdr .section-tag {
-      font-size: 0.75rem; font-weight:700; color:var(--muted);
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--muted);
       background:var(--wh-white-04, rgba(255,255,255,.04)); border:1px solid var(--border);
       padding:.15rem .5rem; border-radius:999px; letter-spacing:.05em;
     }
@@ -234,14 +234,14 @@
 
     /* ── Panel header subtitle (plain-language "what this tells you") ── */
     .panel-sub {
-      font-size: 0.75rem; color:var(--muted); font-weight:400;
+      font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); font-weight:400;
       margin-top:.1rem; text-transform:none; letter-spacing:0;
     }
 
     /* ── Trend arrow on hero KPI tiles ── */
     .stat .trend {
       display:inline-flex; align-items:center; gap:.15rem;
-      font-size: 0.75rem; font-weight:700; margin-left:.4rem;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; margin-left:.4rem;
       vertical-align:.15em;
     }
     .stat .trend.up   { color:var(--green); }
@@ -250,14 +250,14 @@
     /* ── The console's four tabs (OPC, 2026-10-22): sticky like the jump nav they replaced, worn as the selection pill
        (DESIGN.md: selected = amber 15 % face, amber text, 40 % border; unselected = white 4 % face, muted text) ── */
     .opc-tabs {
-      position:sticky; top:0; z-index:50;
+      position:sticky; top:0; z-index:var(--wh-z-modal-2, 50);
       background:var(--bg); padding:.5rem 1.5rem;
       border-bottom:1px solid var(--border);
       display:flex; gap:.4rem; overflow-x:auto;
     }
     .opc-tabs [role="tab"] {
       flex-shrink:0; padding:.35rem 1rem; min-height:44px;
-      font:inherit; font-size:0.8125rem; font-weight:700; color:var(--muted); cursor:pointer;
+      font:inherit; font-size:var(--wh-fs-xs, 0.8rem); font-weight:700; color:var(--muted); cursor:pointer;
       background:var(--wh-white-04, rgba(255,255,255,.04)); border:1px solid var(--border);
       transition:background-color .15s ease-out, color .15s ease-out, border-color .15s ease-out;
     }
@@ -273,19 +273,19 @@
 
     /* ── Platform tab: the dashboards as live numbers (OPC, 2026-10-22). Stats reuse the console's own chip, bar
        charts its own bar rows; a table panel is a plain table that scrolls inside itself on a phone. ── */
-    .opc-grafana-link { font-size:0.75rem; font-weight:700; color:var(--wh-blue-text, #5FCCE8); min-height:44px;
+    .opc-grafana-link { font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-blue-text, #5FCCE8); min-height:44px;
                         display:inline-flex; align-items:center; padding:0 .5rem; text-underline-offset:3px; }
-    .opc-note { font-size:0.75rem; color:var(--muted); margin:.5rem 0 0; }
+    .opc-note { font-size:var(--wh-fs-2xs, 0.75rem); color:var(--muted); margin:.5rem 0 0; }
     .mkt-chip .opc-note { display:block; margin-top:.25rem; }
     .opc-table-wrap { overflow-x:auto; }
-    .opc-table { width:100%; border-collapse:collapse; font-size:0.78rem; font-variant-numeric:tabular-nums; }
-    .opc-table th { text-align:left; font-size:0.75rem; font-weight:700; color:var(--muted); padding:.35rem .5rem;
+    .opc-table { width:100%; border-collapse:collapse; font-size:var(--wh-fs-xs, 0.8rem); font-variant-numeric:tabular-nums; }
+    .opc-table th { text-align:left; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--muted); padding:.35rem .5rem;
                     border-bottom:1px solid var(--border); white-space:nowrap; }
     .opc-table td { padding:.35rem .5rem; border-bottom:1px solid var(--wh-white-05, rgba(255,255,255,.05)); color:var(--text); vertical-align:top; }
     .opc-table td.num { text-align:right; white-space:nowrap; }
     .opc-table tr:last-child td { border-bottom:none; }
     /* the outcomes table: a count beside the cohort it is out of, the who-used line under the use count */
-    .out-sub { display:block; font-size:0.75rem; color:var(--muted); margin-top:2px; }
+    .out-sub { display:block; font-size:var(--wh-fs-2xs, 0.75rem); color:var(--muted); margin-top:2px; }
     .out-none, .out-pct { color:var(--muted); }
     /* a five-column table needs the whole row: in a half-width cell the return and repeat columns sat behind a scroll */
     .section-grid > .panel.span-all { grid-column:1 / -1; }
@@ -298,9 +298,9 @@
       #outcomes .opc-table tr { display:grid; grid-template-columns:1fr 1fr; gap:.35rem .9rem; padding:.6rem 0;
         border-bottom:1px solid var(--wh-white-05, rgba(255,255,255,.05)); }
       #outcomes .opc-table tr:last-child { border-bottom:none; }
-      #outcomes .opc-table th[scope="row"] { grid-column:1 / -1; padding:0; color:var(--text); font-size:0.875rem; }
+      #outcomes .opc-table th[scope="row"] { grid-column:1 / -1; padding:0; color:var(--text); font-size:var(--wh-fs-sm-plus, 0.875rem); }
       #outcomes .opc-table td { display:block; padding:0; border-bottom:none; text-align:left; }
-      #outcomes .opc-table td::before { content:attr(data-label); display:block; font-size:0.75rem; color:var(--muted);
+      #outcomes .opc-table td::before { content:attr(data-label); display:block; font-size:var(--wh-fs-2xs, 0.75rem); color:var(--muted);
         margin-bottom:1px; }
     }
 
@@ -315,11 +315,11 @@
       background:var(--wh-white-02, rgba(255,255,255,.02));
     }
     .panel-hdr h2 {
-      flex:1; font-size: .78rem; font-weight:700; color:var(--text);
+      flex:1; font-size: var(--wh-fs-xs, 0.8rem); font-weight:700; color:var(--text);
       text-transform:uppercase; letter-spacing:.06em;
     }
     .panel-hdr .updated {
-      font-size: 0.75rem; color:var(--muted); font-family:ui-monospace,monospace;
+      font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); font-family:ui-monospace,monospace;
     }
     .panel-body { padding:1rem 1.15rem; }
 
@@ -327,17 +327,17 @@
     .honest-empty {
       background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2);
       border-radius:.75rem; padding:1rem 1.15rem; color:var(--text);
-      font-size:.78rem; line-height:1.55;
+      font-size:var(--wh-fs-xs, 0.8rem); line-height:1.55;
     }
     .honest-empty .hetitle {
-      font-size: 0.75rem; font-weight:700; color:var(--gold);
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--gold);
       text-transform:uppercase; letter-spacing:.06em; margin-bottom:.3rem;
     }
-    .honest-empty .hewhy { color:var(--muted); font-size: 0.75rem; margin-top:.35rem; }
+    .honest-empty .hewhy { color:var(--muted); font-size: var(--wh-fs-2xs, 0.75rem); margin-top:.35rem; }
 
     /* ── Memento Memory Cache panel (P6) ── */
     .memento-headline {
-      font-size:.78rem; color:var(--text); margin-bottom:.85rem;
+      font-size:var(--wh-fs-xs, 0.8rem); color:var(--text); margin-bottom:.85rem;
       padding:.5rem .65rem; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06);
       border-left:2px solid var(--blue); border-radius:12px;
     }
@@ -350,21 +350,21 @@
       border-radius:.75rem; padding:.65rem .8rem;
       display:flex; flex-direction:column; gap:.1rem;
     }
-    .memento-stat .stat-num { font-size: 1.2rem; font-weight:800; line-height:1.1; color:var(--blue); }
-    .memento-stat .stat-num { color:#7dd3fc; font-variant-numeric:tabular-nums; }   /* C5/C4 (2026-09-05): --wh-blue read Lc 51/60 at 18px and the figures were proportional */
-    .memento-stat .stat-num.dim { color:var(--muted); font-size: 0.75rem; font-weight:600; }
-    .memento-stat .stat-lbl { font-size: 0.75rem; font-weight:700; text-transform:uppercase;
+    .memento-stat .stat-num { font-size: var(--wh-fs-lg, 1.25rem); font-weight:800; line-height:1.1; color:var(--blue); }
+    .memento-stat .stat-num { color:var(--wh-sky-300, #7dd3fc); font-variant-numeric:tabular-nums; }   /* C5/C4 (2026-09-05): --wh-blue read Lc 51/60 at 18px and the figures were proportional */
+    .memento-stat .stat-num.dim { color:var(--muted); font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; }
+    .memento-stat .stat-lbl { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase;
                               letter-spacing:.06em; color:var(--muted); margin-top:.2rem; }
     .memento-context {
-      font-size: 0.75rem; color:var(--muted); line-height:1.6;
+      font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); line-height:1.6;
       padding-top:.6rem; border-top:1px dashed var(--border);
     }
     .memento-context .warn { color:var(--yellow); font-weight:600; }
     .memento-context strong { color:var(--text); font-weight:600; }
     .warming-banner {
       margin-top:.7rem; padding:.55rem .7rem;
-      background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.3);
-      border-radius:.5rem; font-size: 0.75rem; color:var(--yellow);
+      background:rgba(var(--wh-amber-400-rgb, 251, 191, 36), 0.08); border:1px solid rgba(var(--wh-amber-400-rgb, 251, 191, 36), 0.3);
+      border-radius:.5rem; font-size: var(--wh-fs-2xs, 0.75rem); color:var(--yellow);
     }
 
     /* ── Validator grid (Tech Health) ── */
@@ -377,12 +377,12 @@
       border-radius:.75rem; padding:.65rem .8rem;
       display:flex; flex-direction:column; gap:.1rem;
     }
-    .tech-chip .n { font-size:1.375rem; font-weight:800; line-height:1; }
-    .tech-chip .l { font-size: 0.75rem; font-weight:700; text-transform:uppercase;
+    .tech-chip .n { font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; line-height:1; }
+    .tech-chip .l { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase;
                     letter-spacing:.06em; color:var(--muted); margin-top:.2rem; }
-    .tech-chip.pass .n { color:#86efac; }   /* C5 (2026-09-05): the semantic green/red read Lc 45/60 at 21px; lighter text tints keep the meaning */
-    .tech-chip.fail .n { color:#fca5a5; }
-    .tech-chip.warn .n, .tech-chip.skip .n { color:#fcd34d; }   /* C5: the amber/orange numeral read Lc 51/60 at 21px; the lighter amber clears */
+    .tech-chip.pass .n { color:var(--wh-green-300, #86efac); }   /* C5 (2026-09-05): the semantic green/red read Lc 45/60 at 21px; lighter text tints keep the meaning */
+    .tech-chip.fail .n { color:var(--wh-red-300, #fca5a5); }
+    .tech-chip.warn .n, .tech-chip.skip .n { color:var(--wh-amber-300-b, #fcd34d); }   /* C5: the amber/orange numeral read Lc 51/60 at 21px; the lighter amber clears */
     .tech-chip .n { color:var(--wh-cloud, #F4F6FA); }  /* neutral default for any other state */
     .tech-chip.warn .n { color:var(--yellow); }
     .tech-chip.skip .n { color:var(--blue); }
@@ -391,10 +391,10 @@
     .group-row {
       display:flex; align-items:center; gap:.5rem;
       padding:.55rem .85rem; border-bottom:1px solid var(--border);
-      background:rgba(255,255,255,.015);
+      background:var(--wh-white-02, rgba(255, 255, 255, 0.02));
     }
     .group-row:last-child { border-bottom:none; }
-    .group-name { flex:1; font-size: .78rem; font-weight:600; color:var(--text); }
+    .group-name { flex:1; font-size: var(--wh-fs-xs, 0.8rem); font-weight:600; color:var(--text); }
     .group-bar {
       flex:2; height:6px; background:var(--wh-white-05, rgba(255,255,255,.05));
       border-radius:999px; overflow:hidden; min-width:60px;
@@ -403,11 +403,11 @@
       height:100%; background:linear-gradient(90deg,var(--green),var(--blue));
       border-radius:999px; transition:width .5s;
     }
-    .group-stats { font-size: 0.75rem; color:var(--muted); min-width:88px; text-align:right; font-variant-numeric: tabular-nums; }
+    .group-stats { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); min-width:88px; text-align:right; font-variant-numeric: tabular-nums; }
     /* Scheduled work: the healthy jobs fold away behind one 44px row; the failing ones stay open above it */
     .sched-working { margin-top:.85rem; border:1px solid var(--border); border-radius:.5rem; overflow:hidden; }
     .sched-working > summary { min-height:44px; display:flex; align-items:center; padding:0 .85rem; cursor:pointer;
-                               font-size:.78rem; font-weight:600; color:var(--text); }
+                               font-size:var(--wh-fs-xs, 0.8rem); font-weight:600; color:var(--text); }
     .sched-working > summary:focus-visible { outline:2px solid var(--blue); outline-offset:-2px; }
     #sched-content .group-stats { flex:2; }
 
@@ -420,8 +420,8 @@
       border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.25); border-radius:.5rem;
     }
     .fail-dot { width:8px; height:8px; border-radius:50%; background:var(--red); margin-top:.4rem; flex-shrink:0; }
-    .fail-label { flex:1; font-size: .78rem; color:var(--text); }
-    .fail-group { font-size: 0.75rem; color:var(--muted); margin-top:.1rem; }
+    .fail-label { flex:1; font-size: var(--wh-fs-xs, 0.8rem); color:var(--text); }
+    .fail-group { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); margin-top:.1rem; }
 
     /* ── Growth Pulse ── */
     .pulse-row {
@@ -432,10 +432,10 @@
       background:var(--card); border:1px solid var(--border);
       border-radius:.75rem; padding:.65rem .85rem;
     }
-    .pulse-card .n { font-size: 1.375rem; font-weight:800; line-height:1.1; color:var(--blue); }
-    .pulse-card .l { font-size: 0.75rem; font-weight:700; color:var(--muted);
+    .pulse-card .n { font-size: var(--wh-fs-xl, 1.5rem); font-weight:800; line-height:1.1; color:var(--blue); }
+    .pulse-card .l { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--muted);
                      text-transform:uppercase; letter-spacing:.06em; margin-top:.2rem; }
-    .pulse-card .sub { font-size: 0.75rem; color:var(--muted); margin-top:.1rem; }
+    .pulse-card .sub { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); margin-top:.1rem; }
 
     /* DAU sparkline (CSS-only, no chart lib) */
     .sparkline {
@@ -447,7 +447,7 @@
       min-height:2px; border-radius:0; transition:height .4s;
     }
     .spark-axis {
-      display:flex; justify-content:space-between; font-size: 0.75rem; color:var(--muted);
+      display:flex; justify-content:space-between; font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted);
       margin-top:.2rem; padding:0 .15rem;
     }
 
@@ -459,12 +459,12 @@
       display:grid; grid-template-columns:130px 1fr 70px;
       gap:.5rem; align-items:center;
     }
-    .pareto-name { font-size: 0.75rem; font-weight:600; color:var(--text);
+    .pareto-name { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; color:var(--text);
                    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .pareto-bar { height:8px; background:var(--wh-white-05, rgba(255,255,255,.05)); border-radius:999px; overflow:hidden; }
     .pareto-fill { height:100%; background:linear-gradient(90deg,var(--purple),var(--blue));
                     border-radius:999px; transition:width .5s; }
-    .pareto-count { font-size: 0.75rem; color:var(--muted); text-align:right; }
+    .pareto-count { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); text-align:right; }
 
     /* ── Marketplace ── */
     .mkt-grid {
@@ -475,20 +475,20 @@
       background:var(--card); border:1px solid var(--border);
       border-radius:.5rem; padding:.6rem .75rem;
     }
-    .mkt-chip .n { font-size:1.2rem; font-weight:800; line-height:1.1; }
-    .mkt-chip .l { font-size: 0.75rem; font-weight:700; color:var(--muted);
+    .mkt-chip .n { font-size:var(--wh-fs-lg, 1.25rem); font-weight:800; line-height:1.1; }
+    .mkt-chip .l { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--muted);
                    text-transform:uppercase; letter-spacing:.06em; margin-top:.2rem; }
 
     /* ── The action queues (OPC, 2026-10-22): Platform Actions' rules, moved with its queues (operator-actions.js). ──
        The console's own mod-*/fb-* rules styled the copies those queues replaced. The module's toast is #opc-toast,
        so it and the console's toast never write one node. */
-    .count { font-size:1.25rem; line-height:1; font-variant-numeric:tabular-nums; font-weight:700; padding:0.25rem 0.5rem; border-radius:999px; background:var(--wh-white-08, rgba(255,255,255,0.08)); color:var(--wh-cloud, #F4F6FA);   /* C5: a 20 px numeral on the dim pill needs the near-white tint (Lc 60 -> 75+) */ }
-    .count.warn { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color:#fde68a; }   /* C5: same step for the amber pill */
+    .count { font-size:var(--wh-fs-lg, 1.25rem); line-height:1; font-variant-numeric:tabular-nums; font-weight:700; padding:0.25rem 0.5rem; border-radius:999px; background:var(--wh-white-08, rgba(255,255,255,0.08)); color:var(--wh-cloud, #F4F6FA);   /* C5: a 20 px numeral on the dim pill needs the near-white tint (Lc 60 -> 75+) */ }
+    .count.warn { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color:var(--wh-amber-200, #fde68a); }   /* C5: same step for the amber pill */
     /* --red on its own 18% tint measures 4.35:1 -- under the 4.5 AA floor for text this small, and
        axe flagged 11 nodes across the count badges and status pills. The gold pair already clears it
-       at 5.41:1, so only the red needed lifting: #fca5a5 on the same tint measures 6.35:1. Chosen
+       at 5.41:1, so only the red needed lifting: var(--wh-red-300, #fca5a5) on the same tint measures 6.35:1. Chosen
        over darkening the tint because the tint is what makes a red pill READ as red at a glance. */
-    .count.fail { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.14); color:var(--wh-red-text, #FDC9C9); }   /* C5 (2026-09-05): a 20 px numeral on the red pill read Lc 60 with #fca5a5 - one tint lighter */
+    .count.fail { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.14); color:var(--wh-red-text, #FDC9C9); }   /* C5 (2026-09-05): a 20 px numeral on the red pill read Lc 60 with var(--wh-red-300, #fca5a5) - one tint lighter */
     .mod-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; padding:0.5rem 0;
                border-top:1px solid var(--border); flex-wrap:wrap; }
     .mod-row:first-child { border-top:0; }
@@ -501,24 +501,24 @@
        min-width:0 stays so that once wrapped it may still shrink, and anywhere-wrapping lets the
        reference break rather than spill if the line is narrower still. */
     .mod-main { min-width:0; flex:1 1 14rem; }
-    .mod-main strong { display:block; font-size:0.9rem; overflow-wrap:anywhere; }
-    .mod-sub { display:block; color:var(--muted); font-size:0.78rem; margin-top:0.25rem; }
+    .mod-main strong { display:block; font-size:var(--wh-fs-sm-plus, 0.875rem); overflow-wrap:anywhere; }
+    .mod-sub { display:block; color:var(--muted); font-size:var(--wh-fs-xs, 0.8rem); margin-top:0.25rem; }
     .mod-actions { display:flex; gap:0.4rem; flex-wrap:wrap; }
-    .mod-btn { padding:0.5rem 0.75rem; border-radius:0.5rem; font-weight:700; font-size:0.8rem; cursor:pointer;
-               border:1px solid var(--border); background:var(--wh-white-05, rgba(255,255,255,0.05)); color:#fff; min-height:44px; }
-    .mod-btn.ok { background:rgba(52,211,153,0.14); color:var(--green); border-color:rgba(52,211,153,0.35); }
+    .mod-btn { padding:0.5rem 0.75rem; border-radius:0.5rem; font-weight:700; font-size:var(--wh-fs-xs, 0.8rem); cursor:pointer;
+               border:1px solid var(--border); background:var(--wh-white-05, rgba(255,255,255,0.05)); color:var(--wh-white, #fff); min-height:44px; }
+    .mod-btn.ok { background:rgba(var(--wh-emerald-400-rgb, 52, 211, 153), 0.14); color:var(--green); border-color:rgba(var(--wh-emerald-400-rgb, 52, 211, 153), 0.35); }
     /* TEXT uses --wh-red-text, not --red. --wh-red (var(--wh-red, #f87171)) is the danger FILL token and its own
        comment says so ("AA text = --wh-red-text"); using it as a label colour put "Reject" at APCA
        Lc 44 on this chip background — the four worst strings on the whole surface. The fill and the
        border keep the stronger red, so the button still reads as danger. */
     .mod-btn.no { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.12); color:var(--wh-red-text); border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
     .mod-btn:disabled { opacity:0.5; cursor:default; }
-    .mod-empty { color:var(--muted); font-size:0.85rem; padding:0.5rem 0; }
+    .mod-empty { color:var(--muted); font-size:var(--wh-fs-sm, 0.85rem); padding:0.5rem 0; }
     /* a label beside a figure, a list's heading or its updated-time: muted like an empty state, but it says what IS
        there (ENH-C E2, 2026-10-22 - the usage card's labels wore .mod-empty) */
-    .toast-msg { background:#1f2937; color:#fff; padding:0.75rem 1rem; border-radius:12px; font-size:0.85rem;
-                 border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.4); }
-    .toast-msg.success { border-color:rgba(52,211,153,0.5); }
+    .toast-msg { background:var(--wh-gray-800, #1f2937); color:var(--wh-white, #fff); padding:0.75rem 1rem; border-radius:12px; font-size:var(--wh-fs-sm, 0.85rem);
+                 border:1px solid var(--border); box-shadow:0 6px 24px var(--wh-black-35, rgba(0, 0, 0, 0.35)); }
+    .toast-msg.success { border-color:rgba(var(--wh-emerald-400-rgb, 52, 211, 153), 0.5); }
     .toast-msg.error { border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.5); }
     /* ★THE ROW COULD NOT WRAP, SO THE BUTTON'S LABEL DID (phone-fit@320 FIL, 2026-09-29). This is a
        nowrap flex row holding the refresh button and the last-sync stamp, so at 320 the button was
@@ -531,58 +531,58 @@
        wrap gives the stamp somewhere to go. The label keeps one line at every width and the copy is
        untouched. */
     .fb-tabs { display:flex; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.5rem; }
-    .fb-tab { padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); font-size:0.78rem; font-weight:700; cursor:pointer;
+    .fb-tab { padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); font-size:var(--wh-fs-xs, 0.8rem); font-weight:700; cursor:pointer;
               background:var(--wh-white-05, rgba(255,255,255,0.05)); border:1px solid var(--border); color:var(--muted); min-height:44px; }
     .fb-tab[aria-selected="true"] { background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.14); color:var(--blue); border-color:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.35); }
     .fb-filters { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem; }
     /* 16px, not 0.8rem. Below 16px iOS Safari ZOOMS the page on focus and does not zoom back, so a
        founder triaging on a phone gets thrown into a magnified, horizontally-scrolling layout by
        tapping the search box. The battery measured these two at 12.8px. */
-    .fb-filter { padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); background:var(--wh-white-05, rgba(255,255,255,0.05)); color:#fff;
-                 border:1px solid var(--border); font-size:16px; min-height:44px; }
-    /* white@0.5 composites to rgb(146,151,160) on this card = APCA Lc 41.1 against the Lc 60
+    .fb-filter { padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); background:var(--wh-white-05, rgba(255,255,255,0.05)); color:var(--wh-white, #fff);
+                 border:1px solid var(--border); font-size:var(--wh-fs-base, 1rem); min-height:44px; }
+    /* white@0.5 composites to var(--wh-grey-500-c, rgb(146,151,160)) on this card = APCA Lc 41.1 against the Lc 60
        floor for 16px/400, so the only hint telling a sighted user what this field searches was
        under the floor. WCAG passed it at 4.61, which is why only the APCA lens caught it.
        --wh-steel-bright is the platform's established bright-placeholder token (23 uses). */
     .fb-filter::placeholder { color:var(--wh-steel-bright); }
     .fb-card { display:block; width:100%; text-align:left; cursor:pointer; padding:0.75rem 0.25rem;
-               background:none; border:0; border-top:1px solid var(--border); color:#fff; min-height:44px; }
+               background:none; border:0; border-top:1px solid var(--border); color:var(--wh-white, #fff); min-height:44px; }
     .fb-card:first-child { border-top:0; }
     /* SL LB3: a card the browser has not laid out yet keeps a card's height (top row, subject, two snippet lines) */
     #fb-list [data-fb-rows] > .fb-card { contain-intrinsic-size: auto 96px; }
     .fb-card:hover { background:var(--wh-surface-card, rgba(255,255,255,0.03)); }
     .fb-card:focus-visible { outline:2px solid var(--blue); outline-offset:-2px; }
-    .fb-card-top { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; font-size: 0.75rem; color:var(--muted); }
-    .fb-kind, .fb-status { padding:0.1rem 0.5rem; border-radius:var(--wh-radius-pill); font-weight:700; font-size: 0.75rem;
+    .fb-card-top { display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); }
+    .fb-kind, .fb-status { padding:0.1rem 0.5rem; border-radius:var(--wh-radius-pill); font-weight:700; font-size: var(--wh-fs-2xs, 0.75rem);
                            background:var(--wh-white-08, rgba(255,255,255,0.08)); }
-    .fb-status.new { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.18); color:#fca5a5; }   /* 6.35:1; --red measured 4.35:1 */
+    .fb-status.new { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.18); color:var(--wh-red-300, #fca5a5); }   /* 6.35:1; --red measured 4.35:1 */
     .fb-status.triaged, .fb-status.in_progress { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color:var(--gold); }
-    .fb-status.resolved, .fb-status.wontfix, .fb-status.duplicate { background:rgba(52,211,153,0.16); color:var(--green); }
-    .fb-subject { font-weight:700; font-size:0.88rem; margin-top:0.25rem; }
-    .fb-snippet { color:var(--muted); font-size:0.78rem; margin-top:0.25rem;
+    .fb-status.resolved, .fb-status.wontfix, .fb-status.duplicate { background:rgba(var(--wh-emerald-400-rgb, 52, 211, 153), 0.16); color:var(--green); }
+    .fb-subject { font-weight:700; font-size:var(--wh-fs-sm-plus, 0.875rem); margin-top:0.25rem; }
+    .fb-snippet { color:var(--muted); font-size:var(--wh-fs-xs, 0.8rem); margin-top:0.25rem;
                   display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    .fb-drawer-backdrop { position:fixed; inset:0; background:var(--wh-black-55, rgba(0,0,0,0.55)); z-index:9000; }
+    .fb-drawer-backdrop { position:fixed; inset:0; background:var(--wh-black-55, rgba(0,0,0,0.55)); z-index:var(--wh-z-consent, 9000); }
     /* padding-bottom carries the safe-area inset: the drawer is pinned bottom:0, so on an iPhone X+
        its last control (Save changes / Reply via email) sits UNDER the home indicator bar and cannot
        be tapped. env() resolves to 0 everywhere else, so this costs nothing on desktop. */
-    .fb-drawer { position:fixed; top:0; right:0; bottom:0; width:min(460px,100vw); z-index:9001; overflow-y:auto;
+    .fb-drawer { position:fixed; top:0; right:0; bottom:0; width:min(460px,100vw); z-index:var(--wh-z-drawer, 9100); overflow-y:auto;
                  background:var(--card); border-left:1px solid var(--border);
                  padding:1rem; padding-bottom:calc(1.1rem + env(safe-area-inset-bottom)); }
-    .fb-drawer h3 { margin:0; font-size:1rem; }
+    .fb-drawer h3 { margin:0; font-size:var(--wh-fs-base, 1rem); }
     .fb-drawer-hdr { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:1rem; }
-    .fb-drawer-close { background:none; border:0; color:var(--muted); font-size:1.5rem; cursor:pointer;
+    .fb-drawer-close { background:none; border:0; color:var(--muted); font-size:var(--wh-fs-xl, 1.5rem); cursor:pointer;
                        min-width:44px; min-height:44px; }
-    .fb-drawer label { display:block; font-size: 0.75rem; text-transform:uppercase; letter-spacing:0.04em;
+    .fb-drawer label { display:block; font-size: var(--wh-fs-2xs, 0.75rem); text-transform:uppercase; letter-spacing:0.04em;
                        color:var(--muted); margin:1rem 0 0.25rem; }
-    .fb-drawer select, .fb-drawer textarea { width:100%; padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); font-size:0.85rem;
-                 background:var(--wh-white-05, rgba(255,255,255,0.05)); color:#fff; border:1px solid var(--border); font-family:inherit; min-height:44px; }
+    .fb-drawer select, .fb-drawer textarea { width:100%; padding:0.5rem 0.75rem; border-radius:var(--wh-radius-sm); font-size:var(--wh-fs-sm, 0.85rem);
+                 background:var(--wh-white-05, rgba(255,255,255,0.05)); color:var(--wh-white, #fff); border:1px solid var(--border); font-family:inherit; min-height:44px; }
     .fb-drawer textarea { min-height:90px; resize:vertical; }
-    .fb-meta { color:var(--muted); font-size:0.76rem; line-height:1.5; }
-    .fb-body { white-space:pre-wrap; font-size:0.86rem; line-height:1.55; margin:0.5rem 0;
+    .fb-meta { color:var(--muted); font-size:var(--wh-fs-2xs, 0.75rem); line-height:1.5; }
+    .fb-body { white-space:pre-wrap; font-size:var(--wh-fs-sm, 0.85rem); line-height:1.55; margin:0.5rem 0;
                background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--border); border-radius:var(--wh-radius-sm); padding:0.75rem; }
     .fb-drawer-actions { display:flex; gap:0.5rem; margin-top:1rem; flex-wrap:wrap; }
     .fb-drawer-actions .mod-btn { flex:1; text-align:center; text-decoration:none; line-height:1.9; }
-    #opc-toast { position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:9999; }
+    #opc-toast { position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%); z-index:var(--wh-z-toast-5, 9999); }
     #opc-panel-operations .panel-hdr .count { margin-left:auto; }
 
     /* ── Founder-tools launcher (one place to reach every admin surface) ── */
@@ -597,8 +597,8 @@
     /* (The "Marketplace admin: full" card and the extra space it earned left with the link, OPC 2026-10-22: the
        removals it led to are the Operations tab's listing and seller review, on this page.) */
     .ftool:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
-    .ftool-t { font-size:.85rem; font-weight:700; color:var(--text); }
-    .ftool-d { font-size: 0.75rem; color:var(--muted); }
+    .ftool-t { font-size:var(--wh-fs-sm, .85rem); font-weight:700; color:var(--text); }
+    .ftool-d { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); }
 
     /* ── Audit feed ── */
     .audit-feed {
@@ -610,13 +610,13 @@
     .audit-item {
       display:flex; align-items:flex-start; gap:.55rem;
       padding:.45rem .65rem; border:1px solid var(--border);
-      border-radius:12px; background:rgba(255,255,255,.015);
-      font-size: 0.75rem;
+      border-radius:12px; background:var(--wh-white-02, rgba(255, 255, 255, 0.02));
+      font-size: var(--wh-fs-2xs, 0.75rem);
     }
     .audit-action {
       font-weight:700; color:var(--text);
     }
-    .audit-meta { font-size: 0.75rem; color:var(--muted); margin-top:.1rem; font-family:ui-monospace,monospace; }
+    .audit-meta { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); margin-top:.1rem; font-family:ui-monospace,monospace; }
     .audit-dot {
       width:6px; height:6px; border-radius:50%; margin-top:.35rem; flex-shrink:0;
     }
@@ -638,19 +638,19 @@
       position:fixed; bottom:calc(1.5rem + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(8px);
       background:linear-gradient(135deg,rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.96),rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.98));
       border:1px solid var(--wh-white-12, rgba(255,255,255,.12)); color:var(--text);
-      padding:.6rem 1.2rem; border-radius:999px; font-size:.78rem; font-weight:500;
-      opacity:0; transition:opacity .3s,transform .3s; pointer-events:none; z-index:9999;
+      padding:.6rem 1.2rem; border-radius:999px; font-size:var(--wh-fs-xs, 0.8rem); font-weight:500;
+      opacity:0; transition:opacity .3s,transform .3s; pointer-events:none; z-index:var(--wh-z-toast-5, 9999);
     }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
   
     /* C5 (2026-09-05, last of the numeral tints - appended at the end of the sheet so the cascade cannot lose):
        --wh-blue (var(--wh-blue,#29b6d9)) reads Lc 51/60 on the 21-22px pulse-card / tech-chip figures; the lighter sky keeps the hue. */
-    .pulse-card .n, .tech-chip.skip .n { color:#7dd3fc; }
-    .tech-chip.warn .n { color:#fcd34d; }
-    .tech-chip.fail .n { color:#fca5a5; }
-    .tech-chip.pass .n { color:#86efac; }
-    .mkt-chip .n { color:#fcd34d; }   /* C5: the amber peso figure (₱1,643,933) read Lc 58/60 at 19px; a mid-sheet copy lost to a later rule */
+    .pulse-card .n, .tech-chip.skip .n { color:var(--wh-sky-300, #7dd3fc); }
+    .tech-chip.warn .n { color:var(--wh-amber-300-b, #fcd34d); }
+    .tech-chip.fail .n { color:var(--wh-red-300, #fca5a5); }
+    .tech-chip.pass .n { color:var(--wh-green-300, #86efac); }
+    .mkt-chip .n { color:var(--wh-amber-300-b, #fcd34d); }   /* C5: the amber peso figure (₱1,643,933) read Lc 58/60 at 19px; a mid-sheet copy lost to a later rule */
     /* C1 (2026-09-05): 25 distinct font-size values in this sheet snapped onto an 8-step scale (.62 / .72 / .78 / .85 / 1 / 1.2 / 1.375 / 1.7 rem); no step moved more than 0.05rem */
     /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
        selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
@@ -738,7 +738,7 @@
         <button id="refresh-btn" class="refresh-btn" title="Refresh all panels (R)">
           <span class="refresh-ico">↻</span> Refresh all
         </button>
-        <label data-i="p_autorefresh_0388" for="auto-select" style="font-size: 0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:.35rem;">Auto-refresh</label><select id="auto-select" class="auto-select" aria-label="Auto-refresh interval" title="Auto-refresh interval" data-select-placeholder-allow="auto-refresh defaults to 'Off' (safest)">
+        <label data-i="p_autorefresh_0388" for="auto-select" style="font-size: var(--wh-fs-2xs, 0.75rem);font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-right:.35rem;">Auto-refresh</label><select id="auto-select" class="auto-select" aria-label="Auto-refresh interval" title="Auto-refresh interval" data-select-placeholder-allow="auto-refresh defaults to 'Off' (safest)">
           <option data-i="p_autooff_7026" value="0">Auto: Off</option>
           <option data-i="p_autos_5963" value="30">Auto: 30s</option>
           <option data-i="p_autom_e8ca" value="60">Auto: 1m</option>
@@ -821,7 +821,7 @@
           <h2>Money and moderation</h2>
           <span data-i="p_needsyouraction_06b8" class="section-tag">Needs your action</span>
         </div>
-        <div id="local-bypass-note" role="status" hidden style="margin:0 0 1rem; padding:0.7rem 0.9rem; border-radius:var(--wh-radius-sm); font-size:0.82rem; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); color:var(--gold);"></div>
+        <div id="local-bypass-note" role="status" hidden style="margin:0 0 1rem; padding:0.7rem 0.9rem; border-radius:var(--wh-radius-sm); font-size:var(--wh-fs-xs, 0.8rem); background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); color:var(--gold);"></div>
         <div class="section-grid">
           <!-- ★ONE CONSOLE, THE MAINTAINED QUEUES (OPC, 2026-10-22). These are Platform Actions' queues, moved with their
                code (operator-actions.js): while this console was retired, Platform Actions held the money and moderation
@@ -1300,7 +1300,7 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
@@ -2436,7 +2436,7 @@
       // Failing validators list
       const fails = (tech.validators || []).filter(v => v.status === 'FAIL');
       const failHtml = fails.length === 0
-        ? '<p style="font-size:.78rem;color:var(--muted);margin-top:.85rem;">No failures. Streak holding.</p>'
+        ? '<p style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--muted);margin-top:.85rem;">No failures. Streak holding.</p>'
         : '<div class="fail-list">'
           + fails.slice(0, 12).map(v =>
               '<div class="fail-item">'
@@ -2444,7 +2444,7 @@
               + '<div class="fail-label" title="' + escHtml(v.label || '') + '">' + escHtml(gateName(v))
               +   '<div class="fail-group">' + escHtml(v.group || '') + (v.elapsed ? ' · ' + v.elapsed + 's' : '') + '</div>'
               + '</div></div>').join('')
-          + (fails.length > 12 ? '<div style="font-size: 0.75rem;color:var(--muted);padding:.2rem .5rem;">+ ' + (fails.length - 12) + ' more</div>' : '')
+          + (fails.length > 12 ? '<div style="font-size: var(--wh-fs-2xs, 0.75rem);color:var(--muted);padding:.2rem .5rem;">+ ' + (fails.length - 12) + ' more</div>' : '')
           + '</div>';
 
       // Regressions block (was PASS, now FAIL)
@@ -2452,7 +2452,7 @@
       const regHtml = regs.length > 0
         ? '<div class="honest-empty" style="margin-top:.85rem;background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.06);border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.3);">'
           + '<div class="hetitle" style="color:var(--red);">' + regs.length + ' regression(s) detected</div>'
-          + '<ul style="margin:.3rem 0 0 1.1rem;font-size: 0.75rem;">'
+          + '<ul style="margin:.3rem 0 0 1.1rem;font-size: var(--wh-fs-2xs, 0.75rem);">'
           + regs.slice(0, 6).map(r => '<li title="' + escHtml(r.label || '') + '">'
               + escHtml(gateName(r)) + '</li>').join('')   // same jargon fix as the fail list above
           // A truncated list with no overflow line reads as "that is all of them". The failing-gate
@@ -2472,7 +2472,7 @@
         + '<div class="tech-chip warn"><span class="n">' + (sum.warn || 0) + '</span><span class="l">Warn</span></div>'
         + '<div class="tech-chip skip"><span class="n">' + (sum.skip || 0) + '</span><span class="l">Skip</span></div>'
         + '</div>'
-        + '<div style="border:1px solid var(--border);border-radius:.5rem;overflow:hidden;background:rgba(255,255,255,.01);">'
+        + '<div style="border:1px solid var(--border);border-radius:.5rem;overflow:hidden;background:var(--wh-white-02, rgba(255, 255, 255, 0.02));">'
         + groupRows
         + '</div>'
         + failHtml
@@ -2683,12 +2683,12 @@
           : (status === 'active' ? 'warn' : '')));
         const sTone = status === 'active' ? 'var(--green)' : 'rgba(255,255,255,0.4)';
         const bTone = effBlock ? 'var(--gold)' : 'var(--muted)';
-        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:.76rem;">'
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:var(--wh-fs-2xs, 0.75rem);">'
           + '<span style="flex:1;font-weight:600;">' + escHtml(d.label || k) + '</span>'
-          + '<span style="width:96px;text-align:right;color:var(--muted);font-size: 0.75rem;">' + escHtml(String(d.metric || '')) + '</span>'
+          + '<span style="width:96px;text-align:right;color:var(--muted);font-size: var(--wh-fs-2xs, 0.75rem);">' + escHtml(String(d.metric || '')) + '</span>'
           + '<span style="width:92px;text-align:right;font-variant-numeric:tabular-nums;">' + escHtml(floorStr) + '</span>'
           + '<span style="width:58px;text-align:right;font-weight:700;color:' + sTone + ';">' + escHtml(status) + '</span>'
-          + '<span style="width:48px;text-align:right;font-size: 0.75rem;color:' + bTone + ';">' + escHtml(blk) + '</span>'
+          + '<span style="width:48px;text-align:right;font-size: var(--wh-fs-2xs, 0.75rem);color:' + bTone + ';">' + escHtml(blk) + '</span>'
           + '</div>';
       }).join('');
       let abHtml = '';
@@ -2698,7 +2698,7 @@
         const vb = a.val && a.val.baseline != null ? a.val.baseline : '-';
         const vc = a.val && a.val.candidate != null ? a.val.candidate : '-';
         const tc = a.locked_test && a.locked_test.candidate != null ? a.locked_test.candidate : '-';
-        abHtml = '<div style="margin-top:10px;font-size: 0.75rem;color:var(--muted);">Last A/B (' + escHtml(a.dim || '')
+        abHtml = '<div style="margin-top:10px;font-size: var(--wh-fs-2xs, 0.75rem);color:var(--muted);">Last A/B (' + escHtml(a.dim || '')
           + (a.proposal ? (' · ' + escHtml(a.proposal)) : '') + '): <strong style="color:'
           + (acc ? 'var(--green)' : 'var(--yellow)') + '">' + escHtml(a.decision) + '</strong>: val '
           + escHtml(String(vb)) + '% to ' + escHtml(String(vc)) + '%, locked-test ' + escHtml(String(tc)) + '%</div>';
@@ -2707,14 +2707,14 @@
       const pr2 = data.proposals;
       if (pr2 && Array.isArray(pr2.proposals)) {
         const realN = pr2.proposals.filter(p => !p.info_only).length;
-        propHtml = '<div style="margin-top:4px;font-size: 0.75rem;color:var(--muted);">Optimization proposals: '
+        propHtml = '<div style="margin-top:4px;font-size: var(--wh-fs-2xs, 0.75rem);color:var(--muted);">Optimization proposals: '
           + escHtml(String(pr2.count != null ? pr2.count : pr2.proposals.length)) + ' open ('
           + escHtml(String(realN)) + ' actionable)</div>';
       }
-      el.innerHTML = '<div style="font-size: 0.75rem;margin-bottom:8px;"><strong style="color:var(--text);">'
+      el.innerHTML = '<div style="font-size: var(--wh-fs-2xs, 0.75rem);margin-bottom:8px;"><strong style="color:var(--text);">'
         + active + '/' + (active + pending) + ' dimensions active</strong>'
         + (pending ? '<span style="color:var(--muted);"> · ' + pending + ' pending</span>' : '') + '</div>'
-        + '<div style="display:flex;font-size: 0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px;">'
+        + '<div style="display:flex;font-size: var(--wh-fs-2xs, 0.75rem);color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-bottom:4px;">'
         + '<span style="flex:1;">Dimension</span><span style="width:96px;text-align:right;">Metric</span>'
         + '<span style="width:92px;text-align:right;">floor</span><span style="width:58px;text-align:right;">Status</span>'
         + '<span style="width:48px;text-align:right;">Gate</span></div>'
@@ -2832,7 +2832,7 @@
           + '<span style="font-variant-numeric:tabular-nums;">' + (Number(r.uses) || 0).toLocaleString() + ' by ' + escHtml(who) + '</span></li>';
       };
       return '<div style="margin-top:.85rem;"><p class="panel-sub">What people used each page for (30d)</p>'
-        + '<ul style="list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px;font-size:0.78rem;">' + top.map(line).join('') + '</ul>'
+        + '<ul style="list-style:none;margin:6px 0 0;padding:0;display:grid;gap:4px;font-size:var(--wh-fs-xs, 0.8rem);">' + top.map(line).join('') + '</ul>'
         + (uses.length > top.length ? '<p class="panel-sub" style="margin-top:4px;">And ' + (uses.length - top.length)
           + ' more page ' + (uses.length - top.length === 1 ? 'action' : 'actions') + ' with fewer uses.</p>' : '')
         + '</div>';
@@ -3048,8 +3048,8 @@
       const val = whFmtPeso(m.value_listed_php, { decimals: 0 });
       el.innerHTML = `
         <div class="mkt-grid">
-          <div class="mkt-chip"><span class="n" style="color:#86efac">${m.published}</span><span class="l">Published</span></div>
-          <div class="mkt-chip"><span class="n" style="color:#fcd34d">${escHtml(val)}</span><!-- C5 (2026-09-05): inline --gold read Lc 58/60 at 19px --><span class="l">Value listed</span></div>
+          <div class="mkt-chip"><span class="n" style="color:var(--wh-green-300, #86efac)">${m.published}</span><span class="l">Published</span></div>
+          <div class="mkt-chip"><span class="n" style="color:var(--wh-amber-300-b, #fcd34d)">${escHtml(val)}</span><!-- C5 (2026-09-05): inline --gold read Lc 58/60 at 19px --><span class="l">Value listed</span></div>
           <div class="mkt-chip"><span class="n">${m.sold_total}</span><span class="l">Sold</span></div>
           <div class="mkt-chip"><span class="n"${m.awaiting_review > 0 ? ' style="color:var(--blue)"' : ''}>${m.awaiting_review}</span><span class="l">Awaiting review</span></div>
           <div class="mkt-chip"><span class="n">${m.sellers}</span><span class="l">Active sellers</span></div>
@@ -3088,9 +3088,9 @@
         </div>`).join('');
       el.innerHTML = `
         <div class="pulse-row">
-          <div class="pulse-card"><span class="n" style="color:#fcd34d">$${a.total.toFixed(2)}</span><span class="l">7d total</span><span class="sub">${a.n_calls} calls${a.n_priced < a.n_calls ? ' · ' + a.n_priced + ' priced' : ''}</span></div>
+          <div class="pulse-card"><span class="n" style="color:var(--wh-amber-300-b, #fcd34d)">$${a.total.toFixed(2)}</span><span class="l">7d total</span><span class="sub">${a.n_calls} calls${a.n_priced < a.n_calls ? ' · ' + a.n_priced + ' priced' : ''}</span></div>
         </div>
-        ${topHiveRows ? '<h3 style="font-size: 0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:.6rem 0 .3rem;">Top spending hives</h3><div class="pareto-bar-wrap">' + topHiveRows + '</div>' : ''}
+        ${topHiveRows ? '<h3 style="font-size: var(--wh-fs-2xs, 0.75rem);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:.6rem 0 .3rem;">Top spending hives</h3><div class="pareto-bar-wrap">' + topHiveRows + '</div>' : ''}
         ${renderSourceChip({ possessive: false, freshness:'live', source:'ai_cost_log', window:'7d rollup', notes:['The 5 hives spending the most; the spend by provider is on the Platform tab'] })}
       `;
     }

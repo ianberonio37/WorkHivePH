@@ -154,7 +154,8 @@ def self_test() -> int:
                                          "--wh-text-muted:rgba(255, 255, 255, 0.80);}", encoding="utf-8")
         page = ("<html><head><style>.x{color:#F7A21B}.y{background:rgba(247,162,27,.2)}.z{color:#123456}"
                 ".f{color:var(--wh-orange, #abcdef)}.g{background:rgba(var(--wh-orange-rgb), .3)}"
-                ".s{font-size:13px}.v{font-size:var(--fs)}.q{z-index:5}.m{color:rgba(255,255,255,.8)}"
+                ".s{font-size:13px}.v{font-size:var(--fs)}.r{font-size:inherit}.e{font-size:1.5em}.p{font-size:80%}"
+                ".q{z-index:5}.m{color:rgba(255,255,255,.8)}.t{box-shadow:0 0 #0000;background:rgba(0,0,0,0)}"
                 ".w{background:rgba(255,255,255,.07)}</style></head>"
                 "<body><div style=\"color:#162032\"></div><!-- <div style=\"color:#999999\"></div> --></body></html>")
         (root / "a.html").write_text(page, encoding="utf-8")
@@ -165,7 +166,7 @@ def self_test() -> int:
         t("a var() fallback is excused (#abcdef not counted)", "171,205,239" not in m["offRgbs"])
         t("rgba(var(--token-rgb), a) is on the system (not counted)", m["tint"] == 2)
         t("a commented-out style attribute is not read", "153,153,153" not in m["offRgbs"])
-        t("raw font sizes count, var() ones do not", m["fontSizes"] == 1)
+        t("raw font sizes count; var() and relative ones (inherit / em / %) do not", m["fontSizes"] == 1)
         t("a raw z-index counts", m["zIndexes"] == 1)
         base = counts({"files": {"a.html": m}})
         # teeth: one more off-palette colour must rise; a new file with drift must rise; a fix must fall

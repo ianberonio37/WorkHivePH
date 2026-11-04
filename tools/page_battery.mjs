@@ -28,6 +28,7 @@
 import { chromium } from 'playwright';
 import { writeFileSync } from 'fs';
 import { signIn, makeHelpers, ACCOUNTS, SEEDER } from './live_page_journeys.mjs';
+import { PAGE_QUERY } from './prover_harness.mjs';
 import { ALL_ROWS_DRAWN } from './lib/long_list_text.mjs';
 
 const args = process.argv.slice(2);
@@ -100,7 +101,10 @@ async function runPage(context, pageFile) {
   try {
     // ── P1 Smoke ──
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto(`${SEEDER}/workhive/${pageFile}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    // ★A PAGE THAT NEEDS ITS SUBJECT IS LOADED WITH IT (2026-11-04). marketplace-seller-profile shows one seller and was
+    // opened bare, so every run graded its "no seller named" state - 195 characters - as a broken load (P1 25, sev 3)
+    // and the gate had been red since at least 10-31. The provers already carry the page's own key (PAGE_QUERY).
+    await page.goto(`${SEEDER}/workhive/${pageFile}${PAGE_QUERY[pageFile] || ''}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
     await page.waitForTimeout(3000); // settle async render
     const body = await page.evaluate(() => {
       const txt = (document.body?.innerText || '');

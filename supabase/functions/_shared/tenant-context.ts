@@ -159,7 +159,7 @@ export async function resolveTenancy(
         ok:      false,
         status:  503,
         code:    "membership_unverified",
-        message: "Your membership could not be checked just now - the service did not answer. Nothing about your access has changed. Try again in a moment.",
+        message: "We could not check your membership just now. Your access is unchanged. Try again in a moment.",
       };
     }
     if (!mem) {

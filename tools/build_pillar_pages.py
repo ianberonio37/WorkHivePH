@@ -41,15 +41,15 @@ PUB = "2026-08-05"
 STYLE = """  <style>
     * { font-family: 'Poppins', sans-serif; } body { background: var(--wh-navy,#162032); color: var(--wh-cloud,#F4F6FA); }
     .hex-pattern { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpath d='M40 0 L80 23 L80 69 L40 92 L0 69 L0 23 Z' fill='none' stroke='%23ffffff08' stroke-width='1.5'/%3E%3C/svg%3E"); background-size: 80px 92px; }
-    .prose-wh { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.78); font-size: 1.05rem; line-height: 1.8; }
+    .prose-wh { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.78); font-size: var(--wh-fs-lead, 1.05rem); line-height: 1.8; }
     /* craft floor (W46284, 2026-09-16, measured live at 390 and 1280): `small` took the UA default 0.8em of the
        16.8px body and rendered 13.4px - a size off the six-step ramp that no font-size declaration could show,
        because a ramp is what the page RENDERS. And the measure ran to 76ch at 1280, one over the 65-75 floor,
        so the text caps itself; below ~1100px the column is already narrower than the cap and nothing moves. */
-    .prose-wh small { font-size: 0.85rem; }
+    .prose-wh small { font-size: var(--wh-fs-sm, 0.85rem); }
     .prose-wh p, .prose-wh li { max-width: 72ch; }
-    .prose-wh h2 { color: var(--wh-cloud,#F4F6FA); font-size: 1.75rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
-    .prose-wh h3 { color: var(--wh-cloud,#F4F6FA); font-size: 1.25rem; font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
+    .prose-wh h2 { color: var(--wh-cloud,#F4F6FA); font-size: var(--wh-fs-2xl, 1.75rem); font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; margin-top: 3rem; margin-bottom: 1rem; scroll-margin-top: 80px; }
+    .prose-wh h3 { color: var(--wh-cloud,#F4F6FA); font-size: var(--wh-fs-lg, 1.25rem); font-weight: 700; margin-top: 2rem; margin-bottom: 0.5rem; }
     .prose-wh p  { margin-bottom: 1.25rem; }
     .prose-wh ul, .prose-wh ol { padding-left: 1.5rem; margin-bottom: 1.25rem; }
     .prose-wh li { margin-bottom: 0.5rem; }
@@ -67,39 +67,39 @@ STYLE = """  <style>
        left rule: a quotation mark in the margin is what a blockquote IS, and the detector does
        not flag it - the don't is about a CARD wearing a coloured tab, not about a quote. */
     .prose-wh blockquote { border-left: 3px solid var(--wh-orange,#F7A21B); padding: 0.5rem 0 0.5rem 1.25rem; margin: 1.5rem 0; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.7); font-style: italic; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); }
-    .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
-    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+    .prose-wh table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: var(--wh-fs-md, 0.95rem); }
+    .prose-wh th, .prose-wh td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); vertical-align: top; }
     .prose-wh th, .prose-wh td { word-break: normal; overflow-wrap: break-word; }  /* whole words: a phone table scrolls, never shatters (2026-10-27) */
-    .prose-wh th { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;
+    .prose-wh th { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.6); font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: var(--wh-fs-sm, 0.85rem); text-transform: uppercase; letter-spacing: 0.05em;
       /* the [data-table-scroll] wrapper announces a scrollable region and could never scroll: the table is
          pinned to width:100%, so it crushed columns instead - at 390 the headers "Product" and "Paid entry"
          wrapped to THREE lines in 66px (W46083, 2026-09-16). One line here is what makes the wrapper real. */
       white-space: nowrap; }
-    .prose-wh code { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7); border: 1px solid rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 0.95rem; color: var(--wh-orange-light,#FDB94A); }
-    .toc { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 24px 26px; margin: 2rem 0 3rem; }
-    .toc h2, .toc h4 { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.55); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
-    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: 0.95rem; }
+    .prose-wh code { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7); border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); padding: 2px 8px; border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: var(--wh-fs-md, 0.95rem); color: var(--wh-orange-light,#FDB94A); }
+    .toc { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 16px; padding: 24px 26px; margin: 2rem 0 3rem; }
+    .toc h2, .toc h4 { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.55); font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; }
+    .toc ol { padding-left: 1.5rem; margin: 0; } .toc li { margin-bottom: 6px; font-size: var(--wh-fs-md, 0.95rem); }
     .toc a { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.75); text-decoration: none; } .toc a:hover { color: var(--wh-orange,#F7A21B); }
-    .answer-first { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: 1.05rem; line-height: 1.75; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); }
-    .callout { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: 0.95rem; line-height: 1.7; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.78); }
+    .answer-first { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius: 8px; padding: 20px 22px; margin-bottom: 2rem; font-size: var(--wh-fs-lead, 1.05rem); line-height: 1.75; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.85); }
+    .callout { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.28); border-radius: 8px; padding: 20px 22px; margin: 2rem 0; font-size: var(--wh-fs-md, 0.95rem); line-height: 1.7; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.78); }
     .callout strong { color: var(--wh-blue-light,#5FCCE8); } .callout a { display: inline-block; min-height: 24px; }
-    .pill { display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: 0.05em; text-transform: uppercase; }
+    .pill { display: inline-block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: 0.05em; text-transform: uppercase; }
     .pill-orange { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--wh-orange,#F7A21B); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
-    .faq-item { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; margin-bottom: 12px; }
+    .faq-item { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.55); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 16px; margin-bottom: 12px; }
     .faq-item[open] { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.85); }
     .faq-item summary { cursor: pointer; list-style: none; padding: 16px 20px; font-weight: 600; color: var(--wh-cloud,#F4F6FA); display: flex; justify-content: space-between; gap: 14px; }
     .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after { content: '+'; font-size: 1.25rem; color: var(--wh-orange,#F7A21B); } .faq-item[open] summary::after { content: '\\2212'; }
-    .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.7); line-height: 1.7; font-size: 0.95rem; }
-    .author-card { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.5); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
-    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--wh-orange,#F7A21B), var(--wh-orange-light,#FDB94A)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--wh-navy,#162032); font-size: 1.05rem; flex-shrink: 0; }
-    .author-card .meta p:first-child { font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: 0.95rem; margin-bottom: 2px; }
-    .author-card .meta p:last-child { font-size: 0.85rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.5); }
-    nav a.nav-link { font-size: 0.95rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.82); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 0.25rem; } @media (max-width: 400px) { nav.flex { gap: 0.5rem; } } /* control-within-viewport (2026-09-05): at the floor viewport the gap-6 nav pushed 'Sign Up Free' 3px past the edge */ /* 44px targets + Lc 60 at 14px (F1/K2/Z3/C5, 2026-09-05) */ header a, footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; } nav a.nav-link:hover { color: var(--wh-cloud,#F4F6FA); }
+    .faq-item summary::after { content: '+'; font-size: var(--wh-fs-lg, 1.25rem); color: var(--wh-orange,#F7A21B); } .faq-item[open] summary::after { content: '\\2212'; }
+    .faq-item .faq-answer { padding: 0 20px 20px; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.7); line-height: 1.7; font-size: var(--wh-fs-md, 0.95rem); }
+    .author-card { background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.5); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 16px; padding: 20px 24px; margin: 2rem 0; display: flex; gap: 16px; align-items: center; }
+    .author-card .avatar { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, var(--wh-orange,#F7A21B), var(--wh-orange-light,#FDB94A)); display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--wh-navy,#162032); font-size: var(--wh-fs-lead, 1.05rem); flex-shrink: 0; }
+    .author-card .meta p:first-child { font-weight: 700; color: var(--wh-cloud,#F4F6FA); font-size: var(--wh-fs-md, 0.95rem); margin-bottom: 2px; }
+    .author-card .meta p:last-child { font-size: var(--wh-fs-sm, 0.85rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.5); }
+    nav a.nav-link { font-size: var(--wh-fs-md, 0.95rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.82); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; padding: 0 0.25rem; } @media (max-width: 400px) { nav.flex { gap: 0.5rem; } } /* control-within-viewport (2026-09-05): at the floor viewport the gap-6 nav pushed 'Sign Up Free' 3px past the edge */ /* 44px targets + Lc 60 at 14px (F1/K2/Z3/C5, 2026-09-05) */ header a, footer a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; } nav a.nav-link:hover { color: var(--wh-cloud,#F4F6FA); }
     /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the header row and its nav WRAP - the links drop under the
        logo instead of running the page sideways. At normal sizes nothing moves: a row only wraps when it does not fit. */
     header > div:has(> nav) { flex-wrap: wrap; row-gap: 0.5rem; } header nav:has(> a.nav-link) { flex-wrap: wrap; row-gap: 0.25rem; }
-    .breadcrumb { font-size: 0.85rem; color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.55); margin-bottom: 1.5rem; }
+    .breadcrumb { font-size: var(--wh-fs-sm, 0.85rem); color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.55); margin-bottom: 1.5rem; }
     .breadcrumb a { color: rgba(var(--wh-cloud-rgb, 244, 246, 250), 0.55); text-decoration: none; } .breadcrumb a:hover { color: var(--wh-orange,#F7A21B); }
     .breadcrumb span { margin: 0 8px; }
     /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
@@ -263,7 +263,7 @@ SITE_HEADER = """<header class="border-b border-white/[0.06]" style="background:
       <!-- aria-hidden because the logo's alt already names this link: without it a screen reader
            announces the brand twice, "WorkHive WorkHive" (measured, W46077). The alt carries the name
            at every width, including the phone widths where this span is display:none. -->
-      <span class="font-extrabold tracking-tight hidden sm:inline" style="font-size: 1.25rem" aria-hidden="true">WorkHive</span>
+      <span class="font-extrabold tracking-tight hidden sm:inline" style="font-size: var(--wh-fs-lg, 1.25rem)" aria-hidden="true">WorkHive</span>
     </a>
     <nav class="flex items-center gap-6">
       <a href="/" class="nav-link">Home</a>
@@ -379,7 +379,7 @@ def _page(p: dict) -> str:
      (amber on navy, 44px, hidden until focused) rather than inventing a second look; these pages do
      not load that file, so it is inlined here. -->
 <a class="wh-skip-link" href="#wh-main-content"
-   style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px rgba(0,0,0,.35);transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;"
+   style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:var(--wh-fs-sm-plus, 0.875rem);text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px var(--wh-black-35, rgba(0,0,0,.35));transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;"
    onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 
 {SITE_HEADER}

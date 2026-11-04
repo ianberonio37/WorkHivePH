@@ -13,6 +13,10 @@
  *      those classes need.
  *   4. (next step) Playwright-load it, read the injected <style>, save as
  *      `wh-tw.css`. Then swap `<script src=cdn.tailwindcss.com>` -> `<link wh-tw.css>`.
+ *   5. (OD, 2026-11-04) respell the token literals the CDN wrote, proven invisible per file:
+ *        python tools/fix_token_literals.py --tailwind --apply --only wh-tw.css
+ *        python tools/fix_token_literals.py --tailwind --type-scale --apply --only wh-tw.css
+ *      (tw_public_build.mjs runs the same two passes itself after every public-sheet build.)
  *
  * Tailwind itself generates the CSS, so the output is byte-correct for those
  * classes — safer than hand-writing 438 rules. Run: node tools/tw_extract_build.mjs

@@ -142,7 +142,8 @@ def main() -> int:
     # sees two sizes for one number. (ai-quality was 1.8rem, plant-connections 1.4rem.)
     INLINE_KPI_PAGES = ["analytics.html", "alert-hub.html", "hive.html",
                         "pm-scheduler.html", "ai-quality.html", "plant-connections.html"]
-    tier_re = re.compile(r"\.simple-card \.sc-hero\s*\{[^}]*font-size:\s*1\.5rem[^}]*tabular-nums", re.S)
+    # the type scale writes the tier as var(--wh-fs-xl, 1.5rem) (OD-S, 2026-11-04) - the same 1.5rem, read through the var()
+    tier_re = re.compile(r"\.simple-card \.sc-hero\s*\{[^}]*font-size:\s*(?:var\(--[\w-]+,\s*)?1\.5rem[^}]*tabular-nums", re.S)
     off_tier = []
     for name in INLINE_KPI_PAGES:
         f = ROOT / name

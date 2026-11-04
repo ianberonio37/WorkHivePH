@@ -2,7 +2,7 @@
 name: skill-ai-engineer
 type: skill
 source: skill:ai-engineer
-source_sha: f3d5a13bba7dc930
+source_sha: f567ce08e9d4bdba
 last_verified: 2026-07-13
 supersedes: null
 ---

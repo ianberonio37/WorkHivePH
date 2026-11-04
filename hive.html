@@ -138,7 +138,7 @@
     /* ── end Arc L · L1 CLS reservations ─────────────────────────────────── */
 
     .aurora-bg {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+      position: fixed; inset: 0; pointer-events: none; z-index: var(--wh-z-art, 0); overflow: hidden;
     }
     .aurora-bg::before {
       content: ''; position: absolute;
@@ -165,8 +165,8 @@
       border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       border-radius: 0.75rem;
       padding: 0.75rem 1rem;
-      color: white;
-      font-size: 1rem;
+      color: var(--wh-white, white);
+      font-size: var(--wh-fs-base, 1rem);
       outline: none;
       transition: border-color 0.2s;
       -webkit-appearance: none;
@@ -185,7 +185,7 @@
       border-radius: 0.75rem;
       padding: 0.75rem 1.5rem;
       width: 100%;
-      font-size: 0.875rem;
+      font-size: var(--wh-fs-sm-plus, 0.875rem);
       border: none;
       transition: background 0.2s, transform 0.1s;
       cursor: pointer;
@@ -198,17 +198,17 @@
     .btn-ghost {
       min-height: 44px;
       background: transparent;
-      color:rgba(255,255,255,0.83);
+      color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83);
       font-weight: 600;
       border-radius: 0.75rem;
       padding: 0.75rem 1.5rem;
       width: 100%;
-      font-size: 0.875rem;
+      font-size: var(--wh-fs-sm-plus, 0.875rem);
       border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
       transition: border-color 0.2s, color 0.2s;
       cursor: pointer;
     }
-    .btn-ghost:hover { border-color: rgba(255,255,255,0.4); color: white; }
+    .btn-ghost:hover { border-color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.4); color: var(--wh-white, white); }
     .btn-ghost:active { transform: scale(0.98); }
 
     .btn-danger {
@@ -218,7 +218,7 @@
       font-weight: 600;
       border-radius: 0.75rem;
       padding: 0.5rem 1rem;
-      font-size: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem);
       border: 1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.3);
       transition: background 0.2s;
       cursor: pointer;
@@ -231,7 +231,7 @@
       background: none;
       border: none;
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
-      font-size: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -262,8 +262,8 @@
        `document` role, the same exemption resume.html's export sheet carries. Mapping it to the screen
        ramp would have restyled a piece of paper to match a dark dashboard, which is the same category
        error as reading @media print colours against screen contrast. */
-    .hive-menu-item { width:100%; text-align:left; background:none; border:none; border-radius:8px; padding:0.5rem 0.75rem; font-family:inherit; font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.82); cursor:pointer; min-height:44px; text-decoration:none; box-sizing:border-box; }
-    .hive-menu-item:hover { background:var(--wh-white-06, rgba(255,255,255,0.06)); color:#fff; }
+    .hive-menu-item { width:100%; text-align:left; background:none; border:none; border-radius:8px; padding:0.5rem 0.75rem; font-family:inherit; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.82); cursor:pointer; min-height:44px; text-decoration:none; box-sizing:border-box; }
+    .hive-menu-item:hover { background:var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-white, #fff); }
     .hive-menu-danger { color:var(--wh-red-text); }
     .hive-menu-danger:hover { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); color:var(--wh-red-text); }
 
@@ -273,7 +273,7 @@
       border-radius: 1rem;
       padding: 1.25rem 2rem;
       letter-spacing: 0.4em;
-      font-size: 1.5rem;
+      font-size: var(--wh-fs-xl, 1.5rem);
       font-weight: 800;
       color: var(--wh-blue);
       text-align: center;
@@ -287,7 +287,7 @@
       border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 999px;
       padding: 6px 12px;
-      font-size: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem);
       color: var(--wh-text-muted, rgba(255,255,255,0.8));
       white-space: nowrap;
       flex-shrink: 0;
@@ -348,7 +348,7 @@
     .status-badge {
       display: inline-flex; align-items: center;
       padding: 2px 8px; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 700;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.04em;
     }
     .status-open   { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.15); color:var(--wh-red-text); }
@@ -357,7 +357,7 @@
     .cat-badge {
       display: inline-flex; align-items: center;
       padding: 2px 8px; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 600;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600;
     }
 
     .conn-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -376,7 +376,7 @@
       width: 32px; height: 32px; border-radius: 50%;
       background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.2); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3);
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 700; color:var(--wh-blue-text);
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; color:var(--wh-blue-text);
       flex-shrink: 0;
     }
 
@@ -384,7 +384,7 @@
       display: inline-flex; align-items: center; gap: 4px;
       background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2);
       border-radius: 999px; padding: 2px 8px;
-      font-size: 0.75rem; font-weight: 700; color:var(--wh-orange-text);
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; color:var(--wh-orange-text);
       text-transform: uppercase; letter-spacing: 0.04em;
     }
 
@@ -396,7 +396,7 @@
       width: 100%; padding: 0.75rem 1rem; border-radius: 0.75rem;
       background: linear-gradient(135deg, rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15), rgba(var(--wh-blue-rgb, 41, 182, 217), 0.08));
       border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3); color:var(--wh-blue-text);
-      font-size: 0.75rem; font-weight: 700; cursor: pointer;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s; min-height: 44px;
     }
     .handover-btn:hover { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.2); border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.5); transform: translateY(-1px); }
@@ -413,9 +413,9 @@
        the shift-handover report - "Handover to (incoming technician)" is 33 characters - and caps plus
        0.12em tracking costs the word-shapes a long label needs most. The chip rules on this page keep
        their caps, because .status-badge renders PM DONE and .supervisor-tag renders Supervisor. */
-    .ho-label { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.03em; margin-bottom: 0.5rem; }
-    .ho-item { font-size: 0.75rem; color:rgba(255,255,255,0.83); padding: 4px 0; display: flex; align-items: baseline; gap: 6px; }
-    .ho-input { width: 100%; min-height: 44px; padding: 0.5rem 0.75rem; border-radius: 8px; background: var(--wh-white-07, rgba(255,255,255,0.07)); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color: rgba(255,255,255,0.85); font-size: 0.75rem; font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.5rem; }
+    .ho-label { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 800; letter-spacing: 0.03em; margin-bottom: 0.5rem; }
+    .ho-item { font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); padding: 4px 0; display: flex; align-items: baseline; gap: 6px; }
+    .ho-input { width: 100%; min-height: 44px; padding: 0.5rem 0.75rem; border-radius: 8px; background: var(--wh-white-07, rgba(255,255,255,0.07)); border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); font-size: var(--wh-fs-2xs, 0.75rem); font-family: inherit; outline: none; box-sizing: border-box; margin-bottom: 0.5rem; }
     .ho-input::placeholder { color: var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .ho-input:focus { border-color: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.4); background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); }
     /* SL LB3: the roster draws through whRenderRows as a long list - its rows keep the column and spacing they had as
@@ -466,10 +466,10 @@
           <span id="notif-badge" class="hidden" style="position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--wh-red); border:2px solid var(--wh-navy, rgba(22,32,50,1));"></span>
         </button>
         <!-- Dropdown panel -->
-        <div id="notif-panel" class="hidden" style="position:absolute; top:calc(100% + 4px); right:0; width:300px; background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.98); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius:1rem; box-shadow:0 8px 32px rgba(0,0,0,0.5); backdrop-filter:blur(12px); z-index:100; overflow:hidden;">
+        <div id="notif-panel" class="hidden" style="position:absolute; top:calc(100% + 4px); right:0; width:300px; background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.98); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius:1rem; box-shadow:0 8px 32px var(--wh-black-55, rgba(0, 0, 0, 0.55)); backdrop-filter:blur(12px); z-index:var(--wh-z-sheet-2, 100); overflow:hidden;">
           <div class="px-4 pt-3 pb-2 border-b border-white/[0.07] flex items-center justify-between">
             <p data-i="p_notifications_753a" class="text-xs font-bold text-white/85">Notifications</p>
-            <button id="notif-mark-read" style="background:none;border:none;cursor:pointer;font-size: 0.75rem;font-weight:600;color:var(--wh-text-muted, rgba(255,255,255,0.80));" data-i="markallread">Mark all read</button>
+            <button id="notif-mark-read" style="background:none;border:none;cursor:pointer;font-size: var(--wh-fs-2xs, 0.75rem);font-weight:600;color:var(--wh-text-muted, rgba(255,255,255,0.80));" data-i="markallread">Mark all read</button>
           </div>
           <div id="notif-list" class="py-2" style="max-height:320px; overflow-y:auto;"></div>
         </div>
@@ -564,8 +564,8 @@
         <!-- WHAT A HIVE LOOKS LIKE ONCE PEOPLE ARE IN IT (2026-10-27, T2 SE vicarious). A first-timer with no hive
              saw two buttons and a promise; the only "example" on the screen was the join code's placeholder, which is
              the shape of one input, not a team at work. One static line in the board's own terms. -->
-        <p class="hv-example" data-wh-example style="margin:0 0 2rem; font-size:0.75rem; line-height:1.5; color:var(--wh-text-muted, rgba(255,255,255,0.8));">
-          <strong style="color:rgba(255,255,255,0.92);">A hive in use reads like this:</strong>
+        <p class="hv-example" data-wh-example style="margin:0 0 2rem; font-size:var(--wh-fs-2xs, 0.75rem); line-height:1.5; color:var(--wh-text-muted, rgba(255,255,255,0.8));">
+          <strong style="color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.92);">A hive in use reads like this:</strong>
           Line 2 Maintenance · 8 members · 3 jobs open today · Ana closed "conveyor belt re-aligned" 20 minutes ago.
         </p>
         <div class="flex flex-col gap-3">
@@ -647,7 +647,7 @@
         <label data-i="p_invitecode_6929" for="join-code-input" class="block text-xs font-semibold text-white/80 uppercase tracking-widest mb-2">Invite Code</label>
         <input id="join-code-input" type="text" placeholder="ABC123" maxlength="6" autocomplete="off" autocapitalize="characters"
           class="wh-input mb-2 text-center font-black tracking-widest uppercase"
-          style="font-size:1.5rem; letter-spacing:0.35em;" />
+          style="font-size:var(--wh-fs-xl, 1.5rem); letter-spacing:0.35em;" />
         <p role="alert" aria-live="assertive" id="join-error" class="text-xs text-red-400 mb-3 hidden"></p>
         <!-- T185: revealed only when a namesake already holds this worker's name in the hive. Two
              Juan Dela Cruzes on one crew is ordinary, and the refusal has to be walkable from the
@@ -734,8 +734,8 @@
              items just live inside the popover now. -->
         <div class="hive-overflow" style="position:relative;">
           <button id="btn-hive-menu" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="hive-menu"
-                   class="btn-ghost" style="width:auto; padding:0.5rem 0.9rem; font-size:0.75rem; display:inline-flex; align-items:center; gap:6px;">
-            <span aria-hidden="true" style="font-size:1.125rem; line-height:0.6; letter-spacing:1px;">&#8943;</span> <span data-i="more">More</span>
+                   class="btn-ghost" style="width:auto; padding:0.5rem 0.9rem; font-size:var(--wh-fs-2xs, 0.75rem); display:inline-flex; align-items:center; gap:6px;">
+            <span aria-hidden="true" style="font-size:var(--wh-fs-lead-plus, 1.125rem); line-height:0.6; letter-spacing:1px;">&#8943;</span> <span data-i="more">More</span>
           </button>
           <div id="hive-menu" role="menu" aria-label="Hive actions" class="hidden"
                style="position:absolute; right:0; top:calc(100% + 6px); min-width:210px; background:var(--wh-elev-2); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius:12px; padding:6px; z-index:var(--wh-z-overlay); box-shadow:var(--wh-shadow-3);">
@@ -794,7 +794,7 @@
       <section id="history-offer" class="wh-card hidden" aria-labelledby="history-offer-title"
                style="padding:1rem 1.1rem; margin-bottom:1.25rem; border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.28); background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.08);">
         <h2 id="history-offer-title" class="text-sm font-bold text-white mb-1">Your own logbook entries</h2>
-        <p id="history-offer-text" class="text-sm mb-3" style="color:rgba(255,255,255,0.85); line-height:1.5;"></p>
+        <p id="history-offer-text" class="text-sm mb-3" style="color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); line-height:1.5;"></p>
         <div class="flex flex-wrap gap-2">
           <button type="button" id="history-offer-bring" class="btn-primary" style="width:auto; min-height:44px;">Bring them in</button>
           <button type="button" id="history-offer-keep" class="btn-ghost" style="width:auto; min-height:44px;">Keep them personal</button>
@@ -803,7 +803,7 @@
       <!-- Invite code strip (supervisor only, toggleable) -->
       <div id="code-strip" class="hidden wh-card p-4 mb-5 text-center">
         <p data-i="p_sharethiscodewithyourteam_b16b" class="text-xs text-white/80 mb-2">Share this code with your team:</p>
-        <div class="code-display" id="code-strip-value" style="font-size:1.5rem; padding:0.75rem 1rem;"></div>
+        <div class="code-display" id="code-strip-value" style="font-size:var(--wh-fs-xl, 1.5rem); padding:0.75rem 1rem;"></div>
         <p data-i="p_anyonewiththiscodecanjoinyou_fb25" class="text-xs text-white/80 mt-2">Anyone with this code can join your hive.</p>
       </div>
 
@@ -949,10 +949,10 @@
       <a id="my-work-card" href="logbook.html" class="wh-card" style="align-items:center; gap:14px; padding:12px 16px; margin-bottom:16px; text-decoration:none; color:inherit; min-height:44px;">
         <div style="flex:1; min-width:0;">
           <p role="heading" aria-level="2" data-i="myworklabel" class="wh-section-title" style="margin-bottom:2px;">Your open work</p>
-          <p data-i="p_checkingyourjobs_344a" id="my-work-headline" style="font-size:0.95rem; font-weight:800; color:var(--wh-cloud); line-height:1.3;">Checking your jobs&#8230;</p>
-          <p id="my-work-sub" style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:2px;"></p>
+          <p data-i="p_checkingyourjobs_344a" id="my-work-headline" style="font-size:var(--wh-fs-md, 0.95rem); font-weight:800; color:var(--wh-cloud); line-height:1.3;">Checking your jobs&#8230;</p>
+          <p id="my-work-sub" style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:2px;"></p>
         </div>
-        <span aria-hidden="true" data-i="myworkcta" style="font-size: 0.75rem; font-weight:700; color:var(--wh-orange-text); white-space:nowrap;">Open Logbook &#8250;</span>
+        <span aria-hidden="true" data-i="myworkcta" style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-orange-text); white-space:nowrap;">Open Logbook &#8250;</span>
       </a>
 
       <!-- ★W3-JN J26 (2026-09-10): THE HIVE'S ALERT INBOX HAD NO ROUTE A WORKER COULD COUNT ON.
@@ -978,9 +978,9 @@
       <a id="my-alerts-card" href="alert-hub.html" class="wh-card" style="display:flex; align-items:center; gap:14px; padding:12px 16px; margin-bottom:16px; text-decoration:none; color:inherit; min-height:44px;">
         <div style="flex:1; min-width:0;">
           <p role="heading" aria-level="2" class="wh-section-title" style="margin-bottom:2px;" data-i="alerthublabel">What the hive has flagged</p>
-          <p style="font-size:0.95rem; font-weight:800; color:var(--wh-cloud); line-height:1.3;" data-i="alerthubtext">Risk, anomalies and shift briefings for this hive</p>
+          <p style="font-size:var(--wh-fs-md, 0.95rem); font-weight:800; color:var(--wh-cloud); line-height:1.3;" data-i="alerthubtext">Risk, anomalies and shift briefings for this hive</p>
         </div>
-        <span aria-hidden="true" style="font-size: 0.75rem; font-weight:700; color:var(--wh-orange-text); white-space:nowrap;" data-i="alerthubcta">Open Alert Hub &#8250;</span>
+        <span aria-hidden="true" style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-orange-text); white-space:nowrap;" data-i="alerthubcta">Open Alert Hub &#8250;</span>
       </a>
 
       <!-- Arc Y Y2/Y6 — conditional disclosure + close the capture->use loop:
@@ -991,12 +991,12 @@
       <button id="hive-focus-chip" type="button" class="hidden"
         aria-label="Your hive's focus, tap to change"
         style="width:100%; text-align:left; align-items:center; gap:10px; padding: 12px 16px; margin-bottom:16px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22); border-radius:12px; color:inherit; font-family:inherit; cursor:pointer; min-height:44px;">
-        <span aria-hidden="true" style="font-size:1.125rem; line-height:1;">&#127919;</span>
+        <span aria-hidden="true" style="font-size:var(--wh-fs-lead-plus, 1.125rem); line-height:1;">&#127919;</span>
         <span style="flex:1; min-width:0;">
           <span class="wh-section-title" style="display:block;" data-i="hivefocus">Your hive's focus</span>
-          <span id="hive-focus-label" style="display:block; font-size:0.75rem; font-weight:700; color:rgba(255,255,255,0.9); line-height:1.35;">&#8212;</span>
+          <span id="hive-focus-label" style="display:block; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.9); line-height:1.35;">&#8212;</span>
         </span>
-        <span aria-hidden="true" style="font-size: 0.75rem; font-weight:700; color:var(--wh-orange-text); white-space:nowrap;" data-i="change">Change &#8250;</span>
+        <span aria-hidden="true" style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-orange-text); white-space:nowrap;" data-i="change">Change &#8250;</span>
       </button>
 
       <!-- Stats row (v4: reparented into the two-column dashboard's RIGHT rail for supervisors
@@ -1034,20 +1034,20 @@
         <div style="padding:16px 8px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:10px;">
-              <span data-i="p_stairpaper_4682" id="stair-badge" style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: 12px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(74,159,212,0.18); color:var(--wh-blue-text);">Stair 0 · Paper</span>
-              <span id="stair-composite" style="font-size:1.5rem; font-weight:800; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
-              <span style="font-size: 12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); letter-spacing:0.04em;" data-i="readyscale">/100 readiness &middot; higher is better</span>
+              <span data-i="p_stairpaper_4682" id="stair-badge" style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(var(--wh-sky-500-rgb, 74, 159, 212), 0.18); color:var(--wh-blue-text);">Stair 0 · Paper</span>
+              <span id="stair-composite" style="font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
+              <span style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); letter-spacing:0.04em;" data-i="readyscale">/100 readiness &middot; higher is better</span>
             </div>
-            <button id="stair-explain-btn" type="button" style="background:var(--wh-white-04, rgba(255,255,255,0.04)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:8px; padding: 12px 16px; font-family:inherit; font-size: 12px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
+            <button id="stair-explain-btn" type="button" style="background:var(--wh-white-04, rgba(255,255,255,0.04)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:8px; padding: 12px 16px; font-family:inherit; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
           </div>
-          <p data-i="p_computingyourhivesreadiness_aa15" id="stair-blocker" style="font-size: 12px; color:rgba(255,255,255,0.83); margin-top:6px; line-height:1.45;">Computing your hive's readiness...</p>
+          <p data-i="p_computingyourhivesreadiness_aa15" id="stair-blocker" style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:6px; line-height:1.45;">Computing your hive's readiness...</p>
         </div>
         <!-- Source chip — anchors the readiness composite + dimension
              scores to v_hive_readiness_truth so supervisors can trace each
              dimension value back to its canonical fuel. Populated by
              renderMaturityStairway(). -->
         <p id="stair-source-chip" hidden data-wh-sources-collapsed></p>
-        <p data-i="p_basedontheworkhivestairmodel_4c8f" style="font-size: 12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 16px 8px; line-height:1.4;">Based on the WorkHive Stair Model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 (was 3.79) while staying de-emphasised -->
+        <p data-i="p_basedontheworkhivestairmodel_4c8f" style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 16px 8px; line-height:1.4;">Based on the WorkHive Stair Model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 (was 3.79) while staying de-emphasised -->
         <!-- 5 dimension bars (compact, always visible) -->
         <div id="stair-dims" style="display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:6px; padding:0 16px 12px;">
           <!-- C1/K1: fills are ONE neutral accent, not a per-dimension rainbow. A fixed green
@@ -1080,7 +1080,7 @@
           </div>
         </div>
         <!-- Evidence drawer (hidden by default) -->
-        <div id="stair-evidence" style="display:none; padding: 12px 16px 16px; border-top:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); background:rgba(0,0,0,0.18); font-size: 12px; color:rgba(255,255,255,0.83); line-height:1.55;"></div>
+        <div id="stair-evidence" style="display:none; padding: 12px 16px 16px; border-top:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); background:var(--wh-black-20, rgba(0, 0, 0, 0.20)); font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); line-height:1.55;"></div>
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
@@ -1095,25 +1095,25 @@
            "value delivered". Paired right under readiness (where you are) so the
            block answers "where am I / what have I actually got for it".
            ───────────────────────────────────────────────────────────────── -->
-      <div id="value-summary-card" class="mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(34,58,46,0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.18);">
+      <div id="value-summary-card" class="mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(var(--wh-green-ground-rgb, 34, 58, 46), 0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.18);">
         <div style="padding:16px 8px;">
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <span style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: 12px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.16); color:#86efac;" data-i="hiveValueBadge">Your hive's value</span>
-            <span style="font-size: 12px; color:rgba(255,255,255,0.82); letter-spacing:0.02em;" data-i="hiveValueSub">what this hive has delivered so far</span>
+            <span style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.16); color:var(--wh-green-300, #86efac);" data-i="hiveValueBadge">Your hive's value</span>
+            <span style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.82); letter-spacing:0.02em;" data-i="hiveValueSub">what this hive has delivered so far</span>
           </div>
         </div>
         <div style="display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px; padding: 0 16px 12px;">
           <div style="text-align:center;">
-            <p id="vs-pms" style="font-size:1.5rem; font-weight:800; color:var(--wh-cloud); line-height:1.1; font-variant-numeric:tabular-nums;">--</p>
-            <p style="font-size: 12px; color:rgba(255,255,255,0.82); margin-top:2px;" data-i="vsPms">PMs kept</p>
+            <p id="vs-pms" style="font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; color:var(--wh-cloud); line-height:1.1; font-variant-numeric:tabular-nums;">--</p>
+            <p style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.82); margin-top:2px;" data-i="vsPms">PMs kept</p>
           </div>
           <div style="text-align:center;">
-            <p id="vs-faults" style="font-size:1.5rem; font-weight:800; color:var(--wh-cloud); line-height:1.1; font-variant-numeric:tabular-nums;">--</p>
-            <p style="font-size: 12px; color:rgba(255,255,255,0.82); margin-top:2px;" data-i="vsFaults">Faults resolved</p>
+            <p id="vs-faults" style="font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; color:var(--wh-cloud); line-height:1.1; font-variant-numeric:tabular-nums;">--</p>
+            <p style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.82); margin-top:2px;" data-i="vsFaults">Faults resolved</p>
           </div>
           <div style="text-align:center;">
-            <p id="vs-knowledge" style="font-size:1.5rem; font-weight:800; color:var(--wh-cloud); line-height:1.1; font-variant-numeric:tabular-nums;">--</p>
-            <p style="font-size: 12px; color:rgba(255,255,255,0.82); margin-top:2px;" data-i="vsKnow">Lessons captured</p>
+            <p id="vs-knowledge" style="font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; color:var(--wh-cloud); line-height:1.1; font-variant-numeric:tabular-nums;">--</p>
+            <p style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.82); margin-top:2px;" data-i="vsKnow">Lessons captured</p>
           </div>
         </div>
         <p id="vs-source-chip" hidden data-wh-sources-collapsed></p>
@@ -1123,7 +1123,7 @@
              the <p>, in the page's own .ac-cta idiom. The [data-i] translator swaps this <p>'s innerHTML
              wholesale, so WH_FIL.vsEmpty carries the same anchor with Filipino text (a sibling anchor
              was tried first and could not count — the rule scopes to the panel). -->
-        <p id="vs-empty" class="hidden" style="font-size: 12px; color:rgba(255,255,255,0.82); margin:0 16px 12px; line-height:1.45;" data-i="vsEmpty">Your hive's story starts here: complete a PM, close a fault, and capture what you learned. These counts grow as your team works. <a data-i="p_logyourfirstpm_909f" class="ac-cta" href="pm-scheduler.html" style="display:inline-flex; margin-top:8px;">Log your first PM &#8594;</a></p>
+        <p id="vs-empty" class="hidden" style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.82); margin:0 16px 12px; line-height:1.45;" data-i="vsEmpty">Your hive's story starts here: complete a PM, close a fault, and capture what you learned. These counts grow as your team works. <a data-i="p_logyourfirstpm_909f" class="ac-cta" href="pm-scheduler.html" style="display:inline-flex; margin-top:8px;">Log your first PM &#8594;</a></p>
       </div>
 
       <!-- ─────────────────────────────────────────────────────────────────
@@ -1131,11 +1131,11 @@
            Stair 2+ gated. Reads v_knowledge_freshness_truth (fault + skill +
            pm corpora). Compact card; collapses to single line at Stair 0/1.
            ───────────────────────────────────────────────────────────────── -->
-      <div id="kpipe-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(40,50,80,0.45), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18);">
+      <div id="kpipe-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.45), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18);">
         <div style="padding:12px 16px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
-            <span style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: 12px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color:var(--wh-blue-text);" data-i="knowfresh">Knowledge freshness</span>
-            <span id="kpipe-overall" style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));">--</span>
+            <span style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color:var(--wh-blue-text);" data-i="knowfresh">Knowledge freshness</span>
+            <span id="kpipe-overall" style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80));">--</span>
           </div>
           <div id="kpipe-rows" style="display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:8px; margin-top: 12px;"></div>
           <!-- Source chip — anchors freshness ratios to
@@ -1161,33 +1161,33 @@
            Captures primary_goal + secondary checkboxes; writes the answer
            back to hives.intent and dismisses. Hidden by default.
            ───────────────────────────────────────────────────────────────── -->
-      <div id="intent-capture" role="dialog" aria-modal="true" aria-label="What should WorkHive focus on for your hive?" style="position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; background:rgba(11,15,26,0.78); backdrop-filter:blur(4px); padding:1rem; font-family:'Poppins',system-ui,sans-serif;">
+      <div id="intent-capture" role="dialog" aria-modal="true" aria-label="What should WorkHive focus on for your hive?" style="position:fixed; inset:0; z-index:var(--wh-z-toast-5, 9999); display:none; align-items:center; justify-content:center; background:rgba(var(--wh-ink-darkest-rgb, 11, 15, 26), 0.78); backdrop-filter:blur(4px); padding:1rem; font-family:'Poppins',system-ui,sans-serif;">
         <div style="background:var(--wh-navy); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius:1rem; padding:1.5rem 1.25rem; max-width:420px; width:100%; box-shadow:0 14px 44px var(--wh-black-55, rgba(0,0,0,0.55)); color:var(--wh-cloud);">
-          <h2 style="margin:0 0 0.5rem; font-size:1.125rem; font-weight:800; letter-spacing:0.02em;" data-i="intent_q">What should WorkHive focus on for your hive?</h2>
-          <p data-i="p_picktheonegoalthatmattersmos_38cb" style="margin:0 0 1rem; font-size:0.875rem; color:rgba(255,255,255,0.83); line-height:1.5;">Pick the one goal that matters most right now. WorkHive will put the right tools front and centre for your hive. You can change this anytime.</p>
+          <h2 style="margin:0 0 0.5rem; font-size:var(--wh-fs-lead-plus, 1.125rem); font-weight:800; letter-spacing:0.02em;" data-i="intent_q">What should WorkHive focus on for your hive?</h2>
+          <p data-i="p_picktheonegoalthatmattersmos_38cb" style="margin:0 0 1rem; font-size:var(--wh-fs-sm-plus, 0.875rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); line-height:1.5;">Pick the one goal that matters most right now. WorkHive will put the right tools front and centre for your hive. You can change this anytime.</p>
           <div role="radiogroup" style="display:grid; gap:0.4rem; margin-bottom:0.8rem;">
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:var(--wh-fs-2xs, 0.75rem); min-height:44px;">
               <input type="radio" name="intent-primary" value="predictive" style="accent-color:var(--wh-orange);"> <span data-i="intent_pred">Predictive maintenance: stop failures before they happen</span>
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:var(--wh-fs-2xs, 0.75rem); min-height:44px;">
               <input type="radio" name="intent-primary" value="downtime" style="accent-color:var(--wh-orange);"> <span data-i="intent_down">Reduce downtime: get production running faster</span>
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:var(--wh-fs-2xs, 0.75rem); min-height:44px;">
               <input type="radio" name="intent-primary" value="training" style="accent-color:var(--wh-orange);"> <span data-i="intent_train">Train workers: skill matrix + knowledge capture</span>
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:var(--wh-fs-2xs, 0.75rem); min-height:44px;">
               <input type="radio" name="intent-primary" value="compliance" style="accent-color:var(--wh-orange);"> <span data-i="intent_comp">Compliance: PSME, DOLE, ISO 14224 evidence</span>
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:var(--wh-fs-2xs, 0.75rem); min-height:44px;">
               <input type="radio" name="intent-primary" value="cmms_replace" style="accent-color:var(--wh-orange);"> <span data-i="intent_repl">Replace our spreadsheets / CMMS</span>
             </label>
-            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:0.75rem; min-height:44px;">
+            <label class="ic-opt" style="display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.7rem; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:0.5rem; cursor:pointer; font-size:var(--wh-fs-2xs, 0.75rem); min-height:44px;">
               <input type="radio" name="intent-primary" value="other" style="accent-color:var(--wh-orange);"> <span data-i="intent_other">Something else</span>
             </label>
           </div>
           <div style="display:flex; gap:0.5rem;">
-            <button id="intent-save" type="button" style="flex:1; padding:0.7rem; border-radius:0.75rem; font-weight:700; font-size:0.75rem; color:var(--wh-navy); background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); border:0; cursor:pointer; min-height:44px;" data-i="intent_save">Save</button>
-            <button id="intent-skip" type="button" data-wh-close style="padding:0.7rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); background:var(--wh-white-05, rgba(255,255,255,0.05)); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); cursor:pointer; min-height:44px;" data-i="intent_later">Later</button>
+            <button id="intent-save" type="button" style="flex:1; padding:0.7rem; border-radius:0.75rem; font-weight:700; font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-navy); background:linear-gradient(135deg,var(--wh-orange),var(--wh-orange-light)); border:0; cursor:pointer; min-height:44px;" data-i="intent_save">Save</button>
+            <button id="intent-skip" type="button" data-wh-close style="padding:0.7rem 1rem; border-radius:0.75rem; font-weight:700; font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); background:var(--wh-white-05, rgba(255,255,255,0.05)); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); cursor:pointer; min-height:44px;" data-i="intent_later">Later</button>
           </div>
         </div>
       </div>
@@ -1197,7 +1197,7 @@
            Shows the role-specific path (worker 5-step / supervisor 7-step).
            Hidden once every step is complete; populated by onboarding.js.
            ───────────────────────────────────────────────────────────────── -->
-      <div id="onboarding-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(40,30,15,0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2);"></div>
+      <div id="onboarding-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(var(--wh-brown-ground-rgb, 40, 30, 15), 0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2);"></div>
 
       <!-- ─────────────────────────────────────────────────────────────────
            Supervisor Engagement Card (Phase 3.2 of STRATEGIC_ROADMAP).
@@ -1205,28 +1205,28 @@
            workers + champion candidate. Updates live via supabase_realtime
            on hive_adoption_score. Hidden when HIVE_ROLE !== 'supervisor'.
            ───────────────────────────────────────────────────────────────── -->
-      <div id="adoption-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(58,42,88,0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
+      <div id="adoption-card" class="hidden mb-5 rounded-xl overflow-hidden" style="background: linear-gradient(145deg, rgba(var(--wh-violet-800-rgb, 58, 42, 88), 0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
         <div style="padding:16px 8px;">
           <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:10px;">
-              <span data-i="p_healthy_80ea" id="adoption-tier-badge" style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: 12px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color:var(--wh-green);">Healthy</span>
-              <span id="adoption-risk-score" style="font-size:1.5rem; font-weight:800; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
-              <span style="font-size: 12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); letter-spacing:0.04em;" data-i="adoption_scale">/100 composite risk &middot; lower is better</span>
+              <span data-i="p_healthy_80ea" id="adoption-tier-badge" style="display:inline-flex; align-items:center; gap:6px; padding: 4px 12px; border-radius:999px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; letter-spacing:0.04em; text-transform:uppercase; background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color:var(--wh-green);">Healthy</span>
+              <span id="adoption-risk-score" style="font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; color:var(--wh-cloud); line-height:1; font-variant-numeric:tabular-nums;">--</span>
+              <span style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); letter-spacing:0.04em;" data-i="adoption_scale">/100 composite risk &middot; lower is better</span>
             </div>
-            <button id="adoption-explain-btn" type="button" style="background:var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(255,255,255,0.82); border:1px solid rgba(255,255,255,0.16); border-radius:8px; padding: 12px 16px; font-family:inherit; font-size: 12px; font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
+            <button id="adoption-explain-btn" type="button" style="background:var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.82); border:1px solid var(--wh-white-15, rgba(255, 255, 255, 0.15)); border-radius:8px; padding: 12px 16px; font-family:inherit; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; cursor:pointer; min-height:44px; min-width:44px;" data-i="why">Why?</button>
           </div>
           <!-- E1: risk as length (0-100), colored by tier, so severity is preattentive, not a bare number.
                The bar grows + reddens as risk rises (short green = low risk / good). -->
           <div class="stair-dim-track" style="margin-top:8px; height:6px;"><div id="adoption-risk-fill" class="stair-dim-fill" style="background:var(--wh-green);"></div></div>
-          <p data-i="p_computingyourhivesadoptionsi_402c" id="adoption-summary" style="font-size: 12px; color:rgba(255,255,255,0.83); margin-top:6px; line-height:1.45;">Computing your hive's adoption signals...</p>
+          <p data-i="p_computingyourhivesadoptionsi_402c" id="adoption-summary" style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:6px; line-height:1.45;">Computing your hive's adoption signals...</p>
           <!-- Source chip — anchors risk score + champion + reasons to
                hive_adoption_score + compute_adoption_risk. Populated by
                loadAdoptionCard(). -->
           <p id="adoption-source-chip" hidden data-wh-sources-collapsed></p>
-          <p data-i="p_basedontheworkhiveadoptionri_3074" style="font-size: 12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:6px 0 0; line-height:1.4;">Based on the WorkHive Adoption Risk model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 -->
+          <p data-i="p_basedontheworkhiveadoptionri_3074" style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:6px 0 0; line-height:1.4;">Based on the WorkHive Adoption Risk model.</p><!-- C2: 0.42→0.56 white to clear 4.5:1 -->
         </div>
         <!-- Reasons + dropping workers drawer -->
-        <div id="adoption-detail" style="display:none; padding: 12px 16px 16px; border-top:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); background:rgba(0,0,0,0.18); font-size: 12px; color:rgba(255,255,255,0.83); line-height:1.55;"></div>
+        <div id="adoption-detail" style="display:none; padding: 12px 16px 16px; border-top:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); background:var(--wh-black-20, rgba(0, 0, 0, 0.20)); font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); line-height:1.55;"></div>
       </div>
 
       <style>
@@ -1237,7 +1237,7 @@
            11px->10px step this rule already makes at narrow widths and would keep losing to the longest
            dimension name; letting the word break is the durable answer, and these are uppercase labels
            where a mid-word break reads acceptably. */
-        .stair-dim-label { font-size: 12px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:var(--wh-text-faint, rgba(255,255,255,0.86)); margin:0 0 4px; overflow-wrap:anywhere; }
+        .stair-dim-label { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:var(--wh-text-faint, rgba(255,255,255,0.86)); margin:0 0 4px; overflow-wrap:anywhere; }
         .stair-dim-track { width:100%; height:5px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:999px; overflow:hidden; }
         /* ★SIX BARS ANIMATED `width` FOR 450ms ON AN EASE-IN-OUT (2026-09-19, W45920 motion lens). Three
            faults in one declaration and none of them visible as a wrong value: width is a LAYOUT
@@ -1247,10 +1247,10 @@
            answer works cleanly: full width, scaled from the left, which paints nothing and reflows
            nothing. The JS writes a scale instead of a percentage at all three call sites. */
         .stair-dim-fill { width:100%; height:100%; border-radius:999px; transform:scaleX(0); transform-origin:left center; transition:transform var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
-        .stair-dim-value { font-size:12px; font-weight:800; color:var(--wh-text-faint, rgba(255,255,255,0.86)); margin:4px 0 0; line-height:1; font-variant-numeric:tabular-nums; }
+        .stair-dim-value { font-size:var(--wh-fs-2xs, 0.75rem); font-weight:800; color:var(--wh-text-faint, rgba(255,255,255,0.86)); margin:4px 0 0; line-height:1; font-variant-numeric:tabular-nums; }
         @media (max-width: 480px) {
           #stair-dims { grid-template-columns: repeat(5, minmax(0,1fr)); gap:4px; }
-          .stair-dim-label { font-size: 12px; letter-spacing:0.01em; }
+          .stair-dim-label { font-size: var(--wh-fs-2xs, 0.75rem); letter-spacing:0.01em; }
         }
 
         /* Supervisor Plain-Read Summary (Layer D — UX Contract) */
@@ -1258,9 +1258,9 @@
            overriding a border it never wears keeps one reading of the cascade (K, 2026-10-15) */
         .verdict { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
         .verdict:not(.ss-hero) { padding:16px; border-radius:12px; border:1px solid; }
-        .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-        .verdict-text { font-size:0.875rem; font-weight:700; line-height:1.35; }
-        .verdict-text small { display:block; font-size: 0.75rem; font-weight:600; color:rgba(255,255,255,0.83); margin-top:4px; }
+        .verdict-icon { font-size:var(--wh-fs-xl, 1.5rem); line-height:1; font-weight:800; }
+        .verdict-text { font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; line-height:1.35; }
+        .verdict-text small { display:block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:4px; }
         .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
         .verdict.healthy .verdict-icon { color:var(--wh-green); }
         .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
@@ -1274,10 +1274,10 @@
         .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
         .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px; }
         .simple-card { background:var(--wh-navy); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:12px; padding:16px; }
-        .simple-card .sc-label { font-size: 0.75rem; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-transform:uppercase; letter-spacing:0.04em; }
-        .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-        .simple-card .sc-sub   { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.4; }
-        .simple-card .sc-tag   { display:inline-block; font-size: 0.75rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; padding:0.25rem 0.5rem; border-radius:999px; margin-top:8px; }
+        .simple-card .sc-label { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-transform:uppercase; letter-spacing:0.04em; }
+        .simple-card .sc-hero  { font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
+        .simple-card .sc-sub   { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.4; }
+        .simple-card .sc-tag   { display:inline-block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; letter-spacing:0.04em; text-transform:uppercase; padding:0.25rem 0.5rem; border-radius:999px; margin-top:8px; }
         .simple-card.tag-green .sc-tag { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.16);  color:var(--wh-green); }
         .simple-card.tag-amber .sc-tag { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.16);  color:var(--wh-orange-text); }
         .simple-card.tag-red   .sc-tag { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color:var(--wh-red-text); }
@@ -1289,8 +1289,8 @@
            all-caps allowance is for two-or-three-word status PILLS at no more than 0.04em; a
            sentence above a heading is neither. Sentence case, normal tracking, weight kept so it
            still reads as the card's label rather than as its body. */
-        .action-card .ac-label { font-size: 0.75rem; font-weight:800; color:var(--wh-blue-text); letter-spacing:normal; }
-        .action-card .ac-text { font-size:0.875rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); }
+        .action-card .ac-label { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; color:var(--wh-blue-text); letter-spacing:normal; }
+        .action-card .ac-text { font-size:var(--wh-fs-sm-plus, 0.875rem); line-height:1.5; margin-top:6px; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
         /* v4 (2026-07-15): the action CTA was 22px tall (mobile-maestro 44px floor) — lift it. */
         .action-card .ac-cta { min-height:44px; display:inline-flex; align-items:center; margin-top:8px; }
         /* Secondary weight for a standing invitation that sits beside a COMPUTED recommendation
@@ -1306,9 +1306,9 @@
           min-height:44px; display:inline-flex; align-items:center; margin-top:8px;
           padding:0 16px; border-radius:12px; text-decoration:none;
           background: transparent; border: 1px solid var(--wh-orange);
-          color: var(--wh-orange-text, var(--wh-orange)); font-weight: 700; font-size: 0.75rem;
+          color: var(--wh-orange-text, var(--wh-orange)); font-weight: 700; font-size: var(--wh-fs-2xs, 0.75rem);
         }
-        .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size: 0.75rem; font-weight:600; cursor:pointer; min-height:44px; }
+        .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; cursor:pointer; min-height:44px; }
         .details-toggle:hover { color:var(--wh-cloud); border-color:var(--wh-white-18, rgba(255,255,255,0.18)); }
 
         /* ── v4 UFAI hero (2026-07-14, Ian-approved) — greeting headline + 3 action tiles.
@@ -1319,9 +1319,9 @@
            small non-zero inset is what made a detector read it as children flush against an edge that
            does not exist. */
         .verdict.ss-hero { background:transparent; margin-bottom:16px; align-items:flex-start; gap:11px; }
-        .verdict.ss-hero .verdict-icon { font-size:1.5rem; margin-top:4px; }
-        .verdict.ss-hero #ss-verdict-label { font-size:1.5rem; font-weight:800; letter-spacing:-0.01em; color:var(--wh-cloud); display:block; line-height:1.2; }
-        .verdict.ss-hero .verdict-text small { font-size:0.875rem; margin-top:6px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+        .verdict.ss-hero .verdict-icon { font-size:var(--wh-fs-xl, 1.5rem); margin-top:4px; }
+        .verdict.ss-hero #ss-verdict-label { font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; letter-spacing:-0.01em; color:var(--wh-cloud); display:block; line-height:1.2; }
+        .verdict.ss-hero .verdict-text small { font-size:var(--wh-fs-sm-plus, 0.875rem); margin-top:6px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
         /* TOKEN ALIGNMENT ONLY (2026-09-11): 1.18rem is 18.88px, which is not a value on the scale;
            1.125rem is 18px, which is. Under one pixel of visual change.
            ★IT DOES NOT FIX C1, AND I PREDICTED THAT IT WOULD. hive reads C1 67% at 390 and 100% at
@@ -1335,52 +1335,52 @@
            not. WHAT IS TRUE AND MEASURED: hive's phone view renders ELEVEN distinct type sizes where
            the scale allows ten. WHICH tier to drop is a design decision, and after getting this
            mechanism wrong three times I am not guessing a fourth. */
-        @media (max-width:480px){ .verdict.ss-hero #ss-verdict-label { font-size:1.125rem; } }
+        @media (max-width:480px){ .verdict.ss-hero #ss-verdict-label { font-size:var(--wh-fs-lead-plus, 1.125rem); } }
 
         /* v4 since-your-last-visit ribbon (G1 status + H2 Zeigarnik) + eyebrow — mockup blue-tint
            mapped to --wh-blue tokens. */
-        .ss-ribbon { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 16px; padding:12px 16px; border-radius:12px; background:linear-gradient(90deg, rgba(var(--wh-blue-rgb, 41, 182, 217), 0.09), rgba(var(--wh-blue-rgb, 41, 182, 217), 0.02)); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.2); font-size:0.75rem; font-weight:600; }
+        .ss-ribbon { display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 16px; padding:12px 16px; border-radius:12px; background:linear-gradient(90deg, rgba(var(--wh-blue-rgb, 41, 182, 217), 0.09), rgba(var(--wh-blue-rgb, 41, 182, 217), 0.02)); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.2); font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; }
         /* ★THREE SECTION HEADINGS SET AS ALL-CAPS EYEBROWS AT 0.1-0.14em (2026-09-19, W45917 craft lens).
            'Since your last visit', 'Supervisor Action Log' and the hero's '· Saturday morning' are
            headings and context lines, not status pills - DESIGN.md's all-caps allowance is for
            two-or-three-word pills at no more than 0.04em, and tracking at 0.1em or 0.14em is the
            kicker treatment it forbids above a heading. Sentence case, normal tracking; the weight
            and colour still separate them from the prose under them. */
-        .ss-rb-h { color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-weight:700; font-size: 0.75rem; letter-spacing:normal; }
+        .ss-rb-h { color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-weight:700; font-size: var(--wh-fs-2xs, 0.75rem); letter-spacing:normal; }
         .ss-rb-it { display:flex; align-items:center; gap:5px; color:var(--wh-text-faint, rgba(255,255,255,0.86)); }
-        .ss-rb-it b { color:#fff; font-weight:800; }
+        .ss-rb-it b { color:var(--wh-white, #fff); font-weight:800; }
         .ss-rb-it.g, .ss-rb-it.g b { color:var(--wh-green); }
         .ss-rb-it.r, .ss-rb-it.r b { color:var(--wh-red-text); }
-        .ss-eyebrow { font-size: 0.75rem; letter-spacing:normal; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom:8px; }
-        .ss-lang { display:inline-flex; margin-left:auto; align-self:flex-start; border:1px solid rgba(255,255,255,0.16); border-radius:999px; overflow:hidden; font-size: 0.75rem; font-weight:800; }
+        .ss-eyebrow { font-size: var(--wh-fs-2xs, 0.75rem); letter-spacing:normal; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom:8px; }
+        .ss-lang { display:inline-flex; margin-left:auto; align-self:flex-start; border:1px solid var(--wh-white-15, rgba(255, 255, 255, 0.15)); border-radius:999px; overflow:hidden; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; }
         .ss-lang button { background:transparent; border:0; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:0 12px; cursor:pointer; font-family:inherit; font-weight:800; min-height:44px; min-width:44px; }
         /* Active locale = the TINTED tab treatment (R3 vocabulary), not a solid fill —
            a solid-orange toggle read as a third primary CTA (G3/A3). */
         .ss-lang button.on { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color:var(--wh-orange-light); }
         .ss-lang button:focus-visible { outline:2px solid var(--wh-orange); outline-offset:2px; }
-        .ss-foot { text-align:center; color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.75rem; font-weight:600; margin-top:16px; padding:12px 8px; }
+        .ss-foot { text-align:center; color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; margin-top:16px; padding:12px 8px; }
         .ss-foot span[aria-hidden] { color:var(--wh-green); font-weight:800; }
         /* v4 first-run value-first view (O1/O2) */
-        .ss-firstrun { padding:20px 16px; border-radius:16px; background:linear-gradient(180deg, rgba(249,178,58,0.08), transparent), var(--wh-navy); border:1px solid rgba(249,178,58,0.28); margin-bottom:16px; }
+        .ss-firstrun { padding:20px 16px; border-radius:16px; background:linear-gradient(180deg, rgba(var(--wh-orange-light-rgb, 253, 185, 74), 0.08), transparent), var(--wh-navy); border:1px solid rgba(var(--wh-orange-light-rgb, 253, 185, 74), 0.28); margin-bottom:16px; }
         .ss-fr-steps { display:flex; align-items:center; gap:0; margin-bottom:16px; }
-        .ss-fr-step { font-size: 0.75rem; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); white-space:nowrap; }
+        .ss-fr-step { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); white-space:nowrap; }
         .ss-fr-step.done { color:var(--wh-green); } .ss-fr-step.now { color:var(--wh-orange-text); }
-        .ss-fr-bar { flex:1; height:2px; background:rgba(255,255,255,0.14); margin:0 8px; } .ss-fr-bar.done { background:var(--wh-green); }
-        .ss-fr-cta { display:flex; align-items:center; justify-content:center; gap:8px; min-height:52px; background:var(--wh-orange); color:var(--wh-navy); font-weight:800; font-size:0.95rem; border-radius:12px; text-decoration:none; }
+        .ss-fr-bar { flex:1; height:2px; background:var(--wh-white-15, rgba(255, 255, 255, 0.15)); margin:0 8px; } .ss-fr-bar.done { background:var(--wh-green); }
+        .ss-fr-cta { display:flex; align-items:center; justify-content:center; gap:8px; min-height:52px; background:var(--wh-orange); color:var(--wh-navy); font-weight:800; font-size:var(--wh-fs-md, 0.95rem); border-radius:12px; text-decoration:none; }
         .ss-fr-cta:hover { background:var(--wh-orange-dark); }
-        .ss-fr-note { font-size:0.875rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-align:center; margin-top:12px; }
+        .ss-fr-note { font-size:var(--wh-fs-sm-plus, 0.875rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-align:center; margin-top:12px; }
         /* v4 mobile sticky primary action (rubric F1 thumb-zone) — mobile-only fixed bar that clears
            the bottom-right FAB stack (right:88px per mobile-maestro) + safe-area; shown only once the
            hero has scrolled off (IntersectionObserver). Desktop never sees it. */
         #ss-sticky { display:none; }
         @media (max-width:640px){
-          #ss-sticky.on { display:flex; position:fixed; left:12px; right:88px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:45; align-items:center; justify-content:center; gap:8px; min-height:52px; padding:12px 16px; background:var(--wh-orange); color:var(--wh-navy); font-weight:800; font-size:0.875rem; border-radius:16px; text-decoration:none; box-shadow:0 8px 24px rgba(0,0,0,0.42); }
+          #ss-sticky.on { display:flex; position:fixed; left:12px; right:88px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:var(--wh-z-sticky-3, 45); align-items:center; justify-content:center; gap:8px; min-height:52px; padding:12px 16px; background:var(--wh-orange); color:var(--wh-navy); font-weight:800; font-size:var(--wh-fs-sm-plus, 0.875rem); border-radius:16px; text-decoration:none; box-shadow:0 8px 24px var(--wh-black-45, rgba(0, 0, 0, 0.45)); }
         }
 
-        .ss-tiles-head { font-size: 0.75rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 8px; display:flex; align-items:center; gap:6px; }
+        .ss-tiles-head { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 8px; display:flex; align-items:center; gap:6px; }
         .ss-tiles { align-items:start; }  /* tiles keep content height, don't stretch to the CLS reserve */
         .ss-tile { display:flex; flex-direction:column; text-decoration:none; color:inherit; min-height:118px; cursor:pointer; transition:transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease; }
-        .ss-tile:hover { transform:translateY(-2px); box-shadow:0 12px 26px rgba(0,0,0,0.34); }
+        .ss-tile:hover { transform:translateY(-2px); box-shadow:0 12px 26px var(--wh-black-35, rgba(0, 0, 0, 0.35)); }
         .ss-tile:active { transform:translateY(0) scale(0.995); }
         .ss-tile .ss-tile-top { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:38px; }
         /* NOT A DEFECT, and my first attempt at 'fixing' it was worse than the symptom. Subtraction said
@@ -1399,19 +1399,19 @@
            44px control genuinely is the fixed part of this row, which is true regardless.
            The probe needs a sixth exclusion for a negative-margin offset, not this page needs a change. */
         .ss-tile .ss-tile-top .ss-snooze { flex: 0 0 auto; }
-        .ss-tile .ss-tile-cap { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; font-size:1.125rem; background:var(--wh-white-06, rgba(255,255,255,0.06)); }   /* S1: 10px→12px (declared radius scale 8/12/16) */
-        .ss-tile .sc-hero { font-size:1.5rem; font-weight:800; line-height:1.05; margin:8px 0 0; font-variant-numeric:tabular-nums; color:var(--wh-cloud); }
-        .ss-tile .ss-tile-label { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.82); margin-top:2px; }
-        .ss-tile .ss-tile-cta { font-size: 0.75rem; font-weight:700; margin-top:auto; padding-top:12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
-        .ss-tile .ss-tile-peak { font-size: 0.75rem; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:#241606; background:var(--wh-red); padding:4px 8px; border-radius:999px; box-shadow:0 0 0 4px rgba(var(--wh-red-rgb, 248, 113, 113), 0.14); }
+        .ss-tile .ss-tile-cap { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; font-size:var(--wh-fs-lead-plus, 1.125rem); background:var(--wh-white-06, rgba(255,255,255,0.06)); }   /* S1: 10px→12px (declared radius scale 8/12/16) */
+        .ss-tile .sc-hero { font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; line-height:1.05; margin:8px 0 0; font-variant-numeric:tabular-nums; color:var(--wh-cloud); }
+        .ss-tile .ss-tile-label { font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.82); margin-top:2px; }
+        .ss-tile .ss-tile-cta { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; margin-top:auto; padding-top:12px; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+        .ss-tile .ss-tile-peak { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:var(--wh-amber-ground, #241606); background:var(--wh-red); padding:4px 8px; border-radius:999px; box-shadow:0 0 0 4px rgba(var(--wh-red-rgb, 248, 113, 113), 0.14); }
         /* 0.42 -> 0.62 white: this glyph measured APCA Lc 32.4 and 32.8 against a floor of 60 on the two
            tile backgrounds, and it is the ONLY affordance for snoozing a tile. It went unmeasured until
            now because the lens excluded every pictographic label, and the ellipsis renders in the
            element's own `color`, so excluding it dropped a real subject. 0.6-0.62 is the platform's
            documented passing band for muted white, and the C2 contrast pass raised hive's own "Based on"
            caption 0.42 -> 0.56 for exactly this reason. */
-        .ss-snooze { margin:-6px -6px -6px auto; color:rgba(255,255,255,0.72); font-size:1.125rem; font-weight:800; letter-spacing:1px; line-height:0.4; border-radius:8px; cursor:pointer; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; }
-        .ss-snooze:hover { color:rgba(255,255,255,0.85); background:var(--wh-white-06, rgba(255,255,255,0.06)); }
+        .ss-snooze { margin:-6px -6px -6px auto; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72); font-size:var(--wh-fs-lead-plus, 1.125rem); font-weight:800; letter-spacing:1px; line-height:0.4; border-radius:8px; cursor:pointer; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; }
+        .ss-snooze:hover { color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); background:var(--wh-white-06, rgba(255,255,255,0.06)); }
         .ss-snooze:focus-visible { outline:2px solid var(--wh-orange); outline-offset:1px; }
         /* ★C16 (wave-4 narrow-320 walk, 2026-09-14): at 320 the tiles stack in one column and a tile's snooze
            (the top-right ⋯, 44x44) can land exactly in the band the shared hub FAB owns (bottom-right, 56x56 at
@@ -1435,13 +1435,13 @@
 
         /* v4 readiness goal-gradient glance — length bar (NOT a gauge, E1), links to full detail. */
         .ss-readiness { display:block; margin-top:12px; padding:12px 16px; background:var(--wh-surface-card, rgba(255,255,255,0.03)); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:12px; cursor:pointer; }
-        .ss-readiness:hover { border-color:rgba(255,255,255,0.16); }
+        .ss-readiness:hover { border-color:var(--wh-white-15, rgba(255, 255, 255, 0.15)); }
         .ss-rd-head { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-        .ss-rd-title { font-size: 0.75rem; font-weight:700; letter-spacing:normal; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
-        .ss-rd-score { font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-weight:600; }
-        .ss-rd-score b { font-size:1.5rem; font-weight:800; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-        .ss-rd-stair { font-size: 0.75rem; font-weight:600; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
-        .ss-rd-cta { margin-left:auto; font-size: 0.75rem; font-weight:700; color:var(--wh-orange-text); }
+        .ss-rd-title { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; letter-spacing:normal; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+        .ss-rd-score { font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-weight:600; }
+        .ss-rd-score b { font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
+        .ss-rd-stair { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+        .ss-rd-cta { margin-left:auto; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-orange-text); }
         .ss-rd-track { height:7px; border-radius:999px; background:var(--wh-white-08, rgba(255,255,255,0.08)); overflow:hidden; margin:8px 0 8px; }
         /* ★THE CLIP-PATH THIS NOTE ASKED FOR (critique W45922, 2026-10-13). It kept `width` because scaling a gradient
            squeezes the whole orange-to-green ramp into the filled part - but `width` does exactly that too, since the
@@ -1449,7 +1449,7 @@
            gradient clipped from the right shows where on the ramp the hive stands (orange at 30, green only near 100),
            and clip-path repaints without reflowing the card, which `width` did on every update. --rd is the score. */
         .ss-rd-track > i { display:block; width:100%; height:100%; border-radius:999px; background:linear-gradient(90deg, var(--wh-orange), var(--wh-green)); clip-path:inset(0 calc(100% - var(--rd, 0%)) 0 0 round 999px); transition:clip-path var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
-        .ss-rd-weak { font-size: 0.75rem; font-weight:600; color:rgba(255,255,255,0.83); }
+        .ss-rd-weak { font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); }
         @media (prefers-reduced-motion: reduce){ .ss-rd-track > i { transition:none; } }
 
         /* v4 (2026-07-15) two-column dashboard — LEFT (brief + coach) | RIGHT (mini-stats),
@@ -1459,7 +1459,7 @@
         .ss-dash > div { min-width:0; }
         .ss-dash .ss-dash-r > * { margin-bottom:16px; }
         @media (max-width:640px){ .ss-dash { grid-template-columns:1fr; gap:0; } }
-        #supervisor-summary-details { display:none; margin-top:12px; margin-bottom:16px; padding:16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.75rem; line-height:1.5; color:rgba(255,255,255,0.83); }
+        #supervisor-summary-details { display:none; margin-top:12px; margin-bottom:16px; padding:16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:var(--wh-fs-2xs, 0.75rem); line-height:1.5; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); }
         #supervisor-summary-details.open { display:block; }
       </style>
 
@@ -1516,12 +1516,12 @@
            the supervisor expands it on demand. -->
       <div id="reliability-coach-panel" class="mb-5">
         <button id="coach-toggle-btn" type="button" aria-expanded="false" aria-controls="coach-body"
-          style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.06); color:var(--wh-violet-text); border:1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.25); border-radius:12px; font-family:inherit; font-size:0.75rem; font-weight:700; cursor:pointer; min-height:44px;">
+          style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.06); color:var(--wh-violet-text); border:1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.25); border-radius:12px; font-family:inherit; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; cursor:pointer; min-height:44px;">
           <span style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size: 12px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; opacity:0.95;">AI</span>
+            <span style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; letter-spacing:0.04em; text-transform:uppercase; opacity:0.95;">AI</span>
             <span data-i="coach">Ask the Reliability Coach</span>
           </span>
-          <span id="coach-toggle-icon" style="font-size: 0.75rem; opacity:0.7;">&#9656;</span>
+          <span id="coach-toggle-icon" style="font-size: var(--wh-fs-2xs, 0.75rem); opacity:0.7;">&#9656;</span>
         </button>
         <div id="coach-body" class="wh-card p-4 mt-2" style="display:none;">
           <p class="text-xs text-white/80 mb-3" data-i="coachintro">Ask about your maintenance priorities. Get a few actions, ranked by urgency.</p>
@@ -1534,8 +1534,8 @@
                recommendations. Populated by askCoach() on each invocation. -->
           <p id="coach-source-chip" hidden data-wh-sources-collapsed></p>
           <div class="flex gap-2">
-            <input aria-label="Your question for the coach" id="coach-input" type="text" placeholder="e.g. Why are we having so many pump failures?" class="wh-input flex-1" style="min-height:44px; font-size:16px;" />
-            <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.15); color:var(--wh-violet-text); border:1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.4); border-radius:12px; font-family:inherit; font-size:0.75rem; font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;" data-i="ask">Ask</button>
+            <input aria-label="Your question for the coach" id="coach-input" type="text" placeholder="e.g. Why are we having so many pump failures?" class="wh-input flex-1" style="min-height:44px; font-size:var(--wh-fs-base, 1rem);" />
+            <button id="coach-submit" onclick="askCoach()" style="padding:0 16px; background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.15); color:var(--wh-violet-text); border:1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.4); border-radius:12px; font-family:inherit; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; cursor:pointer; white-space:nowrap; min-height:44px;" data-i="ask">Ask</button>
           </div>
           <!-- LM-L walk LM515 (2026-10-08): the coach's "Analyzing...", its actions and its failure were silent to a screen reader -->
           <div id="coach-result" style="display:none; margin-top:12px;" role="status" aria-live="polite"></div>
@@ -1784,7 +1784,7 @@
       </div>
 
       <!-- Handover bottom sheet -->
-      <div id="handover-sheet" role="dialog" aria-modal="true" aria-label="Shift handover" class="hidden fixed inset-0 z-50 flex items-end" style="background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);">
+      <div id="handover-sheet" role="dialog" aria-modal="true" aria-label="Shift handover" class="hidden fixed inset-0 z-50 flex items-end" style="background:var(--wh-black-75, rgba(0,0,0,0.75));backdrop-filter:blur(6px);">
         <div class="sheet-inner w-full max-w-lg mx-auto">
           <div class="px-5 pt-5 pb-4 flex items-center justify-between" style="border-bottom:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">
             <div>
@@ -1800,7 +1800,7 @@
             <label data-i="p_handovertoincomingtechnician_0cd0" class="ho-label" for="ho-handover-to">Handover to (incoming technician)</label>
             <input id="ho-handover-to" type="text" class="ho-input" placeholder="Handover to&#8230; (incoming technician name)" />
             <div class="flex gap-3">
-              <button data-i="p_copy_7baa" onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:var(--wh-white-07, rgba(255,255,255,0.07));border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));color:rgba(255,255,255,0.83);">&#128203; Copy</button>
+              <button data-i="p_copy_7baa" onclick="copyHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:var(--wh-white-07, rgba(255,255,255,0.07));border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83);">&#128203; Copy</button>
               <button data-i="p_print_d218" onclick="printHandover()" class="flex-1 py-3 rounded-xl text-sm font-semibold" style="background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12);border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3);color:var(--wh-blue-text);">&#128424; Print</button>
             </div>
           </div>
@@ -1830,7 +1830,7 @@
           <!-- 0.4 -> 0.62 white: APCA Lc 30.1 vs a floor of 60, the lowest reading on the platform. It is the
                  chevron on a KPI row that IS a link, so it is the affordance telling someone the row is
                  tappable. Same shared muted-white class as .ss-snooze above. -->
-            <span aria-hidden="true" style="color:rgba(255,255,255,0.72);font-size:1.125rem;">&#8250;</span>
+            <span aria-hidden="true" style="color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72);font-size:var(--wh-fs-lead-plus, 1.125rem);">&#8250;</span>
         </a>
         <!-- Hidden canonical parity cells: PM-overdue + stock issues surface in the alert cards
              above; kept here (not displayed) as the cross-surface parity anchors so the
@@ -1865,13 +1865,13 @@
       <!-- Roster -->
       <div class="mb-5 board-card">
         <div class="flex items-center justify-between mb-2">
-          <p class="text-xs font-semibold text-white/80 uppercase tracking-widest"><span data-i="roster">Roster</span><span id="roster-count" style="font-variant-numeric:tabular-nums; color:rgba(255,255,255,0.78);"></span></p>
+          <p class="text-xs font-semibold text-white/80 uppercase tracking-widest"><span data-i="roster">Roster</span><span id="roster-count" style="font-variant-numeric:tabular-nums; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.78);"></span></p>
           <!-- ★A DISCLOSURE ANNOUNCED AS A SWITCH THAT NEVER TURNS ON (2026-10-12, UFAI edge walk W4238). The T8 drive gave
                these two Show/Hide buttons the shared .wh-toggle class so a detector would find an ARIA state - and
                whToggleAria stamped aria-pressed from .active, which nothing here ever set: opened, the roster read
                "Hide, toggle button, not pressed". A Show/Hide that reveals a region is a disclosure: aria-expanded +
                aria-controls, and the click keeps .active in step so the shared helper syncs the same state. -->
-          <button id="btn-toggle-members" class="wh-toggle" aria-expanded="false" aria-controls="members-list" style="color:var(--wh-blue-text); background:none; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;" data-i="show">Show</button>
+          <button id="btn-toggle-members" class="wh-toggle" aria-expanded="false" aria-controls="members-list" style="color:var(--wh-blue-text); background:none; border:none; cursor:pointer; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;" data-i="show">Show</button>
         </div>
         <div id="members-list" style="display:none; flex-direction:column; gap:0.5rem;"></div>
       </div>
@@ -1882,7 +1882,7 @@
           <p class="text-xs font-semibold text-white/80"><span data-i="supactionlog">Supervisor Action Log</span><span id="audit-log-count" style="font-variant-numeric:tabular-nums; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-transform:none; letter-spacing:0;"></span></p>
           <!-- Arc P · Wave 1 (P2): default COLLAPSED (was "Hide"/open) so the audit
                trail no longer stretches the board; toggle JS reads display so this is safe. -->
-          <button id="btn-toggle-audit" class="wh-toggle" aria-expanded="false" aria-controls="audit-log-body" style="color:var(--wh-blue-text);background:none;border:none;cursor:pointer;font-size:0.75rem;font-weight:600;min-height:44px;min-width:44px;padding:0.5rem 0.5rem;" data-i="show">Show</button>
+          <button id="btn-toggle-audit" class="wh-toggle" aria-expanded="false" aria-controls="audit-log-body" style="color:var(--wh-blue-text);background:none;border:none;cursor:pointer;font-size:var(--wh-fs-2xs, 0.75rem);font-weight:600;min-height:44px;min-width:44px;padding:0.5rem 0.5rem;" data-i="show">Show</button>
         </div>
         <div id="audit-log-body" style="display:none;">
           <div id="audit-log-list" class="flex flex-col gap-2"></div>
@@ -1903,11 +1903,11 @@
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" data-wh-source-key="board-data-sources" hidden style="margin:0;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:0.875rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:0.875rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:var(--wh-fs-sm-plus, 0.875rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:var(--wh-fs-sm-plus, 0.875rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 
 <div class="wh-sources-item" data-wh-source-key="supervisor-summary-details" hidden>
@@ -1917,7 +1917,7 @@
 <div id="supervisor-summary-details" role="region" aria-label="Hive health explainer"
     data-rag-tile="hive:detail_panel"
     data-rag-label="Hive supervisor detail">
-          <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+          <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">How this is computed</strong>
           <ul style="margin:0;padding-left:20px;">
             <!-- ★ THE LEGEND NAMED FIVE DIMENSIONS THE PRODUCT DOES NOT USE. It read "Reliability /
                  Operations / Safety / People / Cost"; the bars this card points at (#stair-dims,
@@ -1934,7 +1934,7 @@
             <li><strong data-i="p_openissues_aa01">Open issues</strong>: sum of still-open work orders + PM-overdue ASSETS (assets with at least one overdue PM, counted once per asset, matching the PM Scheduler) + stock issues (parts at or below their reorder level, including out of stock).</li>
             <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if Adoption is Critical OR &gt; 5 PMs overdue; amber if Adoption is At Risk OR any of (1-5 PMs overdue, &ge;10 open WOs, &ge;1 low-stock item); green when all clear.</li>
           </ul>
-          <p style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 12px;">Full breakdown (top risk reasons, most active worker, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
+          <p style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: var(--wh-fs-2xs, 0.75rem);">Full breakdown (top risk reasons, most active worker, stair dimensions) is in the Maturity Stairway + Engagement Cards below.</p>
         </div>
 </div>
 </div>
@@ -2426,7 +2426,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
     w.setAttribute('aria-live', 'polite');
     w.setAttribute('aria-busy', 'true');
     w.style.cssText = 'padding:18px 16px;';
-    w.innerHTML = '<p style="font-size:0.875rem; color:rgba(255,255,255,.72); margin:0 0 12px;">'
+    w.innerHTML = '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72); margin:0 0 12px;">'
       + 'Loading your hive board&hellip;</p>';
     host.prepend(w);
     if (typeof whListSkeleton === 'function') {
@@ -3852,7 +3852,7 @@ function renderMaturityStairway(row) {
         `Sensor pipeline: ${inp.has_sensor_readings ? 'live' : 'not connected'}`,
         `RCM strategies approved: ${inp.rcm_strategies_approved ?? '?'}`,
       ];
-      drawer.innerHTML = '<strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">Evidence behind this stair:</strong>'
+      drawer.innerHTML = '<strong style="display:block;margin-bottom:6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">Evidence behind this stair:</strong>'
         + lines.map(l => `<div>· ${e(l)}</div>`).join('');
     }
     drawer.style.display = 'block';
@@ -4094,19 +4094,19 @@ function renderAdoptionCard(row) {
       const dropping = Array.isArray(row.dropping_workers) ? row.dropping_workers : [];
       const blocks = [];
       if (reasons.length) {
-        blocks.push('<strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">Top risk signals:</strong>'
-          + reasons.slice(0, 5).map(r => `<div>· ${e(r.label || r.signal)} <span style="color:rgba(255,255,255,0.72);">(${e(String(r.score))}/100)</span></div>`).join(''));
+        blocks.push('<strong style="display:block;margin-bottom:6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">Top risk signals:</strong>'
+          + reasons.slice(0, 5).map(r => `<div>· ${e(r.label || r.signal)} <span style="color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72);">(${e(String(r.score))}/100)</span></div>`).join(''));
       } else {
         blocks.push('<div style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">No risk signals above threshold this week.</div>');
       }
       if (dropping.length) {
-        blocks.push('<strong style="display:block;margin:10px 0 6px;color:rgba(255,255,255,0.85);">Workers slowing down:</strong>'
+        blocks.push('<strong style="display:block;margin:10px 0 6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">Workers slowing down:</strong>'
           + dropping.slice(0, 5).map(d => `<div>· ${e(d.worker_name)}: ${e(String(d.this_week))} this week vs ${e(String(d.last_week))} last week</div>`).join(''));
       }
       if (row.champion_candidate) {
-        blocks.push(`<strong style="display:block;margin:10px 0 6px;color:rgba(255,255,255,0.85);">Champion candidate:</strong>`
+        blocks.push(`<strong style="display:block;margin:10px 0 6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">Champion candidate:</strong>`
           + `<div>· ${_isReaderName(row.champion_candidate) ? 'You' : e(row.champion_candidate)} (engagement ${e(String(row.champion_engagement || 0))}/100)</div>`
-          + `<div style="font-size: 12px;color:rgba(255,255,255,0.72);margin-top:4px;">${_isReaderName(row.champion_candidate) ? 'Pair yourself with a new worker who has not written yet' : 'Pair them with a new worker who has not written yet'}: that is how adoption compounds.</div>`);
+          + `<div style="font-size: var(--wh-fs-2xs, 0.75rem);color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72);margin-top:4px;">${_isReaderName(row.champion_candidate) ? 'Pair yourself with a new worker who has not written yet' : 'Pair them with a new worker who has not written yet'}: that is how adoption compounds.</div>`);
       }
       drawer.innerHTML = blocks.join('');
     }
@@ -4665,7 +4665,7 @@ document.addEventListener('DOMContentLoaded', function () {
         _t('Which assets are most likely to fail next?', 'Aling mga asset ang malamang mabigo susunod?'),
       ];
       examplesWrap.innerHTML = COACH_EXAMPLES.map(q =>
-        `<button type="button" class="coach-example-chip" style="font-size: 12px; line-height:1.2; color:var(--wh-violet-text); background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.1); border:1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.3); border-radius:999px; padding:7px 12px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(q)}</button>`
+        `<button type="button" class="coach-example-chip" style="font-size: var(--wh-fs-2xs, 0.75rem); line-height:1.2; color:var(--wh-violet-text); background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.1); border:1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.3); border-radius:999px; padding:7px 12px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(q)}</button>`
       ).join('');
       examplesWrap.querySelectorAll('.coach-example-chip').forEach((chip, i) => {
         chip.addEventListener('click', () => {
@@ -4752,7 +4752,7 @@ async function loadKnowledgePipeline() {
   if (kpipeErr) {
     const rowsEl = document.getElementById('kpipe-rows');
     const overallEl = document.getElementById('kpipe-overall');
-    if (rowsEl) rowsEl.innerHTML = '<div style="font-size: 0.75rem; color:var(--wh-red-text); padding:8px;">' + escHtml(_t(whReadError(kpipeErr, 'knowledge freshness') + ' A loading problem, not an empty base.', 'Hindi ma-load ang knowledge freshness: problema sa pag-load, hindi walang laman. I-refresh para subukan ulit.')) + '</div>';
+    if (rowsEl) rowsEl.innerHTML = '<div style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-red-text); padding:8px;">' + escHtml(_t(whReadError(kpipeErr, 'knowledge freshness') + ' A loading problem, not an empty base.', 'Hindi ma-load ang knowledge freshness: problema sa pag-load, hindi walang laman. I-refresh para subukan ulit.')) + '</div>';
     if (overallEl) overallEl.textContent = _t('Knowledge pipeline unavailable', 'Hindi available ang knowledge pipeline');
     return;
   }
@@ -4776,27 +4776,27 @@ async function loadKnowledgePipeline() {
     if (tot === 0) {
       return `
       <div style="background:var(--wh-surface-card, rgba(255,255,255,0.03)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:8px; padding:8px;">
-        <div style="font-size: 0.75rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
-        <div style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:2px;">${_t('Nothing logged yet', 'Wala pang naka-log')}</div>
+        <div style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
+        <div style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:2px;">${_t('Nothing logged yet', 'Wala pang naka-log')}</div>
       </div>`;
     }
     return `
       <div style="background:var(--wh-surface-card, rgba(255,255,255,0.03)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:8px; padding:8px;">
-        <div style="font-size: 0.75rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
+        <div style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom:4px;">${e(KIND_LABEL[r.kind] || r.kind)}</div>
         <div style="display:flex; align-items:baseline; gap:4px;">
-          <span style="font-size:1.125rem; font-weight:800; color:${color}; font-variant-numeric:tabular-nums;">${pct}%</span>
-          <span style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));" data-i="kpipe_searchable">searchable</span>
+          <span style="font-size:var(--wh-fs-lead-plus, 1.125rem); font-weight:800; color:${color}; font-variant-numeric:tabular-nums;">${pct}%</span>
+          <span style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80));" data-i="kpipe_searchable">searchable</span>
         </div>
         <!-- E1: coverage as a length bar (preattentive), not a bare colored number. -->
         <div style="height:4px; background:var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:999px; margin-top: 4px; overflow:hidden;"><div style="height:100%; width:${Math.max(0, Math.min(100, pct))}%; background:${color}; border-radius:999px;"></div></div>
-        <div style="font-size: 0.75rem; color:rgba(255,255,255,0.72); margin-top:4px;">
+        <div style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72); margin-top:4px;">
           ${e(String(r.embedded_rows || 0))} / ${e(String(r.total_rows || 0))} ${_t('rows', 'rows')}
         </div>
         ${r.pending_rows > 0
-          ? `<div style="font-size: 0.75rem; color:var(--wh-orange-text); margin-top:2px;">${e(String(r.pending_rows))} ${_t('pending', 'nakabinbin')}</div>`
+          ? `<div style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-orange-text); margin-top:2px;">${e(String(r.pending_rows))} ${_t('pending', 'nakabinbin')}</div>`
           : ''}
         ${stale
-          ? `<div style="font-size: 0.75rem; color:var(--wh-red-text); margin-top:2px;">${_t('last updated', 'huling na-update')} ${e(String(r.days_since_last_embed))} ${_t('days ago', 'araw na nakalipas')}</div>`
+          ? `<div style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-red-text); margin-top:2px;">${_t('last updated', 'huling na-update')} ${e(String(r.days_since_last_embed))} ${_t('days ago', 'araw na nakalipas')}</div>`
           : ''}
       </div>
     `;
@@ -5132,17 +5132,17 @@ async function renderRoster() {
     // C2/K1: pair the workload color with a WORD so heavy/busy isn't conveyed by color alone.
     const workloadWord = openJobs >= 5 ? _t(' · heavy', ' · mabigat') : openJobs >= 3 ? _t(' · busy', ' · abala') : '';
     const workloadBadge = openJobs > 0
-      ? `<span class="text-xs font-black px-2 py-0.5 rounded-full flex-shrink-0" style="background:rgba(0,0,0,0.28);color:${workloadColor};">${openJobs}${_openJobsMore ? '+' : ''} ${_t('open','bukas')}${workloadWord}</span>`
+      ? `<span class="text-xs font-black px-2 py-0.5 rounded-full flex-shrink-0" style="background:var(--wh-black-35, rgba(0, 0, 0, 0.35));color:${workloadColor};">${openJobs}${_openJobsMore ? '+' : ''} ${_t('open','bukas')}${workloadWord}</span>`
       : `<span class="text-xs text-white/80 flex-shrink-0">${_t('no open jobs','walang bukas na trabaho')}</span>`;
     return `<div class="flex items-center gap-3 p-3 rounded-xl" style="background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); margin-bottom:0.5rem;">
       <div style="flex-shrink:0;padding-bottom:${(memberTiers[m.worker_name]||0)>0?'8px':'0'}">${renderWorkerAvatar(m.worker_name, memberTiers[m.worker_name] || 0, 32)}</div>
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-semibold text-white break-words">${escHtml(m.worker_name)}${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(m.worker_name) : '')}${isMe ? ` <span style="color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 0.75rem;">${_t('(you)','(ikaw)')}</span>` : ''}</p>
-        ${isSup ? `<span class="supervisor-tag" style="font-size: 0.75rem; padding:1px 6px; margin-top:2px; display:inline-flex;">${_t('Supervisor','Superbisor')}</span>` : ''}
+        <p class="text-sm font-semibold text-white break-words">${escHtml(m.worker_name)}${escHtml(typeof whMemberSuffix === 'function' ? whMemberSuffix(m.worker_name) : '')}${isMe ? ` <span style="color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: var(--wh-fs-2xs, 0.75rem);">${_t('(you)','(ikaw)')}</span>` : ''}</p>
+        ${isSup ? `<span class="supervisor-tag" style="font-size: var(--wh-fs-2xs, 0.75rem); padding:1px 6px; margin-top:2px; display:inline-flex;">${_t('Supervisor','Superbisor')}</span>` : ''}
       </div>
       ${workloadBadge}
-      ${canReset ? `<button onclick="resetMemberPassword('${escJsAttr(m.worker_name)}')" style="font-size: 0.75rem; padding:0.3rem 0.75rem; min-height:44px; border-radius:0.5rem; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange-text); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">${_t('Reset PW','I-reset PW')}</button>` : ''}
-      ${canKick ? `<button onclick="kickMember('${escJsAttr(m.id)}', '${escJsAttr(m.worker_name)}')" class="btn-danger" style="font-size: 0.75rem; padding:0.3rem 0.75rem; min-height:44px;">${_t('Remove','Alisin')}</button>` : ''}
+      ${canReset ? `<button onclick="resetMemberPassword('${escJsAttr(m.worker_name)}')" style="font-size: var(--wh-fs-2xs, 0.75rem); padding:0.3rem 0.75rem; min-height:44px; border-radius:0.5rem; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange-text); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">${_t('Reset PW','I-reset PW')}</button>` : ''}
+      ${canKick ? `<button onclick="kickMember('${escJsAttr(m.id)}', '${escJsAttr(m.worker_name)}')" class="btn-danger" style="font-size: var(--wh-fs-2xs, 0.75rem); padding:0.3rem 0.75rem; min-height:44px;">${_t('Remove','Alisin')}</button>` : ''}
     </div>`;
   }, { sig: JSON.stringify([HIVE_ROLE, !!_openJobsMore]), long: true,
        // a member row shows the member, their open-job tally and their tier - so those are its key
@@ -5534,13 +5534,13 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
   const panel = document.getElementById('wh-wp-panel');
   panel.innerHTML =
     '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">' +
-      '<p style="font-size:0.875rem; font-weight:800; color:var(--wh-cloud); margin:0;">' + escHtml(workerName) + '</p>' +
+      '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:800; color:var(--wh-cloud); margin:0;">' + escHtml(workerName) + '</p>' +
       '<button type="button" onclick="document.getElementById(\'wh-worker-profile-drawer\').style.display=\'none\'" ' +
               'style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.80); border-radius:8px; min-height:44px; min-width:44px; cursor:pointer;">' +
         '&times;' +
       '</button>' +
     '</div>' +
-    '<p id="wh-wp-loading" style="font-size: 0.75rem; color:rgba(255,255,255,.6); margin:2px 0 16px;">Loading profile&hellip;</p>' +
+    '<p id="wh-wp-loading" style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.6); margin:2px 0 16px;">Loading profile&hellip;</p>' +
     '<div id="wh-wp-body" style="display:flex; flex-direction:column; gap:12px;"></div>';
   drawer.style.display = 'flex';
 
@@ -5590,34 +5590,34 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
     body.innerHTML =
       '<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px;">' +
         '<div style="padding: 12px 12px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); border-radius:12px;">' +
-          '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange-text); margin:0 0 2px;">Top discipline</p>' +
-          '<p style="font-size:0.875rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + (top ? escHtml(top.discipline) + ' L' + (top.level || 1) : 'No badges yet') + '</p>' +
+          '<p style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-orange-text); margin:0 0 2px;">Top discipline</p>' +
+          '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; color:var(--wh-cloud); margin:0;">' + (top ? escHtml(top.discipline) + ' L' + (top.level || 1) : 'No badges yet') + '</p>' +
         '</div>' +
         '<div style="padding: 12px 12px; background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.08); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.2); border-radius:12px;">' +
-          '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-blue); margin:0 0 2px;">Community XP</p>' +
-          '<p style="font-size:0.875rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + xp + '</p>' +
+          '<p style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-blue); margin:0 0 2px;">Community XP</p>' +
+          '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; color:var(--wh-cloud); margin:0;">' + xp + '</p>' +
         '</div>' +
         '<div style="padding: 12px 12px; background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:12px;">' +
-          '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 2px;">Role</p>' +
-          '<p style="font-size:0.875rem; font-weight:700; color:var(--wh-cloud); margin:0; text-transform:capitalize;">' + escHtml(role) + '</p>' +
+          '<p style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 2px;">Role</p>' +
+          '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; color:var(--wh-cloud); margin:0; text-transform:capitalize;">' + escHtml(role) + '</p>' +
         '</div>' +
         '<div style="padding: 12px 12px; background:var(--wh-white-04, rgba(255,255,255,0.04)); border:1px solid var(--wh-white-08, rgba(255,255,255,0.08)); border-radius:12px;">' +
-          '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 2px;">Joined</p>' +
-          '<p style="font-size:0.875rem; font-weight:700; color:var(--wh-cloud); margin:0;">' + escHtml(joined) + '</p>' +
+          '<p style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 2px;">Joined</p>' +
+          '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; color:var(--wh-cloud); margin:0;">' + escHtml(joined) + '</p>' +
         '</div>' +
       '</div>' +
       '<div>' +
-        '<p style="font-size: 0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:16px 0 6px;">Recent activity</p>' +
+        '<p style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:16px 0 6px;">Recent activity</p>' +
         (recent.length
           ? recent.map(r =>
               '<div style="padding: 8px 12px; background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-radius:8px; margin-bottom:6px;">' +
-                '<p style="font-size:0.875rem; font-weight:600; color:var(--wh-cloud); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escHtml(r.machine || 'Unknown machine') + '</p>' +
-                '<p style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:2px 0 0;">' + escHtml(r.problem || '(no problem note)') + '</p>' +
-                '<p style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:2px 0 0;">' + (r.created_at ? whFmtDate(r.created_at) : '-') /* FD1a: was bare toLocaleDateString = ambiguous US M/D/Y for PH readers */ + ' &middot; ' + escHtml(r.status || 'Open') + '</p>' +
+                '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:600; color:var(--wh-cloud); margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escHtml(r.machine || 'Unknown machine') + '</p>' +
+                '<p style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:2px 0 0;">' + escHtml(r.problem || '(no problem note)') + '</p>' +
+                '<p style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:2px 0 0;">' + (r.created_at ? whFmtDate(r.created_at) : '-') /* FD1a: was bare toLocaleDateString = ambiguous US M/D/Y for PH readers */ + ' &middot; ' + escHtml(r.status || 'Open') + '</p>' +
               '</div>'
             ).join('')
-          : '<p style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0;">No recent logbook entries.</p>') +
-        (recentMore ? '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:6px 0 0;">The 3 most recent. More are in the Logbook.</p>' : '') +
+          : '<p style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0;">No recent logbook entries.</p>') +
+        (recentMore ? '<p data-wh-more-note role="note" style="font-size:var(--wh-fs-xs, 0.8rem);line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:6px 0 0;">The 3 most recent. More are in the Logbook.</p>' : '') +
       '</div>';
     const sub = panel.querySelector('p:nth-of-type(1) + p');
     if (sub) sub.style.display = 'none';
@@ -5629,7 +5629,7 @@ async function _openWorkerProfileDrawer(workerName, workerUid) {
     document.getElementById('wh-wp-loading')?.remove();   // the failure is said below; "Loading" no longer is true
     const body = document.getElementById('wh-wp-body');
     if (body) {
-      body.innerHTML = '<p style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0;">'
+      body.innerHTML = '<p style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0;">'
         + escHtml(_t(whReadError(err, 'this profile'),
                      'Hindi ma-load ang profile na ito. Isara at subukan muli.')) + '</p>';
     }
@@ -5655,8 +5655,8 @@ function renderPresenceFallback() {
     const isMe = name === WORKER_NAME;
     // dot styled UNKNOWN (hollow), not offline: we cannot see this person's state right now.
     return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" title="${escHtml(_t('Presence unknown while the live link is down', 'Hindi alam ang presence habang down ang live link'))}" onclick="_openWorkerProfileDrawer('${escJsAttr(name)}')">
-      <span class="presence-dot" style="background:transparent;border:1px solid rgba(255,255,255,0.45);"></span>
-      ${escHtml(name)}${isMe ? '&nbsp;<span style="color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 0.75rem">' + _t('(you)', '(ikaw)') + '</span>' : ''}
+      <span class="presence-dot" style="background:transparent;border:1px solid rgba(var(--wh-white-rgb, 255, 255, 255), 0.45);"></span>
+      ${escHtml(name)}${isMe ? '&nbsp;<span style="color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: var(--wh-fs-2xs, 0.75rem)">' + _t('(you)', '(ikaw)') + '</span>' : ''}
     </div>`;
   }).join('');
 }
@@ -5683,7 +5683,7 @@ function renderPresence() {
     const _uid  = (_pres.filter(m => m && m.auth_uid).pop() || {}).auth_uid || '';
     return `<div class="presence-chip" role="button" tabindex="0" style="cursor:pointer; min-height:44px;" onclick="_openWorkerProfileDrawer('${escJsAttr(key)}', '${escJsAttr(_uid)}')">
       <span class="presence-dot online"></span>
-      ${name}${isMe ? '&nbsp;<span style="color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 0.75rem">' + _t('(you)', '(ikaw)') + '</span>' : ''}
+      ${name}${isMe ? '&nbsp;<span style="color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: var(--wh-fs-2xs, 0.75rem)">' + _t('(you)', '(ikaw)') + '</span>' : ''}
     </div>`;
   }).join('');
   if (typeof whPresenceFit === 'function') whPresenceFit(bar);   // HS H1: thirty online stays one line and says how many
@@ -5898,7 +5898,7 @@ function renderNotifs() {
     if (type === 'open-wo')     return '<span style="width:8px;height:8px;border-radius:50%;background:var(--wh-blue);flex-shrink:0;margin-top:4px;"></span>';
     if (type === 'approval-in') return '<span style="width:8px;height:8px;border-radius:50%;background:var(--wh-orange);flex-shrink:0;margin-top:4px;"></span>';
     if (type === 'approval')    return '<span style="width:8px;height:8px;border-radius:50%;background:var(--wh-green);flex-shrink:0;margin-top:4px;"></span>';
-    return '<span style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.3);flex-shrink:0;margin-top:4px;"></span>';
+    return '<span style="width:8px;height:8px;border-radius:50%;background:rgba(var(--wh-white-rgb, 255, 255, 255), 0.3);flex-shrink:0;margin-top:4px;"></span>';
   };
 
   /* T107 (2026-08-26): ONE BELL, TWO CONCEPTS. Measured on the live board, the tray held
@@ -6346,7 +6346,7 @@ function renderApprovalQueue() {
   const _briefBit = _elseBrief
     ? `<a href="alert-hub.html" ${_lnk}>${_nBrief(_elseBrief)}</a>` + _t(' in Alert Hub', ' sa Alert Hub')
     : '';
-  const _elseLine = elsewhere ? `<p class="text-[12px] mt-2" style="color:rgba(255,255,255,0.85);">`
+  const _elseLine = elsewhere ? `<p class="text-[12px] mt-2" style="color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">`
       + _t('Also awaiting your review', 'Naghihintay din ng review mo')
       + (_ahBits ? `${_t(' in', ' sa')} <a href="asset-hub.html" ${_lnk}>Asset Hub</a>: ${_ahBits}` : '')
       + (_briefBit ? `${_ahBits ? ' · ' : ': '}${_briefBit}` : '')
@@ -6395,7 +6395,7 @@ function renderApprovalQueue() {
   const partCards = _pendingParts.map(p => `
     <div class="rounded-xl p-3" id="appr-part-${escHtml(p.id)}" style="background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18);">
       <div class="flex items-start gap-2 mb-2">
-        <span class="text-xs font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(139,92,246,0.12);color:var(--wh-violet-text);border:1px solid rgba(139,92,246,0.2);">PART</span>
+        <span class="text-xs font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 mt-0.5" style="background:rgba(var(--wh-violet-500-rgb, 139, 92, 246), 0.12);color:var(--wh-violet-text);border:1px solid rgba(var(--wh-violet-500-rgb, 139, 92, 246), 0.2);">PART</span>
         <div class="flex-1 min-w-0">
           <p class="text-xs font-bold text-white">${escHtml(p.part_number)}: ${escHtml(p.part_name)}</p>
           <p class="text-xs text-white/80">by ${escHtml(p.submitted_by || p.worker_name)} · Qty: ${p.qty_on_hand}${p.category ? ' · ' + escHtml(p.category) : ''}${_sub(p.created_at)}</p>
@@ -6717,7 +6717,7 @@ async function loadAuditLog() {
       : '';
     return `
     <div class="flex items-start gap-3 px-3 py-2.5 rounded-xl" style="background:var(--wh-surface-card, rgba(255,255,255,0.03));border:1px solid var(--wh-white-06, rgba(255,255,255,0.06));">
-      <span class="text-sm font-black flex-shrink-0 mt-0.5" style="color:${_AUD_TONE[v.tone] || '#94a3b8'};width:16px;text-align:center;">${escHtml(v.icon)}</span>
+      <span class="text-sm font-black flex-shrink-0 mt-0.5" style="color:${_AUD_TONE[v.tone] || 'var(--wh-slate-400, #94a3b8)'};width:16px;text-align:center;">${escHtml(v.icon)}</span>
       <div class="flex-1 min-w-0">
         <p class="text-xs font-semibold text-white/80">${escHtml(_t(v.label, FIL_ACTION[row.action]))}${targetHtml}${sub}</p>
         <p class="text-xs text-white/80 mt-0.5">${escHtml(row.actor + (typeof whMemberSuffix === 'function' ? whMemberSuffix(row.actor) : ''))} · ${when}</p>
@@ -7070,19 +7070,19 @@ async function loadBenchmarks() {
 
       html += '<div style="padding:8px 0; border-bottom:1px solid var(--wh-white-05, rgba(255,255,255,0.05));">'
         + '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom: 4px;">'
-        + '<p style="font-size:0.875rem; font-weight:600; color:rgba(255,255,255,0.85);">' + escHtml(h.equipment_category) + '</p>'
-        + '<p style="font-size:0.875rem; font-weight:800; color:' + color + '; font-variant-numeric:tabular-nums;">' + escHtml(myMTBF) + ' <span style="font-size: 0.75rem; font-weight:600;">' + label + '</span></p>'
+        + '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:600; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">' + escHtml(h.equipment_category) + '</p>'
+        + '<p style="font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:800; color:' + color + '; font-variant-numeric:tabular-nums;">' + escHtml(myMTBF) + ' <span style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:600;">' + label + '</span></p>'
         + '</div>'
         + '<div style="position:relative; height:6px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:999px;">'
         +   '<div style="position:absolute; left:0; top:0; height:100%; width:' + myPct.toFixed(1) + '%; background:' + color + '; border-radius:999px;"></div>'
-        +   '<div title="Network average" style="position:absolute; left:' + avgPct.toFixed(1) + '%; top:-2px; width:2px; height:10px; background:rgba(255,255,255,0.85); border-radius:0;"></div>'
+        +   '<div title="Network average" style="position:absolute; left:' + avgPct.toFixed(1) + '%; top:-2px; width:2px; height:10px; background:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); border-radius:0;"></div>'
         + '</div>'
-        + '<p style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:4px; font-variant-numeric:tabular-nums;">' + _t('Network avg: ', 'Avg ng network: ') + escHtml(netAvg) + (netTop ? ' · ' + _t('Top 25%: ', 'Nangungunang 25%: ') + escHtml(netTop) : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' ' + _t('hives', 'hives') : '') + '</p>'
+        + '<p style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:4px; font-variant-numeric:tabular-nums;">' + _t('Network avg: ', 'Avg ng network: ') + escHtml(netAvg) + (netTop ? ' · ' + _t('Top 25%: ', 'Nangungunang 25%: ') + escHtml(netTop) : '') + (net.sample_hives ? ' · ' + net.sample_hives + ' ' + _t('hives', 'hives') : '') + '</p>'
         + '</div>';
     });
 
     content.innerHTML = html
-      + (_benchMore ? '<p data-wh-more-note role="note" style="font-size:0.8125rem;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:6px 0 0;">The 5 equipment categories with the most failures. The rest are in Analytics.</p>' : '');   // SL LB1
+      + (_benchMore ? '<p data-wh-more-note role="note" style="font-size:var(--wh-fs-xs, 0.8rem);line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:6px 0 0;">The 5 equipment categories with the most failures. The rest are in Analytics.</p>' : '');   // SL LB1
     panel.classList.remove('hidden');
 
   } catch (e) {
@@ -7129,7 +7129,7 @@ async function askCoach() {
   const _oldTrust = result.parentElement && result.parentElement.querySelector(':scope > .wh-ai-trust');
   if (_oldTrust) _oldTrust.remove();
   result.style.display = 'block';
-  result.innerHTML = '<p style="color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.875rem;">' + _t('Analyzing your plant data...', 'Sinusuri ang datos ng iyong planta...') + '</p>';
+  result.innerHTML = '<p style="color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:var(--wh-fs-sm-plus, 0.875rem);">' + _t('Analyzing your plant data...', 'Sinusuri ang datos ng iyong planta...') + '</p>';
 
   try {
     // D5 fold (2026-06-14): route the Reliability Coach THROUGH the unified
@@ -7168,25 +7168,25 @@ async function askCoach() {
 
     // the model sent nothing usable: say that, not "not enough data", which blames the hive's records
     if (actions === null) {
-      result.innerHTML = '<p style="color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.875rem;">' + escHtml("The coach didn't send back any actions this time. Please ask again.") + '</p>';
+      result.innerHTML = '<p style="color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:var(--wh-fs-sm-plus, 0.875rem);">' + escHtml("The coach didn't send back any actions this time. Please ask again.") + '</p>';
       return;
     }
     if (!actions.length) {
-      result.innerHTML = '<p style="color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.875rem;">Not enough data yet to generate recommendations. Keep logging maintenance entries.</p>';
+      result.innerHTML = '<p style="color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:var(--wh-fs-sm-plus, 0.875rem);">Not enough data yet to generate recommendations. Keep logging maintenance entries.</p>';
       return;
     }
 
     const urgencyColor = { 'TODAY': '#f87171', 'THIS WEEK': '#F7A21B', 'MONITOR': '#4ade80' };
     result.innerHTML = actions.map(a => {
       const uc = urgencyColor[a.urgency] || '#a78bfa';
-      return `<div style="border-left:2px solid ${uc}; padding:8px 12px; margin-bottom:8px; background:rgba(0,0,0,0.2); border-radius:0 8px 8px 0;">
+      return `<div style="border-left:2px solid ${uc}; padding:8px 12px; margin-bottom:8px; background:var(--wh-black-20, rgba(0,0,0,0.2)); border-radius:0 8px 8px 0;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-          <span style="font-size: 0.75rem; font-weight:800; color:var(--wh-text-muted, rgba(255,255,255,0.80));">#${a.priority}</span>
-          <span style="font-size: 0.75rem; font-weight:700; padding:2px 8px; border-radius:999px; background:${uc}22; color:${uc};">${escHtml(a.urgency || '')}</span>
-          ${a.machine ? `<span style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80));">${escHtml(a.machine)}</span>` : ''}
+          <span style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:800; color:var(--wh-text-muted, rgba(255,255,255,0.80));">#${a.priority}</span>
+          <span style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; padding:2px 8px; border-radius:999px; background:${uc}22; color:${uc};">${escHtml(a.urgency || '')}</span>
+          ${a.machine ? `<span style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80));">${escHtml(a.machine)}</span>` : ''}
         </div>
-        <p style="font-size:0.875rem; font-weight:600; color:rgba(255,255,255,0.9); margin-bottom:3px;">${escHtml(a.action || '')}</p>
-        ${a.why ? `<p style="font-size: 0.75rem; color:rgba(255,255,255,0.72);">${escHtml(a.why)}</p>` : ''}
+        <p style="font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:600; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.9); margin-bottom:3px;">${escHtml(a.action || '')}</p>
+        ${a.why ? `<p style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72);">${escHtml(a.why)}</p>` : ''}
       </div>`;
     }).join('');
     // ★THE COACH'S ANSWER COULD NOT BE CALLED WRONG (LM-E walk, LM532, 2026-10-08): a supervisor reading a ranked
@@ -7207,7 +7207,7 @@ async function askCoach() {
     // person's (whFnError / whAiError); the sentence is shown once, as an alert, and an unknown failure says so plainly
     const _coachMsg = (e && e.message && !/^(TypeError|ReferenceError|SyntaxError)/.test(String(e))) ? e.message
       : _t("The coach could not answer just now. Please try again.", "Hindi nakasagot ang coach ngayon. Pakisubukan muli.");
-    result.innerHTML = `<p role="alert" style="color:var(--wh-red-text); font-size:0.875rem;">${escHtml(_coachMsg)}</p>`;
+    result.innerHTML = `<p role="alert" style="color:var(--wh-red-text); font-size:var(--wh-fs-sm-plus, 0.875rem);">${escHtml(_coachMsg)}</p>`;
   } finally {
     btn.disabled    = false;
     btn.textContent = 'Ask';
@@ -7645,14 +7645,14 @@ function generateHandover() {
 
   html += `<div class="ho-section">
     <p class="ho-label" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">📊 Shift Snapshot</p>
-    <p style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0;">${escHtml(_hoKpi)}</p>
+    <p style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0;">${escHtml(_hoKpi)}</p>
   </div>`;
 
   if (lotoJobs.length) {
     html += `<div class="ho-section" style="border-left:3px solid var(--wh-red);padding-left:0.75rem;background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.07);border-bottom:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.18);">
       <p class="ho-label" style="color:var(--wh-red-text);">⚠️ Active Isolations / LOTO (${lotoJobs.length})</p>
       ${lotoJobs.map(e =>
-        `<div class="ho-item"><span style="color:var(--wh-red-text);flex-shrink:0;">🔒</span><span><strong style="color:#fff;">${escHtml(e.machine || '-')}</strong>${e.problem ? ': ' + escHtml(e.problem.slice(0, 60)) : ''}</span></div>`
+        `<div class="ho-item"><span style="color:var(--wh-red-text);flex-shrink:0;">🔒</span><span><strong style="color:var(--wh-white, #fff);">${escHtml(e.machine || '-')}</strong>${e.problem ? ': ' + escHtml(e.problem.slice(0, 60)) : ''}</span></div>`
       ).join('')}
     </div>`;
   }
@@ -7732,17 +7732,17 @@ function printHandover() {
 <style>
   @page{margin:0;}
   body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:1.2cm 1.5cm;color:var(--wh-print-ink, #111);max-width:640px;margin:0 auto;box-sizing:border-box;}
-  h1{font-size:1.05rem;font-weight:800;margin:0 0 0.1rem;color:var(--wh-print-ink, #111);}
-  .kpi{font-size: 0.75rem;color:#666;margin:0 0 0.25rem;}
-  .meta{font-size:0.78rem;color:#555;margin:0 0 1.25rem;border-bottom:2px solid var(--wh-print-ink, #111);padding-bottom:0.5rem;}
+  h1{font-size:var(--wh-fs-lead, 1.05rem);font-weight:800;margin:0 0 0.1rem;color:var(--wh-print-ink, #111);}
+  .kpi{font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-grey-700-b, #666);margin:0 0 0.25rem;}
+  .meta{font-size:var(--wh-fs-xs, 0.8rem);color:var(--wh-grey-700, #555);margin:0 0 1.25rem;border-bottom:2px solid var(--wh-print-ink, #111);padding-bottom:0.5rem;}
   .ho-section{border-bottom:1px solid var(--wh-paper-rule, #e5e7eb);padding:0.5rem 0;}
   .ho-section:last-child{border-bottom:none;}
-  .ho-label{font-size: 0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:#444;margin:0 0 0.25rem;}
-  .ho-item{font-size:0.8rem;color:#333;padding:2px 0;display:flex;align-items:baseline;gap:6px;}
+  .ho-label{font-size: var(--wh-fs-2xs, 0.75rem);font-weight:800;text-transform:uppercase;letter-spacing:0.12em;color:var(--wh-grey-800, #444);margin:0 0 0.25rem;}
+  .ho-item{font-size:var(--wh-fs-xs, 0.8rem);color:var(--wh-grey-900, #333);padding:2px 0;display:flex;align-items:baseline;gap:6px;}
   strong{color:var(--wh-print-ink, #111) !important;}
   .sig-block{margin-top:1.5rem;padding-top:0.75rem;border-top:1px solid var(--wh-paper-rule, #e5e7eb);display:grid;grid-template-columns:1fr 1fr;gap:0.75rem 1.5rem;}
-  .sig-label{font-size: 0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#888;}
-  .sig-name{font-size:0.82rem;font-weight:700;color:var(--wh-print-ink, #111);margin:0.1rem 0 0.25rem;min-height:1rem;}
+  .sig-label{font-size: var(--wh-fs-2xs, 0.75rem);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--wh-grey-500-b, #888);}
+  .sig-name{font-size:var(--wh-fs-xs, 0.8rem);font-weight:700;color:var(--wh-print-ink, #111);margin:0.1rem 0 0.25rem;min-height:1rem;}
   .sig-line{border-bottom:1px solid var(--wh-print-rule, #bbb);height:0.8rem;}
 </style></head><body>
 <!-- heading-allow: separate popup document; this IS that document's primary heading -->

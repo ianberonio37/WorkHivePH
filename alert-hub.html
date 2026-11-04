@@ -58,8 +58,8 @@
     .page { max-width: 880px; margin: 0 auto; padding: 1rem 1rem 0; }
 
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
-    .page-title { font-size: 1.25rem; font-weight: 800; }
-    .hive-pill { font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); }
+    .page-title { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 800; }
+    .hive-pill { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); }
 
     /* Filter chips */
     .filter-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
@@ -67,14 +67,14 @@
       display: inline-flex; align-items: center; gap: 6px;
       padding: 6px 12px; min-height: 44px; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85);
       border: 1px solid var(--border); border-radius: 999px;
-      font-family: inherit; font-size: 0.8rem; font-weight: 600;   /* 12px floor (design lens slop, 2026-09-15) */
+      font-family: inherit; font-size: var(--wh-fs-xs, 0.8rem); font-weight: 600;   /* 12px floor (design lens slop, 2026-09-15) */
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer;
       transition: color .15s ease, border-color .15s ease, background .15s ease;   /* was `all`: it animated layout properties too (design lens motion, 2026-09-15) */
     }
     .chip:hover { color: var(--text); border-color: var(--wh-white-18, rgba(255,255,255,0.18)); }
     .chip.active { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--gold); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
     .chip-count {
-      font-size: .75rem; font-weight: 700; padding: 2px 8px;
+      font-size: var(--wh-fs-2xs, .75rem); font-weight: 700; padding: 2px 8px;
       border-radius: 999px; background: var(--wh-white-08, rgba(255,255,255,0.08));
     }
     .chip.active .chip-count { background: var(--wh-black-35, rgba(0,0,0,0.35)); color: var(--gold); }
@@ -96,21 +96,21 @@
     .alert.sev-high     { border-left-color: var(--wh-orange); }
     .alert.sev-medium   { border-left-color: var(--wh-amber); }
     .alert.sev-low,
-    .alert.sev-info     { border-left-color: rgba(255,255,255,0.22); }
-    .alert-icon { font-size: 1.125rem; flex-shrink: 0; line-height: 1.2; }
+    .alert.sev-info     { border-left-color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.22); }
+    .alert-icon { font-size: var(--wh-fs-lead-plus, 1.125rem); flex-shrink: 0; line-height: 1.2; }
     .alert-body { flex: 1; min-width: 0; }
     .alert-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
-    .alert-tag { font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 999px; }   /* sentence-case status pill on the floor; 600 so the 700 title is the row's one bold (craft lens) */
+    .alert-tag { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; padding: 4px 8px; border-radius: 999px; }   /* sentence-case status pill on the floor; 600 so the 700 title is the row's one bold (craft lens) */
     .tag-critical { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.15); color: var(--red); }
-    .tag-high     { background: rgba(251,146,60,0.15); color: var(--amber); }
-    .tag-medium   { background: rgba(250,204,21,0.12); color: var(--yellow); }
+    .tag-high     { background: rgba(var(--wh-orange-soft-rgb, 251, 146, 60), 0.15); color: var(--amber); }
+    .tag-medium   { background: rgba(var(--wh-amber-rgb, 250, 204, 21), 0.12); color: var(--yellow); }
     .tag-info     { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue); }
-    .alert-title { font-size: 0.9rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
-    .alert-time { font-size: 0.75rem; color: var(--muted); flex-shrink: 0; }
-    .alert-msg { font-size: 0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height: 1.4; margin-top: 2px; }
+    .alert-title { font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+    .alert-time { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); flex-shrink: 0; }
+    .alert-msg { font-size: var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height: 1.4; margin-top: 2px; }
     .alert-action {
       display: inline-flex; align-items: center; gap: 4px; min-height: 44px;
-      font-size: 0.8rem; font-weight: 600; color: var(--gold);
+      font-size: var(--wh-fs-xs, 0.8rem); font-weight: 600; color: var(--gold);
       text-decoration: none; margin-top: 8px;
       padding: 4px 10px; border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);
       border-radius: var(--wh-radius-sm); background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06);
@@ -121,9 +121,9 @@
     .alert-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .alert-dismiss {
       display: inline-flex; align-items: center; gap: 4px; min-height: 44px;
-      font-size: 0.8rem; font-weight: 600; color:var(--wh-text-faint, rgba(255,255,255,0.86));
+      font-size: var(--wh-fs-xs, 0.8rem); font-weight: 600; color:var(--wh-text-faint, rgba(255,255,255,0.86));
       margin-top: 8px; padding: 4px 12px; cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.16); border-radius: var(--wh-radius-sm);
+      border: 1px solid var(--wh-white-15, rgba(255, 255, 255, 0.15)); border-radius: var(--wh-radius-sm);
       background: var(--wh-white-05, rgba(255,255,255,0.05));
       transition: background .15s ease, transform .12s var(--wh-ease-out);
     }
@@ -139,7 +139,7 @@
     .alert.seen { background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); }
     /* T116 (2026-08-28): 0.5 dimmed a SEEN alert's message past legibility. .alert-msg is
        var(--wh-text-muted, rgba(255,255,255,0.80)), so opacity 0.5 gave an effective alpha of 0.40, compositing to
-       #717780 on #131d2b - 3.75:1, under WCAG AA's 4.5:1 for normal text, and the message is 9pt
+       var(--wh-gray-500, #6B7280) on var(--wh-navy, #162032) - 3.75:1, under WCAG AA's 4.5:1 for normal text, and the message is 9pt
        so the large-text 3:1 allowance does not apply. Measured by prove_page_contrast, which found
        it the platform's ONLY axe contrast violation across 26 pages. 0.65 gives an effective 0.52
        and about 5.4:1, with margin. The point of `seen` is to de-emphasise a handled alert, not to
@@ -150,10 +150,10 @@
     .alert.seen .alert-title,
     .alert.seen .alert-msg { opacity: 0.65; }
     .alert-seen-badge {
-      font-size: .75rem; font-weight: 700;
+      font-size: var(--wh-fs-2xs, .75rem); font-weight: 700;
       padding: .15rem .5rem; border-radius: 999px; flex-shrink: 0; max-width: 100%;   /* it carries a name now: never wider than its row */
       background: var(--wh-white-08, rgba(255,255,255,0.08)); color:var(--wh-text-muted, rgba(255,255,255,0.80));
-      border: 1px solid rgba(255,255,255,0.14);
+      border: 1px solid var(--wh-white-15, rgba(255, 255, 255, 0.15));
     }
 
     /* Empty / loading */
@@ -162,13 +162,13 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1px solid var(--border);
       border-radius: 12px;
     }
-    .empty-icon { font-size: 1.5rem; margin-bottom: 8px; }   /* C1: 32px was a lone tier; 24px is the hero-icon tier (2026-09-06) */
-    .empty-title { font-size: 1rem; font-weight: 700; color: var(--green); margin-bottom: 4px; }
-    .empty-sub { font-size: 0.8rem; color: var(--muted); }
-    .loading { text-align: center; padding: 30px; color: var(--muted); font-size: 0.8rem; }
+    .empty-icon { font-size: var(--wh-fs-xl, 1.5rem); margin-bottom: 8px; }   /* C1: 32px was a lone tier; 24px is the hero-icon tier (2026-09-06) */
+    .empty-title { font-size: var(--wh-fs-base, 1rem); font-weight: 700; color: var(--green); margin-bottom: 4px; }
+    .empty-sub { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); }
+    .loading { text-align: center; padding: 30px; color: var(--muted); font-size: var(--wh-fs-xs, 0.8rem); }
 
     /* Last refreshed */
-    .footer-meta { font-size: 0.75rem; color: var(--muted); text-align: right; margin-top: 16px; }
+    .footer-meta { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); text-align: right; margin-top: 16px; }
 
     /* Auth gate (no hive) */
     .gate-card {
@@ -176,8 +176,8 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85); border: 1px solid var(--border);
       border-radius: 16px; margin-top: 40px;
     }
-    .gate-card h2 { font-size: 1.125rem; margin-bottom: 8px; }
-    .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 16px; }
+    .gate-card h2 { font-size: var(--wh-fs-lead-plus, 1.125rem); margin-bottom: 8px; }
+    .gate-card p { font-size: var(--wh-fs-xs, .8rem); color: var(--muted); margin-bottom: 16px; }
     .gate-btn {
       /* 44px tap floor (critic F1/K2, 2026-10-13): "Open Hive Board" measured 152x39 on the no-hive gate */
       display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 24px;
@@ -193,7 +193,7 @@
          same lesson: standardise toward what the page ALREADY says, measured, not toward a value
          picked by looking at one control. */
       border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3); border-radius: var(--wh-radius-sm);
-      text-decoration: none; font-size: 0.8rem; font-weight: 700;
+      text-decoration: none; font-size: var(--wh-fs-xs, 0.8rem); font-weight: 700;
     }
 
     /* ★A PHONE RULE THAT DELETED A FACT (2026-10-06, found on audit-log x assistive-tech and swept here). This
@@ -216,25 +216,25 @@
       margin-bottom: 16px;
     }
     .amc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
-    .amc-badge { font-size: .75rem; font-weight: 600; color: var(--wh-violet-text); padding: 4px 8px; border-radius: var(--wh-radius-sm); background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.14); border: 1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.25); }
-    .amc-headline { font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1.35; }
+    .amc-badge { font-size: var(--wh-fs-2xs, .75rem); font-weight: 600; color: var(--wh-violet-text); padding: 4px 8px; border-radius: var(--wh-radius-sm); background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.14); border: 1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.25); }
+    .amc-headline { font-size: var(--wh-fs-base, 1rem); font-weight: 700; color: var(--text); line-height: 1.35; }
     /* CLS: #amc-summary starts empty, fills with a short summary, then is UPGRADED IN PLACE to the
        taller renderActionBrief card — that growth shifted the content below (a full-sweep-contention
        CLS; 0 on a fast isolated load). Reserve the settled brief height so it never shifts, matching
        shift-brain's .briefing-card{min-height:240}. */
-    .amc-summary { font-size: 0.8rem; color: rgba(255,255,255,0.78); line-height: 1.5; margin: 6px 0 12px; min-height: 120px; }   /* was 176px: the settled brief left 163px of dead space inside the card at 1280 (design lens critique, 2026-09-15) */
+    .amc-summary { font-size: var(--wh-fs-xs, 0.8rem); color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.78); line-height: 1.5; margin: 6px 0 12px; min-height: 120px; }   /* was 176px: the settled brief left 163px of dead space inside the card at 1280 (design lens critique, 2026-09-15) */
     @media (min-width: 700px) { .amc-summary { min-height: 72px; } }
     .amc-stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin: 12px 0; }
     .amc-stat { padding: 8px 10px; text-align: center; border-top: 1px solid var(--border); }   /* flat cells under a rule, not cards inside the AMC card (craft lens depth, 2026-09-15) */
-    .amc-stat-num { font-size: 1.125rem; font-weight: 800; color: var(--text); line-height: 1; }
-    .amc-stat-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-top: 4px; }
-    .amc-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: .8rem; color:rgba(255,255,255,0.83); }
+    .amc-stat-num { font-size: var(--wh-fs-lead-plus, 1.125rem); font-weight: 800; color: var(--text); line-height: 1; }
+    .amc-stat-label { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; color: var(--muted); margin-top: 4px; }
+    .amc-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: var(--wh-fs-xs, .8rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); }
     .amc-details.open { display: block; }
-    .amc-section-title { font-size: .9rem; font-weight: 700; color: var(--purple); margin: 12px 0 4px; }   /* a section title is a heading, not an eyebrow */
+    .amc-section-title { font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 700; color: var(--purple); margin: 12px 0 4px; }   /* a section title is a heading, not an eyebrow */
     .amc-row { padding: 4px 0; border-bottom: 1px dotted var(--wh-white-05, rgba(255,255,255,0.05)); }
     .amc-row:last-child { border-bottom: 0; }
     .amc-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
-    .amc-btn { min-height: 44px; padding: 8px 18px; border-radius:var(--wh-radius-sm); font-family: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; border: 1px solid transparent; }
+    .amc-btn { min-height: 44px; padding: 8px 18px; border-radius:var(--wh-radius-sm); font-family: inherit; font-size: var(--wh-fs-xs, 0.8rem); font-weight: 700; cursor: pointer; border: 1px solid transparent; }
     .amc-btn-approve { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.16); color: var(--green); border-color: rgba(var(--wh-green-rgb, 74, 222, 128), 0.32); }
     .amc-btn-approve:hover:not(:disabled) { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.26); }
     .amc-btn-approve:disabled { opacity: 0.5; cursor: wait; }
@@ -242,8 +242,8 @@
     .amc-btn-reject:hover:not(:disabled) { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.2); }
     .amc-btn-toggle { background: var(--wh-white-04, rgba(255,255,255,0.04)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border-color: var(--border); }
     .amc-btn-toggle:hover { background: var(--wh-white-08, rgba(255,255,255,0.08)); color: var(--text); }
-    .amc-readonly-note { font-size: 0.8rem; color: var(--muted); margin-left: auto; align-self: center; }
-    .amc-status-msg { font-size: 0.8rem; color: var(--muted); margin-top: 8px; min-height: 1.1em; }
+    .amc-readonly-note { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); margin-left: auto; align-self: center; }
+    .amc-status-msg { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); margin-top: 8px; min-height: 1.1em; }
     @media (max-width: 480px) {
       .amc-stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .amc-card { padding: 16px; }
@@ -251,9 +251,9 @@
 
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; min-height:88px; }   /* reserves the settled two-line verdict: its arrival shifted the action card and AMC card (CLS 0.042 at 390, design lens audit 2026-09-15) */
-    .verdict-icon { font-size:1.5rem; line-height:1; }
-    .verdict-text { font-size:1rem; font-weight:700; line-height:1.35; }   /* C1: 14.4px was a lone tier; 16px is the headline tier (2026-09-06) */
-    .verdict-text small { display:block; font-size:0.8rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; min-height:2.8em; }   /* two lines reserved: the loading line is one, the verdict is two (CLS, design lens audit 2026-09-15) */
+    .verdict-icon { font-size:var(--wh-fs-xl, 1.5rem); line-height:1; }
+    .verdict-text { font-size:var(--wh-fs-base, 1rem); font-weight:700; line-height:1.35; }   /* C1: 14.4px was a lone tier; 16px is the headline tier (2026-09-06) */
+    .verdict-text small { display:block; font-size:var(--wh-fs-xs, 0.8rem); font-weight:500; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:4px; min-height:2.8em; }   /* two lines reserved: the loading line is one, the verdict is two (CLS, design lens audit 2026-09-15) */
     .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
@@ -265,10 +265,10 @@
     .simple-row { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:16px; }
     .simple-card { background:var(--card); border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius:12px; padding:16px; min-height:134px; }
     @media (max-width: 699px) { .simple-card { min-height:158px; } }   /* the settled one-column tile measured 158px at 390 (was reserved at 134: every tile grew 18px when its numbers landed, CLS 0.04 - design lens audit 2026-09-15) */ /* CLS (Arc L L1): reserve settled card height (placeholder 118px → 134px when sc-sub fills) */
-    .simple-card .sc-label { font-size:0.75rem; font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }   /* the shared tile label (components.css) after the 2026-09-15 floor: sentence case */
-    .simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-    .simple-card .sc-sub   { font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.4; }
-    .simple-card .sc-tag   { display:inline-block; font-size:0.75rem; font-weight:600; padding:4px 8px; border-radius:999px; margin-top:8px; }   /* 12px floor, sentence case, on the 4px grid (design lens slop + craft, 2026-09-15) */
+    .simple-card .sc-label { font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }   /* the shared tile label (components.css) after the 2026-09-15 floor: sentence case */
+    .simple-card .sc-hero  { font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
+    .simple-card .sc-sub   { font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.4; }
+    .simple-card .sc-tag   { display:inline-block; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; padding:4px 8px; border-radius:999px; margin-top:8px; }   /* 12px floor, sentence case, on the 4px grid (design lens slop + craft, 2026-09-15) */
     .simple-card.tag-green .sc-tag { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.16);  color:var(--wh-green); }
     /* the AA TEXT tokens, as in components.css (axe-live, 2026-10-13): this page carries its own copy of the tile rules
        and kept the FILL tokens, so "Stacking up" read var(--wh-red, #f87171) on the tinted card at 3.95:1 - the exact ratio
@@ -277,11 +277,11 @@
     .simple-card.tag-red   .sc-tag { background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.16); color:var(--wh-red-text); }
     .simple-card.tag-grey  .sc-tag { background:var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .action-card { background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.06); border:1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); border-radius:12px; padding:16px; margin-bottom:16px; }
-    .action-card .ac-label { font-size:0.75rem; font-weight:700; color:var(--wh-blue-text); }
-    .action-card .ac-text { font-size:0.875rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:59px; }/* C1 said "0.82rem→0.75rem, merge the lone 13px tier into 12px" and the value it left was 0.8rem - the comment asserted a change the declaration never held. Reconciled 2026-09-17 to the canonical .ac-text in components.css: DESIGN.md's BODY step, 0.875rem/400. .ac-text is a sentence of instruction, not a caption, so merging it DOWN into the 0.75rem label tier would have put reading prose on the 12px floor to save a ramp step. */
+    .action-card .ac-label { font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; color:var(--wh-blue-text); }
+    .action-card .ac-text { font-size:var(--wh-fs-sm-plus, 0.875rem); line-height:1.5; margin-top:6px; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); min-height:59px; }/* C1 said "0.82rem→0.75rem, merge the lone 13px tier into 12px" and the value it left was 0.8rem - the comment asserted a change the declaration never held. Reconciled 2026-09-17 to the canonical .ac-text in components.css: DESIGN.md's BODY step, 0.875rem/400. .ac-text is a sentence of instruction, not a caption, so merging it DOWN into the 0.75rem label tier would have put reading prose on the 12px floor to save a ramp step. */
 /* Arc P · Wave 1 (P3): the "one primary action" CTA button (this page inlines its
    component CSS — no components.css link — so .ac-cta lives here too). */
-.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:12px 20px; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:700; border:none; border-radius:12px; cursor:pointer; text-decoration:none; transition:background 0.2s ease, transform 0.12s var(--wh-ease-out);   /* the press answers on the platform's ease-out, like the row controls (motion lens) */ }
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:12px 20px; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:var(--wh-fs-xs, 0.8rem); font-weight:700; border:none; border-radius:12px; cursor:pointer; text-decoration:none; transition:background 0.2s ease, transform 0.12s var(--wh-ease-out);   /* the press answers on the platform's ease-out, like the row controls (motion lens) */ }
 .action-card .ac-cta:hover { background:var(--wh-orange-dark); }
 .action-card .ac-cta:active { transform:scale(0.98); }
 .action-card .ac-cta[hidden], .action-card .ac-cta.hidden { display:none; } /* CLS: reserve settled height ("Computing..." 20px → real recommendation 59px) */
@@ -289,9 +289,9 @@
        async-filled alert filter row (#filters empty → ~144px of severity/type chips, the dominant shifter). */
     /* #ah-verdict re-added (UX Contract Layer D) — composite-tone verdict, no KPI-number duplication (styled by .verdict rules above). */
     #filters { min-height:144px; }
-    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:var(--wh-radius-sm); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
+    .details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:var(--wh-radius-sm); font-family:inherit; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; cursor:pointer; min-height:44px; margin-bottom:16px; }
     .details-toggle:hover { color:var(--wh-cloud); border-color:var(--wh-white-18, rgba(255,255,255,0.18)); }
-    #ah-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.8rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #ah-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:var(--wh-fs-xs, 0.8rem); line-height:1.5; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-bottom:16px; }
     #ah-summary-details.open { display:block; }
       /* R3 (2026-09-05): one silhouette per job - selection controls (chips, tabs, toggles: any control that carries a pressed /
        selected / checked state) wear the PILL; press buttons keep the 12 px card-family radius. */
@@ -307,16 +307,16 @@
   <header class="page-header">
     <div>
       <h1 class="page-title" style="margin:0;" translate="no">Alert Hub</h1>
-      <p style="font-size:.8rem; color:var(--muted); margin-top:2px; max-width:70ch;" id="page-sub" data-i="ah_sub">Everything that needs your attention, in one place.</p>
+      <p style="font-size:var(--wh-fs-xs, .8rem); color:var(--muted); margin-top:2px; max-width:70ch;" id="page-sub" data-i="ah_sub">Everything that needs your attention, in one place.</p>
       <p id="wh-source-chip" hidden data-wh-sources-collapsed></p>
     </div>
     <span id="hive-pill" class="hive-pill" style="display:none;"></span>
-    <button id="ah-refresh" type="button" data-i="refresh" onclick="if (window._ahRefresh) window._ahRefresh();" style="font-size:.8rem; display:inline-flex; align-items:center; gap:.35rem; min-height:44px; padding:0 1rem; border-radius:var(--wh-radius-sm); border:none; background:var(--wh-orange); color:var(--wh-navy); font-weight:600; cursor:pointer;" title="Refresh alerts now (they also refresh every 60 s)">&#8635; Refresh</button>
+    <button id="ah-refresh" type="button" data-i="refresh" onclick="if (window._ahRefresh) window._ahRefresh();" style="font-size:var(--wh-fs-xs, .8rem); display:inline-flex; align-items:center; gap:.35rem; min-height:44px; padding:0 1rem; border-radius:var(--wh-radius-sm); border:none; background:var(--wh-orange); color:var(--wh-navy); font-weight:600; cursor:pointer;" title="Refresh alerts now (they also refresh every 60 s)">&#8635; Refresh</button>
   </header>
 
   <!-- Hive gate (shown when no HIVE_ID) -->
   <div id="gate-card" class="gate-card" style="display:none;">
-    <div style="font-size:1.6rem; margin-bottom:8px;">🐝</div>
+    <div style="font-size:var(--wh-fs-xl, 1.5rem); margin-bottom:8px;">🐝</div>
     <h2 data-i="joinhive">Join a hive to see alerts</h2>
     <p>Alert Hub aggregates risk, PM, stock, and pattern signals across your team. You need to be in a hive to see them.</p>
     <a class="gate-btn" href="hive.html">Open Hive Board</a>
@@ -375,7 +375,7 @@
       <div class="amc-head">
         <div>
           <span class="amc-badge">AMC Daily Brief</span>
-          <span id="amc-shift-meta" style="font-size:0.75rem; color:var(--muted); margin-left:6px;"></span>
+          <span id="amc-shift-meta" style="font-size:var(--wh-fs-2xs, 0.75rem); color:var(--muted); margin-left:6px;"></span>
         </div>
         <span id="amc-status-pill" class="alert-tag tag-info">pending</span>
       </div>
@@ -421,15 +421,15 @@
          PM drift, parts spend, failure signatures. Renders only when the
          hive earns it. Supervisor can acknowledge / resolve.
          ───────────────────────────────────────────────────────────────── -->
-    <div id="anomaly-engine-panel" class="amc-card" style="display:none; background:linear-gradient(145deg, rgba(58,42,88,0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.25);">
+    <div id="anomaly-engine-panel" class="amc-card" style="display:none; background:linear-gradient(145deg, rgba(var(--wh-violet-800-rgb, 58, 42, 88), 0.55), rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85)); border:1px solid rgba(var(--wh-violet-rgb, 167, 139, 250), 0.25);">
       <div class="amc-head">
         <div>
           <span class="amc-badge" data-help="anomaly_signals" tabindex="0" style="background:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.18); color:var(--wh-violet-text); border-color:rgba(var(--wh-violet-rgb, 167, 139, 250), 0.3);">Anomaly Engine 2.0</span>
-          <span id="anomaly-engine-meta" style="font-size:0.75rem; color:var(--muted); margin-left:6px;"></span>
+          <span id="anomaly-engine-meta" style="font-size:var(--wh-fs-2xs, 0.75rem); color:var(--muted); margin-left:6px;"></span>
         </div>
         <span id="anomaly-engine-count" class="alert-tag tag-info">0 signals</span>
       </div>
-      <div id="anomaly-engine-empty" data-i="ah_noanomaly" style="font-size:0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:6px; display:none;">No fused anomalies in your hive right now.</div>
+      <div id="anomaly-engine-empty" data-i="ah_noanomaly" style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top:6px; display:none;">No fused anomalies in your hive right now.</div>
       <div id="anomaly-engine-list" style="margin-top:8px;"></div>
     </div>
 
@@ -441,12 +441,12 @@
          "Alerts" on a page whose every visible label spoke Filipino. Same channel as v375's nav-hub
          aria-labels. -->
     <h2 data-i="ah_alerts" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;">Alerts</h2>
-    <p id="feed-legend" style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 12px; max-width:70ch; line-height:1.5;"></p>
+    <p id="feed-legend" style="font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 12px; max-width:70ch; line-height:1.5;"></p>
     <!-- who hid what: the legend promises "under your name", so the names are said (renderFeed fills it from alert_dismissals) -->
-    <p id="feed-hidden-note" hidden style="font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:-4px 0 12px; max-width:70ch; line-height:1.5;"></p>
+    <p id="feed-hidden-note" hidden style="font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:-4px 0 12px; max-width:70ch; line-height:1.5;"></p>
     <div id="sev-focus-bar" style="display:none; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; padding:12px 16px; border-radius:12px; border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.08);">
-      <span id="sev-focus-text" style="font-size:0.8rem; color:var(--text);"></span>
-      <button id="sev-focus-clear" type="button" style="margin-left:auto; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid var(--wh-white-18, rgba(255,255,255,0.18)); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;">Show all alerts</button>
+      <span id="sev-focus-text" style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--text);"></span>
+      <button id="sev-focus-clear" type="button" style="margin-left:auto; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid var(--wh-white-18, rgba(255,255,255,0.18)); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:var(--wh-fs-xs, 0.8rem); font-weight:600; cursor:pointer;">Show all alerts</button>
     </div>
     <div id="feed" class="feed">
       <div class="loading">Loading alerts...</div>
@@ -457,7 +457,7 @@
       <div class="empty-sub">No active alerts in your hive right now.</div>
     </div>
     <div id="alert-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMoreAlerts()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:var(--wh-radius-sm);font-size:0.875rem;font-weight:600;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);cursor:pointer;">Load More</button>
+      <button onclick="loadMoreAlerts()" data-i="loadmore" style="width:100%;min-height:44px;padding:0.75rem;border-radius:var(--wh-radius-sm);font-size:var(--wh-fs-sm-plus, 0.875rem);font-weight:600;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);cursor:pointer;">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
@@ -466,11 +466,11 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
-  <summary style="cursor:pointer; font-size:0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p style="font-size:0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary style="cursor:pointer; font-size:var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 
 <div class="wh-sources-item" data-wh-source-key="ah-summary-details">
@@ -480,7 +480,7 @@
 <div id="ah-summary-details" role="region" aria-label="Alert breakdown"
     data-rag-tile="alert-hub:detail_panel"
     data-rag-label="Alert detail breakdown">
-        <strong style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+        <strong style="display:block;margin-bottom:6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">How this is computed</strong>
         <ul style="margin:0;padding-left:20px;">
           <li><strong>High-severity alerts</strong>: count of alerts in the feed with severity = critical or high.</li>
           <li><strong>Anomaly signals</strong>: count of sensor anomalies in attention status (Stair 3+ hives only).</li>
@@ -1429,10 +1429,10 @@
         ? reasons.map(rr => e(rr.label || rr.signal)).join(' · ')
         : 'Composite signal: open details for breakdown';
       const ackBtn = isSupervisor && r.status === 'active'
-        ? `<button class="amc-btn amc-btn-toggle" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="acknowledge" data-help="anomaly_acknowledged" type="button" aria-pressed="false" style="font-size:0.8rem; padding:6px 12px;" data-i="acknowledge">Acknowledge</button>`
+        ? `<button class="amc-btn amc-btn-toggle" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="acknowledge" data-help="anomaly_acknowledged" type="button" aria-pressed="false" style="font-size:var(--wh-fs-xs, 0.8rem); padding:6px 12px;" data-i="acknowledge">Acknowledge</button>`
         : '';
       const resBtn = isSupervisor && r.status !== 'resolved'
-        ? `<button class="amc-btn amc-btn-approve" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="resolve" data-help="anomaly_resolved" type="button" style="font-size:0.8rem; padding:6px 12px;" data-i="resolve">Resolve</button>`
+        ? `<button class="amc-btn amc-btn-approve" data-anomaly-id="${e(r.id)}" data-anomaly-machine="${e(r.machine)}" data-action="resolve" data-help="anomaly_resolved" type="button" style="font-size:var(--wh-fs-xs, 0.8rem); padding:6px 12px;" data-i="resolve">Resolve</button>`
         : '';
       const severityHelpKey = `severity_${r.severity}`;
       // ★WHO ACKNOWLEDGED OR RESOLVED IT, AND WHEN (2026-10-28, the cube's U-on-trail walk). Both writes stamp the
@@ -1444,11 +1444,11 @@
       return `
         <div class="alert-card" style="margin-bottom:8px; border-left:3px solid ${sev.color};">
           <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
-            <div style="font-weight:700; font-size:0.9rem;">${e(r.machine)}</div>
+            <div style="font-weight:700; font-size:var(--wh-fs-sm-plus, 0.875rem);">${e(r.machine)}</div>
             <span class="alert-tag" data-help="${e(severityHelpKey)}" tabindex="0" style="background:${sev.bg}; color:${sev.color}; border:1px solid ${sev.border};">${e(sev.label)} · ${e(String(r.composite_score))}/100</span>
           </div>
-          <div style="font-size:0.8rem; color:rgba(255,255,255,0.83); margin-top:6px;">${reasonStr}</div>
-          <div style="font-size: 0.75rem; color:rgba(255,255,255,0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}${_who}</div>
+          <div style="font-size:var(--wh-fs-xs, 0.8rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:6px;">${reasonStr}</div>
+          <div style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}${_who}</div>
           ${(ackBtn || resBtn) ? `<div style="margin-top:8px; display:flex; gap:6px;">${ackBtn}${resBtn}</div>` : ''}
         </div>
       `;

@@ -34,10 +34,10 @@
     html { scrollbar-gutter: stable; }
 
     * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
-    body { background: var(--wh-navy); min-height: 100vh; margin: 0; color: white; }
+    body { background: var(--wh-navy); min-height: 100vh; margin: 0; color: var(--wh-white, white); }
 
     .aurora {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+      position: fixed; inset: 0; pointer-events: none; z-index: var(--wh-z-art, 0); overflow: hidden;
     }
     .aurora::before {
       content: ''; position: absolute; top: -20%; left: -10%; width: 60%; height: 60%;
@@ -53,7 +53,7 @@
 
     /* Header */
     .header {
-      position: sticky; top: 0; z-index: 20;
+      position: sticky; top: 0; z-index: var(--wh-z-tooltip, 20);
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.92); backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--wh-white-07, rgba(255,255,255,0.07));
       padding: 0.875rem 1.25rem;
@@ -68,15 +68,15 @@
     @media (max-width: 420px) { .header-left { min-height: 55px; } }   /* I1 CLS (EX-PF F07, 2026-09-07): the title + Read-only pill wrap to two lines at 390 after first paint (28px -> 55px); reserve the two lines */   /* phone fit (2026-09-06): the Read-only pill spilled 7px at 360 */
     .header-logo { height: 28px; width: auto; }
     .header-title {
-      font-size: 0.875rem; font-weight: 700; color: white;
+      font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 700; color: var(--wh-white, white);
     }
     .header-pill {
-      background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.12); border: 1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.25);   /* --wh-green's channel, not #22c55e (W46020) */
-      color: var(--wh-green); font-size: 0.75rem; font-weight: 700; padding: 2px 8px;
+      background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.12); border: 1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.25);   /* --wh-green's channel, not var(--wh-green-500, #22c55e) (W46020) */
+      color: var(--wh-green); font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; padding: 2px 8px;
       border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
     .header-btn {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); border: none;
-      color: var(--wh-navy); font-size: 0.75rem; font-weight: 700; padding: 6px 16px;
+      color: var(--wh-navy); font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; padding: 6px 16px;
       border-radius: 0.5rem; cursor: pointer; transition: opacity var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); white-space: nowrap;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center; /* D1 U2 */
       text-decoration: none; display: inline-block;
@@ -107,13 +107,13 @@
     .header-btn:hover { opacity: .9; }
 
     /* Main layout */
-    .main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; position: relative; z-index: 1; }
+    .main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; position: relative; z-index: var(--wh-z-base, 1); }
 
     .page-intro {
       text-align: center; margin-bottom: 2rem;
     }
-    .page-intro h1 { font-size: 1.5rem; font-weight: 800; margin: 0 0 0.5rem; }
-    .page-intro p { font-size: 0.875rem; color:rgba(255,255,255,0.83); margin: 0 auto; max-width: 68ch; } /* D1 a11y: 0.4→0.7 WCAG 1.4.3 */
+    .page-intro h1 { font-size: var(--wh-fs-xl, 1.5rem); font-weight: 800; margin: 0 0 0.5rem; }
+    .page-intro p { font-size: var(--wh-fs-sm-plus, 0.875rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin: 0 auto; max-width: 68ch; } /* D1 a11y: 0.4→0.7 WCAG 1.4.3 */
 
     /* Post cards */
     /* ★THREE OF THIS PAGE'S FOUR TRANSITIONS BROKE THE STANDARD, ALL IN THE SAME WAY (2026-09-18,
@@ -143,16 +143,16 @@
     .post-meta {
       display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;
     }
-    .post-author { font-size: 0.875rem; font-weight: 700; color: var(--wh-cloud); } /* D1 a11y: explicit high-contrast name (WCAG 1.4.3) */
+    .post-author { font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 700; color: var(--wh-cloud); } /* D1 a11y: explicit high-contrast name (WCAG 1.4.3) */
     .cat-badge {
       display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     }
     .cat-general      { background: var(--wh-white-08, rgba(255,255,255,0.08)); color:var(--wh-text-faint, rgba(255,255,255,0.86)); } /* D1 a11y: 0.5→0.72 WCAG 1.4.3 */
     .cat-safety       { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.15); color: var(--wh-red-text); } /* D1 U5: var(--wh-red)<4.5:1 on tinted bg → WCAG 1.4.3 */
     .cat-technical    { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--wh-blue-light); } /* C2: AA-safe blue (was --wh-blue @ 4.48:1, WCAG 1.4.3) */
     .cat-announcement { background: rgba(var(--wh-violet-rgb, 167, 139, 250), 0.14); color: var(--wh-violet-text, #C4B5FD); } /* D1 U5: var(--wh-violet)<4.5:1 → WCAG 1.4.3 */
-    .post-time { font-size: 0.75rem; color:rgba(255,255,255,0.83); margin-left: auto; } /* D1 a11y: 0.3→0.66 WCAG 1.4.3 */
+    .post-time { font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-left: auto; } /* D1 a11y: 0.3→0.66 WCAG 1.4.3 */
 
     /* ★THE MEASURE RAN 98 CHARACTERS A LINE AT DESKTOP (2026-09-18, W46015 craft). .main caps at
        680px, so a post's prose filled 648px of it - and a reader loses the start of the next line
@@ -161,7 +161,7 @@
        Capped at 68ch, stated in ch so it tracks the font size rather than freezing a pixel width.
        At 390 the column is already narrower than the cap, so the phone reading does not move. */
     .post-content {
-      font-size: 0.875rem; line-height: 1.55; color: rgba(255,255,255,0.82);
+      font-size: var(--wh-fs-sm-plus, 0.875rem); line-height: 1.55; color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.82);
       margin: 0; word-break: break-word; max-width: 68ch;
     }
 
@@ -186,14 +186,14 @@
     .skeleton-card { height: 90px; border-radius: 12px; margin-bottom: 0.75rem; }
 
     .empty-state {
-      text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.3); font-size: 0.875rem;
+      text-align: center; padding: 3rem 1rem; color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.3); font-size: var(--wh-fs-sm-plus, 0.875rem);
     }
 
     .load-more-wrap { display: flex; justify-content: center; padding: 1rem 0; }
     .load-more-btn {
       background: var(--wh-white-06, rgba(255,255,255,0.06)); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
-      color:rgba(255,255,255,0.83); border-radius: var(--wh-radius-sm); padding: 0.6rem 1.5rem;
-      font-size: 0.75rem; cursor: pointer; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); min-height: 44px; /* D1 U2 */
+      color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); border-radius: var(--wh-radius-sm); padding: 0.6rem 1.5rem;
+      font-size: var(--wh-fs-2xs, 0.75rem); cursor: pointer; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); min-height: 44px; /* D1 U2 */
     }
     .load-more-btn:hover { background: var(--wh-white-10, rgba(255,255,255,0.1)); }
     .load-more-btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -243,7 +243,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
          about where either one led, so a visitor pressing "Hail a service" could not tell whether it
          was about to charge them, post something publicly, or call someone. Both are free and
          reversible, and saying so is the difference between a door and a trapdoor. -->
-    <p data-i="pf_next_hint" style="margin-top:0.6rem; font-size:0.75rem; color:rgba(255,255,255,0.72); line-height:1.5;">
+    <p data-i="pf_next_hint" style="margin-top:0.6rem; font-size:var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72); line-height:1.5;">
       Signing in takes you to your hive's board: what you post there appears on your team's board
       only, never here, unless you share it. Hailing a service publishes your job to nearby providers,
       who reply with quotes. You pick one. You can still cancel the request until then. You
@@ -273,7 +273,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>

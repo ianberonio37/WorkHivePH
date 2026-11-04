@@ -61,7 +61,7 @@
 /* 600, not 700: these are uppercase tracked kickers, where the case and the tracking are already the
    signal and the weight was doing the same job twice - the step analytics and achievements were given,
    applied here in the file that writes them (design lens craft, 2026-09-15). */
-.simple-card .sc-label { font-size:0.75rem; font-weight:600; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+.simple-card .sc-label { font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 .wh-disclose p, .wh-disclose li { max-width: 52ch; }   /* the data-sources disclosure sits outside a page's own column; its prose keeps the craft floor's measure (2026-09-15) */ /* sentence case (critique lens, 2026-09-15): DESIGN.md forbids all-caps tracked eyebrows as labels */ /* 12px floor (design lens slop, 2026-09-15): 0.65rem was 10.4px functional text on every KPI tile */
 /* THE canonical KPI number. Two tiers only, and this is the standard one:
      .sc-hero            -> 1.5rem  (every KPI tile on every page)
@@ -69,9 +69,9 @@
    tabular-nums lives HERE, not per page, so digits sit on a fixed pitch platform-wide:
    columns of KPIs line up and a refreshing value cannot jitter its own tile. Any page
    re-declaring .sc-hero locally SHADOWS this and silently opts out of both. (C4, 2026-07-15) */
-.simple-card .sc-hero  { font-size:1.5rem; font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
-.simple-card .sc-sub   { font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.4; }
-.simple-card .sc-tag   { display:inline-block; font-size:0.75rem; font-weight:600; padding:4px 8px; border-radius:999px; margin-top:8px; } /* 12px floor: 0.58rem was a 9.3px status pill; 4px grid and 600 so the tile's number stays the bold (craft, 2026-09-15) */
+.simple-card .sc-hero  { font-size:var(--wh-fs-xl, 1.5rem); font-weight:800; line-height:1.15; margin:4px 0 2px; color:var(--wh-cloud); font-variant-numeric:tabular-nums; }
+.simple-card .sc-sub   { font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.4; }
+.simple-card .sc-tag   { display:inline-block; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; padding:4px 8px; border-radius:999px; margin-top:8px; } /* 12px floor: 0.58rem was a 9.3px status pill; 4px grid and 600 so the tile's number stays the bold (craft, 2026-09-15) */
 /* sc-tag text colors LIGHTENED for WCAG 2.2 AA 4.5:1 at the 0.58rem badge size (FB2
    browser-CI persona walk caught these failing live over the 0.16-tinted bg on the
    var(--wh-navy-mid) card: red 3.95 + grey 4.16 FAIL, amber 4.93 borderline). Measured ratios
@@ -93,7 +93,7 @@
    was reverted. When several siblings shift together at the same timestamp, look for what inserted
    height ABOVE the first of them, not for the unreserved one among them. */
 .action-card { background:rgba(var(--wh-blue-rgb),0.06); border:1px solid rgba(var(--wh-blue-rgb),0.25); border-radius:var(--wh-radius); padding:16px; margin-bottom:var(--wh-space-6); }
-.action-card .ac-label { font-size:0.75rem; font-weight:600; color:var(--wh-blue-text); }
+.action-card .ac-label { font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; color:var(--wh-blue-text); }
 /* Arc L · L1 CLS: reserve ~3 lines for the async recommendation (measured 1-line placeholder
    20px → up to 79px when the real "what to do next" text fills) so it doesn't grow + shift. */
 /* ★A MEASURE CAP, BECAUSE THIS TEXT IS THE ONE A PERSON IS MEANT TO ACT ON (design lens craft on
@@ -104,12 +104,12 @@
    padding or the CTA: on a phone the card is already narrower than the cap so nothing changes there, and
    at 1280 the text wraps at a readable width while the card keeps its full box. min-height:60px stays, so
    the card does not change height when the text is short. */
-.action-card .ac-text { font-size:0.875rem; line-height:1.5; margin-top:6px; color:rgba(255,255,255,0.85); min-height:60px; max-width:55ch; }
+.action-card .ac-text { font-size:var(--wh-fs-sm-plus, 0.875rem); line-height:1.5; margin-top:6px; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); min-height:60px; max-width:55ch; }
 /* Arc P · Wave 1 (P3 "one obvious primary action"): the "What to do next" block ends in ONE
    primary CTA button that DOES the recommended action, not just prose. Shared so every dashboard's
    next-action block renders the same primary control (FUSION 3a). Orange = the page's single primary
    accent inside the blue advisory card. Renderers set label+href and un-hide it per-branch. */
-.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:8px 16px; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:0.8rem; font-weight:800; border:none; border-radius:var(--wh-radius-sm); cursor:pointer; text-decoration:none; transition:background var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); }
+.action-card .ac-cta { display:inline-flex; align-items:center; gap:6px; margin-top:12px; min-height:44px; padding:8px 16px; background:var(--wh-orange); color:var(--wh-navy); font-family:inherit; font-size:var(--wh-fs-xs, 0.8rem); font-weight:800; border:none; border-radius:var(--wh-radius-sm); cursor:pointer; text-decoration:none; transition:background var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); }
 /* ★THE SHARED CTA NAMED TWO DURATIONS AND NO CURVE (2026-09-18, W46039 motion lens on shift-brain).
    .action-card .ac-cta is the button under every Action Brief - "Do the recommended next action" -
    so it is pressed on a dozen pages, and it inherited the CSS default `ease` on both properties: an
@@ -143,9 +143,9 @@
    for two-or-three-word status pills at no more than 0.04em, and a control a reader presses to open
    something is not a pill. Sentence case, normal tracking; weight and colour still carry it. Shared,
    so it pays on every page that discloses. */
-.wh-disclose > summary { list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; min-height:44px; box-sizing:border-box; font-size:0.75rem; font-weight:700; letter-spacing:normal; color:var(--wh-text-faint, rgba(255,255,255,0.86)); }
+.wh-disclose > summary { list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 16px; min-height:44px; box-sizing:border-box; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; letter-spacing:normal; color:var(--wh-text-faint, rgba(255,255,255,0.86)); }
 .wh-disclose > summary::-webkit-details-marker { display:none; }
-.wh-disclose > summary::after { content:'\25B8'; font-size:0.7rem; opacity:0.6; transition:transform 0.2s; flex-shrink:0; }
+.wh-disclose > summary::after { content:'\25B8'; font-size:var(--wh-fs-2xs, 0.75rem); opacity:0.6; transition:transform 0.2s; flex-shrink:0; }
 .wh-disclose[open] > summary::after { transform:rotate(90deg); }
 .wh-disclose > summary:hover { color:var(--wh-cloud); }
 .wh-disclose > summary .wh-disclose-title { display:flex; align-items:center; gap:8px; min-width:0; }
@@ -156,7 +156,7 @@
 /* the shared disclosure CONTROL rendered at 11.2px, under the platform floor, on every page that draws
    one - the last sub-12px node left on asset-hub after its own 101 declarations were lifted, and a
    per-page walk can only find it by measuring what the page RENDERS (design lens slop, 2026-09-15). */
-.details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; min-height:44px; margin-bottom:var(--wh-space-6); }
+.details-toggle { display:inline-flex; align-items:center; gap:6px; background:transparent; border:1px solid var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:8px 16px; border-radius:8px; font-family:inherit; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; cursor:pointer; min-height:44px; margin-bottom:var(--wh-space-6); }
 .details-toggle:hover { color:var(--wh-cloud); border-color:var(--wh-white-18, rgba(255,255,255,0.18)); }
 
 /* ── List loading skeleton + inline error/retry (STREAMLINE E2 — consistent states) ──
@@ -165,7 +165,7 @@
    panel (the P14 IDB-blank class). Reduced-motion users get a static block. */
 .wh-skeleton { display:flex; flex-direction:column; gap:8px; padding:4px 0; }
 /* SL F1 (2026-10-16): the wait names its list - whListSkeleton/whCardSkeleton draw this caption above the bars */
-.wh-skeleton-label { grid-column:1/-1; margin:0; font-size:0.875rem; line-height:1.4; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+.wh-skeleton-label { grid-column:1/-1; margin:0; font-size:var(--wh-fs-sm-plus, 0.875rem); line-height:1.4; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
 /* The sweep is a COMPOSITED transform, not an animated background-position: Chrome DevTools measured the
    old rule as a non-composited animation (UNSUPPORTED_CSS_PROPERTY: background-position-x) and blamed it
    for 0.0241 of alert-hub's 0.032 layout-shift cluster on a 4x-throttled phone (2026-09-15). */
@@ -177,10 +177,10 @@
 .wh-skeleton-row::after { content:''; position:absolute; inset:0; background:var(--wh-white-05, rgba(255,255,255,0.05)); animation:wh-shimmer 1.4s ease-in-out infinite; }
 @keyframes wh-shimmer { 0%, 100% { opacity:0.45; } 50% { opacity:1; } }
 @media (prefers-reduced-motion: reduce) { .wh-skeleton-row::after { animation:none; } }
-.wh-list-error { text-align:center; padding:1.4rem 1rem; font-size:0.82rem; color:var(--wh-text-faint, rgba(255,255,255,0.86)); line-height:1.5; }
-.wh-list-error .wh-list-error-icon { font-size:1.4rem; }
-.wh-list-error button { margin-top:0.6rem; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid var(--wh-white-18, rgba(255,255,255,0.18)); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:0.75rem; font-weight:600; cursor:pointer; }
-.wh-list-error button:hover { border-color:rgba(255,255,255,0.32); }
+.wh-list-error { text-align:center; padding:1.4rem 1rem; font-size:var(--wh-fs-xs, 0.8rem); color:var(--wh-text-faint, rgba(255,255,255,0.86)); line-height:1.5; }
+.wh-list-error .wh-list-error-icon { font-size:var(--wh-fs-xl, 1.5rem); }
+.wh-list-error button { margin-top:0.6rem; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid var(--wh-white-18, rgba(255,255,255,0.18)); background:transparent; color:var(--wh-cloud); font-family:inherit; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; cursor:pointer; }
+.wh-list-error button:hover { border-color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.32); }
 /* D1 U2 (Arc D): shared reports-tab bar — tabs ship inline min-height:34px; an
    a11y floor must override it to the platform's 44px gloved-field tap target.
    !important is justified for an accessibility minimum (overrides inline). */
@@ -245,8 +245,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:fo
    page-local twins (agentic-rag-observability.html:74, ai-quality.html). Pages' local rules
    keep working (same shape); this is the ONE canonical source new pages use. */
 .sum-card { background: var(--wh-navy); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: var(--wh-radius, 12px); padding: 16px; text-align: center; }
-.sum-card .sn { font-size: 1.6rem; font-weight: 800; display: block; line-height: 1; color: var(--wh-orange); font-variant-numeric: tabular-nums; }
-.sum-card .sl { font-size: 0.75rem; font-weight: 600; color:rgba(255,255,255,0.83); margin-top: 4px; }   /* 12px floor, sentence case (design lens craft, 2026-09-15) */
+.sum-card .sn { font-size: var(--wh-fs-xl, 1.5rem); font-weight: 800; display: block; line-height: 1; color: var(--wh-orange); font-variant-numeric: tabular-nums; }
+.sum-card .sl { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top: 4px; }   /* 12px floor, sentence case (design lens craft, 2026-09-15) */
 
 /* FC4 (FULLSTACK_COMPONENT_LIBRARY, Ian 2026-07-17: "bless .card + promote"): the DASHBOARD-PANEL
    container — the second sanctioned container dialect beside the .simple-card family (FC1).
@@ -393,9 +393,9 @@ html { scrollbar-gutter: stable; }
   min-height: 44px;            /* the tap target this platform holds every control to */
   display: flex;
   align-items: center;
-  font-size: 0.75rem;
+  font-size: var(--wh-fs-2xs, 0.75rem);
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);
 }
 .wh-help > summary::-webkit-details-marker { display: none; }
 /* ★NOTHING SAID IT OPENS (design lens critique round 5, 2026-09-15). A <summary> paints its disclosure
@@ -433,7 +433,7 @@ html { scrollbar-gutter: stable; }
 .wh-help > ul {
   margin: 8px 0 0;
   padding-left: 18px;
-  font-size: 0.75rem;
+  font-size: var(--wh-fs-2xs, 0.75rem);
   line-height: 1.55;
   color: var(--wh-text-muted, rgba(255, 255, 255, 0.8));
 }

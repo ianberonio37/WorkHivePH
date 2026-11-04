@@ -122,7 +122,10 @@ def bank_s(dry: bool, limit: int | None) -> int:
 DECISION = re.compile(r"^##\s*Decision\b", re.M)
 
 
-def bank_e(dry: bool, limit: int | None) -> int:
+E_INSTRUMENT = "tools/night_crawler.py --refresh-stale re-fetched"
+
+
+def bank_e(dry: bool, limit: int | None, restamp: bool = False) -> int:
     """KA-E (Wave JS follow-on, 2026-10-31), one row per cited external source: "this external source is within its TTL;
     when it is re-fetched a changed sha produces a diff note and a recorded decision on the lever it anchors". A row
     closes only when all three hold, each read now:
@@ -141,6 +144,13 @@ def bank_e(dry: bool, limit: int | None) -> int:
     ext = ROOT / "substrate" / "external"
     reg = bsw._load_registry()
     rows = [t for t in reg["trajectories"] if t.get("wave") == "KA-E" and t.get("status") not in ("locked", "locking", "descoped")]
+    if restamp:
+        # ★THE BASIS NAMES THE RE-FETCH THAT TOOK THE READING (2026-11-04). The first 66 KA-E bases said "Re-fetched by
+        # night_crawler.py" in words the live-walk ledger reads as prose, and the rows routed to a browser + database
+        # walk that cannot answer "is this source inside its TTL". Each banked row is re-read by the same three
+        # conditions, and only a row that still holds gains a segment naming the live re-fetch (appended, newest last).
+        rows = [t for t in reg["trajectories"] if t.get("wave") == "KA-E" and t.get("status") == "locking"
+                and E_INSTRUMENT not in (t.get("basis") or "")]
     banked, left = 0, []
     for t in rows[: limit or None]:
         unit = (t.get("ka") or {}).get("unit")
@@ -170,9 +180,9 @@ def bank_e(dry: bool, limit: int | None) -> int:
         for n in notes:
             m = re.search(r"^##\s*Decision\b[^\n]*\n+(.+)", n.read_text(encoding="utf-8"), re.M)
             decided.append(f"{n.name.rsplit('.', 2)[-2]}: {m.group(1).strip()[:200] if m else ''}")
-        basis = (f"[{date.today().isoformat()}] pct -> {{pct}}. Re-fetched by night_crawler.py --refresh-stale "
-                 f"(verified {verified}, sha {fm.get('source_sha')}, ttl {fm.get('ttl_days')}d); freshness_trip.py raises no "
-                 f"evidence trip for it. "
+        basis = (f"[{date.today().isoformat()}] pct -> {{pct}}. Measured live {verified}: {E_INSTRUMENT} "
+                 f"{fm.get('source') or unit} from its origin (sha {fm.get('source_sha')}, ttl {fm.get('ttl_days')}d); "
+                 f"freshness_trip.py raises no evidence trip for it. "
                  + (f"Changes on re-fetch, each with its recorded decision: {' | '.join(decided)}." if decided
                     else "The source had not changed since its last fetch (sha matched), so no lever was in question.")
                  + " Gate seo-trip.")
@@ -270,13 +280,111 @@ def bank_r(dry: bool, limit: int | None) -> int:
     return 0
 
 
+SOV_RUNS = ROOT / "geo_sov_runs"
+QUERIES = ROOT / "prompt_audit_queries.json"
+_PATH_IN = re.compile(r"(/[\w./-]+/?)")
+
+
+def expected_page(expected: str) -> Path:
+    """The local file of the page a prompt expects to be cited ('workhiveph.com or /learn/x/' -> learn/x/index.html)."""
+    m = _PATH_IN.search(expected or "")
+    if not m:
+        return ROOT / "index.html"
+    p = m.group(1).strip("/")
+    return ROOT / p if p.endswith(".html") else ROOT / p / "index.html"
+
+
+def bank_v(dry: bool, limit: int | None) -> int:
+    """KA-V (KA309..): "the page this prompt expects to be cited is citation-eligible now (answer-first, twin current,
+    facts inside their window); the monthly run records cited / mentioned / recommended per engine; a drop trips a
+    review". A row closes when, read now:
+      1. the expected page exists, carries its answer-first block, and its markdown twin is current (validate_md_twins);
+      2. freshness_trip raises no trip for that page, and no voice trip (the month's sheet is scored and in window);
+      3. this month's run (geo_sov_runs/<YYYY-MM>.json, tools/geo_sov_free_run.py on the free-tier engines) recorded a
+         reading - not None - for the row's prompt on EVERY engine the run declares.
+    Whether WorkHive was cited is RECORDED in the basis, never required: the row asks that the measurement exists and
+    that a drop trips, not that the brand is already cited."""
+    import validate_md_twins as vmt
+    missing, drifted, _ = vmt.audit()
+    twin_bad = set(missing) | set(drifted)
+    c = ft.census()
+    voice = [t for t in c["trips"] if t["kind"] == "voice"]
+    if voice:
+        print(f"  refused: a voice trip is open - {voice[0]['detail'][:160]}")
+        return 1
+    ok, last = bsw._run_gate(str(ROOT / "tools" / "freshness_trip.py"), "--check")
+    print(f"  gate seo-trip (freshness_trip.py --check): {'PASS' if ok else 'FAIL'} - {last}")
+    if not ok:
+        print("  refused: a row is never banked on a red gate")
+        return 1
+    runs = sorted(SOV_RUNS.glob("*.json"))
+    if not runs:
+        print("  refused: no monthly run on disk - python tools/geo_sov_free_run.py")
+        return 1
+    sheet = json.loads(runs[-1].read_text(encoding="utf-8"))
+    month, engines = sheet["_meta"].get("month"), sheet["_meta"].get("engines") or []
+    queries = {q["id"]: q for q in json.loads(QUERIES.read_text(encoding="utf-8"))["queries"]}
+    reg = bsw._load_registry()
+    rows = [t for t in reg["trajectories"] if t.get("wave") == "KA-V" and t.get("status") not in ("locking", "locked", "descoped")]
+    banked, left = 0, []
+    for t in rows[: limit or None]:
+        unit = (t.get("ka") or {}).get("unit")
+        q = queries.get(unit)
+        if not q:
+            left.append(f"{t['id']} {unit}: not in prompt_audit_queries.json")
+            continue
+        page = expected_page(q.get("expected_cite", ""))
+        rel = page.relative_to(ROOT).as_posix()
+        if not page.exists():
+            left.append(f"{t['id']} {unit}: the expected page {rel} does not exist")
+            continue
+        html = page.read_text(encoding="utf-8", errors="replace")
+        if rel != "index.html" and 'class="answer-first' not in html:
+            left.append(f"{t['id']} {unit}: {rel} carries no answer-first block")
+            continue
+        if rel in twin_bad:
+            left.append(f"{t['id']} {unit}: {rel}'s markdown twin is missing or stale")
+            continue
+        slug = rel[:-len("/index.html")] if rel.endswith("/index.html") else rel
+        trips = [x for x in c["trips"] if x.get("unit") in (rel, slug, "/" + slug + "/", slug.split("/")[-1])]
+        if trips:
+            left.append(f"{t['id']} {unit}: freshness_trip raises {trips[0]['kind']} for {rel}")
+            continue
+        cells = (sheet["results"].get(unit) or {})
+        unread = [e for e in engines if (cells.get(e) or {}).get("cited") is None]
+        if unread:
+            left.append(f"{t['id']} {unit}: the {month} run has no reading yet from {', '.join(unread)}")
+            continue
+        reading = "; ".join(f"{e} cited {cells[e]['cited']} / mentioned {cells[e]['mentioned']} / recommended "
+                            f"{cells[e]['recommended']} ({cells[e]['evidence'].get('sources', 0)} live sources)" for e in engines)
+        basis = (f"[{date.today().isoformat()}] pct -> {{pct}}. Measured: {rel} is citation-eligible now (served file, an "
+                 f"answer-first block, its markdown twin current, no freshness trip). The {month} share-of-voice run "
+                 f"(tools/geo_sov_free_run.py, free-tier engines that search the live web as they answer) asked "
+                 f"'{q['query']}': {reading}. A drop trips the voice review through freshness_trip's window. Gate seo-trip.")
+        if dry:
+            print(f"  would bank {t['id']} {unit}: {rel}; " + ", ".join(
+                f"{e} {'C' if cells[e]['cited'] else '-'}{'M' if cells[e]['mentioned'] else '-'}" for e in engines))
+        else:
+            bsw._bank(reg, t["id"], basis, ["seo-trip"])
+        banked += 1
+    if not dry and banked:
+        bsw._write_registry(reg)
+    for line in left:
+        print("  left open: " + line)
+    print(f"{'would bank' if dry else 'banked'} {banked} KA-V row(s); {len(left)} left open")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--lens", choices=["S", "E", "R"], required=True)
+    ap.add_argument("--lens", choices=["S", "E", "R", "V"], required=True)
     ap.add_argument("--dry", action="store_true")
     ap.add_argument("--limit", type=int)
+    ap.add_argument("--restamp", action="store_true", help="E only: re-read the banked rows and name the live re-fetch")
     a = ap.parse_args()
-    return {"E": bank_e, "S": bank_s, "R": bank_r}[a.lens](a.dry, a.limit)
+    if a.restamp:
+        return bank_e(a.dry, a.limit, restamp=True)
+    return {"E": bank_e, "S": bank_s, "R": bank_r, "V": bank_v}[a.lens](a.dry, a.limit)
 
 
 if __name__ == "__main__":

@@ -143,27 +143,16 @@ def _rerun_failed_ids(validators) -> tuple[list, list, list]:
         changed = sorted({c for c in out if c.endswith(_SOURCE_EXT)})
     else:
         print("  --rerun-failed: the board names no commit (written before 2026-10-29) - re-running its failures only")
-    # A gate is tied to a file when its script QUOTES the file's name ("nav-hub.js", 'inventory.html', /sw.js') - the way a
-    # gate reads a page or pins a report to it. A bare mention in a docstring does not count (that rule picked 273 gates
-    # for M3's four edited files; quoted, 225 - about 15 minutes of the full board's 74). The runner and the release
-    # gate are every gate's host, not something a gate reads.
-    names = {os.path.basename(c) for c in changed} - {"run_platform_checks.py", "release_gate.py"}
-    quoted = [re.compile(r"[\"'/]" + re.escape(n) + r"[\"']") for n in sorted(names)]
-    affected = []
-    for v in validators:
-        script = v.get("script") or ""
-        if not names or not os.path.exists(script):
-            continue
-        if script.replace("\\", "/") in changed:
-            affected.append(v["id"])
-            continue
-        try:
-            with open(script, encoding="utf-8", errors="replace") as fh:
-                src = fh.read()
-        except OSError:
-            continue
-        if any(q.search(src) for q in quoted):
-            affected.append(v["id"])
+    # A gate is tied to a file when its script NAMES the file: a quoted literal, a quoted glob, or the page roster.
+    # The first rule matched the BASENAME inside quotes ("nav-hub.js", 'inventory.html', /sw.js'); a bare mention in a
+    # docstring never counted (that rule picked 273 gates for M3's four edited files; quoted, 225 - about 15 minutes
+    # of the full board's 74). Measured on a family edit (2026-11-04) it reached 119 of the 152 gates that read
+    # learn/*/index.html and MISSED the 33 that reach pages through the roster or a glob, while over-selecting every
+    # gate that quotes the landing page, because every family page is also called index.html. tools/rerun_selector.py
+    # holds the three rules and tools/prove_rerun_selector.py pins them. The runner and the release gate are every
+    # gate's host, not something a gate reads, so an edit to them selects nothing by itself.
+    from tools.rerun_selector import gates_for_changes, tracked_files
+    affected = gates_for_changes(validators, changed, tracked=tracked_files()) if changed else []
     ids = list(dict.fromkeys(failed + affected))
     return ids, failed, changed
 
@@ -183,6 +172,22 @@ if sys.platform == "win32":
 # ── Validator registry ─────────────────────────────────────────────────────────
 # Each entry: (id, script, label, group, report_json)
 VALIDATORS = [
+    {
+        "id":      "rerun-selector",
+        "script":  "tools/prove_rerun_selector.py",
+        "args":    [],
+        "label":   "--rerun-failed selects by what a gate NAMES (quoted literal, quoted glob, the page roster), pinned with synthetic scripts (2026-11-04). The basename rule reached 119 of the 152 gates that read a family page and missed the 33 roster and glob readers (page-roster, plain-language, page-craft) while selecting every gate that quotes the landing page, since every family page is also index.html; index.ts shared by 63 edge functions had the same shape. A wrong selection is silent twice over: a missed gate reads as green and an over-selected board costs the minutes the cadence tool exists to save.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
+    {
+        "id":      "edge-fn-copy",
+        "script":  "tools/critic_edge_fn_copy.py",
+        "args":    [],
+        "label":   "Every string an edge function returns to a person is short (<= 20 words, FK grade <= 8), tells them what to do next on failure, and leaks no stack frame, SQL, driver text or env name (2026-09-06; registered 2026-11-04). The critic existed, was cited by prove_edge_contract.mjs as 'gate edge-fn-copy', and was wired to nothing - the declared-but-never-wired shape - so five functions had drifted red unseen: one 27-word sentence copied from _shared into three orchestrators, and ai-eval-runner's refusals that named no next step. 63/63 at registration.",
+        "group":   "Platform",
+        "severity": "fail",
+    },
     # ── Engineering Calc Suite ────────────────────────────────────────────────
     # run_all_checks.py runs 3 layers internally and produces its own reports.
     # We call it with --fast here; the full integration test (Layer 3) is separate.
@@ -14889,6 +14894,17 @@ VALIDATORS = [
         "script":  "tools/validate_wh_help_parity.py",
         "args":    [],
         "label":   "The .wh-help rule's two copies agree (a post-paint rule that differs is a layout shift)",
+        "group":   "Platform",
+        "skip_if_fast": False,
+    },
+    {
+        # ★THE SAME CLASS, EVERY INJECTED RULE (2026-11-04). The type scale moved components.css's .wh-list-error onto
+        # its 0.8rem step while utils.js's injected copy kept 0.82rem, and `.wh-list-error button` had already drifted
+        # (0.75 vs 0.78rem) - .wh-help was the only pair anything compared. Font sizes are read through tokens.css.
+        "id":      "injected-css-parity",
+        "script":  "tools/validate_injected_css_parity.py",
+        "args":    [],
+        "label":   "Every rule the shell scripts inject sizes its text as components.css does (a copy that stays behind is a layout shift)",
         "group":   "Platform",
         "skip_if_fast": False,
     },

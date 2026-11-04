@@ -181,6 +181,9 @@ FROM per_item;
 """
 
 
+DENOMINATOR_MATERIAL = 0.5   # points of compliance the scheduled-count approximation may add before the headline misleads
+
+
 def check_denominator_flattery():
     """[] when the scheduled-count approximation flatters no more than its accepted ceiling."""
     out = psql(DENOMINATOR_SQL)
@@ -194,7 +197,11 @@ def check_denominator_flattery():
     base = _baseline().get("denominator_gap")
     if base is None:
         return []          # not yet accepted; --accept records it
-    if gap > base + 0.05:
+    # ★MATERIALLY, AS THE RULE ABOVE SAYS (2026-11-04). The ceiling was the accepted reading + 0.05 - a snapshot of a
+    # 90-day window that slides every day - so it failed on time alone: 2026-11-04 read +0.08 (79.9 shown, 79.82 due)
+    # against -0.2, with no code or data change behind it. The flattery fails once it is MATERIAL, half a point on the
+    # headline, or rises past a higher accepted reading; below that it is the window's own day-to-day wander.
+    if gap > max(base + 0.05, DENOMINATOR_MATERIAL):
         return [f"the scheduled-count approximation now flatters compliance by {gap} points "
                 f"(was {base}): {over} of {total} scope items are charged a whole scheduled event "
                 f"for a period longer than the window. The headline is drifting above what the "

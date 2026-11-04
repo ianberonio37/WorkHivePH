@@ -24,7 +24,7 @@
 <style>
   /* ★FIVE OF THIS PAGE'S SEVEN PALETTE DECLARATIONS WERE DEAD, AND TWO OF THEM WERE SELF-REFERENTIAL
      (2026-09-18, W46049 slop lens). The block read as the page's palette. Measured on the running page,
-     it is not: --wh-navy resolves to var(--wh-navy,#162032) and not the #0f1b2d declared here, --wh-amber to var(--wh-amber, #facc15)
+     it is not: --wh-navy resolves to var(--wh-navy,#162032) and not the var(--wh-navy, #162032) declared here, --wh-amber to var(--wh-amber, #facc15)
      and not the var(--wh-orange) var(--wh-orange,#F7A21B) this block asks for, and --wh-blue / --wh-green / --wh-red to
      the platform's values. tokens.css is linked AFTER this <style>, so for every name both files
      declare, tokens wins the cascade and the line here never applies.
@@ -38,17 +38,17 @@
      So the redeclarations go, and what stays is what this page genuinely adds and the platform does not
      define: a slightly cooler card surface and its own muted grey, each kept at its MEASURED value
      rather than swapped for a near neighbour - substituting a nearby token is what once turned an
-     undeclared #86929D into var(--wh-steel) and broke 4.5:1 at 4.46:1. */
+     undeclared var(--wh-sky-500-b, #86929D) into var(--wh-steel) and broke 4.5:1 at 4.46:1. */
   :root {
-    --wh-navy-2: #16223a;   /* this page's card surface; tokens' --wh-navy-mid (var(--wh-navy-mid,#1F2E45)) is warmer */
-    --wh-grey:   #8aa0bd;   /* measured 0 contrast failures across 73 nodes at both viewports */
-    --wh-text:   #e8eef7;
+    --wh-navy-2: var(--wh-navy, #162032);   /* this page's card surface; tokens' --wh-navy-mid (var(--wh-navy-mid,#1F2E45)) is warmer */
+    --wh-grey:   var(--wh-slate-400, #94A3B8);   /* measured 0 contrast failures across 73 nodes at both viewports */
+    --wh-text:   var(--wh-sky-50, #E8F4FF);
   }
   * { box-sizing: border-box; }
   /* The body carried no font-size, so everything it did not name inherited the UA's 16px - which is
      not a step on DESIGN.md's ramp, and it is what the ten service NAMES were rendering at. Body is
      the body step; the service name is the card's title and takes the title step. */
-  body { margin: 0; font-family: 'Poppins', system-ui, sans-serif; background: var(--wh-navy); color: var(--wh-text); padding: 24px; font-size: 0.875rem; }
+  body { margin: 0; font-family: 'Poppins', system-ui, sans-serif; background: var(--wh-navy); color: var(--wh-text); padding: 24px; font-size: var(--wh-fs-sm-plus, 0.875rem); }
   /* ★NINE TYPE STEPS ON A PAGE WITH TWO HEADINGS AND TWO CONTROLS (2026-09-18, W46049 slop lens):
      12, 12.5, 12.8, 13.1, 13.3, 13.6, 14.4, 16 and 22.4px. None of them was outrageous on its own -
      .85rem, .9rem, .82rem, .78rem, 1.4rem - and that is the shape of this defect: every value was
@@ -58,18 +58,18 @@
      probe table and the summary line to BODY (they are what a reader is here to read), and the
      subtitle, the per-card meta and the back link to LABEL, which is where this platform sets all
      caption and control text. */
-  h1 { font-size: 1.5rem; margin: 0 0 4px; }
-  .sub { color: var(--wh-grey); font-size: .75rem; margin-bottom: 16px; }
+  h1 { font-size: var(--wh-fs-xl, 1.5rem); margin: 0 0 4px; }
+  .sub { color: var(--wh-grey); font-size: var(--wh-fs-2xs, .75rem); margin-bottom: 16px; }
   /* ★THE ONE LINE A TECHNICIAN NEEDS, AND WHY IT USES --wh-text AND NOT --wh-grey (2026-10-05).
      .sub is this page's muted token for secondary chrome. This sentence is not secondary: it is the
      answer to "can I still do my job", read by someone mid-shift on a phone in a plant, so it takes the
-     full-contrast text token (#e8eef7 on var(--wh-navy,#162032)) rather than the grey. It is deliberately NOT an alert -
+     full-contrast text token (var(--wh-sky-50, #E8F4FF) on var(--wh-navy,#162032)) rather than the grey. It is deliberately NOT an alert -
      no amber, no red, no icon, no border-radius card: a page about outages must not look like it is having
      one, and a reassurance styled as a warning reads as a new problem. (A coloured left rule was tried and
      removed the same week: a side-stripe accent is a banned pattern here, and full-contrast prose above the
      checks already reads as the page's first answer.) max-width keeps the measure readable at desktop while
      the phone wraps naturally. */
-  .wh-still-works { color: var(--wh-text); font-size: .875rem; line-height: 1.6; max-width: 68ch;
+  .wh-still-works { color: var(--wh-text); font-size: var(--wh-fs-sm-plus, .875rem); line-height: 1.6; max-width: 68ch;
                     margin: 0 0 16px; }
   .bar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
   /* ★THE ONLY BUTTON ON THE PAGE WAS THE ONLY ELEMENT STILL OFF THE RAMP, AND I HAD ALREADY BLAMED
@@ -84,11 +84,11 @@
      (Worded that way on purpose: the first draft of this comment spelled the declaration out in
      prose, and the detector read the sentence as a font declaration and refused the row. A comment
      that is shaped like code will be read as code by something eventually.) */
-  button { background: var(--wh-blue); color: var(--wh-navy); border: 0; border-radius: 8px; padding: 12px 16px; font-family: inherit; font-size: 0.75rem; font-weight: 600; cursor: pointer; min-height: 44px; }
+  button { background: var(--wh-blue); color: var(--wh-navy); border: 0; border-radius: 8px; padding: 12px 16px; font-family: inherit; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; cursor: pointer; min-height: 44px; }
   button:disabled { opacity: .6; cursor: default; }
   /* CLS reserve: #summary fills "Checking…" → a longer multi-line status line (async).
      Reserve ~2 lines so the filled text doesn't grow the .bar and push #grid/.slo down. */
-  .summary { font-variant-numeric: tabular-nums; font-size: .875rem; color: var(--wh-grey); display: inline-block; min-height: 2.6em; }
+  .summary { font-variant-numeric: tabular-nums; font-size: var(--wh-fs-sm-plus, .875rem); color: var(--wh-grey); display: inline-block; min-height: 2.6em; }
   /* CLS reserve: #grid is EMPTY at first paint → fills with up to 10 health cards (async DB/edge
      render). Reserving the settled height stops the empty→filled growth from pushing the .slo block
      below it DOWN (the measured shift).
@@ -125,19 +125,19 @@
   .card { background: var(--wh-navy-2); border-radius: 12px; padding:16px; border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); }
   .card.ok      { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color: rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
   .card.down    { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.07); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
-  .card.slow    { background: rgba(250,204,21,0.07);  border-color: rgba(250,204,21,0.30); }
+  .card.slow    { background: rgba(var(--wh-amber-rgb, 250, 204, 21), 0.07);  border-color: rgba(var(--wh-amber-rgb, 250, 204, 21), 0.3); }
   .card.nohealth{ background: var(--wh-navy-2);       border-color: var(--wh-white-08, rgba(255,255,255,0.08)); }
   /* T198: silence is amber, never red — a probe that timed out did not observe an outage. Kept
      exactly: the tint carries the same distinction the border colour used to, in the same hue. */
-  .card.timeout, .card.limited { background: rgba(250,204,21,0.07);  border-color: rgba(250,204,21,0.30); }
+  .card.timeout, .card.limited { background: rgba(var(--wh-amber-rgb, 250, 204, 21), 0.07);  border-color: rgba(var(--wh-amber-rgb, 250, 204, 21), 0.3); }
   .dot.timeout, .dot.limited { background: var(--wh-amber); }
   .dot.nohealth { background: var(--wh-grey); }
-  .fn { font-size: 0.95rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  .fn { font-size: var(--wh-fs-md, 0.95rem); font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
   .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--wh-grey); display: inline-block; }
   .dot.ok { background: var(--wh-green); } .dot.down { background: var(--wh-red); } .dot.slow { background: var(--wh-amber); }
-  .meta { font-variant-numeric: tabular-nums; font-size: .75rem; color: var(--wh-grey); margin-top: 4px; }
+  .meta { font-variant-numeric: tabular-nums; font-size: var(--wh-fs-2xs, .75rem); color: var(--wh-grey); margin-top: 4px; }
   .deps { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
-  .dep { font-size: 0.75rem; padding: 2px 8px; border-radius: var(--wh-radius-pill); background: #20304d; }
+  .dep { font-size: var(--wh-fs-2xs, 0.75rem); padding: 2px 8px; border-radius: var(--wh-radius-pill); background: var(--wh-navy-mid, #1F2E45); }
   .dep.ok { color: var(--wh-green); } .dep.bad { color: var(--wh-red); }
   .slo { margin-top: 24px; background: var(--wh-navy-2); border-radius: 12px; padding: 16px 18px; }
   /* The SLO heading now takes the SHARED .wh-section-title (tokens.css): 0.95rem/700, sentence
@@ -150,7 +150,7 @@
      up and the eye has to re-find the column on every row. Measured font-variant-numeric: normal on
      all five numeric elements. Applied to the table, the summary line and the build stamp - every
      figure on the page that sits above or below another one. */
-  .slo table { width: 100%; border-collapse: collapse; font-size: .875rem; font-variant-numeric: tabular-nums; }
+  .slo table { width: 100%; border-collapse: collapse; font-size: var(--wh-fs-sm-plus, .875rem); font-variant-numeric: tabular-nums; }
   /* Phone fit at 320 (measured 2026-09-29): these are ROW headers, and at 320 the card left each one
      159px while the two longest need 335px ("Error rate (excludes sign-in & rate-limit)") and 253px
      ("Provider-chain success before fallback") — so both broke onto THREE lines, which is what the
@@ -167,7 +167,7 @@
      <th scope="row">, which is exactly what a key/value table needs and what makes each value read
      as 'Gateway availability, 99.5%'. Styled to match the old <td> to the pixel - left-aligned and
      regular weight - so the semantic fix changes what is ANNOUNCED and nothing that is seen. */
-  .slo td, .slo th { padding: 8px; border-bottom: 1px solid #20304d; text-align: left; font-weight: 400; }
+  .slo td, .slo th { padding: 8px; border-bottom: 1px solid var(--wh-navy-mid, #1F2E45); text-align: left; font-weight: 400; }
   .slo td:last-child { text-align: right; color: var(--wh-amber); font-weight: 600; }
 </style>
   <!-- The platform vocabulary (colour + spacing/radius/type/font/elevation/z). Without a
@@ -212,7 +212,7 @@
 </head>
 <body>
   <header>
-    <a href="index.html" class="wh-back-link" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:0.75rem;color:rgba(255,255,255,0.7);text-decoration:none;">← Home</a>
+    <a href="index.html" class="wh-back-link" style="display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:var(--wh-fs-2xs, 0.75rem);color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.7);text-decoration:none;">← Home</a>
   </header>
 <!-- ★THE LANDMARK STARTS AFTER THE HEADER (T184, 2026-09-07). status.html is the page someone opens
      when something will not work, which makes it the worst page to make a screen-reader user walk
@@ -269,11 +269,11 @@
 </details>
   <div class="bar">
     <button id="refresh" onclick="runChecks()" data-i="refresh">Refresh</button>
-    <span data-i="p_checking_820d" class="summary" id="summary" role="status" aria-live="polite" style="color:#e2e8f0;">Checking…</span>
+    <span data-i="p_checking_820d" class="summary" id="summary" role="status" aria-live="polite" style="color:var(--wh-paper-rule, #E5E7EB);">Checking…</span>
     <!-- The version this browser is actually serving, so a report can name it (layer CI, §LX). Reads the
          service-worker shell cache rather than a build-time constant: the constant says what SHOULD be
          deployed, the cache says what this person is looking at, and those differ exactly when it matters. -->
-    <span id="build-version" class="summary" style="color:rgba(226,232,240,0.62);font-size: 0.75rem;margin-left:auto"></span>
+    <span id="build-version" class="summary" style="color:rgba(var(--wh-paper-rule-rgb, 229, 231, 235), 0.62);font-size: var(--wh-fs-2xs, 0.75rem);margin-left:auto"></span>
   </div>
   <script>
     (async function () {
@@ -304,7 +304,7 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>

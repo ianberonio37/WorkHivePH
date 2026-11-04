@@ -4669,9 +4669,11 @@ if (typeof document !== 'undefined' && !document.getElementById('wh-list-states-
     '@media (prefers-reduced-motion:reduce){.wh-skeleton-row::after{animation:none}}' +
     /* D1 U2: shared brief row-links (risk/pm-due/parts) were 39px tall (padding:8px) — bump to a 44px gloved-field tap target everywhere these render */
     '.wh-risk-row,.wh-pmdue-row,.wh-parts-row{min-height:44px;box-sizing:border-box}' +
-    '.wh-list-error{text-align:center;padding:1.4rem 1rem;font-size:0.82rem;color:rgba(255,255,255,0.86);line-height:1.5}' +
-    '.wh-list-error .wh-list-error-icon{font-size:1.4rem}' +
-    '.wh-list-error button{margin-top:0.6rem;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:var(--wh-cloud, #F4F6FA);font-family:inherit;font-size:0.78rem;font-weight:600;cursor:pointer}' +
+    /* the type sizes are components.css's own (the type scale, 2026-11-04) - a second, different size after first paint is
+       a layout shift; injected-css-parity holds the pair */
+    '.wh-list-error{text-align:center;padding:1.4rem 1rem;font-size:var(--wh-fs-xs, 0.8rem);color:rgba(255,255,255,0.86);line-height:1.5}' +
+    '.wh-list-error .wh-list-error-icon{font-size:var(--wh-fs-xl, 1.5rem)}' +
+    '.wh-list-error button{margin-top:0.6rem;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.18);background:transparent;color:var(--wh-cloud, #F4F6FA);font-family:inherit;font-size:var(--wh-fs-2xs, 0.75rem);font-weight:600;cursor:pointer}' +
     '.wh-list-error button:hover{border-color:rgba(255,255,255,0.32)}' +
     /* SL LB1: the sentence under a capped list that says more exists, and its way to the rest (a 44px target) */
     '.wh-more-note{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin:8px 0 0;font-size:0.8125rem;line-height:1.4;color:var(--wh-text-muted,rgba(255,255,255,0.80))}' +

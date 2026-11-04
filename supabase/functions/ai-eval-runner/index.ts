@@ -202,7 +202,7 @@ async function loadEvalBench(db: any, authUid: string): Promise<EvalBench> {
   const empty = { ready: false, rebuilt: false, assets: {}, projects: {}, breakdowns: 0 };
   try {
     const { data, error } = await db.rpc("ai_eval_bench_ensure", { p_auth_uid: authUid });
-    if (error || !data) return { ...empty, error: `the eval bench could not be seeded - ${error?.message || "no reply"}` };
+    if (error || !data) return { ...empty, error: `Eval bench seeding failed. Check the seed data and try again. (${error?.message || "no reply"})` };
     const breakdowns = Number(data.breakdowns) || 0;
     return {
       ready:      breakdowns > 0,
@@ -213,7 +213,7 @@ async function loadEvalBench(db: any, authUid: string): Promise<EvalBench> {
       breakdowns,
     };
   } catch (err) {
-    return { ...empty, error: `the eval bench could not be seeded - ${err instanceof Error ? err.message : String(err)}` };
+    return { ...empty, error: `Eval bench seeding failed. Check the seed data and try again. (${err instanceof Error ? err.message : String(err)})` };
   }
 }
 
@@ -479,7 +479,7 @@ serveObserved("ai-eval-runner", tracedReply("ai-eval-runner", async (req, trace)
   const SERVICE_KEY  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
   if (!SUPABASE_URL || !SERVICE_KEY) {
     return new Response(
-      JSON.stringify({ error: "ai-eval-runner: missing service env" }),
+      JSON.stringify({ error: "The evaluation service is not set up. Ask the platform admin to add its service keys." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
@@ -494,7 +494,7 @@ serveObserved("ai-eval-runner", tracedReply("ai-eval-runner", async (req, trace)
     const _id = await resolveIdentity(db, req);
     if (!_id.isServiceRole) {
       return new Response(
-        JSON.stringify({ error: "The quality evaluation runs on a schedule and cannot be started from here.", code: "internal_only" }),
+        JSON.stringify({ error: "The AI quality check runs on its own schedule. It cannot be started here. Wait for the next scheduled run.", code: "internal_only" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }

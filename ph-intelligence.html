@@ -39,24 +39,24 @@
     .hero { text-align: center; padding: 40px 24px 32px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
     /* The dateline under the masthead. Was .hero-badge: an uppercase .08em pill ABOVE the h1 - see the
        hero markup for why both halves of that were wrong. Sentence case, label step, quiet. */
-    .hero-dateline { display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--gold); margin-top: 8px; }
-    .hero h1 { font-size: 1.8rem; font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
-    .hero p { font-size: .82rem; color: var(--muted); max-width: 520px; margin: 0 auto; }
+    .hero-dateline { display: inline-block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; color: var(--gold); margin-top: 8px; }
+    .hero h1 { font-size: var(--wh-fs-2xl, 1.75rem); font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
+    .hero p { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); max-width: 520px; margin: 0 auto; }
 
     /* Stats row */
     .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
     .stat-chip { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
-    .stat-chip .sn { font-size: 1.6rem; font-weight: 800; color: var(--gold); display: block; }
-    .stat-chip .sl { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+    .stat-chip .sn { font-size: var(--wh-fs-xl, 1.5rem); font-weight: 800; color: var(--gold); display: block; }
+    .stat-chip .sl { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
 
     /* Section header */
     .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .sec-title { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .sec-title { font-size: var(--wh-fs-2xs, .75rem); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 
     /* MTBF bar chart */
     .mtbf-bar-wrap { display: flex; flex-direction: column; gap: 10px; }
     .mtbf-row { display: grid; grid-template-columns: 180px 1fr 60px; gap: 10px; align-items: center; }
-    .mtbf-cat { font-size: .75rem; font-weight: 600; color: var(--wh-text-muted, rgba(255,255,255,0.8)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mtbf-cat { font-size: var(--wh-fs-2xs, .75rem); font-weight: 600; color: var(--wh-text-muted, rgba(255,255,255,0.8)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .mtbf-bar-bg { background: var(--wh-white-05, rgba(255,255,255,0.05)); border-radius: 999px; height: 8px; overflow: hidden; }
     .mtbf-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out); }
     /* ★600ms ON A LAYOUT PROPERTY WITH AN EASE-IN CURVE - three of the standard's rules in one
@@ -70,43 +70,43 @@
        already in the innerHTML string, and a transition does not run on an element's first computed
        value. It is corrected rather than deleted because the day something updates that width, a
        600ms ease-in reflow is what would have shipped. */
-    .mtbf-val { font-size: 0.75rem; font-weight: 700; color: var(--green); text-align: right; }
+    .mtbf-val { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; color: var(--green); text-align: right; }
 
     /* Failure modes */
     .fm-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); }
-    .fm-rank { font-size: 0.75rem; font-weight: 800; color:var(--wh-text-muted, rgba(255,255,255,0.80)); width: 20px; flex-shrink: 0; }
-    .fm-name { flex: 1; font-size: .78rem; color: rgba(255,255,255,0.85); }
+    .fm-rank { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 800; color:var(--wh-text-muted, rgba(255,255,255,0.80)); width: 20px; flex-shrink: 0; }
+    .fm-name { flex: 1; font-size: var(--wh-fs-xs, 0.8rem); color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); }
     .fm-bar-bg { width: 80px; background: var(--wh-white-05, rgba(255,255,255,0.05)); border-radius: 999px; height: 4px; flex-shrink: 0; }
     .fm-bar-fill { height: 100%; border-radius: 999px; background: var(--red); }
-    .fm-pct { font-size: 0.75rem; color: var(--muted); width: 32px; text-align: right; flex-shrink: 0; }
+    .fm-pct { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); width: 32px; text-align: right; flex-shrink: 0; }
 
     /* Narrative */
-    .narrative-block { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-radius: 12px; padding: 16px 18px; font-size: .78rem; line-height: 1.65; color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
+    .narrative-block { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); border-radius: 12px; padding: 16px 18px; font-size: var(--wh-fs-xs, 0.8rem); line-height: 1.65; color: var(--wh-text-muted, rgba(255,255,255,0.8)); }
 
     /* Your plant compare */
     .compare-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--wh-white-05, rgba(255,255,255,0.05)); }
-    .cr-cat { flex: 1; font-size: .78rem; font-weight: 600; }
-    .cr-yours { font-size: .82rem; font-weight: 800; }
-    .cr-network { font-size: 0.75rem; color: var(--muted); }
+    .cr-cat { flex: 1; font-size: var(--wh-fs-xs, 0.8rem); font-weight: 600; }
+    .cr-yours { font-size: var(--wh-fs-xs, 0.8rem); font-weight: 800; }
+    .cr-network { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); }
 
     /* CTA */
     .cta-card { background: linear-gradient(135deg, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08), rgba(var(--wh-blue-rgb, 41, 182, 217), 0.05)); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); border-radius: 16px; padding: 28px 24px; text-align: center; }
-    .cta-card h3 { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
-    .cta-card p { font-size: .78rem; color: var(--muted); margin-bottom: 16px; }
-    .btn-gold { display: inline-block; padding: 12px 28px; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--gold); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); border-radius: 8px; font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); }
+    .cta-card h3 { font-size: var(--wh-fs-base, 1rem); font-weight: 800; margin-bottom: 6px; }
+    .cta-card p { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); margin-bottom: 16px; }
+    .btn-gold { display: inline-block; padding: 12px 28px; background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--gold); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); border-radius: 8px; font-family: inherit; font-size: var(--wh-fs-sm, .85rem); font-weight: 700; cursor: pointer; text-decoration: none; transition: background-color var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out); }
     /* `all` animates every animatable property a rule has - present and future, so a property added
        next year joins the timeline silently - and puts layout and paint on the same clock as colour.
        The only thing :hover changes here is background, so that is what the timeline carries. */
     .btn-gold:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25); }
 
     /* API section */
-    .api-endpoint { font-family: ui-monospace, monospace; font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 10px 16px; border-radius: 8px; color: var(--blue); margin-bottom: 8px; word-break: break-all; }
+    .api-endpoint { font-family: ui-monospace, monospace; font-size: var(--wh-fs-2xs, 0.75rem); background: var(--wh-black-35, rgba(0, 0, 0, 0.35)); padding: 10px 16px; border-radius: 8px; color: var(--blue); margin-bottom: 8px; word-break: break-all; }
     .hidden { display: none !important; }
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
-    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
+    .verdict-icon { font-size:var(--wh-fs-xl, 1.5rem); line-height:1; font-weight:800; }
+    .verdict-text { font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:500; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
@@ -116,7 +116,7 @@
     .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #ph-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #ph-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:var(--wh-fs-xs, 0.8rem); line-height:1.5; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-bottom:16px; }
     #ph-summary-details.open { display:block; }
   </style>
 </head>
@@ -164,7 +164,7 @@
 
   <!-- Loading state -->
   <div id="loading-state" class="card loading-state" style="text-align:center; padding:32px;">
-    <p data-i="p_loadinglatestreport_3ee2" style="color:var(--muted); font-size:.82rem;">Loading latest report...</p>
+    <p data-i="p_loadinglatestreport_3ee2" style="color:var(--muted); font-size:var(--wh-fs-xs, 0.8rem);">Loading latest report...</p>
   </div>
 
   <!-- Report content -->
@@ -222,7 +222,7 @@
     <div class="card">
       <div class="sec-head">
         <span data-i="p_equipmentreliabilityranking_e97e" class="sec-title">Equipment Reliability Ranking</span>
-        <span data-i="p_daysbetweenfailureshigherbet_37f6" style="font-size: 0.75rem; color:var(--muted);">Mean time between failures (MTBF), in days - higher is better</span>
+        <span data-i="p_daysbetweenfailureshigherbet_37f6" style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted);">Mean time between failures (MTBF), in days - higher is better</span>
       </div>
       <div class="mtbf-bar-wrap" id="mtbf-chart"></div>
     </div>
@@ -231,7 +231,7 @@
     <div class="card">
       <div class="sec-head">
         <span data-i="p_mostcommonfailurecauses_2188" class="sec-title">Most Common Failure Causes</span>
-        <span data-i="p_acrossallplantslastdays_8262" style="font-size: 0.75rem; color:var(--muted);">Across all plants, last 90 days</span>
+        <span data-i="p_acrossallplantslastdays_8262" style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted);">Across all plants, last 90 days</span>
       </div>
       <div id="failure-modes-list"></div>
     </div>
@@ -246,7 +246,7 @@
     <div class="card hidden" id="your-plant-card">
       <div class="sec-head">
         <span data-i="p_yourplantvsnetwork_816f" class="sec-title">Your Plant vs Network</span>
-        <span data-i="p_hivemembersonly_e877" style="font-size: 0.75rem; color:var(--blue);">Hive members only</span>
+        <span data-i="p_hivemembersonly_e877" style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--blue);">Hive members only</span>
       </div>
       <div id="your-plant-compare"></div>
     </div>
@@ -260,7 +260,7 @@
     <!-- API section -->
     <div class="card">
       <div class="sec-head"><span class="sec-title">WorkHive Intelligence API</span></div>
-      <p data-i="p_accessthisdataprogrammatical_ecd5" style="font-size:.75rem; color:var(--muted); margin-bottom:12px;">Access this data programmatically. Integrate WorkHive benchmarks into your ERP, accounting, or HR systems.</p>
+      <p data-i="p_accessthisdataprogrammatical_ecd5" style="font-size:var(--wh-fs-2xs, .75rem); color:var(--muted); margin-bottom:12px;">Access this data programmatically. Integrate WorkHive benchmarks into your ERP, accounting, or HR systems.</p>
       <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=benchmarks</div>
       <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=failure-modes</div>
       <div class="api-endpoint">GET https://hzyvnjtisfgbksicrouu.supabase.co/functions/v1/intelligence-api?endpoint=report</div>
@@ -268,7 +268,7 @@
            ("Integrations → API Keys") that names two screens by their on-screen titles, and the rate
            limit is a number. Translating the path would send a Filipino reader looking for a menu item
            that does not exist under that name. -->
-      <p style="font-size: 0.75rem; color:var(--muted); margin-top:8px;"><span data-i="p_ph_apikeys">Generate API keys in</span> <a href="integrations.html" data-wh-requires="supervisor" data-wh-refused-text="Integrations → API Keys, which only your hive supervisor can open" style="color:var(--blue);">Integrations → API Keys</a>. Rate limit: 100 calls/hour.</p>
+      <p style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); margin-top:8px;"><span data-i="p_ph_apikeys">Generate API keys in</span> <a href="integrations.html" data-wh-requires="supervisor" data-wh-refused-text="Integrations → API Keys, which only your hive supervisor can open" style="color:var(--blue);">Integrations → API Keys</a>. Rate limit: 100 calls/hour.</p>
     </div>
 
     <!-- CTA for non-members -->
@@ -283,7 +283,7 @@
   <!-- No report state -->
   <div id="no-report-state" class="card hidden" style="text-align:center; padding:32px;">
     <p data-i="p_noreportgeneratedyet_b6c2" style="font-weight:700; margin-bottom:8px;">No report generated yet</p>
-    <p data-i="p_reportscanbegeneratedonceeno_91ae" style="font-size:.78rem; color:var(--muted); margin-bottom:16px;">Reports can be generated once enough hives are contributing data.</p>
+    <p data-i="p_reportscanbegeneratedonceeno_91ae" style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--muted); margin-bottom:16px;">Reports can be generated once enough hives are contributing data.</p>
     <button class="btn-gold" onclick="generateReport()" data-i="generatenow">Generate Now</button>
     <!-- FCh3: the report BODY is an EN publication by design (masthead translate="no");
          the CTA is the translatable UI chrome. -->
@@ -294,11 +294,11 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 
 <div class="wh-sources-item" data-wh-source-key="ph-summary-details" hidden>
@@ -306,18 +306,18 @@
 <div id="ph-summary-details" role="region" aria-label="Regional intelligence explainer"
     data-rag-tile="ph-intelligence:detail_panel"
     data-rag-label="PH Intelligence detail">
-      <strong data-i="p_howthisreportisbuilt_b74d" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this report is built</strong>
+      <strong data-i="p_howthisreportisbuilt_b74d" style="display:block;margin-bottom:6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">How this report is built</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong data-i="p_plantsinnetwork_cab7">Plants in network</strong>: number of distinct hives contributing anonymised data to this report.</li>
         <li><strong data-i="p_topfailurecause_d8d3">Top failure cause</strong>: the most-common root cause across all hives in the period.</li>
         <li><strong data-i="p_reportfreshness_7e9b">Report freshness</strong>: days since the report was generated. Nothing regenerates it on a schedule, so this is the number to read before trusting the figures.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: green when report has 3+ plants and was generated in last 45 days; empty otherwise.</li>
       </ul>
-      <p data-i="p_onlymembersofahivethatoptedi_d5ac" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 12px;">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
+      <p data-i="p_onlymembersofahivethatoptedi_d5ac" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: var(--wh-fs-2xs, 0.75rem);">Only members of a hive that opted into anonymised contributions see "Your Plant vs Network" below.</p>
     </div>
 </div>
 <div class="wh-sources-item" data-wh-source-key="source-line-1">
-<p class="wh-source-chip" role="status" aria-live="polite" data-i="p_ph_source_chip" style="font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
+<p class="wh-source-chip" role="status" aria-live="polite" data-i="p_ph_source_chip" style="font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0;padding:3px 0 0;line-height:1.35;">Updated when a report is generated &middot; Based on your logbook history + anonymized segment benchmarks (N&ge;5 privacy guard)</p>
 </div>
 </div>
 </section>
@@ -404,7 +404,7 @@
       // One card on the shared card surface (ENH-C, 2026-10-22): as bare text the gate grouped nothing (critic C3).
       if (main) main.innerHTML =
         '<div class="empty-state" data-wh-gate="no-hive" style="padding:40px 24px;text-align:center;max-width:560px;margin:0 auto;background:var(--wh-surface-card,rgba(255,255,255,0.03));border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));border-radius:var(--wh-radius,12px)">' +   // heading-allow: replaces <main>, so this h1 is the only one shown
-        '<h1 style="font-size:1rem;font-weight:700;line-height:1.5;margin:0 0 8px">Join or create a hive to see PH Intelligence</h1>' +
+        '<h1 style="font-size:var(--wh-fs-base, 1rem);font-weight:700;line-height:1.5;margin:0 0 8px">Join or create a hive to see PH Intelligence</h1>' +
         '<p style="opacity:.75;line-height:1.5">PH Intelligence benchmarks your plant against anonymised peers. It is a team tool, so you need a hive first. This is not an empty report; there is no hive to report on yet.</p>' +
         '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">' + _way + '</div></div>';
       return true;
@@ -654,7 +654,7 @@
         <div class="mtbf-bar-bg"><div class="mtbf-bar-fill" style="width:${pct}%;"></div></div>
         <div class="mtbf-val">${b.avg_mtbf_days}d</div>
       </div>`;
-    }).join('') || '<p style="color:var(--muted); font-size:.75rem;">No regional MTBF data yet: this chart comes from the regional report, which reads as thin below 3 contributing plants.</p>';
+    }).join('') || '<p style="color:var(--muted); font-size:var(--wh-fs-2xs, .75rem);">No regional MTBF data yet: this chart comes from the regional report, which reads as thin below 3 contributing plants.</p>';
 
     // Failure modes
     const modes = r.failure_modes || [];
@@ -667,7 +667,7 @@
         <div class="fm-bar-bg"><div class="fm-bar-fill" style="width:${pct}%;"></div></div>
         <div class="fm-pct">${m.pct || 0}%</div>
       </div>`;
-    }).join('') || '<p style="color:var(--muted); font-size:.75rem;">No failure mode data yet.</p>';
+    }).join('') || '<p style="color:var(--muted); font-size:var(--wh-fs-2xs, .75rem);">No failure mode data yet.</p>';
 
     // Seasonal
     if (nTxt(n.seasonal_insight)) {

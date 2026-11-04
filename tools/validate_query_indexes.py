@@ -183,7 +183,12 @@ GROW = {
     "pm_assets": (0, 60, 0), "pm_scope_items": (0, 60, 0), "asset_nodes": (0, 60, 0),
     "automation_log": (4, 55, 7), "platform_feedback": (49, 2950, 3), "platform_feedback_votes": (0, 3000, 0),
     "marketplace_disputes": (49, 1950, 3), "marketplace_sellers": (0, 1500, 0), "marketplace_listings": (0, 1000, 0),
-    "logbook": (1, 2, 45), "fault_knowledge": (0, 1, 0), "achievement_xp_log": (1, 2, 30),
+    # ★XP IS GROWN BACK A YEAR (2026-11-04). achievement_xp_log was (1, 2, 30): one copy a month back, two at the same
+    # dates - so the grown table kept the local one's shape, three months old with the provers' own runs piled into
+    # the last week (958 of 2,378 rows inside 7 days, 803 of them from two days of gate runs). At 40% selectivity a
+    # sequential scan is the RIGHT plan and idx_xp_log_earned read as unused. The table grows by accumulating history,
+    # so its grown size is a year of it: twelve copies a month apart, where one week is the small slice it really is.
+    "logbook": (1, 2, 45), "fault_knowledge": (0, 1, 0), "achievement_xp_log": (12, 2, 30),
     "community_posts": (9, 290, 30), "voice_journal_entries": (4, 45, 30),
     # the shapes (20261020000003): the tables their probes read, so a per-row call or a full read shows at size
     "service_providers": (0, 1000, 0), "service_requests": (9, 490, 7), "marketplace_reviews": (9, 490, 7),

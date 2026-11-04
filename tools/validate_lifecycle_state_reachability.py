@@ -134,13 +134,25 @@ def written_by_page(src, state):
             or re.search(rf"\w+\([^)]*['\"]{re.escape(state)}['\"][^)]*\)", src) is not None)
 
 
+# ★A SURFACE IS THE PAGE AND THE CODE IT SHIPS (2026-11-04). The operator console's moderation queue moved into
+# operator-actions.js when Platform Actions was retired into it (OPC, 2026-10-22, 1d6ecd88): the page loads that script
+# and the script renders and writes `draft` and `removed`. Reading founder-console.html alone, the gate reported both as
+# "reachable but INVISIBLE on founder-console.html" on every run since - a page split across files read as a page that
+# dropped the state. A page whose surface lives in its own script names that script here, and only that script: a
+# SHARED one (utils.js) would let any page borrow another's labels and hide a real gap.
+SURFACE_FILES = {
+    "founder-console.html": ["founder-console.html", "operator-actions.js"],
+}
+
+
 def page_text(pages):
     out = []
     for p in pages:
-        fp = os.path.join(ROOT, p)
-        if os.path.exists(fp):
-            with open(fp, encoding="utf-8") as f:
-                out.append(f.read())
+        for part in SURFACE_FILES.get(p, [p]):
+            fp = os.path.join(ROOT, part)
+            if os.path.exists(fp):
+                with open(fp, encoding="utf-8") as f:
+                    out.append(f.read())
     return "\n".join(out)
 
 
@@ -258,6 +270,18 @@ def selftest():
             print(f"  {RED}FAIL{RST} {label}"); ok = False
         else:
             print(f"  {GREEN}PASS{RST} {label}")
+    # a page's surface includes the script it names in SURFACE_FILES - and the script must actually be loaded by it
+    for page, parts in SURFACE_FILES.items():
+        with open(os.path.join(ROOT, page), encoding="utf-8") as fh:
+            html = fh.read()
+        for extra in parts[1:]:
+            label = f"{page} names {extra} as its surface and loads it"
+            if not re.search(r"<script[^>]+src=[\"'][^\"']*" + re.escape(extra), html):
+                print(f"  {RED}FAIL{RST} {label}"); ok = False
+            else:
+                print(f"  {GREEN}PASS{RST} {label}")
+        if len(page_text([page])) <= len(html):
+            print(f"  {RED}FAIL{RST} {page}: page_text must read the named script too"); ok = False
     print(f"\n  SELFTEST: {GREEN + 'PASS' + RST if ok else RED + 'FAIL' + RST}")
     return 0 if ok else 1
 

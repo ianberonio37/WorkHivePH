@@ -172,4 +172,4 @@ The logbook captures individual events as they happen during the shift. The hand
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: d1507fbda8038060 -->
+<!-- md-twin source-sha: 23011e3328a6a18b -->

@@ -31,7 +31,7 @@
     /* ── Aurora background ── */
     .aurora {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none; z-index: 0; overflow: hidden;
+      pointer-events: none; z-index: var(--wh-z-art, 0); overflow: hidden;
     }
     .aurora-blob {
       position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.07;
@@ -40,23 +40,23 @@
     .aurora-blob-2 { width: 400px; height: 400px; background: var(--wh-orange); bottom: 0; right: -100px; }
 
     /* ── Layout ── */
-    .page { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+    .page { position: relative; z-index: var(--wh-z-base, 1); max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
 
     /* ── Header ── */
     .page-header { margin-bottom: 1.5rem; }
-    .page-header h1 { font-size: 1.5rem; font-weight: 800; color: #fff; }
-    .page-header p { font-size: 0.8rem; color: var(--wh-steel-bright); margin-top: 0.25rem; }
+    .page-header h1 { font-size: var(--wh-fs-xl, 1.5rem); font-weight: 800; color: var(--wh-white, #fff); }
+    .page-header p { font-size: var(--wh-fs-xs, 0.8rem); color: var(--wh-steel-bright); margin-top: 0.25rem; }
 
     /* ── Toast ── */
     #toast {
       position: fixed; top: 1rem; left: 50%; transform: translateX(-50%) translateY(-80px);
       background: rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
-      border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: 0.8rem;
-      color: #fff; z-index: 9999; transition: transform 0.25s ease-out;
+      border-radius: 0.75rem; padding: 0.75rem 1.25rem; font-size: var(--wh-fs-xs, 0.8rem);
+      color: var(--wh-white, #fff); z-index: var(--wh-z-toast-5, 9999); transition: transform 0.25s ease-out;
       display: flex; align-items: center; gap: 0.5rem; max-width: 320px;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
-    #toast-icon { font-size: 1rem; }
+    #toast-icon { font-size: var(--wh-fs-base, 1rem); }
 
     /* ── Cards ── */
     .card {
@@ -68,19 +68,19 @@
     /* ── Radar chart section ── */
     .chart-section { margin-bottom: 1.5rem; }
     .chart-section .card { display: flex; flex-direction: column; align-items: center; }
-    .chart-title { font-size: 0.9rem; font-weight: 600; color: #fff; align-self: flex-start; margin-bottom: 0.5rem; }
-    .chart-legend { display: flex; gap: 1rem; margin-top: 0.75rem; font-size: 0.75rem; color: var(--wh-steel-bright); }
+    .chart-title { font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 600; color: var(--wh-white, #fff); align-self: flex-start; margin-bottom: 0.5rem; }
+    .chart-legend { display: flex; gap: 1rem; margin-top: 0.75rem; font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-steel-bright); }
     .chart-legend span { display: flex; align-items: center; gap: 0.35rem; }
     .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
     #radar-canvas { max-width: 280px; max-height: 280px; }
     .chart-fallback { display: none; width: 100%; }
-    .chart-fallback table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    .chart-fallback table { width: 100%; border-collapse: collapse; font-size: var(--wh-fs-xs, 0.8rem); }
     .chart-fallback td { padding: 0.5rem 0.5rem; border-bottom: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); }
     .chart-fallback .label { color: var(--wh-steel-bright); }
     .chart-fallback .val { text-align: right; font-weight: 600; }
 
     /* ── Discipline cards ── */
-    .section-title { font-size: 0.75rem; font-weight: 600; color: var(--wh-steel-bright); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+    .section-title { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; color: var(--wh-steel-bright); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
     .discipline-cards { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
 
     .disc-card {
@@ -99,10 +99,10 @@
     /* wraps: at 200% text (WCAG 1.4.4, OWN text grows 2026-11-02) the name and the "Lv 3 / 5" badge ran a 390 phone 31px
        sideways; the badge now drops under the name, and a long name breaks inside its card */
     .disc-card-header { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
-    .disc-card-name { font-size: 0.9rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 0.5rem; min-width: 0; overflow-wrap: anywhere; }
-    .disc-icon { font-size: 18px; line-height: 1; display: inline-block; vertical-align: -0.15em; }
+    .disc-card-name { font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 700; color: var(--wh-white, #fff); display: flex; align-items: center; gap: 0.5rem; min-width: 0; overflow-wrap: anywhere; }
+    .disc-icon { font-size: var(--wh-fs-lead-plus, 1.125rem); line-height: 1; display: inline-block; vertical-align: -0.15em; }
     .disc-level-badge {
-      font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.5rem;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; padding: 0.25rem 0.5rem;
       border-radius: 999px; background: var(--wh-white-08, rgba(255,255,255,0.08));
       color: var(--disc-color); border: 1px solid var(--disc-color);
     }
@@ -118,11 +118,11 @@
     .progress-bar-bg { height: 4px; background: var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 999px; overflow: hidden; }
     .progress-bar-fill { height: 100%; border-radius: 999px; background: var(--disc-color); transition: width 0.5s; }
     .disc-card-footer { display: flex; align-items: center; justify-content: space-between; }
-    .disc-target-row { font-size: 0.75rem; color: var(--wh-steel-bright); }
-    .disc-cta { font-size: 0.75rem; font-weight: 600; color: var(--disc-color); display: flex; align-items: center; gap: 0.25rem; }
+    .disc-target-row { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-steel-bright); }
+    .disc-cta { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; color: var(--disc-color); display: flex; align-items: center; gap: 0.25rem; }
     .disc-cta svg { width: 12px; height: 12px; }
     .disc-card.primary-badge .disc-card-name::after {
-      content: 'Primary'; font-size: 0.75rem; font-weight: 600;
+      content: 'Primary'; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600;
       background: var(--disc-color); color: var(--wh-navy); border-radius: 999px;
       padding: 0.1rem 0.5rem; margin-left: 0.25rem;
     }
@@ -132,25 +132,25 @@
     .target-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
     /* mobile: stepper rows need ~195px min-content each → 2 cols overflow a 371px viewport by 86px. Single column. */
     @media (max-width: 480px) { .target-grid { grid-template-columns: 1fr; } }
-    #header-sub { color: var(--wh-text-muted, rgba(255,255,255,0.80)); }  /* was inherited var(--wh-steel) = 4.46:1 (fails AA); then slate-400 #94A3B8 (passes, off-token); now the platform's muted-text token, brighter than both (W46048) */
+    #header-sub { color: var(--wh-text-muted, rgba(255,255,255,0.80)); }  /* was inherited var(--wh-steel) = 4.46:1 (fails AA); then slate-400 var(--wh-slate-400, #94A3B8) (passes, off-token); now the platform's muted-text token, brighter than both (W46048) */
     .target-item { display: flex; align-items: center; justify-content: space-between; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4); border-radius: 0.75rem; padding: 0.5rem 0.75rem; }
-    .target-name { font-size: 0.75rem; font-weight: 600; color: var(--wh-cloud); flex: 1; }
+    .target-name { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; color: var(--wh-cloud); flex: 1; }
     .stepper { display: flex; align-items: center; gap: 0.35rem; }
     .step-btn {
       width: 28px; height: 28px; border-radius: 0.5rem; border: 1px solid var(--wh-white-15, rgba(255,255,255,0.15));
-      background: var(--wh-white-05, rgba(255,255,255,0.05)); color: #fff; font-size: 1rem; cursor: pointer;
+      background: var(--wh-white-05, rgba(255,255,255,0.05)); color: var(--wh-white, #fff); font-size: var(--wh-fs-base, 1rem); cursor: pointer;
       display: flex; align-items: center; justify-content: center; transition: background 0.15s;
       min-width: 44px; min-height: 44px;
     }
     .step-btn:active { background: var(--wh-white-15, rgba(255,255,255,0.15)); }
     .step-btn:focus-visible { outline: 2px solid var(--wh-blue); outline-offset: 2px; }
     .step-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .step-val { font-size: 0.85rem; font-weight: 700; color: #fff; width: 18px; text-align: center; }
+    .step-val { font-size: var(--wh-fs-sm, 0.85rem); font-weight: 700; color: var(--wh-white, #fff); width: 18px; text-align: center; }
     .target-save-btn {
       width: 100%; margin-top: 0.75rem; min-height: 44px; box-sizing: border-box;
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); font-weight: 700; border: none; border-radius: 0.75rem;
-      padding: 0.75rem 1.5rem; font-size: 0.875rem; cursor: pointer;
+      padding: 0.75rem 1.5rem; font-size: var(--wh-fs-sm-plus, 0.875rem); cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s;
     }
     .target-save-btn:active { opacity: 0.75; transform: scale(0.98); }
@@ -159,12 +159,12 @@
     /* ── Onboarding ── */
     #onboarding-section { display: none; margin-bottom: 1.5rem; }
     .onboard-card { text-align: center; padding: 2rem 1.5rem; }
-    .onboard-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .onboard-card p { font-size: 0.8rem; color: var(--wh-steel-bright); margin-bottom: 1.5rem; }
+    .onboard-card h2 { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 700; margin-bottom: 0.5rem; }
+    .onboard-card p { font-size: var(--wh-fs-xs, 0.8rem); color: var(--wh-steel-bright); margin-bottom: 1.5rem; }
     .primary-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1.25rem; }
     .primary-option {
       padding: 0.75rem 0.5rem; border-radius: 0.75rem; border: 2px solid var(--wh-white-10, rgba(255,255,255,0.1));
-      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4); cursor: pointer; font-size: 0.75rem; font-weight: 600;
+      background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.4); cursor: pointer; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600;
       color: var(--wh-steel-bright); transition: all 0.2s; text-align: center;
     }
     .primary-option:active { transform: scale(0.96); }
@@ -172,8 +172,8 @@
 
     /* ── Modals (full-screen bottom-sheet) ── */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(6px); z-index: 500;
+      position: fixed; inset: 0; background: var(--wh-black-75, rgba(0,0,0,0.75));
+      backdrop-filter: blur(6px); z-index: var(--wh-z-toast-3, 500);
       display: flex; align-items: flex-end; justify-content: center;
       /* Q2 no-phantom-focus: the CLOSED-overlay visibility guard is injected once for every page by
          utils.js (skillmatrix does not load tokens.css) - do NOT re-declare it here. */
@@ -181,7 +181,7 @@
     }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal-sheet {
-      background: linear-gradient(180deg, #1a2a3e, var(--wh-navy));
+      background: linear-gradient(180deg, var(--wh-navy-mid, #1F2E45), var(--wh-navy));
       border-radius: 16px 16px 0 0;
       border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       width: 100%; max-width: 680px;
@@ -195,8 +195,8 @@
       display: flex; align-items: flex-start; justify-content: space-between;
       padding: 1rem 1.25rem 0.75rem;
     }
-    .modal-title { font-size: 1rem; font-weight: 700; color: #fff; }
-    .modal-subtitle { font-size: 0.75rem; color: var(--wh-steel-bright); margin-top: 0.25rem; }
+    .modal-title { font-size: var(--wh-fs-base, 1rem); font-weight: 700; color: var(--wh-white, #fff); }
+    .modal-subtitle { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-steel-bright); margin-top: 0.25rem; }
     .modal-close-btn {
       width: 36px; height: 36px; border-radius: 0.5rem; border: none;
       background: var(--wh-white-07, rgba(255,255,255,0.07)); color:var(--wh-text-muted, rgba(255,255,255,0.80));
@@ -207,18 +207,18 @@
     .modal-footer { padding: 0.75rem 1.25rem 1rem; border-top: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); }
 
     /* ── Lesson modal ── */
-    .lesson-body { font-size: 0.82rem; color: var(--wh-text-muted, rgba(255,255,255,0.8)); line-height: 1.7; }
-    .lesson-body h3 { font-size: 0.9rem; font-weight: 700; color: #fff; margin: 1.25rem 0 0.5rem; }
+    .lesson-body { font-size: var(--wh-fs-xs, 0.8rem); color: var(--wh-text-muted, rgba(255,255,255,0.8)); line-height: 1.7; }
+    .lesson-body h3 { font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 700; color: var(--wh-white, #fff); margin: 1.25rem 0 0.5rem; }
     .lesson-body p { margin-bottom: 0.75rem; }
     .lesson-read-gate {
       display: flex; align-items: center; gap: 0.5rem;
-      font-size: 0.75rem; color: var(--wh-steel-bright); margin-bottom: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-steel-bright); margin-bottom: 0.75rem;
     }
-    .scroll-hint { font-size: 0.75rem; color: var(--wh-steel-bright); text-align: center; margin-bottom: 0.5rem; }
+    .scroll-hint { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-steel-bright); text-align: center; margin-bottom: 0.5rem; }
     .btn-primary {
       width: 100%; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); font-weight: 700; border: none; border-radius: 0.75rem;
-      padding: 1rem 1.5rem; font-size: 0.875rem; cursor: pointer;
+      padding: 1rem 1.5rem; font-size: var(--wh-fs-sm-plus, 0.875rem); cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s;
       min-height: 44px; /* tap-target floor — stays >=44 even when label is set later (result-primary-btn) */
     }
@@ -227,7 +227,7 @@
     .btn-ghost {
       width: 100%; background: transparent; color:var(--wh-text-muted, rgba(255,255,255,0.80));
       border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12)); border-radius: 0.75rem;
-      padding: 0.75rem 1.5rem; font-size: 0.85rem; cursor: pointer;
+      padding: 0.75rem 1.5rem; font-size: var(--wh-fs-sm, 0.85rem); cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s; margin-top: 0.5rem;
       min-height: 44px; /* tap-target floor */
     }
@@ -236,26 +236,26 @@
     /* ── Exam modal ── */
     .exam-progress-bar { height: 3px; background: var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 999px; margin-bottom: 1rem; overflow: hidden; }
     .exam-progress-fill { height: 100%; background: var(--wh-blue); border-radius: 999px; transition: width 0.3s; }
-    .exam-progress-label { font-size: 0.75rem; color: var(--wh-steel-bright); text-align: right; margin-top: -0.75rem; margin-bottom: 0.75rem; }
-    .exam-question { font-size: 0.9rem; font-weight: 600; color: #fff; line-height: 1.5; margin-bottom: 1rem; }
+    .exam-progress-label { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-steel-bright); text-align: right; margin-top: -0.75rem; margin-bottom: 0.75rem; }
+    .exam-question { font-size: var(--wh-fs-sm-plus, 0.875rem); font-weight: 600; color: var(--wh-white, #fff); line-height: 1.5; margin-bottom: 1rem; }
     .exam-options { display: flex; flex-direction: column; gap: 0.5rem; }
     .exam-option {
       display: flex; align-items: center; gap: 0.75rem;
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1.5px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem; padding: 1rem 1rem;
-      cursor: pointer; transition: all 0.15s; font-size: 0.82rem; color: var(--wh-cloud);
+      cursor: pointer; transition: all 0.15s; font-size: var(--wh-fs-xs, 0.8rem); color: var(--wh-cloud);
       min-height: 56px; text-align: left; width: 100%;
       font-family: 'Poppins', sans-serif;
     }
     .exam-option:active { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1); }
-    .exam-option.selected { border-color: var(--wh-blue); background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1); color: #fff; }
+    .exam-option.selected { border-color: var(--wh-blue); background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.1); color: var(--wh-white, #fff); }
     .exam-option.correct { border-color: var(--wh-green); background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.1); color: var(--wh-green); }
     .exam-option.wrong { border-color: var(--wh-red); background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); color: var(--wh-red); }
     .exam-option.reveal-correct { border-color: var(--wh-green); background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.07); }
     .option-letter {
       width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 700;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700;
       background: var(--wh-white-08, rgba(255,255,255,0.08)); color:var(--wh-text-muted, rgba(255,255,255,0.80));
     }
     .exam-option.selected .option-letter { background: var(--wh-blue); color: var(--wh-navy); }
@@ -266,11 +266,11 @@
     .nav-dots { display: flex; gap: 5px; }
     .nav-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--wh-white-15, rgba(255,255,255,0.15)); }
     .nav-dot.answered { background: var(--wh-blue); }
-    .nav-dot.current { background: #fff; }
+    .nav-dot.current { background: var(--wh-white, #fff); }
     .btn-next {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy);
       font-weight: 700; border: none; border-radius: 0.75rem;
-      padding: 0.75rem 1.25rem; font-size: 0.82rem; cursor: pointer;
+      padding: 0.75rem 1.25rem; font-size: var(--wh-fs-xs, 0.8rem); cursor: pointer;
       font-family: 'Poppins', sans-serif; transition: all 0.2s; min-width: 44px; min-height: 44px;
     }
     .btn-next:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -281,22 +281,22 @@
     .result-badge-hex {
       width: 100px; height: 100px; margin: 0 auto 1rem;
       display: flex; align-items: center; justify-content: center;
-      font-size: 2rem; font-weight: 900;
+      font-size: var(--wh-fs-2xl-plus, 1.875rem); font-weight: 900;
       clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
       animation: badgePop 0.3s ease-out both;
     }
     @keyframes badgePop { from { transform: scale(0) rotate(-15deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
-    .result-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.25rem; }
-    .result-score { font-size: 0.85rem; color: var(--wh-steel-bright); margin-bottom: 0.5rem; }
-    .result-msg { font-size: 0.8rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height: 1.6; }
+    .result-title { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 800; margin-bottom: 0.25rem; }
+    .result-score { font-size: var(--wh-fs-sm, 0.85rem); color: var(--wh-steel-bright); margin-bottom: 0.5rem; }
+    .result-msg { font-size: var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height: 1.6; }
     .result-review { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.35rem; }
     .result-review-item {
       display: flex; align-items: flex-start; gap: 0.5rem;
-      font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding: 0.5rem 0;
+      font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding: 0.5rem 0;
       border-bottom: 1px solid var(--wh-white-05, rgba(255,255,255,0.05));
     }
-    .result-review-item .ri-icon { font-size: 0.8rem; flex-shrink: 0; margin-top: 1px; }
-    .cooldown-timer { font-size: 0.75rem; color:var(--wh-orange-text); font-weight: 600; margin-top: 0.5rem; }
+    .result-review-item .ri-icon { font-size: var(--wh-fs-xs, 0.8rem); flex-shrink: 0; margin-top: 1px; }
+    .cooldown-timer { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-orange-text); font-weight: 600; margin-top: 0.5rem; }
 
     /* ── Loading skeleton ── */
     .skeleton { background: var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 0.5rem; animation: shimmer 1.5s infinite; }
@@ -312,9 +312,9 @@
     .text-red { color: var(--wh-red); }
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
-    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
+    .verdict-icon { font-size:var(--wh-fs-xl, 1.5rem); line-height:1; font-weight:800; }
+    .verdict-text { font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:500; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
@@ -324,7 +324,7 @@
     .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #sm-summary-details { display:none; padding:16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #sm-summary-details { display:none; padding:16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:var(--wh-fs-xs, 0.8rem); line-height:1.5; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-bottom:16px; }
     #sm-summary-details.open { display:block; }
   </style>
   <link rel="canonical" href="https://workhiveph.com/skillmatrix.html" />
@@ -370,7 +370,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
          platform: skill_profiles, skill_badges and skill_exam_attempts are all RLS'd to
          `auth_uid = auth.uid()` - private to you, invisible even to your supervisor. Read off the
          policies, not assumed. -->
-    <p data-i="p_privatetoyouyourskillsbadges_adcc" style="font-size: 0.75rem;color:var(--wh-steel-bright,#CFD7E0);margin:2px 0 0;">
+    <p data-i="p_privatetoyouyourskillsbadges_adcc" style="font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-steel-bright,#CFD7E0);margin:2px 0 0;">
       Private to you. No one else sees your skills, badges or exam attempts: not your
       supervisor, not your teammates.
     </p>
@@ -378,13 +378,13 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
          the chip answers the multi-hive contractor's separate question - which hive am I acting in
          while I read the hive-scoped lesson content. Same pattern as pm-scheduler's chip;
          self-filling so no page init needs touching. -->
-    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size: 0.75rem;font-weight:700;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
+    <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size: var(--wh-fs-2xs, 0.75rem);font-weight:700;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
     <script>try{var _hn=localStorage.getItem('wh_hive_name');/* storage-key-allow: pre-utils chip paint */if(_hn){document.getElementById('wh-hive-chip-name').textContent=_hn;document.getElementById('wh-hive-chip').style.display='inline-flex';}}catch(_){/* empty-catch-allow: the chip is context decoration */}</script>
     <!-- STREAMLINE F5: skillmatrix + achievements are ONE "Growth" surface. This tab bar
          switches Skills ↔ Achievements; one nav entry. Both pages kept on disk. -->
     <div class="wh-growth-tabs" role="tablist" style="display:flex; gap:8px; margin:8px 0 4px; flex-wrap:wrap;">
-      <span data-i="p_skills_e092" role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:.76rem; font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">Skills</span>
-      <a data-i="p_achievements_641a" role="tab" aria-selected="false" href="achievements.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:var(--wh-white-04, rgba(255,255,255,0.04)); color:rgba(255,255,255,0.83); font-size:.76rem; font-weight:600; text-decoration:none; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">Achievements &rarr;</a>
+      <span data-i="p_skills_e092" role="tab" aria-selected="true" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color:var(--wh-orange); font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4);">Skills</span>
+      <a data-i="p_achievements_641a" role="tab" aria-selected="false" href="achievements.html" style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; border-radius:8px; background:var(--wh-white-04, rgba(255,255,255,0.04)); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; text-decoration:none; border:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">Achievements &rarr;</a>
       <!-- This page says, in its own words, that a worker's skills, badges and exam attempts are private to
            them - and offered no way to take that record anywhere. A competence record a
            worker cannot carry is not really theirs: it is the evidence behind a job application, a
@@ -392,7 +392,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
            logbook and the inventory, scope preamble included. -->
       <button id="btn-export-skills" type="button" role="tab" aria-selected="false"
               title="Export my skill record to CSV" aria-label="Export my skill record to CSV"
-              style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; gap:6px; border-radius:8px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:0.8rem; font-weight:600; cursor:pointer;">
+              style="padding:6px 12px; min-height:44px; display:inline-flex; align-items:center; gap:6px; border-radius:8px; background:var(--wh-white-06, rgba(255,255,255,0.06)); border:1px solid var(--wh-white-12, rgba(255,255,255,0.12)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-size:var(--wh-fs-xs, 0.8rem); font-weight:600; cursor:pointer;">
         <span aria-hidden="true">&#8681;</span><span data-i="csv">CSV</span>
       </button>
     </div>
@@ -408,7 +408,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
       <p>No skill matrix yet. Pick your primary discipline to start one. It aims for Level 5, and every other discipline starts at Level 2. You can change any target later.</p>
       <!-- ★SEE ONE FILLED IN (T2 SE vicarious, 2026-10-27): the first-run state described the matrix in words only; a first-timer
            had no picture of what they were starting. One line in the matrix's own terms (a target beside a current level). -->
-      <p class="sm-example" style="font-size:0.75rem;opacity:0.85;margin:0.5rem 0 1rem;line-height:1.5;"><strong>A filled-in matrix reads like this:</strong>
+      <p class="sm-example" style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.85;margin:0.5rem 0 1rem;line-height:1.5;"><strong>A filled-in matrix reads like this:</strong>
         Mechanical, target Level 5, now Level 3 · Electrical, target Level 2, now Level 2 · each badge you earn moves "now" toward the target.</p>
       <div class="primary-picker" id="primary-picker">
         <!-- injected by JS -->
@@ -482,9 +482,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
     <div class="simple-card list-row" style="margin-top:0.8rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.6rem;justify-content:space-between;">
       <div>
         <strong data-i="p_yourskillscanearnontheside_ac29">Your skills can earn on the side</strong>
-        <div data-i="p_registerasaserviceprovideran_69cf" style="font-size:0.78rem;opacity:0.8;margin-top:0.15rem;">Register as a service provider and get hailed for jobs near you. Your skills and badges on this page back you up.</div>
+        <div data-i="p_registerasaserviceprovideran_69cf" style="font-size:var(--wh-fs-xs, 0.8rem);opacity:0.8;margin-top:0.15rem;">Register as a service provider and get hailed for jobs near you. Your skills and badges on this page back you up.</div>
       </div>
-      <a data-i="p_becomeaprovider_b6a6" href="marketplace-seller.html?tab=services" style="display:inline-flex;align-items:center;padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);background:transparent;border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.55);color:var(--wh-orange-text, #FDB94A);font-weight:700;font-size:0.8rem;text-decoration:none;min-height:44px;box-sizing:border-box;">Become a provider →</a>
+      <a data-i="p_becomeaprovider_b6a6" href="marketplace-seller.html?tab=services" style="display:inline-flex;align-items:center;padding:0.55rem 1rem;border-radius:var(--wh-radius-sm);background:transparent;border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.55);color:var(--wh-orange-text, #FDB94A);font-weight:700;font-size:var(--wh-fs-xs, 0.8rem);text-decoration:none;min-height:44px;box-sizing:border-box;">Become a provider →</a>
     </div>
     <div class="action-card">
       <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
@@ -522,7 +522,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
   </div><!-- /main-content -->
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="sm-summary-details" hidden>
 <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="sm-summary-details" data-i="showdetails">
@@ -531,8 +531,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
 <div id="sm-summary-details" role="region" aria-label="Skill progress explainer"
     data-rag-tile="skillmatrix:detail_panel"
     data-rag-label="Skill matrix detail">
-      <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
-      <div data-i="p_standardworkhiveskilltiermod_f8ed" style="font-size: 12px;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
+      <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">How this is computed</strong>
+      <div data-i="p_standardworkhiveskilltiermod_f8ed" style="font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:6px;">Standard: WorkHive Skill Tier Model (platform-internal, 5 levels × 5 disciplines).</div>
       <ul style="margin:0;padding-left:20px;">
         <li><strong data-i="p_ontarget_412a">On target</strong>: disciplines where your actual level (highest consecutive badge from L1) meets or exceeds your target level.</li>
         <li><strong data-i="p_quizzesavailable_e065">Quizzes available</strong>: disciplines where the next level is within reach (actual + 1 &lt;= target + 1) and not yet on cooldown.</li>
@@ -579,7 +579,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}    /* R3 (2026-09-
            to withhold it. The numbers are the product's own, not invented: every exam in skill-content.js
            holds exactly 10 questions and submitExam() passes at `score >= 7`. Stated as a fraction rather
            than a percentage because the exam is answered in questions, not points. -->
-      <p id="lesson-pass-mark" style="font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 0.5rem; line-height:1.5;">
+      <p id="lesson-pass-mark" style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 0.5rem; line-height:1.5;">
         <strong data-i="p_ofcorrect_4062">7 of 10 correct</strong> to pass. Passing awards the badge for this level; a failed attempt
         can be retaken after its cooldown.
       </p>

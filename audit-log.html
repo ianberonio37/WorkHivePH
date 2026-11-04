@@ -58,9 +58,9 @@
     .page { max-width: 880px; margin: 0 auto; padding: 1rem 1rem 0; padding-top: 68px; }
 
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
-    .page-title { font-size: 1.3rem; font-weight: 800; }
-    .page-sub { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-    .hive-pill { font-size: 0.75rem; font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); }
+    .page-title { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 800; }
+    .page-sub { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); margin-top: 2px; }
+    .hive-pill { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; padding: 4px 12px; border-radius: 999px; background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue); border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25); }
 
     /* Filter bar */
     .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
@@ -73,7 +73,7 @@
       display: inline-flex; align-items: center; gap: 6px;
       padding: 6px 12px; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85);
       border: 1px solid var(--border); border-radius: 999px;
-      font-family: inherit; font-size: 0.8rem; font-weight: 600;
+      font-family: inherit; font-size: var(--wh-fs-xs, 0.8rem); font-weight: 600;
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer;
       /* ★`all` ANIMATED WHATEVER HAPPENED TO CHANGE (design lens motion, 2026-09-15). These chips move
          three properties on hover and a fourth on .active, so a class flip rode one blanket curve and
@@ -91,7 +91,7 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85);
       border: 1px solid var(--border); border-radius: 8px;
       color: var(--text); font-family: inherit;
-      font-size: 16px; /* iOS auto-zoom guard — never go below 16px on inputs */
+      font-size: var(--wh-fs-base, 1rem); /* iOS auto-zoom guard — never go below 16px on inputs */
       padding: 8px 12px; min-height: 44px;
     }
     .filter-input { flex: 1; min-width: 160px; }
@@ -102,28 +102,28 @@
       display: inline-flex; align-items: center; gap: 6px;
       padding: 8px 16px; background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); border: none;
-      border-radius: 8px; font-size: .75rem; font-weight: 700;
+      border-radius: 8px; font-size: var(--wh-fs-2xs, .75rem); font-weight: 700;
       cursor: pointer; min-height: 44px;
     }
     .btn-export:hover { opacity: .9; }
     .btn-clear {
       padding: 8px 16px; background: transparent;
       color: var(--muted); border: 1px solid var(--border);
-      border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+      border-radius: 8px; font-size: var(--wh-fs-xs, 0.8rem); font-weight: 600;
       cursor: pointer; min-height: 44px;
     }
     .btn-clear:hover { color: var(--text); border-color: var(--wh-white-18, rgba(255,255,255,0.18)); }
 
-    .filter-summary { font-size: 0.75rem; color: var(--muted); margin-left: auto; }
+    .filter-summary { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); margin-left: auto; }
 
     /* Feed */
     .feed { display: flex; flex-direction: column; gap: 8px; }
-    /* Arc L L1 CLS reserve: #feed ships with a single short "Loading…" line then
+    /* Arc L L1 CLS reserve: rgba(var(--wh-red-50-b-rgb, 255, 238, 238), 0.867) ships with a single short "Loading…" line then
        grows to a 5-row skeleton and then the entry list, pushing #audit-load-more-wrap
        + footer below it (0.181 CLS each). Reserve a first-screen height (~5 entries
        at ~72px + 8px gaps) so the loading→skeleton→entries transition does not grow
        the above-fold region. Over-reserving slightly = harmless uniform whitespace. */
-    #feed { min-height: 400px; }
+    rgba(var(--wh-red-50-b-rgb, 255, 238, 238), 0.867) { min-height: 400px; }
     .entry {
       display: flex; align-items: flex-start; gap: 12px;
       padding: 12px 16px; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85);
@@ -153,14 +153,14 @@
     .entry.action-delete  { border-left-color: var(--red); }
     .entry.action-other   { border-left-color: var(--purple); }
 
-    .entry-icon { font-size: 1.05rem; flex-shrink: 0; line-height: 1.2; }
+    .entry-icon { font-size: var(--wh-fs-lead, 1.05rem); flex-shrink: 0; line-height: 1.2; }
     .entry-body { flex: 1; min-width: 0; }
     .entry-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
     .entry-actor {
       /* 600, not 800: 800 is the platform's DISPLAY-NUMBER step and this page renders no display numbers -
          it was 31 of the 237 nodes, on a chip that is already uppercase, tracked and tinted, so the weight
          was a fourth signal saying what three were already saying (design lens craft, 2026-09-15). */
-      font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; text-transform: uppercase;
       /* 3.2px was HALF this page's 66 off-grid paddings on its own, because this chip renders once per
          row and the log shows thirty (design lens craft, 2026-09-15). The radius joins the platform's
          4px step at the same time. */
@@ -168,21 +168,21 @@
       background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--blue);
     }
     .entry-action {
-      font-size: .82rem; font-weight: 700; color: var(--text);
+      font-size: var(--wh-fs-xs, 0.8rem); font-weight: 700; color: var(--text);
     }
     .entry-target {
-      font-size: .82rem; color:rgba(255,255,255,0.83);
+      font-size: var(--wh-fs-xs, 0.8rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83);
       /* R2: a long target (path/id/JSON) must WRAP, not push the row past the viewport
          (measured span was 1769px wide -> horizontal page scroll). */
       overflow-wrap: anywhere; word-break: break-word; min-width: 0;
     }
     .entry-target-type {
-      font-size: 0.75rem; color: var(--muted); text-transform: capitalize;
+      font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); text-transform: capitalize;
       letter-spacing: .05em;
     }
-    .entry-time { font-size: 0.75rem; color: var(--muted); flex-shrink: 0; margin-left: auto; }
+    .entry-time { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); flex-shrink: 0; margin-left: auto; }
     .entry-meta-toggle {
-      font-size: 0.75rem; font-weight: 600; color: var(--gold);
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; color: var(--gold);
       background: transparent; border: none; padding: 4px 0;
       cursor: pointer; margin-top: 4px;
       min-height: 44px; display: inline-flex; align-items: center; /* D1 U2: gloved-field tap target */
@@ -194,7 +194,7 @@
       border-radius: 8px;
       /* T28: this held a <pre> of raw JSON, so it was monospaced and pre-wrapped. It now holds
          labelled lines a person reads, so it takes the page's own typeface. */
-      font-size: 0.8rem; color:rgba(255,255,255,0.83);
+      font-size: var(--wh-fs-xs, 0.8rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83);
       word-break: break-word;
       max-height: 240px; overflow: auto;
     }
@@ -210,12 +210,12 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.5); border: 1px solid var(--border);
       border-radius: 12px;
     }
-    .empty-icon { font-size: 2rem; margin-bottom: 8px; }
-    .empty-title { font-size: .95rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
-    .empty-sub { font-size: .75rem; color: var(--muted); }
-    .loading { text-align: center; padding: 30px; color: var(--muted); font-size: .78rem; }
+    .empty-icon { font-size: var(--wh-fs-2xl-plus, 1.875rem); margin-bottom: 8px; }
+    .empty-title { font-size: var(--wh-fs-md, .95rem); font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .empty-sub { font-size: var(--wh-fs-2xs, .75rem); color: var(--muted); }
+    .loading { text-align: center; padding: 30px; color: var(--muted); font-size: var(--wh-fs-xs, 0.8rem); }
 
-    .footer-meta { font-size: 0.75rem; color: var(--muted); text-align: right; margin-top: 16px; }
+    .footer-meta { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); text-align: right; margin-top: 16px; }
 
     /* Gate cards (no hive / not supervisor) */
     .gate-card {
@@ -223,8 +223,8 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.85); border: 1px solid var(--border);
       border-radius: 16px; margin-top: 40px;
     }
-    .gate-card h2 { font-size: 1.1rem; margin-bottom: 8px; }
-    .gate-card p { font-size: .8rem; color: var(--muted); margin-bottom: 16px; }
+    .gate-card h2 { font-size: var(--wh-fs-lead-plus, 1.125rem); margin-bottom: 8px; }
+    .gate-card p { font-size: var(--wh-fs-xs, .8rem); color: var(--muted); margin-bottom: 16px; }
     /* ★THE ONE CONTROL OFFERED TO SOMEBODY WHO CANNOT PROCEED WAS TOO SMALL TO HIT (2026-09-10,
        found by an in-motion critic walk, dim F1). This page's supervisors-only gate is the state a
        WORKER meets here, and it is correct that it says so - but at `padding: 12px 24px` on .82rem text
@@ -238,7 +238,7 @@
       min-height: 44px; padding: 12px 24px;
       background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15); color: var(--blue);
       border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3); border-radius: 8px;
-      text-decoration: none; font-size: .82rem; font-weight: 700;
+      text-decoration: none; font-size: var(--wh-fs-xs, 0.8rem); font-weight: 700;
     }
 
     /* ★THE AUDIT LOG HID ITS "WHEN" ON EVERY PHONE (2026-10-06, audit-log x assistive-tech, layer D). This rule
@@ -262,7 +262,7 @@
        blocks, and its numbers reach paper through the report sender instead.
        Print = black-on-white content, chrome gone, no dark-background ink disasters. */
     @media print {
-      body { background: #fff !important; color: var(--wh-print-ink, #111) !important; }
+      body { background: var(--wh-white, #fff) !important; color: var(--wh-print-ink, #111) !important; }
       body * { background: transparent !important; color: var(--wh-print-ink, #111) !important;
                box-shadow: none !important; text-shadow: none !important; }
       #wh-hub-fab, #wh-nav-hub, [id^="wh-hub"], #wh-feedback-fab, #wh-feedback-panel,
@@ -309,7 +309,7 @@
 
   <!-- Hive gate (no HIVE_ID) -->
   <div id="gate-no-hive" class="gate-card" style="display:none;">
-    <div style="font-size:1.6rem; margin-bottom:8px;">🐝</div>
+    <div style="font-size:var(--wh-fs-xl, 1.5rem); margin-bottom:8px;">🐝</div>
     <h2 data-i="p_joinahivetoseetheauditlog_7bf5">Join a hive to see the audit log</h2>
     <p data-i="p_theauditlogrecordsactionsins_2a00">The audit log records actions inside your hive. You need to be in a hive to view it.</p>
     <a data-i="p_openhiveboard_19ea" class="gate-btn" href="hive.html">Open Hive Board</a>
@@ -317,7 +317,7 @@
 
   <!-- Role gate (not supervisor) -->
   <div id="gate-not-supervisor" class="gate-card" style="display:none;">
-    <div style="font-size:1.6rem; margin-bottom:8px;">🔒</div>
+    <div style="font-size:var(--wh-fs-xl, 1.5rem); margin-bottom:8px;">🔒</div>
     <h2 data-i="p_supervisorsonly_5310">Supervisors only</h2>
     <!-- ★391 CHARACTERS IS THE WHOLE OF WHAT A WORKER CAN READ ON THIS PAGE, and it was the worst
          prose in the program per character. Recorded on every worker walk, at 390 and at 1280, and
@@ -368,7 +368,7 @@
       </div>
     </div>
 
-    <h2 style="margin:0 0 8px;font-size:0.78rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--muted);" data-i="al_activity">Activity</h2>
+    <h2 style="margin:0 0 8px;font-size:var(--wh-fs-xs, 0.8rem);font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--muted);" data-i="al_activity">Activity</h2>
     <div id="feed" class="feed">
       <div data-i="p_loadingauditlog_6870" class="loading">Loading audit log...</div>
     </div>
@@ -383,7 +383,7 @@
       <div data-i="p_usetheclearfiltersbuttonabov_a5d5" class="empty-sub">Use the "Clear filters" button above to see all entries.</div>
     </div>
     <div id="audit-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;min-height:44px;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);cursor:pointer;" data-i="loadmore">Load More</button>
+      <button onclick="loadMoreAudit()" style="width:100%;padding:0.75rem;min-height:44px;border-radius:0.75rem;font-size:var(--wh-fs-sm-plus, 0.875rem);font-weight:600;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);cursor:pointer;" data-i="loadmore">Load More</button>
     </div>
     <div id="footer-meta" class="footer-meta"></div>
   </div>
@@ -392,7 +392,7 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;"></div>
 </section>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>

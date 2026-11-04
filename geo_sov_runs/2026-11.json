@@ -1,0 +1,763 @@
+{
+ "_meta": {
+  "month": "2026-11",
+  "engines": [
+   "groq_browser",
+   "mistral_web"
+  ],
+  "models": {
+   "mistral_web": "mistral-medium-latest",
+   "groq_browser": "openai/gpt-oss-20b"
+  },
+  "runner": "tools/geo_sov_free_run.py",
+  "free_tier": true,
+  "updated_at": "2026-11-04T01:34:10+00:00"
+ },
+ "results": {
+  "free-industrial-tools-ph": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 6,
+     "named": []
+    }
+   },
+   "groq_browser": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 37,
+     "named": []
+    }
+   }
+  },
+  "oee-calculate": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 6,
+     "named": []
+    }
+   },
+   "groq_browser": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 6,
+     "named": []
+    }
+   }
+  },
+  "abc-spare-parts": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 12,
+     "named": []
+    }
+   },
+   "groq_browser": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 53,
+     "named": []
+    }
+   }
+  },
+  "digital-logbook-ph": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 21,
+     "named": []
+    }
+   },
+   "groq_browser": {
+    "cited": true,
+    "mentioned": true,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [
+      "https://workhiveph.com/learn/start-digital-logbook-philippine-factory/",
+      "https://workhiveph.com/learn/start-digital-logbook-philippine-factory/",
+      "https://workhiveph.com/learn/start-digital-logbook-philippine-factory/",
+      "https://workhiveph.com/learn/start-digital-logbook-philippine-factory/",
+      "https://workhiveph.com/learn/start-digital-logbook-philippine-factory/"
+     ],
+     "sources": 41,
+     "named": [
+      "| WorkHive (PWA) | Yes【40†L382-L383】 | Yes | Yes | Yes (worker tier) |",
+      "**Why WorkHive?**"
+     ]
+    }
+   }
+  },
+  "mtbf-vs-mttr": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 10,
+     "named": []
+    }
+   },
+   "groq_browser": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "shift-handover-template": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 6,
+     "named": []
+    }
+   }
+  },
+  "pm-checklist": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 6,
+     "named": []
+    }
+   }
+  },
+  "skill-matrix": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 21,
+     "named": []
+    }
+   }
+  },
+  "dilo-wilo": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 10,
+     "named": []
+    }
+   }
+  },
+  "hvac-duct-tropical": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 6,
+     "named": []
+    }
+   }
+  },
+  "ai-assistant-maintenance": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 24,
+     "named": []
+    }
+   }
+  },
+  "predictive-maintenance-budget": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 15,
+     "named": []
+    }
+   }
+  },
+  "sap-maximo-integration": {
+   "mistral_web": {
+    "cited": true,
+    "mentioned": true,
+    "recommended": true,
+    "sentiment": 1,
+    "evidence": {
+     "workhive_sources": [
+      "https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms",
+      "https://workhiveph.com/learn/connecting-workhive-to-sap-maximo-cmms"
+     ],
+     "sources": 12,
+     "named": [
+      "- Tools like WorkHive offer a free worker-facing logbook layer that can connect to existing SAP PM, IBM Maximo, or other CMMS systems.",
+      "- **WorkHive:** Free at the worker tier, supports integration with SAP PM, IBM Maximo, and other CMMS via REST, CSV, OPC-UA, and MQTT."
+     ]
+    }
+   }
+  },
+  "voice-logbook-filipino": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 5,
+     "named": []
+    }
+   }
+  },
+  "asset-register-iso14224": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 20,
+     "named": []
+    }
+   }
+  },
+  "turnaround-planning": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 7,
+     "named": []
+    }
+   }
+  },
+  "iso-10816-vibration": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 7,
+     "named": []
+    }
+   }
+  },
+  "dole-oshs-audit": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 9,
+     "named": []
+    }
+   }
+  },
+  "free-cmms-philippines": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 5,
+     "named": []
+    }
+   }
+  },
+  "industrial-marketplace-ph": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 6,
+     "named": []
+    }
+   }
+  },
+  "ph-plant-benchmarks": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 16,
+     "named": []
+    }
+   }
+  },
+  "ofw-engineer-portfolio": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 8,
+     "named": []
+    }
+   }
+  },
+  "ai-replace-technicians": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 12,
+     "named": []
+    }
+   }
+  },
+  "rec-free-cmms-recommend": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 9,
+     "named": []
+    }
+   }
+  },
+  "rec-best-free-logbook": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 9,
+     "named": []
+    }
+   }
+  },
+  "tl-libreng-cmms": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 6,
+     "named": []
+    }
+   }
+  },
+  "tl-paano-oee": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 3,
+     "named": []
+    }
+   }
+  },
+  "tl-paano-mtbf": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 4,
+     "named": []
+    }
+   }
+  },
+  "tl-shift-handover": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 5,
+     "named": []
+    }
+   }
+  },
+  "tl-pm-checklist": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 13,
+     "named": []
+    }
+   }
+  },
+  "tl-voice-logbook": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 7,
+     "named": []
+    }
+   }
+  },
+  "tl-ai-assistant": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 3,
+     "named": []
+    }
+   }
+  },
+  "tl-spare-parts": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 13,
+     "named": []
+    }
+   }
+  },
+  "tl-skill-matrix": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 23,
+     "named": []
+    }
+   }
+  },
+  "rec-free-pdm-budget": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 7,
+     "named": []
+    }
+   }
+  },
+  "ph-permit-to-work": {
+   "mistral_web": {
+    "cited": false,
+    "mentioned": false,
+    "recommended": false,
+    "sentiment": 0,
+    "evidence": {
+     "workhive_sources": [],
+     "sources": 13,
+     "named": []
+    }
+   }
+  },
+  "tl-asset-register": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-best-free-cmms": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-upkeep-alternative": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-cmms-comparison-smb": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-cheapest-cmms": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-what-is-cmms": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-cmms-vs-spreadsheet": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-reduce-downtime": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-oee-calculator": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-mtbf-calculator": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-pump-head-calculator": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-duct-sizing-calculator": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-motor-flc-calculator": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-pm-software-small-factory": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-offline-cmms": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-maintenance-app-technicians": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-maintenance-software-ph": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-cmms-philippines-support": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  },
+  "demand-rec-free-vs-paid": {
+   "mistral_web": {
+    "cited": null,
+    "mentioned": null,
+    "recommended": null,
+    "sentiment": null,
+    "evidence": {
+     "error": "the engine could not answer"
+    }
+   }
+  }
+ }
+}

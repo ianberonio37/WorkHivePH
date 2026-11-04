@@ -25,7 +25,7 @@
     body {
       background-color: var(--wh-navy);
       min-height: 100vh;
-      color: #fff;
+      color: var(--wh-white, #fff);
       background-image:
         radial-gradient(ellipse 70% 45% at 50% -10%, rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07) 0%, transparent 60%),
         radial-gradient(ellipse 55% 35% at 80% 80%, rgba(var(--wh-blue-rgb, 41, 182, 217), 0.05) 0%, transparent 60%);
@@ -40,10 +40,10 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
       border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
-      color: white;
+      color: var(--wh-white, white);
       padding: 0.75rem 1rem;
       width: 100%;
-      font-size: 1rem;
+      font-size: var(--wh-fs-base, 1rem);
       outline: none;
       transition: border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out);
     }
@@ -73,13 +73,13 @@
          reads as the tap not registering. */
       transition: background var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
       border: none;
-      font-size: 0.875rem;
+      font-size: var(--wh-fs-sm-plus, 0.875rem);
       min-height: 44px;
     }
     /* The same coloured-glow-on-dark as the mic button, one control down: an amber button
        lifting into an amber halo. Neutral elevation; the lift still reads, and it reads as a lift
        rather than as a bloom. */
-    .btn-primary:hover  { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.45); }
+    .btn-primary:hover  { transform: translateY(-1px); box-shadow: 0 4px 16px var(--wh-black-45, rgba(0,0,0,0.45)); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
     .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
@@ -103,7 +103,7 @@
          name the curve, because omitting it inherits `ease`, an ease-IN-out that starts slowly and
          reads as the tap not registering. */
       transition: background var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), border-color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), color var(--wh-dur, 0.2s) var(--wh-ease-out, ease-out), transform var(--wh-dur-fast, 0.15s) var(--wh-ease-out, ease-out);
-      font-size: 0.75rem;
+      font-size: var(--wh-fs-2xs, 0.75rem);
       /* F1/K2 dual-viewport: 44px tap target at BOTH 390 + 1280 (a stray min-height:36px here
          overrode the 44px above on desktop — the rubric grades tap size worse-per-viewport). */
     }
@@ -125,7 +125,7 @@
        this toggle focused, which shows a clean amber ring around "Voice On". The page was right and
        the probe was wrong, and a .btn-ghost:focus rule would have been worse than nothing - it would
        ring these two on a MOUSE click, which is exactly what :focus-visible exists to avoid. */
-    .btn-ghost:hover  { border-color: rgba(255,255,255,0.25); color: white; }
+    .btn-ghost:hover  { border-color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.25); color: var(--wh-white, white); }
     /* R3 one-shape-per-role: the voice toggles are SELECT controls (aria-pressed) — give them
        the pill silhouette; a page's SELECT vocabulary is pill (persona radios + filter chips),
        while PRESS actions (speak-again, load-more) take the rect. Keeps 3 shapes for 2 roles. */
@@ -143,10 +143,10 @@
        three rungs at a time. The page title takes the display step: it is the hero of a header that
        otherwise holds only a Back control and two toggles, and the jump to the section heading below
        it is now unmistakable. Measured after: 24 / 15.2 / 14, a 1.58:1 largest adjacent step. */
-    .vj-title { font-size: 1.5rem; font-weight: 700; line-height: 1.25; }
+    .vj-title { font-size: var(--wh-fs-xl, 1.5rem); font-weight: 700; line-height: 1.25; }
     /* The page named no body size, so every element it did not style inherited the UA's 16px -
        which is not a step on DESIGN.md's ramp and is what the detector was reading as "body". */
-    body { font-size: 0.875rem; }
+    body { font-size: var(--wh-fs-sm-plus, 0.875rem); }
     /* Mic button: thumb-sized circular focal control. */
     .mic-btn {
       width: 132px; height: 132px; border-radius: 50%; border: none; cursor: pointer;
@@ -160,7 +160,7 @@
          platform's own elevation is neutral, so the button now sits on a neutral shadow and keeps
          every bit of its prominence from size and fill, which is where prominence should come
          from. The RECORDING and PROCESSING pulses keep their colour deliberately - see below. */
-      box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+      box-shadow: 0 12px 32px var(--wh-black-45, rgba(0,0,0,0.45));
       display: flex; align-items: center; justify-content: center;
       /* box-shadow was transitioned on a 132px disc - a repaint of the blur every frame. The shadow
          is now static (the slop row made it neutral), so only the press moves, on the platform curve. */
@@ -168,16 +168,16 @@
       margin: 0 auto;
     }
     /* the microphone glyph was 14px inside a 132px disc (W46062): the disc said "press me" and nothing said what for */
-    .mic-btn > .ic { font-size: 2.75rem; }
-    .mic-btn:hover  { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
+    .mic-btn > .ic { font-size: var(--wh-fs-4xl, 3rem); }
+    .mic-btn:hover  { transform: translateY(-2px); box-shadow: 0 16px 40px var(--wh-black-55, rgba(0, 0, 0, 0.55)); }
     .mic-btn:active { transform: scale(0.96); }
     /* the source line is placed in the full-width <main>; it belongs under the 42rem column (W46062) */
     #vj-source-chip { max-width: 42rem; margin: 0 auto; padding: 0 1rem 1.5rem; box-sizing: border-box; }
     .mic-btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; transform: none; }
     .mic-btn.recording {
       background: linear-gradient(135deg, var(--wh-red), var(--wh-red));
-      color: white;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+      color: var(--wh-white, white);
+      box-shadow: 0 12px 32px var(--wh-black-45, rgba(0,0,0,0.45));
       animation: mic-pulse 1.4s ease-in-out infinite;
     }
     /* ★THE RECORDING PULSE WAS A COLOURED GLOW *AND* THE MOST EXPENSIVE WAY TO DRAW ONE (2026-09-19,
@@ -206,7 +206,7 @@
     .mic-btn.processing::after {
       content: ''; position: absolute; inset: -7px; border-radius: 50%;
       border: 3px solid transparent; border-top-color: var(--wh-navy);
-      border-right-color: rgba(11,22,40,0.35);
+      border-right-color: rgba(var(--wh-blue-950-rgb, 11, 18, 32), 0.35);
       animation: mic-spin 0.9s linear infinite;
     }
     @keyframes mic-spin  { to { transform: rotate(360deg); } }
@@ -220,7 +220,7 @@
     /* Reduced-motion: keep a STATIC ring (still a distinct visual state) but no spin/breathe. */
     @media (prefers-reduced-motion: reduce) {
       .mic-btn.processing { animation: none; }
-      .mic-btn.processing::after { animation: none; border-color: rgba(11,22,40,0.55); }
+      .mic-btn.processing::after { animation: none; border-color: rgba(var(--wh-blue-950-rgb, 11, 18, 32), 0.55); }
     }
     /* Functional animation: keep on mobile but reduce intensity. */
     @media (max-width: 767px) {
@@ -231,7 +231,7 @@
       display: inline-flex; align-items: center; gap: 0.25rem;
       background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.14); color:var(--wh-blue-text);
       border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.25);
-      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       padding: 0.25rem 0.5rem; border-radius: 999px;
     }
     .lang-pill.warn { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color: var(--wh-orange); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25); }
@@ -242,8 +242,8 @@
       border-radius: 0.75rem;
       padding: 0.75rem 1rem;
       min-height: 3.2rem;
-      font-size: 0.95rem; line-height: 1.5;
-      color: rgba(255,255,255,0.92);
+      font-size: var(--wh-fs-md, 0.95rem); line-height: 1.5;
+      color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.92);
       word-break: break-word;
     }
     .transcript-box.empty { color:var(--wh-text-muted, rgba(255,255,255,0.80)); font-style: italic; }
@@ -253,8 +253,8 @@
       border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22);
       border-radius: 1rem 1rem 1rem 0.25rem;
       padding: 0.75rem 1rem;
-      font-size: 0.95rem; line-height: 1.55;
-      color: rgba(255,255,255,0.95);
+      font-size: var(--wh-fs-md, 0.95rem); line-height: 1.55;
+      color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.95);
       word-break: break-word;
     }
 
@@ -268,7 +268,7 @@
     }
     .history-entry + .history-entry { margin-top: 0.5rem; }
     .history-day {
-      font-size: 0.75rem; letter-spacing: 0.10em; text-transform: uppercase;
+      font-size: var(--wh-fs-2xs, 0.75rem); letter-spacing: 0.10em; text-transform: uppercase;
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin: 1rem 0 0.5rem;
       font-weight: 700;
     }
@@ -279,9 +279,9 @@
     /* flex-wrap (2026-10-12, T113 dialog-floor gate at 320): C22 made "Speak again" keep its width and its one line, so
        time + language pill + button outgrew the card by up to 16px at 320 and the button hung past its edge. The row
        wraps instead: the button drops to its own line, still right-aligned, only when the three do not fit. */
-    .history-meta { font-variant-numeric: tabular-nums; font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: center; }
-    .history-text { font-size: 0.875rem; line-height: 1.5; color: rgba(255,255,255,0.88); margin-top: 0.25rem; word-break: break-word; }
-    .history-reply { font-size: 0.875rem; line-height: 1.5; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 0.5rem; padding-left: 0.75rem; border-left: 2px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); word-break: break-word; }
+    .history-meta { font-variant-numeric: tabular-nums; font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: center; }
+    .history-text { font-size: var(--wh-fs-sm-plus, 0.875rem); line-height: 1.5; color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.88); margin-top: 0.25rem; word-break: break-word; }
+    .history-reply { font-size: var(--wh-fs-sm-plus, 0.875rem); line-height: 1.5; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 0.5rem; padding-left: 0.75rem; border-left: 2px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.4); word-break: break-word; }
 
     .speak-btn {
       /* ★C22 (wave-4 narrow-320 nav-hub walk, 2026-09-14): in a history entry's flex row this button was squeezed to
@@ -292,7 +292,7 @@
       border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);
       color:var(--wh-orange-text);
       border-radius: var(--wh-radius-sm); /* R3: PRESS action → rect, not the pill worn by the select toggles/chips */
-      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
       padding: 0.25rem 0.75rem; cursor: pointer;
       min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
     }
@@ -303,14 +303,14 @@
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       border-radius: 999px;
       font-family: inherit;
-      font-size: 0.75rem; font-weight: 600;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600;
       padding: 0.5rem 1rem;
       cursor: pointer;
       transition: background var(--wh-dur-fast, .15s) var(--wh-ease-out, ease-out), border-color var(--wh-dur-fast, .15s) var(--wh-ease-out, ease-out), color var(--wh-dur-fast, .15s) var(--wh-ease-out, ease-out);
       display: inline-flex; align-items: center; gap: 0.5rem;
       min-height: 44px;   /* F1/K2 dual-viewport: 44px tap target at BOTH 390 + 1280 (was 36px @desktop) */
     }
-    .persona-chip:hover { color: var(--text, var(--wh-cloud)); border-color: rgba(255,255,255,0.22); }
+    .persona-chip:hover { color: var(--text, var(--wh-cloud)); border-color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.22); }
     .persona-chip.persona-chip-active {
       background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15);
       border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.45);
@@ -333,12 +333,12 @@
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
       border-radius: 999px;
       padding: 0.25rem 0.75rem;
-      font-size: 0.75rem; font-weight: 600;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600;
       cursor: pointer;
       min-height: 44px;
       display: inline-flex; align-items: center; justify-content: center;
     }
-    .filter-chip:hover  { color: white; border-color: var(--wh-white-20, rgba(255,255,255,0.2)); }
+    .filter-chip:hover  { color: var(--wh-white, white); border-color: var(--wh-white-20, rgba(255,255,255,0.2)); }
     .filter-chip:active { transform: scale(0.97); }
     .filter-chip.active {
       background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); color: var(--wh-orange-light);   /* C2: AA-safe orange (was --wh-orange @ 4.44:1) */
@@ -359,12 +359,12 @@
       background: linear-gradient(135deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.95), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.98));
       border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
       padding: 0.75rem 1.25rem; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 600;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600;
       /* 0.3s is not UNDER the 300ms ceiling for interface motion, it IS the ceiling, and neither
          property named a curve. This is the toast that confirms a note was saved or tells somebody
          the microphone failed - the acknowledgement of something they are waiting on. */
       opacity: 0; transition: opacity var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out), transform var(--wh-dur-slow, 0.25s) var(--wh-ease-out, ease-out);
-      pointer-events: none; z-index: 9999; white-space: nowrap;
+      pointer-events: none; z-index: var(--wh-z-toast-5, 9999); white-space: nowrap;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -565,7 +565,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
              where the decision to be candid is actually made. Wording read off the RLS policies, not
              from memory - this trajectory's own lesson, after a welcome card claimed the journal was
              the ONLY private surface and the policies said otherwise. -->
-        <p class="text-xs mb-1" style="color:rgba(255,255,255,0.72);">
+        <p class="text-xs mb-1" style="color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.72);">
           <span aria-hidden="true">🔒</span> Private to you. Nobody else in your hive can read your
           journal notes - not your supervisor, not your teammates.
         </p>

@@ -82,9 +82,14 @@ def check(js: str, html: str, run_node=None) -> list[str]:
     # S5
     if "_renderComputed(inputs, data);" not in _fn(js, "runCalculation"):
         bad.append("S5 runCalculation does not draw through _renderComputed")
-    for fn in ("_renderComputed", "viewHistoryReport"):
-        if "edAfterReport();" not in _fn(js, fn):
-            bad.append(f"S5 {fn} does not end in edAfterReport (scenario A and the link offer go stale)")
+    if "edAfterReport();" not in _fn(js, "_renderComputed"):
+        bad.append("S5 _renderComputed does not end in edAfterReport (scenario A and the link offer go stale)")
+    # ★A REOPENED REPORT DRAWS THROUGH THE ONE DISPATCHER (ED S1, 2026-11-02): viewHistoryReport had its own dispatcher,
+    # which knew 30 of 55 calculators, and now hands the saved row to _renderComputed({ fromHistory: true }) - whose
+    # ending is the check above. Asking for the literal call here read that fix as the regression it removed.
+    vh = _fn(js, "viewHistoryReport")
+    if "edAfterReport();" not in vh and not re.search(r"_renderComputed\([^;]*fromHistory:\s*true[^;]*\);", vh):
+        bad.append("S5 viewHistoryReport does not end in edAfterReport (scenario A and the link offer go stale)")
     # S6
     if run_node is not None:
         ok, out = run_node()
@@ -131,6 +136,12 @@ def self_test() -> int:
          js.replace("  window.addEventListener('hashchange', () => {\n", "  window.addEventListener('pagehide', () => {\n"), html, "S4"),
         ("the poller does not stand aside",
          js.replace("  if (/(?:^|[#&])share=/.test(window.location.hash || '')) return;\n", ""), html, "S4"),
+        ("the dispatcher no longer ends in edAfterReport",
+         js.replace("// a reopened report was rated when it was computed\n  edAfterReport();",
+                    "// a reopened report was rated when it was computed"), html, "S5"),
+        ("a reopened report bypasses the dispatcher",
+         js.replace("_renderComputed(row.inputs, { results: row.results, narrative: row.narrative }, { fromHistory: true });",
+                    "renderReport(row.inputs, row.results, row.narrative);"), html, "S5"),
         ("the compare card inside the printed report",
          js, html.replace('          <section id="ed-compare" class="ed-compare" hidden aria-label="Scenario A and this result"></section>\n', "")
              .replace('<div id="report-panel"></div>', '<div id="report-panel"><section id="ed-compare"></section></div>'), "S1"),

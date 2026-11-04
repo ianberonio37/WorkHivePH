@@ -1,10 +1,10 @@
 {
- "generated": "2026-10-20T17:31:46+00:00",
- "coverage_pct": 91.6,
- "page_pct": 89.8,
- "ai_surface_pct": 100.0,
+ "generated": "2026-11-03T18:36:24+00:00",
+ "coverage_pct": 99.0,
+ "page_pct": 100.0,
+ "ai_surface_pct": 94.1,
  "surfaces": {
-  "pages": 96,
+  "pages": 95,
   "ai_fns": 33
  },
  "page_dims": [
@@ -40,12 +40,12 @@
   "D25",
   "D26"
  ],
- "cells_total": 2280,
+ "cells_total": 2259,
  "state_counts": {
-  "✅": 1153,
-  "🟡": 0,
-  "⬜": 106,
-  "n/a": 1021
+  "✅": 1218,
+  "🟡": 26,
+  "⬜": 0,
+  "n/a": 1015
  },
  "gate_floor": [
   "audit_displayed_values",
@@ -99,32 +99,10 @@
   "validate_sw_shell_membership",
   "validate_voice_router_honesty"
  ],
- "gates_failed": [
-  "cwv_gate",
-  "validate_ai_eval_answers_are_real",
-  "validate_inventory_ledger_reconciled",
-  "validate_logbook_asset_linkage",
-  "validate_sw_shell_membership"
- ],
- "regressed_cells": [
-  "cwv_gate",
-  "validate_inventory_ledger_reconciled",
-  "validate_logbook_asset_linkage",
-  "validate_sw_shell_membership"
- ],
- "next_target": {
-  "surface": "inventory",
-  "kind": "page",
-  "dim": "D2",
-  "dim_label": "data-integrity (the 11 DI write classes)",
-  "surface_pct": 83.3,
-  "open_dims": [
-   "CA",
-   "D2",
-   "D6"
-  ]
- },
- "drive_plan": "Playwright-walk `inventory.html` for D2 (data-integrity (the 11 DI write classes)): operate the affordance live, assert at the DATA layer via mcp__postgres__query, flywheel any miss, then tag+lock a validator `# DEEPWALK-CELL: inventory D2`.",
+ "gates_failed": [],
+ "regressed_cells": [],
+ "next_target": null,
+ "drive_plan": "grid DRY — nothing to drive",
  "orphan_oracles": [
   "ai_eval_gate",
   "aio_readiness_gate",
@@ -200,6 +178,7 @@
   "validate_accessor_load_order",
   "validate_account_deactivation",
   "validate_admin_is_an_account",
+  "validate_advice_names_a_real_filter",
   "validate_ai_answer_is_text",
   "validate_ai_call_sinks",
   "validate_ai_chain_models_snapshot",
@@ -210,6 +189,7 @@
   "validate_ai_input_caps",
   "validate_ai_live_invoke",
   "validate_ai_render_provenance",
+  "validate_ai_spend_in_budget",
   "validate_ai_trust_row_coverage",
   "validate_ai_write_provenance",
   "validate_alert_loop_closes",
@@ -217,6 +197,7 @@
   "validate_analytics_cache_freshness",
   "validate_analytics_correctness",
   "validate_analytics_page",
+  "validate_analytics_skip_trash",
   "validate_analytics_synthesis_grounding",
   "validate_analytics_ufai_scoreboard",
   "validate_animation_never_hides_content",
@@ -225,6 +206,7 @@
   "validate_anon_key_retirement",
   "validate_answer_cache_is_tenant_keyed",
   "validate_answer_presence",
+  "validate_api_grants_explicit",
   "validate_approval_authority",
   "validate_approval_lock",
   "validate_approval_queue_aggregates",
@@ -254,10 +236,14 @@
   "validate_bom_sow_grounding",
   "validate_bounce_idempotency",
   "validate_bounded_list_offers_the_rest",
+  "validate_breached_password_check",
+  "validate_breakdown_cause_listed",
   "validate_calc_api_serializable",
   "validate_calc_formula_accuracy",
   "validate_calc_live_value",
   "validate_calc_pages",
+  "validate_calc_reco_fallback",
+  "validate_calc_share_compare",
   "validate_canonical_resolves",
   "validate_captured_columns_reach_a_reader",
   "validate_captured_fields_are_readable",
@@ -279,10 +265,12 @@
   "validate_committed_env_secret",
   "validate_community_notifications",
   "validate_community_xp_ledger",
+  "validate_companion_grounding",
   "validate_companion_output_escaping",
   "validate_compliance_claim_honesty",
   "validate_composer_audience",
   "validate_composer_caps_visible",
+  "validate_const_not_reassigned",
   "validate_conversion_bank",
   "validate_converted_money_states_its_rate",
   "validate_corrective_definition_parity",
@@ -291,6 +279,7 @@
   "validate_credit_loop_closes",
   "validate_credit_posture",
   "validate_credit_solvency",
+  "validate_critic_cells",
   "validate_critic_registry",
   "validate_cron_batch_gate",
   "validate_cron_health",
@@ -300,13 +289,16 @@
   "validate_csp_covers_what_ships",
   "validate_d9_knob_integrity",
   "validate_data_completeness",
+  "validate_data_moves",
   "validate_dated_claim_freshness",
   "validate_day_one_parallel_join",
   "validate_dead_end_has_a_door",
   "validate_debug_echo_prod_safe",
   "validate_declared_fks_exist",
+  "validate_definer_doors",
   "validate_degraded_state_central",
   "validate_deletes_are_recoverable",
+  "validate_dependency_honesty",
   "validate_deploy_root_hygiene",
   "validate_destructive_proportional_confirm",
   "validate_device_clock_day",
@@ -314,6 +306,7 @@
   "validate_dialog_floor",
   "validate_display_correctness_fixes",
   "validate_dispute_machinery",
+  "validate_door_examples_are_keys",
   "validate_double_submit_lock",
   "validate_draft_age_visible",
   "validate_draft_survives_reauth",
@@ -370,6 +363,7 @@
   "validate_fmea_priority_order",
   "validate_form_control_named",
   "validate_founder_console_honest",
+  "validate_free_plan_budget",
   "validate_freshness_stamp_tracks_content",
   "validate_funnel_cls",
   "validate_g5d_reauth_restore",
@@ -400,12 +394,19 @@
   "validate_hive_value_summary",
   "validate_hive_write_isolation",
   "validate_hiveless_knowledge_is_owner_read",
+  "validate_hub_panel_on_screen",
   "validate_i18n_coverage",
   "validate_icon_meaning_registry",
+  "validate_identity_restore_reaches_routing",
   "validate_idle_network",
   "validate_improvement_loop_integrity",
+  "validate_in_app_search_honest",
+  "validate_in_list_chunked",
+  "validate_ingest_embeds_strict",
+  "validate_injected_css_parity",
   "validate_inline_image_guard",
   "validate_input_validation_guard",
+  "validate_install_affordance",
   "validate_integration_configs_authz_live",
   "validate_intelligence_jsonb_shape",
   "validate_intelligence_write_isolation",
@@ -426,6 +427,7 @@
   "validate_kept_copy_says_so",
   "validate_kicked_rejoin_is_explained",
   "validate_knowledge_is_retrievable",
+  "validate_kpi_calc",
   "validate_kpi_evidence_links",
   "validate_kpi_parity",
   "validate_landing",
@@ -435,6 +437,7 @@
   "validate_leave_audit_ordering",
   "validate_legal_claim_honesty",
   "validate_lifecycle_state_reachability",
+  "validate_limit_says_when",
   "validate_lineage_status_drift",
   "validate_list_cap_not_a_total",
   "validate_list_caps_say_more",
@@ -447,6 +450,7 @@
   "validate_logbook_quota",
   "validate_login_proxy_lockout",
   "validate_long_fetch_bounded",
+  "validate_long_list_render",
   "validate_longest_truncates",
   "validate_lowstock_marketplace_handoff",
   "validate_marketplace_bank_journey",
@@ -479,6 +483,7 @@
   "validate_nav_roles_are_modes",
   "validate_new_claims_are_opt_in",
   "validate_night_crawler_freshness",
+  "validate_no_call_to_nothing",
   "validate_no_client_counter_write",
   "validate_no_client_truncate",
   "validate_no_clock_driven_push",
@@ -488,6 +493,7 @@
   "validate_no_drag_only",
   "validate_no_eaten_escapes",
   "validate_no_eval_under_strict_csp",
+  "validate_no_execute_on_builders",
   "validate_no_future_timestamps",
   "validate_no_get_mutation",
   "validate_no_interpolated_filter_injection",
@@ -513,6 +519,8 @@
   "validate_old_draft_says_its_age",
   "validate_onconflict_index",
   "validate_one_clock_per_string",
+  "validate_one_person_cannot_flood",
+  "validate_operator_console_covers_surfaces",
   "validate_optimistic_input_restore",
   "validate_orchestrator_query_binding",
   "validate_outage_copy_honesty",
@@ -525,6 +533,7 @@
   "validate_page_crud",
   "validate_page_log_tags",
   "validate_page_roster",
+  "validate_page_rpcs_callable",
   "validate_page_ui_provers",
   "validate_paginated_order_totality",
   "validate_partial_metric_declares_itself",
@@ -541,6 +550,7 @@
   "validate_persona_task_success",
   "validate_ph_intelligence_benchmark",
   "validate_photo_survives_queue",
+  "validate_photos_in_storage",
   "validate_pick_prefills_category",
   "validate_picker_arrow_keys",
   "validate_pm_completion_repaints_truth",
@@ -555,9 +565,14 @@
   "validate_post_action_coherence",
   "validate_power_user_accelerator",
   "validate_presence_unavailable_is_not_absent",
+  "validate_preset_chip_field_read",
   "validate_print_export_stamped",
   "validate_print_is_readable_on_paper",
   "validate_printed_truncation_is_disclosed",
+  "validate_probe_identities_resolve",
+  "validate_prod_corpus",
+  "validate_prod_signed_in_pages",
+  "validate_prod_tier0_flows",
   "validate_production_error_groups",
   "validate_profile_no_self_privilege",
   "validate_project_authority",
@@ -567,6 +582,7 @@
   "validate_projects_correctness",
   "validate_promo_poster",
   "validate_prompt_example_grounding",
+  "validate_prover_reads_whole_list",
   "validate_provider_availability_driven",
   "validate_psql_probe_suite",
   "validate_public_feed_dated",
@@ -588,6 +604,7 @@
   "validate_rating_admits_refusal",
   "validate_reachable_capability",
   "validate_read_battery",
+  "validate_read_ceiling",
   "validate_readonly_p6_no_edit",
   "validate_realtime_channel_cap",
   "validate_realtime_degradation_honest",
@@ -597,6 +614,7 @@
   "validate_redundant_widgets",
   "validate_reference_pages_uncapped",
   "validate_refresh_retry_dedup",
+  "validate_refresh_stands_down_hidden",
   "validate_refusal_reason_persists",
   "validate_refusal_sentences",
   "validate_rejection_reaches_the_submitter",
@@ -608,9 +626,11 @@
   "validate_repaint_spares_typing",
   "validate_report_clobber_guard",
   "validate_report_email_escaping",
+  "validate_report_grids_reflow",
   "validate_report_link_fidelity",
   "validate_report_reason_deliberate",
   "validate_report_window_parity",
+  "validate_rescan_keeps_detection_date",
   "validate_response_format_validation",
   "validate_resume",
   "validate_resume_review_sheet",
@@ -635,6 +655,7 @@
   "validate_scenario_matrix",
   "validate_schedule_health_falsifiable",
   "validate_scheduled_claim_has_a_schedule",
+  "validate_scheduled_work",
   "validate_scroll_gate_evaluates_at_open",
   "validate_search_button_is_not_dead",
   "validate_search_term_survives_punctuation",
@@ -655,13 +676,16 @@
   "validate_signout_says_why",
   "validate_signup_bot_protection",
   "validate_signup_enumeration_safety",
+  "validate_sitemap_promise",
   "validate_skeleton_labelled",
   "validate_skeleton_resolves",
   "validate_skill_privacy_copy_consistent",
   "validate_slo_budget",
   "validate_slow_hint_reads_only",
   "validate_slow_read_honest",
+  "validate_smoke_identity",
   "validate_soft_delete_not_aggregated",
+  "validate_solar_planner",
   "validate_someone_to_you",
   "validate_source_chip_freshness",
   "validate_source_chip_names_a_real_relation",
@@ -713,12 +737,14 @@
   "validate_unchecked_writes",
   "validate_unconfirmed_write_is_not_a_failure",
   "validate_unprotected_write_grant",
+  "validate_untrusted_text_guard",
   "validate_usage_events",
   "validate_vector_search_recall",
   "validate_vehicle_extract_accuracy",
   "validate_vehicle_foundations",
   "validate_vendor_pricing_freshness",
   "validate_verdict_needs_a_denominator",
+  "validate_vibration_standard_attribution",
   "validate_view_security_invoker",
   "validate_visual_defect_confidence",
   "validate_voice_alert_order",
@@ -745,7 +771,7 @@
   "workflow_gate"
  ],
  "newly_joined": [],
- "surface_set_hash": "d822ca67b7a8",
+ "surface_set_hash": "2ccb9cb97436",
  "oracle_set_hash": "64d50481a080",
  "live_bonus": {
   "live_cells": 28,
@@ -780,8 +806,8 @@
    "H9/F"
   ],
   "breaches": 0,
-  "fresh": true,
-  "age_days": 7.4,
+  "fresh": false,
+  "age_days": 21.4,
   "proven_ever": 32,
   "this_run": 28
  },
@@ -812,10 +838,9 @@
    "locked": true
   },
   "achievements|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "achievements|D7": {
    "state": "✅",
@@ -908,10 +933,9 @@
    "locked": true
   },
   "agentic-rag-observability|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "agentic-rag-observability|D7": {
    "state": "✅",
@@ -986,7 +1010,9 @@
    "locked": true
   },
   "ai-quality|D2": {
-   "state": "n/a"
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
   },
   "ai-quality|D3": {
    "state": "✅",
@@ -1004,10 +1030,9 @@
    "locked": true
   },
   "ai-quality|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "ai-quality|D7": {
    "state": "✅",
@@ -1102,10 +1127,9 @@
    "locked": true
   },
   "alert-hub|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "alert-hub|D7": {
    "state": "✅",
@@ -1200,10 +1224,9 @@
    "locked": true
   },
   "analytics-report|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "analytics-report|D7": {
    "state": "✅",
@@ -1302,10 +1325,9 @@
    "locked": true
   },
   "analytics|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "analytics|D7": {
    "state": "✅",
@@ -1406,10 +1428,9 @@
    "locked": true
   },
   "asset-hub|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "asset-hub|D7": {
    "state": "✅",
@@ -1477,10 +1498,9 @@
    "locked": true
   },
   "asset-hub|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "asset-hub|A": {
    "state": "✅",
@@ -1513,10 +1533,9 @@
    "locked": true
   },
   "assistant|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "assistant|D7": {
    "state": "✅",
@@ -1617,10 +1636,9 @@
    "locked": true
   },
   "audit-log|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "audit-log|D7": {
    "state": "✅",
@@ -1715,10 +1733,9 @@
    "locked": true
   },
   "community|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "community|D7": {
    "state": "✅",
@@ -1813,10 +1830,9 @@
    "locked": true
   },
   "dayplanner|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "dayplanner|D7": {
    "state": "✅",
@@ -1885,102 +1901,6 @@
   "dayplanner|A": {
    "state": "n/a"
   },
-  "design-system|D1": {
-   "state": "✅",
-   "oracle": "audit_displayed_values",
-   "locked": true
-  },
-  "design-system|D2": {
-   "state": "n/a"
-  },
-  "design-system|D3": {
-   "state": "✅",
-   "oracle": "validate_reactivity_wiring",
-   "locked": true
-  },
-  "design-system|D4": {
-   "state": "✅",
-   "oracle": "validate_clickable_keyboard_a11y",
-   "locked": true
-  },
-  "design-system|D5": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "design-system|D6": {
-   "state": "⬜",
-   "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
-  },
-  "design-system|D7": {
-   "state": "✅",
-   "oracle": "validate_dom_xss_fields",
-   "locked": true
-  },
-  "design-system|D8": {
-   "state": "✅",
-   "oracle": "validate_definer_tenant_gate",
-   "locked": true
-  },
-  "design-system|D9": {
-   "state": "✅",
-   "oracle": "validate_public_fn_authz",
-   "locked": true
-  },
-  "design-system|D18": {
-   "state": "✅",
-   "oracle": "validate_destructive_safety",
-   "locked": true
-  },
-  "design-system|D19": {
-   "state": "✅",
-   "oracle": "validate_session_resilience",
-   "locked": true
-  },
-  "design-system|D20": {
-   "state": "✅",
-   "oracle": "validate_client_resilience",
-   "locked": true
-  },
-  "design-system|D15": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "design-system|D17": {
-   "state": "✅",
-   "oracle": "validate_frontend_floor_cells",
-   "locked": true
-  },
-  "design-system|D22": {
-   "state": "✅",
-   "oracle": "validate_interactive_lineage",
-   "locked": true
-  },
-  "design-system|D23": {
-   "state": "✅",
-   "oracle": "validate_plain_language",
-   "locked": true
-  },
-  "design-system|D21F": {
-   "state": "✅",
-   "oracle": "validate_error_capture",
-   "locked": true
-  },
-  "design-system|D12P": {
-   "state": "n/a"
-  },
-  "design-system|CP": {
-   "state": "n/a"
-  },
-  "design-system|CA": {
-   "state": "n/a"
-  },
-  "design-system|A": {
-   "state": "n/a"
-  },
   "engineering-design|D1": {
    "state": "✅",
    "oracle": "audit_displayed_values",
@@ -2005,10 +1925,9 @@
    "locked": true
   },
   "engineering-design|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "engineering-design|D7": {
    "state": "✅",
@@ -2103,10 +2022,9 @@
    "locked": true
   },
   "founder-console|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "founder-console|D7": {
    "state": "✅",
@@ -2201,10 +2119,9 @@
    "locked": true
   },
   "hive|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "hive|D7": {
    "state": "✅",
@@ -2272,10 +2189,9 @@
    "locked": true
   },
   "hive|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "hive|A": {
    "state": "✅",
@@ -2308,10 +2224,9 @@
    "locked": true
   },
   "index|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "index|D7": {
    "state": "✅",
@@ -2406,10 +2321,9 @@
    "locked": true
   },
   "integrations|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "integrations|D7": {
    "state": "✅",
@@ -2486,10 +2400,9 @@
    "locked": true
   },
   "inventory|D2": {
-   "state": "⬜",
-   "oracle": "validate_inventory_ledger_reconciled",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
   },
   "inventory|D3": {
    "state": "✅",
@@ -2507,10 +2420,9 @@
    "locked": true
   },
   "inventory|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "inventory|D7": {
    "state": "✅",
@@ -2574,10 +2486,9 @@
    "state": "n/a"
   },
   "inventory|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "inventory|A": {
    "state": "n/a"
@@ -2606,10 +2517,9 @@
    "locked": true
   },
   "llm-observability|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "llm-observability|D7": {
    "state": "✅",
@@ -2684,10 +2594,9 @@
    "locked": true
   },
   "logbook|D2": {
-   "state": "⬜",
-   "oracle": "validate_logbook_asset_linkage",
-   "locked": true,
-   "regressed": true
+   "state": "✅",
+   "oracle": "validate_attribution",
+   "locked": true
   },
   "logbook|D3": {
    "state": "✅",
@@ -2705,10 +2614,9 @@
    "locked": true
   },
   "logbook|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "logbook|D7": {
    "state": "✅",
@@ -2776,10 +2684,9 @@
    "locked": true
   },
   "logbook|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "logbook|A": {
    "state": "✅",
@@ -2812,10 +2719,9 @@
    "locked": true
   },
   "marketplace-admin|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "marketplace-admin|D7": {
    "state": "✅",
@@ -2910,10 +2816,9 @@
    "locked": true
   },
   "marketplace-seller-profile|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "marketplace-seller-profile|D7": {
    "state": "✅",
@@ -3008,10 +2913,9 @@
    "locked": true
   },
   "marketplace-seller|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "marketplace-seller|D7": {
    "state": "✅",
@@ -3106,10 +3010,9 @@
    "locked": true
   },
   "marketplace|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "marketplace|D7": {
    "state": "✅",
@@ -3208,10 +3111,9 @@
    "locked": true
   },
   "offline-fallback|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "offline-fallback|D7": {
    "state": "✅",
@@ -3275,10 +3177,9 @@
    "state": "n/a"
   },
   "offline-fallback|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "offline-fallback|A": {
    "state": "n/a"
@@ -3309,10 +3210,9 @@
    "locked": true
   },
   "ph-intelligence|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "ph-intelligence|D7": {
    "state": "✅",
@@ -3409,10 +3309,9 @@
    "locked": true
   },
   "plant-connections|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "plant-connections|D7": {
    "state": "✅",
@@ -3507,10 +3406,9 @@
    "locked": true
   },
   "platform-actions|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "platform-actions|D7": {
    "state": "✅",
@@ -3605,10 +3503,9 @@
    "locked": true
   },
   "pm-scheduler|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "pm-scheduler|D7": {
    "state": "✅",
@@ -3672,10 +3569,9 @@
    "state": "n/a"
   },
   "pm-scheduler|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "pm-scheduler|A": {
    "state": "n/a"
@@ -3706,10 +3602,9 @@
    "locked": true
   },
   "project-manager|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "project-manager|D7": {
    "state": "✅",
@@ -3810,10 +3705,9 @@
    "locked": true
   },
   "project-report|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "project-report|D7": {
    "state": "✅",
@@ -3912,10 +3806,9 @@
    "locked": true
   },
   "promo-poster|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "promo-poster|D7": {
    "state": "✅",
@@ -4006,10 +3899,9 @@
    "locked": true
   },
   "public-feed|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "public-feed|D7": {
    "state": "✅",
@@ -4104,10 +3996,9 @@
    "locked": true
   },
   "report-sender|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "report-sender|D7": {
    "state": "✅",
@@ -4175,10 +4066,9 @@
    "locked": true
   },
   "report-sender|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "report-sender|A": {
    "state": "✅",
@@ -4211,10 +4101,9 @@
    "locked": true
   },
   "resume|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "resume|D7": {
    "state": "✅",
@@ -4309,10 +4198,9 @@
    "locked": true
   },
   "shift-brain|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "shift-brain|D7": {
    "state": "✅",
@@ -4380,10 +4268,9 @@
    "locked": true
   },
   "shift-brain|CA": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "validate_sw_shell_membership",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "shift-brain|A": {
    "state": "✅",
@@ -4416,10 +4303,9 @@
    "locked": true
   },
   "skillmatrix|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "skillmatrix|D7": {
    "state": "✅",
@@ -4512,10 +4398,9 @@
    "locked": true
   },
   "status|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "status|D7": {
    "state": "✅",
@@ -4610,10 +4495,9 @@
    "locked": true
   },
   "voice-journal|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "voice-journal|D7": {
    "state": "✅",
@@ -4708,10 +4592,9 @@
    "locked": true
   },
   "about|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "about|D7": {
    "state": "✅",
@@ -4784,10 +4667,9 @@
    "locked": true
   },
   "learn/ai-companion-hezekiah-zaniah-personas|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/ai-companion-hezekiah-zaniah-personas|D7": {
    "state": "✅",
@@ -4860,10 +4742,9 @@
    "locked": true
   },
   "learn/ai-quality-and-roi-stage-2-plants|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/ai-quality-and-roi-stage-2-plants|D7": {
    "state": "✅",
@@ -4936,10 +4817,9 @@
    "locked": true
   },
   "learn/ai-work-assistant-maintenance-technicians|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/ai-work-assistant-maintenance-technicians|D7": {
    "state": "✅",
@@ -5012,10 +4892,9 @@
    "locked": true
   },
   "learn/asset-brain-360-one-machine-history-philippine-plant|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/asset-brain-360-one-machine-history-philippine-plant|D7": {
    "state": "✅",
@@ -5088,10 +4967,9 @@
    "locked": true
   },
   "learn/autonomous-shift-planning-philippine-plants|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/autonomous-shift-planning-philippine-plants|D7": {
    "state": "✅",
@@ -5164,10 +5042,9 @@
    "locked": true
   },
   "learn/best-free-cmms-software-philippines|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/best-free-cmms-software-philippines|D7": {
    "state": "✅",
@@ -5240,10 +5117,9 @@
    "locked": true
   },
   "learn/bms-facilities-maintenance-peza-buildings|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/bms-facilities-maintenance-peza-buildings|D7": {
    "state": "✅",
@@ -5316,10 +5192,9 @@
    "locked": true
   },
   "learn/building-asset-register-zero-budget|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/building-asset-register-zero-budget|D7": {
    "state": "✅",
@@ -5392,10 +5267,9 @@
    "locked": true
   },
   "learn/cmms-vs-excel-spreadsheet-maintenance|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/cmms-vs-excel-spreadsheet-maintenance|D7": {
    "state": "✅",
@@ -5468,10 +5342,9 @@
    "locked": true
   },
   "learn/connecting-workhive-to-sap-maximo-cmms|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/connecting-workhive-to-sap-maximo-cmms|D7": {
    "state": "✅",
@@ -5544,10 +5417,9 @@
    "locked": true
   },
   "learn/dilo-wilo-day-planner-supervisors|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/dilo-wilo-day-planner-supervisors|D7": {
    "state": "✅",
@@ -5620,10 +5492,9 @@
    "locked": true
   },
   "learn/dole-iso-audit-trail-from-logbook|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/dole-iso-audit-trail-from-logbook|D7": {
    "state": "✅",
@@ -5696,10 +5567,9 @@
    "locked": true
   },
   "learn/fmea-worked-example-philippine-bottling-line|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/fmea-worked-example-philippine-bottling-line|D7": {
    "state": "✅",
@@ -5772,10 +5642,9 @@
    "locked": true
   },
   "learn/food-beverage-plant-maintenance-philippines|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/food-beverage-plant-maintenance-philippines|D7": {
    "state": "✅",
@@ -5848,10 +5717,9 @@
    "locked": true
   },
   "learn/four-phases-maintenance-analytics-philippine-plants|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/four-phases-maintenance-analytics-philippine-plants|D7": {
    "state": "✅",
@@ -5924,10 +5792,9 @@
    "locked": true
   },
   "learn/free-engineering-calculators-philippine-plants|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/free-engineering-calculators-philippine-plants|D7": {
    "state": "✅",
@@ -6000,10 +5867,9 @@
    "locked": true
   },
   "learn/free-pm-checklist-templates|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/free-pm-checklist-templates|D7": {
    "state": "✅",
@@ -6076,10 +5942,9 @@
    "locked": true
   },
   "learn/gamifying-maintenance-for-engagement|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/gamifying-maintenance-for-engagement|D7": {
    "state": "✅",
@@ -6152,10 +6017,9 @@
    "locked": true
   },
   "learn/industrial-community-of-practice-philippines|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/industrial-community-of-practice-philippines|D7": {
    "state": "✅",
@@ -6228,10 +6092,9 @@
    "locked": true
   },
   "learn/industrial-marketplace-philippine-specialists|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/industrial-marketplace-philippine-specialists|D7": {
    "state": "✅",
@@ -6304,10 +6167,9 @@
    "locked": true
   },
   "learn/joining-and-growing-your-hive|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/joining-and-growing-your-hive|D7": {
    "state": "✅",
@@ -6380,10 +6242,9 @@
    "locked": true
   },
   "learn/loto-procedures-dole-oshs-template|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/loto-procedures-dole-oshs-template|D7": {
    "state": "✅",
@@ -6456,10 +6317,9 @@
    "locked": true
   },
   "learn/maintenance-metrics-reliability-guide|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/maintenance-metrics-reliability-guide|D7": {
    "state": "✅",
@@ -6532,10 +6392,9 @@
    "locked": true
   },
   "learn/maintenance-project-planning-template|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/maintenance-project-planning-template|D7": {
    "state": "✅",
@@ -6608,10 +6467,9 @@
    "locked": true
   },
   "learn/maintenance-shift-handover-template|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/maintenance-shift-handover-template|D7": {
    "state": "✅",
@@ -6684,10 +6542,9 @@
    "locked": true
   },
   "learn/mtbf-vs-mttr-for-supervisors|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/mtbf-vs-mttr-for-supervisors|D7": {
    "state": "✅",
@@ -6760,10 +6617,9 @@
    "locked": true
   },
   "learn/ofw-engineer-portable-portfolio|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/ofw-engineer-portable-portfolio|D7": {
    "state": "✅",
@@ -6836,10 +6692,9 @@
    "locked": true
   },
   "learn/ph-industrial-benchmarks-intelligence|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/ph-industrial-benchmarks-intelligence|D7": {
    "state": "✅",
@@ -6912,10 +6767,9 @@
    "locked": true
   },
   "learn/ph-plant-compliance-guide|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/ph-plant-compliance-guide|D7": {
    "state": "✅",
@@ -6988,10 +6842,9 @@
    "locked": true
   },
   "learn/philippine-plants-now-pay-the-highest-power-rates|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/philippine-plants-now-pay-the-highest-power-rates|D7": {
    "state": "✅",
@@ -7064,10 +6917,9 @@
    "locked": true
   },
   "learn/plant-alert-inbox-amc-daily-brief|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/plant-alert-inbox-amc-daily-brief|D7": {
    "state": "✅",
@@ -7140,10 +6992,9 @@
    "locked": true
   },
   "learn/power-plant-reliability-metrics-philippines|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/power-plant-reliability-metrics-philippines|D7": {
    "state": "✅",
@@ -7216,10 +7067,9 @@
    "locked": true
   },
   "learn/predictive-alert-thresholds-plants|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/predictive-alert-thresholds-plants|D7": {
    "state": "✅",
@@ -7292,10 +7142,9 @@
    "locked": true
   },
   "learn/predictive-maintenance-on-a-budget-philippines|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/predictive-maintenance-on-a-budget-philippines|D7": {
    "state": "✅",
@@ -7368,10 +7217,9 @@
    "locked": true
   },
   "learn/print-ready-maintenance-analytics-report|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/print-ready-maintenance-analytics-report|D7": {
    "state": "✅",
@@ -7444,10 +7292,9 @@
    "locked": true
   },
   "learn/psme-iiee-piche-which-association-to-join|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/psme-iiee-piche-which-association-to-join|D7": {
    "state": "✅",
@@ -7520,10 +7367,9 @@
    "locked": true
   },
   "learn/ra-11285-energy-efficiency-plant-checklist|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/ra-11285-energy-efficiency-plant-checklist|D7": {
    "state": "✅",
@@ -7596,10 +7442,9 @@
    "locked": true
   },
   "learn/reduce-unplanned-downtime-guide|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/reduce-unplanned-downtime-guide|D7": {
    "state": "✅",
@@ -7672,10 +7517,9 @@
    "locked": true
   },
   "learn/reliability-centered-maintenance-philippine-plants|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/reliability-centered-maintenance-philippine-plants|D7": {
    "state": "✅",
@@ -7748,10 +7592,9 @@
    "locked": true
   },
   "learn/resume-builder-for-filipino-industrial-workers|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/resume-builder-for-filipino-industrial-workers|D7": {
    "state": "✅",
@@ -7824,10 +7667,9 @@
    "locked": true
   },
   "learn/sensor-cmms-gateway-operations|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/sensor-cmms-gateway-operations|D7": {
    "state": "✅",
@@ -7900,10 +7742,9 @@
    "locked": true
   },
   "learn/skill-matrix-for-maintenance-technicians|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/skill-matrix-for-maintenance-technicians|D7": {
    "state": "✅",
@@ -7976,10 +7817,9 @@
    "locked": true
   },
   "learn/spare-parts-inventory-philippine-plants|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/spare-parts-inventory-philippine-plants|D7": {
    "state": "✅",
@@ -8052,10 +7892,9 @@
    "locked": true
   },
   "learn/start-digital-logbook-philippine-factory|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/start-digital-logbook-philippine-factory|D7": {
    "state": "✅",
@@ -8128,10 +7967,9 @@
    "locked": true
   },
   "learn/start-digital-maintenance-guide|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/start-digital-maintenance-guide|D7": {
    "state": "✅",
@@ -8204,10 +8042,9 @@
    "locked": true
   },
   "learn/tesda-nc-mapping-to-skill-matrix|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/tesda-nc-mapping-to-skill-matrix|D7": {
    "state": "✅",
@@ -8280,10 +8117,9 @@
    "locked": true
   },
   "learn/thermography-for-pm-philippine-plants|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/thermography-for-pm-philippine-plants|D7": {
    "state": "✅",
@@ -8356,10 +8192,9 @@
    "locked": true
   },
   "learn/vibration-analysis-on-a-phone-budget|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/vibration-analysis-on-a-phone-budget|D7": {
    "state": "✅",
@@ -8432,10 +8267,9 @@
    "locked": true
   },
   "learn/voice-to-text-maintenance-philippine-plant-floor|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/voice-to-text-maintenance-philippine-plant-floor|D7": {
    "state": "✅",
@@ -8508,10 +8342,9 @@
    "locked": true
   },
   "learn/what-is-oee-how-to-calculate|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/what-is-oee-how-to-calculate|D7": {
    "state": "✅",
@@ -8584,10 +8417,9 @@
    "locked": true
   },
   "learn/what-is-workhive-complete-platform-guide|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/what-is-workhive-complete-platform-guide|D7": {
    "state": "✅",
@@ -8660,10 +8492,9 @@
    "locked": true
   },
   "learn/workhive-ai-companion-complete-capabilities|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/workhive-ai-companion-complete-capabilities|D7": {
    "state": "✅",
@@ -8736,10 +8567,9 @@
    "locked": true
   },
   "learn/workhive-vs-maintainx-comparison|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/workhive-vs-maintainx-comparison|D7": {
    "state": "✅",
@@ -8812,10 +8642,9 @@
    "locked": true
   },
   "learn/workhive-vs-upkeep-free-cmms-comparison|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "learn/workhive-vs-upkeep-free-cmms-comparison|D7": {
    "state": "✅",
@@ -8888,10 +8717,9 @@
    "locked": true
   },
   "privacy-policy|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "privacy-policy|D7": {
    "state": "✅",
@@ -8964,10 +8792,9 @@
    "locked": true
   },
   "terms-of-service|D6": {
-   "state": "⬜",
+   "state": "✅",
    "oracle": "cwv_gate",
-   "locked": true,
-   "regressed": true
+   "locked": true
   },
   "terms-of-service|D7": {
    "state": "✅",
@@ -9021,9 +8848,9 @@
    "state": "n/a"
   },
   "agent-memory-store|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "agent-memory-store|D11": {
    "state": "✅",
@@ -9061,9 +8888,9 @@
    "locked": true
   },
   "agentic-rag-loop|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "agentic-rag-loop|D11": {
    "state": "✅",
@@ -9099,9 +8926,9 @@
    "state": "n/a"
   },
   "ai-eval-runner|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "ai-eval-runner|D11": {
    "state": "✅",
@@ -9137,9 +8964,9 @@
    "state": "n/a"
   },
   "ai-gateway|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "ai-gateway|D11": {
    "state": "✅",
@@ -9177,9 +9004,9 @@
    "locked": true
   },
   "ai-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "ai-orchestrator|D11": {
    "state": "✅",
@@ -9215,9 +9042,9 @@
    "state": "n/a"
   },
   "amc-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "amc-orchestrator|D11": {
    "state": "✅",
@@ -9253,9 +9080,9 @@
    "state": "n/a"
   },
   "analytics-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "analytics-orchestrator|D11": {
    "state": "✅",
@@ -9291,9 +9118,9 @@
    "state": "n/a"
   },
   "asset-brain-query|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "asset-brain-query|D11": {
    "state": "✅",
@@ -9465,9 +9292,9 @@
    "state": "n/a"
   },
   "engineering-bom-sow|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "engineering-bom-sow|D11": {
    "state": "✅",
@@ -9503,9 +9330,9 @@
    "state": "n/a"
   },
   "engineering-calc-agent|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "engineering-calc-agent|D11": {
    "state": "✅",
@@ -9575,9 +9402,9 @@
    "state": "n/a"
   },
   "failure-signature-scan|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "failure-signature-scan|D11": {
    "state": "✅",
@@ -9613,9 +9440,9 @@
    "state": "n/a"
   },
   "fmea-populator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "fmea-populator|D11": {
    "state": "✅",
@@ -9651,9 +9478,9 @@
    "state": "n/a"
   },
   "hierarchical-summarizer|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "hierarchical-summarizer|D11": {
    "state": "✅",
@@ -9689,9 +9516,9 @@
    "state": "n/a"
   },
   "intelligence-report|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "intelligence-report|D11": {
    "state": "✅",
@@ -9761,9 +9588,9 @@
    "state": "n/a"
   },
   "project-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "project-orchestrator|D11": {
    "state": "✅",
@@ -9799,9 +9626,9 @@
    "state": "n/a"
   },
   "scheduled-agents|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "scheduled-agents|D11": {
    "state": "✅",
@@ -9837,9 +9664,9 @@
    "state": "n/a"
   },
   "semantic-fact-extractor|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "semantic-fact-extractor|D11": {
    "state": "✅",
@@ -9875,9 +9702,9 @@
    "state": "n/a"
   },
   "shift-planner-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "shift-planner-orchestrator|D11": {
    "state": "✅",
@@ -9913,9 +9740,9 @@
    "state": "n/a"
   },
   "temporal-rag-orchestrator|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "temporal-rag-orchestrator|D11": {
    "state": "✅",
@@ -9951,9 +9778,9 @@
    "state": "n/a"
   },
   "visual-defect-capture|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "visual-defect-capture|D11": {
    "state": "✅",
@@ -9989,9 +9816,9 @@
    "state": "n/a"
   },
   "voice-action-router|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-action-router|D11": {
    "state": "✅",
@@ -10061,9 +9888,9 @@
    "state": "n/a"
   },
   "voice-journal-agent|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-journal-agent|D11": {
    "state": "✅",
@@ -10099,9 +9926,9 @@
    "state": "n/a"
   },
   "voice-logbook-entry|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-logbook-entry|D11": {
    "state": "✅",
@@ -10137,9 +9964,9 @@
    "state": "n/a"
   },
   "voice-report-intent|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-report-intent|D11": {
    "state": "✅",
@@ -10175,9 +10002,9 @@
    "state": "n/a"
   },
   "voice-semantic-rag|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "voice-semantic-rag|D11": {
    "state": "✅",
@@ -10213,9 +10040,9 @@
    "state": "n/a"
   },
   "walkthrough-analyzer|D10": {
-   "state": "✅",
+   "state": "🟡",
    "oracle": "validate_grounding_contract",
-   "locked": true
+   "locked": false
   },
   "walkthrough-analyzer|D11": {
    "state": "✅",
@@ -10257,7 +10084,7 @@
   "cells_total": 109,
   "coverage_pct": 100.0
  },
- "delta_vs_last": -0.6,
+ "delta_vs_last": 7.8,
  "dry_streak": 0,
  "dry": false
 }

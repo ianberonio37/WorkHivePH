@@ -83,8 +83,15 @@ def main():
     view_col = psql("SELECT count(*) FROM information_schema.columns "
                     "WHERE table_name='v_weibull_truth' AND column_name='diagnostic';") or "0"
     view_def = psql("SELECT pg_get_viewdef('public.v_weibull_truth'::regclass, true);") or ""
-    refused = psql("SELECT count(*) FILTER (WHERE diagnostic IS NOT NULL AND btrim(diagnostic) <> ''), "
-                   "count(*) FROM public.weibull_fits WHERE failure_pattern='insufficient_data';") or "0|0"
+    # ★THE REFUSALS A PERSON CAN OPEN (2026-11-04). This counted every refused row in weibull_fits' history, and a 10-26
+    # bulk load had left 13 without a reason. Re-fitting through today's fitter gave each approved asset a fit that says
+    # why; the 4 rows still blank belong to pending or rejected assets, which v_asset_truth (and so asset-hub, and the
+    # fitter itself) never shows, and superseded rows are never loaded at all. The promise is "the reason outlives the
+    # click", so the count is the latest fit per approved asset - what loadLatestWeibull reads.
+    refused = psql("SELECT count(*) FILTER (WHERE w.diagnostic IS NOT NULL AND btrim(w.diagnostic) <> ''), count(*) "
+                   "FROM public.v_weibull_truth w JOIN public.v_asset_truth a "
+                   "ON a.asset_id = w.asset_id AND a.hive_id = w.hive_id "
+                   "WHERE w.failure_pattern='insufficient_data';") or "0|0"
     try:
         with_reason, refused_total = (int(x) for x in refused.split("|")[:2])
     except ValueError:

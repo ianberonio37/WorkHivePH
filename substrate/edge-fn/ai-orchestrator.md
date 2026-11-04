@@ -2,7 +2,7 @@
 name: edge-fn-ai-orchestrator
 type: edge-fn
 source: file:supabase/functions/ai-orchestrator/index.ts
-source_sha: d9c785de1e7e1814
+source_sha: ba769da21b14bb0f
 last_verified: 2026-07-13
 supersedes: null
 ---

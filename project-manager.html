@@ -28,12 +28,12 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Poppins', system-ui, sans-serif; background: var(--bg); color: var(--text); padding-top: 60px; min-height: 100vh; }
   main { max-width: 1280px; margin: 0 auto; padding: 20px; }
-  h1 { font-weight: 800; font-size: 1.6rem; margin-bottom: 4px; letter-spacing: -0.01em; }
-  .sub { color: var(--muted); font-size: 0.92rem; margin-bottom: 20px; }
+  h1 { font-weight: 800; font-size: var(--wh-fs-xl, 1.5rem); margin-bottom: 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: var(--wh-fs-md, 0.95rem); margin-bottom: 20px; }
   .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .grow { flex: 1; min-width: 0; }
   button, .btn {
-    font-family: inherit; font-size: 0.92rem; font-weight: 600;
+    font-family: inherit; font-size: var(--wh-fs-md, 0.95rem); font-weight: 600;
     background: var(--card); color: var(--text); border: 1px solid var(--border);
     border-radius: var(--wh-radius-sm); padding: 8px 16px; cursor: pointer; transition: background-color 0.15s var(--wh-ease-out, ease-out), border-color 0.15s var(--wh-ease-out, ease-out);
     min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
@@ -45,7 +45,7 @@
   button.danger { color: var(--wh-red); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.4); }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   input, select, textarea {
-    font-family: inherit; font-size: 16px; /* iOS no-zoom */
+    font-family: inherit; font-size: var(--wh-fs-base, 1rem); /* iOS no-zoom */
     background: var(--bg); color: var(--text); border: 1px solid var(--border);
     border-radius: 8px; padding: 8px 12px; width: 100%;
   }
@@ -53,7 +53,7 @@
      Excludes checkbox/radio, which keep their fixed 16px box. */
   select, textarea, input:not([type="checkbox"]):not([type="radio"]) { min-height: 44px; }
   textarea { min-height: 70px; resize: vertical; }
-  label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+  label { display: block; font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); margin-bottom: 4px; font-weight: 500; }
   .field { margin-bottom: 12px; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
@@ -82,20 +82,20 @@
 
   /* ── Recents strip ────────────────────────────────────────── */
   .recent-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
-  .recent-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-right: 4px; }
+  .recent-label { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-right: 4px; }
   .recent-chip {
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--card); border: 1px solid var(--border); border-radius: 999px;
-    padding: 6px 12px; font-size: 0.82rem; cursor: pointer; transition: background-color 0.15s var(--wh-ease-out, ease-out), border-color 0.15s var(--wh-ease-out, ease-out);
+    padding: 6px 12px; font-size: var(--wh-fs-xs, 0.8rem); cursor: pointer; transition: background-color 0.15s var(--wh-ease-out, ease-out), border-color 0.15s var(--wh-ease-out, ease-out);
   }
   .recent-chip:hover { border-color: var(--gold); background: var(--card-hover); }
-  .recent-chip .pcode { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
-  .recent-chip .ptype-pill { font-size: 0.75rem; padding: 1px 6px; }
+  .recent-chip .pcode { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); font-weight: 600; }
+  .recent-chip .ptype-pill { font-size: var(--wh-fs-2xs, 0.75rem); padding: 1px 6px; }
 
   /* ── Tab counts ───────────────────────────────────────────── */
   .tab-count {
     display: inline-block; background: var(--wh-white-08, rgba(255,255,255,0.08)); color: var(--muted);
-    border-radius: 999px; padding: 1px 8px; font-size: 0.75rem; font-weight: 600; margin-left: 6px;
+    border-radius: 999px; padding: 1px 8px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; margin-left: 6px;
   }
   .tab-strip button.active .tab-count { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.22); color: var(--gold); }
 
@@ -110,7 +110,7 @@
     background: var(--wh-white-02, rgba(255,255,255,0.02)); border-bottom: 1px solid var(--border);
   }
   .group-header:hover { background: var(--wh-white-04, rgba(255,255,255,0.04)); }
-  .group-title { font-weight: 700; font-size: 0.92rem; display: flex; gap: 8px; align-items: center; }
+  .group-title { font-weight: 700; font-size: var(--wh-fs-md, 0.95rem); display: flex; gap: 8px; align-items: center; }
   .group-chev { color: var(--muted); transition: transform 0.2s; }
   .group.collapsed .group-chev { transform: rotate(-90deg); }
   .group.collapsed .group-content { display: none; }
@@ -122,7 +122,7 @@
     background: var(--surface); border: 1px dashed var(--border); border-radius: var(--wh-radius);
     padding: 24px; margin-top: 8px;
   }
-  .empty-tiles-headline { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; text-align: center; }
+  .empty-tiles-headline { font-size: var(--wh-fs-lead, 1.05rem); font-weight: 700; margin-bottom: 4px; text-align: center; }
       /* PROSE WIDTH (2026-09-16): these paragraph classes carry sentences and were stretching to the full
        1280px, so they get a reading width. NOTE, HONESTLY: this does NOT move the craft walk's bodyMeasureCh,
        which still reads 140 at desktop-1280 - the walker measures the LONGEST VISIBLE <p> on the page, and
@@ -131,7 +131,7 @@
        rather than being claimed as fixed. What IS fixed is these two classes. */
     main p.sub, main p.small, .empty-tiles-sub { max-width: 68ch; }
     .empty-tiles-sub, main p.sub { margin-left: auto; margin-right: auto; }
-    .empty-tiles-sub { font-size: 0.88rem; color: var(--muted); text-align: center; margin-bottom: 20px; }
+    .empty-tiles-sub { font-size: var(--wh-fs-sm-plus, 0.875rem); color: var(--muted); text-align: center; margin-bottom: 20px; }
 
   /* ── Project cards ────────────────────────────────────────── */
   /* min(310px, 100%) rather than a bare 310px: auto-fill still lays out multi-column wherever
@@ -146,9 +146,9 @@
   }
   .pcard:hover { border-color: var(--gold); transform: translateY(-1px); }
   .pcard-head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
-  .pcode { font-size: 0.75rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; }
+  .pcode { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); font-weight: 600; letter-spacing: 0.04em; }
   .ptype-pill {
-    display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 999px;
+    display: inline-block; font-size: var(--wh-fs-2xs, 0.75rem); padding: 2px 8px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
   }
   .ptype-workorder  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--blue); }
@@ -156,24 +156,24 @@
   .ptype-capex      { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.18); color: var(--gold); }
   .ptype-contractor { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
   .nature-pill {
-    display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 999px;
+    display: inline-block; font-size: var(--wh-fs-2xs, 0.75rem); padding: 2px 8px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; border: 1px solid transparent;
   }
   .nature-reactive   { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.14);  color: var(--wh-red-text, #FDC9C9); border-color: rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); }
   .nature-preventive { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.14); color: var(--green); border-color: rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
   .nature-project    { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.14); color: var(--gold);  border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
-  .pname { font-size: 1rem; font-weight: 700; margin: 4px 0 8px; line-height: 1.25; }
-  .pmeta { font-size: 0.78rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .pname { font-size: var(--wh-fs-base, 1rem); font-weight: 700; margin: 4px 0 8px; line-height: 1.25; }
+  .pmeta { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
   .progress { height: 6px; background: var(--wh-white-08, rgba(255,255,255,0.08)); border-radius: 999px; overflow: hidden; }
   .progress-bar { height: 100%; background: var(--blue); transition: width 0.3s; }
   .progress-bar.green { background: var(--green); }
   .progress-bar.amber { background: var(--amber); }
   .progress-bar.red   { background: var(--red); }
-  .pcard-foot { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
-  .status-pill { padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; }
+  .pcard-foot { display: flex; justify-content: space-between; font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); margin-top: 8px; }
+  .status-pill { padding: 2px 8px; border-radius: 999px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; letter-spacing: 0.03em; }
   .status-planning  { background: var(--wh-white-08, rgba(255,255,255,0.08)); color: var(--muted); }
   .status-active    { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
-  .status-on_hold   { background: rgba(250,204,21,0.18); color: var(--amber); }
+  .status-on_hold   { background: rgba(var(--wh-amber-rgb, 250, 204, 21), 0.18); color: var(--amber); }
   .status-complete  { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--blue); }
   .status-cancelled { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.18);  color: var(--wh-red-text, #FDC9C9); }
   .status-archived  { background: var(--wh-white-04, rgba(255,255,255,0.04)); color: var(--muted); }
@@ -186,11 +186,11 @@
   #detail-view { display: none; }
   #detail-view.open { display: block; }
   .detail-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; }
-  .detail-head h2 { font-size: 1.25rem; font-weight: 700; margin: 4px 0; }
+  .detail-head h2 { font-size: var(--wh-fs-lg, 1.25rem); font-weight: 700; margin: 4px 0; }
   .detail-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 16px; overflow-x: auto; scroll-behavior: smooth; }
   .detail-tabs button {
     background: transparent; border: none; border-bottom: 2px solid transparent;
-    border-radius: 0; padding: 8px 12px; color: var(--muted); font-size: 0.88rem; white-space: nowrap;
+    border-radius: 0; padding: 8px 12px; color: var(--muted); font-size: var(--wh-fs-sm-plus, 0.875rem); white-space: nowrap;
   }
   .detail-tabs button.active { color: var(--text); border-bottom-color: var(--gold); }
 
@@ -218,23 +218,23 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
     padding: 12px 16px;
   }
-  .kpi-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-  .kpi-value { font-size: 1.4rem; font-weight: 800; margin-top: 4px; }
-  .kpi-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .kpi-label { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .kpi-value { font-size: var(--wh-fs-xl, 1.5rem); font-weight: 800; margin-top: 4px; }
+  .kpi-sub { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); margin-top: 2px; }
   .kpi.green .kpi-value { color: var(--green); }
   .kpi.amber .kpi-value { color: var(--amber); }
   .kpi.red   .kpi-value { color: var(--red); }
 
   /* ── Tables ───────────────────────────────────────────────── */
-  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  table { width: 100%; border-collapse: collapse; font-size: var(--wh-fs-sm-plus, 0.875rem); }
   th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  th { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  th { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
   tr.critical td { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.06); }
   tr.done td { opacity: 0.55; }
 
   /* ── Modal ────────────────────────────────────────────────── */
   .modal-bg {
-    display: none; position: fixed; inset: 0; background: var(--wh-black-60, rgba(0,0,0,0.6)); z-index: 200;
+    display: none; position: fixed; inset: 0; background: var(--wh-black-60, rgba(0,0,0,0.6)); z-index: var(--wh-z-toast-2, 200);
     align-items: flex-start; justify-content: center; padding: 60px 16px 16px;
     overflow-y: auto;
   }
@@ -243,13 +243,13 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--wh-radius);
     padding: 24px; max-width: 560px; width: 100%;
   }
-  .modal h3 { font-size: 1.1rem; margin-bottom: 16px; font-weight: 700; }
+  .modal h3 { font-size: var(--wh-fs-lead-plus, 1.125rem); margin-bottom: 16px; font-weight: 700; }
   .modal-foot { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 
   /* ── Hive gate ────────────────────────────────────────────── */
   #hive-gate {
     display: none; position: fixed; inset: 0; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.96);
-    z-index: 500; align-items: center; justify-content: center; padding: 32px; text-align: center;
+    z-index: var(--wh-z-toast-3, 500); align-items: center; justify-content: center; padding: 32px; text-align: center;
   }
   #hive-gate .gate-card {
     max-width: 440px; background: var(--surface); border: 1px solid var(--border);
@@ -261,29 +261,29 @@
     background: var(--card); border: 1px solid var(--border); border-radius: var(--wh-radius);
     padding: 12px 16px; margin-bottom: 8px;
   }
-  .log-entry-head { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--muted); margin-bottom: 4px; }
-  .log-entry-body { font-size: 0.92rem; line-height: 1.45; }
-  .log-entry-blockers { color: var(--red); font-size: 0.85rem; margin-top: 4px; }
-  .log-entry-ack { color: var(--green); font-size: 0.78rem; margin-top: 6px; }
+  .log-entry-head { display: flex; justify-content: space-between; font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); margin-bottom: 4px; }
+  .log-entry-body { font-size: var(--wh-fs-md, 0.95rem); line-height: 1.45; }
+  .log-entry-blockers { color: var(--red); font-size: var(--wh-fs-sm, 0.85rem); margin-top: 4px; }
+  .log-entry-ack { color: var(--green); font-size: var(--wh-fs-xs, 0.8rem); margin-top: 6px; }
 
   /* ── Linked items ─────────────────────────────────────────── */
   .link-pill {
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--card); border: 1px solid var(--border); border-radius: 999px;
-    padding: 4px 12px 4px 8px; margin: 4px 4px 4px 0; font-size: 0.82rem;
+    padding: 4px 12px 4px 8px; margin: 4px 4px 4px 0; font-size: var(--wh-fs-xs, 0.8rem);
     /* HS L1/L5 (2026-10-30): a role pill carries a name, who assigned it and when ("Rodel Ignacio (former member) · by
        Ernesto Villareal Oct 10") - on a phone it ran past the screen's edge. It wraps inside the screen instead. */
     max-width: 100%; flex-wrap: wrap; overflow-wrap: anywhere;
   }
-  .link-pill button { background: transparent; border: none; color: var(--muted); padding: 0 0 0 4px; font-size: 1.1rem; line-height: 1; cursor: pointer; }
-  .link-type { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .link-pill button { background: transparent; border: none; color: var(--muted); padding: 0 0 0 4px; font-size: var(--wh-fs-lead-plus, 1.125rem); line-height: 1; cursor: pointer; }
+  .link-type { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 
   /* ── Toast ────────────────────────────────────────────────── */
-  #toast-container { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: 600; pointer-events: none; }
+  #toast-container { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: var(--wh-z-toast-4, 1000); pointer-events: none; }
   .toast {
     background: var(--card); color: var(--text); border-left: 3px solid var(--gold);
-    padding: 12px 16px; margin-top: 8px; border-radius: 8px; font-size: 0.9rem;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.4); animation: slideUp 0.25s ease;
+    padding: 12px 16px; margin-top: 8px; border-radius: 8px; font-size: var(--wh-fs-sm-plus, 0.875rem);
+    box-shadow: 0 4px 14px var(--wh-black-35, rgba(0, 0, 0, 0.35)); animation: slideUp 0.25s ease;
     max-width: 90vw;
   }
   .toast.error { border-left-color: var(--red); }
@@ -295,12 +295,12 @@
     background: var(--surface); border-radius: 12px; border: 1px dashed var(--border);
   }
   .hidden { display: none !important; }
-  .small { font-size: 0.82rem; }
-  .mono { font-family: ui-monospace, 'Courier New', monospace; font-size: 0.85rem; }
+  .small { font-size: var(--wh-fs-xs, 0.8rem); }
+  .mono { font-family: ui-monospace, 'Courier New', monospace; font-size: var(--wh-fs-sm, 0.85rem); }
 
   /* ── Wizard ───────────────────────────────────────────────── */
   .wizard-modal { max-width: 720px; }
-  .wizard-progress { display: flex; gap: 6px; margin-bottom: 16px; font-size: 0.78rem; color: var(--muted); }
+  .wizard-progress { display: flex; gap: 6px; margin-bottom: 16px; font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); }
   .wizard-progress .step { flex: 1; padding: 6px 12px; background: var(--card); border-radius: 8px; text-align: center; }
   .wizard-progress .step.active { background: var(--gold); color: var(--wh-navy); font-weight: 700; }
   .wizard-progress .step.done { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
@@ -317,9 +317,9 @@
   }
   .type-tile:hover { border-color: var(--gold); transform: translateY(-1px); }
   .type-tile.selected { border-color: var(--gold); background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); }
-  .type-tile-icon { font-size: 1.6rem; margin-bottom: 6px; }
-  .type-tile-name { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-  .type-tile-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+  .type-tile-icon { font-size: var(--wh-fs-xl, 1.5rem); margin-bottom: 6px; }
+  .type-tile-name { font-size: var(--wh-fs-base, 1rem); font-weight: 700; margin-bottom: 4px; }
+  .type-tile-desc { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); line-height: 1.4; }
 
   /* Step 2: template cards */
   .template-card-list { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; padding-right: 4px; }
@@ -329,10 +329,10 @@
   }
   .template-card:hover { border-color: var(--gold); background: var(--card-hover); }
   .template-card.selected { border-color: var(--gold); background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.08); }
-  .template-card-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
-  .template-card-meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
-  .template-card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
-  .blank-link { font-size: 0.85rem; color: var(--blue); cursor: pointer; text-decoration: underline; margin-top: 6px; display: inline-block; background: none; border: none; padding: 0; font-family: inherit; }
+  .template-card-name { font-size: var(--wh-fs-md, 0.95rem); font-weight: 700; margin-bottom: 4px; }
+  .template-card-meta { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); margin-bottom: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
+  .template-card-desc { font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); line-height: 1.45; }
+  .blank-link { font-size: var(--wh-fs-sm, 0.85rem); color: var(--blue); cursor: pointer; text-decoration: underline; margin-top: 6px; display: inline-block; background: none; border: none; padding: 0; font-family: inherit; }
 
   /* Step 3: item checklist */
   .item-checklist { max-height: 40vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 4px; margin-bottom: 8px; }
@@ -344,10 +344,10 @@
   .item-row:hover { background: var(--card); }
   .item-row.unchecked { opacity: 0.5; }
   .item-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--gold); }
-  .item-row input[type="text"], .item-row input[type="number"] { padding: 4px 8px; font-size: 0.85rem; }
+  .item-row input[type="text"], .item-row input[type="number"] { padding: 4px 8px; font-size: var(--wh-fs-sm, 0.85rem); }
   .item-row .est-input { width: 60px; }
   .phase-tag {
-    font-size: 0.75rem; padding: 2px 8px; border-radius: 999px;
+    font-size: var(--wh-fs-2xs, 0.75rem); padding: 2px 8px; border-radius: 999px;
     font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap;
   }
   .phase-pre        { background: var(--wh-white-08, rgba(255,255,255,0.08)); color: var(--muted); }
@@ -358,26 +358,26 @@
   .phase-fel2       { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.18); color: var(--blue); }
   .phase-fel3       { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.18); color: var(--green); }
   .phase-gate       { background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.18); color: var(--wh-red-text, #FDC9C9); }
-  .item-remove { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; font-size: 1.1rem; }
+  .item-remove { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 0 4px; font-size: var(--wh-fs-lead-plus, 1.125rem); }
   .item-remove:hover { color: var(--red); }
   .add-custom-row {
     text-align: center; padding: 8px; color: var(--blue); cursor: pointer;
-    border: 1px dashed var(--border); border-radius: 8px; margin-top: 6px; font-size: 0.85rem;
+    border: 1px dashed var(--border); border-radius: 8px; margin-top: 6px; font-size: var(--wh-fs-sm, 0.85rem);
   }
   .add-custom-row:hover { background: var(--card); }
-  .field-hint { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+  .field-hint { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--muted); margin-top: 4px; }
 
   /* ── Critical path bar ────────────────────────────────────── */
-  .gantt-row { display: grid; grid-template-columns: 220px 1fr; gap: 10px; align-items: center; padding: 6px 0; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+  .gantt-row { display: grid; grid-template-columns: 220px 1fr; gap: 10px; align-items: center; padding: 6px 0; font-size: var(--wh-fs-sm, 0.85rem); border-bottom: 1px solid var(--border); }
   .gantt-bar-wrap { background: var(--wh-white-04, rgba(255,255,255,0.04)); height: 16px; border-radius: 999px; position: relative; overflow: hidden; }
   .gantt-bar { position: absolute; top: 0; bottom: 0; background: var(--blue); border-radius: 8px; }
   .gantt-bar.critical { background: var(--red); }
   .gantt-bar.done { background: var(--green); }
 /* Plain-Read summary (Layer D — UX Contract) */
 .verdict { display:flex; align-items:center; gap:12px; padding:16px; margin-bottom:16px; border-radius:12px; border:1px solid; }
-.verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-.verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-.verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
+.verdict-icon { font-size:var(--wh-fs-xl, 1.5rem); line-height:1; font-weight:800; }
+.verdict-text { font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; line-height:1.35; }
+.verdict-text small { display:block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:500; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:4px; }
 .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
 .verdict.healthy .verdict-icon { color:var(--wh-green); }
 .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
@@ -409,7 +409,7 @@
 @media (max-width: 560px) { #list-view > .row > div:last-child { flex-basis: 100%; } }
 .simple-row .sc-sub { min-height: 47px; }        /* "Loading..." 16 → wrapped real text up to 47 (overdue 3-line) */
 #pm-action-text { min-height: 79px; }            /* recommendation 60→79 (longer real text wraps) */
-#pm-summary-details { display:none; padding:16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+#pm-summary-details { display:none; padding:16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:var(--wh-fs-xs, 0.8rem); line-height:1.5; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-bottom:16px; }
 #pm-summary-details.open { display:block; }
 </style>
 <style>/* I1 CLS: static wayfinding back-pill band reserve (wayfinding.js sets this body padding-top post-paint on pill-pages = a late shift under full-run contention; present at first paint -> its `if(band>cur)` skips, layout unchanged). VERIFIED this page gets the pill (has <main>, no back-affordance, not home). */
@@ -459,7 +459,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
       <div style="display:flex; align-items:center; gap:10px;">
         <!-- Phase B merge: project-report.html now reachable as a button here -->
         <a data-i="p_printreport_06ec" href="project-report.html" id="project-print-btn" title="Open print-ready Project Report"
-           style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; min-height:44px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color:var(--orange-wh); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius:8px; font-size:0.78rem; font-weight:600; text-decoration:none;">
+           style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; min-height:44px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.12); color:var(--orange-wh); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius:8px; font-size:var(--wh-fs-xs, 0.8rem); font-weight:600; text-decoration:none;">
           📄 Print Report
         </a>
         <span id="hive-tag" class="small" style="color: var(--muted);"></span>
@@ -533,7 +533,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     data-rag-tile="project-manager:project_cards"
     data-rag-label="Project card grid"></div>
     <div id="pm-load-more-wrap" class="hidden" style="margin-top:0.25rem;padding-bottom:1rem;">
-      <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:0.875rem;font-weight:600;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);cursor:pointer;" data-i="loadmore">Load More</button>
+      <button onclick="loadMorePm()" style="width:100%;padding:0.75rem;border-radius:0.75rem;font-size:var(--wh-fs-sm-plus, 0.875rem);font-weight:600;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);color:var(--wh-orange-text);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3);cursor:pointer;" data-i="loadmore">Load More</button>
     </div>
   </div>
 
@@ -569,21 +569,21 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
   </div>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="pm-summary-details">
 <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="pm-summary-details" data-i="showdetails">
       Show details
     </button>
 <div id="pm-summary-details" role="region" aria-label="Project health explainer">
-      <strong data-i="p_howprojecthealthiscomputed_27c2" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How project health is computed</strong>
+      <strong data-i="p_howprojecthealthiscomputed_27c2" style="display:block;margin-bottom:6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">How project health is computed</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong data-i="p_activeprojects_f361">Active projects</strong>: active.</li>
         <li><strong data-i="p_pastenddate_1d3a">Past end date</strong>: past their end date but not yet closed: projects that should have closed but haven't.</li>
         <li><strong data-i="p_onholdorplanning_0ca5">On hold or planning</strong>: on hold or planning: work that's not moving yet.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ past end date; amber if any past end OR blocked count exceeds active; green when active &gt; blocked and nothing overdue.</li>
       </ul>
-      <p data-i="p_usethestatustabsbelowforthep_6863" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 12px;">Use the status tabs below for the per-project drilldown.</p>
+      <p data-i="p_usethestatustabsbelowforthep_6863" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: var(--wh-fs-2xs, 0.75rem);">Use the status tabs below for the per-project drilldown.</p>
     </div>
 </div>
 </div>
@@ -606,7 +606,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <!-- Step 1: pick type -->
     <div class="wizard-pane" data-pane="1">
       <h3 data-i="whatkind">What kind of project?</h3>
-      <p data-i="p_picktheclosestmatchyoucancha_5713" class="sub" style="font-size:0.85rem; margin-bottom:16px;">Pick the closest match. You can change scope later.</p>
+      <p data-i="p_picktheclosestmatchyoucancha_5713" class="sub" style="font-size:var(--wh-fs-sm, 0.85rem); margin-bottom:16px;">Pick the closest match. You can change scope later.</p>
       <div class="type-tile-grid">
         <div class="type-tile" data-type="workorder" onclick="wizardPickType('workorder')">
           <div class="type-tile-icon">🔧</div>
@@ -638,7 +638,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <!-- Step 2: pick template -->
     <div class="wizard-pane" data-pane="2">
       <h3 data-i="starterpack">Pick a starter pack</h3>
-      <p data-i="p_prepopulatedscopeitemsbasedo_178e" class="sub" style="font-size:0.85rem; margin-bottom:10px;">Pre-populated scope items based on industry standards. You'll be able to tweak everything in the next step.</p>
+      <p data-i="p_prepopulatedscopeitemsbasedo_178e" class="sub" style="font-size:var(--wh-fs-sm, 0.85rem); margin-bottom:10px;">Pre-populated scope items based on industry standards. You'll be able to tweak everything in the next step.</p>
       <div class="template-card-list" id="wiz-template-list"></div>
       <button class="blank-link" onclick="wizardPickTemplate('__blank__'); wizardNext()" data-i="blankproject">Or start with a blank project →</button>
       <div class="wizard-foot">
@@ -673,10 +673,10 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <input type="number" id="wiz-budget" min="0" step="100" placeholder="e.g. 250000">
         <div class="field-hint">Required for Earned Value tracking. Hidden for work-order and shutdown types unless you want it. WorkHive applies no VAT adjustment: the figure is stored exactly as you enter it, so use the basis your finance team tracks (VAT-inclusive or exclusive) and keep it consistent.</div>
       </div>
-      <div class="field"><label for="wiz-desc" data-i="description">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="wiz-desc-count" style="text-align:right;font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 2000</p></div>
+      <div class="field"><label for="wiz-desc" data-i="description">Description</label><textarea id="wiz-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="wiz-desc-count" style="text-align:right;font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 2000</p></div>
 
       <div style="margin: 16px 0 6px;">
-        <strong data-i="p_scopeitems_b736" style="font-size:0.92rem;">Scope items</strong>
+        <strong data-i="p_scopeitems_b736" style="font-size:var(--wh-fs-md, 0.95rem);">Scope items</strong>
         <span class="small" style="color:var(--muted); margin-left:6px;" id="wiz-item-count"></span>
       </div>
       <div data-i="p_uncheckwhatdoesntapplypredec_9e2b" class="field-hint" style="margin-bottom:6px;">Uncheck what doesn't apply. Predecessors auto-set sequentially.</div>
@@ -731,7 +731,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
           <div class="field-hint">WorkHive applies no VAT adjustment: the figure is stored exactly as you enter it, so use the basis your finance team tracks (VAT-inclusive or exclusive) and keep it consistent.</div>
         </div>
       </div>
-      <div class="field"><label for="f-desc" data-i="description">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="f-desc-count" style="text-align:right;font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 2000</p></div>
+      <div class="field"><label for="f-desc" data-i="description">Description</label><textarea id="f-desc" maxlength="2000" placeholder="Scope summary, drivers, success criteria…"></textarea><p id="f-desc-count" style="text-align:right;font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 2000</p></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-project')" data-i="cancel">Cancel</button>
         <button type="submit" class="btn primary" id="f-submit" data-i="create">Create</button>
@@ -788,7 +788,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
         <select id="s-preds" multiple style="min-height: 80px;"></select>
         <div data-i="p_holdctrlcmdtoselectmultipled_889a" class="field-hint">Hold Ctrl/Cmd to select multiple. Drives critical-path calculation. Defaults to the previous item.</div>
       </div>
-      <div class="field"><label for="s-notes" data-i="notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes (not the phase, that's above)."></textarea><p id="s-notes-count" style="text-align:right;font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 1000</p></div>
+      <div class="field"><label for="s-notes" data-i="notes">Notes</label><textarea id="s-notes" maxlength="1000" placeholder="Free-text notes (not the phase, that's above)."></textarea><p id="s-notes-count" style="text-align:right;font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 1000</p></div>
       <div class="modal-foot">
         <button type="button" class="btn ghost" onclick="closeModal('modal-scope')" data-i="cancel">Cancel</button>
         <button type="submit" class="btn primary" data-i="save">Save</button>
@@ -843,7 +843,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
 <div id="modal-ai-intent" class="modal-bg">
   <div class="modal">
     <h3 data-i="describeproject">🤖 Describe your project</h3>
-    <p class="sub" style="font-size: 0.85rem;">Type or paste a sentence describing what you want to plan. The AI will pick the type, template, dates, and asset, then drop you into the wizard for review.</p>
+    <p class="sub" style="font-size: var(--wh-fs-sm, 0.85rem);">Type or paste a sentence describing what you want to plan. The AI will pick the type, template, dates, and asset, then drop you into the wizard for review.</p>
     <div class="field">
       <label for="ai-intent-text" data-i="whatsproject">What's the project?</label>
       <textarea id="ai-intent-text" maxlength="600" rows="4" placeholder="e.g. Plan a 3-day pump overhaul on PUMP-201 starting Monday. Or: CAPEX project to replace compressor on Line 2, contractor scope, budget 850k, end by August."></textarea>
@@ -853,7 +853,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
       <button type="button" class="btn primary" id="ai-intent-go" onclick="runAIIntent()" data-i="parsewithai">Parse with AI</button>
     </div>
     <!-- the wait was only the button's label ("Parsing…"), which a screen reader does not announce (LM520) -->
-    <p id="ai-intent-status" class="sub" role="status" aria-live="polite" style="font-size:0.8rem;margin-top:0.5rem;min-height:1em;"></p>
+    <p id="ai-intent-status" class="sub" role="status" aria-live="polite" style="font-size:var(--wh-fs-xs, 0.8rem);margin-top:0.5rem;min-height:1em;"></p>
   </div>
 </div>
 
@@ -893,7 +893,7 @@ body{padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));}
     <h3 data-i="raiseco">Raise change order</h3>
     <form id="form-co" onsubmit="event.preventDefault(); saveChangeOrder();">
       <div class="field"><label for="co-title" data-i="title">Title *</label><input type="text" id="co-title" required maxlength="200" placeholder="e.g. Add seismic anchor restraints"></div>
-      <div class="field"><label for="co-scope" data-i="scopechange">Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea><p id="co-scope-count" style="text-align:right;font-size: 0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 2000</p></div>
+      <div class="field"><label for="co-scope" data-i="scopechange">Scope change *</label><textarea id="co-scope" required maxlength="2000" placeholder="What's changing in the scope. Be specific."></textarea><p id="co-scope-count" style="text-align:right;font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:4px 0 0;">0 / 2000</p></div>
       <div class="field"><label for="co-reason" data-i="reason">Reason</label>
         <select id="co-reason">
           <option value="">-</option>
@@ -2466,16 +2466,16 @@ function renderOverview() {
   $('pane-overview')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Progress</div><div class="kpi-value">${r.pct_complete ?? 0}%</div><div class="kpi-sub">${(Number(r.hours_estimated) > 0 ? 'weighted by planned hours' : 'equal weight per item')} · ${r.items_done ?? 0}/${r.items_total ?? 0} items done</div></div>
-      <div class="kpi"><div class="kpi-label">Hours</div><div class="kpi-value">${_num(r.hours_actual, 0)}<span style="font-size:0.85rem; color:var(--muted);"> / ${_num(r.hours_estimated, 0)}</span></div><div class="kpi-sub">actual / estimated</div></div>
-      <div class="kpi"><div class="kpi-label">Days</div><div class="kpi-value">${r.days_elapsed ?? 0}<span style="font-size:0.85rem; color:var(--muted);"> / ${r.days_total || '-'}</span></div><div class="kpi-sub">elapsed / planned</div></div>
+      <div class="kpi"><div class="kpi-label">Hours</div><div class="kpi-value">${_num(r.hours_actual, 0)}<span style="font-size:var(--wh-fs-sm, 0.85rem); color:var(--muted);"> / ${_num(r.hours_estimated, 0)}</span></div><div class="kpi-sub">actual / estimated</div></div>
+      <div class="kpi"><div class="kpi-label">Days</div><div class="kpi-value">${r.days_elapsed ?? 0}<span style="font-size:var(--wh-fs-sm, 0.85rem); color:var(--muted);"> / ${r.days_total || '-'}</span></div><div class="kpi-sub">elapsed / planned</div></div>
       ${ev ? `<div class="kpi ${evColor}"><div class="kpi-label">Health (SPI/CPI)</div><div class="kpi-value">${ev.spi ?? '-'} / ${ev.cpi ?? '-'}</div><div class="kpi-sub">${(ev.status || 'unknown').toUpperCase()}</div></div>` : ''}
     </div>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px;">
-      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 8px;">Description</h3>
-      <p style="line-height: 1.55; font-size: 0.92rem; color: ${_detail.description ? 'var(--text)' : 'var(--muted)'};">
+      <h3 style="font-size: var(--wh-fs-md, 0.95rem); font-weight: 700; margin-bottom: 8px;">Description</h3>
+      <p style="line-height: 1.55; font-size: var(--wh-fs-md, 0.95rem); color: ${_detail.description ? 'var(--text)' : 'var(--muted)'};">
         ${_detail.description ? e(_detail.description).replace(/\n/g, '<br>') : 'No description yet. Click Edit to add one.'}
       </p>
-      <div class="grid-3" style="margin-top: 16px; font-size: 0.85rem;">
+      <div class="grid-3" style="margin-top: 16px; font-size: var(--wh-fs-sm, 0.85rem);">
         <div><strong>Owner</strong><br>${e(_detail.owner_name || '-')}</div>
         <div><strong>Start</strong><br>${e(fmtDate(_detail.start_date))}</div>
         <div><strong>End</strong><br>${e(fmtDate(_detail.end_date))}</div>
@@ -2811,7 +2811,7 @@ function renderLinked() {
     const items = groups[k] || [];
     if (!items.length) return '';
     return `<div style="margin-bottom: 12px;">
-      <h4 style="font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${labels[k]}</h4>
+      <h4 style="font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${labels[k]}</h4>
       <div>${items.map(l => `
         <span class="link-pill">${e(l.label || l.link_id || '-')} <button onclick="removeLink('${escJsAttr(l.id)}')" title="Remove" aria-label="Remove link ${e(l.label || l.link_id || '')}">×</button></span>
       `).join('')}</div>
@@ -2819,7 +2819,7 @@ function renderLinked() {
   }).join('');
   const suggestionBanner = _linkSuggestions.length ? `
     <div style="background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06); border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.28); border-radius: 12px; padding: 10px 16px; margin-bottom: 12px;">
-      <div style="font-weight: 600; margin-bottom: 4px; font-size: 0.92rem;">💡 ${_linkSuggestions.length}${_linkSuggestionsMore ? '+' : ''} open logbook ${(_linkSuggestions.length === 1 && !_linkSuggestionsMore) ? 'entry' : 'entries'} from the last 30 days</div>
+      <div style="font-weight: 600; margin-bottom: 4px; font-size: var(--wh-fs-md, 0.95rem);">💡 ${_linkSuggestions.length}${_linkSuggestionsMore ? '+' : ''} open logbook ${(_linkSuggestions.length === 1 && !_linkSuggestionsMore) ? 'entry' : 'entries'} from the last 30 days</div>
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">Consider linking related work to this project.</div>
       <div>
         ${_linkSuggestions.map((c, i) => `
@@ -3144,7 +3144,7 @@ function renderCpm() {
   if (risk?.available) {
     const cls = risk.p80_days > cp.total_days * 1.25 ? 'red' : risk.p80_days > cp.total_days * 1.10 ? 'amber' : 'green';
     riskHtml = `
-      <h3 style="font-size: 0.92rem; margin-top: 16px;">Schedule Risk (Monte Carlo, ${risk.n_runs} runs)</h3>
+      <h3 style="font-size: var(--wh-fs-md, 0.95rem); margin-top: 16px;">Schedule Risk (Monte Carlo, ${risk.n_runs} runs)</h3>
       <div class="kpi-row">
         <div class="kpi"><div class="kpi-label">P50 finish</div><div class="kpi-value">${risk.p50_days}d</div><div class="kpi-sub">50% likely</div></div>
         <div class="kpi ${cls}"><div class="kpi-label">P80 finish</div><div class="kpi-value">${risk.p80_days}d</div><div class="kpi-sub">contingency target</div></div>
@@ -3161,16 +3161,16 @@ function renderCpm() {
   let resHtml = '';
   if (res && Array.isArray(res.overloaded_days) && res.overloaded_days.length) {
     resHtml = `
-      <h3 style="font-size: 0.92rem; margin-top: 16px;">Resource Overload</h3>
+      <h3 style="font-size: var(--wh-fs-md, 0.95rem); margin-top: 16px;">Resource Overload</h3>
       <div style="background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.08); border: 1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.3); border-radius: 12px; padding: 10px 16px;">
         <div style="font-weight: 600; margin-bottom: 6px;">⚠ ${res.overloaded_days.length} overloaded day-worker pair${res.overloaded_days.length === 1 ? '' : 's'} (>${res.daily_hours}h capacity)</div>
         <div class="small" style="color: var(--muted); margin-bottom: 6px;">Worker / day combinations exceeding daily capacity:</div>
-        <ul style="font-size: 0.82rem; padding-left: 20px; line-height: 1.5;">
+        <ul style="font-size: var(--wh-fs-xs, 0.8rem); padding-left: 20px; line-height: 1.5;">
           ${res.overloaded_days.slice(0, 6).map(o => `<li><strong>${e(o.worker)}</strong> on ${e(o.date)}: ${o.hours}h (over by ${o.over_by}h)</li>`).join('')}
         </ul>
         ${res.suggestions?.length ? `
           <div class="small" style="color: var(--muted); margin-top: 8px;"><strong>Suggested reassignments:</strong></div>
-          <ul style="font-size: 0.82rem; padding-left: 20px; line-height: 1.5;">
+          <ul style="font-size: var(--wh-fs-xs, 0.8rem); padding-left: 20px; line-height: 1.5;">
             ${res.suggestions.slice(0, 4).map(s => `<li>${e(s.reason)}</li>`).join('')}
           </ul>` : ''}
       </div>`;
@@ -3179,13 +3179,13 @@ function renderCpm() {
   }
 
   $('pane-cpm')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
-    ${_unres.length ? `<div class="empty" style="color:var(--wh-red);border:1px solid rgba(239,87,87,0.3);">
+    ${_unres.length ? `<div class="empty" style="color:var(--wh-red);border:1px solid rgba(var(--wh-red-400-rgb, 239, 87, 87), 0.3);">
       ${_unres.length} dependenc${_unres.length === 1 ? 'y is' : 'ies are'} not being honoured: the predecessor
       is not a scope item on this project, so the schedule below ignores it.</div>` : ''}
     <div class="kpi-row">
       <div class="kpi"><div class="kpi-label">Critical path</div><div class="kpi-value">${cp.total_days}d</div><div class="kpi-sub">${cp.item_ids.length} of ${_items.length} item${_items.length === 1 ? '' : 's'} on critical path</div></div>
     </div>
-    <h3 style="font-size: 0.92rem;">Gantt</h3>
+    <h3 style="font-size: var(--wh-fs-md, 0.95rem);">Gantt</h3>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
       ${rows}
     </div>
@@ -3206,7 +3206,7 @@ function renderRoles() {
   const order = ['owner', 'planner', 'safety_officer', 'cost_engineer', 'reviewer'];
   const rolesHtml = order.filter(k => grouped[k]?.length).map(role => `
     <div style="margin-bottom: 12px;">
-      <h4 style="font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${e(ROLE_LABELS[role])}</h4>
+      <h4 style="font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${e(ROLE_LABELS[role])}</h4>
       ${grouped[role].map(r => `
         <span class="link-pill" data-role-id="${e(r.id)}">
           ${e(r.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(r.worker_name) : ''))}
@@ -3216,7 +3216,7 @@ function renderRoles() {
                disputed assignment turns on - had no answer in the app. Same shape as the logbook's
                LOTO column and the same fix the community's best-answer took ("chosen by X · when"),
                so the vocabulary matches what the platform already says elsewhere. -->
-          ${r.assigned_by ? `<span style="color: var(--muted); margin-left: 4px; font-size: 0.75rem;">&middot; by ${e(r.assigned_by)}${r.assigned_at ? ' ' + e(fmtDate(r.assigned_at)) : ''}</span>` : ''}
+          ${r.assigned_by ? `<span style="color: var(--muted); margin-left: 4px; font-size: var(--wh-fs-2xs, 0.75rem);">&middot; by ${e(r.assigned_by)}${r.assigned_at ? ' ' + e(fmtDate(r.assigned_at)) : ''}</span>` : ''}
           ${isSupervisor() ? `<button onclick="removeRole('${escJsAttr(r.id)}')" title="Remove" aria-label="Remove ${e(r.worker_name)} from this project">×</button>` : ''}
         </span>`).join('')}
     </div>`).join('');
@@ -3224,7 +3224,7 @@ function renderRoles() {
   const hasExplicitOwner = grouped.owner && grouped.owner.length;
   const legacyOwnerHtml = !hasExplicitOwner && _detail.owner_name ? `
     <div style="margin-bottom: 12px;">
-      <h4 style="font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Owner (legacy)</h4>
+      <h4 style="font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">Owner (legacy)</h4>
       <span class="link-pill">${e(_detail.owner_name)} <span style="color: var(--muted); margin-left: 4px;">from project header</span></span>
     </div>` : '';
   $('pane-roles')/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = `
@@ -3340,8 +3340,8 @@ function renderChangeOrders() {
           Raised by <strong>${e(co.requested_by + (typeof whMemberSuffix === 'function' ? whMemberSuffix(co.requested_by) : ''))}</strong> · ${e(fmtDate(co.requested_at))}
           ${co.reason ? ` · reason: <em>${e(co.reason)}</em>` : ''}
         </div>
-        <div style="font-size: 0.9rem; line-height: 1.55; margin-bottom: 8px;">${e(co.scope_change).replace(/\n/g, '<br>')}</div>
-        <div class="row" style="gap: 16px; font-size: 0.85rem;">
+        <div style="font-size: var(--wh-fs-sm-plus, 0.875rem); line-height: 1.55; margin-bottom: 8px;">${e(co.scope_change).replace(/\n/g, '<br>')}</div>
+        <div class="row" style="gap: 16px; font-size: var(--wh-fs-sm, 0.85rem);">
           <span><strong>Cost:</strong> ${e(costLine)}</span>
           <span><strong>Schedule:</strong> ${e(daysLine)}</span>
         </div>
@@ -3535,7 +3535,7 @@ function renderBudget() {
       <div class="kpi ${cls}"><div class="kpi-label">CPI</div><div class="kpi-value">${ev.cpi ?? '-'}</div><div class="kpi-sub">cost</div></div>
     </div>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
-      <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">${escHtml(_t('Variance summary', 'Buod ng variance'))}</h3>
+      <h3 style="font-size: var(--wh-fs-md, 0.95rem); font-weight: 700; margin-bottom: 6px;">${escHtml(_t('Variance summary', 'Buod ng variance'))}</h3>
       <!-- table-name-allow: project WBS / scope data table --> <div class="wh-scroll-x"><table>
         <tr><td>${escHtml(_t('Schedule variance (SV = EV − PV)', 'Variance ng schedule (SV = EV − PV)'))}</td><td>${fmtPHP(ev.sv)}</td></tr>
         <tr><td>${escHtml(_t('Cost variance (CV = EV − AC)', 'Variance ng gastos (CV = EV − AC)'))}</td><td>${fmtPHP(ev.cv)}</td></tr>
@@ -3576,7 +3576,7 @@ function renderSignoff() {
       </div>
     </div>
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
-      <h3 id="lessons-text-label" style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px;">${escHtml(_t('Lessons learned', 'Mga natutunan'))}</h3>
+      <h3 id="lessons-text-label" style="font-size: var(--wh-fs-md, 0.95rem); font-weight: 700; margin-bottom: 6px;">${escHtml(_t('Lessons learned', 'Mga natutunan'))}</h3>
       <div class="small" style="color: var(--muted); margin-bottom: 8px;">${escHtml(_t('What went well, what to do differently next time. Feeds the Project Report appendix and the searchable lessons archive.', 'Ano ang naging maganda, ano ang gagawing iba sa susunod. Napupunta ito sa appendix ng Project Report at sa nahahanap na lessons archive.'))}</div>
       <textarea aria-labelledby="lessons-text-label" id="lessons-text" maxlength="4000" style="min-height: 100px;" placeholder="• Mech alignment took 2x estimated: consider buffer hours for next pump overhaul\n• Parts staging was on point, keep weekly cadence\n• PTW issued late by 2h: pre-stage on the prior shift">${e(lessonsExisting)}</textarea>
       ${(_detail.meta?._ai_generated_lessons) ? `<div class="small" style="color: var(--gold); margin-top: 6px;">🤖 AI-drafted on ${e(fmtDate(_detail.meta._ai_generated_at))}: supervisor edit before sign-off recommended.</div>` : ''}

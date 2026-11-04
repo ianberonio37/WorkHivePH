@@ -4,7 +4,7 @@
     "persisted_fields_analyzed": 101,
     "dead_end_fields": 5,
     "fields_with_causal_cascade": 38,
-    "avg_display_fanout": 3.14,
+    "avg_display_fanout": 3.02,
     "max_display_fanout": 8
   },
   "per_page": {
@@ -54,7 +54,7 @@
       "fields": 29,
       "persisted": 19,
       "dead_end": 0,
-      "fanout_sum": 65,
+      "fanout_sum": 53,
       "max_depth": 3
     },
     "pm-scheduler": {
@@ -3031,11 +3031,10 @@
       "surface": "marketplace",
       "field": "inq-contact",
       "terminus": "marketplace_inquiries",
-      "display_fanout": 2,
+      "display_fanout": 1,
       "display_depth": 3,
       "displayed_on_pages": [
-        "marketplace-seller",
-        "marketplace-seller-profile"
+        "marketplace-seller"
       ],
       "displayed_via_views": [
         "v_marketplace_inquiries_truth"
@@ -3048,11 +3047,10 @@
       "surface": "marketplace",
       "field": "inq-listing-id",
       "terminus": "marketplace_inquiries",
-      "display_fanout": 2,
+      "display_fanout": 1,
       "display_depth": 3,
       "displayed_on_pages": [
-        "marketplace-seller",
-        "marketplace-seller-profile"
+        "marketplace-seller"
       ],
       "displayed_via_views": [
         "v_marketplace_inquiries_truth"
@@ -3065,11 +3063,10 @@
       "surface": "marketplace",
       "field": "inq-message",
       "terminus": "marketplace_inquiries",
-      "display_fanout": 2,
+      "display_fanout": 1,
       "display_depth": 3,
       "displayed_on_pages": [
-        "marketplace-seller",
-        "marketplace-seller-profile"
+        "marketplace-seller"
       ],
       "displayed_via_views": [
         "v_marketplace_inquiries_truth"
@@ -3082,11 +3079,10 @@
       "surface": "marketplace",
       "field": "inq-name",
       "terminus": "marketplace_inquiries",
-      "display_fanout": 2,
+      "display_fanout": 1,
       "display_depth": 3,
       "displayed_on_pages": [
-        "marketplace-seller",
-        "marketplace-seller-profile"
+        "marketplace-seller"
       ],
       "displayed_via_views": [
         "v_marketplace_inquiries_truth"
@@ -3099,11 +3095,10 @@
       "surface": "marketplace",
       "field": "post-condition",
       "terminus": "marketplace_listings",
-      "display_fanout": 6,
+      "display_fanout": 5,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
-        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "platform-actions",
@@ -3137,11 +3132,10 @@
       "surface": "marketplace",
       "field": "post-contact",
       "terminus": "marketplace_listings",
-      "display_fanout": 6,
+      "display_fanout": 5,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
-        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "platform-actions",
@@ -3175,11 +3169,10 @@
       "surface": "marketplace",
       "field": "post-desc",
       "terminus": "marketplace_listings",
-      "display_fanout": 6,
+      "display_fanout": 5,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
-        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "platform-actions",
@@ -3213,11 +3206,10 @@
       "surface": "marketplace",
       "field": "post-image-file",
       "terminus": "marketplace_listings",
-      "display_fanout": 6,
+      "display_fanout": 5,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
-        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "platform-actions",
@@ -3251,11 +3243,10 @@
       "surface": "marketplace",
       "field": "post-image-url",
       "terminus": "marketplace_listings",
-      "display_fanout": 6,
+      "display_fanout": 5,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
-        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "platform-actions",
@@ -3289,11 +3280,10 @@
       "surface": "marketplace",
       "field": "post-location",
       "terminus": "marketplace_listings",
-      "display_fanout": 6,
+      "display_fanout": 5,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
-        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "platform-actions",
@@ -3327,11 +3317,10 @@
       "surface": "marketplace",
       "field": "post-price",
       "terminus": "marketplace_listings",
-      "display_fanout": 6,
+      "display_fanout": 5,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
-        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "platform-actions",
@@ -3365,11 +3354,10 @@
       "surface": "marketplace",
       "field": "post-title",
       "terminus": "marketplace_listings",
-      "display_fanout": 6,
+      "display_fanout": 5,
       "display_depth": 3,
       "displayed_on_pages": [
         "asset-hub",
-        "founder-console",
         "marketplace-admin",
         "marketplace-seller",
         "platform-actions",

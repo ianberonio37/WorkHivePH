@@ -37,7 +37,7 @@ nav[aria-label="Breadcrumb"] ~ nav,
 
 html,
 body {
-  background: #fff !important;
+  background: var(--wh-white, #fff) !important;
   color: var(--wh-print-ink, #111) !important;
 }
 
@@ -57,7 +57,7 @@ article {
 }
 
 h1, h2, h3, h4 {
-  color: #000 !important;
+  color: var(--wh-black, #000) !important;
   page-break-after: avoid;
   break-after: avoid;
 }
@@ -74,7 +74,7 @@ table {
 }
 
 th, td {
-  border: 1px solid #999 !important;
+  border: 1px solid var(--wh-grey-500, #999) !important;
   padding: 4px 6px !important;
 }
 
@@ -88,6 +88,6 @@ img {
 article a[href^="http"]::after {
   content: " (" attr(href) ")";
   font-size: 0.85em;
-  color: #444 !important;
+  color: var(--wh-grey-800, #444) !important;
   word-break: break-all;
 }

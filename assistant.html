@@ -42,10 +42,10 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
       border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
-      color: white;
+      color: var(--wh-white, white);
       padding: 0.75rem 1rem;
       width: 100%;
-      font-size: 1rem;
+      font-size: var(--wh-fs-base, 1rem);
       transition: border-color 0.2s;
       outline: none;
     }
@@ -65,7 +65,7 @@
       transition: background .15s ease, border-color .15s ease, color .15s ease,
                   box-shadow .15s ease, transform .12s var(--wh-ease-out, cubic-bezier(0.23, 1, 0.32, 1));
       border: none;
-      font-size: 0.9rem;
+      font-size: var(--wh-fs-sm-plus, 0.875rem);
     }
         /* ★A BRAND-COLOURED GLOW UNDER A BUTTON ON A DARK PAGE (design lens slop, 2026-09-15). An amber shadow
        does not read as the button being raised - light does not take the colour of what casts it - it reads
@@ -89,9 +89,9 @@
          (design lens motion, 2026-09-15) */
       transition: background .15s ease, border-color .15s ease, color .15s ease,
                   box-shadow .15s ease, transform .12s var(--wh-ease-out, cubic-bezier(0.23, 1, 0.32, 1));
-      font-size: 0.9rem;
+      font-size: var(--wh-fs-sm-plus, 0.875rem);
     }
-    .btn-ghost:hover { border-color: rgba(255,255,255,0.25); color: white; }
+    .btn-ghost:hover { border-color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.25); color: var(--wh-white, white); }
 
     /* Chat bubbles */
     .bubble-user {
@@ -99,8 +99,8 @@
       border: 1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);
       border-radius: 16px 16px 8px 16px;
       padding: 0.75rem 1rem;
-      color: white;
-      font-size: 0.875rem;
+      color: var(--wh-white, white);
+      font-size: var(--wh-fs-sm-plus, 0.875rem);
       line-height: 1.5;
       /* ★A PERCENTAGE IS NOT A MEASURE (design lens craft, 2026-09-15). 80% of a phone is a comfortable
          line; 80% of a 1280px window is 188 characters, and the craft floor asks for 65 to 75. A percent
@@ -116,8 +116,8 @@
       border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       border-radius: 16px 16px 16px 8px;
       padding: 0.75rem 1rem;
-      color: rgba(255,255,255,0.88);
-      font-size: 0.875rem;
+      color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.88);
+      font-size: var(--wh-fs-sm-plus, 0.875rem);
       line-height: 1.6;
       max-width: min(85%, 70ch);
       word-break: break-word;
@@ -132,8 +132,8 @@
        text never drops under its contrast) so a long wait still reads as alive. The stage notes beside them name
        what is happening as it passes 8s, 20s and 40s. */
     .typing-label {
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.82);
+      font-size: var(--wh-fs-sm, 0.85rem);
+      color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.82);
       animation: typing-breathe 1.6s ease-in-out infinite;
     }
     @keyframes typing-breathe {
@@ -170,9 +170,9 @@
       background: rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5);
       border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
-      color: white;
+      color: var(--wh-white, white);
       padding: 12px 16px;
-      font-size: 1rem;
+      font-size: var(--wh-fs-base, 1rem);
       resize: none;
       outline: none;
       transition: border-color 0.2s;
@@ -211,15 +211,15 @@
       transform: translateX(-50%) translateY(4px);
       background: linear-gradient(135deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.95), rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.98));
       border: 1px solid var(--wh-white-12, rgba(255,255,255,0.12));
-      color: white;
+      color: var(--wh-white, white);
       padding: 0.625rem 1.25rem;
       border-radius: 999px;
-      font-size: 0.8rem;
+      font-size: var(--wh-fs-xs, 0.8rem);
       font-weight: 500;
       opacity: 0;
       transition: opacity 0.3s, transform 0.3s;
       pointer-events: none;
-      z-index: 9999;
+      z-index: var(--wh-z-toast-5, 9999);
       white-space: normal;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -295,7 +295,7 @@
       padding: 0 0.5rem;
       transition: color 0.2s;
     }
-    .key-toggle:hover { color:rgba(255,255,255,0.83); }
+    .key-toggle:hover { color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); }
 
     /* C2 contract adoption (2026-09-10): --wh-red is the danger FILL; tokens.css declares --wh-red-text
        as its AA text pair, and this renders at 0.78rem where WCAG asks 4.5:1. Called out separately from
@@ -304,7 +304,7 @@
        page. Applied on the documented token contract rather than a measured ratio, and it cannot read
        worse: --wh-red-text is the lighter of the pair on this platform's dark ground. Error copy is the
        last text that should be hard to read. */
-    .error-text { color: var(--wh-red-text); font-size: 0.78rem; margin-top: 0.35rem; display: none; }
+    .error-text { color: var(--wh-red-text); font-size: var(--wh-fs-xs, 0.8rem); margin-top: 0.35rem; display: none; }
     .error-text.show { display: block; }
   </style>
 <style>/* ★THE BAND WAS RESERVED FOR A PILL THIS PAGE NEVER GETS, AND IT PUSHED THE SEND BUTTON OFF THE
@@ -364,7 +364,7 @@
   <button type="button" class="assistant-lang-toggle text-xs font-bold"
           style="min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;
                  background:transparent;border:1px solid var(--wh-navy-light, #2A3D58);border-radius:999px;
-                 color:rgba(255,255,255,0.90);padding:0 12px;cursor:pointer;">EN</button>
+                 color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.9);padding:0 12px;cursor:pointer;">EN</button>
 </div>
 <details class="wh-help">
   <summary data-i="p_howthispageworks_c540">How this page works</summary>
@@ -507,7 +507,7 @@
              style="background:var(--wh-green);" title="Online"></div>
         <span id="assistant-conn-label" class="sr-only" role="status">Online</span>
         <!-- heading-allow: the chat screen's h1; the setup screen's is display:none whenever this one shows -->
-        <h1 style="margin:0;font-size:0.85rem;font-weight:700;white-space:nowrap;" data-i="chattitle">Work Assistant</h1>
+        <h1 style="margin:0;font-size:var(--wh-fs-sm, 0.85rem);font-weight:700;white-space:nowrap;" data-i="chattitle">Work Assistant</h1>
         <!-- ★A STATUS LIGHT NOTHING WROTE (design lens critique, 2026-09-15): --wh-green appears exactly once
              in this file, here, so this pulsed green in the universal position of a connection indicator
              while the worker was offline. It reports navigator.onLine now and says so out loud. -->
@@ -528,7 +528,7 @@
       <button type="button" class="assistant-lang-toggle text-xs font-bold"
               style="min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;
                      background:transparent;border:1px solid var(--wh-navy-light, #2A3D58);border-radius:999px;
-                     color:rgba(255,255,255,0.90);padding:0 12px;cursor:pointer;flex-shrink:0;">EN</button>
+                     color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.9);padding:0 12px;cursor:pointer;flex-shrink:0;">EN</button>
       <!-- data-wh-local: clearChat() empties the on-screen thread and stores nothing ("the thread here is not kept") -
            a control that changes no record leaves no trail to owe (UFAI LXC137, layer L, 2026-10-09) -->
       <button onclick="clearChat()" data-wh-local="true" class="text-xs text-white/80 hover:text-white/80 transition-colors font-medium" style="min-height:44px;display:inline-flex;align-items:center;white-space:nowrap;flex-shrink:0;" data-i="newchat">New Chat</button>
@@ -567,7 +567,7 @@
            permanent journal entry is therefore decided by how slow the network was, and the tab holding
            it is two centimetres away. Said once, beside the tab, rather than buried in a dialog. -->
       <span id="assistant-journal-note"
-            style="font-size:0.75rem;color:rgba(255,255,255,0.75);margin-left:auto;padding-left:8px;
+            style="font-size:var(--wh-fs-2xs, 0.75rem);color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.75);margin-left:auto;padding-left:8px;
                    max-width:min(38ch,55%);line-height:1.3;"></span>
     </div>
 
@@ -597,11 +597,11 @@
                style="margin:0; margin-inline:auto; max-width:min(32rem, 70ch); background:transparent;
                       border:0; padding:0;">
         <summary id="assistant-scope-summary"
-                 style="font-size:0.75rem; font-weight:600; color:var(--wh-text-muted, rgba(255,255,255,0.80));"></summary>
+                 style="font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; color:var(--wh-text-muted, rgba(255,255,255,0.80));"></summary>
         <p id="assistant-scope-chip-chat" role="note"
-           style="margin:6px 0 0; font-size:0.75rem; line-height:1.4; color:var(--wh-text-muted, rgba(255,255,255,0.80));"></p>
+           style="margin:6px 0 0; font-size:var(--wh-fs-2xs, 0.75rem); line-height:1.4; color:var(--wh-text-muted, rgba(255,255,255,0.80));"></p>
         <p id="assistant-journal-note-body"
-           style="margin:6px 0 0; font-size:0.75rem; line-height:1.4; color:rgba(255,255,255,0.75);"></p>
+           style="margin:6px 0 0; font-size:var(--wh-fs-2xs, 0.75rem); line-height:1.4; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.75);"></p>
       </details>
     </div>
 
@@ -631,7 +631,7 @@
          where the next ask is typed, not buried in the page intro. Empty and silent until the
          count is actually low. -->
     <p id="assistant-quota-note" role="status" aria-live="polite"
-       style="display:none; font-size:0.75rem; color:var(--wh-orange-text); margin:0 0 4px; line-height:1.35;"></p>
+       style="display:none; font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-orange-text); margin:0 0 4px; line-height:1.35;"></p>
     <div id="chat-input-area" class="chat-input-area flex-shrink-0">
       <div class="flex items-end gap-2 max-w-lg mx-auto">
         <textarea data-ia="a_ask" data-ip="a_ask" aria-label="Ask anything…"
@@ -1982,7 +1982,7 @@ happens to know maintenance, not a manual.`;
         if (!_tbl) return;
         const th = _tbl.head.map((c) => '<th style="text-align:left;padding:4px 8px;border-bottom:1px solid var(--wh-white-18, rgba(255,255,255,0.18));white-space:nowrap;">' + inline(c) + '</th>').join('');
         const tr = _tbl.rows.map((r) => '<tr>' + r.map((c) => '<td style="padding:4px 8px;border-bottom:1px solid var(--wh-white-07, rgba(255,255,255,0.07));">' + inline(c) + '</td>').join('') + '</tr>').join('');
-        out.push('<div style="overflow-x:auto;margin:6px 0;"><table style="border-collapse:collapse;font-size:0.8rem;min-width:100%;"><caption style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">' + escHtml((typeof window._t === 'function') ? window._t('Table from the assistant answer', 'Talahanayan mula sa sagot ng assistant') : 'Table from the assistant answer') + '</caption>'
+        out.push('<div style="overflow-x:auto;margin:6px 0;"><table style="border-collapse:collapse;font-size:var(--wh-fs-xs, 0.8rem);min-width:100%;"><caption style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;">' + escHtml((typeof window._t === 'function') ? window._t('Table from the assistant answer', 'Talahanayan mula sa sagot ng assistant') : 'Table from the assistant answer') + '</caption>'
           + (th ? '<thead><tr>' + th + '</tr></thead>' : '') + '<tbody>' + tr + '</tbody></table></div>');
         _tbl = null;
       };
@@ -2066,8 +2066,8 @@ happens to know maintenance, not a manual.`;
       wrap.className = 'fade-up';
       wrap.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; max-width:32rem;';
       wrap/* xss-allow: static author-controlled prompt strings, escHtml'd */ .innerHTML =
-        `<h2 style="width:100%; font-size:0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 2px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;" data-i="tryasking">Try asking</h2>`
-        + prompts.map(p => `<button type="button" translate="no" class="starter-chip" style="font-size:0.8rem; line-height:1.25; color:var(--wh-orange-text); background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius:999px; padding:8px 16px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(p)}</button>`).join('');
+        `<h2 style="width:100%; font-size:var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin:0 0 2px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700;" data-i="tryasking">Try asking</h2>`
+        + prompts.map(p => `<button type="button" translate="no" class="starter-chip" style="font-size:var(--wh-fs-xs, 0.8rem); line-height:1.25; color:var(--wh-orange-text); background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1); border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); border-radius:999px; padding:8px 16px; min-height:44px; cursor:pointer; text-align:left;">${escHtml(p)}</button>`).join('');
       container.appendChild(wrap);
       wrap.querySelectorAll('.starter-chip').forEach((chip, i) => {
         chip.addEventListener('click', () => {
@@ -2297,11 +2297,11 @@ happens to know maintenance, not a manual.`;
             <span class="typing-label" id="typing-sr">Thinking…</span>
           </div>
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <span id="typing-note" role="status" aria-live="polite" style="font-size:0.75rem; color:rgba(255,255,255,0.75);"></span>
+            <span id="typing-note" role="status" aria-live="polite" style="font-size:var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.75);"></span>
             ${_stoppable ? `<button type="button" id="typing-stop" onclick="stopAsk()"
                     style="background:transparent; border:1px solid var(--wh-navy-light, #2A3D58);
-                           color:rgba(255,255,255,0.90); border-radius:999px; min-height:44px;
-                           padding:0 16px; font-size:0.8rem; cursor:pointer;">${escHtml(_t('Stop', 'Itigil'))}</button>` : ''}
+                           color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.9); border-radius:999px; min-height:44px;
+                           padding:0 16px; font-size:var(--wh-fs-xs, 0.8rem); cursor:pointer;">${escHtml(_t('Stop', 'Itigil'))}</button>` : ''}
           </div>
         </div>`;
       container.appendChild(wrap);
@@ -3203,10 +3203,10 @@ happens to know maintenance, not a manual.`;
   </footer>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="assistant-scope-chip" hidden>
-<p class="wh-source-chip" id="assistant-scope-chip" role="status" aria-live="polite" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0;padding:3px 0 0;line-height:1.35;"></p>
+<p class="wh-source-chip" id="assistant-scope-chip" role="status" aria-live="polite" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0;padding:3px 0 0;line-height:1.35;"></p>
 </div>
 </div>
 </section>

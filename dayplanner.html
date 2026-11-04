@@ -25,10 +25,10 @@
   <link rel="stylesheet" href="components.css" />  <!-- S11 shared component CSS -->
   <style>
     * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
-    body { background-color: var(--wh-navy); min-height: 100vh; color: white; margin: 0; padding-top: calc(64px + env(safe-area-inset-top, 0px)); }/* I1 CLS: statically reserve the wayfinding back-pill band at first paint so wayfinding.js skips its post-paint padding shift (was 0.18 CLS) */
+    body { background-color: var(--wh-navy); min-height: 100vh; color: var(--wh-white, white); margin: 0; padding-top: calc(64px + env(safe-area-inset-top, 0px)); }/* I1 CLS: statically reserve the wayfinding back-pill band at first paint so wayfinding.js skips its post-paint padding shift (was 0.18 CLS) */
 
     /* Aurora background */
-    .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .aurora-bg { position: fixed; inset: 0; z-index: var(--wh-z-art, 0); pointer-events: none; overflow: hidden; }
     /* ★THE AURORA HOLDS STILL (K, 2026-10-15). Three 80px-blurred blobs drifted behind this page forever - DESIGN.md's
        "continuous decorative animation", blur as decoration, and the costliest paint on the low-end phones this
        tool is used on. The same ambient light, static: two soft radial glows on the layer itself (the pattern
@@ -48,7 +48,7 @@
     }
 
     /* Layout */
-    .app-layout { display: flex; height: 100vh; overflow: hidden; position: relative; z-index: 1; }
+    .app-layout { display: flex; height: 100vh; overflow: hidden; position: relative; z-index: var(--wh-z-base, 1); }
   .sidebar { width: 280px; min-width: 280px; background: linear-gradient(180deg, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.95) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.98) 100%); border-right: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); display: flex; flex-direction: column; overflow: hidden; }
     .sidebar.collapsed { width: 48px; min-width: 48px; }
     /* no width transition (critique W45908, 2026-10-13): nothing toggles .collapsed, so `transition: width .3s` only ran when a
@@ -97,7 +97,7 @@
     /* View tabs */
     .view-tabs { display: flex; gap: 0.25rem; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border-radius: 0.75rem; padding: 0.25rem; }
     /* ★transition:`all` animates every property that ever changes, layout included - the declaration that makes a hover cost a reflow (design lens motion, 2026-09-15). Narrowed to what each rule actually changes on hover or selection. */
-    .view-tab { padding: 0.5rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s, border-color 0.2s; color:var(--wh-text-muted, rgba(255,255,255,0.80)); border: none; background: none; }
+    .view-tab { padding: 0.5rem 1.25rem; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0.5rem; font-size: var(--wh-fs-xs, 0.8rem); font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s, border-color 0.2s; color:var(--wh-text-muted, rgba(255,255,255,0.80)); border: none; background: none; }
     .view-tab:hover { color:var(--wh-text-faint, rgba(255,255,255,0.86)); background: var(--wh-white-05, rgba(255,255,255,0.05)); }
     .view-tab.active { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); }
 
@@ -105,7 +105,7 @@
     @media (max-width: 520px) {
       .top-bar { padding: 0.75rem; gap: 0.5rem; }   /* 10 -> 12px (craft, 2026-09-15) */
       .view-tabs { order: 10; width: 100%; justify-content: center; }
-      .view-tab { padding: 0.5rem 0.75rem; font-size: 0.75rem; flex: 1; text-align: center; }   /* 6.4 -> 8px; min-height:44px above is untouched */
+      .view-tab { padding: 0.5rem 0.75rem; font-size: var(--wh-fs-2xs, 0.75rem); flex: 1; text-align: center; }   /* 6.4 -> 8px; min-height:44px above is untouched */
       .top-bar > div[style*="flex:1"] { display: none; }
     }
 
@@ -117,7 +117,7 @@
       display: none; position: absolute; top: 3px; right: 3px;
       min-width: 18px; height: 18px; padding: 0 4px; box-sizing: border-box;
       border-radius: var(--wh-radius-pill); background: var(--wh-orange); color: var(--wh-navy);   /* was 9px - half of an 18px box, hand-computed; the pill token stays a circle if the badge grows */
-      font-size: 0.75rem; font-weight: 700; line-height: 18px; text-align: center;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700; line-height: 18px; text-align: center;
     }
     #sidebar-toggle { position: relative; }
 
@@ -175,7 +175,7 @@
        like an empty box rather than a broken one. flex-shrink:0 makes the container scroll, which is
        what overflow-y:auto was there for. */
     .lb-card { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.7) 100%); border: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); border-radius: 0.75rem; cursor: pointer; transition: background-color 0.2s, border-color 0.2s, transform 0.2s; overflow: hidden; flex-shrink: 0; }
-    .lb-card:hover { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); background: linear-gradient(145deg, rgba(52,74,108,0.6) 0%, rgba(35,52,78,0.8) 100%); }
+    .lb-card:hover { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.6) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.8) 100%); }
     .lb-card.selected { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.6); box-shadow: 0 0 0 2px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); }
     /* SL LB3: the open items are a long list of their own inside the sidebar (whRenderRows, see renderSidebar) - the same
        column and gap the cards had as the sidebar's children; never shrunk (the 2px crush this file already met); a card
@@ -193,9 +193,9 @@
        parses fifty cards' markup (the same values the inline styles carried) */
     .lb-card.lb-card-done { opacity: 0.55; }
     .lb-card-main { flex: 1; min-width: 0; }
-    .lb-card-title { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .lb-card-meta { font-size: 0.75rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 4px; font-weight: 400; }
-    .lb-card-problem { font-size: 0.75rem; color: var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lb-card-title { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; color: rgba(var(--wh-white-rgb, 255, 255, 255), 0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lb-card-meta { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 4px; font-weight: 400; }
+    .lb-card-problem { font-size: var(--wh-fs-2xs, 0.75rem); color: var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .lb-card-side { display: flex; align-items: center; gap: 4px; }
     .lb-caret { display: inline-block; transition: transform 150ms var(--wh-ease-out, ease-out); }
     .badge.lb-badge-done { background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.15); color: var(--wh-green); border: 1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
@@ -211,7 +211,7 @@
 
     /* DILO: day timeline */
     .dilo-grid { display: grid; grid-template-columns: 56px 1fr; gap: 0; }
-    .time-label { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-align: right; padding-right: 0.75rem; line-height: 1; padding-top: 2px; }
+    .time-label { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); text-align: right; padding-right: 0.75rem; line-height: 1; padding-top: 2px; }
     /* ★THREE RULES MATCHING NOTHING, REMOVED (design lens critique W45908, 2026-09-15). The live
        sweep counted `.time-slot` elements on the rendered page: ZERO at both viewports. The hour
        slots are built by renderDILO with `class="dp-slot"` and their hover written inline, so this
@@ -227,12 +227,12 @@
 
     /* WILO: week grid */
     .wilo-grid { display: grid; grid-template-columns: 52px repeat(7, 1fr); gap: 0; }
-    .wilo-day-header { text-align: center; padding: 0.5rem 0.25rem; font-size: 0.75rem; font-weight: 600; border-bottom: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); position: sticky; top: 0; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.95); z-index: 3; }
+    .wilo-day-header { text-align: center; padding: 0.5rem 0.25rem; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; border-bottom: 1px solid var(--wh-white-07, rgba(255,255,255,0.07)); position: sticky; top: 0; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.95); z-index: var(--wh-z-sticky-2, 3); }
     .wilo-day-header.today { color: var(--wh-orange); }
     .wilo-cell { border-top: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); border-left: 1px solid var(--wh-white-04, rgba(255,255,255,0.04)); min-height: 40px; position: relative; cursor: pointer; transition: background 0.15s; }
     .wilo-cell:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.04); }
     .wilo-cell.today-col { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.02); }
-    .wilo-block { margin: 2px; border-radius: 12px; padding: 0.2rem 0.375rem; font-size: 0.75rem; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
+    .wilo-block { margin: 2px; border-radius: 12px; padding: 0.2rem 0.375rem; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer; }
     .wilo-block:hover { filter: brightness(1.15); }
 
     /* MILO: month grid */
@@ -261,23 +261,23 @@
          44px here. The tap target is the slot, so the track has to carry the border on top. */
       .wilo-grid { grid-template-columns: 52px repeat(7, minmax(45px, 1fr)); overflow-x: auto; }
     }
-    .milo-day-name { text-align: center; padding: 0.5rem 0; font-size: 0.75rem; font-weight: 600; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
+    .milo-day-name { text-align: center; padding: 0.5rem 0; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     .milo-cell { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.3) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.4) 100%); border: 1px solid var(--wh-white-05, rgba(255,255,255,0.05)); border-radius: 0.5rem; min-height: 80px; padding: 0.375rem; cursor: pointer; transition: background-color 0.15s, border-color 0.15s; position: relative; }
-    .milo-cell:hover { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); background: linear-gradient(145deg, rgba(52,74,108,0.4) 0%, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) 100%); }
+    .milo-cell:hover { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2); background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.4) 0%, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.5) 100%); }
     .milo-cell.today { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); box-shadow: 0 0 0 1px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); }
     .milo-cell.other-month { opacity: 0.35; }
-    .milo-date { font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .milo-date { font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; margin-bottom: 0.25rem; }
     .milo-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin: 1px; }
-    .milo-more { font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 2px; }
+    .milo-more { font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-top: 2px; }
 
     /* YILO: year grid */
     .yilo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
     .yilo-month { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.3) 0%, rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.4) 100%); border: 1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 0.75rem; padding: 0.75rem; }
-    .yilo-month-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; color:rgba(255,255,255,0.83); }
+    .yilo-month-name { font-size: var(--wh-fs-xs, 0.8rem); font-weight: 700; margin-bottom: 0.5rem; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); }
     .yilo-mini-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-    .yilo-mini-day-name { text-align: center; font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding: 1px 0; }
-    .yilo-mini-cell { aspect-ratio: 1; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer; transition: background-color 0.15s, border-color 0.15s; position: relative; }
-    .yilo-mini-cell:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: white; }
+    .yilo-mini-day-name { text-align: center; font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding: 1px 0; }
+    .yilo-mini-cell { aspect-ratio: 1; border-radius: 0; display: flex; align-items: center; justify-content: center; font-size: var(--wh-fs-2xs, 0.75rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); cursor: pointer; transition: background-color 0.15s, border-color 0.15s; position: relative; }
+    .yilo-mini-cell:hover { background: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.15); color: var(--wh-white, white); }
     .yilo-mini-cell.today { background: var(--wh-orange); color: var(--wh-navy); font-weight: 700; border-radius: 50%; }
     .yilo-mini-cell.has-items { background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.2); color: var(--wh-text-muted, rgba(255,255,255,0.8)); border-radius: 50%; }
     .yilo-mini-cell.has-items.today { background: var(--wh-orange); }
@@ -297,28 +297,28 @@
     }
 
     /* Buttons */
-    .btn-primary { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); font-weight: 700; border-radius: var(--wh-radius-sm); padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; transition: opacity 0.2s; border: none; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-primary { background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light)); color: var(--wh-navy); font-weight: 700; border-radius: var(--wh-radius-sm); padding: 0.5rem 1rem; font-size: var(--wh-fs-xs, 0.8rem); cursor: pointer; transition: opacity 0.2s; border: none; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35); }
     .btn-primary:active { opacity: 0.75; transform: scale(0.97); box-shadow: none; }
-    .btn-ghost { background: var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(255,255,255,0.83); font-weight: 500; border-radius: var(--wh-radius-sm); padding: 0.5rem 0.75rem; font-size: 0.8rem; cursor: pointer; border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); transition: background-color 0.2s, color 0.2s, border-color 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
-    .btn-ghost:hover { background: var(--wh-white-10, rgba(255,255,255,0.1)); color: white; }
+    .btn-ghost { background: var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); font-weight: 500; border-radius: var(--wh-radius-sm); padding: 0.5rem 0.75rem; font-size: var(--wh-fs-xs, 0.8rem); cursor: pointer; border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); transition: background-color 0.2s, color 0.2s, border-color 0.2s; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-ghost:hover { background: var(--wh-white-10, rgba(255,255,255,0.1)); color: var(--wh-white, white); }
     .btn-ghost:active { background: var(--wh-white-15, rgba(255,255,255,0.15)); transform: scale(0.97); }
     .btn-icon { background: var(--wh-white-06, rgba(255,255,255,0.06)); color:var(--wh-text-muted, rgba(255,255,255,0.80)); border-radius: 0.5rem; padding: 0.5rem;   /* 6.4 -> 8px (craft, 2026-09-15) */ min-height: 44px; min-width: 44px; cursor: pointer; border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08)); transition: background-color 0.2s, color 0.2s, border-color 0.2s; display: flex; align-items: center; justify-content: center; }
-    .btn-icon:hover { background: var(--wh-white-12, rgba(255,255,255,0.12)); color: white; }
+    .btn-icon:hover { background: var(--wh-white-12, rgba(255,255,255,0.12)); color: var(--wh-white, white); }
     .btn-icon:active { background: var(--wh-white-18, rgba(255,255,255,0.18)); transform: scale(0.93); }
 
     /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: var(--wh-black-60, rgba(0,0,0,0.6)); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; }
+    .modal-overlay { position: fixed; inset: 0; background: var(--wh-black-60, rgba(0,0,0,0.6)); backdrop-filter: blur(4px); z-index: var(--wh-z-modal-2, 50); display: flex; align-items: center; justify-content: center; }
     .modal-overlay.hidden { display: none; }
-    .modal-box { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.99) 100%); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 1rem; width: 100%; max-width: 460px; padding: 1.5rem; box-shadow: 0 24px 80px rgba(0,0,0,0.5); }
-    .wh-input { background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: var(--wh-radius-sm); color: white; padding: 0.625rem 0.875rem; width: 100%; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+    .modal-box { background: linear-gradient(145deg, rgba(var(--wh-navy-light-rgb, 42, 61, 88), 0.97) 0%, rgba(var(--wh-navy-rgb, 22, 32, 50), 0.99) 100%); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 1rem; width: 100%; max-width: 460px; padding: 1.5rem; box-shadow: 0 24px 80px var(--wh-black-55, rgba(0, 0, 0, 0.55)); }
+    .wh-input { background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: var(--wh-radius-sm); color: var(--wh-white, white); padding: 0.625rem 0.875rem; width: 100%; font-size: var(--wh-fs-base, 1rem); outline: none; transition: border-color 0.2s; }
     .wh-input:focus { border-color: rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5); }
     .wh-input::placeholder { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     select.wh-input option { background: var(--wh-navy-mid); }
 
     /* Badge */
     /* 2.4px x60 - the discipline pill inside each of those same cards (design lens craft, 2026-09-15). */
-    .badge { display: inline-flex; align-items: center; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .badge { display: inline-flex; align-items: center; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; }
 
     /* Capacity bar */
     .cap-bar-wrap { height: 3px; background: var(--wh-white-06, rgba(255,255,255,0.06)); border-radius: 999px; overflow: hidden; margin-top: 4px; }
@@ -339,7 +339,7 @@
        left a 26px gap holding nothing. */
 
     /* Tooltip */
-    .tooltip { position: absolute; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.75rem; z-index: 20; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .tooltip { position: absolute; background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.97); border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius: 0.5rem; padding: 0.5rem 0.75rem; font-size: var(--wh-fs-2xs, 0.75rem); z-index: var(--wh-z-tooltip, 20); pointer-events: none; white-space: nowrap; box-shadow: 0 4px 20px var(--wh-black-35, rgba(0, 0, 0, 0.35)); }
 
     /* Selected item glow */
     @keyframes pulse-border { 0%,100%{box-shadow:0 0 0 2px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.2)} 50%{box-shadow:0 0 0 4px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.35)} }
@@ -351,9 +351,9 @@
        width is correct - but the prose inside it is not, and the craft floor's band is 65-75. The reading
        text takes the cap; the grid is untouched. */
     .section-note, .verdict-text, #dp-verdict-sub { max-width: 70ch; }
-    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-    .verdict-text { font-size:0.9rem; font-weight:700; line-height:1.35; }
-    .verdict-text small { display:block; font-size:0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }
+    .verdict-icon { font-size:var(--wh-fs-xl, 1.5rem); line-height:1; font-weight:800; }
+    .verdict-text { font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; line-height:1.35; }
+    .verdict-text small { display:block; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:500; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:4px; }
     .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
@@ -380,7 +380,7 @@
        settled at 320/340/390/430/768 and 16 at 600/1024/1280, the same in en and fil, so the two-line
        height is the honest reserve. */
     #dp-verdict-sub { min-height: 32px; }
-    #dp-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.78rem; line-height:1.5; color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #dp-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:var(--wh-fs-xs, 0.8rem); line-height:1.5; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-bottom:16px; }
     #dp-summary-details.open { display:block; }
   </style>
 </head>
@@ -404,7 +404,7 @@
       <div class="flex items-center justify-between mb-1">
         <div id="sidebar-title" class="flex items-center gap-2">
           <span class="ic ic-list" aria-hidden="true"></span>
-          <span data-i="p_openitems_1fe5" style="font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.85)">Open Items</span>
+          <span data-i="p_openitems_1fe5" style="font-size:var(--wh-fs-xs, 0.8rem);font-weight:700;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85)">Open Items</span>
         </div>
         <!-- ★THIRTY-ONE ACCESSIBLE NAMES ANNOUNCED ENGLISH TO A FILIPINO READER (design lens copy,
              2026-09-15): the 24 hour slots, the four view tabs, this toggle and the two date-nav buttons.
@@ -428,7 +428,7 @@
           <span id="sidebar-rail-count" aria-hidden="true"></span>
         </button>
       </div>
-      <p data-i="p_clickitemthenclickatimeslott_afbe" id="sidebar-hint" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-top:0.25rem">Click item then click a time slot to schedule</p>
+      <p data-i="p_clickitemthenclickatimeslott_afbe" id="sidebar-hint" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-top:0.25rem">Click item then click a time slot to schedule</p>
       <div class="cap-bar-wrap" style="margin-top:6px">
         <!-- ★AND THE INLINE WIDTH BEAT THE RULE (design lens motion, 2026-09-15). This carried width:0% so
              the OLD width transition had somewhere to start; the scaleX version needs a full-width box to
@@ -436,10 +436,10 @@
              and scaleX(0.5) of nothing is still nothing. The starting point is the transform now. -->
         <div id="sidebar-count-bar" class="cap-bar" style="background:linear-gradient(90deg,var(--wh-orange),var(--wh-orange-light))"></div>
       </div>
-      <p data-i="p_loading_b04b" id="sidebar-count-label" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-top:2px">Loading...</p>
+      <p data-i="p_loading_b04b" id="sidebar-count-label" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-top:2px">Loading...</p>
     </div>
     <div class="sidebar-items" id="sidebar-items">
-      <div style="text-align:center;padding:2rem 0;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:0.75rem">
+      <div style="text-align:center;padding:2rem 0;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:var(--wh-fs-2xs, 0.75rem)">
         <span class="ic ic-refresh" aria-hidden="true"></span>
         Loading logbook...
       </div>
@@ -470,12 +470,12 @@
              detector bans gradient-text on its own grounds and this one also had a live consequence.
              Solid --wh-orange-text is the colour the gradient was imitating, and it cannot fall back to
              anything. -->
-        <span data-i="p_day_987b" id="logo-view" translate="no" style="font-size:1rem;font-weight:800;color:var(--wh-orange-text)">Day</span>
-        <span translate="no" style="font-size:1rem;font-weight:800;color:rgba(255,255,255,0.85)">Planner</span>
+        <span data-i="p_day_987b" id="logo-view" translate="no" style="font-size:var(--wh-fs-base, 1rem);font-weight:800;color:var(--wh-orange-text)">Day</span>
+        <span translate="no" style="font-size:var(--wh-fs-base, 1rem);font-weight:800;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85)">Planner</span>
       </div>
       <div style="flex:1"></div>
       <!-- T51 (2026-08-26): the current-hive chip - this page renders HIVE-SCOPED data, and a multi-hive contractor could not tell WHICH hive they were acting in (the single most important chrome question for that persona). Same visual pattern as pm-scheduler's chip; self-filling so no page init needs touching. -->
-      <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
+      <span id="wh-hive-chip" translate="no" style="display:none;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:var(--wh-fs-2xs, 0.75rem);font-weight:700;background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.1);border:1px solid rgba(var(--wh-orange-rgb, 247, 162, 27), 0.25);color:var(--wh-orange-text);max-width:140px;"><span id="wh-hive-chip-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></span>
       <script>try{var _hn=localStorage.getItem('wh_hive_name');/* storage-key-allow: pre-utils chip paint */if(_hn){document.getElementById('wh-hive-chip-name').textContent=_hn;document.getElementById('wh-hive-chip').style.display='inline-flex';}}catch(_){/* empty-catch-allow: the chip is context decoration */}</script>
 
       <!-- View tabs -->
@@ -499,7 +499,7 @@
         <button class="btn-icon" onclick="navigate(-1)" title="Previous" data-ia="a_prev" aria-label="Previous">
           <span class="ic ic-back" aria-hidden="true"></span>
         </button>
-        <button class="btn-ghost" onclick="goToday()" style="font-size:0.75rem;padding:0.5rem 0.75rem" data-i="today">Today</button>
+        <button class="btn-ghost" onclick="goToday()" style="font-size:var(--wh-fs-2xs, 0.75rem);padding:0.5rem 0.75rem" data-i="today">Today</button>
         <button class="btn-icon" onclick="navigate(1)" title="Next" data-ia="a_next" aria-label="Next">
           <span class="ic ic-next" aria-hidden="true"></span>
         </button>
@@ -514,7 +514,7 @@
            the tiles and the whole day grid down 52px. The browser recorded it as a 0.053 shift at 358ms,
            the largest left on the page. A fixed basis makes the element do what the note already says it
            does: wrap to two lines inside the width the header always reserved for it. -->
-      <div id="period-label" style="font-size:0.85rem;font-weight:600;color:var(--wh-text-faint, rgba(255,255,255,0.86));flex:0 0 180px;min-width:180px;max-width:180px;min-height:2.75rem;display:flex;align-items:center;justify-content:center;text-align:center"></div><!-- I1 CLS: reserve 2 lines (the long date "Today, Thursday, July 23, 2026" wraps @ 180px) so empty→populated doesn't shift -->
+      <div id="period-label" style="font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;color:var(--wh-text-faint, rgba(255,255,255,0.86));flex:0 0 180px;min-width:180px;max-width:180px;min-height:2.75rem;display:flex;align-items:center;justify-content:center;text-align:center"></div><!-- I1 CLS: reserve 2 lines (the long date "Today, Thursday, July 23, 2026" wraps @ 180px) so empty→populated doesn't shift -->
 
       <!-- Add schedule item -->
       <button class="btn-primary" onclick="openAddModal()" style="white-space:nowrap" data-i="addschedule">
@@ -595,35 +595,35 @@
 <div class="modal-overlay hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal-box">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
-      <h2 style="font-size:1rem;font-weight:700" id="modal-title" data-i="scheduleitem">Schedule Item</h2>
+      <h2 style="font-size:var(--wh-fs-base, 1rem);font-weight:700" id="modal-title" data-i="scheduleitem">Schedule Item</h2>
       <button onclick="closeModal()" style="background:none;border:none;cursor:pointer;color:var(--wh-text-muted, rgba(255,255,255,0.80));padding:0.25rem" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
       </button>
     </div>
     <div style="display:flex;flex-direction:column;gap:0.875rem">
       <div>
-        <label for="m-title" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="mtitle">Title *</label>
+        <label for="m-title" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="mtitle">Title *</label>
         <input class="wh-input" id="m-title" aria-describedby="m-required-error" placeholder="What needs to be done?" oninput="document.getElementById('m-required-error').style.display='none'" />
-        <div data-i="p_titleanddatearerequired_718d" role="alert" aria-live="assertive" id="m-required-error" style="display:none;color:var(--wh-red);font-size:0.75rem;margin-top:0.25rem">Title and date are required.</div>
+        <div data-i="p_titleanddatearerequired_718d" role="alert" aria-live="assertive" id="m-required-error" style="display:none;color:var(--wh-red);font-size:var(--wh-fs-2xs, 0.75rem);margin-top:0.25rem">Title and date are required.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
-          <label for="m-date" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="mdate">Date *</label>
+          <label for="m-date" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="mdate">Date *</label>
           <input class="wh-input" id="m-date" type="date" oninput="document.getElementById('m-required-error').style.display='none'" />
         </div>
         <div>
-          <label for="m-start" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="mstart">Start Time</label>
+          <label for="m-start" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="mstart">Start Time</label>
           <input class="wh-input" id="m-start" type="time" oninput="(function(){const s=document.getElementById('m-start').value,e=document.getElementById('m-end');e.removeAttribute('min');if(e.value&&e.value===s){const[h,m]=s.split(':').map(Number);const t=(h*60+m+60)%1440;e.value=(String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0'))}})()" />
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
         <div>
-          <label for="m-end" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="mend">End Time</label>
+          <label for="m-end" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="mend">End Time</label>
           <input class="wh-input" id="m-end" type="time" aria-describedby="m-end-error" oninput="document.getElementById('m-end-error').style.display='none'" />
-          <div data-i="p_mustbeafterstarttime_8b1b" role="alert" aria-live="assertive" id="m-end-error" style="display:none;color:var(--wh-red);font-size:0.75rem;margin-top:0.25rem">Must be after Start Time</div>
+          <div data-i="p_mustbeafterstarttime_8b1b" role="alert" aria-live="assertive" id="m-end-error" style="display:none;color:var(--wh-red);font-size:var(--wh-fs-2xs, 0.75rem);margin-top:0.25rem">Must be after Start Time</div>
         </div>
         <div>
-          <label for="m-category" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="category">Category</label>
+          <label for="m-category" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="category">Category</label>
           <select class="wh-input" id="m-category" data-select-placeholder-allow="default 'PM' is the most common maintenance type">
             <option value="PM">Preventive Maintenance</option>
             <option value="CM">Corrective Maintenance</option>
@@ -641,17 +641,17 @@
              genuinely private, and saying so is the difference between a planner someone writes
              honestly in and one they hedge in because they cannot tell who is looking. The claim is
              checked against the policy by the composer-audience gate, not just asserted here. -->
-        <label for="m-notes" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="notes">Notes
+        <label for="m-notes" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));display:block;margin-bottom:0.375rem" data-i="notes">Notes
           <span data-i="p_privatetoyounobodyelseinyour_8caf" style="font-weight:400;opacity:0.75;text-transform:none;">- private to you; nobody else in your hive can read your planner notes</span></label>
         <textarea class="wh-input" id="m-notes" rows="4" placeholder="Optional details..." style="resize:vertical"></textarea>
       </div>
       <!-- Status row (edit mode only) -->
       <div id="m-status-row" style="display:none;background:rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);border:1px solid var(--wh-white-07, rgba(255,255,255,0.07));border-radius:0.75rem;padding:0.75rem">
-        <div data-i="p_itemstatus_b596" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.5rem;font-weight:600">Item Status</div>
+        <div data-i="p_itemstatus_b596" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.5rem;font-weight:600">Item Status</div>
         <div style="display:flex;gap:0.5rem">
-          <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid var(--wh-white-10, rgba(255,255,255,0.1));background:var(--wh-white-05, rgba(255,255,255,0.05));color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:0.75rem;font-weight:600;cursor:pointer" data-i="upcoming">Upcoming</button>
-          <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.3);background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.08);color:var(--wh-green);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="done">Done</button>
-          <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.3);background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.08);color:var(--wh-red-text);font-size:0.75rem;font-weight:600;cursor:pointer" data-i="missed">Missed</button>
+          <button onclick="setItemStatus('upcoming')" id="s-btn-upcoming" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid var(--wh-white-10, rgba(255,255,255,0.1));background:var(--wh-white-05, rgba(255,255,255,0.05));color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:var(--wh-fs-2xs, 0.75rem);font-weight:600;cursor:pointer" data-i="upcoming">Upcoming</button>
+          <button onclick="setItemStatus('done')" id="s-btn-done" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.3);background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.08);color:var(--wh-green);font-size:var(--wh-fs-2xs, 0.75rem);font-weight:600;cursor:pointer" data-i="done">Done</button>
+          <button onclick="setItemStatus('missed')" id="s-btn-missed" class="status-btn" style="flex:1;padding:0.4rem;border-radius:0.5rem;border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.3);background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.08);color:var(--wh-red-text);font-size:var(--wh-fs-2xs, 0.75rem);font-weight:600;cursor:pointer" data-i="missed">Missed</button>
         </div>
       </div>
       <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.25rem">
@@ -1533,13 +1533,13 @@ function renderPlantWorkSection() {
   if (!plantWork.length) {
     /* Silence is only honest when the read ANSWERED. */
     if (plantWorkFailed) {
-      return '<div class="section-note" style="font-size:0.75rem;opacity:0.8;padding:0.5rem 0;">'
+      return '<div class="section-note" style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.8;padding:0.5rem 0;">'
         + '' + _t("Could not load plant PM work, so this rail is empty for a reason that is not \"nothing due\". Reload to try again.", "Hindi ma-load ang plant PM work, kaya walang laman ang rail na ito sa dahilang hindi \"walang due\". I-reload para subukan muli.") + '</div>';
     }
     if (plantWorkHiveLost) {
       // The read ANSWERED - with nothing, because it was refused. Vanishing here reads as "no plant work
       // today" to someone who is simply no longer allowed to see it.
-      return '<div class="section-note" style="font-size:0.75rem;opacity:0.8;padding:0.5rem 0;">'
+      return '<div class="section-note" style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.8;padding:0.5rem 0;">'
         + escHtml((typeof whHiveContextLost === 'function')
             ? whHiveContextLost('this hive')
             : 'You are no longer a member of this hive, so its plant PM work is not shown.')
@@ -1559,12 +1559,12 @@ function renderPlantWorkSection() {
       <div class="lb-card-header">
         <div class="lb-dot" style="background:var(--wh-blue)"></div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e(pm.item_text || 'PM task')}</div>
-          <div style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-top:4px;font-weight:400">${e(pm.asset_name || pm.asset_tag || 'Asset')} &bull; due ${e(pm.next_due_date || '')}</div>
+          <div style="font-size:var(--wh-fs-2xs, 0.75rem);font-weight:600;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e(pm.item_text || 'PM task')}</div>
+          <div style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-top:4px;font-weight:400">${e(pm.asset_name || pm.asset_tag || 'Asset')} &bull; due ${e(pm.next_due_date || '')}</div>
         </div>
         ${badge}
       </div>
-      <button class="btn-ghost" data-i="addtoday" style="width:100%;font-size:0.75rem;min-height:44px;padding:0.5rem 0.75rem;margin-top:0.5rem" ${added ? 'disabled' : ''}
+      <button class="btn-ghost" data-i="addtoday" style="width:100%;font-size:var(--wh-fs-2xs, 0.75rem);min-height:44px;padding:0.5rem 0.75rem;margin-top:0.5rem" ${added ? 'disabled' : ''}
         onclick="addPmToDay('${escJsAttr(pm.scope_item_id)}')">
         ${added ? 'On your day &#10003;' : '+ Add to my day'}
       </button>
@@ -1576,13 +1576,13 @@ function renderPlantWorkSection() {
         <span class="ic ic-clock" aria-hidden="true"></span>
         <!-- "your plant" said to a solo car owner read wrong (VP13); "your assets" is true for
              every persona - plant crew, fleet, or one Ranger -->
-        <span style="font-size:0.75rem;font-weight:700;color:var(--wh-text-muted, rgba(255,255,255,0.8))">Due from your assets</span>
-        <span style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80))">${plantWorkTotal > plantWork.length
+        <span style="font-size:var(--wh-fs-2xs, 0.75rem);font-weight:700;color:var(--wh-text-muted, rgba(255,255,255,0.8))">Due from your assets</span>
+        <span style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80))">${plantWorkTotal > plantWork.length
           ? `${plantWork.length} of ${plantWorkTotal} PMs`
           : `${plantWork.length} PM${plantWork.length !== 1 ? 's' : ''}`}</span>
       </div>
       ${cards}
-      ${plantWorkTotal > plantWork.length ? `<div class="section-note" style="font-size:0.75rem;opacity:0.8;padding:0.5rem 0 0">
+      ${plantWorkTotal > plantWork.length ? `<div class="section-note" style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.8;padding:0.5rem 0 0">
         Showing the ${plantWork.length} most urgent of ${plantWorkTotal} due across your plant. Open PM Scheduler for the full list.</div>` : ''}
     </div>`;
 }
@@ -1653,13 +1653,13 @@ function renderSidebar() {
     // which is the one read that does not populate this panel.)
     if (_dpCloudReadFailed || logbookFailed) {
       label.textContent = _t('Open items unknown', 'Hindi alam ang mga open na item');
-      container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(255,255,255,0.85);font-size:0.75rem">
+      container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);font-size:var(--wh-fs-2xs, 0.75rem)">
         <span class="ic ic-warn" aria-hidden="true"></span>
         ${escHtml(_t('Could not load your open items. This is a loading problem, not an empty queue.', 'Hindi ma-load ang mga open item mo. Problema ito sa pag-load, hindi walang laman na queue.'))}</div>`
         + renderPlantWorkSection();
       return;
     }
-    container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:0.75rem">
+    container.innerHTML = `<div style="text-align:center;padding:2rem 0;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:var(--wh-fs-2xs, 0.75rem)">
       <span class="ic ic-check" aria-hidden="true"></span>
       ${escHtml(_t('No open items', 'Walang open na item'))}</div>` + renderPlantWorkSection();
     return;
@@ -1748,13 +1748,13 @@ function renderSidebar() {
         </div>
       </div>
       <div class="lb-card-body" id="lbc-body-${item.id}">${isSelected ? `
-        <div style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.5rem;line-height:1.4">${escHtml((item.problem || '').substring(0,120))}${(item.problem||'').length > 120 ? '...' : ''}</div>
+        <div style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.5rem;line-height:1.4">${escHtml((item.problem || '').substring(0,120))}${(item.problem||'').length > 120 ? '...' : ''}</div>
         <div style="display:flex;gap:0.375rem;flex-wrap:wrap;margin-bottom:0.5rem">
           <span class="badge" style="background:${c.bg};color:${c.text};border:1px solid ${c.border}">${escHtml(item.category)}</span>
           <span class="badge" style="background:var(--wh-white-06, rgba(255,255,255,0.06));color:var(--wh-text-muted, rgba(255,255,255,0.80))">${escHtml(item.status) || 'Open'}</span>
         </div>
-        ${linked.length ? `<div style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.375rem">${linked.length} scheduled slot${linked.length>1?'s':''}</div>` : ''}
-        <button class="btn-ghost" style="width:100%;font-size:0.75rem;min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')" data-i="placeonschedule">+ Place on Schedule</button>
+        ${linked.length ? `<div style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-bottom:0.375rem">${linked.length} scheduled slot${linked.length>1?'s':''}</div>` : ''}
+        <button class="btn-ghost" style="width:100%;font-size:var(--wh-fs-2xs, 0.75rem);min-height:44px;padding:0.5rem 0.75rem" onclick="event.stopPropagation();selectAndSchedule('${escJsAttr(item.id)}')" data-i="placeonschedule">+ Place on Schedule</button>
       ` : ''}</div>
     </div>`;
   }, { sig: 'dp-open-items', long: true,
@@ -2336,8 +2336,8 @@ function renderDILO() {
   // most likely to need the capacity figure - pushed "Capacity 0% · 0.0h / 8h" off the right edge. The
   // top-bar above them already wraps; these now do the same.
   let html = `<div style="margin-bottom:1rem;display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;row-gap:4px">
-    <span style="font-size:0.75rem;font-weight:700;color:var(--wh-text-muted, rgba(255,255,255,0.80));letter-spacing:0.1em">DILO</span>
-    <span style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80))">${_t('Day In the Life Of', 'Isang Araw sa Buhay Ng')}</span>
+    <span style="font-size:var(--wh-fs-2xs, 0.75rem);font-weight:700;color:var(--wh-text-muted, rgba(255,255,255,0.80));letter-spacing:0.1em">DILO</span>
+    <span style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80))">${_t('Day In the Life Of', 'Isang Araw sa Buhay Ng')}</span>
     <!-- ★WHICH DAY, ON WHOSE CLOCK. The capacity figure now names its denominator (8h), but the DAY
          itself was undefined on the surface: the grid runs 12 AM to 11 PM - midnight to midnight -
          while a 3-shift plant's day is not, and the times are rendered in a FIXED Asia/Manila zone
@@ -2346,10 +2346,10 @@ function renderDILO() {
          and opened the modal on 2026-08-17, because the label read local date parts and the stored
          value read toYMD. The code was fixed; the reader still had no way to know which clock they
          were planning on. Stating it costs one span and makes the boundary checkable. -->
-    <span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">${_t(`${_hrLabel(startHour)}–11 PM · PHT (Asia/Manila)`, `${_hrLabel(startHour)}–11 PM · PHT (Asia/Manila) · oras ng Maynila`)}</span>
+    <span style="font-size:var(--wh-fs-2xs, 0.75rem);color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.62)">${_t(`${_hrLabel(startHour)}–11 PM · PHT (Asia/Manila)`, `${_hrLabel(startHour)}–11 PM · PHT (Asia/Manila) · oras ng Maynila`)}</span>
     <span style="flex:1"></span>
     <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;row-gap:4px">
-      <span style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80))">${_t('Capacity', 'Kapasidad')}</span>
+      <span style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80))">${_t('Capacity', 'Kapasidad')}</span>
       <div style="width:80px;height:5px;background:var(--wh-white-06, rgba(255,255,255,0.06));border-radius:999px;overflow:hidden">
         <div style="width:${capBar}%;height:100%;background:${capColor};border-radius:999px"></div>
       </div>
@@ -2359,14 +2359,14 @@ function renderDILO() {
            and "Planned hours vs available hours are both shown". Stating the hours makes the figure
            decomposable AND surfaces the shift assumption, which matters on a 3-shift plant where 8h is
            not everyone's day. -->
-      <span data-fig="capacity" style="font-size:0.75rem;color:${capColor};font-weight:600">${capPct}%</span>
+      <span data-fig="capacity" style="font-size:var(--wh-fs-2xs, 0.75rem);color:${capColor};font-weight:600">${capPct}%</span>
       <!-- ★AND THE FIGURE NOW SAYS WHAT IT ASSUMED. Counting a start-only item at one hour is a
            judgement, not a measurement, so it is stated beside the number rather than folded into it;
            and an untimed item is reported as its own count instead of being represented by nothing.
            A supervisor who sees "3 counted at 1h" knows which way the figure can be wrong. -->
-      <span style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80))">${(totalMins / 60).toFixed(1)}h / 8h${capPct > 100 ? ' · over capacity' : ''}</span>
-      ${assumedEnd ? `<span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">${_t(`${assumedEnd} without an end time, counted at 1h`, `${assumedEnd} na walang oras ng tapos, binilang na 1h`)}</span>` : ''}
-      ${untimedCount ? `<span style="font-size:0.75rem;color:rgba(255,255,255,0.62)">${_t(`+ ${untimedCount} untimed`, `+ ${untimedCount} walang oras`)}</span>` : ''}
+      <span style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80))">${(totalMins / 60).toFixed(1)}h / 8h${capPct > 100 ? ' · over capacity' : ''}</span>
+      ${assumedEnd ? `<span style="font-size:var(--wh-fs-2xs, 0.75rem);color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.62)">${_t(`${assumedEnd} without an end time, counted at 1h`, `${assumedEnd} na walang oras ng tapos, binilang na 1h`)}</span>` : ''}
+      ${untimedCount ? `<span style="font-size:var(--wh-fs-2xs, 0.75rem);color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.62)">${_t(`+ ${untimedCount} untimed`, `+ ${untimedCount} walang oras`)}</span>` : ''}
     </div>
   </div>`;
 
@@ -2376,7 +2376,7 @@ function renderDILO() {
     html += `<div style="margin-bottom:0.75rem;display:flex;gap:0.375rem;flex-wrap:wrap">`;
     untimedItems.forEach(item => {
       const c = getSchedColor(item.category);
-      html += `<div style="background:${c.bg};color:${c.text};border:1px solid ${c.text}40;border-radius:0.5rem;padding:0.25rem 0.625rem;font-size:0.75rem;font-weight:600;cursor:pointer"
+      html += `<div style="background:${c.bg};color:${c.text};border:1px solid ${c.text}40;border-radius:0.5rem;padding:0.25rem 0.625rem;font-size:var(--wh-fs-2xs, 0.75rem);font-weight:600;cursor:pointer"
         onclick="openEditModal('${escJsAttr(item.id)}')" title="${escHtml(item.title)}">
         ${escHtml(item.title)}
       </div>`;
@@ -2391,7 +2391,7 @@ function renderDILO() {
   // that silently begins at 6 AM would be its own small lie.
   if (startHour > 0) {
     html += `<button class="btn-ghost" onclick="_dpShowAllHours = true; render();"
-      style="width:100%;margin-bottom:0.5rem;font-size:0.75rem"
+      style="width:100%;margin-bottom:0.5rem;font-size:var(--wh-fs-2xs, 0.75rem)"
       aria-label="${_t(`Show the ${startHour} earlier hours, from 12 AM`, `Ipakita ang ${startHour} na naunang oras, mula 12 AM`)}">
       ${_t(`Show ${startHour} earlier hours (12 AM - ${_hrLabel(startHour - 1)})`, `Ipakita ang ${startHour} na naunang oras (12 AM - ${_hrLabel(startHour - 1)})`)}
     </button>`;
@@ -2404,7 +2404,7 @@ function renderDILO() {
   html += `<div style="position:relative;height:${totalH}px">`;
   for (let h = startHour; h < 24; h++) {
     const label = _hrLabel(h);
-    html += `<div style="position:absolute;top:${(h - startHour) * SLOT_H - 8}px;right:8px;font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));line-height:1;white-space:nowrap">${label}</div>`;
+    html += `<div style="position:absolute;top:${(h - startHour) * SLOT_H - 8}px;right:8px;font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));line-height:1;white-space:nowrap">${label}</div>`;
   }
   html += `</div>`;
 
@@ -2419,19 +2419,19 @@ function renderDILO() {
       aria-label="${_t('Add task at ' + slotLabel, 'Magdagdag ng task sa ' + slotLabel)}"
       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
       style="position:absolute;top:${(h - startHour) * SLOT_H}px;left:0;right:0;height:${SLOT_H}px;
-             border-top:1px solid var(--wh-white-05, rgba(255,255,255,0.05));cursor:pointer;transition:background-color 90ms var(--wh-ease-out);z-index:0"
+             border-top:1px solid var(--wh-white-05, rgba(255,255,255,0.05));cursor:pointer;transition:background-color 90ms var(--wh-ease-out);z-index:var(--wh-z-art, 0)"
       onmouseenter="this.style.background='rgba(247,162,27,0.03)'"
       onmouseleave="this.style.background='transparent'">
     </div>`;
     // Half-hour line
-    html += `<div style="position:absolute;top:${(h - startHour) * SLOT_H + SLOT_H/2}px;left:0;right:0;height:1px;border-top:1px dashed var(--wh-surface-card, rgba(255,255,255,0.03));pointer-events:none;z-index:0"></div>`;
+    html += `<div style="position:absolute;top:${(h - startHour) * SLOT_H + SLOT_H/2}px;left:0;right:0;height:1px;border-top:1px dashed var(--wh-surface-card, rgba(255,255,255,0.03));pointer-events:none;z-index:var(--wh-z-art, 0)"></div>`;
   }
 
   // Current time indicator
   if (nowTop !== null) {
     // id: the scroll target below. An anchor works whichever ancestor is the scroller, which is the
     // whole reason the old `wrap.scrollTop` could not work in either layout.
-    html += `<div id="dilo-now" style="position:absolute;top:${nowTop}px;left:0;right:0;z-index:5;pointer-events:none">
+    html += `<div id="dilo-now" style="position:absolute;top:${nowTop}px;left:0;right:0;z-index:var(--wh-z-layer-2, 5);pointer-events:none">
       <div style="height:2px;background:var(--wh-orange);box-shadow:0 0 8px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.6)"></div>
       <div style="position:absolute;top:-4px;left:-4px;width:10px;height:10px;border-radius:50%;background:var(--wh-orange);box-shadow:0 0 6px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.8)"></div>
     </div>`;
@@ -2491,8 +2491,8 @@ function renderDILO() {
       title="${escHtml(item.title)}: ${escHtml(item.startTime)}${endLabel} [${sc.label}]"
       style="position:absolute;top:${top}px;left:${colLeft};width:${colW};height:${height}px;
              background:${blockBg};color:${blockColor};border:1px solid ${blockBorder}50;border-left:1px solid ${blockBorder};
-             border-radius:8px;padding:0.2rem 0.4rem;font-size:0.75rem;font-weight:600;
-             overflow:hidden;cursor:pointer;z-index:2;transition:filter 0.15s;box-sizing:border-box;opacity:${blockOpacity}"
+             border-radius:8px;padding:0.2rem 0.4rem;font-size:var(--wh-fs-2xs, 0.75rem);font-weight:600;
+             overflow:hidden;cursor:pointer;z-index:var(--wh-z-layer, 2);transition:filter 0.15s;box-sizing:border-box;opacity:${blockOpacity}"
       onmouseenter="this.style.filter='brightness(1.2)';this.style.opacity='1'"
       onmouseleave="this.style.filter='brightness(1)';this.style.opacity='${escJsAttr(blockOpacity)}'">
       <div style="display:flex;align-items:center;white-space:nowrap;overflow:hidden">${statusIcon}<span style="overflow:hidden;text-overflow:ellipsis;${doneStrike}">${escHtml(item.startTime)}${endLabel}</span></div>
@@ -2533,18 +2533,18 @@ function renderWILO() {
   const todayStr = todayYMD();
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
-    <span style="font-size:0.75rem;font-weight:700;color:var(--wh-text-muted, rgba(255,255,255,0.80));letter-spacing:0.1em">WILO</span>
-    <span style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80))">${_t('Week In the Life Of', 'Isang Linggo sa Buhay Ng')}</span>
+    <span style="font-size:var(--wh-fs-2xs, 0.75rem);font-weight:700;color:var(--wh-text-muted, rgba(255,255,255,0.80));letter-spacing:0.1em">WILO</span>
+    <span style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80))">${_t('Week In the Life Of', 'Isang Linggo sa Buhay Ng')}</span>
   </div>`;
 
-  html += `<div class="wilo-grid" style="position:sticky;top:0;z-index:3">
-    <div class="wilo-day-header" style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80))">Time</div>`;
+  html += `<div class="wilo-grid" style="position:sticky;top:0;z-index:var(--wh-z-sticky-2, 3)">
+    <div class="wilo-day-header" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80))">Time</div>`;
   days.forEach(day => {
     const isToday = toYMD(day) === todayStr;
     const ymd = toYMD(day);
     html += `<div class="wilo-day-header ${isToday ? 'today' : ''}" onclick="goToDilDay('${escJsAttr(ymd)}')" style="cursor:pointer" title="${_t('Open ' + DAY_NAMES[day.getDay()] + ' in DILO', 'Buksan ang ' + DAY_NAMES[day.getDay()] + ' sa DILO')}">
-      <div style="font-size:0.75rem">${DAY_NAMES[day.getDay()]}</div>
-      <div style="font-size:1.1rem;font-weight:800;line-height:1">${day.getDate()}</div>
+      <div style="font-size:var(--wh-fs-2xs, 0.75rem)">${DAY_NAMES[day.getDay()]}</div>
+      <div style="font-size:var(--wh-fs-lead-plus, 1.125rem);font-weight:800;line-height:1">${day.getDate()}</div>
     </div>`;
   });
   html += `</div>`;
@@ -2561,7 +2561,7 @@ function renderWILO() {
   });
   if (_wkUntimed.some(d => d.items.length)) {
     html += `<div class="wilo-grid" style="border-bottom:1px solid var(--wh-white-07, rgba(255,255,255,0.07))">
-      <div style="padding:0.375rem 0.25rem;font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));text-align:center;align-self:center">${_t('No time', 'Walang oras')}</div>`;
+      <div style="padding:0.375rem 0.25rem;font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));text-align:center;align-self:center">${_t('No time', 'Walang oras')}</div>`;
     _wkUntimed.forEach(d => {
       html += `<div style="padding:4px;display:flex;flex-direction:column;gap:3px;min-height:28px">`;
       d.items.forEach(item => {
@@ -2574,7 +2574,7 @@ function renderWILO() {
           aria-label="${escHtml(item.title)} - ${_t('no time set', 'walang nakatakdang oras')}"
           title="${escHtml(item.title)} - ${_t('no time set', 'walang nakatakdang oras')}"
           style="background:${c.bg};color:${c.text};border-left:1px solid ${c.text};border-radius:12px;
-                 padding:2px 5px;font-size:0.75rem;font-weight:600;cursor:pointer;
+                 padding:2px 5px;font-size:var(--wh-fs-2xs, 0.75rem);font-weight:600;cursor:pointer;
                  min-height:44px;display:flex;align-items:center;
                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${strike}">${escHtml(item.title)}</div>`;
       });
@@ -2599,7 +2599,7 @@ function renderWILO() {
   html += `<div style="position:relative;height:${totalH}px;border-right:1px solid var(--wh-white-05, rgba(255,255,255,0.05))">`;
   for (let h = 0; h < 24; h++) {
     const label = _hrLabel(h);
-    html += `<div style="position:absolute;top:${h * WILO_SLOT_H - 8}px;right:6px;font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80));white-space:nowrap;line-height:1">${label}</div>`;
+    html += `<div style="position:absolute;top:${h * WILO_SLOT_H - 8}px;right:6px;font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));white-space:nowrap;line-height:1">${label}</div>`;
   }
   html += `</div>`;
 
@@ -2624,7 +2624,7 @@ function renderWILO() {
         aria-label="Add task on ${dayLabel} at ${slotLabel}"
         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}"
         style="position:absolute;top:${h*WILO_SLOT_H}px;left:0;right:0;height:${WILO_SLOT_H}px;
-               border-top:1px solid var(--wh-white-04, rgba(255,255,255,0.04));cursor:pointer;z-index:0"
+               border-top:1px solid var(--wh-white-04, rgba(255,255,255,0.04));cursor:pointer;z-index:var(--wh-z-art, 0)"
         onmouseenter="this.style.background='rgba(247,162,27,0.04)'"
         onmouseleave="this.style.background='transparent'"></div>`;
     }
@@ -2632,7 +2632,7 @@ function renderWILO() {
     // Current time line
     if (nowMins !== null) {
       const nowTop = Math.round(nowMins / 60 * WILO_SLOT_H);
-      html += `<div style="position:absolute;top:${nowTop}px;left:0;right:0;height:2px;background:var(--wh-orange);box-shadow:0 0 6px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5);z-index:5;pointer-events:none"></div>`;
+      html += `<div style="position:absolute;top:${nowTop}px;left:0;right:0;height:2px;background:var(--wh-orange);box-shadow:0 0 6px rgba(var(--wh-orange-rgb, 247, 162, 27), 0.5);z-index:var(--wh-z-layer-2, 5);pointer-events:none"></div>`;
     }
 
     // Blocks
@@ -2666,8 +2666,8 @@ function renderWILO() {
         title="${escHtml(item.title)}: ${escHtml(item.startTime)}${item.endTime ? ' - ' + escHtml(item.endTime) + (_crosses ? ' +1' : '') : ''} [${statusConfig[status].label}]"
         style="position:absolute;top:${top}px;left:${colLeft};width:${colW};height:${height}px;
                background:${blockBg};color:${blockColor};border-left:2px solid ${blockBorder};
-               border-radius:8px;padding:1px 4px;font-size:0.75rem;font-weight:600;
-               overflow:hidden;cursor:pointer;z-index:2;box-sizing:border-box;transition:filter 0.15s;opacity:${blockOpacity}"
+               border-radius:8px;padding:1px 4px;font-size:var(--wh-fs-2xs, 0.75rem);font-weight:600;
+               overflow:hidden;cursor:pointer;z-index:var(--wh-z-layer, 2);box-sizing:border-box;transition:filter 0.15s;opacity:${blockOpacity}"
         onmouseenter="this.style.filter='brightness(1.2)';this.style.opacity='1'"
         onmouseleave="this.style.filter='brightness(1)';this.style.opacity='${escJsAttr(blockOpacity)}'">
         ${showTitle ? `<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${doneStrike}">${escHtml(item.title)}</div>` : ''}
@@ -2712,8 +2712,8 @@ function renderMILO() {
   const todayStr = todayYMD();
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
-    <span style="font-size:0.75rem;font-weight:700;color:var(--wh-text-muted, rgba(255,255,255,0.80));letter-spacing:0.1em">MILO</span>
-    <span style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80))">${_t('Month In the Life Of', 'Isang Buwan sa Buhay Ng')}</span>
+    <span style="font-size:var(--wh-fs-2xs, 0.75rem);font-weight:700;color:var(--wh-text-muted, rgba(255,255,255,0.80));letter-spacing:0.1em">MILO</span>
+    <span style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80))">${_t('Month In the Life Of', 'Isang Buwan sa Buhay Ng')}</span>
   </div>`;
 
   html += `<div class="milo-grid">`;
@@ -2744,7 +2744,7 @@ function renderMILO() {
 
     html += `<div class="milo-cell ${isToday ? 'today' : ''}" onclick="onMiloClick('${escJsAttr(ymd)}')"
       aria-label="${miloLabel(date, dayItems.length)}${isToday ? ' Today.' : ''}">
-      <div class="milo-date" style="color:${isToday ? 'var(--wh-orange)' : 'rgba(255,255,255,0.75)'}">${d}</div>
+      <div class="milo-date" style="color:${isToday ? 'var(--wh-orange)' : 'rgba(var(--wh-white-rgb, 255, 255, 255), 0.75)'}">${d}</div>
       <div>${dotsHtml}</div>
       ${more}
     </div>`;
@@ -2783,8 +2783,8 @@ function renderYILO() {
   const todayStr = todayYMD();
 
   let html = `<div style="margin-bottom:0.75rem;display:flex;align-items:center;gap:0.75rem">
-    <span style="font-size:0.75rem;font-weight:700;color:var(--wh-text-muted, rgba(255,255,255,0.80));letter-spacing:0.1em">YILO</span>
-    <span style="font-size:0.75rem;color:var(--wh-text-muted, rgba(255,255,255,0.80))">${_t('Year In the Life Of', 'Isang Taon sa Buhay Ng')}</span>
+    <span style="font-size:var(--wh-fs-2xs, 0.75rem);font-weight:700;color:var(--wh-text-muted, rgba(255,255,255,0.80));letter-spacing:0.1em">YILO</span>
+    <span style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80))">${_t('Year In the Life Of', 'Isang Taon sa Buhay Ng')}</span>
   </div>`;
 
   const now = _phtWallNow();
@@ -2813,7 +2813,7 @@ function renderYILO() {
     html += `<div class="yilo-month ${isCurrentMonth ? 'current-month' : ''}" onclick="onYiloMonthClick(${escJsAttr(m)})"
       role="button" tabindex="0" aria-label="${_yName}"
       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();onYiloMonthClick(${escJsAttr(m)});}">
-      <div class="yilo-month-name" style="color:${isCurrentMonth ? 'var(--wh-orange)' : 'rgba(255,255,255,0.7)'}">${MONTH_NAMES[m]}</div>
+      <div class="yilo-month-name" style="color:${isCurrentMonth ? 'var(--wh-orange)' : 'rgba(var(--wh-white-rgb, 255, 255, 255), 0.7)'}">${MONTH_NAMES[m]}</div>
       <div class="yilo-mini-grid">`;
 
     DAY_NAMES.forEach(dn => { html += `<div class="yilo-mini-day-name">${dn[0]}</div>`; });
@@ -3409,20 +3409,20 @@ document.addEventListener('keydown', e => {
 <style>
   .dp-toast { position:fixed; top:1rem; left:50%; transform:translateX(-50%) translateY(-80px);
     background:rgba(var(--wh-navy-mid-rgb, 31, 46, 69), 0.97); border:1px solid var(--wh-white-10, rgba(255,255,255,0.1)); border-radius:.75rem;
-    padding:.75rem 1.25rem; font-size:.8rem; color:#fff; z-index:9999;
+    padding:.75rem 1.25rem; font-size:var(--wh-fs-xs, .8rem); color:var(--wh-white, #fff); z-index:var(--wh-z-toast-5, 9999);
     transition:transform .25s ease-out; pointer-events:none; }
   .dp-toast.show { transform:translateX(-50%) translateY(0); }
-  .dp-toast.error { border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.4); background:rgba(127,29,29,.9); }
+  .dp-toast.error { border-color:rgba(var(--wh-red-rgb, 248, 113, 113), 0.4); background:rgba(var(--wh-red-900-rgb, 127, 29, 29), 0.9); }
   /* Keyboard focus ring for the clickable hour slots (a11y: WCAG 2.4.7) */
   .dp-slot:focus-visible { outline:2px solid var(--wh-orange); outline-offset:-2px; background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.06); }
 </style>
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <details data-calm-disclosure="data-sources" style="margin:0;">
-  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:.78rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
-  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:.78rem; color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
+  <summary data-i="p_aboutthisdashboardsdatasourc_8e23" style="cursor:pointer; font-size:var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); list-style:none; display:flex; align-items:center; min-height:44px;">▸ About this dashboard's data sources</summary>
+  <p data-i="p_numberscomefromyourliveworkh_9c03" style="font-size:var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.80)); padding:.5rem 0; line-height:1.5;">Numbers come from your live WorkHive data. They refresh each time you open the page. A tile may note if it updates differently. Empty or zero values are greyed out, so you can tell which ones have data.</p>
 </details>
 
 <div class="wh-sources-item" data-wh-source-key="dp-summary-details">
@@ -3432,14 +3432,14 @@ document.addEventListener('keydown', e => {
 <div id="dp-summary-details" role="region" aria-label="Day planner explainer"
     data-rag-tile="dayplanner:detail_panel"
     data-rag-label="Day planner detail">
-      <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How this is computed</strong>
+      <strong data-i="p_howthisiscomputed_5b52" style="display:block;margin-bottom:6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">How this is computed</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong data-i="p_today_2434">Today</strong>: tasks scheduled for today (Philippine time).</li>
         <li><strong data-i="p_thisweek_7b72">This week</strong>: tasks in the current Monday-Sunday window.</li>
         <li><strong data-i="p_overdue_0721">Overdue</strong>: tasks with <code>date &lt; today</code> AND not yet done: open work that slipped.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if 3+ overdue; amber if today &gt; 6 OR any overdue; green when the day is plannable.</li>
       </ul>
-      <p data-i="p_clickintodilowilomiloyilotab_0f79" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:12px;">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
+      <p data-i="p_clickintodilowilomiloyilotab_0f79" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size:var(--wh-fs-2xs, 0.75rem);">Click into DILO / WILO / MILO / YILO tabs for the day / week / month / year drilldown.</p>
     </div>
 </div>
 </div>

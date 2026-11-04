@@ -38,6 +38,16 @@ DOCKER_DB = ["docker", "exec", "supabase_db_workhive", "psql", "-U", "postgres",
 
 # Newest cached mtbf per (hive, machine) vs the LIVE canonical RPC; a divergence counts as
 # UNEXPLAINED only when NO logbook event postdates the score (so staleness can't excuse it).
+# ★THE WINDOW SLIDES TOO (2026-11-04). get_mtbf_by_machine reads `created_at >= NOW() - 365 days`, so the live value moves
+# when an old failure LEAVES the window - no new event at all. FL-002 read live 13.5 against a cached 13.1 because a
+# Breakdown dated 2025-11-03 08:10 crossed the window's edge between the 05:00 snapshot and the check, and this gate
+# called that a methodology fork. A failure whose created_at lies in [generated_at - 365d, now - 365d) is the window's
+# own staleness, and explains the divergence exactly as a newer event does.
+_WINDOW_SLID = """
+        AND NOT EXISTS (SELECT 1 FROM logbook lw
+                        WHERE lower(lw.machine)=lower(c.asset_name) AND lw.hive_id=c.hive_id
+                          AND lw.created_at >= c.generated_at - interval '365 days'
+                          AND lw.created_at <  now() - interval '365 days')"""
 COUNT_SQL = """
 WITH hh AS (SELECT DISTINCT hive_id FROM asset_risk_scores WHERE hive_id IS NOT NULL),
 cached AS (
@@ -54,7 +64,7 @@ SELECT count(*) AS joined,
   count(*) FILTER (WHERE round(l.mtbf_days::numeric,0) <> round(c.mtbf_days::numeric,0)
         AND NOT EXISTS (SELECT 1 FROM logbook lg
                         WHERE lower(lg.machine)=lower(c.asset_name)
-                          AND lg.hive_id=c.hive_id AND lg.created_at > c.generated_at)) AS unexplained
+                          AND lg.hive_id=c.hive_id AND lg.created_at > c.generated_at)""" + _WINDOW_SLID + """) AS unexplained
 FROM live l JOIN cached c ON c.hive_id=l.hive_id AND lower(c.asset_name)=lower(l.machine);
 """
 
@@ -73,7 +83,7 @@ SELECT c.asset_name, l.mtbf_days AS live, c.mtbf_days AS cached
 FROM live l JOIN cached c ON c.hive_id=l.hive_id AND lower(c.asset_name)=lower(l.machine)
 WHERE round(l.mtbf_days::numeric,0) <> round(c.mtbf_days::numeric,0)
   AND NOT EXISTS (SELECT 1 FROM logbook lg WHERE lower(lg.machine)=lower(c.asset_name)
-                  AND lg.hive_id=c.hive_id AND lg.created_at > c.generated_at)
+                  AND lg.hive_id=c.hive_id AND lg.created_at > c.generated_at)""" + _WINDOW_SLID + """
 LIMIT 8;
 """
 

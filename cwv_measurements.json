@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-06T05:49:36.942Z",
+  "generated_at": "2026-11-03T18:29:47.402Z",
   "env": "local",
   "cache": "warm-median",
   "lcp_local_optimistic": true,
@@ -2777,6 +2777,31 @@
         0
       ],
       "inp_samples": []
+    },
+    {
+      "surface": "learn/philippine-plants-now-pay-the-highest-power-rates/index.html",
+      "url": "http://127.0.0.1:5000/workhive/learn/philippine-plants-now-pay-the-highest-power-rates/",
+      "lcp_ms": 96,
+      "inp_ms": 16,
+      "inp_measured": true,
+      "cls": 0,
+      "lcp_cold_ms": 636,
+      "transferKB": 39,
+      "http_status": 200,
+      "samples": 3,
+      "lcp_samples": [
+        96,
+        96,
+        100
+      ],
+      "cls_samples": [
+        0,
+        0,
+        0
+      ],
+      "inp_samples": [
+        16
+      ]
     }
   ]
 }

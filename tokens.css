@@ -170,9 +170,266 @@ button.btn-secondary:disabled, button.btn-ghost:disabled { cursor: not-allowed; 
   --wh-white-15: rgba(255, 255, 255, 0.15);
   --wh-white-18: rgba(255, 255, 255, 0.18);
   --wh-white-20: rgba(255, 255, 255, 0.20);
+  --wh-black-10: rgba(0, 0, 0, 0.10);
+  --wh-black-20: rgba(0, 0, 0, 0.20);
   --wh-black-35: rgba(0, 0, 0, 0.35);
+  --wh-black-45: rgba(0, 0, 0, 0.45);
   --wh-black-55: rgba(0, 0, 0, 0.55);
   --wh-black-60: rgba(0, 0, 0, 0.60);
+  --wh-black-75: rgba(0, 0, 0, 0.75);   /* -10/-20/-45/-75: the shadow and scrim alphas several pages typed (2026-11-04) */
+  /* The opaque ends and the triplets the hand-typed tints still lacked (OD-S, 2026-11-04): #fff was typed 93 times with
+     no token to name it, and white TEXT alphas (.6-.92, APCA decisions - not the overlay scale) and the amber / steel /
+     orange-light / blue-light tints had no -rgb triplet to be written through. Overlay-range alphas (white <= .20, any
+     black) are NOT written through the triplet: they belong on the --wh-white-NN / --wh-black-NN steps above. */
+  --wh-white: #FFFFFF;
+  --wh-black: #000000;
+  --wh-white-rgb: 255, 255, 255;
+  --wh-black-rgb: 0, 0, 0;
+  --wh-amber-rgb: 250, 204, 21;
+  --wh-steel-rgb: 123, 135, 148;
+  --wh-orange-light-rgb: 253, 185, 74;
+  --wh-blue-light-rgb: 95, 204, 232;
+  /* the off-palette colours five or more units typed (OD-S census clusters): a strong red for destructive actions,
+     a soft orange, the deepest ink, a slate for secondary labels - named, so pages stop improvising them */
+  --wh-red-strong: #EF4444;
+  --wh-orange-soft: #FB923C;
+  --wh-ink-darkest: #0B0F1A;
+  --wh-slate: #9CA8B5;
+  /* and their tints - logbook and community type the strong red at .1 / .12 / .15 / .2 / .4 for chips and badges */
+  --wh-red-strong-rgb: 239, 68, 68;
+  /* the dark status grounds hive and engineering-design set their warning / success / danger cards on, and one deep
+     orange accent (a learn article) - the last colours a page typed by hand (2026-11-04) */
+  --wh-amber-ground: #241606;
+  --wh-green-ground-rgb: 34, 58, 46;
+  --wh-brown-ground-rgb: 40, 30, 15;
+  --wh-red-ground: #3D0D09;
+  --wh-orange-deep: #E8590C;
+  --wh-orange-soft-rgb: 251, 146, 60;
+  --wh-ink-darkest-rgb: 11, 15, 26;
+  --wh-slate-rgb: 156, 168, 181;
+  --wh-paper-rule-rgb: 229, 231, 235;
+  --wh-print-rule-rgb: 187, 187, 187;
+  /* ★The improvised palette, named (OD-D, 2026-11-04): every colour two or more units typed, or one unit typed five
+     or more times - 53 colours - by hue family and lightness shade (the Tailwind convention). Named,
+     not changed: what they render is untouched; consolidating near ones is a design call made on these names. */
+  --wh-cyan-300: #A4E2F2;         /* x47 on 1 unit(s) */
+  --wh-cyan-300-rgb: 164, 226, 242;
+  --wh-amber-300: #FED38D;        /* x27 on 1 unit(s) */
+  --wh-amber-300-rgb: 254, 211, 141;
+  --wh-grey-700: #555555;         /* x25 on 4 unit(s) */
+  --wh-grey-700-rgb: 85, 85, 85;
+  --wh-violet-950: #1A1132;       /* x20 on 3 unit(s) */
+  --wh-violet-950-rgb: 26, 17, 50;
+  --wh-emerald-400: #34D399;      /* x18 on 4 unit(s) */
+  --wh-emerald-400-rgb: 52, 211, 153;
+  --wh-grey-950: #1A1A1A;         /* x17 on 4 unit(s) */
+  --wh-grey-950-rgb: 26, 26, 26;
+  --wh-green-500: #22C55E;        /* x14 on 4 unit(s) */
+  --wh-green-500-rgb: 34, 197, 94;
+  --wh-red-400: #EF5757;          /* x13 on 2 unit(s) */
+  --wh-red-400-rgb: 239, 87, 87;
+  --wh-sky-400: #38BDF8;          /* x13 on 3 unit(s) */
+  --wh-sky-400-rgb: 56, 189, 248;
+  --wh-sky-50: #E8F4FF;           /* x12 on 2 unit(s) */
+  --wh-sky-50-rgb: 232, 244, 255;
+  --wh-slate-400: #94A3B8;        /* x11 on 7 unit(s) */
+  --wh-slate-400-rgb: 148, 163, 184;
+  --wh-rose-200: #FFAABB;         /* x11 on 2 unit(s) */
+  --wh-rose-200-rgb: 255, 170, 187;
+  --wh-red-300: #FCA5A5;          /* x11 on 4 unit(s) */
+  --wh-red-300-rgb: 252, 165, 165;
+  --wh-amber-400: #FBBF24;        /* x11 on 4 unit(s) */
+  --wh-amber-400-rgb: 251, 191, 36;
+  --wh-blue-500: #3B82F6;         /* x10 on 1 unit(s) */
+  --wh-blue-500-rgb: 59, 130, 246;
+  --wh-amber-300-b: #FCD34D;      /* x9 on 4 unit(s) */
+  --wh-amber-300-b-rgb: 252, 211, 77;
+  --wh-gray-500: #6B7280;         /* x8 on 1 unit(s) */
+  --wh-gray-500-rgb: 107, 114, 128;
+  --wh-grey-900: #333333;         /* x7 on 4 unit(s) */
+  --wh-grey-900-rgb: 51, 51, 51;
+  --wh-green-300: #86EFAC;        /* x7 on 3 unit(s) */
+  --wh-green-300-rgb: 134, 239, 172;
+  --wh-sky-500: #4A9FD4;          /* x7 on 3 unit(s) */
+  --wh-sky-500-rgb: 74, 159, 212;
+  --wh-grey-700-b: #666666;       /* x6 on 3 unit(s) */
+  --wh-grey-700-b-rgb: 102, 102, 102;
+  --wh-grey-800: #444444;         /* x6 on 4 unit(s) */
+  --wh-grey-800-rgb: 68, 68, 68;
+  --wh-amber-50: #FFFBF0;         /* x6 on 1 unit(s) */
+  --wh-amber-50-rgb: 255, 251, 240;
+  --wh-orange-600: #CD7F32;       /* x6 on 3 unit(s) */
+  --wh-orange-600-rgb: 205, 127, 50;
+  --wh-amber-100: #FBEED2;        /* x6 on 1 unit(s) */
+  --wh-amber-100-rgb: 251, 238, 210;
+  --wh-red-50: #FEF2F2;           /* x5 on 1 unit(s) */
+  --wh-red-50-rgb: 254, 242, 242;
+  --wh-amber-100-b: #FEF3C7;      /* x5 on 2 unit(s) */
+  --wh-amber-100-b-rgb: 254, 243, 199;
+  --wh-teal-700: #00C4B4;         /* x5 on 2 unit(s) */
+  --wh-teal-700-rgb: 0, 196, 180;
+  --wh-violet-400: #9B59E8;       /* x5 on 1 unit(s) */
+  --wh-violet-400-rgb: 155, 89, 232;
+  --wh-blue-300: #B0B8C4;         /* x5 on 3 unit(s) */
+  --wh-blue-300-rgb: 176, 184, 196;
+  --wh-gray-400: #9CA3AF;         /* x5 on 1 unit(s) */
+  --wh-gray-400-rgb: 156, 163, 175;
+  --wh-sky-800: #0E5E8A;          /* x4 on 2 unit(s) */
+  --wh-sky-800-rgb: 14, 94, 138;
+  --wh-grey-200: #DDDDDD;         /* x4 on 2 unit(s) */
+  --wh-grey-200-rgb: 221, 221, 221;
+  --wh-grey-500: #999999;         /* x4 on 3 unit(s) */
+  --wh-grey-500-rgb: 153, 153, 153;
+  --wh-green-200: #BBF7D0;        /* x4 on 2 unit(s) */
+  --wh-green-200-rgb: 187, 247, 208;
+  --wh-amber-800: #92400E;        /* x4 on 2 unit(s) */
+  --wh-amber-800-rgb: 146, 64, 14;
+  --wh-amber-700: #B45309;        /* x4 on 2 unit(s) */
+  --wh-amber-700-rgb: 180, 83, 9;
+  --wh-red-50-b: #FFEEEE;         /* x4 on 2 unit(s) */
+  --wh-red-50-b-rgb: 255, 238, 238;
+  --wh-sky-600: #0084FF;          /* x4 on 2 unit(s) */
+  --wh-sky-600-rgb: 0, 132, 255;
+  --wh-grey-200-b: #E0E0E0;       /* x3 on 2 unit(s) */
+  --wh-grey-200-b-rgb: 224, 224, 224;
+  --wh-grey-300: #CCCCCC;         /* x3 on 3 unit(s) */
+  --wh-grey-300-rgb: 204, 204, 204;
+  --wh-violet-50: #F5F3FF;        /* x3 on 2 unit(s) */
+  --wh-violet-50-rgb: 245, 243, 255;
+  --wh-red-700: #B91C1C;          /* x3 on 2 unit(s) */
+  --wh-red-700-rgb: 185, 28, 28;
+  --wh-grey-500-b: #888888;       /* x3 on 2 unit(s) */
+  --wh-grey-500-b-rgb: 136, 136, 136;
+  --wh-blue-950: #0B1220;         /* x3 on 3 unit(s) */
+  --wh-blue-950-rgb: 11, 18, 32;
+  --wh-violet-800: #3A2A58;       /* x2 on 2 unit(s) */
+  --wh-violet-800-rgb: 58, 42, 88;
+  --wh-red-900: #7F1D1D;          /* x2 on 2 unit(s) */
+  --wh-red-900-rgb: 127, 29, 29;
+  --wh-amber-200: #FDE68A;        /* x2 on 2 unit(s) */
+  --wh-amber-200-rgb: 253, 230, 138;
+  --wh-gray-800: #1F2937;         /* x2 on 2 unit(s) */
+  --wh-gray-800-rgb: 31, 41, 55;
+  --wh-grey-500-c: #9297A0;       /* x2 on 2 unit(s) */
+  --wh-grey-500-c-rgb: 146, 151, 160;
+  --wh-indigo-950: #1E1E28;       /* x2 on 2 unit(s) */
+  --wh-indigo-950-rgb: 30, 30, 40;
+  --wh-sky-500-b: #86929D;        /* x2 on 2 unit(s) */
+  --wh-sky-500-b-rgb: 134, 146, 157;
+  --wh-blue-950-b: #0D1117;       /* x2 on 2 unit(s) */
+  --wh-blue-950-b-rgb: 13, 17, 23;
+  /* The long tail, named (OD-D, 2026-11-04): Tailwind colours by their Tailwind names, and the palette the printed
+     documents (project-report, analytics-report, resume) set their paper in as --wh-doc-* - print has its own scale,
+     and so does paper. Named, not changed. */
+  --wh-red-100: #FEE2E2;          /* Tailwind red-100, x2 */
+  --wh-red-100-rgb: 254, 226, 226;
+  --wh-violet-100: #EDE9FE;       /* Tailwind violet-100, x1 */
+  --wh-violet-100-rgb: 237, 233, 254;
+  --wh-gray-700: #374151;         /* Tailwind gray-700, x1 */
+  --wh-gray-700-rgb: 55, 65, 81;
+  --wh-gray-600: #4B5563;         /* Tailwind gray-600, x2 */
+  --wh-gray-600-rgb: 75, 85, 99;
+  --wh-sky-300: #7DD3FC;          /* Tailwind sky-300, x2 */
+  --wh-sky-300-rgb: 125, 211, 252;
+  --wh-violet-500: #8B5CF6;       /* Tailwind violet-500, x2 */
+  --wh-violet-500-rgb: 139, 92, 246;
+  --wh-rose-400: #FB7185;         /* Tailwind rose-400, x1 */
+  --wh-rose-400-rgb: 251, 113, 133;
+  --wh-pink-400: #F472B6;         /* Tailwind pink-400, x1 */
+  --wh-pink-400-rgb: 244, 114, 182;
+  --wh-blue-400: #60A5FA;         /* Tailwind blue-400, x3 */
+  --wh-blue-400-rgb: 96, 165, 250;
+  --wh-blue-200: #BFDBFE;         /* Tailwind blue-200, x2 */
+  --wh-blue-200-rgb: 191, 219, 254;
+  --wh-orange-200: #FED7AA;       /* Tailwind orange-200, x1 */
+  --wh-orange-200-rgb: 254, 215, 170;
+  --wh-purple-500: #A855F7;       /* Tailwind purple-500, x3 */
+  --wh-purple-500-rgb: 168, 85, 247;
+  --wh-blue-100: #DBEAFE;         /* Tailwind blue-100, x1 */
+  --wh-blue-100-rgb: 219, 234, 254;
+  --wh-doc-violet-500: #7C3AED;   /* a printed document's own palette, x3 */
+  --wh-doc-violet-500-rgb: 124, 58, 237;
+  --wh-doc-grey-400: #AAAAAA;     /* a printed document's own palette, x1 */
+  --wh-doc-grey-400-rgb: 170, 170, 170;
+  --wh-doc-emerald-50: #ECFDF5;   /* a printed document's own palette, x1 */
+  --wh-doc-emerald-50-rgb: 236, 253, 245;
+  --wh-doc-emerald-900: #065F46;  /* a printed document's own palette, x2 */
+  --wh-doc-emerald-900-rgb: 6, 95, 70;
+  --wh-doc-orange-800: #78350F;   /* a printed document's own palette, x3 */
+  --wh-doc-orange-800-rgb: 120, 53, 15;
+  --wh-doc-violet-100: #DDD6FE;   /* a printed document's own palette, x3 */
+  --wh-doc-violet-100-rgb: 221, 214, 254;
+  --wh-doc-green-50: #F0FDF4;     /* a printed document's own palette, x3 */
+  --wh-doc-green-50-rgb: 240, 253, 244;
+  --wh-doc-red-700: #991B1B;      /* a printed document's own palette, x2 */
+  --wh-doc-red-700-rgb: 153, 27, 27;
+  --wh-doc-emerald-200: #D1FAE5;  /* a printed document's own palette, x1 */
+  --wh-doc-emerald-200-rgb: 209, 250, 229;
+  --wh-doc-emerald-800: #15803D;  /* a printed document's own palette, x1 */
+  --wh-doc-emerald-800-rgb: 21, 128, 61;
+  --wh-doc-blue-700: #5B6878;     /* a printed document's own palette, x4 */
+  --wh-doc-blue-700-rgb: 91, 104, 120;
+  --wh-doc-green-800: #1F7A3A;    /* a printed document's own palette, x2 */
+  --wh-doc-green-800-rgb: 31, 122, 58;
+  --wh-doc-sky-800: #186A88;      /* a printed document's own palette, x1 */
+  --wh-doc-sky-800-rgb: 24, 106, 136;
+  --wh-doc-red-700-b: #8E1F1F;    /* a printed document's own palette, x1 */
+  --wh-doc-red-700-b-rgb: 142, 31, 31;
+  --wh-doc-amber-800: #885200;    /* a printed document's own palette, x1 */
+  --wh-doc-amber-800-rgb: 136, 82, 0;
+  --wh-doc-green-100: #DBF1E2;    /* a printed document's own palette, x3 */
+  --wh-doc-green-100-rgb: 219, 241, 226;
+  --wh-doc-green-800-b: #1F6F35;  /* a printed document's own palette, x1 */
+  --wh-doc-green-800-b-rgb: 31, 111, 53;
+  --wh-doc-amber-300: #E8D6A8;    /* a printed document's own palette, x1 */
+  --wh-doc-amber-300-rgb: 232, 214, 168;
+  --wh-doc-emerald-700: #2E9E5B;  /* a printed document's own palette, x4 */
+  --wh-doc-emerald-700-rgb: 46, 158, 91;
+  --wh-doc-orange-600: #D98A29;   /* a printed document's own palette, x4 */
+  --wh-doc-orange-600-rgb: 217, 138, 41;
+  --wh-doc-cyan-200: #CDEFFA;     /* a printed document's own palette, x1 */
+  --wh-doc-cyan-200-rgb: 205, 239, 250;
+  /* The type scale (OD-S, 2026-11-04): the pages typed 87 distinct raw font sizes, and the weight sits on these steps
+     (measured: .95rem x823, .75rem x754, .85rem x480, 1.05rem x372, 1.25rem x321, .8rem x113, .875rem x99, 1.75rem x96,
+     1rem x57, 1.5rem x56, 2.25rem x9). Declared at the values pages already use, so naming them changes nothing. */
+  --wh-fs-2xs:  0.75rem;
+  --wh-fs-xs:   0.8rem;
+  --wh-fs-sm:   0.85rem;
+  --wh-fs-sm-plus:  0.875rem;
+  --wh-fs-md:   0.95rem;
+  --wh-fs-base: 1rem;
+  --wh-fs-lead: 1.05rem;
+  /* -plus is the half-step above its neighbour; added after the first reading, from what was left: 1.125rem x45 on 14
+     pages plus Tailwind's text-lg, and Tailwind's own display sizes (1.875 / 3 / 3.75rem) on the compiled sheets */
+  --wh-fs-lead-plus: 1.125rem;
+  --wh-fs-lg:   1.25rem;
+  --wh-fs-xl:   1.5rem;
+  --wh-fs-2xl:  1.75rem;
+  --wh-fs-2xl-plus: 1.875rem;
+  --wh-fs-3xl:  2.25rem;
+  --wh-fs-4xl:  3rem;
+  --wh-fs-5xl:  3.75rem;
+  /* the two display sizes, each one deliberate heading: the public pages' hero h1 at desktop (lg:text-[2.7rem], 22 pages)
+     and the landing hero (lg:text-[4.2rem], index.html) */
+  --wh-fs-hero: 2.7rem;
+  --wh-fs-display: 4.2rem;
+  /* The print type scale: paper is set in pt (project-report's document, asset-hub's print sheet), at the sizes those
+     documents use - label 9, table 9.5, meta 10, body 10.5, h3 11, h2 14, narrow KPI 15, KPI / sheet h1 18,
+     cover title 22, document h1 24; and the fine print the analytics report's paper sets in rem inside @media print
+     (0.62 / 0.66 / 0.7rem = 7.44 / 7.92 / 8.4pt) with asset-hub's 8.5pt footer: 7.5, 8, 8.5. */
+  --wh-print-fs-5xs: 7.5pt;
+  --wh-print-fs-4xs: 8pt;
+  --wh-print-fs-3xs: 8.5pt;
+  --wh-print-fs-2xs: 9pt;
+  --wh-print-fs-xs: 9.5pt;
+  --wh-print-fs-sm: 10pt;
+  --wh-print-fs-base: 10.5pt;
+  --wh-print-fs-md: 11pt;
+  --wh-print-fs-lg: 14pt;
+  --wh-print-fs-lg-plus: 15pt;
+  --wh-print-fs-xl: 18pt;
+  --wh-print-fs-2xl: 22pt;
+  --wh-print-fs-3xl: 24pt;
 }
 
 /* ── THE TEXT UTILITIES MUST USE THE -text HUES, NOT THE FILL HUES ─────────
@@ -245,6 +502,34 @@ button.btn-secondary:disabled, button.btn-ghost:disabled { cursor: not-allowed; 
      (it must never be occluded by page content or modals it summons). */
   --wh-z-fab: 9998;          /* nav-hub + feedback + connectivity corner chrome */
   --wh-z-companion: 9999;    /* companion widget, one above the hub */
+  /* ★The stacking scale (OD-S, 2026-11-04, tools/fix_stacking_tokens.py): the 30 values pages typed, named by the role
+     of the layers on each rung. Two values share a rung only where NO page context holds both, so every page keeps its
+     exact layer order (proves_order_kept, 155 contexts; the shell chrome's own z-indexes are fixed points). Values
+     that merged moved UP to their rung's largest member, never below a layer they used to clear. */
+  --wh-z-art: 0;   /* was 0 */
+  --wh-z-layer: 2;   /* was 2 */
+  --wh-z-sticky-2: 3;   /* was 3 */
+  --wh-z-layer-2: 5;   /* was 5 */
+  --wh-z-layer-3: 10;   /* was 10 */
+  --wh-z-tooltip: 20;   /* was 20 */
+  --wh-z-menu: 30;   /* was 30 */
+  --wh-z-fab-2: 40;   /* was 40 */
+  --wh-z-sticky-3: 45;   /* was 45 */
+  --wh-z-modal-2: 50;   /* was 50 */
+  --wh-z-sheet: 51;   /* was 51 */
+  --wh-z-modal-3: 80;   /* was 60, 80 */
+  --wh-z-bar: 90;   /* was 90 */
+  --wh-z-sheet-2: 100;   /* was 100 */
+  --wh-z-sheet-3: 101;   /* was 101 */
+  --wh-z-toast-2: 200;   /* was 200 */
+  --wh-z-toast-3: 500;   /* was 201, 500 */
+  --wh-z-toast-4: 1000;   /* was 600, 999, 1000 */
+  --wh-z-sheet-4: 1001;   /* was 1001 */
+  --wh-z-consent: 9000;   /* was 9000 */
+  --wh-z-drawer: 9100;   /* was 9001, 9100 */
+  --wh-z-toast-5: 9999;   /* was 9999 */
+  --wh-z-skip-link: 10001;   /* was 10001 */
+  --wh-z-retired: 100000;   /* was 100000 */
   --wh-fab-size: 56px;       /* the canonical FAB square/circle */
   --wh-fab-gap: 12px;        /* spacing between stacked corner FABs */
   --wh-panel-max-h: calc(100dvh - 100px);   /* a corner panel caps to the viewport + scrolls */

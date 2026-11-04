@@ -37,7 +37,20 @@ DB = "supabase_db_workhive"
 PGUSER = "supabase_admin"   # cron.job_run_details takes a planted run only from a superuser (runid_seq)
 CONSOLE = "founder-console.html"
 RUNNER = "supabase/functions/ai-eval-runner/index.ts"
-LISTING = "3a7aeb84-1ba5-4bb6-8c5c-f51192c57580"
+# ★RESOLVED, NOT PINNED (2026-11-04). The holding-fee probe planted its reservation on a listing id written here, and a
+# reseed deleted that listing: the insert planted nothing, the probe "returned too little", and the job read as failing
+# its double-fire test on every run. The listing is now chosen live, and it must be one the sweep would actually charge
+# once: published, its seller holding an account, not yet charged this month, and carrying no other held reservation
+# (the sweep charges a listing once a month, so a second reservation would share the one charge). Ordered by id, so two
+# runs choose the same listing.
+PROBE_LISTING_SQL = (
+    "select l.id from public.marketplace_listings l "
+    "join public.marketplace_sellers ms on ms.worker_name = l.seller_name and ms.auth_uid is not null "
+    "where l.status = 'published' and l.hive_id is not null "
+    "and not exists (select 1 from public.service_credit_ledger x where x.entry_type = 'holding_fee' and x.ref_id = l.id "
+    "and date_trunc('month', x.created_at at time zone 'UTC') = date_trunc('month', now() at time zone 'UTC')) "
+    "and not exists (select 1 from public.credit_reservations cr where cr.listing_id = l.id and cr.state = 'held') "
+    "order by l.id limit 1;")
 
 # jobs measured live on seed day -> how a double fire is proven. 'plant' rows are inserted, the command fired twice.
 RETENTION = {
@@ -139,6 +152,11 @@ def double_retention(job: str, sched: dict) -> dict:
 
 def double_sweep(job: str) -> dict:
     if job == "listing-holding-fee-monthly":
+        found, err = psql(PROBE_LISTING_SQL)
+        if err or not found:
+            return {"ok": False, "why": err or "no published listing can carry the probe (a seller with an account, not "
+                                               "yet charged this month, no other held reservation) - reseed the marketplace"}
+        LISTING = found[0][0]
         rows, err = psql("begin;\ninsert into public.credit_reservations (id, listing_id, seller_name, hive_id, amount, state, created_at) "
                          f"select '00000000-0000-4000-8000-00000000f0f1', l.id, l.seller_name, l.hive_id, 100, 'held', now() "
                          f"from public.marketplace_listings l where l.id = '{LISTING}';\n"

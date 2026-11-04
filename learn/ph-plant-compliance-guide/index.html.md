@@ -72,4 +72,4 @@ Yes. WorkHive timestamps every logbook entry, PM completion, and permit, and tag
 
 [← Back to all guides](https://workhiveph.com/learn/)
 
-<!-- md-twin source-sha: 2e01240c406cbc31 -->
+<!-- md-twin source-sha: 2c00764cab720c63 -->

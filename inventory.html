@@ -39,7 +39,7 @@
     #inv-verdict { min-height: 72px; }
 
     /* Aurora */
-    .aurora-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .aurora-bg { position: fixed; inset: 0; z-index: var(--wh-z-art, 0); pointer-events: none; overflow: hidden; }
     /* ★THE AURORA HOLDS STILL (K, 2026-10-15). Three 80px-blurred blobs drifted behind this page forever - DESIGN.md's
        "continuous decorative animation", blur as decoration, and the costliest paint on the low-end phones this
        tool is used on. The same ambient light, static: two soft radial glows on the layer itself (the pattern
@@ -86,11 +86,11 @@
        the save); the list's own renders draw their cards still. */
     .part-card.new-entry { animation: slide-in 0.22s var(--wh-ease-out, ease-out); }
     @keyframes wh-arrive-fade { from { opacity: 0; } to { opacity: 1; } }
-    .part-card:hover { border-top-color: rgba(255,255,255,0.14); border-right-color: rgba(255,255,255,0.14); border-bottom-color: rgba(255,255,255,0.14); }
+    .part-card:hover { border-top-color: var(--wh-white-15, rgba(255, 255, 255, 0.15)); border-right-color: var(--wh-white-15, rgba(255, 255, 255, 0.15)); border-bottom-color: var(--wh-white-15, rgba(255, 255, 255, 0.15)); }
     .part-card.stock-surplus  { border-left-color: var(--wh-blue); }
     .part-card.stock-ok  { border-left-color: var(--wh-green); }
     .part-card.stock-low { border-left-color: var(--wh-orange); }
-    .part-card.stock-critical { border-left-color: rgb(251,113,133); }
+    .part-card.stock-critical { border-left-color: var(--wh-rose-400, rgb(251,113,133)); }
     .part-card.stock-out { border-left-color: var(--wh-red); }
     @keyframes slide-in { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
     /* 8 part cards slid in on every render with no motion guard - the largest visible-motion
@@ -104,10 +104,10 @@
       background: rgba(var(--wh-navy-rgb, 22, 32, 50), 0.6);
       border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       border-radius: 0.75rem;
-      color: white;
+      color: var(--wh-white, white);
       padding: 0.75rem 1rem;
       width: 100%;
-      font-size: 1rem;
+      font-size: var(--wh-fs-base, 1rem);
       transition: border-color 0.2s, box-shadow 0.2s;
       outline: none;
     }
@@ -119,7 +119,7 @@
     .btn-primary {
       background: linear-gradient(135deg, var(--wh-orange), var(--wh-orange-light));
       color: var(--wh-navy); font-weight: 700; border-radius: 0.75rem;
-      padding: 0.75rem 1.5rem; font-size: 0.875rem;
+      padding: 0.75rem 1.5rem; font-size: var(--wh-fs-sm-plus, 0.875rem);
       cursor: pointer; border: none; min-height: 44px;
       transition: opacity 0.2s, transform 0.1s;
     }
@@ -127,9 +127,9 @@
     .btn-primary:active { opacity: 0.75; transform: scale(0.98); }
 
     .btn-secondary {
-      background: var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(255,255,255,0.83);
+      background: var(--wh-white-06, rgba(255,255,255,0.06)); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83);
       font-weight: 600; border-radius: 0.75rem;
-      padding: 0.75rem 1.5rem; font-size: 0.875rem;
+      padding: 0.75rem 1.5rem; font-size: var(--wh-fs-sm-plus, 0.875rem);
       cursor: pointer; border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1)); min-height: 44px;
       transition: background 0.2s;
     }
@@ -138,7 +138,7 @@
     .btn-danger {
       background: rgba(var(--wh-red-rgb, 248, 113, 113), 0.1); color: var(--wh-red-text);
       font-weight: 700; border-radius: var(--wh-radius-sm);
-      padding: 0.5rem 1rem; font-size: 0.75rem;
+      padding: 0.5rem 1rem; font-size: var(--wh-fs-2xs, 0.75rem);
       cursor: pointer; border: 1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.2); min-height: 44px;
       transition: background 0.2s;
     }
@@ -147,7 +147,7 @@
     .btn-green {
       background: rgba(var(--wh-green-rgb, 74, 222, 128), 0.12); color: var(--wh-green);
       font-weight: 700; border-radius: var(--wh-radius-sm);
-      padding: 0.5rem 1rem; font-size: 0.75rem;
+      padding: 0.5rem 1rem; font-size: var(--wh-fs-2xs, 0.75rem);
       cursor: pointer; border: 1px solid rgba(var(--wh-green-rgb, 74, 222, 128), 0.25); min-height: 44px;
       transition: background 0.2s;
     }
@@ -157,7 +157,7 @@
     .mkt-bridge-btn {
       background: rgba(var(--wh-blue-rgb, 41, 182, 217), 0.12); color: var(--wh-blue-light);   /* C2: AA-safe blue (was --wh-blue @ 4.43:1) */
       font-weight: 700; border-radius: var(--wh-radius-sm);
-      padding: 0.5rem 1rem; font-size: 0.75rem;
+      padding: 0.5rem 1rem; font-size: var(--wh-fs-2xs, 0.75rem);
       cursor: pointer; border: 1px solid rgba(var(--wh-blue-rgb, 41, 182, 217), 0.3); min-height: 44px;
       transition: background 0.2s;
     }
@@ -170,7 +170,7 @@
        Weight and size carry a label. 12px is the platform floor. NB this rule is copied in three pages;
        it cannot move to components.css until logbook.html links that stylesheet. */
     .wh-label {
-      display: block; font-size: 0.75rem; font-weight: 600;
+      display: block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600;
       letter-spacing: 0.01em;
       color:var(--wh-text-muted, rgba(255,255,255,0.80)); margin-bottom: 0.5rem;
     }
@@ -181,7 +181,7 @@
       border: 1px solid var(--wh-white-08, rgba(255,255,255,0.08));
       /* 0.35rem/0.9rem was 5.6px/14.4px, neither on the rhythm (W45938). 6px passes below 8, 16px is a
          step; the pill grows 1.6px on each side, which is within the radius it already carries. */
-      border-radius: 999px; padding: 0.375rem 1rem; font-size: 0.75rem;
+      border-radius: 999px; padding: 0.375rem 1rem; font-size: var(--wh-fs-2xs, 0.75rem);
       font-variant-numeric: tabular-nums;
     }
     /* qty-on-hand stat numbers (Tailwind-classed) sit in a column — fixed pitch */
@@ -189,7 +189,7 @@
 
     /* Badge */
     .badge {
-      display: inline-block; font-size: 0.75rem; font-weight: 700;
+      display: inline-block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.08em;
       /* 0.2rem was 3.2px, and this ONE declaration was 64 of this page's 78 off-grid spacing values -
          32 badges x top and bottom (design lens craft, 2026-09-17, W45938). 4px vertical / 8px
@@ -205,7 +205,7 @@
          rule. Height-only fix: the width was already fine, so raising min-height cannot introduce the
          horizontal overflow the same prover checks in the same run. */
       min-height: 44px;
-      font-size: 0.75rem; font-weight: 600; cursor: pointer;
+      font-size: var(--wh-fs-2xs, 0.75rem); font-weight: 600; cursor: pointer;
       border: 1px solid var(--wh-white-10, rgba(255,255,255,0.1));
       background: var(--wh-white-04, rgba(255,255,255,0.04));
       color:var(--wh-text-muted, rgba(255,255,255,0.80));
@@ -239,9 +239,9 @@
 
     /* Plain-Read summary (Layer D — UX Contract) */
     .verdict { display:flex; align-items:center; gap:12px; padding:12px 16px;   /* 14px was off-grid (W45938) */ margin-bottom:16px; border-radius:12px; border:1px solid; }
-    .verdict-icon { font-size:1.5rem; line-height:1; font-weight:800; }
-    .verdict-text { font-size:0.875rem; font-weight:700; line-height:1.35; }   /* 0.9rem was 14.4px, a step nothing else uses (W45938) */
-    .verdict-text small { display:block; font-size: 0.75rem; font-weight:500; color:rgba(255,255,255,0.83); margin-top:4px; }   /* 3px was off-grid (W45938) */
+    .verdict-icon { font-size:var(--wh-fs-xl, 1.5rem); line-height:1; font-weight:800; }
+    .verdict-text { font-size:var(--wh-fs-sm-plus, 0.875rem); font-weight:700; line-height:1.35; }   /* 0.9rem was 14.4px, a step nothing else uses (W45938) */
+    .verdict-text small { display:block; font-size: var(--wh-fs-2xs, 0.75rem); font-weight:500; color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:4px; }   /* 3px was off-grid (W45938) */
     .verdict.healthy { background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.07);  border-color:rgba(var(--wh-green-rgb, 74, 222, 128), 0.3); }
     .verdict.healthy .verdict-icon { color:var(--wh-green); }
     .verdict.watch   { background:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.07);  border-color:rgba(var(--wh-orange-rgb, 247, 162, 27), 0.3); }
@@ -251,7 +251,7 @@
     .verdict.empty   { background:var(--wh-surface-card, rgba(255,255,255,0.03)); border-color:var(--wh-white-08, rgba(255,255,255,0.08)); }
     .verdict.empty   .verdict-icon { color:var(--wh-text-muted, rgba(255,255,255,0.80)); }
     /* .simple-row / .simple-card / .sc-* / .action-card / .details-toggle → components.css (STREAMLINE S11) */
-    #inv-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:0.75rem; line-height:1.5;   /* 0.78rem was 12.48px, a step nothing else uses (W45938) */ color:rgba(255,255,255,0.83); margin-bottom:16px; }
+    #inv-summary-details { display:none; padding:12px 16px; background:var(--wh-white-02, rgba(255,255,255,0.02)); border:1px solid var(--wh-white-06, rgba(255,255,255,0.06)); border-radius:12px; font-size:var(--wh-fs-2xs, 0.75rem); line-height:1.5;   /* 0.78rem was 12.48px, a step nothing else uses (W45938) */ color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-bottom:16px; }
     #inv-summary-details.open { display:block; }
   </style>
 </head>
@@ -365,7 +365,7 @@
         <div class="sc-hero" id="inv-pending-hero">0</div>
         <div data-i="p_loading_b04b" class="sc-sub" id="inv-pending-sub">Loading...</div>
         <span class="sc-tag" id="inv-pending-tag">-</span>
-        <button type="button" id="inv-pending-show" class="hidden" onclick="invShowPending()" style="margin-top:0.5rem;min-height:44px;padding:0 0.75rem;font-size:0.8125rem;font-weight:700;border-radius:0.5rem;border:1px solid var(--wh-orange);background:transparent;color:var(--wh-orange-text, var(--wh-orange));cursor:pointer;">Show in list</button>
+        <button type="button" id="inv-pending-show" class="hidden" onclick="invShowPending()" style="margin-top:0.5rem;min-height:44px;padding:0 0.75rem;font-size:var(--wh-fs-xs, 0.8rem);font-weight:700;border-radius:0.5rem;border:1px solid var(--wh-orange);background:transparent;color:var(--wh-orange-text, var(--wh-orange));cursor:pointer;">Show in list</button>
       </div>
     </div>
     <div class="action-card">
@@ -452,7 +452,7 @@
 
 <!-- wh-sources: written by tools/render_sources_area.py (ENH-R) - lines are filed into the list at runtime -->
 <section class="wh-sources" data-wh-sources aria-labelledby="wh-sources-title" hidden style="margin:40px 0 24px;padding-top:16px;border-top:1px solid var(--wh-white-08, rgba(255,255,255,0.08));">
-<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:0.85rem;font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
+<h2 id="wh-sources-title" style="margin:0 0 10px;font-size:var(--wh-fs-sm, 0.85rem);font-weight:600;line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));">Where these figures come from</h2>
 <div data-wh-sources-list style="display:grid;gap:10px;">
 <div class="wh-sources-item" data-wh-source-key="inv-summary-details">
 <button id="details-toggle-btn" type="button" class="details-toggle" aria-expanded="false" aria-controls="inv-summary-details" data-i="showdetails">
@@ -461,14 +461,14 @@
 <div id="inv-summary-details" role="region" aria-label="Stock health explainer"
     data-rag-tile="inventory:detail_panel"
     data-rag-label="Inventory detail breakdown">
-      <strong data-i="p_howthesecountsarecomputed_0e15" style="display:block;margin-bottom:6px;color:rgba(255,255,255,0.85);">How these counts are computed</strong>
+      <strong data-i="p_howthesecountsarecomputed_0e15" style="display:block;margin-bottom:6px;color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);">How these counts are computed</strong>
       <ul style="margin:0;padding-left:20px;">
         <li><strong data-i="p_outofstock_8b78">Out of stock</strong>: parts with none left on hand.</li>
         <li><strong data-i="p_lowstock_a6e1">Low stock</strong>: parts at or below the reorder level (the threshold to reorder).</li>
         <li><strong data-i="p_pendingparts_262d">Pending parts</strong>: parts a worker added in this hive that need a supervisor sign-off before Use / Restock unlocks.</li>
         <li><strong data-i="p_verdict_7f6e">Verdict</strong>: red if any out-of-stock for critical parts; amber if any low-stock OR pending; green when fully stocked.</li>
       </ul>
-      <p data-i="p_usethesearchandcategoryfilte_8a66" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: 12px;">Use the search and category filter below for the part-by-part drill-down.</p>
+      <p data-i="p_usethesearchandcategoryfilte_8a66" style="margin-top:8px;color:var(--wh-text-muted, rgba(255,255,255,0.80));font-size: var(--wh-fs-2xs, 0.75rem);">Use the search and category filter below for the part-by-part drill-down.</p>
     </div>
 </div>
 </div>
@@ -489,7 +489,7 @@
   </div>
 
   <!-- ADD / EDIT PART MODAL -->
-  <div id="part-modal" role="dialog" aria-modal="true" aria-label="Add part" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
+  <div id="part-modal" role="dialog" aria-modal="true" aria-label="Add part" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75)); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-lg max-h-[90vh] overflow-y-auto p-7 relative">
       <button id="part-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
@@ -600,7 +600,7 @@
             <img id="f-photo-thumb" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="photo-thumb cursor-pointer" title="Tap to replace"
                  role="button" tabindex="0" alt="Attached photo. Activate to replace it." />
             <button id="f-photo-remove"
-              style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:rgba(30,30,40,0.95);border:1.5px solid var(--wh-white-18, rgba(255,255,255,0.18));border-radius:50%;color:var(--wh-text-faint, rgba(255,255,255,0.86));font-size: 12px;display:flex;align-items:center;justify-content:center;cursor:pointer;" aria-label="Remove">
+              style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:rgba(var(--wh-indigo-950-rgb, 30, 30, 40), 0.95);border:1.5px solid var(--wh-white-18, rgba(255,255,255,0.18));border-radius:50%;color:var(--wh-text-faint, rgba(255,255,255,0.86));font-size: var(--wh-fs-2xs, 0.75rem);display:flex;align-items:center;justify-content:center;cursor:pointer;" aria-label="Remove">
               &#x2715;
             </button>
           </div>
@@ -616,7 +616,7 @@
   </div>
 
   <!-- USE STOCK MODAL -->
-  <div id="use-modal" role="dialog" aria-modal="true" aria-label="Use stock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
+  <div id="use-modal" role="dialog" aria-modal="true" aria-label="Use stock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75)); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-sm p-7 relative">
       <button id="use-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
@@ -644,7 +644,7 @@
   </div>
 
   <!-- RESTOCK MODAL -->
-  <div id="restock-modal" role="dialog" aria-modal="true" aria-label="Restock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
+  <div id="restock-modal" role="dialog" aria-modal="true" aria-label="Restock" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75)); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-sm p-7 relative">
       <button id="restock-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
@@ -669,7 +669,7 @@
   </div>
 
   <!-- DETAIL MODAL -->
-  <div id="detail-modal" role="dialog" aria-modal="true" aria-label="Part details" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px);">
+  <div id="detail-modal" role="dialog" aria-modal="true" aria-label="Part details" class="fixed inset-0 z-50 items-center justify-center p-4" style="display:none; background:var(--wh-black-75, rgba(0,0,0,0.75)); backdrop-filter:blur(6px);">
     <div class="card w-full max-w-lg max-h-[88vh] overflow-y-auto p-7 relative">
       <button id="detail-modal-close" class="absolute top-3 right-3 w-11 h-11 rounded-lg flex items-center justify-center text-white/80 hover:text-white/80 transition-colors" style="background:var(--wh-white-06, rgba(255,255,255,0.06));" aria-label="Close">
         <span class="ic ic-close" aria-hidden="true"></span>
@@ -1056,9 +1056,9 @@ function assetBadge(id) {
 }
 
 function txnIcon(type) {
-  if (type === 'add'    || type === 'restock')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size: 12px;font-weight:900;background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.2);color:var(--wh-green);flex-shrink:0;">+</span>`;
-  if (type === 'use')                              return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.15);color:var(--wh-red);flex-shrink:0;">−</span>`;
-  if (type === 'adjust' || type === 'adjustment') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size: 12px;font-weight:900;background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15);color:var(--wh-blue-text);flex-shrink:0;">~</span>`;
+  if (type === 'add'    || type === 'restock')    return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size: var(--wh-fs-2xs, 0.75rem);font-weight:900;background:rgba(var(--wh-green-rgb, 74, 222, 128), 0.2);color:var(--wh-green);flex-shrink:0;">+</span>`;
+  if (type === 'use')                              return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:var(--wh-fs-xs, 0.8rem);font-weight:900;background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.15);color:var(--wh-red);flex-shrink:0;">−</span>`;
+  if (type === 'adjust' || type === 'adjustment') return `<span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size: var(--wh-fs-2xs, 0.75rem);font-weight:900;background:rgba(var(--wh-blue-rgb, 41, 182, 217), 0.15);color:var(--wh-blue-text);flex-shrink:0;">~</span>`;
   return '';
 }
 
@@ -1580,7 +1580,7 @@ function _invRenderList() {
                 const _rf = getReservedFor(item.id);
                 const _tr = (typeof _t === 'function') ? _t : (en) => en;
                 const _for = _rf.length ? ' ' + _tr('for', 'para sa') + ' ' + _rf.map(escHtml).join(', ') : '';
-                return `<span class="text-xs font-semibold" style="color:var(--wh-orange-text); background:rgba(251,146,60,.12); padding:2px 6px; border-radius:8px;">${getReservedQty(item.id)} ${_tr('reserved', 'naka-reserba')}${_for}</span>`;
+                return `<span class="text-xs font-semibold" style="color:var(--wh-orange-text); background:rgba(var(--wh-orange-soft-rgb, 251, 146, 60), 0.12); padding:2px 6px; border-radius:8px;">${getReservedQty(item.id)} ${_tr('reserved', 'naka-reserba')}${_for}</span>`;
               })() : ''}
             </div>
             <div class="flex gap-2 flex-wrap">

@@ -1040,7 +1040,7 @@ serveObserved("ai-orchestrator", tracedReply("ai-orchestrator", async (req, trac
           .eq("hive_status", "active").maybeSingle();
         if (_memErr) {
           return new Response(
-            JSON.stringify({ error: "Your membership could not be checked just now - the service did not answer. Nothing about your access has changed. Try again in a moment." }),
+            JSON.stringify({ error: "We could not check your membership just now. Your access is unchanged. Try again in a moment." }),
             { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }

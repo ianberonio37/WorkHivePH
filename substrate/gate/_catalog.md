@@ -2,11 +2,11 @@
 name: gate-catalog
 type: gate
 source: file:run_platform_checks.py:VALIDATORS
-source_sha: be7e5b7eefd0e372
+source_sha: 74ff96a41b24cfac
 last_verified: 2026-07-13
 supersedes: null
 ---
-## gate · registered validators (1513) — the 'what's already gated' brain
+## gate · registered validators (1516) — the 'what's already gated' brain
 
 GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only when a gate here LOCKS it, so this is also the scoreboard's source of truth. `⚡` = runs in `--fast`.
 
@@ -416,7 +416,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `w4-layer-loadbearing` ⚡ [fail] — Wave-4 layer-LB stories: every LB-layer row's page keeps its rendered list bounded (a fetch cap, pagination, virtualization, or a pre-render slice), or reads no
 - `w4-layer-rl` ⚡ [fail] — Wave-4 layer-RL stories: every RL-layer row's page bounds what it fetches or has no list to bound (source-level, the non-browser witness the rate-limit layer ne
 
-### Platform (1099)
+### Platform (1102)
 - `404-notice-helps` [fail] — 404 Notice Helps (a dead path names itself, pre-fills the slug the visitor asked for, and one Enter reaches matching guides; no-match says so; real pages stay s
 - `a-busy-button-says-working` [fail] — T41 (2026-08-28): a locked control announces WORK, not unavailability. button-lock.js is the platform's single-flight guard - withButtonLock disables a committi
 - `a-deferral-is-not-a-completion` [fail] — T10 (2026-08-28): a task put off is not a task done. A worker who cannot do a PM today DEFERS it; one who does it COMPLETES it, and the gap between those is whe
@@ -769,6 +769,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `edge-contracts` ⚡ [fail] — Edge Function API Contract Validator
 - `edge-down-admits-it` [fail] — T198: a dead edge fn must not become a confident answer. Edge functions fail independently of the database - a cold start times out, one is mid-deploy, a region
 - `edge-fn-auth-gate` ⚡ [fail] — per-page bughunt v3 L6 — every hive-touching edge fn must gate its caller (STATIC, no DB). A Supabase edge fn runs with SERVICE_ROLE (RLS-bypass); one that read
+- `edge-fn-copy` ⚡ [fail] — Every string an edge function returns to a person is short (<= 20 words, FK grade <= 8), tells them what to do next on failure, and leaks no stack frame, SQL, d
 - `edge-function-invoke` ⚡ [fail] — Edge Function Invoke (every functions.invoke('X') target must exist; forward-only ratchet)
 - `edge-import-exports` ⚡ [fail] — Edge Import/Export Resolution (every named relative import resolves to a real export; forward-only ratchet)
 - `edge-observed-coverage` [fail] — Edge observability coverage (fix-to-ZERO: every AI edge fn in ai_seams_catalog.ai_fns has serveObserved in its index.ts — the Arc-T net that lands a wh_traces e
@@ -924,6 +925,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `index-coverage` ⚡ [fail] — Index Coverage (4-layer: high-freq unindexed + med-freq unindexed + coverage matrix + tables-with-only-PK)
 - `industry-defining` ⚡ [fail] — Industry-Defining Validator (Phase 6: knowledge graph + drone inspections + standards registry + federated opt-in + insurance bridge view + MaaS consulting enga
 - `ingest-embeds-strict` ⚡ [fail] — OWN AI failure-mode lens, model-chain fallback (2026-10-26): a vector WRITTEN to a row comes from the corpus's own embedder or the row gets none (STRICT = INGES
+- `injected-css-parity` ⚡ [fail] — Every rule the shell scripts inject sizes its text as components.css does (a copy that stays behind is a layout shift)
 - `inline-image-guard` ⚡ [fail] — Q5-a Inline Image Detector-Guard (server-side base64 photo size cap on logbook+inventory_items backstopping the <=700KB client compression + photo_attach_stats(
 - `inline-onclick-handler` ⚡ [fail] — Inline Handler Existence (every onclick/onchange/... fn must be defined; forward-only ratchet)
 - `innerhtml-eschtml` ⚡ [fail] — innerHTML escHtml Audit (interpolating template literals must escape; XSS guard, forward-only ratchet)
@@ -1286,6 +1288,7 @@ GREP THIS before building any new gate. A per-page bug-hunt cell is 100% only wh
 - `report-reason-deliberate` ⚡ [fail] — Critic-deepwalk T31 lock: reporting a post requires a DELIBERATE reason and the audit row names whose post it was. Walked live: the select DEFAULTED to 'Harassm
 - `report-sender` ⚡ [fail] — Report Sender Validator (32 checks: structure + UI + logic + PWA)
 - `report-window-parity` [fail] — T23: the window on the CHIP must be the window in the EMAIL (2026-08-27). The four selectable reports cover wildly different periods — Shift Handover is the las
+- `rerun-selector` ⚡ [fail] — --rerun-failed selects by what a gate NAMES (quoted literal, quoted glob, the page roster), pinned with synthetic scripts (2026-11-04). The basename rule reache
 - `rescan-keeps-detection-date` [fail] — 2026-10-27: a re-scan is not a new detection. failure-signature-scan upserted every signature with detected_at = now, so the alert hub's '20 newest' (ordered by
 - `reset-coverage` ⚡ [blocker] — Reset Coverage Validator (every migration table is in reset.py)
 - `resilience` ⚡ [fail] — Resilience Validator (Phase 1.10 reframe: offline queue + network-loss UI + fetchWithTimeout + shared-device sign-out)
