@@ -43,6 +43,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+GJV = ROOT / ".tmp" / "gj_contract"   # the GJ contract verdicts this walk keeps (bank_gj_rows.py reads them)
 os.chdir(ROOT)
 sys.path.insert(0, str(ROOT / "tools"))
 import registry_io as _rio  # noqa: E402 - the registry UNION: a cube (CX) row lives in trajectory_registry_cx.json
@@ -816,6 +817,7 @@ def main() -> int:
             decided.append((rid, layer, cell, per, holds, steps))
     # ── write receipts + bank ──
     banked, red = [], []
+    gj_ok, gj_red = [], []
     for rid, layer, cell, per, holds, steps in decided:
         reading = " | ".join(f"{vp}: {v[0]} - {v[1]}" for vp, v in per.items())
         _pl = (reg_rows.get(rid, {}).get("cx") or {}).get("pillar")
@@ -828,6 +830,23 @@ def main() -> int:
             shown = reading if holds else " | ".join(f"{vp}: {v[0]} - {v[1]}" for vp, v in sorted(
                 per.items(), key=lambda kv: kv[1][0] in ("ok", "n/a")))
             print(f"  {'HOLDS ' if holds else 'OPEN  '} {rid:8} {layer:3} {cell['page'][:26]:26} {cell['persona'][:14]:14} {shown[:230]}")
+            continue
+        # ★A GROUP-JOURNEY ROW IS NOT BANKED HERE (2026-11-05, GJ M7 - lx_walk_args.py --gj). Its contract half is this
+        # reading of the receiving person's page; its other half is the group walk's own receipt, and bank_gj_rows.py
+        # banks the row only when both hold. So the verdict is KEPT - both viewports, the cast, the route, the batch - and
+        # the registry is not touched.
+        if str(rid).startswith("GJ"):
+            GJV.mkdir(parents=True, exist_ok=True)
+            vf = GJV / f"{rid}.json"
+            tmpf = vf.with_suffix(".json.tmp")
+            io.open(tmpf, "w", encoding="utf-8", newline="\n").write(json.dumps({
+                "id": rid, "page": cell["page"], "persona": cell["persona"], "layer": layer,
+                "pillar": next((r2.get("pillar") for r2 in cell["rows"] if r2["id"] == rid), None),
+                "cast": cell.get("cast"), "castRole": cell.get("castRole"), "path": cell.get("path"), "batch": a.batch,
+                "walked": today, "at": time.strftime("%Y-%m-%dT%H:%M:%S"), "holds": holds,
+                "per": {vp: list(v) for vp, v in per.items()}, "note": note}, ensure_ascii=False, indent=1))
+            os.replace(tmpf, vf)
+            (gj_ok if holds else gj_red).append(rid)
             continue
         sp = Path(tempfile.gettempdir()) / f"lx_steps_{rid}.json"
         io.open(sp, "w", encoding="utf-8", newline="\n").write(json.dumps(steps, ensure_ascii=False))
@@ -861,6 +880,11 @@ def main() -> int:
     if not a.apply:
         print("\n(dry run - pass --apply to record receipts and bank)")
         return 0
+    if gj_ok or gj_red:
+        print(f"kept {len(gj_ok) + len(gj_red)} GJ contract verdict(s) in .tmp/gj_contract/: {len(gj_ok)} hold, {len(gj_red)} do not "
+              "(bank_gj_rows.py banks a row when its group walk and this verdict both hold)")
+    if not banked and not red:
+        return 0                                      # nothing of the registry's own to write
     reg = _rio.load_doc()
     byid = {t["id"]: t for t in reg["trajectories"]}
     for rid, layer, cell, per, note, reading in banked:

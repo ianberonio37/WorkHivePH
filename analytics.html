@@ -3654,6 +3654,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
           + whLimitWait(_snapshotReadError)
         : _t('Recomputed just now · saved copy could not be read, so some sections are missing',
              'Kakakalkula lang · hindi mabasa ang naka-save na kopya, may mga seksyong nawawala');
+    } else if (!_cache[_phase]) {
+      // ★"RECOMPUTED JUST NOW" OVER NOTHING (2026-11-05, the GJ J2 re-walk, hand-off 4). With the analytics service
+      // down every phase failed - the verdict said "Analytics unavailable" - and this chip, reading only "not a saved
+      // snapshot", told the supervisor the figures had just been recomputed. A tab with no result says so.
+      _freshness = 'Not computed - the analysis could not run. Tap Refresh to try again.';
     } else {
       _freshness = _t('Recomputed just now', 'Kakakalkula lang');
     }

@@ -1,6 +1,6 @@
 -- a_decision_says_who_and_where: when a supervisor approves or rejects a submission, the submitter's push names the
 -- supervisor and sends them where the decision can be read - a machine to Asset Hub on that machine, a part to Inventory
--- (mig 20261104000003). Found by the group-journey walk GJ J9 hand-off 5: the push named nobody, an approved machine
+-- (mig 20261104000003; each link names its hive since mig 20261105000003, so a person in two hives lands in this one). Found by the group-journey walk GJ J9 hand-off 5: the push named nobody, an approved machine
 -- landed on the logbook, and a rejected machine was told to "open Inventory to see why".
 -- Each leg runs AS the supervisor (authenticated + their claims) in its own BEGIN/ROLLBACK; the pushes it queues go too.
 -- Self-grounding: a machine and a part submitted by a worker of a hive that has an active supervisor.
@@ -34,7 +34,7 @@ RESET ROLE;
 SELECT 'machine_approved_names_who | ' || EXISTS (SELECT 1 FROM service_outbox o WHERE o.consumer = 'notify-push' AND o.created_at >= now() - interval '1 minute'
   AND o.payload->'auth_uids' ? (SELECT owner_uid FROM _s)::text AND o.payload->>'body' LIKE '%approved by ' || (SELECT sup_name FROM _s) || '%');
 SELECT 'machine_approved_lands_on_machine | ' || EXISTS (SELECT 1 FROM service_outbox o WHERE o.consumer = 'notify-push' AND o.created_at >= now() - interval '1 minute'
-  AND o.payload->'auth_uids' ? (SELECT owner_uid FROM _s)::text AND o.payload->>'url' = '/asset-hub.html?node_id=' || (SELECT node_id FROM _s));
+  AND o.payload->'auth_uids' ? (SELECT owner_uid FROM _s)::text AND o.payload->>'url' = '/asset-hub.html?node_id=' || (SELECT node_id FROM _s) || '&hive=' || (SELECT hive_id FROM _s)::text);
 ROLLBACK;
 
 BEGIN;
@@ -52,5 +52,5 @@ SET LOCAL ROLE authenticated;
 SELECT notify_submission_decided('inventory_items', (SELECT part_id FROM _s)::text, 'rejected');
 RESET ROLE;
 SELECT 'part_rejected_points_to_inventory | ' || EXISTS (SELECT 1 FROM service_outbox o WHERE o.consumer = 'notify-push' AND o.created_at >= now() - interval '1 minute'
-  AND o.payload->>'url' = '/inventory.html' AND o.payload->>'body' LIKE '%open Inventory to see why%');
+  AND o.payload->>'url' = '/inventory.html?hive=' || (SELECT hive_id FROM _s)::text AND o.payload->>'body' LIKE '%open Inventory to see why%');
 ROLLBACK;

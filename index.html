@@ -5827,12 +5827,24 @@
         });
       }
 
+      // ★"vibration_mm_s flagged anomaly" - AND NEVER WHICH MACHINE (2026-11-05, the group-journey walk GJ J17 hand-off 3).
+      // The card headlined the parameter's column code and linked to asset-hub.html?id=, a parameter asset-hub never
+      // reads, so "Inspect." opened the hub's front page with no machine named anywhere. The dashboard payload now
+      // carries the machine (mig 20261105000002); the legacy path reads its name; the link opens that machine.
+      if (sensorAnomaly && !sensorAnomaly.machine && sensorAnomaly.asset_id) {
+        try {
+          const { data: _sn } = await db.from('asset_nodes').select('name').eq('id', sensorAnomaly.asset_id).maybeSingle();
+          if (_sn && _sn.name) sensorAnomaly.machine = _sn.name;
+        } catch (_) { /* empty-catch-allow: the card still says the reading; only the machine's name is missing */ }
+      }
       if (sensorAnomaly) {
+        const _sp = String(sensorAnomaly.parameter || 'reading').replace(/_/g, ' ');
         candidates.push({
           rank: 85,
           tone: 'high', accent: '#FDB94A',  // was #f7a21b, Lc 60.2 -> 70.0
           label: 'Sensor Anomaly',
-          headline: `${sensorAnomaly.parameter || 'Reading'} flagged anomaly`,
+          headline: sensorAnomaly.machine ? `${sensorAnomaly.machine}: ${_sp} out of band` : `${_sp} flagged anomaly`,
+          when: sensorAnomaly.recorded_at ? _timeAgo(sensorAnomaly.recorded_at) : '',
           detail: (() => {
             const _age = sensorAnomaly.recorded_at ? _timeAgo(sensorAnomaly.recorded_at) : '';
             return _age
@@ -5840,7 +5852,7 @@
               : 'A sensor reading within the last 24 hours is 3-sigma outside the recent baseline. Inspect.';
           })(),
           cta: 'Open Asset Hub',
-          href: `asset-hub.html${sensorAnomaly.asset_id ? '?id=' + encodeURIComponent(sensorAnomaly.asset_id) : ''}`,
+          href: `asset-hub.html${sensorAnomaly.asset_id ? '?node_id=' + encodeURIComponent(sensorAnomaly.asset_id) : ''}`,
         });
       }
 
@@ -5852,6 +5864,7 @@
           tone: 'high', accent: '#FDB94A',  // was #f7a21b, Lc 60.2 -> 70.0
           label: 'Critical Failure Signature',
           headline: `${sigAlert.machine || 'Asset'}: ${sigAlert.title || 'failure signature detected'}`,
+          when: sigAlert.detected_at ? _timeAgo(sigAlert.detected_at) : '',
           detail: 'A historical failure pattern just matched. Review before the shift ends.',
           cta: 'Open Alert Hub',
           // Arc X A1: deep-link to the NAMED machine's alert (alert-hub reads ?focus= ->
@@ -6008,8 +6021,24 @@
             <p style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.55); margin:4px 0 0;"${pick.aiDetail ? ' data-ai-generated' : ''}>${escHtml(_tv(pick.detail))}</p>
           </div>
           <span style="font-size: var(--wh-fs-2xs, 0.75rem); font-weight:700; color:${pick.accent}; white-space:nowrap; padding:6px 12px; border-radius:8px; background:${pick.accent}14; border:1px solid ${pick.accent}33;">${escHtml(_tv(pick.cta))} &#8594;</span>
-        </a>`;
+        </a>${_alsoToday(candidates.slice(1))}`;
     })();
+    // ★THE ONE THING HID EVERY OTHER THING (2026-11-05, the group-journey walk GJ J17 hand-off 3). The card shows the
+    // top-ranked decision and dropped the rest without a word: in a hive holding a critical-risk asset (rank 100) a
+    // machine whose vibration went 3-sigma out of band an hour ago (rank 85) never reached the worker's home at all,
+    // and nothing said there was a second thing. The One Thing stays the one decision; under it, the next two each
+    // get a line that opens them, and past two the line says how many more there are.
+    function _alsoToday(rest) {
+      if (!rest || !rest.length) return '';
+      const shown = rest.slice(0, 2);
+      const more = rest.length - shown.length;
+      return `<div class="oh-also" role="list" aria-label="Also today" style="margin-top:6px;">`
+        + shown.map(c => `<a role="listitem" href="${escHtml(c.href)}" style="display:flex; align-items:center; gap:8px; min-height:44px; padding:0 16px; text-decoration:none; color:var(--wh-cloud); font-size:var(--wh-fs-xs, 0.8rem); border-left:1px solid ${c.accent};">`
+          + `<span style="flex:none; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:${c.accent};">${escHtml(_tv(c.label))}</span>`
+          + `<span style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(c.headline)}${c.when ? ' · ' + escHtml(c.when) : ''}</span></a>`).join('')
+        + (more > 0 ? `<p style="margin:2px 0 0; padding:0 16px; font-size:var(--wh-fs-2xs, 0.75rem); color:var(--muted);">${escHtml(more + (more === 1 ? ' more thing needs' : ' more things need') + ' attention - open Alert Hub for the rest.')}</p>` : '')
+        + '</div>';
+    }
 
     // ── Phase H.3 (2026-05-12): Onboarding progress card ──────────────────
     // Three concrete steps that take a new worker from "I just signed in" to

@@ -116,6 +116,86 @@ def _cube_closed() -> set:
     return out
 
 
+GJ_VERDICTS = ROOT / ".tmp" / "gj_contract"
+_AU = {}
+_H = {}
+_H_SERVER = []
+
+
+def _h_served(page: str) -> tuple[bool, list[str], str]:
+    """H through F and I - the header set the host serves for the page's path, the same whoever asks - read by the
+    registered prover's own check (tools/prove_w4_layer_headers.py) against the local Vercel-headers substitute."""
+    if page in _H:
+        return _H[page]
+    import atexit
+    import subprocess
+    import time
+    import prove_deploy_headers as dh
+    import prove_w4_layer_headers as w4h
+    if not dh.listening() and not _H_SERVER:
+        _H_SERVER.append(subprocess.Popen([sys.executable, str(ROOT / "tools" / "serve_vercel_headers.py"), "--port", str(dh.PORT)],
+                                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL))
+        atexit.register(lambda: [x.terminate() for x in _H_SERVER])
+        for _ in range(40):
+            if dh.listening():
+                break
+            time.sleep(0.25)
+    try:
+        _H[page] = w4h.check_page(page)
+    except Exception as e:
+        _H[page] = (False, [f"the header check could not run ({e})"], "")
+    return _H[page]
+
+
+def _au_identity(page: str, persona: str | None) -> tuple[bool, str]:
+    """AU through F and I - "the platform keeps this page's identity honest when a session ends or a role changes" - by
+    the registered prover's own rule (tools/bank_au_identity_rows.py): prove_lxp_au_identity_after_change.mjs replays ONE
+    unexpired token across an active, a kicked and a deactivated membership and a role change, and grades every
+    hive-scoped relation; a page holds for a persona when the relations ITS source reads are among those graded by a
+    green report from a subject of the persona's own role (a supervisor's reading never vouches for a worker's row)."""
+    import glob
+    import bank_au_identity_rows as au
+    grp = "supervisor" if persona in ("supervisor", "fleet-supervisor", "oversight") else "worker"
+    if grp not in _AU:
+        graded, subjects = {}, []
+        for path in sorted(glob.glob(str(ROOT / "au_identity_after_change_report*.json"))):
+            r = json.loads(Path(path).read_text(encoding="utf-8"))
+            if not r.get("pass") or r.get("role_before") == "solo":
+                continue
+            if ("supervisor" if r.get("role_before") == "supervisor" else "worker") != grp:
+                continue
+            subjects.append(r.get("subject"))
+            for k, v in (r.get("sweep") or {}).items():
+                if v.get("verdict") in au.EVIDENCE and k not in graded:
+                    graded[k] = dict(v, _by=r.get("subject"))
+            for k, v in (r.get("spine") or {}).items():
+                if v.get("active", 0) > 0 and v.get("kicked") is not None and k not in graded:
+                    graded[k] = {"verdict": "spine", "active": v.get("active"), "kicked": v.get("kicked"), "_by": r.get("subject")}
+        _AU[grp] = (graded, subjects)
+    graded, subjects = _AU[grp]
+    if not subjects:
+        return False, f"no green identity-after-change report from a {grp} subject on disk"
+    reads = sorted(set(au.READ_RE.findall(au.page_source(page) or "")))
+    hit = [r for r in reads if r in graded]
+    if not hit:
+        return False, f"{page} reads none of the relations the {grp} subjects' replay graded ({', '.join(reads[:5]) or 'no reads'})"
+    said = "; ".join(f"{r} ({graded[r].get('verdict')}" + (f", {graded[r].get('active')} -> {graded[r].get('kicked')}" if graded[r].get('active') is not None else "")
+                     + f", read by {graded[r].get('_by')})" for r in hit[:4])
+    return True, (f"{page} reads {len(hit)} relation(s) the {grp} subjects' green replay graded on ONE unexpired token "
+                  f"(tools/prove_lxp_au_identity_after_change.mjs, gate lxp-au-identity-after-change): {said}.")
+
+
+def _gj_verdict(rid: str, page: str) -> dict | None:
+    """The library walk's verdict for one GJ contract row (bank_lx_walk.py keeps it), while its page is unchanged since."""
+    vf, pg = GJ_VERDICTS / f"{rid}.json", ROOT / page
+    if not vf.exists() or (pg.exists() and vf.stat().st_mtime < pg.stat().st_mtime):
+        return None
+    try:
+        return json.loads(vf.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
 def check() -> int:
     """★AGREEMENT, NOT PROOF (the registry's receipt-agreement rule): group_journeys_report.json is a generated receipt
     that *_report.json keeps out of git, so a fresh checkout has none. A banked row whose scenario has a receipt on disk
@@ -182,11 +262,42 @@ def main() -> int:
         contract = ""
         if L in CONTRACT:
             key = (g["page"], L, g["pillar"], g.get("persona") if g["pillar"] != "A" else "*")
-            if key not in cube:
-                left.append(f"{t['id']}: contract layer {L} - the cube row for {key} is not closed yet")
+            v = _gj_verdict(t["id"], g["page"])
+            # ★THE SERVED HEADERS ARE THE PAGE'S, NOT THE PERSON'S: H through F and I is the header set the host serves for
+            # the path (tools/serve_vercel_headers.py), the same bytes whoever asks - any persona's closed row answers it
+            if L == "H" and g["pillar"] in ("F", "I") and key not in cube and (g["page"], L, g["pillar"], "*") in cube:
+                key = (g["page"], L, g["pillar"], "*")
+            au = _au_identity(g["page"], g.get("persona")) if (L == "AU" and g["pillar"] in ("F", "I") and key not in cube) else None
+            hh = _h_served(g["page"]) if (L == "H" and g["pillar"] in ("F", "I") and key not in cube) else None
+            if hh and not hh[0] and not v:
+                left.append(f"{t['id']}: contract layer H - the served headers of {g['page']} do not hold: {'; '.join(hh[1])[:200]}")
                 continue
-            contract = (f" The {L} contract half is the cube's closed row for {g['page']} x {L} x {g['pillar']} x "
-                        f"{key[3]} (its registered prover's per-(page, persona) record).")
+            if key in cube:
+                contract = (f" The {L} contract half is the cube's closed row for {g['page']} x {L} x {g['pillar']} x "
+                            f"{key[3]} (its registered prover's per-(page, persona) record).")
+            elif hh and hh[0]:
+                contract = (f" The H contract half is the page's served header set, the same bytes whoever asks "
+                            f"(tools/prove_w4_layer_headers.py check_page against tools/serve_vercel_headers.py = vercel.json, "
+                            f"gate w4-layer-headers): {hh[2]}.")
+            elif au and au[0]:
+                contract = f" The AU contract half is the identity-after-change replay: {au[1]}"
+            elif au and not v:
+                left.append(f"{t['id']}: contract layer AU - {au[1]}")
+                continue
+            elif v and v.get("holds"):
+                said = " | ".join(f"{vp}: {x[0]} - {x[1][:90]}" for vp, x in (v.get("per") or {}).items())
+                contract = (f" The {L} contract half is the library walk of {g['page']} as {v.get('cast')} "
+                            f"({v.get('castRole')}) for the {v.get('persona')} persona, {v.get('walked')} (tools/lx_walk.js through "
+                            f"the Playwright MCP, batch {v.get('batch')}; .tmp/gj_contract/{t['id']}.json): {said}.")
+            elif v:
+                bad = next(((vp, x) for vp, x in (v.get("per") or {}).items() if x[0] not in ("ok", "n/a")), None)
+                left.append(f"{t['id']}: contract layer {L} - the library walk of {g['page']} as {v.get('persona')} does NOT "
+                            f"hold" + (f" ({bad[0]}: {bad[1][1][:120]})" if bad else ""))
+                continue
+            else:
+                left.append(f"{t['id']}: contract layer {L} - no closed cube row for {key} and no library walk of it yet "
+                            f"(tools/lx_walk_args.py --gj {g.get('milestone')})")
+                continue
         vp = " / ".join(f"{k}@{v}" for p in r["passes"] for k, v in (p.get("viewports") or {}).items())
         said = (cells.get("said") or "").replace("||", "|")[:180]
         basis = (f"[{date.today().isoformat()}] LOCKING pct -> 60. Measured live {r['generated'][:16]}Z - {PROVER} walked "

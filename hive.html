@@ -3986,19 +3986,24 @@ async function loadAdoptionCard() {
   }
 
   let row = null;
+  let readFailed = false;
   if (_board && 'adoption' in _board) {
     row = _board.adoption || null;
   } else {
     try {
       const res = await db.rpc('get_adoption_risk_current', { p_hive_id: HIVE_ID });
-      if (res.error) window._adoptionErr = true;
+      if (res.error) { window._adoptionErr = true; readFailed = true; }
       row = Array.isArray(res.data) ? res.data[0] : res.data;
-    } catch (_) { window._adoptionErr = true; }
+    } catch (_) { window._adoptionErr = true; readFailed = true; }
   }
 
-  const isStale = !row
+  // ★A FAILED READ IS NOT A STALE SNAPSHOT (2026-11-05, the GJ M7 contract walk, hive.html as a supervisor, RL through A).
+  // A read refused with 429 left `row` empty, and an empty row read as "stale" - so the page answered "slow down" by
+  // running compute_adoption_risk (a write) and reading again: two more calls into a server that had just said wait.
+  // Only a snapshot that was READ and is old (or truly absent) is recomputed; a read that failed shows "Not loaded".
+  const isStale = !readFailed && (!row
     || !row.computed_at
-    || (Date.now() - new Date(row.computed_at).getTime() > 24 * 3600 * 1000);
+    || (Date.now() - new Date(row.computed_at).getTime() > 24 * 3600 * 1000));
   if (isStale) {
     try {
       await db.rpc('compute_adoption_risk', { p_hive_id: HIVE_ID });

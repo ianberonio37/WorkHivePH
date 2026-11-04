@@ -9,7 +9,7 @@
  *   risk_top         - top assets by current risk score (asset_risk_scores)
  *   pms_due          - frequency-aware OVERDUE PMs (v_pm_scope_items_truth.is_overdue,
  *                      one row per asset) — NOT the retired flat-30-day is_due proxy
- *   carry_forward    - open logbook entries older than 8h (prior shift leftovers)
+ *   carry_forward    - open logbook entries opened before this shift began (the prior shifts' leftovers)
  *   parts_prestage   - inventory items at or below reorder_point
  *   briefing         - one-paragraph LLM synthesis grounded in the above
  *
@@ -147,10 +147,27 @@ async function fetchPMsDue(db: SupabaseClient, hiveId: string): Promise<AnyRow[]
   return deduped;
 }
 
-async function fetchCarryForward(db: SupabaseClient, hiveId: string): Promise<AnyRow[]> {
-  // Open logbook entries created more than 8h ago.
+// ★THE HANDOVER LEFT OUT THE SHIFT THAT WAS HANDING OVER (2026-11-05, the group-journey walk GJ G-SHIFT hand-off 1).
+// Carry-forward was "open entries created more than 8 hours ago", and a shift is 8 hours long: a plan built at 14:30
+// cut off at 06:30, so every job the outgoing morning shift opened and could not finish - the very thing a handover
+// exists to pass on - was missing from the list the page heads "Jobs still open from the prior shift", while jobs
+// older than the prior shift were carried. A job is carried when it was opened before THIS shift began.
+// The window's start in Manila (UTC+8, no daylight saving): "06-14" begins 06:00, "14-22" 14:00, "22-06" 22:00. A start
+// more than two hours ahead is the previous day's window (a night shift read after midnight); a start just ahead is a
+// plan built early for the shift about to begin, and every job open now is carried into it.
+function shiftStartIso(shiftWindow: string, now = new Date()): string {
+  const startH = Number(String(shiftWindow).slice(0, 2));
+  const manila = new Date(now.getTime() + 8 * 3600 * 1000);   // Manila's wall clock, read through the UTC fields
+  let start = Date.UTC(manila.getUTCFullYear(), manila.getUTCMonth(), manila.getUTCDate(), Number.isFinite(startH) ? startH : 0)
+    - 8 * 3600 * 1000;
+  if (start - now.getTime() > 2 * 3600 * 1000) start -= 86400000;
+  return new Date(start).toISOString();
+}
+
+async function fetchCarryForward(db: SupabaseClient, hiveId: string, shiftWindow: string): Promise<AnyRow[]> {
+  // Open logbook entries opened before this shift began (see shiftStartIso).
   // Canonical: logbook_truth (drop-in column-compatible with logbook).
-  const cutoff = new Date(Date.now() - 8 * 3600 * 1000).toISOString();
+  const cutoff = shiftStartIso(shiftWindow);
   // loto_applied/permit_reference (Extension 3): surface OPEN jobs still under active energy
   // isolation as a safety-critical "Active Isolations" signal for the incoming shift — read the
   // first-class column (deliberate) instead of regex-inferring LOTO from free-text problem.
@@ -159,7 +176,10 @@ async function fetchCarryForward(db: SupabaseClient, hiveId: string): Promise<An
     .eq("hive_id", hiveId)
     .eq("status", "Open")
     .lt("created_at", cutoff)
-    .order("created_at", { ascending: true })
+    // newest first (GJ G-SHIFT, 2026-11-05): oldest-first, a hive holding more open jobs than the cap carried its oldest
+    // backlog and dropped the jobs the outgoing shift had just left - and the briefing names only the first eight
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: true })   // MR4 tiebreaker: the sort above is not total on its own
     .limit(CARRY_FWD_LIMIT);
   return data || [];
 }
@@ -184,6 +204,7 @@ async function synthesizeBriefing(
   shiftWindow: string,
   payload: { risk_top: AnyRow[]; pms_due: AnyRow[]; carry_forward: AnyRow[]; parts_prestage: AnyRow[] },
   hivePersona?: string | null,
+  faultInject?: { failAll: boolean },
 ): Promise<string> {
   // Compact summary strings to keep the prompt small.
   const compact = {
@@ -220,6 +241,7 @@ async function synthesizeBriefing(
       temperature:  0.3,
       maxTokens:    BRIEFING_MAX_TOKENS,
       jsonMode:     false,
+      faultInject,   // LOCAL-ONLY (see the handler): callAI itself ignores it on a production runtime
     });
     // an exhausted chain answers "{}", it does not throw - so the unavailable branch below never ran and the
     // stored briefing read "{}" over the signature (2026-10-09, see aiAnswered)
@@ -248,11 +270,12 @@ async function planForHive(
   db: SupabaseClient,
   hiveId: string,
   shiftWindow: string,
+  faultInject?: { failAll: boolean },
 ): Promise<{ plan_id?: string; counts: Record<string, number>; briefing?: string; error?: string }> {
   const results = await Promise.allSettled([
     fetchRiskTop(db, hiveId),
     fetchPMsDue(db, hiveId),
-    fetchCarryForward(db, hiveId),
+    fetchCarryForward(db, hiveId, shiftWindow),
     fetchPartsPrestage(db, hiveId),
   ]);
 
@@ -278,7 +301,7 @@ async function planForHive(
 
   const briefing = await synthesizeBriefing(shiftWindow, {
     risk_top, pms_due, carry_forward, parts_prestage,
-  }, hivePersona);
+  }, hivePersona, faultInject);
 
   // F16: flag which sections hit their server-side cap, so shift-brain can show "N+" instead of
   // a silently-truncated count (a hive with 45 overdue PMs must not read a flat "30").
@@ -344,6 +367,13 @@ serveObserved("shift-planner-orchestrator", tracedReply("shift-planner-orchestra
     const body = await req.json().catch(() => ({}));
     const shift_window = String(body.shift_window || "").trim();
     const single_hive  = body.hive_id ? String(body.hive_id) : null;
+    // ★A WALK THAT IS NOT ABOUT THE BRIEFING MUST NOT SPEND A MODEL CALL ON IT (2026-11-05, GJ G-SHIFT). The group walk
+    // builds the incoming shift's plan to read its carry-over list; the briefing is the deterministic fallback when the
+    // chain is down. `debug_fault_inject: true` takes every provider down for this one request - honoured only on a
+    // LOCAL runtime (kong/localhost/127.0.0.1, the same test callAI applies again inside), only on the single-hive
+    // member path, never in production. The same local-only wire as ai-gateway's debug_fault_inject (W4).
+    const _localRuntime = /\/\/(kong|localhost|127\.0\.0\.1)(:|\/|$)/.test(Deno.env.get("SUPABASE_URL") || "");
+    const fault = (_localRuntime && single_hive && body.debug_fault_inject === true) ? { failAll: true } : undefined;
 
     if (!shift_window) {
       return new Response(
@@ -435,7 +465,7 @@ serveObserved("shift-planner-orchestrator", tracedReply("shift-planner-orchestra
     }
 
     const perHive = await Promise.allSettled(
-      targetHives.map(h => withModelCaller({ hive_id: h }, () => planForHive(db, h, shift_window)))
+      targetHives.map(h => withModelCaller({ hive_id: h }, () => planForHive(db, h, shift_window, fault)))
     );
 
     const summary = perHive.map((r, idx) => ({

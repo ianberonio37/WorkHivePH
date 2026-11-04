@@ -6045,10 +6045,54 @@ if (typeof window !== 'undefined') window.whReconcileHiveName = whReconcileHiveN
 // A page that calls it seats its own hive, so it also sets window.WH_SEATS_HIVE_ITSELF in its markup (the after-load
 // recovery then leaves it alone; hive-restore-adoption holds the pair). Best-effort: on any failure it returns what
 // the device already held, which is what the page would have shown anyway.
+// ★A LINK THAT NAMES ITS HIVE OPENS IN IT (2026-11-05, the group-journey walk GJ G-MULTI hand-off 3). A person in two
+// hives (a contractor serving two plants) opened supervisor A's "Work order assigned to you" push while the device last
+// stood in hive B, and the logbook showed hive B - where A's job does not exist. A push now carries ?hive=<id>
+// (mig 20261105000003). The page seats that hive when, and only when, the signed-in account is an active member of it
+// (by auth_uid, kicked excluded - the same rule as whEnsureHiveContext), says so, and removes the parameter so a reload
+// or a shared link does not carry it on. A hive the account is not in is never seated: the page keeps its own hive and
+// says the link was for a hive this account is not a member of.
+async function _whSeatLinkedHive(db) {
+  var want = null;
+  try { want = new URLSearchParams(window.location.search).get('hive'); } catch (_) { return null; }
+  if (!want) return null;
+  var strip = function () {
+    try {
+      var u = new URL(window.location.href); u.searchParams.delete('hive');
+      window.history.replaceState(window.history.state, '', u.pathname + (u.search || '') + (u.hash || ''));
+    } catch (_) { /* empty-catch-allow: the address bar keeps the parameter; the page has already been seated */ }
+  };
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(want)) { strip(); return null; }
+  if (want === whHiveId()) { strip(); return null; }
+  if (!db || !db.auth || typeof db.from !== 'function') return null;
+  try {
+    var sess = (await db.auth.getSession()).data.session;
+    var uid = sess && sess.user ? sess.user.id : null;
+    if (!uid) return null;
+    var mem = await db.from('v_worker_truth').select('hive_id, role').eq('auth_uid', uid).eq('hive_id', want)
+      .neq('hive_status', 'kicked').limit(1);   // limit-as-count-allow: is this account a member of the linked hive (yes/no)
+    if (mem.error) return null;   // could not ask: change nothing, keep the parameter for a reload to try again
+    strip();
+    if (!mem.data || !mem.data.length) {
+      if (typeof showToast === 'function') showToast('That link is for a hive you are not a member of, so this page stays on your own hive.');
+      return null;
+    }
+    var hv = await db.from('v_hives_truth').select('id, name').eq('id', want).maybeSingle();
+    var name = (hv && hv.data && hv.data.name) || '';
+    localStorage.setItem('wh_active_hive_id', want);
+    localStorage.setItem('wh_hive_id', want);
+    localStorage.setItem('wh_hive_name', name);
+    _whAdoptStoredRole(mem.data[0].role || 'worker');
+    if (typeof showToast === 'function') showToast('Opened in ' + (name || 'the linked hive') + ', the hive this link is for.');
+    return want;
+  } catch (_e) { return null; }   // offline or storage blocked: the page runs in the hive it had
+}
+if (typeof window !== 'undefined') window._whSeatLinkedHive = _whSeatLinkedHive;
 async function whStartupHive(db) {
   if (typeof window !== 'undefined') window.WH_SEATS_HIVE_ITSELF = true;
   var out = { id: null, name: '', role: '', unread: false };
   try {
+    out.switched = await _whSeatLinkedHive(db);
     out.id = whHiveId() || await whEnsureHiveContext(db) || null;
     // no hive because the account holds none, or because the lookup never answered (see whEnsureHiveContext)
     out.unread = !out.id && window._whHiveSeatUnread === true;

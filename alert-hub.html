@@ -736,6 +736,9 @@
   // 60s while critical signals were still loading). Starts null = "not yet known".
   let _anomalyCount = null;
   let _anomalyTotal = null;
+  let _anomalyRows = [];         // GJ J17: every signal read (up to 200); the panel shows five until Show all
+  let _anomalyShowAll = false;
+  const _sensorNames = {};       // GJ G-SENSOR: a measured card's key -> "<machine> · <parameter> reading", for the trail
   let _feedCaps = [];   // SL LB1: [{kind, said}] - a feed source that holds more than the feed lists   // SL LB1: every fused signal, counted - the panel shows the strongest five
 
   // Timer helpers — kept OUTSIDE any event handler so the timer validator
@@ -1312,6 +1315,8 @@
   // the feed shows it is its title and the kind of alert it was.
   const _ALERT_KIND_WORDS = { risk: 'risk alert', stock: 'low stock', pm: 'PM due', pattern: 'failure pattern', staging: 'parts to stage' };
   function _alertName(key, list) {
+    // a measured sensor card's key is machine:parameter:day - the trail names the machine and the reading (GJ G-SENSOR)
+    if (_sensorNames[key]) return _sensorNames[key];
     const a = (list || _alerts || []).find((x) => x && x.dedupeKey === key);
     const t = a ? String(a.title || '').replace(/\s+/g, ' ').trim() : String(key || '').replace(/^[a-z]+:/, '');
     const name = t + (a && _ALERT_KIND_WORDS[a.kind] ? ' · ' + _ALERT_KIND_WORDS[a.kind] : '');
@@ -1333,10 +1338,16 @@
       // predictive on insufficient data lies. Silently hide; the maturity
       // stairway on hive.html already tells the supervisor what's blocking
       // this tool.
+      // ★A MEASURED READING IS NOT A PREDICTION (2026-11-05, the group-journey walk GJ J17 hand-off 1). Below Stair 3 the
+      // panel hid everything - and every seeded hive sits at Stair 1, so a machine whose vibration the plant bridge had
+      // just reported 3-sigma out of band reached no one on this page. The gate is right for the FUSED engine (fault
+      // clusters, PM drift, signatures - a forecast that thin data makes lie); it was never meant for a reading the
+      // ingest judged against that sensor's own baseline of at least 12 samples. Below Stair 3 the panel now lists the
+      // flagged readings of the last 24 hours, measured, and says the fused engine opens at Stair 3.
       if (window.checkMaturityGate) {
         try {
           const gate = await window.checkMaturityGate(db, HIVE_ID, 3);
-          if (gate.blocked) { panel.style.display = 'none'; return; }
+          if (gate.blocked) { await renderMeasuredAnomalies(panel); return; }
         } catch (_) { panel.style.display = 'none'; return; }
       } else {
         panel.style.display = 'none';
@@ -1363,12 +1374,17 @@
         }
         // ★"5 SIGNALS" WAS THE CAP (SL LB1, 2026-10-21): the panel shows the five strongest, and its pill printed the
         // list's length - a hive with 8 fused anomalies read "5 signals". The same read now counts them all.
+        // ★THE FIVE STRONGEST WERE ALL A WORKER COULD REACH (2026-11-05, the group-journey walk GJ J17 hand-off 1). The
+        // pill and the note said "5 of 33", and nothing on the page opened the other 28 - a machine whose vibration had
+        // just gone 3-sigma out of band scored 25 on its own (one source of five) and sat below a fortnight's standing
+        // fault clusters, unreachable. A hive has at most one signal per machine, so the panel reads up to 200, shows
+        // the strongest five, and "Show all" opens the rest; past 200 the note still says so.
         const { data, count: _anTotal } = await db.from('v_anomaly_truth')
-          .select('id, machine, composite_score, severity, source_count, top_reasons, status, computed_at, acknowledged_by, acknowledged_at, resolved_by, resolved_at', { count: 'exact' })
+          .select('id, machine, composite_score, severity, source_count, top_reasons, evidence, status, computed_at, acknowledged_by, acknowledged_at, resolved_by, resolved_at', { count: 'exact' })
           .eq('hive_id', HIVE_ID)
           .order('composite_score', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
-          .limit(5); // more-said: by renderAnomalyEngine - the top 5 by score, and the pill and note say of how many
+          .limit(200); // more-said: by renderAnomalyEngine - the strongest five shown, Show all opens the rest, the note says of how many
         rows = data || [];
         _anomalyTotal = (typeof _anTotal === 'number') ? _anTotal : null;
       } catch (e) {
@@ -1389,6 +1405,77 @@
   function _scheduleAnomalyReload() {
     clearTimeout(_anomalyDebounce);
     _anomalyDebounce = setTimeout(() => { loadAnomalyEngine(); }, 600);
+  }
+
+  // Below Stair 3 (GJ J17): the sensor readings the ingest flagged in the last 24 hours, one card per machine and
+  // parameter (v_sensor_truth keeps the latest reading of each), newest first, each opening its machine.
+  async function renderMeasuredAnomalies(panel) {
+    const list = document.getElementById('anomaly-engine-list');
+    const empty = document.getElementById('anomaly-engine-empty');
+    const count = document.getElementById('anomaly-engine-count');
+    const meta  = document.getElementById('anomaly-engine-meta');
+    if (!list || !empty || !count) { panel.style.display = 'none'; return; }
+    const { data, error } = await db.from('v_sensor_truth')
+      .select('reading_id, asset_id, parameter, value, unit, recorded_at')
+      .eq('hive_id', HIVE_ID)
+      .eq('is_anomaly', true)
+      .gte('recorded_at', new Date(Date.now() - 86400000).toISOString())
+      .order('recorded_at', { ascending: false })
+      .order('reading_id')   // MR4 tiebreaker: the sort above is not total on its own
+      .limit(200 + 1);   // more-said: by renderMeasuredAnomalies - one row per machine and parameter; a 201st says there are more
+    // nothing measured out of band (or the read failed): the panel stays hidden, as it always was below Stair 3
+    if (error || !data || !data.length) { panel.style.display = 'none'; return; }
+    const _measuredMore = data.length > 200;
+    if (_measuredMore) data.length = 200;
+    const ids = [...new Set(data.map(r => r.asset_id).filter(Boolean))];
+    const { data: nodes } = ids.length ? await db.from('asset_nodes').select('id, name').in('id', ids) : { data: [] };
+    const nameOf = new Map((nodes || []).map(n => [n.id, n.name]));
+    // ★A FLAGGED READING COULD BE SEEN BY NO ONE ON RECORD (2026-11-05, the group-journey walk GJ G-SENSOR hand-off 2).
+    // The worker who walked to the machine had no way to say so, and the supervisor could not tell whether anyone had.
+    // Each card takes the feed's own hive-wide "Seen" mark (alert_dismissals, under the person's name), keyed by the
+    // machine, the parameter and the Manila day - a new day's flag asks for fresh eyes.
+    const keyOf = (r) => 'sensor:' + r.asset_id + ':' + r.parameter + ':' + (typeof whManilaYmd === 'function' ? whManilaYmd(new Date(r.recorded_at)) : String(r.recorded_at).slice(0, 10));
+    const keys = data.map(keyOf);
+    const { data: seenRows } = await db.from('alert_dismissals').select('alert_key, actor, created_at')
+      .eq('hive_id', HIVE_ID).eq('action', 'acknowledged').in('alert_key', keys)
+      .limit(200);   // in-list[hive_id, alert_key]: bounded by the keys asked for, one row each
+    const seenOf = new Map((seenRows || []).map(d => [d.alert_key, d]));
+    for (const k of keys) { const d = seenOf.get(k); if (d) _seen[k] = d.actor || true; else delete _seen[k]; }
+    const e = escHtml;
+    panel.style.display = 'block';
+    empty.style.display = 'none';
+    if (meta) meta.textContent = 'measured readings · the fused engine opens at Stair 3';
+    count.textContent = data.length + ' reading' + (data.length === 1 ? '' : 's');
+    count.style.background = 'rgba(248,113,113,0.15)';
+    count.style.color = 'var(--wh-red-text)';
+    _anomalyCount = data.length;
+    try { renderAlertSummary(); } catch (_) { /* empty-catch-allow: summary refresh is best-effort; renderFeed already painted the feed */ }
+    list.innerHTML = data.map(r => {
+      const machine = nameOf.get(r.asset_id) || 'A machine';
+      const param = String(r.parameter || 'reading').replace(/_/g, ' ');
+      const when = typeof whFmtDate === 'function' ? whFmtDate(r.recorded_at, { time: true }) : '';
+      const k = keyOf(r);
+      _sensorNames[k] = machine + ' · ' + param + ' reading';
+      const sd = seenOf.get(k);
+      const seenTxt = sd ? ` · seen by ${e(sd.actor || 'a member')}${sd.created_at && typeof whFmtDate === 'function' ? ', ' + e(whFmtDate(sd.created_at, { time: true })) : ''}` : '';
+      const seenBtn = `<button type="button" class="amc-btn amc-btn-toggle" data-sensor-seen="${e(k)}" aria-pressed="${sd ? 'true' : 'false'}" style="border-color:var(--border); color:var(--wh-cloud); background:transparent;">${sd ? 'Seen' : 'Mark seen'}</button>`;
+      return `
+        <div class="alert-card" data-node-id="${e(r.asset_id || '')}" style="margin-bottom:8px; border-left:3px solid var(--wh-red);">
+          <div style="font-weight:700; font-size:var(--wh-fs-sm-plus, 0.875rem);">${e(machine)}</div>
+          <div style="font-size:var(--wh-fs-xs, 0.8rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:6px;">Sensor anomaly: ${e(param)} read ${e(String(r.value))}${r.unit ? ' ' + e(String(r.unit)) : ''}, 3-sigma off its own baseline</div>
+          <div style="font-size:var(--wh-fs-2xs, 0.75rem); color:var(--muted); margin-top:4px;">flagged reading ${e(when)}${seenTxt}</div>
+          <div style="margin-top:8px; display:flex; gap:6px; flex-wrap:wrap;"><a class="amc-btn" href="asset-hub.html?node_id=${encodeURIComponent(r.asset_id || '')}" style="display:inline-flex; align-items:center; text-decoration:none; color:var(--wh-cloud); border-color:var(--border);">Open the machine</a>${seenBtn}</div>
+        </div>`;
+    }).join('');
+    if (typeof whMoreNote === 'function') whMoreNote(list, { shown: data.length, more: _measuredMore,
+      noun: 'flagged readings', order: 'newest', src: 'v_sensor_truth' });
+    // the feed's own acknowledge (hive-wide, under the person's name, audited); the panel re-reads after it lands
+    list.querySelectorAll('[data-sensor-seen]').forEach(btn => {
+      btn.addEventListener('click', async () => {   // listener-cleanup-allow: bound to the buttons list.innerHTML rebuilt above
+        await acknowledgeAlert(btn.getAttribute('data-sensor-seen'));
+        await renderMeasuredAnomalies(panel);
+      });
+    });
   }
 
   function renderAnomalyEngine(rows) {
@@ -1421,8 +1508,10 @@
     try { renderAlertSummary(); } catch (_) { /* empty-catch-allow: summary refresh is best-effort; renderFeed already painted the feed */ }
 
     const isSupervisor = HIVE_ROLE === 'supervisor';
+    _anomalyRows = rows;
+    const _anShown = _anomalyShowAll ? rows : rows.slice(0, 5);
 
-    list.innerHTML = rows.map(r => {
+    list.innerHTML = _anShown.map(r => {
       const sev = ANOMALY_SEVERITY[r.severity] || ANOMALY_SEVERITY.info;
       const reasons = Array.isArray(r.top_reasons) ? r.top_reasons.slice(0, 3) : [];
       const reasonStr = reasons.length
@@ -1441,6 +1530,14 @@
       const _by = r.status === 'resolved' ? r.resolved_by : (r.status === 'acknowledged' ? r.acknowledged_by : null);
       const _at = r.status === 'resolved' ? r.resolved_at : (r.status === 'acknowledged' ? r.acknowledged_at : null);
       const _who = _by ? ` by ${e(_by)}${_at && typeof whFmtDate === 'function' ? ', ' + e(whFmtDate(_at, { time: true })) : ''}` : '';
+      // ★AN ACTIVE SIGNAL SAID NOTHING OF WHEN (2026-11-05, GJ J17 hand-off 1): only an acknowledged or resolved card
+      // carried a time, so a worker could not tell a machine that went out of band an hour ago from one that has sat
+      // there all week. A sensor signal says when its newest flagged reading was (the composer's evidence); every
+      // signal says when it was last checked.
+      const _sz = r.evidence && r.evidence.sensor_zscore;
+      const _when = typeof whFmtDate !== 'function' ? ''
+        : (_sz && _sz.last) ? `newest flagged reading ${whFmtDate(_sz.last, { time: true })}`
+        : (r.computed_at ? `checked ${whFmtDate(r.computed_at, { time: true })}` : '');
       return `
         <div class="alert-card" style="margin-bottom:8px; border-left:3px solid ${sev.color};">
           <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
@@ -1448,14 +1545,17 @@
             <span class="alert-tag" data-help="${e(severityHelpKey)}" tabindex="0" style="background:${sev.bg}; color:${sev.color}; border:1px solid ${sev.border};">${e(sev.label)} · ${e(String(r.composite_score))}/100</span>
           </div>
           <div style="font-size:var(--wh-fs-xs, 0.8rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.83); margin-top:6px;">${reasonStr}</div>
-          <div style="font-size: var(--wh-fs-2xs, 0.75rem); color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.4); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}${_who}</div>
+          <div style="font-size: var(--wh-fs-2xs, 0.75rem); color:var(--muted); margin-top:4px;">${e(String(r.source_count))} source${r.source_count === 1 ? '' : 's'} fired · status ${e(r.status)}${_who}${_when ? ' · ' + e(_when) : ''}</div>
           ${(ackBtn || resBtn) ? `<div style="margin-top:8px; display:flex; gap:6px;">${ackBtn}${resBtn}</div>` : ''}
         </div>
       `;
     }).join('');
     // SL LB1: the strongest five of how many
-    if (typeof whMoreNote === 'function') whMoreNote(list, { shown: rows.length, total: _anAll, more: _anAll > rows.length,
-      noun: 'signals', order: 'strongest', src: 'v_anomaly_truth' });
+    // (GJ J17): the five shown open the rest - every signal read is one tap away, past 200 the note still says of how many
+    if (typeof whMoreNote === 'function') whMoreNote(list, { shown: _anShown.length, total: _anAll, more: _anAll > _anShown.length,
+      noun: 'signals', order: 'strongest', src: 'v_anomaly_truth',
+      onMore: _anShown.length < rows.length ? () => { _anomalyShowAll = true; renderAnomalyEngine(_anomalyRows); } : null,
+      moreLabel: 'Show all ' + rows.length });
 
     // Wire action buttons (delegation)
     list.querySelectorAll('[data-anomaly-id]').forEach(btn => {

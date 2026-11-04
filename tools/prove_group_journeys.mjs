@@ -72,14 +72,23 @@ const HIVE_ID = psql(`select id from hives where name = '${q(HOME)}'`);
 function member(key) {
   const c = CAST[key];
   const [uid, name] = psql(`select auth_uid, display_name from worker_profiles where username = '${q(c.user)}'`).split('|');
-  const role = psql(`select role from hive_members where hive_id = '${HIVE_ID}' and auth_uid = '${uid}' and status = 'active'`);
-  return { key, ...c, uid, name, role };
+  // ★EACH PERSON STANDS IN THE HIVE THEY WERE DRAWN FROM (2026-11-05, G-MULTI): every session was seated in the home
+  // hive, so G-MULTI's second supervisor - a member of the contractor's OTHER hive only - opened pages in a hive that
+  // was not theirs. The census names each cast member's hive; the session is seated there.
+  const seatName = c.hive && c.hive !== HOME ? c.hive : HOME;
+  const seatId = seatName === HOME ? HIVE_ID : (psql(`select id from hives where name = '${q(seatName)}' limit 1`) || HIVE_ID);
+  const role = psql(`select role from hive_members where hive_id = '${seatId}' and auth_uid = '${uid}' and status = 'active'`);
+  return { key, ...c, uid, name, role, seatId, seatName };
 }
 // a member of ANOTHER hive, who belongs to nothing in this one - the I reading's third person (never typed)
+// ★OUTSIDE EVERY HIVE THE SCENARIO STANDS IN (2026-11-05, G-MULTI): the witness was chosen only to be outside the home
+// hive, and for a scenario that also stands in a second hive it was a member of THAT hive - it read hive B's entry and
+// PM, and the I reading failed on a member who was allowed to read them. The witness belongs to none of the cast's hives.
 function foreignWitness() {
+  const names = [...new Set([HOME, ...Object.values(CAST).map((c) => c.hive).filter(Boolean)])].map((n) => `'${q(n)}'`).join(',');
   const [user, uid] = psql(`select w.username, w.auth_uid from hive_members m join worker_profiles w on w.auth_uid = m.auth_uid
-    where m.status = 'active' and m.role = 'worker' and m.hive_id <> '${HIVE_ID}'
-      and not exists (select 1 from hive_members x where x.auth_uid = m.auth_uid and x.hive_id = '${HIVE_ID}')
+    where m.status = 'active' and m.role = 'worker' and m.hive_id not in (select id from hives where name in (${names}))
+      and not exists (select 1 from hive_members x where x.auth_uid = m.auth_uid and x.hive_id in (select id from hives where name in (${names})))
     order by w.username limit 1`).split('|');
   return { user, uid };
 }
@@ -106,7 +115,18 @@ async function session(browser, m, vpName) {
       if (r) localStorage.setItem('wh_hive_role', r);
       Object.keys(localStorage).filter((k) => k.startsWith('wh_logbook_draft')).forEach((k) => localStorage.removeItem(k));
     } catch (_) { /* storage blocked */ }
-  }, [tok, HIVE_ID, HOME, m.name, m.role]);
+  }, [tok, m.seatId || HIVE_ID, m.seatName || HOME, m.name, m.role]);
+  // ★NO GROUP WALK SPENDS A MODEL CALL ON THE SHIFT BRIEFING (2026-11-05, G-SHIFT). shift-brain builds a plan on the
+  // shift's first open, and the plan's briefing is an LLM call - J9's walks spent one per pass just by arriving. Every
+  // member's request to the planner carries the LOCAL-ONLY debug_fault_inject flag (honoured only on a local runtime,
+  // gate debug-hooks-prod-dead), so the plan is built from the real logbook, risk and PM rows with the deterministic
+  // fallback briefing. No group walk is about the briefing's words.
+  await ctx.route('**/functions/v1/shift-planner-orchestrator**', async (route) => {
+    if (route.request().method() !== 'POST') return route.continue();   // the CORS preflight passes as it was
+    let body = {};
+    try { body = JSON.parse(route.request().postData() || '{}'); } catch (_) { /* not JSON: sent as it was */ }
+    await route.continue({ postData: JSON.stringify({ ...body, debug_fault_inject: true }) });
+  });
   const page = await ctx.newPage();
   page.on('dialog', (d) => d.accept().catch(() => {}));
   return { ctx, page, m, vp: vpName, token: tok.access_token };
@@ -137,11 +157,15 @@ async function findText(s, marker, ms = 15000) {
       // a record that names itself (the logbook's cards carry data-entry-id) is the card; otherwise the sibling climb
       const named = best.el.closest('[data-entry-id], [data-alert-id], [data-node-id], [data-record-id]');
       if (named && (named.innerText || '').trim().length < 1500) return { text: best.t, card: (named.innerText || '').trim() };
+      // a record opened in its own view (a dialog) IS that view - its author and date sit beside the marker, not in it
+      const dlg = best.el.closest('[role="dialog"], [aria-modal="true"]');
+      if (dlg && (dlg.innerText || '').trim().length < 2500) return { text: best.t, card: (dlg.innerText || '').trim() };
       let node = best.el;
       for (let i = 0; i < 10 && node.parentElement; i++) {
         const par = node.parentElement;
         const twins = [...par.children].filter((c) => c.tagName === node.tagName && c.className === node.className).length;
-        if (twins >= 2) break;
+        // a repeated ROW has children of its own; two lines of text with the same class inside one row are not records
+        if (twins >= 2 && node.children.length >= 2) break;
         const pl = (par.innerText || '').trim().length;
         // a lone record (one search result) has no twins: stop before the climb jumps to a much larger block
         if (pl > 1200 || pl > Math.max(400, 2.5 * (node.innerText || '').trim().length)) break;
@@ -267,7 +291,7 @@ const RECIPES = {
       }
       const got = psql(`select coalesce(wo_assigned_to,'') || '|' || coalesce(wo_state,'') from logbook where id = '${q(e.id)}'`);
       const push = psql(`select count(*) from service_outbox where consumer = 'notify-push' and created_at >= '${X.t0}'
-        and payload->'auth_uids' ? '${w.m.uid}' and payload->>'title' = 'Work order assigned to you' and payload->>'url' = '/logbook.html?status=Open'`);
+        and payload->'auth_uids' ? '${w.m.uid}' and payload->>'title' = 'Work order assigned to you' and payload->>'url' like '/logbook.html?status=Open%'`);
       const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
         where consumer = 'notify-push' and created_at >= '${X.t0}' and payload->'auth_uids' ? '${w.m.uid}' order by created_at desc limit 1`);
       return { act: { ok: ok && got.startsWith(w.m.name), detail: `"Move the work order" on the entry's view as ${s.m.name} (toast: ${toast || 'none'}): wo_assigned_to|wo_state = ${got}` },
@@ -365,8 +389,8 @@ const RECIPES = {
 // so its tasks are due today.
 // pm-scheduler's way to one machine among a plant's hundreds is its own search box (#pm-search, "Find a machine by name,
 // tag or location") - the dashboard does not draw every asset by name
-async function findPmAsset(s, name, ms) {
-  await go(s, 'pm-scheduler.html');
+async function findPmAsset(s, name, ms, path = 'pm-scheduler.html') {
+  await go(s, path);
   await s.page.fill('#pm-search', name).catch(() => {});
   await sleep(1500);
   return findText(s, name, ms);
@@ -382,7 +406,7 @@ async function openPmAsset(s, name) {
 RECIPES.J3 = {
   1: async (X) => {   // the PM the supervisor scheduled is on the worker's list
     const { s } = X.S;
-    const name = `${X.tag} pump`;
+    const name = X.pmName || `${X.tag} pump`;
     await go(s, 'pm-scheduler.html');
     await s.page.evaluate(() => { const b = document.getElementById('tab-add'); if (b) b.click(); });
     await sleep(1500);
@@ -407,7 +431,7 @@ RECIPES.J3 = {
     await s.page.evaluate(() => { const b = document.getElementById('btn-save-asset'); if (b) b.click(); });
     await sleep(4000);
     const row = psql(`select a.id || '|' || (select count(*) from pm_scope_items p where p.asset_id = a.id) from pm_assets a
-      where a.hive_id = '${HIVE_ID}' and a.asset_name = '${q(name)}' and a.deleted_at is null limit 1`);
+      where a.hive_id = '${X.pmHive || HIVE_ID}' and a.asset_name = '${q(name)}' and a.deleted_at is null limit 1`);
     const [aid, ntasks] = row ? row.split('|') : [null, '0'];
     X.rec.pm = { id: aid, name };
     return { act: { ok: !!aid && Number(ntasks) > 0, detail: `the Add Asset wizard as ${s.m.name}: category ${cat || 'none'}, anchor ${anchor} -> pm_assets ${aid || 'NO ROW'} with ${ntasks} task(s)` },
@@ -498,6 +522,15 @@ RECIPES.J9 = {
   },
   2: async (X) => {   // the shift plan the supervisor published is the worker's briefing
     const { s } = X.S;
+    // SETUP: the shift's plan starts unpublished, so the publish is the walk's own act (Baguio's night plan was already
+    // published when J29 first walked, and there was nothing left to publish). The snapshot taken before the walk puts
+    // every plan back exactly as it was.
+    // (shift_plans_forward_only_status refuses published -> draft for every writer, rightly; a fixture set up for the
+    // walk and restored after it is not a writer's act, so it runs with triggers off, like the restore)
+    const reset = psql(`set session_replication_role = replica;
+      with u as (update shift_plans set status = 'draft', published_at = null, published_by = null
+      where hive_id = '${HIVE_ID}' and status = 'published' and shift_date >= current_date - 1 returning 1) select count(*) from u`).split('\n').pop();
+    if (Number(reset)) X.notes.push(`hand-off 2 setup: ${reset} already-published plan(s) set back to draft for the walk (restored after)`);
     await go(s, 'shift-brain.html');
     for (let t = 0; t < 40000; t += 1000) {   // the plan is built on the shift's first open; Publish needs it loaded
       const ready = await s.page.evaluate(() => /handover ready|published|shift plan/i.test(document.body.innerText || '')).catch(() => false);
@@ -511,7 +544,10 @@ RECIPES.J9 = {
       and published_at >= '${X.t0}' order by published_at desc limit 1`);
     const [pid, by] = plan ? plan.split('|') : [null, null];
     return { act: { ok: !!pid && by === s.m.name, detail: `"Publish to crew" as ${s.m.name}, confirmed: shift_plans ${pid || 'NONE'} published by ${by || 'nobody'}` },
-      marker: s.m.name, markerRx: /publish/i, path: 'shift-brain.html', rec: { table: 'shift_plans', id: pid } };
+      // ★THE PILL'S OWN WORDS, NOT THE NAME ALONE (2026-11-05, G-SHIFT hand-off 2): the reader takes the smallest element
+      // carrying the marker, and in Manila the carry-over rows read "opened ... by <the supervisor>" for the supervisor's
+      // own open jobs - the name alone landed on a carried job, and the publish was never read
+      marker: `Published by ${s.m.name}`, markerRx: /publish/i, path: 'shift-brain.html', rec: { table: 'shift_plans', id: pid } };
   },
   3: async (X) => {   // the worker's post is in the supervisor's moderation view
     const { w } = X.S;
@@ -594,11 +630,13 @@ async function approveInQueue(s, nodeId) {   // hive.html's approval queue, as a
   await sleep(3000);
   return tapped;
 }
-async function logOnMachine(p, tag, nodeId, problem) {   // the logbook wizard, the machine chosen through the picker's search
+// the picker is searched by what a person would type: the machine's name (G-SENSOR's real machine), or the walk's tag
+// when the walk made the machine and named it with the tag (J22)
+async function logOnMachine(p, tag, nodeId, problem, search = tag) {   // the logbook wizard, the machine chosen through the picker's search
   await go(p, 'logbook.html');
   await p.page.click('#asset-picker-btn', { timeout: 6000 }).catch(() => {});
   await sleep(800);
-  await p.page.fill('#asset-picker-search', tag).catch(() => {});
+  await p.page.fill('#asset-picker-search', search).catch(() => {});
   await sleep(900);
   await p.page.click(`button[data-asset-ref="${nodeId}"]`, { timeout: 6000 }).catch(() => {});
   await sleep(600);
@@ -713,9 +751,11 @@ RECIPES.J23 = {
     await w.page.fill('#parts-picker-search', pt.name || '').catch(() => {});
     await sleep(900);
     const picked = await w.page.evaluate(([nm, pid]) => {
-      const b = [...document.querySelectorAll('[onclick^="selectPart"]')].find((x) => (x.getAttribute('onclick') || '').includes(pid) || (x.innerText || '').includes(nm));
+      // the picker's rows are button[data-part-id] with listeners (renderPartsPickerList), not onclick attributes
+      const rows = [...document.querySelectorAll('button[data-part-id]')];
+      const b = rows.find((x) => x.dataset.partId === pid || (x.dataset.partName || '').includes(nm));
       if (b) { b.click(); return true; }
-      return [...document.querySelectorAll('[onclick^="selectPart"]')].length;
+      return rows.length;
     }, [pt.name || '---', pt.id || '---']);
     if (picked !== true) X.notes.push(`hand-off 2: the parts picker did not offer ${pt.name} (${picked} part(s) listed)`);
     await sleep(600);
@@ -760,12 +800,361 @@ RECIPES.J23 = {
   },
 };
 
+// ── J29 · typhoon season: the storm job handed on by push, the worker's entry made with no network synced later, the storm
+// shift plan published, the week's downtime counted.
+RECIPES.J29 = {
+  1: async (X) => {   // the storm work order the supervisor assigned is pushed to the worker
+    const { w } = X.S;
+    const r = await RECIPES.J9[1](X);   // raised by the supervisor, handed on in its own edit (the same act as J9)
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where consumer = 'notify-push' and created_at >= '${X.t0}' and payload->'auth_uids' ? '${w.m.uid}' and payload->>'title' = 'Work order assigned to you'
+      order by created_at desc limit 1`);
+    return { act: r.act, marker: X.tag, path: 'logbook.html?status=Open', channelSaid: pushSaid || null, rec: r.rec,
+      F: () => ({ ok: !!pushSaid, detail: `the push to ${w.m.name}: ${pushSaid || 'NONE'}` }) };
+  },
+  2: async (X) => {   // the worker's entries made offline sync into the supervisor's logbook
+    const { w } = X.S;
+    const tag2 = `${X.tag}-off`;
+    await go(w, 'logbook.html');
+    await w.ctx.setOffline(true);   // the network goes with the storm: the page is open, the entry is written without it
+    const r = await logWizard(w.page, H(w.page), { tag: tag2, maintType: 'Breakdown / Corrective', status: 'Open', problem: 'flooded motor pit, pump tripped' });
+    const queued = await w.page.evaluate(() => (document.getElementById('toast-text') || {}).textContent || '').catch(() => '');
+    const before = psql(`select count(*) from logbook where problem like '${q(tag2)}%' and hive_id = '${HIVE_ID}'`);
+    await sleep(1500);
+    await w.ctx.setOffline(false);  // the network returns; the page's own drain sends the queued entry
+    let id = null;
+    for (let t = 0; t < 45000 && !id; t += 1500) {
+      await sleep(1500);
+      id = psql(`select id from logbook where problem like '${q(tag2)}%' and hive_id = '${HIVE_ID}' order by created_at limit 1`) || null;
+    }
+    return { act: { ok: Number(before) === 0 && !!id, detail: `logged with the network off as ${w.m.name} (${(r.toast || queued || 'no toast').slice(0, 80)}): ${before} row(s) while offline, then ${id ? 'synced as ' + id : 'NEVER SYNCED'} when it returned` },
+      marker: tag2, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, tag2, ms), rec: { table: 'logbook', id } };
+  },
+  3: (X) => RECIPES.J9[2](X),   // the storm shift plan the supervisor published (the same act as J9)
+  4: (X) => RECIPES.J2[4](X),   // the week's downtime in the supervisor's account of it (the page's own Refresh)
+};
+
+// ── J17 · sensor to work order: the plant bridge posts a machine's readings (a baseline, then a spike), the anomaly
+// composer turns them into the worker's alert, and the machine's page and the worker's home carry it.
+function serviceKey() {   // the bridge holds the service key (sensor-readings-ingest admits only a service-role caller)
+  const r = spawnSync('docker', ['exec', 'supabase_edge_runtime_workhive', 'printenv', 'SUPABASE_SERVICE_ROLE_KEY'], { encoding: 'utf8' });
+  return (r.stdout || '').trim();
+}
+// ★A BRIDGE REPORTS OVER TIME, AND THE INGEST JUDGES A READING AGAINST WHAT CAME BEFORE IT (2026-11-05, J17 pass a):
+// the first walk posted the baseline and the spike in ONE batch, the ingest's baseline (the PRIOR 30 days only) was
+// empty, and nothing was flagged. The walk posts the way a plant bridge does: the hours of normal running first, then
+// the spike, each reading stamped at the minute it was taken.
+async function postReadings(X, nodeId, parameter, values, minutesApart, endMinutesAgo = 0) {
+  const key = serviceKey();
+  const now = Date.now();
+  const readings = values.map((v, i) => ({ asset_id: nodeId, parameter, value: v, source: 'mqtt', meta: { walk: X.tag },
+    recorded_at: new Date(now - (endMinutesAgo + (values.length - 1 - i) * minutesApart) * 60000).toISOString() }));
+  // a bridge retries a gateway error (502/503/504, or no answer) - J17's first pass met the edge runtime mid-restart
+  let r = null;
+  for (let t = 0; t < 6; t++) {
+    r = await fetch(`${SB}/functions/v1/sensor-readings-ingest`, { method: 'POST',
+      headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ hive_id: HIVE_ID, readings }) })
+      .catch(() => null);
+    if (r && ![502, 503, 504].includes(r.status)) break;
+    await sleep(5000);
+  }
+  if (!r) return { status: 0, body: 'no answer after 6 tries' };
+  return { status: r.status, body: (await r.text()).slice(0, 160) };
+}
+RECIPES.J17 = {
+  1: async (X) => {   // the reading the machine posted raises the worker's anomaly alert
+    const { w } = X.S;
+    // a machine of the hive with no readings and no anomaly yet, so the alert is this walk's (read from the database)
+    const quiet = psql(`select a.id || '|' || a.name from asset_nodes a where a.hive_id = '${HIVE_ID}' and a.deleted_at is null and a.status = 'approved'
+      and a.name is not null and not exists (select 1 from sensor_readings s where s.asset_id = a.id)
+      and (select count(*) from asset_nodes o where o.hive_id = a.hive_id and o.name = a.name and o.deleted_at is null) = 1
+      and not exists (select 1 from anomaly_signals n where n.hive_id = a.hive_id and n.machine = a.name) order by a.name limit 1`);
+    const [nid, machine] = quiet ? quiet.split('|') : [null, null];
+    // twelve hours of normal running, a reading every 20 minutes (2.0-2.2 mm/s), then five readings of a bearing going
+    const baseline = Array.from({ length: 36 }, (_, i) => 2.0 + ((i * 7) % 5) * 0.05);
+    const base = nid ? await postReadings(X, nid, 'vibration', baseline, 20, 15) : { status: 0, body: 'no quiet machine' };
+    const spike = nid ? await postReadings(X, nid, 'vibration', [11.8, 12.4, 12.9, 13.1, 13.6], 2, 0) : { status: 0, body: '' };
+    const flagged = Number(psql(`select count(*) from sensor_readings where asset_id = '${q(nid || '00000000-0000-0000-0000-000000000000')}' and is_anomaly`));
+    // the composer runs hourly from the page (and daily from the cron); triggered here the way a member may trigger it
+    const comp = await fetch(`${SB}/rest/v1/rpc/compute_anomaly_signals`, { method: 'POST',
+      headers: { apikey: KEY, Authorization: `Bearer ${w.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_hive_id: HIVE_ID }) });
+    const sig = psql(`select id || '|' || sensor_zscore_score from anomaly_signals where hive_id = '${HIVE_ID}' and machine = '${q(machine || '')}'
+      and status in ('active','acknowledged') order by computed_at desc limit 1`);
+    X.rec.sensor = { node: nid, machine, signal: sig ? sig.split('|')[0] : null };
+    return { act: { ok: flagged === 5, detail: `the bridge posted 36 normal vibration readings on ${machine || 'NO MACHINE'} (HTTP ${base.status} ${base.body}), then 5 high ones (HTTP ${spike.status} ${spike.body}); ${flagged} flagged; the composer as ${w.m.name}: HTTP ${comp.status} -> signal ${sig || 'NONE'}` },
+      marker: machine, markerRx: /anomal/i, whoRx: /sensor|reading|vibration/i, path: 'alert-hub.html',
+      // the fused engine (Stair 3+) lists the strongest five first: a person taps Show all to reach the rest
+      reach: async (R2, ms) => {
+        await go(R2, 'alert-hub.html');
+        const more = R2.page.locator('#anomaly-engine-panel .wh-more-btn');
+        await more.first().waitFor({ state: 'visible', timeout: 8000 }).catch(() => {});
+        if (await more.count().catch(() => 0)) await more.first().click().catch(() => {});
+        return findText(R2, machine, ms);
+      },
+      rec: { table: 'v_sensor_truth', idCol: 'asset_id', id: nid, where: 'and is_anomaly' } };
+  },
+  2: async (X) => {   // the reading is on the machine's page
+    const sn = X.rec.sensor || {};
+    return { act: { ok: !!sn.node, detail: `the readings of hand-off 1 on ${sn.machine || 'none'}` },
+      marker: 'reading 3-sigma off baseline', markerRx: /vibration/i, whoRx: /sensor|reading/i,
+      path: sn.node ? `asset-hub.html?node_id=${sn.node}` : 'asset-hub.html',
+      rec: { table: 'v_sensor_truth', idCol: 'asset_id', id: sn.node, where: 'and is_anomaly' } };
+  },
+  3: async (X) => {   // the alert is on the worker's home
+    const sn = X.rec.sensor || {};
+    return { act: { ok: !!sn.node, detail: `the flagged reading of hand-off 1 on ${sn.machine || 'none'}` },
+      marker: sn.machine, markerRx: /out of band|anomal/i, whoRx: /sensor|reading|vibration/i, path: 'index.html',
+      rec: { table: 'v_sensor_truth', idCol: 'asset_id', id: sn.node, where: 'and is_anomaly' } };
+  },
+};
+
+// ── G-SHIFT · the shift changes hands: the outgoing worker's open job carried into the handover the incoming worker reads,
+// the plan the supervisor published, the job on the incoming worker's logbook, their work on it in the supervisor's.
+// the shift running now in Manila (06-14, 14-22, 22-06) and the instant it began (UTC+8, no daylight saving)
+function shiftNow(now = new Date()) {
+  const m = new Date(now.getTime() + 8 * 3600e3);
+  const h = m.getUTCHours();
+  const id = h >= 6 && h < 14 ? '06-14' : (h >= 14 && h < 22 ? '14-22' : '22-06');
+  let start = Date.UTC(m.getUTCFullYear(), m.getUTCMonth(), m.getUTCDate(), Number(id.slice(0, 2))) - 8 * 3600e3;
+  if (start > now.getTime()) start -= 86400e3;   // a night shift read after midnight began the day before
+  return { id, start: new Date(start).toISOString(), before: new Date(start - 40 * 60e3).toISOString() };
+}
+RECIPES['G-SHIFT'] = {
+  1: async (X) => {   // the outgoing worker's open job is carried into the handover the incoming worker reads
+    const { o, i } = X.S;
+    await go(o, 'logbook.html');
+    const r = await logWizard(o.page, H(o.page), { tag: X.tag, maintType: 'Breakdown / Corrective', status: 'Open', problem: 'hydraulic hose weeping at the press' });
+    const row = psql(`select id || '|' || coalesce(machine,'') || '|' || coalesce(asset_node_id::text,'') from logbook
+      where problem like '${q(X.tag)}%' and hive_id = '${HIVE_ID}' order by created_at limit 1`);
+    const [id, machine, node] = row ? row.split('|') : [null, null, null];
+    X.rec.entry = { id, machine, node };
+    const sh = shiftNow();
+    // SETUP - the shift changes hands. The entry was made in the outgoing shift, so its time moves to 40 minutes before
+    // this shift began (triggers off, like every fixture; the tagged row is deleted after the walk).
+    if (id) psql(`set session_replication_role = replica; update logbook set created_at = '${sh.before}' where id = '${q(id)}'`);
+    // the incoming shift's plan is built on its first open, so the window's existing plan is set aside (the snapshot
+    // taken before the walk puts it back)
+    const aside = psql(`set session_replication_role = replica; with d as (delete from shift_plans where hive_id = '${HIVE_ID}'
+      and shift_window = '${sh.id}' and shift_date >= (now() at time zone 'Asia/Manila')::date - 1 returning 1) select count(*) from d`).split('\n').pop();
+    await go(i, 'shift-brain.html');
+    let plan = null;
+    for (let t = 0; t < 120000 && !plan; t += 3000) {
+      await sleep(3000);
+      plan = psql(`select id from shift_plans where hive_id = '${HIVE_ID}' and shift_window = '${sh.id}' and created_at >= '${X.t0}'
+        and payload->'carry_forward' @> '[{"id": "${q(id || '-')}"}]' limit 1`) || null;
+    }
+    const built = psql(`select count(*) from shift_plans where hive_id = '${HIVE_ID}' and shift_window = '${sh.id}' and created_at >= '${X.t0}'`);
+    return { act: { ok: !!id && !!plan, detail: `the logbook wizard as ${o.m.name}: ${r.toast || 'no toast'} -> entry ${id || 'NONE'} on ${machine || '?'}, `
+        + `its time moved to ${sh.before} (before the ${sh.id} shift began); ${aside} plan(s) of the window set aside; ${i.m.name}'s first open of `
+        + `shift-brain built ${built} plan(s), ${plan ? 'plan ' + plan + ' carrying the job' : 'NONE carrying the job'} (the briefing's model call taken down by the local-only flag)` },
+      marker: X.tag, path: 'shift-brain.html', rec: { table: 'shift_plans', id: plan } };
+  },
+  2: (X) => RECIPES.J9[2](X),   // the plan the supervisor published is what the incoming worker works from (the J9 act)
+  3: async (X) => {   // the job the handover names is on the incoming worker's logbook
+    const e = X.rec.entry || {};
+    return { act: { ok: !!e.id, detail: `the entry of hand-off 1 (${e.id || 'none'}), carried in the handover` },
+      marker: X.tag, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, X.tag, ms), rec: { table: 'logbook', id: e.id } };
+  },
+  4: async (X) => {   // the incoming worker's work on the carried-over job is in the supervisor's logbook
+    const { i } = X.S;
+    const e = X.rec.entry || {};
+    // the supervisor hands the carried job to the incoming worker ("Move the work order", the J2 act) ...
+    const asg = await RECIPES.J2[2]({ ...X, S: { ...X.S, w: i } });
+    // ... and the incoming worker opens it from "Assigned to you" and taps Started
+    await go(i, 'logbook.html');
+    let opened = false;
+    for (let t = 0; t < 15000 && !opened; t += 1000) {
+      opened = await i.page.evaluate((id) => { const c = document.querySelector(`#open-jobs-list [onclick*="${id}"]`); if (c) { c.click(); return true; } return false; }, e.id || '-').catch(() => false);
+      if (!opened) await sleep(1000);
+    }
+    await sleep(1200);
+    const started = await i.page.evaluate(() => {
+      const b = document.querySelector('#wo-assignee-actions button[onclick*="in_progress"]');
+      if (b) { b.click(); return true; } return false;
+    }).catch(() => false);
+    await sleep(2500);
+    const st = psql(`select coalesce(wo_state,'') || '|' || coalesce(wo_assigned_to,'') from logbook where id = '${q(e.id || '')}'`);
+    return { act: { ok: asg.act.ok && opened && started && st === `in_progress|${i.m.name}`,
+        detail: `${asg.act.detail}; then as ${i.m.name}: opened from "Assigned to you" ${opened}, Started ${started} -> wo_state|assigned_to = ${st}` },
+      marker: X.tag, markerRx: /in progress/i, whoRx: new RegExp(i.m.name.split(' ')[0], 'i'), path: 'logbook.html',
+      reach: (R2, ms) => reachTeam(R2, X.tag, ms), rec: { table: 'logbook', id: e.id, where: `and wo_state = 'in_progress'` } };
+  },
+  5: async (X) => {   // the printed shift handover report names the incoming technician
+    const { o, i } = X.S;
+    const e = X.rec.entry || {};
+    const read = await printHandoverAs(o, i.m.name);
+    return { act: { ok: read.generated && read.printed && read.text.includes(i.m.name),
+        detail: `hive.html "Generate Shift Handover Report" as ${o.m.name} ${read.generated}, "Handover to" ${i.m.name}, Print ${read.printed} -> `
+          + `the printed page names ${read.text.includes(i.m.name) ? i.m.name : 'NOBODY'} as incoming and ${read.text.includes(o.m.name) ? o.m.name : 'nobody'} as outgoing` },
+      // the receiver reads paper: the printed page is what they are handed (its route on a bad network is the outgoing
+      // worker's phone producing it - the A reading runs on the sender's connection)
+      marker: X.tag, markerRx: new RegExp(i.m.name, 'i'), whoRx: new RegExp(o.m.name.split(' ')[0], 'i'),
+      preRead: read.text.includes(X.tag) ? { card: read.text.replace(/\s+/g, ' ').slice(0, 1500) } : null,
+      path: 'hive.html', aOnSender: true,
+      reach: async (S2) => { const r2 = await printHandoverAs(S2, i.m.name); return r2.text.includes(X.tag) && r2.text.includes(i.m.name); },
+      rec: { table: 'logbook', id: e.id } };
+  },
+};
+// the outgoing worker's printed handover: hive.html's own Generate and Print, with the print window the page writes taken
+// as the page (a printer cannot be read - the document the page sends to it can)
+async function printHandoverAs(sx, incoming) {
+  await go(sx, 'hive.html');
+  await sx.page.evaluate(() => {
+    window.__whPrinted = null;
+    window.open = () => { const d = { h: '', write(x) { this.h += x; }, close() { window.__whPrinted = this.h; } }; return { document: d, close() {} }; };
+  }).catch(() => {});
+  let generated = false;
+  for (let t = 0; t < 20000 && !generated; t += 1000) {
+    generated = await sx.page.evaluate(() => { const b = document.querySelector('.handover-btn'); if (b && b.offsetParent) { b.click(); return true; } return false; }).catch(() => false);
+    if (!generated) await sleep(1000);
+  }
+  await sleep(1500);
+  await sx.page.fill('#ho-handover-to', incoming).catch(() => {});
+  const printed = await sx.page.evaluate(() => { const b = document.querySelector('#handover-sheet button[onclick="printHandover()"]'); if (b) { b.click(); return true; } return false; }).catch(() => false);
+  await sleep(1500);
+  const text = await sx.page.evaluate(() => {
+    const h = window.__whPrinted || '';
+    const d = new DOMParser().parseFromString(h, 'text/html');
+    return (d.body && d.body.textContent) || '';
+  }).catch(() => '');
+  return { generated, printed, text };
+}
+
+// ── G-SENSOR · reading to PM: the machine's alert, the worker's acknowledgement on the supervisor's alert, the PM the
+// supervisor scheduled from it on the worker's list, the worker's job on the machine in the supervisor's logbook.
+RECIPES['G-SENSOR'] = {
+  1: (X) => RECIPES.J17[1](X),   // the machine's reading raises the worker's alert (the J17 act: a bridge's normal hours, then the spike)
+  2: async (X) => {   // the worker's acknowledgement is on the supervisor's alert
+    const { w } = X.S;
+    const sn = X.rec.sensor || {};
+    await go(w, 'alert-hub.html');
+    let marked = false;
+    for (let t = 0; t < 20000 && !marked; t += 1000) {
+      marked = await w.page.evaluate((nid) => {
+        const b = document.querySelector(`#anomaly-engine-list [data-sensor-seen^="sensor:${nid}:"]`);
+        if (b && b.getAttribute('aria-pressed') !== 'true') { b.click(); return true; } return false;
+      }, sn.node || '-').catch(() => false);
+      if (!marked) await sleep(1000);
+    }
+    await sleep(2500);
+    const row = psql(`select id || '|' || alert_key || '|' || coalesce(actor,'') from alert_dismissals where hive_id = '${HIVE_ID}'
+      and action = 'acknowledged' and alert_key like 'sensor:${q(sn.node || '-')}:%' order by created_at desc limit 1`);
+    const [did, key, actor] = row ? row.split('|') : [null, null, null];
+    return { act: { ok: marked && actor === w.m.name, detail: `"Mark seen" on ${sn.machine || 'NO MACHINE'}'s card as ${w.m.name} ${marked} -> alert_dismissals ${did || 'NONE'} (${key || '-'}) by ${actor || 'nobody'}` },
+      marker: sn.machine, markerRx: /seen by/i, path: 'alert-hub.html', rec: { table: 'alert_dismissals', id: did } };
+  },
+  // the PM the supervisor scheduled for the machine that alerted (the J3 act, named for that machine)
+  3: async (X) => { X.pmName = `${X.tag} ${(X.rec.sensor || {}).machine || 'machine'}`; return RECIPES.J3[1](X); },
+  4: async (X) => {   // the worker's job on the machine closes the alert's loop for the supervisor
+    const { w } = X.S;
+    const sn = X.rec.sensor || {};
+    const row = await logOnMachine(w, X.tag, sn.node, 'vibration traced to a worn coupling insert, replaced', sn.machine || X.tag);
+    const [id, node] = row ? row.split('|') : [null, null];
+    return { act: { ok: !!id && node === sn.node, detail: `the logbook wizard on ${sn.machine || '?'} (chosen through the picker's search) as ${w.m.name}: entry ${id || 'NO ROW'} on node ${node || 'none'}` },
+      marker: X.tag, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, X.tag, ms), rec: { table: 'logbook', id } };
+  },
+};
+
+// ── G-MULTI · one person in two hives (a contractor serving two plants): each supervisor sees only their own hive's
+// record of them, a push from hive A opens in hive A wherever the contractor last stood, a PM of hive B is on their list
+// only while they stand in B, and their changes in A are in A's trail and not B's.
+RECIPES['G-MULTI'] = {
+  1: async (X) => {   // the contractor's entry in hive A is in supervisor A's logbook
+    const { c } = X.S;
+    const tag = `${X.tag}-A`;
+    await go(c, 'logbook.html');
+    const r = await logWizard(c.page, H(c.page), { tag, maintType: 'Breakdown / Corrective', status: 'Open', problem: 'gearbox oil seal weeping' });
+    const row = psql(`select id || '|' || coalesce(machine,'') from logbook where problem like '${q(tag)}%' and hive_id = '${HIVE_ID}' order by created_at limit 1`);
+    const [id, machine] = row ? row.split('|') : [null, null];
+    X.rec.entryA = { id, tag, machine };
+    return { act: { ok: !!id, detail: `the logbook wizard in ${HOME} as ${c.m.name}: ${r.toast || 'no toast'} -> entry ${id || 'NONE'} on ${machine || '?'}` },
+      marker: tag, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, tag, ms), rec: { table: 'logbook', id } };
+  },
+  2: async (X) => {   // the contractor's entry in hive B is in supervisor B's logbook, and A's is not
+    const { c, b } = X.S;
+    const hiveB = b.m.seatId;
+    const tag = `${X.tag}-B`;
+    const a = X.rec.entryA || {};
+    // the contractor crosses to the other plant by a link that names hive B (the way a push now carries its hive)
+    await go(c, `logbook.html?hive=${hiveB}`);
+    const seated = await c.page.evaluate(() => localStorage.getItem('wh_active_hive_id')).catch(() => null);
+    const r = await logWizard(c.page, H(c.page), { tag, maintType: 'Breakdown / Corrective', status: 'Open', problem: 'cooling fan bearing rumble' });
+    const id = psql(`select id from logbook where problem like '${q(tag)}%' and hive_id = '${hiveB}' order by created_at limit 1`) || null;
+    return { act: { ok: seated === hiveB && !!id, detail: `crossed by a link naming ${b.m.seatName}: the page seated ${seated === hiveB ? b.m.seatName : (seated || 'nothing')}; `
+        + `the wizard as ${c.m.name}: ${r.toast || 'no toast'} -> entry ${id || 'NONE'} in ${b.m.seatName}` },
+      marker: tag, path: 'logbook.html',
+      // supervisor B's team search finds the B entry, and finds nothing for the contractor's entry in A
+      reach: async (R2, ms) => { const leak = await reachTeam(R2, a.tag || '-', 6000); const hit = await reachTeam(R2, tag, ms); return leak ? null : hit; },
+      rec: { table: 'logbook', id },
+      F: () => {
+        const mine = Number(asUser(b.m.uid, `select count(*) from logbook where id = '${q(id || '-')}'`));
+        const theirs = Number(asUser(b.m.uid, `select count(*) from logbook where id = '${q(a.id || '-')}'`));
+        return { ok: mine === 1 && theirs === 0, detail: `as ${b.m.name} through RLS: the ${b.m.seatName} entry ${mine} row(s), the ${HOME} entry ${theirs} row(s)` };
+      } };
+  },
+  3: async (X) => {   // supervisor A's work order is pushed to the contractor and opens in hive A
+    const { c, a } = X.S;
+    // its own tag: J9's act finds its entry by the tag's prefix, and hop 1's "<tag>-A" entry would answer for it
+    const tagWO = `${X.tag}-WO`;
+    const r = await RECIPES.J9[1]({ ...X, tag: tagWO, S: { ...X.S, w: c, s: a } });
+    const push = psql(`select coalesce(payload->>'url','') || '|' || coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where consumer = 'notify-push' and created_at >= '${X.t0}' and payload->'auth_uids' ? '${c.m.uid}' and payload->>'title' = 'Work order assigned to you'
+      order by created_at desc limit 1`);
+    const url = push ? push.split('|')[0] : null;
+    const said = push ? push.split('|').slice(1).join('|') : null;
+    const path = String(url || '/logbook.html?status=Open').replace(/^\//, '');
+    const standing = await c.page.evaluate(() => localStorage.getItem('wh_active_hive_id')).catch(() => null);
+    return { act: { ok: r.act.ok && !!url, detail: `${r.act.detail}; the push to ${c.m.name} links ${url || 'NOTHING'}, and the contractor last stood in ${standing === HIVE_ID ? HOME : 'the other hive'}` },
+      marker: tagWO, path, channelSaid: said || null, rec: { table: 'v_logbook_truth', id: (X.rec.job || {}).id },
+      reach: async (R2, ms) => { await go(R2, path); return findText(R2, tagWO, ms); },
+      F: () => ({ ok: !!url && url.includes(`hive=${HIVE_ID}`), detail: `the push carries ${url || 'no link'} (it must name ${HOME})` }) };
+  },
+  4: async (X) => {   // supervisor B's PM is on the contractor's list only while standing in hive B
+    const { b } = X.S;
+    const hiveB = b.m.seatId;
+    X.pmHive = hiveB;
+    const r = await RECIPES.J3[1]({ ...X, S: { ...X.S, s: b } });
+    X.pmHive = null;
+    const name = (X.rec.pm || {}).name;
+    return { act: r.act, marker: name, path: `pm-scheduler.html?hive=${hiveB}`, rec: r.rec,
+      // standing in hive A, B's PM is not on the list; standing in B it is
+      reach: async (R2, ms) => {
+        const leak = await findPmAsset(R2, name, 6000, `pm-scheduler.html?hive=${HIVE_ID}`);
+        const hit = await findPmAsset(R2, name, ms, `pm-scheduler.html?hive=${hiveB}`);
+        return leak ? null : hit;
+      } };
+  },
+  5: async (X) => {   // the contractor's changes in hive A are in A's trail and not B's
+    const { c, a, b } = X.S;
+    const e = X.rec.entryA || {};
+    const aid = psql(`select id from hive_audit_log where hive_id = '${HIVE_ID}' and actor = '${q(c.m.name)}' and action = 'create_logbook_entry'
+      and target_id = '${q(e.id || '-')}' order by created_at desc limit 1`) || null;
+    return { act: { ok: !!aid, detail: `${c.m.name}'s hand-off-1 entry wrote ${aid ? 'audit line ' + aid : 'NO audit line'} in ${HOME}'s trail` },
+      marker: e.machine || c.m.name, whoRx: new RegExp(c.m.name.split(' ')[0], 'i'), path: 'audit-log.html', rec: { table: 'hive_audit_log', id: aid },
+      // the trail's own search, by the entry's id (an older line on the same machine must not stand in for this one)
+      reach: async (R2, ms) => {
+        await go(R2, 'audit-log.html');
+        await R2.page.fill('#search-input', e.id || '-').catch(() => {});
+        await R2.page.press('#search-input', 'Enter').catch(() => {});
+        await sleep(2500);
+        return findText(R2, e.machine || c.m.name, ms);
+      },
+      F: () => {
+        const ra = Number(asUser(a.m.uid, `select count(*) from hive_audit_log where id::text = '${q(aid || '-')}'`));
+        const rb = Number(asUser(b.m.uid, `select count(*) from hive_audit_log where id::text = '${q(aid || '-')}'`));
+        return { ok: ra === 1 && rb === 0, detail: `the line through RLS: as ${a.m.name} (${HOME}) ${ra} row(s), as ${b.m.name} (${b.m.seatName}) ${rb} row(s)` };
+      } };
+  },
+};
+
 // the rows the walk changes in place: today's snapshot and the machine's alerts (restored after); the rest it made is tagged
 function snapshotInPlace() {
   return { snaps: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from analytics_snapshots t where hive_id = '${HIVE_ID}'`),
     alerts: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from failure_signature_alerts t where hive_id = '${HIVE_ID}'`),
     // a publish changes the hive's shift plan in place (status, published_by, published_at)
-    plans: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from shift_plans t where hive_id = '${HIVE_ID}'`) };
+    plans: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from shift_plans t where hive_id = '${HIVE_ID}'`),
+    // the anomaly composer rewrites every signal of the hive (computed_at, scores)
+    anomalies: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from anomaly_signals t where hive_id = '${HIVE_ID}'`) };
 }
 // ★EVERY STEP OF THE CLEANUP RUNS ON ITS OWN (2026-11-04, the first teeth run): one psql script with ON_ERROR_STOP died
 // on a wrong column at its fourth line, and the audit lines, the XP and the restores after it never ran - the walk left
@@ -774,8 +1163,9 @@ function snapshotInPlace() {
 // What a walk leaves besides its own tagged rows: the XP the entry earned (achievement_xp_log, keyed by worker_name +
 // earned_at), the audit lines it wrote, and the headless browser each member signed in from (worker_known_devices).
 function cleanup(X, kept) {
-  const uids = Object.values(X.S).map((s) => `'${s.m.uid}'`).join(',');
-  const names = Object.values(X.S).map((s) => `'${q(s.m.name)}'`).join(',');
+  const people = Object.values(X.S).filter((s) => s.m.uid);
+  const uids = people.map((s) => `'${s.m.uid}'`).join(',') || `'00000000-0000-0000-0000-000000000000'`;
+  const names = people.map((s) => `'${q(s.m.name)}'`).join(',') || `''`;
   const R = 'set session_replication_role = replica;\n';
   const steps = [
     ['tagged logbook rows', `delete from logbook where hive_id = '${HIVE_ID}' and (problem like '${q(X.tag)}%' or id like '${q(X.tag)}%');`],
@@ -793,9 +1183,13 @@ function cleanup(X, kept) {
       delete from pm_assets where hive_id = '${HIVE_ID}' and asset_name like '${q(X.tag)}%';`],
     ['XP the walk earned', `delete from achievement_xp_log where earned_at >= '${X.t0}' and worker_name in (${names});`],
     ['audit lines', `delete from hive_audit_log where hive_id = '${HIVE_ID}' and created_at >= '${X.t0}';`],
+    ['the walk\'s acknowledgements', `delete from alert_dismissals where hive_id = '${HIVE_ID}' and created_at >= '${X.t0}';`],
     ['the walk\'s devices', `delete from worker_known_devices where first_seen_at >= '${X.t0}' and auth_uid in (${uids});`],
     ['failure alerts restored', `begin; delete from failure_signature_alerts where hive_id = '${HIVE_ID}';
       insert into failure_signature_alerts select * from json_populate_recordset(null::failure_signature_alerts, '${q(kept.alerts)}'); commit;`],
+    ['the bridge\'s readings', `delete from sensor_readings where hive_id = '${HIVE_ID}' and meta->>'walk' = '${q(X.tag)}';`],
+    ['anomaly signals restored', `begin; delete from anomaly_signals where hive_id = '${HIVE_ID}';
+      insert into anomaly_signals select * from json_populate_recordset(null::anomaly_signals, '${q(kept.anomalies)}'); commit;`],
     ['tagged parts and their movements', `delete from inventory_transactions where item_id in (select id from inventory_items where hive_id = '${HIVE_ID}' and part_name like '${q(X.tag)}%');
       delete from inventory_items where hive_id = '${HIVE_ID}' and part_name like '${q(X.tag)}%';`],
     ['tagged posts and machines', `delete from community_posts where hive_id = '${HIVE_ID}' and content like '${q(X.tag)}%';
@@ -806,10 +1200,26 @@ function cleanup(X, kept) {
     ['shift plans restored', `begin;
       update shift_plans set status = 'draft', published_at = null, published_by = null where hive_id = '${HIVE_ID}' and created_at >= '${X.t0}';
       delete from shift_plans where hive_id = '${HIVE_ID}' and created_at < '${X.t0}';
+      -- a plan the walk built in a window the snapshot holds (G-SHIFT sets the window's plan aside) gives the window back
+      delete from shift_plans p where p.hive_id = '${HIVE_ID}' and p.created_at >= '${X.t0}' and exists (select 1
+        from json_populate_recordset(null::shift_plans, '${q(kept.plans)}') k where k.shift_date = p.shift_date and k.shift_window = p.shift_window);
       insert into shift_plans select * from json_populate_recordset(null::shift_plans, '${q(kept.plans)}'); commit;`],
     ['analytics snapshots restored', `begin; delete from analytics_snapshots where hive_id = '${HIVE_ID}';
       insert into analytics_snapshots select * from json_populate_recordset(null::analytics_snapshots, '${q(kept.snaps)}'); commit;`],
   ];
+  // a member seated in ANOTHER hive (G-MULTI's second supervisor) means the walk made rows there too: the tag- and
+  // time-keyed removals run in each such hive as well (the in-place restores are the home hive's alone)
+  for (const h of [...new Set(people.map((p2) => p2.m.seatId).filter((h2) => h2 && h2 !== HIVE_ID))]) {
+    steps.push(
+      [`tagged logbook rows in ${h}`, `delete from logbook where hive_id = '${h}' and (problem like '${q(X.tag)}%' or id like '${q(X.tag)}%');`],
+      [`tagged PM rows in ${h}`, `delete from logbook where pm_completion_id in (select c.id from pm_completions c join pm_assets a on a.id = c.asset_id
+          where a.hive_id = '${h}' and a.asset_name like '${q(X.tag)}%');
+        delete from pm_completions where asset_id in (select id from pm_assets where hive_id = '${h}' and asset_name like '${q(X.tag)}%');
+        delete from pm_scope_items where asset_id in (select id from pm_assets where hive_id = '${h}' and asset_name like '${q(X.tag)}%');
+        delete from pm_assets where hive_id = '${h}' and asset_name like '${q(X.tag)}%';`],
+      [`audit lines in ${h}`, `delete from hive_audit_log where hive_id = '${h}' and created_at >= '${X.t0}';`],
+      [`acknowledgements in ${h}`, `delete from alert_dismissals where hive_id = '${h}' and created_at >= '${X.t0}';`]);
+  }
   for (const [what, sql] of steps) {
     try { psql(R + sql); } catch (e) { X.notes.push(`cleanup step "${what}" failed: ${String(e.message || e).slice(0, 200)}`); }
   }
@@ -820,7 +1230,16 @@ async function walkPass(browser, pass, foreign) {
   const keys = Object.keys(CAST);
   const vps = ['phone-390', 'desktop-1280'];
   const S = {};
-  for (let i = 0; i < keys.length; i++) S[keys[i]] = await session(browser, member(keys[i]), vps[(i + (pass === 'b' ? 1 : 0)) % 2]);
+  for (let i = 0; i < keys.length; i++) {
+    const c = CAST[keys[i]];
+    // a machine (the plant bridge) and a stranger have no account and no screen of the walk's: they act, they do not read
+    if (String(c.user).startsWith('api-key@') || c.user === 'anon') {
+      S[keys[i]] = { m: { key: keys[i], ...c, uid: null, name: c.user === 'anon' ? 'a stranger' : `the plant bridge (${c.hive})` },
+        vp: 'n/a', page: null, ctx: { close: async () => {} } };
+      continue;
+    }
+    S[keys[i]] = await session(browser, member(keys[i]), vps[(i + (pass === 'b' ? 1 : 0)) % 2]);
+  }
   const X = { S, tag: `GJ-${SCEN}-${pass}-${Date.now()}`, t0: psql('select now()'), rec: {}, notes: [],
     faults: new Set(TEETH ? ['push-never-fires', 'foreign-let-in'] : []) };
   const kept = snapshotInPlace();
@@ -876,7 +1295,7 @@ async function walkPass(browser, pass, foreign) {
       // A - the receiver's landing on 3G, the sender's network untouched
       // ★A MARKER-LESS PAGE'S A READING USED TO BE "IT LOADED" (2026-11-04): it returned true after the navigation, so a
       // figure page passed on 3G without its statement ever being read. It now reads the same dated line U read.
-      res.A = await under3G(R, async (S2) => {
+      res.A = await under3G(r.aOnSender ? S[hop.sender] : R, async (S2) => {
         if (r.marker) return reach(S2, 45000);
         await go(S2, r.path);
         if (r.prepare) await r.prepare(S2);
@@ -887,6 +1306,8 @@ async function walkPass(browser, pass, foreign) {
         }
         return null;
       });
+      // a receiver handed paper: the bad network is the sender's, whose phone produces it - said in the receipt
+      if (r.aOnSender && res.A) res.A.detail = `on ${S[hop.sender].m.name}'s connection (the paper is made on their phone): ${res.A.detail}`;
       out.push(res);
       console.log(`  ${SCEN} pass ${pass} hand-off ${hop.handoff} ${hop.page}: act ${res.act.ok ? 'ok' : 'FAIL'} · U ${res.U.ok ? 'ok' : 'FAIL'} · F ${res.F.ok ? 'ok' : 'FAIL'} · I ${res.I.ok ? 'ok' : 'FAIL'} · A ${res.A.ok ? 'ok' : 'FAIL'}`);
     }
@@ -903,9 +1324,27 @@ const passes = [];
 try {
   for (const p of PASSES) passes.push(await walkPass(browser, p, foreign));
 } finally { await browser.close(); }
+// ★ONE PASS RE-WALKED KEEPS THE OTHER (2026-11-05, J17): a pass lost to a cause outside the product (the edge runtime
+// still restarting when the walk's first request went out) was re-walked with --pass a, and the receipt it wrote held
+// pass a alone - the banker needs both viewports, so pass b's good walk was thrown away and had to be walked again.
+// A single-pass walk now merges with the receipt on disk when that receipt is a real walk (not teeth) under the
+// banker's freshness limit, and the merged receipt keeps the OLDER time, so the limit is judged on the older pass.
+let mergedFrom = null;
+if (arg('--pass') && !TEETH && existsSync(`.tmp/gj_walks/${SCEN}.json`)) {
+  try {
+    const prev = JSON.parse(readFileSync(`.tmp/gj_walks/${SCEN}.json`, 'utf8'));
+    const ageH = (Date.now() - Date.parse(prev.generated)) / 3600000;
+    const others = (prev.passes || []).filter((p) => p.pass !== arg('--pass'));
+    if (!prev.teeth && ageH < 3 && others.length) {
+      passes.unshift(...others);
+      passes.sort((x, y) => String(x.pass).localeCompare(String(y.pass)));
+      mergedFrom = prev.generated;
+    }
+  } catch (_) { /* an unreadable receipt is replaced, as it always was */ }
+}
 const cells = ['act', 'U', 'F', 'I', 'A'];
 const hopOk = (h) => !h.unbuilt && cells.every((c) => h[c] && h[c].ok);
-const report = { generated: new Date().toISOString(), instrument: 'tools/prove_group_journeys.mjs (playwright, one browser context per member) + postgres (psql as the receiver)',
+const report = { generated: mergedFrom || new Date().toISOString(), ...(mergedFrom ? { merged: `pass ${arg('--pass')} re-walked ${new Date().toISOString()} onto the receipt of ${mergedFrom}` } : {}), instrument: 'tools/prove_group_journeys.mjs (playwright, one browser context per member) + postgres (psql as the receiver)',
   scenario: SCEN, home: HOME, cast: CAST, foreign_witness: foreign.user, teeth: TEETH, passes,
   hops: HOPS.map((h) => ({ ...h, ok: passes.every((p) => { const x = p.hops.find((y) => y.handoff === h.handoff); return x && hopOk(x); }),
     cells: Object.fromEntries(cells.map((c) => [c, passes.every((p) => { const x = p.hops.find((y) => y.handoff === h.handoff); return !!(x && x[c] && x[c].ok); })])) })) };

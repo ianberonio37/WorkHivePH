@@ -99,7 +99,9 @@ def main() -> int:
         chain = AI_CHAIN.read_text(encoding="utf-8", errors="ignore")
         if "faultInject" in chain:
             # the simulated-skip branch must require _AI_CHAIN_LOCAL
-            mfi = re.search(r"if\s*\(\s*faultInject\s*&&\s*_AI_CHAIN_LOCAL", chain)
+            # the chain decides it as `if (faultInject && _AI_CHAIN_LOCAL` or, since the W4 fake-provider refactor, as
+            # `const _faulted = !!(faultInject && _AI_CHAIN_LOCAL && ...)` - both are the same local gate
+            mfi = re.search(r"(?:if\s*\(|!!\()\s*faultInject\s*&&\s*_AI_CHAIN_LOCAL", chain)
             if not mfi:
                 fails.append("ai-chain faultInject branch is not gated on _AI_CHAIN_LOCAL (could fire in prod)")
             elif "kong|localhost|127" not in chain.replace("\\", ""):
@@ -120,6 +122,34 @@ def main() -> int:
                 ok("gateway debug_fault_inject is DEBUG_ECHO_ENABLED-gated")
         else:
             ok("gateway debug_fault_inject is DEBUG_ECHO_ENABLED-gated")
+
+    # 6. (2026-11-05, GJ G-SHIFT) any OTHER function that reads a debug_fault_inject flag from its request (the shift
+    # planner, so a group walk builds a plan without a model call) must decide it on the same local-runtime literal,
+    # in the same statement - callAI re-checks _AI_CHAIN_LOCAL, but a function must never even ask in production.
+    for fn in sorted((ROOT / "supabase" / "functions").glob("*/index.ts")):
+        if fn.parent.name == "ai-gateway":
+            continue
+        fsrc = fn.read_text(encoding="utf-8", errors="ignore")
+        if "debug_fault_inject" not in fsrc:
+            continue
+        flat = fsrc.replace("\\", "")
+        if "kong|localhost|127" not in flat:
+            fails.append(f"{fn.parent.name}: reads debug_fault_inject with no local-runtime literal in the file")
+            continue
+        bad = []
+        for mm in re.finditer(r"debug_fault_inject", fsrc):
+            stmt_start = fsrc.rfind(";", 0, mm.start()) + 1
+            stmt = fsrc[stmt_start:mm.start()]
+            if "_localRuntime" not in stmt and "_AI_CHAIN_LOCAL" not in stmt:
+                line = fsrc.count("\n", 0, mm.start()) + 1
+                # a comment naming the flag is not a read
+                if fsrc[fsrc.rfind("\n", 0, mm.start()) + 1:mm.start()].lstrip().startswith("//"):
+                    continue
+                bad.append(line)
+        if bad:
+            fails.append(f"{fn.parent.name}: debug_fault_inject read outside a local-runtime test (line {', '.join(map(str, bad))})")
+        else:
+            ok(f"{fn.parent.name}: debug_fault_inject is decided on the local-runtime test")
 
     print()
     if fails:

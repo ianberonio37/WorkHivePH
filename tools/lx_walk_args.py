@@ -21,6 +21,15 @@ This file decides, deterministically, what the walk must not improvise:
 
   python tools/lx_walk_args.py --list                     -> the open cells, grouped, nothing written
   python tools/lx_walk_args.py --cells 6 [--persona p] [--page x.html] [--layers CA,C]  -> writes the next batch
+  python tools/lx_walk_args.py --gj M7 [--list | --cells 6]   -> the GJ contract cells of one milestone (below)
+
+★THE CONTRACT HALF OF A GROUP HAND-OFF (2026-11-05, GJ M7). A group-journey row on a contract layer (AU AV CA CI H LB
+RL) asks the library question of the RECEIVING person's page, and the plan closes it "by the registered library provers
+per (page, persona), exactly as the cube did". The GJ banker took that half from the cube's closed row - and for 25 of
+M7's (page, persona) cells the cube had never seeded one (no supervisor rows on logbook, pm-scheduler, alert-hub ...),
+so 1,312 rows waited on rows that were never going to exist. --gj walks those cells with this same walk; bank_lx_walk.py
+writes each GJ row's verdict to .tmp/gj_contract/<id>.json and banks nothing; bank_gj_rows.py takes it as the contract
+half beside the group walk's own receipt.
 """
 from __future__ import annotations
 
@@ -141,6 +150,9 @@ WALK_WAVES = ("LXP-", "LXC-", "CX-PROD", "CX-FND", "CX-PUB")
 def desc(t: dict) -> dict:
     """A walk row's descriptor - page, layer, persona (and, for a cube row, its pillar). A cube A-pillar row is answered once
     per (page, layer), so its persona is null and `cast` names who walks it."""
+    g = t.get("gj") or {}
+    if g.get("kind") == "group-journey":   # the receiving page, as the row's member (an A row: as the hand-off's receiver)
+        return {"page": g.get("page"), "layer": g.get("layer"), "pillar": g.get("pillar"), "persona": g.get("persona")}
     d = t.get("lx") or t.get("cx") or {}
     if not d.get("persona") and d.get("cast"):
         d = {**d, "persona": d["cast"]}
@@ -174,6 +186,25 @@ U_ONLY_LAYERS = ("S", "AU", "H")
 # refusal on the relations a page reads; a public page reads none, so 593 public S rows sat open with "reads [] - none
 # proven". What answers them is the walk's own list of the page's requests (bank_lx_walk.judge, layer S): a page that
 # asked for no relation a person must be entitled to has no boundary to hold. One that does is held for the prover.
+
+
+GJ_CONTRACT = ("AU", "AV", "CA", "CI", "H", "LB", "RL")
+GJ_VERDICTS = ROOT / ".tmp" / "gj_contract"
+
+
+def gj_rows(milestone: str) -> list[dict]:
+    """The open GJ contract rows of one milestone that this walk answers (the same browser rule as open_rows)."""
+    doc = json.loads((ROOT / "trajectory_registry_gj.json").read_text(encoding="utf-8"))
+    out = []
+    for t in (doc["trajectories"] if isinstance(doc, dict) else doc):
+        g = t.get("gj") or {}
+        if g.get("milestone") != milestone or g.get("layer") not in GJ_CONTRACT or t.get("status") in ("locking", "locked"):
+            continue
+        d = desc(t)
+        if d.get("layer") in BROWSER_LAYERS or (d.get("pillar") in ("U", "A") and d.get("layer") in U_ONLY_LAYERS):
+            if not held_lens(d):
+                out.append(t)
+    return out
 
 
 def held_lens(d: dict) -> bool:
@@ -240,9 +271,16 @@ def main() -> int:
     ap.add_argument("--wave", default="", help="only rows whose wave starts with this (e.g. CX-PROD)")
     ap.add_argument("--skip", default="", help="comma list of persona:page cells to leave out (walked already)")
     ap.add_argument("--rewalk", action="store_true", help="also re-walk rows walked red since their page last changed")
+    ap.add_argument("--gj", default="", help="a milestone (M7 ...): its open GJ contract rows, walked as the receiving person")
     a = ap.parse_args()
 
-    rows = open_rows((a.wave,) if a.wave else WALK_WAVES)
+    rows = gj_rows(a.gj) if a.gj else open_rows((a.wave,) if a.wave else WALK_WAVES)
+    if a.gj and not a.rewalk:
+        # a GJ row already judged since its page last changed is not walked again (its verdict file says what it found)
+        def _judged(t):
+            vp, pg = GJ_VERDICTS / f"{t['id']}.json", ROOT / desc(t)["page"]
+            return vp.exists() and pg.exists() and vp.stat().st_mtime >= pg.stat().st_mtime
+        rows = [t for t in rows if not _judged(t)]
     # ★A ROW ALREADY WALKED RED SINCE ITS PAGE LAST CHANGED IS NOT RE-WALKED (it would read the same): its receipt
     # names the finding, and the page has to change before another walk can say anything new. --rewalk overrides.
     if not a.rewalk:
@@ -273,7 +311,7 @@ def main() -> int:
     # never-walked rows first: a cell whose rows all carry a receipt already (walked red, page since edited by someone
     # else) is a RE-walk, and re-walks wait until every row has had its first reading
     def _walked(t):
-        return (ROOT / ".tmp" / "mcp_walks" / f"{t['id']}.json").exists()
+        return (ROOT / ".tmp" / "mcp_walks" / f"{t['id']}.json").exists() or (GJ_VERDICTS / f"{t['id']}.json").exists()
     keys = sorted(cells, key=lambda k: (all(_walked(t) for t in cells[k]), k[1] or "", k[0] or "", k[2] or ""))
     keys = [k for k in keys if (not a.persona or k[0] == a.persona) and (not a.page or k[1] == a.page)
             and f"{k[0]}:{k[1]}" not in skip]

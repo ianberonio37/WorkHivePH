@@ -14589,6 +14589,31 @@ VALIDATORS = [
         "skip_if_fast": False,
     },
     {
+        # ★A PROD-SAFETY GUARD THAT NO BOARD RAN (2026-11-05, GJ G-SHIFT). validate_debug_echo_prod_safe proves the
+        # local-only test hooks (ai-gateway's debug echo and debug_fault_inject, ai-chain's faultInject) can never fire
+        # in production - and it was never registered, so when the W4 fake-provider refactor reshaped the chain's gate
+        # into `!!(faultInject && _AI_CHAIN_LOCAL && ...)` the guard went red against a correct gate and nobody saw.
+        # It now also covers any other function reading debug_fault_inject (the shift planner, for the group walk).
+        # ★A PUSH FROM ONE HIVE OPENED IN THE OTHER (2026-11-05, GJ G-MULTI): a person in two hives followed supervisor
+        # A's push while standing in hive B and read B's logbook. A push names its hive (mig 20261105000003) and the
+        # shared start-up seats it for a member only. Walked in a browser at 390: a member's link seats the hive, says
+        # so and drops the parameter; a stranger's link changes nothing and says why. FAILS on the pre-fix utils.js.
+        "id":      "a-link-opens-in-its-hive",
+        "script":  "tools/prove_hive_link.mjs",
+        "args":    [],
+        "label":   "a link that names its hive (?hive=) opens in it for an active member of it, says so and drops the parameter; for anyone else the page keeps its own hive and says why (tools/prove_hive_link.mjs, browser)",
+        "group":   "Security",
+        "skip_if_fast": True,
+    },
+    {
+        "id":      "debug-hooks-prod-dead",
+        "script":  "tools/validate_debug_echo_prod_safe.py",
+        "args":    [],
+        "label":   "the local-only test hooks (debug echo, debug_fault_inject, faultInject) are decided on the local-runtime test and can never fire in production",
+        "group":   "Security",
+        "skip_if_fast": False,
+    },
+    {
         # ★THE RULE THAT REACHES NOTHING IT RENDERS (2026-09-18). validate_css_class_existence already proves the
         # other direction - every class the JS adds with classList.add is defined somewhere in CSS, 792 calls, 0
         # missing. Nothing proved that a rule the stylesheet WRITES ever reaches markup, and that is where this

@@ -2833,7 +2833,7 @@
       const queries = [];
       queries.push(
         scopeHive(db.from('v_logbook_truth')
-          .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at, worker_name'))
+          .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at, worker_name, parts_used'))
           .eq('asset_node_id', node.id)
           .order('created_at', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -2880,12 +2880,23 @@
           // ★WHO LOGGED IT, as the PM rows below already say who completed them (2026-10-28, the cube's U-on-trail walk):
           // the machine's history listed its faults with no name, so the person asking "who saw this last time?" at the
           // asset had to leave it for the logbook to find out
+          // ★AND WHAT IT CONSUMED (2026-11-04, the group-journey walk GJ J23 hand-off 4): a worker issued a V-belt against
+          // a job on this machine, the count moved in Inventory, and the machine's own history named the job and not the
+          // part - so "what did we fit last time, and how many?" could not be answered at the machine. The parts the entry
+          // used now ride its line (parts_used is the entry's own record of them).
+          const _partsOf = (r) => {
+            let p = r.parts_used;
+            if (typeof p === 'string') { try { p = JSON.parse(p); } catch (_) { p = []; } }
+            return Array.isArray(p) ? p.filter((x) => x && (x.partName || x.part_name))
+              .map((x) => (x.partName || x.part_name) + (x.qty ? ' ×' + x.qty : '')).join(', ') : '';
+          };
           rows.forEach(r => events.push({
             kind: 'logbook',
             key: 'logbook:' + r.id,
             when: r.created_at,
             summary: (r.maintenance_type || 'Entry') + ': ' + (r.problem || '(no description)')
-                     + (r.worker_name ? ' - logged by ' + r.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(r.worker_name) : '') : ''),
+                     + (r.worker_name ? ' - logged by ' + r.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(r.worker_name) : '') : '')
+                     + (_partsOf(r) ? ' · parts: ' + _partsOf(r) : ''),
             status: r.status,
           }));
         } else {
@@ -2973,7 +2984,7 @@
           // is_anomaly boolean. DISTINCT ON means we don't need .order/.limit;
           // the view already returns the latest per parameter.
           const { data: anom } = await db.from('v_sensor_truth')
-            .select('parameter, value, recorded_at, quality_flag, is_anomaly')
+            .select('parameter, value, unit, recorded_at, quality_flag, is_anomaly')
             .eq('hive_id', HIVE_ID)
             .eq('asset_id', nodeId)
             .eq('is_anomaly', true)
@@ -2985,10 +2996,14 @@
           if (anom) {
             const headline = document.getElementById('sensor-anomaly-headline');
             const detail   = document.getElementById('sensor-anomaly-detail');
-            if (headline) headline.textContent = _t(`${anom.parameter || 'Reading'} reading 3-sigma off baseline`, `${anom.parameter || 'Reading'} reading na 3-sigma ang layo sa baseline`);
+            // (GJ J17, 2026-11-05) the parameter's name as the telemetry tile below prints it ("vibration mm s", not the
+            // column code "vibration_mm_s"), and the reading with its unit - "Value: 13.6" said nothing a person can act on
+            const _pl = String(anom.parameter || 'Reading').replace(/_/g, ' ');
+            const _val = anom.value + (anom.unit ? ' ' + anom.unit : '');
+            if (headline) headline.textContent = _t(`${_pl} reading 3-sigma off baseline`, `${_pl} reading na 3-sigma ang layo sa baseline`);
             if (detail) {
               const when = anom.recorded_at ? whFmtDate(anom.recorded_at, { time: true }) : '-';
-              detail.textContent = _t(`Latest anomaly at ${when}. Value: ${anom.value}. Check the Live Telemetry tile below for the parameter trend.`, `Pinakahuling anomalya noong ${when}. Halaga: ${anom.value}. Tingnan ang Live Telemetry tile sa ibaba para sa trend ng parameter.`);
+              detail.textContent = _t(`Latest anomaly at ${when}. Value: ${_val}. Check the Live Telemetry tile below for the parameter trend.`, `Pinakahuling anomalya noong ${when}. Halaga: ${_val}. Tingnan ang Live Telemetry tile sa ibaba para sa trend ng parameter.`);
             }
             banner.style.display = 'block';
           } else {

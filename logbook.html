@@ -5011,8 +5011,11 @@ function woStateBadge(wo_state, wo_assigned_to) {
   };
   const c = colors[wo_state] || colors.requested;
   const label = wo_state.replace('_', ' ');
+  // ★INITIALS NAMED NO ONE (2026-11-05, the group-journey walk GJ G-SHIFT hand-off 4): the pill read "in progress · CD",
+  // and the full name lived only in a hover title a phone never shows - a supervisor could not tell which of two
+  // C. D.s had started the carried-over job. The pill names the assignee's first name; the title keeps the full name.
   const assignee = wo_assigned_to
-    ? ` · ${escHtml(wo_assigned_to.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase())}`
+    ? ` · ${escHtml(String(wo_assigned_to).trim().split(/\s+/)[0])}`
     : '';
   return `<span class="badge-category" title="WO state: ${escHtml(label)}${wo_assigned_to ? ' (assigned to ' + escHtml(wo_assigned_to) + ')' : ''}" style="background:${c.bg};color:${c.fg};border:1px solid ${c.border};text-transform:capitalize;">${escHtml(label)}${assignee}</span>`;
 }
@@ -8251,7 +8254,7 @@ function renderOpenJobs(entries) {
         <div class="flex-1 min-w-0">
           <p class="text-sm font-semibold text-white truncate">${escHtml(e.machine || 'Unknown machine')}</p>
           ${e.problem ? '<p class="text-xs mt-0.5 truncate" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">' + escHtml(e.problem) + '</p>' : ''}
-          ${(_isAssignedToMe(e) && !_isMine(e)) ? '<p class="text-xs mt-0.5" style="color:var(--wh-blue-text, rgba(41,182,217,1));">Assigned to you · raised by ' + escHtml(e.worker_name || 'a teammate') + (e.wo_state && e.wo_state !== 'assigned' ? ' · ' + escHtml(String(e.wo_state).replace('_', ' ')) : '') + '</p>' : ''}
+          ${(_isAssignedToMe(e) && !_isMine(e)) ? '<p class="text-xs mt-0.5" style="color:var(--wh-blue-text, #5FCCE8);">Assigned to you · raised by ' + escHtml(e.worker_name || 'a teammate') + (e.wo_state && e.wo_state !== 'assigned' ? ' · ' + escHtml(String(e.wo_state).replace('_', ' ')) : '') + '</p>' : ''}
         </div>
         <div class="text-right flex-shrink-0 ml-2">
           <p class="text-xs" style="color:var(--wh-text-muted, rgba(255,255,255,0.80));">${e.date ? new Date(e.date).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month:'short', day:'numeric' }) : ''}</p>
