@@ -29,14 +29,14 @@
  },
  "summary": {
   "pages": 119,
-  "at_100": 100,
-  "mean": 90.4,
+  "at_100": 119,
+  "mean": 100.0,
   "pages_failing_part": {
    "skip-link": 0,
-   "banner": 19,
-   "primary-nav": 19,
+   "banner": 0,
+   "primary-nav": 0,
    "main": 0,
-   "footer": 19
+   "footer": 0
   }
  },
  "pages": {
@@ -169,27 +169,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -197,27 +194,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -250,27 +244,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -403,27 +394,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -431,27 +419,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -459,27 +444,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -662,27 +644,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -790,27 +769,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -868,27 +844,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: no 'Home' link to /; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "no 'Home' link to /"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -896,27 +869,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -924,27 +894,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -1002,27 +969,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -1030,27 +994,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -1058,27 +1019,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -1111,27 +1069,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -1139,27 +1094,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -1292,27 +1244,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -1320,27 +1269,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },
@@ -1348,27 +1294,24 @@
    "family": "learn",
    "S2": {
     "verdict": "MEASURED",
-    "pct": 40,
-    "note": "2/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer)) - banner: no <header> landmark - the brand bar is a bare <nav>; primary-nav: 'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']; footer: the footer lacks /#faq, /?signup=1"
+    "pct": 100,
+    "note": "5/5 shared-chrome parts match the declared template (tools/build_pillar_pages.py (SITE_HEADER, site_footer))"
    },
    "parts": {
     "skip-link": {
      "ok": true
     },
     "banner": {
-     "ok": false,
-     "why": "no <header> landmark - the brand bar is a bare <nav>"
+     "ok": true
     },
     "primary-nav": {
-     "ok": false,
-     "why": "'Learn' (/learn/) is out of the shared order ['Home', 'Learn', 'Sign In', 'Sign Up Free']"
+     "ok": true
     },
     "main": {
      "ok": true
     },
     "footer": {
-     "ok": false,
-     "why": "the footer lacks /#faq, /?signup=1"
+     "ok": true
     }
    }
   },

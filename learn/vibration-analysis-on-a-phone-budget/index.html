@@ -126,8 +126,8 @@
       /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): the top bar's row and its links WRAP, and the row's fixed
        h-14 becomes a minimum, so the links drop under the logo instead of running the page sideways or clipping. At normal
        sizes nothing moves: a row only wraps when it does not fit, and 3.5rem is the height it had. */
-    body > nav > div:first-child { flex-wrap: wrap; row-gap: 0.5rem; height: auto; min-height: 3.5rem; }
-    body > nav > div:first-child > div { flex-wrap: wrap; row-gap: 0.25rem; justify-content: flex-end; }
+    body > header > div:first-child { flex-wrap: wrap; row-gap: 0.5rem; height: auto; min-height: 3.5rem; }
+    body > header > div:first-child > nav { flex-wrap: wrap; row-gap: 0.25rem; justify-content: flex-end; }
       /* 200% text at 390 px (WCAG 1.4.4, OWN text grows 2026-11-02): one long word in a large heading ("spreadsheet" at 60px
        extrabold) is wider than the phone, and a word overflows its box without the box growing - no layout test sees it,
        the page just scrolls sideways. A word breaks (hyphenated, the page is lang=en) only when it cannot fit. */
@@ -156,20 +156,21 @@
 <a class="wh-skip-link" href="#wh-main-content" data-wh-skip="learn" style="position:fixed;top:0;left:0;z-index:10001;transform:translateY(-120%);background:var(--wh-orange,#F7A21B);color:var(--wh-navy,#162032);padding:0 20px;min-height:44px;display:inline-flex;align-items:center;font-weight:700;font-size:14px;text-decoration:none;border-radius:0 0 8px 0;box-shadow:0 4px 16px var(--wh-black-35, rgba(0,0,0,.35));transition:transform .15s cubic-bezier(0.23,1,0.32,1);box-sizing:border-box;" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-120%)'">Skip to main content</a>
 
 
-<nav class="border-b border-white/10" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
+<!-- the shared public chrome (S2, 2026-11-04): a <header> banner holding the brand link and the nav every public page carries, Home / Learn / Sign In / Sign Up Free, in that order. The bar keeps its own look; its rules below are keyed on the header, and it wraps rather than overflowing a phone. -->
+<header class="border-b border-white/10" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
     <a href="/" class="flex items-center gap-2 text-sm font-bold tracking-tight">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
       <span class="text-white wh-brand-word hidden sm:inline" aria-hidden="true">WorkHive</span>
     </a>
-    <div class="flex items-center gap-5 text-xs sm:text-sm">
-      <a href="/learn/" class="text-white/55 hover:text-white transition-colors" data-i="learn">Learn</a>
+    <nav class="flex items-center gap-3 sm:gap-5 text-xs sm:text-sm">
       <a href="/" class="text-white/55 hover:text-white transition-colors" data-i="home">Home</a>
+      <a href="/learn/" class="text-white/55 hover:text-white transition-colors" data-i="learn">Learn</a>
       <a href="/?signin=1" class="nav-link" style="font-size:0.75rem;" data-i="signin">Sign In</a>
-      <a href="/?signup=1" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
-    </div>
+      <a href="/?signup=1" class="bg-orange-wh text-navy-wh px-3 sm:px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors" data-i="signupfree">Sign Up Free</a>
+    </nav>
   </div>
-</nav>
+</header>
 
 <main id="wh-main-content"><article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
@@ -275,10 +276,12 @@
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(var(--wh-ink-deep-rgb, 15, 25, 35), 0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:var(--wh-blue-light,#5FCCE8);text-decoration:underline;text-underline-offset:2px;">admin@workhiveph.com</a> with corrections or contributions. · <span data-wh-freshness>Last updated <time datetime="2026-10-27">27 Oct 2026</time></span></p>
-    <div class="flex gap-5">
+    <div class="flex gap-5" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
       <a href="/" class="hover:text-white/65 transition-colors" data-i="home">Home</a>
+      <a href="/#faq" class="hover:text-white/65 transition-colors" data-i="faq">FAQ</a>
       <a href="/learn/" class="hover:text-white/65 transition-colors">All guides</a>
       <a href="/about/" class="hover:text-white/65 transition-colors">About</a>
+      <a href="/?signup=1" class="hover:text-white/65 transition-colors" data-i="jointhehive">Join the Hive</a>
     </div>
   </div>
 </footer>

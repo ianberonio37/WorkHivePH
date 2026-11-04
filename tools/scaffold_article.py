@@ -279,19 +279,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </head>
 <body class="bg-navy-wh text-white antialiased">
 
-<nav class="border-b border-white/10" style="background: rgba(13,24,36,0.85);">
+<!-- the shared public chrome (S2, 2026-11-04; tools/prove_shared_chrome_parity.py): a <header> banner holding the brand
+     link and the nav every public page carries, Home / Learn / Sign In / Sign Up Free, in that order. The old bare <nav>
+     bar here (no banner landmark, Learn before Home, a waitlist "Join") was copied into 19 guides and fixed in each. -->
+<header class="border-b border-white/10" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 h-14 flex items-center justify-between">
     <a href="/" class="flex items-center gap-2 text-sm font-bold tracking-tight">
       <img src="/brand_assets/workhive-logo-transparent.png" alt="WorkHive" class="h-7 w-auto" />
-      <span class="text-white">WorkHive</span>
+      <span class="text-white wh-brand-word hidden sm:inline" aria-hidden="true">WorkHive</span>
     </a>
-    <div class="flex items-center gap-5 text-xs sm:text-sm">
-      <a href="/learn/" class="text-white/55 hover:text-white transition-colors">Learn</a>
-      <a href="/" class="text-white/55 hover:text-white transition-colors">Home</a>
-      <a href="/#join" class="bg-orange-wh text-navy-wh px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors">Join</a>
-    </div>
+    <nav class="flex items-center gap-3 sm:gap-5 text-xs sm:text-sm">
+      <a href="/" class="text-white/55 hover:text-white transition-colors" data-i="home">Home</a>
+      <a href="/learn/" class="text-white/55 hover:text-white transition-colors" data-i="learn">Learn</a>
+      <a href="/?signin=1" class="text-white/55 hover:text-white transition-colors" data-i="signin">Sign In</a>
+      <a href="/?signup=1" class="bg-orange-wh text-navy-wh px-3 sm:px-4 py-1.5 rounded-lg font-semibold text-xs hover:bg-orange-light transition-colors" data-i="signupfree">Sign Up Free</a>
+    </nav>
   </div>
-</nav>
+</header>
 
 <article class="hex-pattern">
   <div class="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-14">
@@ -351,10 +355,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <footer class="py-10 border-t border-white/[0.06]" style="background: rgba(13,24,36,0.85);">
   <div class="max-w-5xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
     <p>Practical writing for the Philippine plant floor. Email <a href="mailto:admin@workhiveph.com" style="color:var(--wh-blue-light,#5FCCE8);text-decoration:underline;text-underline-offset:2px;">admin@workhiveph.com</a> with corrections or contributions.</p>
-    <div class="flex gap-5">
-      <a href="/" class="hover:text-white/65 transition-colors">Home</a>
+    <div class="flex gap-5" style="flex-wrap:wrap; justify-content:center; row-gap:0.5rem;">
+      <a href="/" class="hover:text-white/65 transition-colors" data-i="home">Home</a>
+      <a href="/#faq" class="hover:text-white/65 transition-colors" data-i="faq">FAQ</a>
       <a href="/learn/" class="hover:text-white/65 transition-colors">All guides</a>
       <a href="/about/" class="hover:text-white/65 transition-colors">About</a>
+      <a href="/?signup=1" class="hover:text-white/65 transition-colors" data-i="jointhehive">Join the Hive</a>
     </div>
   </div>
 </footer>
