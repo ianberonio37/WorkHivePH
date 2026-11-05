@@ -2820,7 +2820,7 @@ function renderLinked() {
     return `<div style="margin-bottom: 12px;">
       <h4 style="font-size: var(--wh-fs-xs, 0.8rem); color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">${labels[k]}</h4>
       <div>${items.map(l => `
-        <span class="link-pill">${e(l.label || l.link_id || '-')} <button onclick="removeLink('${escJsAttr(l.id)}')" title="Remove" aria-label="Remove link ${e(l.label || l.link_id || '')}">×</button></span>
+        <span class="link-pill" data-link-id="${e(l.id)}">${e(l.label || l.link_id || '-')}${l.linked_by ? ` <span class="small" style="color: var(--muted);">· linked by ${e(l.linked_by)}, ${e(fmtDate(l.created_at))}</span>` : ''} <button onclick="removeLink('${escJsAttr(l.id)}')" title="Remove" aria-label="Remove link ${e(l.label || l.link_id || '')}">×</button></span>
       `).join('')}</div>
     </div>`;
   }).join('');

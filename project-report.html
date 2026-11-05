@@ -1079,7 +1079,7 @@ function renderLinked(links) {
   const html = Object.keys(labels).filter(k => groups[k]?.length).map(k => `
     <h3>${e(labels[k])} <span style="font-weight: 400; color: var(--muted); font-size: var(--wh-print-fs-xs, 9.5pt);">${groups[k].length} item${groups[k].length === 1 ? '' : 's'}</span></h3>
     <ul style="font-size: var(--wh-print-fs-xs, 9.5pt); padding-left: 20px; line-height: 1.7;">
-      ${groups[k].map(l => `<li>${e(l.label || l.link_id || '-')}</li>`).join('')}
+      ${groups[k].map(l => `<li>${e(l.label || l.link_id || '-')}${l.linked_by ? ` <span style="color: var(--muted);">· linked by ${e(l.linked_by)}, ${e(fmtDate(l.created_at))}</span>` : ''}</li>`).join('')}
     </ul>`).join('');
   $('linked-section').innerHTML = html;
 }

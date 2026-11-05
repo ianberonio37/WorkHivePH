@@ -205,7 +205,7 @@ async function findText(s, marker, ms = 15000) {
       // a record that names itself (the logbook's cards carry data-entry-id) is the card; otherwise the sibling climb
       // (a change order's card and a scope item's row name themselves too - 2026-11-06, J8: the climb stopped at the
       // card's title row and read a CO as having no author while its card said "Raised by ... · date")
-      const named = best.el.closest('[data-entry-id], [data-alert-id], [data-node-id], [data-record-id], [data-co-id], [data-item-id]');
+      const named = best.el.closest('[data-entry-id], [data-alert-id], [data-node-id], [data-record-id], [data-co-id], [data-item-id], [data-link-id]');
       if (named && (named.innerText || '').trim().length < 1500) return { text: best.t, card: (named.innerText || '').trim() };
       // a record opened in its own view (a dialog) IS that view - its author and date sit beside the marker, not in it
       const dlg = best.el.closest('[role="dialog"], [aria-modal="true"]');
@@ -2724,6 +2724,47 @@ RECIPES.J8 = {
     return { act: { ok: !!log, detail: `"+ Log progress" (35%) on "${prj.name}" as ${e.m.name}: project_progress_logs ${log || 'NO ROW'}` },
       marker: note.slice(0, 40), path: `project-report.html?project_id=${prj.id}`,
       rec: { table: 'project_progress_logs', id: log } };
+  },
+};
+
+// ── J30 · the engineer's calculation on the project, and in the report management acts on
+// (cast: e = the engineer, s = the supervisor)
+RECIPES.J30 = {
+  1: async (X) => {   // the engineer's saved calculation is on the project the supervisor reads
+    const { e } = X.S;
+    const prj = psql(`select id || '|' || name from projects where hive_id = '${HIVE_ID}' and deleted_at is null order by created_at limit 1`);
+    const [pid, pname] = prj ? [prj.split('|')[0], prj.split('|').slice(1).join('|')] : ['', ''];
+    const calc = psql(`select id || '|' || coalesce(calc_type,'') || '|' || coalesce(project_name,'') from engineering_calcs
+      where hive_id = '${HIVE_ID}' and worker_name = '${q(e.m.name)}' order by created_at desc limit 1`);
+    const [cid, ctype, cproj] = calc ? calc.split('|') : ['', '', ''];
+    X.restores = [...(X.restores || []), ['the walk\'s link', `delete from project_links where project_id = '${q(pid)}' and link_id = '${q(cid)}' and created_at >= '${X.t0}';`]];
+    X.rec.prj = { id: pid, name: pname };
+    await openProject(e, pid, 'Linked work');
+    await e.page.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => /openModal\('modal-link'\)/.test(x.getAttribute('onclick') || '')); if (b) b.click(); });
+    await sleep(1200);
+    await e.page.selectOption('#l-type', 'engineering_calc').catch(() => {});
+    await e.page.evaluate(() => { const t = document.getElementById('l-type'); if (t) t.dispatchEvent(new Event('change', { bubbles: true })); if (typeof loadLinkOptions === 'function') loadLinkOptions(); });
+    await sleep(2500);
+    const chosen = await e.page.evaluate((id) => {
+      const sel = document.getElementById('l-picker'); if (!sel) return null;
+      const o = [...sel.options].find((x) => x.value === id); if (!o) return null;
+      sel.value = id; sel.dispatchEvent(new Event('change', { bubbles: true })); return o.textContent.trim();
+    }, cid);
+    await e.page.evaluate(() => { if (typeof saveLink === 'function') saveLink(); });
+    await sleep(3000);
+    const link = psql(`select id || '|' || coalesce(label,'') || '|' || coalesce(linked_by,'') from project_links where project_id = '${q(pid)}' and link_id = '${q(cid)}' and created_at >= '${X.t0}' limit 1`);
+    const [lid, label, by] = link ? link.split('|') : ['', '', ''];
+    X.rec.link = { id: lid, label };
+    return { act: { ok: !!lid && by === e.m.name, detail: `"Link work" -> Engineering calc on "${pname}" as ${e.m.name}: picked "${chosen || 'NOTHING'}" (${ctype} ${cproj}) -> project_links ${lid || 'NO ROW'}, linked_by ${by || '-'}` },
+      marker: (label || '').slice(0, 30), path: 'project-manager.html',
+      reach: async (R2, ms) => { await openProject(R2, pid, 'Linked work'); return findText(R2, (label || '').slice(0, 30), ms); },
+      rec: { table: 'project_links', id: lid } };
+  },
+  2: async (X) => {   // the report management acts on carries it, with who linked it
+    const { prj, link } = X.rec;
+    return { act: { ok: !!(link && link.id), detail: `the project report of "${prj && prj.name}" (project-report.html?project_id=...)` },
+      marker: ((link && link.label) || '').slice(0, 30), path: `project-report.html?project_id=${prj && prj.id}`,
+      rec: { table: 'project_links', id: link && link.id } };
   },
 };
 
