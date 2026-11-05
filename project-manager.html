@@ -2564,7 +2564,7 @@ function renderScope() {
     return `
       <tr class="${it.status === 'done' ? 'done' : ''} ${isCritical ? 'critical' : ''}" data-item-id="${e(it.id)}">
         <td class="mono small">${e(it.wbs_code || '')}</td>
-        <td>${e(it.title)}</td>
+        <td>${e(it.title)}${it.added_by ? `<div class="small" style="color: var(--muted); margin-top: 2px;" data-wh-added-by>added by ${e(it.added_by)} · ${e(fmtDate(it.created_at))}</div>` : ''}</td>
         <td class="small">${e((it.owner_name || '-') + (typeof whMemberSuffix === 'function' ? whMemberSuffix(it.owner_name) : ''))}</td>
         <td><button type="button" class="status-pill status-${sCls}" aria-label="${e(it.status.replace('_', ' '))}: change to ${it.status === 'pending' ? 'in progress' : it.status === 'in_progress' ? 'done' : 'pending'}" onclick="cycleScopeStatus('${escJsAttr(it.id)}', event)">${e(it.status.replace('_', ' '))}</button></td>
         <td><div class="progress" style="width:80px;"><div class="progress-bar ${progressColor(it.pct_complete)}" style="width:${it.pct_complete}%"></div></div></td>
@@ -2623,7 +2623,7 @@ async function openBomImport() {
   list.innerHTML = '';
   status.textContent = 'Loading saved calculations…';
   const { data, error } = await db.from('engineering_calcs')
-    .select('id, calc_type, project_name, created_at, bom_data')
+    .select('id, calc_type, project_name, created_at, bom_data, worker_name')
     .eq('hive_id', HIVE_ID)
     .not('bom_data', 'is', null)
     .order('created_at', { ascending: false })
@@ -2666,7 +2666,8 @@ async function importBomItems(calcRow, btn) {
     title: `${it.item || it.description || 'BOM item'} - ${it.qty ?? '?'} ${it.unit || ''}`.trim(),
     status: 'pending',
     pct_complete: 0,
-    notes: [it.spec, it.remarks, `Imported from Engineering Design: ${calcRow.calc_type || 'calc'} - ${calcRow.project_name || 'Untitled'}`]
+    // GJ M9 J8: the line says whose calculation it came from, and when that was saved - not only which kind
+    notes: [it.spec, it.remarks, `Imported from ${calcRow.worker_name ? calcRow.worker_name + "'s " : ''}${calcRow.calc_type || 'calc'} calculation (${calcRow.project_name || 'Untitled'}, ${fmtDate(calcRow.created_at)})`]
       .filter(Boolean).join(' · '),
     sort_order: base + i,
   }));

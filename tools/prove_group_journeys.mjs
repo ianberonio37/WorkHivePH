@@ -203,7 +203,9 @@ async function findText(s, marker, ms = 15000) {
       // climb until the node is one of a REPEATED set of siblings (a list's item: same tag and class beside it) - that is
       // the record; stop before a block grows past a card's size
       // a record that names itself (the logbook's cards carry data-entry-id) is the card; otherwise the sibling climb
-      const named = best.el.closest('[data-entry-id], [data-alert-id], [data-node-id], [data-record-id]');
+      // (a change order's card and a scope item's row name themselves too - 2026-11-06, J8: the climb stopped at the
+      // card's title row and read a CO as having no author while its card said "Raised by ... · date")
+      const named = best.el.closest('[data-entry-id], [data-alert-id], [data-node-id], [data-record-id], [data-co-id], [data-item-id]');
       if (named && (named.innerText || '').trim().length < 1500) return { text: best.t, card: (named.innerText || '').trim() };
       // a record opened in its own view (a dialog) IS that view - its author and date sit beside the marker, not in it
       const dlg = best.el.closest('[role="dialog"], [aria-modal="true"]');
@@ -2633,6 +2635,95 @@ RECIPES['G-PUBLIC'] = {
     return { act: { ok: !!X.rec.member, detail: `${x.m.name} joined at hand-off 2; the screen the join landed on is read` },
       preRead: X.rec.welcome ? { card: X.rec.welcome } : null,
       marker: HOME, markerRx: /supervisor/i, path: 'hive.html', rec: { table: 'hive_members', id: X.rec.member } };
+  },
+};
+
+// ── J8 · the project: the engineer's BOM on the project, the manager's change order to the engineer, the progress back
+// (cast: e = the engineer, p = the project manager (a supervisor))
+// ★A FIXTURE, SAID IN THE RECEIPT: "the BOM the engineer generated" is generated in Engineering Design by the BOM agent - a
+// model call no walk spends. The engineer's saved calculation WITH its BOM is written for the walk (as the agent would
+// have left it in their history) and removed after; everything from the import on is walked through the page.
+function j8Project(X) {
+  if (X.rec.project) return X.rec.project;
+  const row = psql(`select id || '|' || name from projects where hive_id = '${HIVE_ID}' and deleted_at is null order by created_at limit 1`);
+  const [id, name] = row ? [row.split('|')[0], row.split('|').slice(1).join('|')] : ['', ''];
+  X.restores = [...(X.restores || []), ['the walk\'s calculation, scope items, change order and progress', `set session_replication_role = replica;
+      delete from project_items where project_id = '${q(id)}' and (title like '${q(X.tag)}%' or notes like '%${q(X.tag)}%');
+      delete from project_change_orders where project_id = '${q(id)}' and title like '${q(X.tag)}%';
+      delete from project_progress_logs where project_id = '${q(id)}' and notes like '${q(X.tag)}%';
+      delete from engineering_calcs where project_name like '${q(X.tag)}%';`]];
+  return (X.rec.project = { id, name });
+}
+// a project opened as a person opens it, then the detail's own tab for what they came to read
+async function openProject(P, id, tab = null) {
+  await go(P, 'project-manager.html');
+  await P.page.evaluate((pid) => { if (typeof openDetail === 'function') openDetail(pid); }, id);
+  await sleep(2500);
+  if (tab) {
+    await P.page.evaluate((t) => {
+      const b = [...document.querySelectorAll('#detail-view button, #detail-view [role="tab"]')].find((x) => (x.textContent || '').trim().toLowerCase() === t.toLowerCase());
+      if (b) b.click();
+    }, tab);
+    await sleep(1500);
+  }
+}
+RECIPES.J8 = {
+  1: async (X) => {   // the BOM the engineer generated is on the project
+    const { e } = X.S;
+    const prj = j8Project(X);
+    const bom = [{ item: `${X.tag} centrifugal pump, 50 kW`, qty: 1, unit: 'set', spec: 'TDH 42 m' }, { item: `${X.tag} gate valve DN150`, qty: 2, unit: 'pc', spec: 'PN16' }];
+    psql(`insert into engineering_calcs (hive_id, worker_name, auth_uid, calc_type, project_name, inputs, results, bom_data)
+      values ('${HIVE_ID}', '${q(e.m.name)}', '${e.m.uid}', 'Pump Sizing (TDH)', '${q(X.tag)} cooling water pump', '{}'::jsonb, '{}'::jsonb, '${q(JSON.stringify(bom))}'::jsonb)`);
+    await openProject(e, prj.id);
+    await e.page.evaluate(() => { if (typeof openBomImport === 'function') openBomImport(); });
+    await sleep(2500);
+    const picked = await e.page.evaluate((t) => {
+      const b = [...document.querySelectorAll('#modal-bom-import button')].find((x) => (x.textContent || '').includes(t));
+      if (b) { b.click(); return true; } return false;
+    }, `${X.tag} cooling water pump`);
+    await sleep(3000);
+    const n = psql(`select count(*) from project_items where project_id = '${q(prj.id)}' and title like '${q(X.tag)}%'`);
+    return { act: { ok: picked && Number(n) === 2, detail: `"Import BOM from Eng. Design" on "${prj.name}" as ${e.m.name}, the saved Pump Sizing calculation picked (${picked}): ${n} scope item(s)` },
+      marker: `${X.tag} centrifugal pump`, path: 'project-manager.html',
+      reach: async (R2, ms) => { await openProject(R2, prj.id, 'Scope / WBS'); return findText(R2, `${X.tag} centrifugal pump`, ms); },
+      rec: { table: 'project_items', id: psql(`select id from project_items where project_id = '${q(prj.id)}' and title like '${q(X.tag)} centrifugal%' limit 1`) } };
+  },
+  2: async (X) => {   // the change order the manager raised reaches the engineer
+    const { p } = X.S;
+    const prj = j8Project(X);
+    await openProject(p, prj.id);
+    await p.page.evaluate(() => { if (typeof openNewCO === 'function') openNewCO(); });
+    await sleep(1200);
+    const title = `${X.tag} add a standby pump`;
+    await p.page.fill('#co-title', title).catch(() => {});
+    await p.page.fill('#co-scope', 'Add a second 50 kW pump as a standby so the cooling water loop survives a single pump trip.').catch(() => {});
+    await p.page.evaluate(() => { const s = document.getElementById('co-reason'); if (s) { const o = [...s.options].find((x) => x.value); if (o) { s.value = o.value; s.dispatchEvent(new Event('change', { bubbles: true })); } } });
+    await p.page.fill('#co-cost', '185000').catch(() => {});
+    await p.page.fill('#co-days', '6').catch(() => {});
+    await p.page.evaluate(() => { const f = document.getElementById('form-co'); if (f) f.requestSubmit ? f.requestSubmit() : f.submit(); });
+    await sleep(3000);
+    const co = psql(`select id from project_change_orders where project_id = '${q(prj.id)}' and title = '${q(title)}' limit 1`);
+    return { act: { ok: !!co, detail: `"Raise change order" on "${prj.name}" as ${p.m.name}: project_change_orders ${co || 'NO ROW'}` },
+      marker: title, path: 'project-manager.html',
+      reach: async (R2, ms) => { await openProject(R2, prj.id, 'Change orders'); return findText(R2, title, ms); },
+      rec: { table: 'project_change_orders', id: co } };
+  },
+  3: async (X) => {   // the engineer's progress in the manager's report
+    const { e } = X.S;
+    const prj = j8Project(X);
+    await openProject(e, prj.id);
+    await e.page.evaluate(() => { if (typeof openProgressLog === 'function') openProgressLog(); });
+    await sleep(1200);
+    const note = `${X.tag} pump base poured, anchor bolts set`;
+    await e.page.fill('#p-pct', '35').catch(() => {});
+    await e.page.fill('#p-hours', '6').catch(() => {});
+    await e.page.fill('#p-notes', note).catch(() => {});
+    await e.page.evaluate(() => { const f = document.getElementById('form-progress'); if (f) f.requestSubmit ? f.requestSubmit() : f.submit(); });
+    await sleep(3000);
+    const log = psql(`select id from project_progress_logs where project_id = '${q(prj.id)}' and notes like '${q(X.tag)}%' limit 1`);
+    return { act: { ok: !!log, detail: `"+ Log progress" (35%) on "${prj.name}" as ${e.m.name}: project_progress_logs ${log || 'NO ROW'}` },
+      marker: note.slice(0, 40), path: `project-report.html?project_id=${prj.id}`,
+      rec: { table: 'project_progress_logs', id: log } };
   },
 };
 
