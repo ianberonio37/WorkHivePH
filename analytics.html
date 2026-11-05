@@ -1204,8 +1204,21 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   // read from here — null until it lands, which the ladder falls back over safely.
   let anPmOntime = null;
   let _lastSummaryData = null;
-  async function loadPmOntime() {
-    if (!HIVE_ID) return;
+  /* ★ONE FIGURE, ASKED ONCE A LOAD (GJ M9 J10 contract, 2026-11-06): the on-time figure depends on the hive and the
+     period only, yet every phase fetch asked it again - and when the saved snapshots cannot be read (a 429, a slow
+     link) the page fetches all four phases, so one refusal became five identical requests while the server had said
+     "wait 5 s" (measured: 4 more POSTs than an ordinary load). It is asked once per hive+period; the person's own
+     Refresh, or a new period, asks again. */
+  let _pmOntimeKey = null, _pmOntimeAsk = null;
+  function loadPmOntime(fresh) {
+    if (!HIVE_ID) return Promise.resolve();
+    const key = HIVE_ID + '|' + _period;
+    if (!fresh && _pmOntimeAsk && _pmOntimeKey === key) return _pmOntimeAsk;
+    _pmOntimeKey = key;
+    _pmOntimeAsk = _loadPmOntime();
+    return _pmOntimeAsk;
+  }
+  async function _loadPmOntime() {
     try {
       const { data, error } = await db.rpc('get_pm_ontime_delivery',
         { p_hive_id: HIVE_ID, p_period_days: _period });
@@ -1340,6 +1353,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     showSkeleton();
     startLoadingMessages();
 
+    loadPmOntime(true);   // the person asked for fresh figures: the on-time figure is asked again, once
     // All 4 phases run simultaneously — no more 4× wait
     // ★fetchPhase SWALLOWS ITS OWN ERRORS — it catches, toasts via whAiError, and paints the
     // "Analytics unavailable" verdict itself, so every promise here settles FULFILLED even when all
@@ -2425,7 +2439,8 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       itemNoun: 'machine',
       searchable: rows.length > 10,
       renderRow: (r) => '<tr data-record-id="' + escHtml(String(r.asset_node_id || r.machine || '')) + '">'
-        + '<td class="machine-name">' + escHtml(r.machine || 'Unnamed machine') + '</td>'
+        + '<td class="machine-name">' + escHtml(r.asset_name || r.machine || 'Unnamed machine')
+        + (r.asset_name && r.machine && r.machine !== r.asset_name ? ' <span style="opacity:0.8;">· ' + escHtml(r.machine) + '</span>' : '') + '</td>'
         + '<td class="num">' + (r.parts_cost != null ? escHtml(peso(r.parts_cost)) : '-')
         + (Number(r.unpriced_lines || 0) ? ' <span style="opacity:0.8;">(' + Number(r.unpriced_lines) + ' unpriced)</span>' : '') + '</td>'
         + '<td class="num">' + Number(r.entries || 0) + '</td>'

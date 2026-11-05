@@ -3343,17 +3343,21 @@ RECIPES.J27 = {
     X.restores = [...(X.restores || []), ['the listing put back as it was', `set session_replication_role = replica;
       update marketplace_listings set status = '${q(ks)}', moderation_reason = ${lit(kr)}, moderated_at = ${lit(ka)}, moderated_by = ${lit(kb)} where id = '${q(L.id)}';`]];
     const reason = `${X.tag}-M the photos do not match the cartridges a buyer received; retake them before relisting`;
-    await go(o, 'marketplace-admin.html');
+    // the live moderation surface is the founder console's Operations tab (marketplace-admin.html is retired: it says so
+    // and points there): the founder searches the published listings for the one a buyer reported, then Unpublish
+    await go(o, 'founder-console.html');
+    await sleep(4000);
+    await o.page.evaluate(() => { const c = document.getElementById('mkt-published-card'); const d = c && c.closest('details'); if (d) d.open = true; if (c) c.scrollIntoView({ block: 'start' }); });
+    await o.page.fill('#mkt-published-search', L.title.split(/\s+/).slice(0, 4).join(' ')).catch(() => {});
+    await o.page.evaluate(() => { const i = document.getElementById('mkt-published-search'); if (i) i.dispatchEvent(new Event('input', { bubbles: true })); });
     await sleep(3000);
-    await o.page.evaluate(() => { const t = document.getElementById('tab-published'); if (t) t.click(); });
-    await sleep(3000);
-    const pressed = await o.page.evaluate((id) => { const btn = document.querySelector(`button[data-action="unpublish"][data-id="${id}"]`); if (btn) { btn.scrollIntoView({ block: 'center' }); btn.click(); return true; } return false; }, L.id);
+    const pressed = await o.page.evaluate((id) => { const btn = document.querySelector(`button[data-mkt-act="unpublish-listing"][data-id="${id}"]`); if (btn) { btn.scrollIntoView({ block: 'center' }); btn.click(); return true; } return false; }, L.id);
     const asked = pressed ? await modalFill(o, reason) : false;
     await sleep(3500);
     const st = psql(`select status || '|' || coalesce(moderation_reason,'') || '|' || coalesce(moderated_by,'') from marketplace_listings where id = '${q(L.id)}'`);
     const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
       where created_at >= '${X.t0}' and payload->'auth_uids' ? '${v.m.uid}' and payload->>'title' like 'Your listing was%' order by created_at desc limit 1`);
-    return { act: { ok: pressed && asked && st.startsWith('draft|' + reason.slice(0, 20)), detail: `"Unpublish" on "${L.title}" in the marketplace admin as ${o.m.name}, with a reason: ${st.slice(0, 120) || 'unchanged'}` },
+    return { act: { ok: pressed && asked && st.startsWith('draft|' + reason.slice(0, 20)), detail: `"Unpublish" on "${L.title}" in the founder console as ${o.m.name}, with a reason: ${st.slice(0, 120) || 'unchanged'}` },
       marker: reason.slice(0, 40), path: 'marketplace-seller.html', channelSaid: pushSaid || null,
       reach: async (R2, ms) => { await sellerConsoleTab(R2, 'listings'); return findText(R2, reason.slice(0, 40), ms); },
       rec: { table: 'v_marketplace_listings_truth', id: L.id, where: `and status = 'draft'` },
@@ -3611,6 +3615,29 @@ function cleanup(X, kept) {
       [`audit lines in ${h}`, `delete from hive_audit_log where hive_id = '${h}' and created_at >= '${X.t0}';`],
       [`acknowledgements in ${h}`, `delete from alert_dismissals where hive_id = '${h}' and created_at >= '${X.t0}';`]);
   }
+  // ★WHAT THE FOREIGN KEYS WOULD HAVE DONE, DONE BY HAND (2026-11-06, found by the psql suite's no_orphan_replies): every
+  // step runs under session_replication_role = replica, so it passes the guards - and an FK's ON DELETE CASCADE is a
+  // trigger too, so it never fired. Deleting a walk's post left its replies and its XP awards behind, half a conversation
+  // with no question above it (J7's two replies; four post-XP awards from the 2026-11-05 walks). Last, the cleanup does
+  // what each cascading key would have done: a child row whose parent this cleanup removed goes with it, read from the
+  // catalog so a table added tomorrow is covered, repeated so grandchildren follow.
+  steps.push(['what the cascading keys would have removed', `DO $gj$
+     DECLARE r record; pass int;
+     BEGIN
+       FOR pass IN 1..3 LOOP
+         FOR r IN SELECT c.conrelid::regclass AS child, a.attname AS col, c.confrelid::regclass AS parent, pa.attname AS pcol
+                    FROM pg_constraint c
+                    JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = c.conkey[1]
+                    JOIN pg_attribute pa ON pa.attrelid = c.confrelid AND pa.attnum = c.confkey[1]
+                   WHERE c.contype = 'f' AND c.confdeltype = 'c' AND array_length(c.conkey, 1) = 1
+                     AND c.connamespace = 'public'::regnamespace LOOP
+           BEGIN
+             EXECUTE format('DELETE FROM %s ch WHERE ch.%I IS NOT NULL AND NOT EXISTS (SELECT 1 FROM %s p WHERE p.%I = ch.%I)',
+                            r.child, r.col, r.parent, r.pcol, r.col);
+           EXCEPTION WHEN others THEN NULL; END;
+         END LOOP;
+       END LOOP;
+     END $gj$;`]);
   for (const [what, sql] of steps) {
     try { psql(R + sql); } catch (e) { X.notes.push(`cleanup step "${what}" failed: ${String(e.message || e).slice(0, 200)}`); }
   }

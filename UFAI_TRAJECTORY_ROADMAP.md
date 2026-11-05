@@ -5882,7 +5882,9 @@ page's own reads before a walk ran; the walks then found what reading could not.
   a part logged by name only is counted unpriced, never guessed - with its basis said every time: "Priced N of M parts
   used ... Labour and outside services are not counted." (mig 10; probe with teeth; the fleet seeder prices its parts).
   The walk registers the unit the way a fleet owner does - integrations' "Add my vehicle" (the asset with its plate and
-  odometer, its PM schedule and its starter parts in one act); the logbook's machine form has no vehicle type.
+  odometer, its PM schedule and its starter parts in one act); the logbook's machine form has no vehicle type. Its
+  first reading of the card found the row named "NBX 6851": the logbook's machine code for a vehicle is its plate, so
+  the card now names the asset and keeps the code beside it ("Isuzu NLR delivery truck · NBX 6851").
 - **A parts deal gone wrong had nowhere to go after the first word (J27).** A review could not be answered; a "Report
   listing" reached the founder console and its answer reached no one (the panel even sent a signed-in member's report
   with the public key, so it carried no account); a listing WorkHive took down told its seller nothing, and an
@@ -5890,6 +5892,14 @@ page's own reads before a walk ran; the walks then found what reading could not.
   (`reply_to_listing_review`, the reviewer pushed); reports carry their sender's account and a separate "Answer to the
   sender" (the console's admin note stays internal - the first draft would have pushed it, caught before it shipped);
   "Your reports" in the feedback panel; a moderated listing pushes its seller and its card says why (mig 11).
+
+**Found by the contract half and the suite, not by the scenarios:** analytics asked the same on-time figure once per
+phase, so when its saved snapshots could not be read (a 429 with Retry-After 5 s) one refusal became five identical
+requests - now asked once per hive and period, and again only on the person's own Refresh. And the prover's own
+cleanup stranded rows: every step runs in `replica` mode to pass the guards, which silences ON DELETE CASCADE too, so a
+walk's deleted post left its replies and XP awards behind (34 orphans across 7 tables, some from other provers'
+fixture hives). The orphans are gone and the cleanup ends with a catalog-driven sweep of what each cascading key would
+have removed. All 1,529 M9 contract rows were walked through the Playwright MCP and every batch holds.
 
 **Re-premised on the product's real model (for Ian):** J25 badges are private by design; J12 / G-PUBLIC - a code join
 is admission, there is no people-approval; J27 - the parts escrow-dispute loop was retired on 2026-08-03, so the walk

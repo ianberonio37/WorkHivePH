@@ -105,9 +105,12 @@ CREATE OR REPLACE VIEW public.v_inventory_items_truth WITH (security_invoker = t
    FROM inventory_items i
   WHERE (deleted_at IS NULL);
 
-CREATE OR REPLACE FUNCTION public.parts_cost_by_asset(p_hive_id uuid, p_period_days integer DEFAULT 30)
+-- the machine is named as its owner knows it: the asset's NAME beside the code the logbook carries (for a vehicle that
+-- code is its plate, so "NBX 6851" alone never told an owner which truck it was - walked, GJ M9 J10 hand-off 4)
+DROP FUNCTION IF EXISTS public.parts_cost_by_asset(uuid, integer);
+CREATE FUNCTION public.parts_cost_by_asset(p_hive_id uuid, p_period_days integer DEFAULT 30)
  RETURNS TABLE(asset_node_id uuid, machine text, parts_cost numeric, priced_lines bigint, unpriced_lines bigint,
-               entries bigint, last_logged_by text, last_logged_at timestamptz)
+               entries bigint, last_logged_by text, last_logged_at timestamptz, asset_name text)
  LANGUAGE sql
  STABLE
  SECURITY INVOKER
@@ -131,8 +134,10 @@ AS $function$
          count(*) FILTER (WHERE ln.unit_cost IS NULL OR ln.qty IS NULL),
          count(DISTINCT ln.entry_id),
          (array_agg(ln.worker_name ORDER BY ln.created_at DESC))[1],
-         max(ln.created_at)
+         max(ln.created_at),
+         max(an.name)
     FROM lines ln
+    LEFT JOIN public.asset_nodes an ON an.id = ln.asset_node_id
    GROUP BY ln.asset_node_id, CASE WHEN ln.asset_node_id IS NULL THEN ln.machine END
    ORDER BY 3 DESC NULLS LAST, 6 DESC
    LIMIT 200;
