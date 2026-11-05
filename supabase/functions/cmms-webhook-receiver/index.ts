@@ -260,7 +260,7 @@ serveObserved("cmms-webhook-receiver", async (req) => {
     // Look up the integration config
     const { data: config, error: cfgErr } = await db
       .from("integration_configs")
-      .select("id, hive_id, system_type, auth_token, enabled")
+      .select("id, hive_id, system_type, auth_token, enabled, label")
       .eq("id", configId)
       .single();
 
@@ -327,10 +327,11 @@ serveObserved("cmms-webhook-receiver", async (req) => {
     const hiveId     = config.hive_id;
     const now        = new Date().toISOString();
 
-    // Get a worker to attribute events to
-    const { data: members } = await db.from("v_worker_truth")
-      .select("worker_name").eq("hive_id", hiveId).eq("role", "supervisor").limit(1);
-    const workerName = members?.[0]?.worker_name || "CMMS Webhook";
+    // ★A MACHINE'S RECORD UNDER A PERSON'S NAME (2026-11-06, GJ M9 J15). This attributed every pushed work order to
+    // "a worker" - the hive's first supervisor found - so the logbook read as if that supervisor had written it, and the
+    // logbook's XP trigger paid them for it. The connection is the author: its own name, and the row's origin in
+    // sync_meta (the trigger pays nobody for an entry so marked, mig 20261106000007).
+    const workerName = `CMMS: ${String(config.label || systemType).slice(0, 60)}`;
 
     // Process based on event type
     if (["work_order.created", "work_order.updated", "work_order.completed"].includes(eventType)) {
@@ -382,7 +383,8 @@ serveObserved("cmms-webhook-receiver", async (req) => {
         /* ...and the same rule for the LOGBOOK write, which is the one a person actually reads. An
            unchecked failure here leaves external_sync claiming the order synced while the logbook has no
            entry for it - the two surfaces disagreeing, with ok:true sent to the CMMS either way. */
-        const { error: logErr } = await db.from("logbook").insert(logRow);
+        const { error: logErr } = await db.from("logbook").insert({ ...logRow,
+          sync_meta: { source: "cmms", config_id: config.id, system: systemType, external_id: extracted.extId } });
         if (logErr) {
           console.error("cmms-webhook-receiver: logbook insert failed -", logErr.message);
           throw new Error(`work_order.created reached external_sync but not the logbook: ${logErr.message}`);
@@ -478,6 +480,16 @@ serveObserved("cmms-webhook-receiver", async (req) => {
       }
       log.info(null, `Recorded pm.overdue for ${pmId} hive ${hiveId}`);
     }
+
+    // ★THE SYNC STATUS NEVER MOVED FOR A PUSHED EVENT (2026-11-06, GJ M9 J15): only the pull sync (cmms-sync) stamped the
+    // connection, so a supervisor reading plant-connections saw the last PULL as the last sync while the CMMS pushed work
+    // orders all day. An accepted event is a sync; the connection says when it last heard from the CMMS. Best-effort: a
+    // failed stamp never refuses an event that was already written.
+    try {
+      await db.from("integration_configs")
+        .update({ last_sync_at: now, last_sync_status: "ok", last_sync_error: null })
+        .eq("id", config.id);
+    } catch (_e) { /* the event stands; the status stamp is a courtesy */ }
 
     return new Response(
       JSON.stringify({ ok: true, event: eventType, hive_id: hiveId }),

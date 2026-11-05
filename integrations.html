@@ -397,6 +397,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     <div data-i="p_whattodonext_8ce2" class="ac-label">What to do next</div>
     <div data-i="p_computingrecommendation_5948" class="ac-text" id="it-action-text">Computing recommendation...</div>
   </div>
+  <div id="it-recent-imports" class="action-card" hidden></div>
   <span data-wh-source-anchor="it-summary-details" hidden></span>
 
   <!-- Getting Started workflow guide (dismissible) -->
@@ -1123,6 +1124,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         } catch (_) { /* empty-catch-allow: the error COUNT is an extra signal; failing to read it must not cost the verdict itself */ }
         _integrationConfigs = data || [];
         renderIntegrationsSummary(data || []);
+        loadRecentImports();   // GJ M9 J15: what the connection brought in, not only that it ran
       } catch (_) { renderIntegrationsLoadError(); }
     } else {
       renderIntegrationsSummary([]);
@@ -2723,6 +2725,38 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     if (typeof showToast === 'function') showToast(_t('Exported ' + rows.length + ' connections.', 'Na-export ang ' + rows.length + ' na koneksyon.'));
   };
+
+  // ★THE PAGE COUNTED WHAT IT IMPORTED AND NEVER SAID WHAT (2026-11-06, GJ M9 J15: "the records the connection imported").
+  // A supervisor could see that a CMMS connection was active and whether syncs had failed, and could not read which work
+  // orders, assets or parts it had actually brought in. The latest ten, newest first, each with its system, its state
+  // and when - a work order links to the logbook entry it became.
+  async function loadRecentImports() {
+    const box = document.getElementById('it-recent-imports');
+    if (!box || !HIVE_ID) return;
+    try {
+      const { data, error } = await db.from('v_external_sync_truth')
+        .select('external_id, entity_type, system_type, status, last_synced_at, workhive_table, id')
+        .eq('hive_id', HIVE_ID).eq('is_deleted', false)
+        .order('last_synced_at', { ascending: false, nullsFirst: false }).order('id')
+        .limit(10 + 1);   // more-said: the 11th row says there are older imports
+      if (error) throw error;
+      const rows = data || [];
+      if (!rows.length) { box.hidden = true; return; }
+      const kind = { work_order: 'Work order', asset: 'Asset', inventory: 'Part', part: 'Part', pm: 'PM' };
+      const items = rows.slice(0, 10).map((r) => '<li style="padding:0.35rem 0; border-bottom:1px solid var(--wh-white-06, rgba(255,255,255,0.06));">'
+        + '<strong>' + escHtml((kind[r.entity_type] || r.entity_type || 'Record') + ' ' + (r.external_id || '')) + '</strong>'
+        + ' <span style="color:var(--wh-text-muted, rgba(255,255,255,0.8));">· ' + escHtml(r.system_type || 'CMMS')
+        + (r.status ? ' · ' + escHtml(r.status) : '')
+        + (r.last_synced_at && typeof whFmtAgo === 'function' ? ' · ' + escHtml(whFmtAgo(r.last_synced_at)) : '') + '</span></li>').join('');
+      box.innerHTML = '<p style="margin:0 0 0.4rem; font-weight:700;">Recently imported from your CMMS</p>'
+        + '<ul style="list-style:none; margin:0; padding:0; font-size:var(--wh-fs-sm, 0.85rem);">' + items + '</ul>'
+        + (rows.length > 10 ? '<p style="margin:0.4rem 0 0; font-size:var(--wh-fs-xs, 0.8rem); color:var(--wh-text-muted, rgba(255,255,255,0.8));" data-wh-more-note>The 10 most recent. Older imports are in the export.</p>' : '');
+      box.hidden = false;
+    } catch (_) {
+      box.innerHTML = '<p style="margin:0; font-size:var(--wh-fs-sm, 0.85rem);">The recent imports could not be read just now.</p>';
+      box.hidden = false;
+    }
+  }
 
   function renderIntegrationsSummary(configs) {
     const now = Date.now();

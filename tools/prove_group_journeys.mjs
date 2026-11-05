@@ -2768,6 +2768,60 @@ RECIPES.J30 = {
   },
 };
 
+// ── J15 · the machine client: a CMMS connects and syncs, and the supervisor can read what it did
+// (cast: m = the CMMS - an api-key machine that acts and does not read; s = the supervisor)
+// ★A FIXTURE, SAID IN THE RECEIPT: the hive's CMMS connection is given a webhook secret for the walk (setting one is the
+// supervisor's configuration on integrations.html, not this scenario's claim); the connection row is put back exactly.
+async function cmmsPush(X, event, payload) {
+  const cfg = X.rec.cmms;
+  const body = JSON.stringify({ event, cmms_type: 'generic', payload });
+  const ts = String(Math.floor(Date.now() / 1000));
+  const { createHmac } = await import('crypto');
+  const sig = createHmac('sha256', cfg.secret).update(`${ts}.${body}`).digest('hex');
+  const r = await fetch(`${SB}/functions/v1/cmms-webhook-receiver?config_id=${cfg.id}`, { method: 'POST',
+    headers: { apikey: KEY, 'Content-Type': 'application/json', 'X-WorkHive-Timestamp': ts, 'X-WorkHive-Signature': `sha256=${sig}` }, body }).catch((e) => ({ ok: false, status: 0, text: async () => String(e) }));
+  return { status: r.status, said: (await r.text()).slice(0, 200) };
+}
+RECIPES.J15 = {
+  1: async (X) => {   // the CMMS pushes a work order; the sync status the supervisor reads is current
+    const cfgRow = psql(`select id || '|' || coalesce(label, system_type) from integration_configs where hive_id = '${HIVE_ID}' and enabled order by created_at limit 1`);
+    const [cid, label] = cfgRow ? [cfgRow.split('|')[0], cfgRow.split('|').slice(1).join('|')] : ['', ''];
+    const kept = psql(`select coalesce(json_agg(row_to_json(c)), '[]') from integration_configs c where id = '${q(cid)}'`);
+    const secret = `gj-walk-${Date.now().toString(36)}-secret`;
+    psql(`update integration_configs set auth_token = '${q(secret)}' where id = '${q(cid)}'`);
+    X.rec.cmms = { id: cid, label, secret };
+    X.restores = [...(X.restores || []), ['the CMMS connection put back', `begin; delete from integration_configs where id = '${q(cid)}';
+        insert into integration_configs select * from json_populate_recordset(null::integration_configs, '${q(kept)}'); commit;`],
+      ['the synced work order', `delete from external_sync where hive_id = '${HIVE_ID}' and external_id like '${q(X.tag)}%';
+        set session_replication_role = replica; delete from logbook where hive_id = '${HIVE_ID}' and problem like '${q(X.tag)}%';`]];
+    const wo = `${X.tag}-WO1`;
+    const res = await cmmsPush(X, 'work_order.created', { work_order_no: wo, asset_tag: 'MEA-CMP-01', status: 'open', type: 'corrective',
+      description: `${X.tag} air dryer high dew point alarm`, actual_hours: '0', created_date: new Date().toISOString() });
+    X.rec.wo = wo;
+    const st = psql(`select coalesce(last_sync_status,'') || '|' || coalesce(to_char(last_sync_at at time zone 'Asia/Manila', 'HH24:MI'),'') from integration_configs where id = '${q(cid)}'`);
+    return { act: { ok: res.status === 200 && st.startsWith('ok|'), detail: `the CMMS (${label}) pushed work_order.created ${wo}, signed: HTTP ${res.status} ${res.said}; the connection reads last sync ${st || 'never'}` },
+      marker: label, whoRx: new RegExp(reEsc(label.split(' ')[0]), 'i'), path: 'plant-connections.html',
+      rec: { table: 'integration_configs', id: cid } };
+  },
+  2: async (X) => {   // the records the connection imported
+    const wo = X.rec.wo;
+    const row = psql(`select id from external_sync where hive_id = '${HIVE_ID}' and external_id = '${q(wo)}' limit 1`);
+    return { act: { ok: !!row, detail: `external_sync for ${wo}: ${row || 'NO ROW'}` },
+      marker: wo, whoRx: /generic|cmms|rest/i, path: 'integrations.html',
+      rec: { table: 'v_external_sync_truth', id: row } };
+  },
+  3: async (X) => {   // the synced work order in the logbook - written under the connection's name, not a person's
+    const wo = X.rec.wo;
+    const row = psql(`select id || '|' || worker_name || '|' || coalesce(sync_meta->>'source','') from logbook where hive_id = '${HIVE_ID}' and problem like '${q(X.tag)}%' limit 1`);
+    const [id, author, source] = row ? row.split('|') : ['', '', ''];
+    const xp = id ? psql(`select count(*) from achievement_xp_log where source_id = '${q(id)}'`) : '0';
+    return { act: { ok: !!id && /^CMMS: /.test(author) && source === 'cmms' && Number(xp) === 0,
+        detail: `logbook ${id || 'NO ROW'} for ${wo}: written by "${author}", origin ${source || '-'}, XP paid to anyone for it: ${xp}` },
+      marker: X.tag, whoRx: /CMMS/i, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, X.tag, ms),
+      rec: { table: 'logbook', id } };
+  },
+};
+
 // ── G-ADV · the record reached for from outside: the hand-off stays inside its hive, refused in words
 RECIPES['G-ADV'] = {
   1: (X) => RECIPES.J2[1](X),

@@ -15,7 +15,7 @@ export const BUILD_STAMPS: Record<string, string> = {
   "benchmark-compute": "536491d74e26",
   "cmms-push-completion": "a022a608e012",
   "cmms-sync": "b0d0c6ffc5ee",
-  "cmms-webhook-receiver": "898c4539d13e",
+  "cmms-webhook-receiver": "f2c9d4104fbb",
   "cold-archive-query": "c8ebeb00daff",
   "data-fabric-normalizer": "c163829910d2",
   "embed-entry": "166fe2d7548f",
