@@ -1,6 +1,6 @@
 {
   "summary": {
-    "view_column_pairs": 333,
+    "view_column_pairs": 338,
     "at_risk": 0,
     "review": 9,
     "files_scanned": 354
@@ -1332,6 +1332,11 @@
           "smells": []
         },
         {
+          "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "plant-connections.html",
           "shape": "direct",
           "smells": []
@@ -1397,7 +1402,7 @@
       "consumers": [
         {
           "file": "integrations.html",
-          "shape": "direct",
+          "shape": "mapped_enum",
           "smells": []
         },
         {
@@ -1450,6 +1455,11 @@
           "smells": []
         },
         {
+          "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
+        {
           "file": "plant-connections.html",
           "shape": "direct",
           "smells": []
@@ -1467,6 +1477,11 @@
       "view": "v_external_sync_truth",
       "column": "workhive_table",
       "consumers": [
+        {
+          "file": "integrations.html",
+          "shape": "direct",
+          "smells": []
+        },
         {
           "file": "plant-connections.html",
           "shape": "direct",
@@ -3744,6 +3759,19 @@
     {
       "view": "v_marketplace_listings_truth",
       "column": "moderated_at",
+      "consumers": [
+        {
+          "file": "marketplace-seller.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_marketplace_listings_truth",
+      "column": "moderated_by",
       "consumers": [
         {
           "file": "marketplace-seller.html",
@@ -6674,6 +6702,58 @@
     },
     {
       "view": "v_service_provider_truth",
+      "column": "latest_review_at",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_provider_truth",
+      "column": "latest_review_by",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_provider_truth",
+      "column": "latest_review_comment",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_provider_truth",
+      "column": "latest_review_rating",
+      "consumers": [
+        {
+          "file": "marketplace.html",
+          "shape": "direct",
+          "smells": []
+        }
+      ],
+      "smells": [],
+      "risk": "OK"
+    },
+    {
+      "view": "v_service_provider_truth",
       "column": "provider_type",
       "consumers": [
         {
@@ -7399,11 +7479,6 @@
         },
         {
           "file": "supabase/functions/cmms-sync/index.ts",
-          "shape": "direct",
-          "smells": []
-        },
-        {
-          "file": "supabase/functions/cmms-webhook-receiver/index.ts",
           "shape": "direct",
           "smells": []
         },

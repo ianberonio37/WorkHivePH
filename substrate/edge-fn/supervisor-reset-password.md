@@ -2,7 +2,7 @@
 name: edge-fn-supervisor-reset-password
 type: edge-fn
 source: file:supabase/functions/supervisor-reset-password/index.ts
-source_sha: 24d99046eff20b0c
+source_sha: 4ecfb473c9df488d
 last_verified: 2026-07-13
 supersedes: null
 ---

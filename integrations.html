@@ -946,7 +946,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 
 <!-- Scripts -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAdminCheckOfflineText whFmtDate whFnError whFold whIsDismissed whIsFormerMember whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whReadError whReconcileHiveRole whRequireOnline whRoleUnreadNote whSetDismissed whSourcesSync whStartupHive whUse whUseLink whWriteError">
+<script data-wh-skew-heal="whAdminCheckOfflineText whFmtAgo whFmtDate whFnError whFold whIsDismissed whIsFormerMember whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whReadError whReconcileHiveRole whRequireOnline whRoleUnreadNote whSetDismissed whSourcesSync whStartupHive whUse whUseLink whWriteError">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -2738,7 +2738,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
         .select('external_id, entity_type, system_type, status, last_synced_at, workhive_table, id')
         .eq('hive_id', HIVE_ID).eq('is_deleted', false)
         .order('last_synced_at', { ascending: false, nullsFirst: false }).order('id')
-        .limit(10 + 1);   // more-said: the 11th row says there are older imports
+        .limit(10 + 1);   // more-said: by loadRecentImports (the 11th row says there are older imports)
       if (error) throw error;
       const rows = data || [];
       if (!rows.length) { box.hidden = true; return; }

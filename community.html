@@ -946,7 +946,7 @@
 <script src="browser-floor.js"></script>
   <script src="vendor/supabase-js-2.110.0.min.js" integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whListError whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whPresenceFit whQueryTimeout whReadError whRealtimeBackfill whRecentlyDeleted whReconcileHiveRole whRequireOnline whSafeSearchTerm whSignInWall whSourcesSync whStartupHive whStatValue whUse">
+<script data-wh-skew-heal="whAbbr whFmtAgo whFmtDate whFreshnessFooter whHiveContextLost whHiveContextNotice whIsDismissed whListError whListSkeleton whLoadFormerMembers whMemberSuffix whMoreNote whPresenceFit whQueryTimeout whReadError whRealtimeBackfill whRecentlyDeleted whReconcileHiveRole whRequireOnline whSafeSearchTerm whSetDismissed whSignInWall whSourcesSync whStartupHive whStatValue whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -2578,7 +2578,7 @@ function _isMinePost(p) {
   // records it, keeps the trail, and pushes the author and every reporter - with the supervisor's reason when one is
   // given. The author is never told who reported them.
   async function moderatePost(postId, keep) {
-    if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only', 'error'); return; }
+    if (!(window.WHRoles && window.WHRoles.isSupervisor())) { showToast('Supervisors only', 'error'); return; }
     if (typeof whRequireOnline === 'function'
         && !whRequireOnline(keep ? 'Keeping this post' : 'Removing this post', (m) => showToast(m, 'error'))) return;
     const note = await window.whPrompt(keep
@@ -2635,6 +2635,8 @@ function _isMinePost(p) {
         + (r.moderated_at ? ' on ' + when(r.moderated_at) : '') + (why || '.');
     };
     box.innerHTML = '<p style="margin:0 0 0.4rem; font-weight:700; font-size:var(--wh-fs-sm);">About your posts and reports</p>'
+      // my_moderation_news reads at most the 20 newest of this person's reports (30 days): a full list says so
+      + (fresh.length >= 20 ? '<p data-wh-more-note role="note" style="margin:0 0 0.4rem; font-size:var(--wh-fs-xs, 0.8rem);">The 20 most recent from the last 30 days.</p>' : '')
       + '<ul style="margin:0; padding-left:1.1rem; display:flex; flex-direction:column; gap:0.3rem;">'
       + fresh.slice(0, 5).map((r) => '<li data-wh-modnews="' + escHtml(r.kind) + '">' + escHtml(line(r)) + '</li>').join('')
       + '</ul>'

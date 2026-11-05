@@ -48,6 +48,10 @@ EDGE_ALLOW = {
 # L3: definer functions that read a D3 table and must count or touch deleted rows too, and why.
 FN_ALLOW = {
     "check_logbook_rate_limit": "a deleted entry still counts toward the abuse rate limit",
+    # GJ M9 (2026-11-06), both already in production:
+    "my_moderation_news": "reports a supervisor's decision on a post, and \"removed\" IS a soft delete (wh_trash) - the news must "
+                          "read the deleted post to say so; it returns the first words and the decision, to the author and the reporters only",
+    "tg_best_answer_xp": "reads the question's author by id only to refuse paying for an answer to your own question; shows nothing",
     "check_hive_quota_logbook": "a deleted entry occupies the hive until the purge",
     "photo_attach_stats": "storage telemetry - a deleted row's photo is still stored",
     "export_hive_data": "a data export carries every row, deleted_at included",

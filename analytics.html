@@ -812,7 +812,7 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
 <!-- /wh-sources -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whAiTrustRow whFmtAgo whFnError whIsAuthFailure whIsRateLimited whLimitWait whListError whListSkeleton whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
+<script data-wh-skew-heal="whAiTrustRow whFmtAgo whFnError whIsAuthFailure whIsRateLimited whLimitWait whListError whListSkeleton whReadError whReconcileHiveRole whRequireOnline whSourcesSync whStartupHive whUse">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -2409,9 +2409,9 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
       const { data, error } = await db.rpc('parts_cost_by_asset', { p_hive_id: HIVE_ID, p_period_days: days });
       if (error) throw error;
       rows = data || [];
-    } catch (_) {
+    } catch (_e) {
       // a failed read is not "no cost": say it could not be read
-      slot.innerHTML = cardEmpty(title, std, 'The parts cost could not be read just now. Refresh to try again.');
+      slot.innerHTML = cardEmpty(title, std, (typeof whReadError === 'function') ? whReadError(_e, 'the parts cost by machine') : 'The parts cost by machine could not be read.');
       return;
     }
     if (!rows.length) {
@@ -2451,7 +2451,10 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     slot.innerHTML = '<div class="card">'
       + '<h2 class="card-title">' + escHtml(title) + ' <span class="card-standard">' + escHtml(std) + '</span></h2>'
       + '<p style="margin:0 0 0.5rem;font-size:var(--wh-fs-sm, 0.875rem);">' + escHtml(peso(total) + ' in parts across ' + costed.length + ' machine' + (costed.length === 1 ? '' : 's')) + '</p>'
-      + list + basis + '</div>';
+      + list + basis
+      // parts_cost_by_asset returns at most 200 machines (the costliest first): when it comes back full, the card says so
+      + (rows.length >= 200 ? '<p data-wh-more-note role="note" class="card-note" style="font-size:var(--wh-fs-2xs, 0.75rem);margin:0.375rem 0 0;">The 200 machines with the highest parts cost in this period. Others used parts too.</p>' : '')
+      + '</div>';
   }
 
   function renderPartsConsumption(d) {

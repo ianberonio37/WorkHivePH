@@ -6,7 +6,7 @@ differently (one trusts it; one re-gates on another field).
 
 ## Summary
 
-- View/column pairs scanned: **333**
+- View/column pairs scanned: **338**
 - AT_RISK pairs (re-gating detected): **0**
 - REVIEW pairs (local-math smell on at least one consumer): **9**
 - Files scanned: **354**
@@ -112,14 +112,14 @@ re-deriving what the canonical view should expose:
 | `v_community_posts_truth` | `mentions` | ✅ OK | 1 | direct |
 | `v_community_posts_truth` | `pinned` | ✅ OK | 1 | direct |
 | `v_community_posts_truth` | `public` | ✅ OK | 1 | direct |
-| `v_external_sync_truth` | `entity_type` | ✅ OK | 2 | direct |
+| `v_external_sync_truth` | `entity_type` | ✅ OK | 3 | direct |
 | `v_external_sync_truth` | `external_id` | ✅ OK | 4 | direct |
 | `v_external_sync_truth` | `last_synced_at` | ✅ OK | 3 | direct |
-| `v_external_sync_truth` | `status` | ✅ OK | 3 | direct |
+| `v_external_sync_truth` | `status` | ✅ OK | 3 | direct, mapped_enum |
 | `v_external_sync_truth` | `sync_payload` | ✅ OK | 1 | direct |
 | `v_external_sync_truth` | `sync_status` | ✅ OK | 1 | direct |
-| `v_external_sync_truth` | `system_type` | ✅ OK | 3 | direct |
-| `v_external_sync_truth` | `workhive_table` | ✅ OK | 1 | direct |
+| `v_external_sync_truth` | `system_type` | ✅ OK | 4 | direct |
+| `v_external_sync_truth` | `workhive_table` | ✅ OK | 2 | direct |
 | `v_fmea_truth` | `ai_confidence` | ✅ OK | 1 | direct |
 | `v_fmea_truth` | `approved_at` | ✅ OK | 1 | direct |
 | `v_fmea_truth` | `asset_id` | ✅ OK | 1 | direct |
@@ -206,6 +206,7 @@ re-deriving what the canonical view should expose:
 | `v_marketplace_listings_truth` | `image_url` | ✅ OK | 2 | direct |
 | `v_marketplace_listings_truth` | `location` | ✅ OK | 3 | direct, mapped_enum |
 | `v_marketplace_listings_truth` | `moderated_at` | ✅ OK | 1 | direct |
+| `v_marketplace_listings_truth` | `moderated_by` | ✅ OK | 1 | direct |
 | `v_marketplace_listings_truth` | `moderation_reason` | ✅ OK | 1 | direct |
 | `v_marketplace_listings_truth` | `price` | ✅ OK | 5 | direct |
 | `v_marketplace_listings_truth` | `section` | ✅ OK | 5 | direct |
@@ -335,6 +336,10 @@ re-deriving what the canonical view should expose:
 | `v_service_credit_topups_truth` | `provider_display_name` | ✅ OK | 2 | direct |
 | `v_service_provider_truth` | `completed_jobs` | ✅ OK | 2 | direct |
 | `v_service_provider_truth` | `display_name` | ✅ OK | 2 | direct |
+| `v_service_provider_truth` | `latest_review_at` | ✅ OK | 1 | direct |
+| `v_service_provider_truth` | `latest_review_by` | ✅ OK | 1 | direct |
+| `v_service_provider_truth` | `latest_review_comment` | ✅ OK | 1 | direct |
+| `v_service_provider_truth` | `latest_review_rating` | ✅ OK | 1 | direct |
 | `v_service_provider_truth` | `provider_type` | ✅ OK | 1 | mapped_enum |
 | `v_service_provider_truth` | `rating_avg` | ✅ OK | 2 | direct |
 | `v_service_provider_truth` | `rating_count` | ✅ OK | 2 | direct |
@@ -372,4 +377,4 @@ re-deriving what the canonical view should expose:
 | `v_worker_truth` | `hive_status` | ✅ OK | 8 | direct |
 | `v_worker_truth` | `preferred_persona` | ✅ OK | 2 | direct |
 | `v_worker_truth` | `role` | ✅ OK | 8 | direct |
-| `v_worker_truth` | `worker_name` | ✅ OK | 13 | direct |
+| `v_worker_truth` | `worker_name` | ✅ OK | 12 | direct |

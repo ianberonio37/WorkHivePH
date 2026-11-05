@@ -3185,7 +3185,7 @@
 </script>
 
   <script src="utils.js"></script>
-<script data-wh-skew-heal="whClearIdentity whFmtAgo whFreshnessFooter whHiveId whIsDismissed whListError whListSkeleton whLogError whMoreNote whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whUse whWarmPaint whWorker whWriteError">
+<script data-wh-skew-heal="whClearIdentity whFmtAgo whFmtDate whFreshnessFooter whHiveId whIsDismissed whListError whListSkeleton whLogError whMoreNote whReconcileHiveRole whRequireOnline whSetDismissed whSourcesSync whUse whWarmPaint whWorker whWriteError">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -3572,7 +3572,7 @@
   }
   window.forgotPassword = forgotPassword;
 
-  // ★A RESET PASSWORD IS NOT YOURS UNTIL YOU SET ONE (2026-11-05, GJ M9 J19). supervisor-reset-password stamps the
+  // ★A RESET PASSWORD BELONGS TO WHOEVER SET IT, UNTIL YOU SET YOUR OWN (2026-11-05, GJ M9 J19). supervisor-reset-password stamps the
   // account with who reset it and when (user_metadata.password_reset_by / _at). The only change-password path was the
   // emailed recovery link, and a worker's sign-in address (<username>@auth.workhiveph.com) receives no mail - so the
   // temporary password, which the supervisor knows, stayed theirs for good, and the header's "Change Password" opened an
@@ -3597,7 +3597,7 @@
     const newPw = await window.whPrompt(lead, { inputLabel: 'New password', inputType: 'password', okLabel: 'Next',
       cancelLabel: meta.password_reset_at ? 'Later' : 'Cancel' });
     if (!newPw) return;
-    if (newPw.length < 8) { await say('That password is shorter than 8 characters, so nothing was changed. Try again with a longer one.'); return; }
+    if (newPw.length < 8) { await say('That password has fewer than 8 characters, so nothing was changed. Try again with a longer one.'); return; }
     const again = await window.whPrompt('Type the new password once more.', { inputLabel: 'New password again',
       inputType: 'password', okLabel: 'Set password' });
     if (again === null || again === undefined || again === '') return;
@@ -3610,9 +3610,11 @@
       const code = String(error.code || '');
       await say(code === 'same_password' ? 'That is the password you have now, so nothing changed. Choose a different one.'
         : code === 'reauthentication_needed' ? 'WorkHive needs a recent sign-in before a password change. Sign out, sign in again with the password you have now, then change it.'
-        : code === 'weak_password' ? 'That password is too weak, so it was not set: ' + String(error.message || '')
+        : code === 'weak_password' ? 'That password was too weak to set: ' + String(error.message || '')
         : navigator.onLine === false ? 'You are offline, so your password was not changed. Try again when your connection is back.'
-        : 'Your password was not changed - WorkHive did not answer. Try again in a moment.');
+        // any other failure is read, not guessed: whWriteError names the cause it was (SL A1)
+        : (typeof whWriteError === 'function' ? whWriteError(error, 'Your password was not changed. Try again in a moment.')
+          : 'Your password was not changed. Try again in a moment.'));
       return;
     }
     const box = document.getElementById('oh-pwreset-notice');
@@ -3642,7 +3644,7 @@
     const b = document.createElement('button');
     b.type = 'button';
     b.textContent = 'Set my password';
-    b.style.cssText = 'min-height:44px; padding:10px 18px; border-radius:10px; border:1px solid rgba(var(--wh-orange-rgb), 0.45); background:rgba(var(--wh-orange-rgb), 0.16); color:var(--wh-orange); font:inherit; font-weight:700; font-size:var(--wh-fs-sm); cursor:pointer;';
+    b.style.cssText = 'min-height:44px; padding:10px 18px; border-radius:var(--wh-radius); border:1px solid rgba(var(--wh-orange-rgb), 0.45); background:rgba(var(--wh-orange-rgb), 0.16); color:var(--wh-orange); font:inherit; font-weight:700; font-size:var(--wh-fs-sm); cursor:pointer;';
     b.addEventListener('click', (e) => changePassword(e, null));
     box.append(p, b);
     anchor.parentNode.insertBefore(box, anchor);

@@ -688,6 +688,9 @@ RPC_CAPS = {
     # two arrays capped from the same relation at the same N: one declaration per array (V3 counts them)
     # OWN dependency lens (2026-10-26): what failed on people's screens, grouped by context and page - 50 groups means "50 or more"
     ("founder_client_errors", "client_errors", 50): ("founder-console.html", "", "renderScreenFailures"),
+    # GJ M9 (2026-11-06): the moderation news (the person's 20 newest reports) and the parts cost (the 200 costliest machines)
+    ("my_moderation_news", "hive_audit_log", 20): ("community.html", "", "sample: The 20 most recent from the last 30 days"),
+    ("parts_cost_by_asset", "lines", 200): ("analytics.html", "", "sample: The 200 machines with the highest parts cost"),
     ("founder_dev_reads", "traces", 10): [("founder-console.html", "rag_heavy", "sample: Top 10 most token-heavy queries"),
                                           ("founder-console.html", "rag_recent", "sample: The 10 most recent traces")],
 }

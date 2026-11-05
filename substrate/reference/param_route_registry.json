@@ -40,6 +40,7 @@
       "title"
     ],
     "hive.html": [
+      "join",
       "return"
     ],
     "index.html": [
@@ -100,12 +101,15 @@
     "promo-poster.html": [
       "v"
     ],
+    "public-feed.html": [
+      "post"
+    ],
     "voice-journal.html": [
       "embedded",
       "filter",
       "q"
     ]
   },
-  "total_pages": 18,
-  "total_params": 65
+  "total_pages": 19,
+  "total_params": 67
 }

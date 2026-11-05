@@ -34,15 +34,15 @@
         "message_head": "Keep this post. Say why, if you like: the person who wrote it and anyone who reported it will read this. Nobody is told who reported it."
       },
       {
-        "line": 2662,
+        "line": 2664,
         "message_head": "Make this post public? Workers in every other hive will be able to read it in their Global feed."
       },
       {
-        "line": 3294,
+        "line": 3296,
         "message_head": "Copy this public link:"
       },
       {
-        "line": 3307,
+        "line": 3309,
         "message_head": "Copy this link:"
       }
     ],
@@ -92,23 +92,23 @@
         "message_head": "You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it ca"
       },
       {
-        "line": 3508,
+        "line": 3524,
         "message_head": "Copy this invite link and send it to your team:"
       },
       {
-        "line": 3596,
+        "line": 3612,
         "message_head": "Rename this hive. Everyone in it will see the new name."
       },
       {
-        "line": 5293,
+        "line": 5309,
         "message_head": "Reset ${workerName}'s password? You'll get a one-time temporary password to give them. When they sign in, WorkHive asks them to set their ow"
       },
       {
-        "line": 5320,
+        "line": 5336,
         "message_head": "Temporary password for ${workerName}:\\n\\n${data.temp_password}\\n\\nGive this to ${workerName} now; it won't be shown again. When they sign in"
       },
       {
-        "line": 6657,
+        "line": 6673,
         "message_head": "Reject \"${label}\" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing."
       }
     ],
@@ -130,23 +130,23 @@
         "message_head": "Type the new password once more."
       },
       {
-        "line": 3655,
+        "line": 3657,
         "message_head": "Set a new password (at least 8 characters):"
       },
       {
-        "line": 3658,
+        "line": 3660,
         "message_head": "Password must be at least 8 characters. Reopen the reset link to try again."
       },
       {
-        "line": 3662,
+        "line": 3664,
         "message_head": "That password has appeared in a public data breach. Reopen the reset link and choose a different one."
       },
       {
-        "line": 3798,
+        "line": 3800,
         "message_head": "Enter your company email domain (e.g. acmecorp.com):"
       },
       {
-        "line": 4408,
+        "line": 4410,
         "message_head": "Deactivate your account? Your name and email will be permanently anonymized and you will"
       }
     ],
@@ -208,11 +208,11 @@
     ],
     "marketplace-seller.html": [
       {
-        "line": 2267,
+        "line": 2270,
         "message_head": "Delete \"${item.title}\"? This cannot be undone."
       },
       {
-        "line": 3442,
+        "line": 3445,
         "message_head": "Cancel this job? The client will be notified."
       }
     ],

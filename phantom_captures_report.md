@@ -7,9 +7,9 @@ as an HTML comment on the capture page.
 
 ## Summary
 
-- Capture fields discovered:  **279**
+- Capture fields discovered:  **283**
 - Framework names skipped:    **1** (submit, search, csrf, ...)
-- Alive (≥1 consumer):        **278** ✅
+- Alive (≥1 consumer):        **282** ✅
 - Phantom (0 consumers):      **0** ❌
 - Allowlisted (justified):    **0**
 
@@ -18,7 +18,7 @@ as an HTML comment on the capture page.
 _None — every capture has at least one downstream consumer. Schema discipline is currently good; the gate locks this in against future drift._
 
 
-## Low-usage candidates — `consumer_count == 1` (20)
+## Low-usage candidates — `consumer_count == 1` (21)
 
 Fields read in exactly one place. Likely fine (single-purpose),
 but worth a scan for vestigial half-wired fields.
@@ -35,6 +35,7 @@ but worth a scan for vestigial half-wired fields.
 | `pf-p-threshold` | asset-hub.html |
 | `pf-safety-critical` | asset-hub.html |
 | `rfq-contact` | marketplace.html |
+| `rv-reply-` | marketplace-seller.html |
 | `save-search-email` | marketplace.html |
 | `svc-pay-credits-amt-` | marketplace.html |
 | `svc-pay-img-` | marketplace.html |

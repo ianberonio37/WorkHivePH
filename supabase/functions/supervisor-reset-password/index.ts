@@ -132,5 +132,5 @@ serveObserved("supervisor-reset-password", async (req) => {
   } catch (_e) { /* push best-effort; the reset stands */ }
 
   return json(200, { ok: true, worker_name: target, temp_password: pw,
-    message: "Temporary password set. Give it to the worker in person. When they sign in, WorkHive asks them to set their own." });
+    message: "Temporary password set. Give it to the worker in person; WorkHive asks them to set their own at sign-in." });
 });

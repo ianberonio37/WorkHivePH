@@ -7,17 +7,17 @@
   "per_page": [
     {
       "page": "index.html",
-      "add": 32,
+      "add": 34,
       "remove": 0,
-      "add_raw": 36,
+      "add_raw": 38,
       "rebuild_scoped": 4,
       "risky": true
     },
     {
       "page": "hive.html",
-      "add": 59,
+      "add": 61,
       "remove": 0,
-      "add_raw": 60,
+      "add_raw": 62,
       "rebuild_scoped": 1,
       "risky": true
     },
@@ -69,9 +69,9 @@
     },
     {
       "page": "community.html",
-      "add": 24,
+      "add": 25,
       "remove": 1,
-      "add_raw": 24,
+      "add_raw": 25,
       "rebuild_scoped": 0,
       "risky": false
     },

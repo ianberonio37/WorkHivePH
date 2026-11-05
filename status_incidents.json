@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 0,
+ "open": 21,
  "resolved": 1,
  "incidents": [
   {
@@ -15,6 +15,195 @@
    "started_at": "2026-10-28 21:03:36.632147+00",
    "ended_at": "2026-10-30 21:04:09.367083+00",
    "status": "resolved"
+  },
+  {
+   "id": "gate-lens-read-rpcs",
+   "source": "gate",
+   "title": "lens-read-rpcs",
+   "severity": "major",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-credential-pointers",
+   "source": "gate",
+   "title": "credential-pointers",
+   "severity": "major",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-tw-public-sheets",
+   "source": "gate",
+   "title": "tw-public-sheets",
+   "severity": "major",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-destructive-proportional-confirm",
+   "source": "gate",
+   "title": "destructive-proportional-confirm",
+   "severity": "major",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-memory_health_gate",
+   "source": "gate",
+   "title": "memory_health_gate",
+   "severity": "major",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-error_remedy_actionable",
+   "source": "gate",
+   "title": "error_remedy_actionable",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-tenant-boundary",
+   "source": "gate",
+   "title": "tenant-boundary",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-hive-state-consistency",
+   "source": "gate",
+   "title": "hive-state-consistency",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-list-caps-say-more",
+   "source": "gate",
+   "title": "list-caps-say-more",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-audit-trail-coverage",
+   "source": "gate",
+   "title": "audit-trail-coverage",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-skew-heal",
+   "source": "gate",
+   "title": "skew-heal",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-page-craft",
+   "source": "gate",
+   "title": "page-craft",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-photos-in-storage",
+   "source": "gate",
+   "title": "photos-in-storage",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-refusal-has-a-sentence",
+   "source": "gate",
+   "title": "refusal-has-a-sentence",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-deletes-are-recoverable",
+   "source": "gate",
+   "title": "deletes-are-recoverable",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-design-tokens",
+   "source": "gate",
+   "title": "design-tokens",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-substrate-freshness",
+   "source": "gate",
+   "title": "substrate-freshness",
+   "severity": "major",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-edge-fn-auth-gate",
+   "source": "gate",
+   "title": "edge-fn-auth-gate",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-param-route-registry",
+   "source": "gate",
+   "title": "param-route-registry",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-role-checks",
+   "source": "gate",
+   "title": "role-checks",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
+  },
+  {
+   "id": "gate-edge-fn-copy",
+   "source": "gate",
+   "title": "edge-fn-copy",
+   "severity": "minor",
+   "started_at": "2026-11-05T23:06:10.883703+00:00",
+   "ended_at": null,
+   "status": "open"
   }
  ]
 }

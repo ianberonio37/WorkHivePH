@@ -74,6 +74,13 @@ EXEMPT = {
     # rejected deliberately - it would let a FUTURE fn pass while accepting a caller-supplied
     # hive_id, which is the exact injection this gate exists to catch.
     "resend-webhook-receiver": "Svix-HMAC gated; hive_id resolved from our own automation_log send row, never from the payload.",
+    # SIGNED WEBHOOK, reviewed 2026-11-06 (GJ M9 J15). It passed this gate until M9 only by ACCIDENT: it read
+    # v_worker_truth (to borrow a supervisor's name for the CMMS's work orders - the defect J15 fixed), and that read is
+    # one of the AUTH_SIGNALS. Its real gate is the signature: config_id selects OUR integration_configs row, the request
+    # is refused 401 unless it carries an HMAC-SHA256 over timestamp.body with that row's own secret (fail closed when no
+    # secret is set, timing-safe compare), and every write uses config.hive_id - never a value from the payload. Same
+    # narrow basis as resend-webhook-receiver.
+    "cmms-webhook-receiver": "HMAC-gated with the connection's own secret; hive_id is the config row's, never the payload's.",
 }
 
 

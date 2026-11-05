@@ -1,6 +1,6 @@
 {
   "_doc": "Component adoption baseline (Layer F). Floors are FORWARD-ONLY: validate_component_adoption.py fails any drop and auto-tightens any rise. Regenerate view: python tools/component_adoption_census.py",
-  "generated": "2026-11-05T07:55:46.131486+00:00",
+  "generated": "2026-11-05T21:29:03.688781+00:00",
   "family_pages": 38,
   "rows": [
     {
@@ -361,8 +361,8 @@
       "satisfies": "N1",
       "mode": "measured",
       "need_rule": "renders-date",
-      "adopters_n": 24,
-      "need_n": 28,
+      "adopters_n": 25,
+      "need_n": 29,
       "pct": 86,
       "adopters": [
         "alert-hub.html",
@@ -375,6 +375,7 @@
         "dayplanner.html",
         "founder-console.html",
         "hive.html",
+        "index.html",
         "integrations.html",
         "inventory.html",
         "logbook.html",
@@ -447,8 +448,8 @@
       "mode": "measured",
       "need_rule": "peso",
       "adopters_n": 10,
-      "need_n": 12,
-      "pct": 83,
+      "need_n": 14,
+      "pct": 71,
       "adopters": [
         "ai-quality.html",
         "asset-hub.html",
@@ -462,7 +463,9 @@
         "project-report.html"
       ],
       "gap": [
+        "analytics.html",
         "engineering-design.html",
+        "inventory.html",
         "platform-actions.html"
       ],
       "status": "built"
@@ -483,9 +486,9 @@
       "satisfies": "S1/N1",
       "mode": "measured",
       "need_rule": "relative-time",
-      "adopters_n": 15,
-      "need_n": 18,
-      "pct": 83,
+      "adopters_n": 16,
+      "need_n": 19,
+      "pct": 84,
       "adopters": [
         "achievements.html",
         "agentic-rag-observability.html",
@@ -496,6 +499,7 @@
         "community.html",
         "hive.html",
         "index.html",
+        "integrations.html",
         "marketplace-admin.html",
         "marketplace-seller-profile.html",
         "marketplace-seller.html",
@@ -743,10 +747,10 @@
     "FI1": 36,
     "FI2": 19,
     "FF1": 30,
-    "FD1a": 24,
+    "FD1a": 25,
     "FD1b": 5,
     "FD1c": 10,
-    "FD1e": 15,
+    "FD1e": 16,
     "FD3": 32,
     "FCh1": 31,
     "FCh2": 29,

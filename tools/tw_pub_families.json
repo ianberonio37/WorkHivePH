@@ -52,10 +52,10 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 1051,
-   "class_tokens": 103,
-   "bytes": 8717,
-   "classes_in_sheet": 66,
+   "harvested_tokens": 1123,
+   "class_tokens": 106,
+   "bytes": 9225,
+   "classes_in_sheet": 65,
    "non_utility_classes": [
     "active",
     "answer-first",
@@ -87,6 +87,10 @@
     "wh-fb-kind",
     "wh-fb-kinds",
     "wh-fb-meta",
+    "wh-fb-mine",
+    "wh-fb-mine-list",
+    "wh-fb-mine-note",
+    "wh-fb-mine-title",
     "wh-fb-panel",
     "wh-fb-section-label",
     "wh-fb-star",
@@ -145,9 +149,9 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 2796,
-   "class_tokens": 114,
-   "bytes": 9599,
+   "harvested_tokens": 2852,
+   "class_tokens": 118,
+   "bytes": 10104,
    "classes_in_sheet": 75,
    "non_utility_classes": [
     "active",
@@ -183,6 +187,10 @@
     "wh-fb-kind",
     "wh-fb-kinds",
     "wh-fb-meta",
+    "wh-fb-mine",
+    "wh-fb-mine-list",
+    "wh-fb-mine-note",
+    "wh-fb-mine-title",
     "wh-fb-panel",
     "wh-fb-section-label",
     "wh-fb-star",
@@ -402,9 +410,9 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 1976,
-   "class_tokens": 117,
-   "bytes": 8300,
+   "harvested_tokens": 2035,
+   "class_tokens": 121,
+   "bytes": 8780,
    "classes_in_sheet": 56,
    "non_utility_classes": [
     "active",
@@ -457,6 +465,10 @@
     "wh-fb-kind",
     "wh-fb-kinds",
     "wh-fb-meta",
+    "wh-fb-mine",
+    "wh-fb-mine-list",
+    "wh-fb-mine-note",
+    "wh-fb-mine-title",
     "wh-fb-panel",
     "wh-fb-section-label",
     "wh-fb-star",
@@ -515,9 +527,9 @@
     "wh-ga4.js",
     "wh-i18n-lite.js"
    ],
-   "harvested_tokens": 1194,
-   "class_tokens": 128,
-   "bytes": 9660,
+   "harvested_tokens": 1264,
+   "class_tokens": 132,
+   "bytes": 10349,
    "classes_in_sheet": 89,
    "non_utility_classes": [
     "active",
@@ -552,6 +564,10 @@
     "wh-fb-kind",
     "wh-fb-kinds",
     "wh-fb-meta",
+    "wh-fb-mine",
+    "wh-fb-mine-list",
+    "wh-fb-mine-note",
+    "wh-fb-mine-title",
     "wh-fb-panel",
     "wh-fb-section-label",
     "wh-fb-star",
@@ -565,5 +581,5 @@
    ]
   }
  },
- "generated": "2026-11-02T10:01:48.636Z"
+ "generated": "2026-11-05T23:08:29.120Z"
 }

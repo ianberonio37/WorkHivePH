@@ -6,12 +6,12 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 
 | Tier | Registry file | Registered | Discovered | Pending |
 |---|---|---:|---:|---:|
-| F (Fuel) | `canonical/capture_contracts.json` | 494 | 278 | 61 |
+| F (Fuel) | `canonical/capture_contracts.json` | 494 | 282 | 65 |
 | E (Engine) | `canonical/formula_contracts.json` | 24 | 23 | 20 |
 | B (Brain) | `canonical/agent_contracts.json` | 7 | 114 | 14 |
 | Glue (lineage edges) | `canonical/lineage_edges.json` | 17 | — | — |
 
-## Tier F (Fuel) — pending registrations (61)
+## Tier F (Fuel) — pending registrations (65)
 
 - `asset-linker-find`
 - `cl-text`
@@ -22,6 +22,8 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `f-loto`
 - `f-permit-ref`
 - `f-root-cause-note`
+- `f-unit-cost`
+- `fb-d-reply`
 - `file-any`
 - `file-photo`
 - `filter-route`
@@ -38,7 +40,9 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `post-source-item-id`
 - `promote-dedupe`
 - `rm-current-title`
+- `rv-reply-`
 - `sc-cause-field`
+- `svc-as-`
 - `svc-hail-address`
 - `svc-hail-item`
 - `svc-hail-urgency`
@@ -59,10 +63,6 @@ failures (registry entries pointing at non-existent IDs) fail the gate.
 - `svc-reg-name`
 - `svc-topup-amt-`
 - `svc-topup-img-`
-- `svc-topup-ref-`
-- `type-input`
-- `veh-doc-file`
-- `veh-ins`
 
 ## Tier E (Engine) — pending registrations (20)
 

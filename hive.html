@@ -3057,7 +3057,7 @@ async function showWelcome(hive) {
       // canonical-allow: the roster's own source - a member reads their hive's members here, while v_worker_truth shows
       // a worker only their OWN row (measured: a Baguio worker read 0 supervisors through it, 2 through hive_members)
       const { data: _sups } = await db.from('hive_members').select('worker_name')
-        .eq('hive_id', hive.id).eq('role', 'supervisor').eq('status', 'active').order('worker_name').limit(6);   // a hive's supervisors are a handful by nature
+        .eq('hive_id', hive.id).eq('role', 'supervisor').eq('status', 'active').order('worker_name').limit(6);   // cap-ok (LB1): a hive's supervisors are a handful by nature (largest hive: 2) - the welcome names who leads it
       const _names = (_sups || []).map((x) => x.worker_name).filter(Boolean);
       if (_names.length) {
         _led.textContent = (_names.length === 1 ? 'Supervisor: ' : 'Supervisors: ') + _names.join(', ') + '. You joined just now.';
@@ -3470,8 +3470,11 @@ function _whInviteCode() {
     return /^[A-Z0-9]{6}$/.test(c) ? c : '';
   } catch (_) { return ''; }   // empty-catch-allow: no readable query string is no invite
 }
-async function _whHonourInvite(code) {
+function _whDropInviteParam() {
   try { history.replaceState(null, '', location.pathname + location.hash); } catch (_) { /* empty-catch-allow: a reload re-offering the form is harmless */ }
+}
+async function _whHonourInvite(code) {
+  _whDropInviteParam();
   let mine = null;
   try {
     // v_hives_truth is member-scoped: a row carrying this code is one of this person's own hives
@@ -3479,11 +3482,7 @@ async function _whHonourInvite(code) {
     mine = (data && data[0]) || null;
   } catch (_) { mine = null; }   // empty-catch-allow: unknown membership falls to the join form, where the server decides
   if (mine && mine.id) {
-    if (mine.id !== HIVE_ID) {
-      localStorage.setItem('wh_active_hive_id', mine.id); localStorage.setItem('wh_hive_id', mine.id);
-      localStorage.setItem('wh_hive_name', mine.name);
-      HIVE_ID = mine.id; HIVE_NAME = mine.name;   // the membership check below re-reads the role for this hive
-    }
+    if (mine.id !== HIVE_ID) await _whSeatInvitedHive(mine);
     showToast('You are already a member of ' + mine.name + '. This is its board.');
     return 'member';
   }
@@ -3495,6 +3494,23 @@ async function _whHonourInvite(code) {
   const go = document.getElementById('btn-submit-join');
   if (go) go.focus();
   return 'join';
+}
+// The invited hive is one of this person's own (v_hives_truth is member-scoped), so they are seated in it the way every
+// other switch seats them: the role read from the server, and all four hive keys written together (hive id, its legacy
+// twin, name, role) - never from the link itself, which only carried a code the server matched.
+async function _whSeatInvitedHive(h) {
+  let role = '';
+  try {
+    const { data } = await db.from('hive_members').select('role')
+      .eq('hive_id', h.id).eq('auth_uid', _authUid).eq('status', 'active').maybeSingle();
+    role = (data && data.role) || '';
+  } catch (_) { role = ''; }   // empty-catch-allow: the membership check that follows re-reads the role for this hive
+  localStorage.setItem('wh_active_hive_id', h.id);
+  localStorage.setItem('wh_hive_id', h.id);
+  localStorage.setItem('wh_hive_name', h.name);
+  localStorage.setItem('wh_hive_role', role);   // storage-key-allow: wh_hive_role is the canonical role key (storage_key_registry.json)
+  HIVE_ID = h.id; HIVE_NAME = h.name;
+  applyHiveRole(role);
 }
 document.getElementById('btn-copy-invite').addEventListener('click', async () => {
   const code = (document.getElementById('code-strip-value').textContent || '').trim().toUpperCase();

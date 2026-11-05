@@ -1673,13 +1673,15 @@
      failed, which is said - never shown as "no reviews". */
   let _myReviews = [];
   let _myReviewsMore = false;
+  let _myReviewsListingsMore = false;   // more than 200 listings: the reviews are of the 200 newest
   async function loadMyReviews() {
     try {
       // mine by ACCOUNT (is_mine), the same read the listings tab makes - never by the display name
       const { data: mine, error: lErr } = await db.from('v_marketplace_listings_truth').select('id,title').eq('is_mine', true)
-        .order('created_at', { ascending: false }).order('id').limit(200);   // cap-ok (LB1): one seller's listings, far under 200
+        .order('created_at', { ascending: false }).order('id').limit(200 + 1);   // more-said: by _myReviewsHtml (reviews of the 200 newest listings)
       if (lErr) throw lErr;
-      const ids = (mine || []).map((l) => l.id);
+      _myReviewsListingsMore = (mine || []).length > 200;
+      const ids = (mine || []).slice(0, 200).map((l) => l.id);
       if (!ids.length) { _myReviews = []; return; }
       const titles = {}; (mine || []).forEach((l) => { titles[l.id] = l.title; });
       const { data, error } = await db.from('marketplace_reviews')
@@ -1720,7 +1722,8 @@
               + '<div class="reply-actions"><button type="button" class="btn-sm primary" data-action="review-reply" data-id="' + e(rv.id) + '">Post answer</button></div></div>')
         + '</div>';
     }).join('')
-      + (_myReviewsMore ? '<p data-wh-more-note role="note" style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));">Showing your 30 newest reviews. There are more on your public profile.</p>' : '');
+      + (_myReviewsMore ? '<p data-wh-more-note role="note" style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));">Showing your 30 newest reviews. There are more on your public profile.</p>' : '')
+      + (_myReviewsListingsMore ? '<p data-wh-more-note role="note" style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));">These are the reviews of your 200 newest listings; older listings\' reviews are on your public profile.</p>' : '');
   }
   function _wireReviewReplies(root) {
     root.querySelectorAll('[data-action="review-reply"]').forEach((b) => b.addEventListener('click', () => handleReviewReply(b.dataset.id, b)));

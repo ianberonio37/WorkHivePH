@@ -7216,6 +7216,9 @@ const WH_AUDIT_ACTIONS = {
   flag_post:                   { icon: '⚑',  label: 'Flagged post', tone: 'sec' },
   unflag_post:                 { icon: '⚐',  label: 'Cleared flag on post' },
   report_post:                 { icon: '⚑',  label: 'Reported post', tone: 'sec' },
+  // GJ M9 G-MOD (2026-11-06): a supervisor's decision on a reported post, written by moderate_reported_post
+  keep_reported_post:          { icon: '✓',  label: 'Kept a reported post', tone: 'sec' },
+  remove_reported_post:        { icon: '⊘',  label: 'Removed a reported post', tone: 'neg' },
   make_post_public:            { icon: '◎',  label: 'Made post public', tone: 'sec' },
   make_post_private:           { icon: '◉',  label: 'Made post hive-only' },
   soft_delete_post:            { icon: '⊘',  label: 'Deleted post', tone: 'neg' },
@@ -9436,7 +9439,7 @@ var WH_ROW_COLS = {
     'permit_reference,ai_assisted_fields,deleted_at,deleted_by,photo_path,photo_thumb_path',
   inventory_items: 'id,worker_name,part_number,part_name,category,unit,qty_on_hand,min_qty,bin_location,notes,updated_at,' +
     'created_at,status,hive_id,submitted_by,approved_by,approved_at,auth_uid,linked_asset_node_ids,lead_time_days,' +
-    'rejection_reason,deleted_at,deleted_by,photo_path,photo_thumb_path',
+    'rejection_reason,deleted_at,deleted_by,photo_path,photo_thumb_path,unit_cost,unit_cost_set_by,unit_cost_set_at',
   v_logbook_truth: 'id,hive_id,worker_name,created_at,closed_at,date,status,maintenance_type,category,machine,problem,' +
     'action,root_cause,failure_consequence,downtime_hours,production_output,parts_used,readings_json,knowledge,' +
     'tasklist_acknowledged,tasklist_note,pm_completion_id,wo_state,wo_assigned_to,asset_node_id,asset_tag,asset_node_name,' +
