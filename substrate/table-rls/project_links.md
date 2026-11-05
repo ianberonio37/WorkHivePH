@@ -2,7 +2,7 @@
 name: table-rls-project_links
 type: table-rls
 source: db:pg_policies+pg_trigger:project_links
-source_sha: ff7d3df355248f2f
+source_sha: ea4cab47972c66c1
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: False
 
-Columns (*=NOT NULL): id*, project_id*, hive_id*, link_type*, link_id, label, meta*, created_at*, deleted_at, deleted_by
+Columns (*=NOT NULL): id*, project_id*, hive_id*, link_type*, link_id, label, meta*, created_at*, deleted_at, deleted_by, linked_by
 
 Policies:
 - `project_links_hive_rw` [ALL · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`

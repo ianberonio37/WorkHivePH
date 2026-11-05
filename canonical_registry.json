@@ -185,7 +185,11 @@
         "edited_at",
         "deleted_at",
         "mentions",
-        "updated_at"
+        "updated_at",
+        "moderated_by",
+        "moderated_at",
+        "moderation_outcome",
+        "moderation_note"
       ],
       "rls_enabled": true,
       "grants": {
@@ -653,7 +657,10 @@
         "lead_time_days",
         "rejection_reason",
         "photo_path",
-        "photo_thumb_path"
+        "photo_thumb_path",
+        "unit_cost",
+        "unit_cost_set_by",
+        "unit_cost_set_at"
       ],
       "rls_enabled": true,
       "grants": {
@@ -1040,7 +1047,10 @@
         "created_at",
         "request_id",
         "direction",
-        "reviewer_auth_uid"
+        "reviewer_auth_uid",
+        "seller_reply",
+        "seller_replied_at",
+        "seller_replied_by"
       ],
       "rls_enabled": true,
       "grants": {
@@ -1727,7 +1737,8 @@
         "notes",
         "sort_order",
         "created_at",
-        "updated_at"
+        "updated_at",
+        "added_by"
       ],
       "rls_enabled": false,
       "grants": {},
@@ -1752,7 +1763,8 @@
         "link_id",
         "label",
         "meta",
-        "created_at"
+        "created_at",
+        "linked_by"
       ],
       "rls_enabled": false,
       "grants": {},
@@ -1968,7 +1980,8 @@
         "cmms-webhook-receiver"
       ],
       "written_by_edge_fns": [
-        "cmms-sync"
+        "cmms-sync",
+        "cmms-webhook-receiver"
       ]
     },
     "failure_signature_alerts": {
@@ -4435,7 +4448,8 @@
         "upvotes",
         "updated_at",
         "triaged_by",
-        "triaged_at"
+        "triaged_at",
+        "sender_reply"
       ],
       "rls_enabled": true,
       "grants": {
@@ -6706,7 +6720,10 @@
         "rejection_reason",
         "auth_uid",
         "photo_path",
-        "photo_thumb_path"
+        "photo_thumb_path",
+        "unit_cost",
+        "unit_cost_set_by",
+        "unit_cost_set_at"
       ]
     },
     "v_pm_scope_items_truth": {
@@ -6850,7 +6867,6 @@
         "asset-brain-query",
         "batch-risk-scoring",
         "cmms-sync",
-        "cmms-webhook-receiver",
         "export-hive-data",
         "supervisor-reset-password",
         "voice-logbook-entry"
@@ -7376,7 +7392,8 @@
         "is_blocked",
         "is_skipped",
         "is_overdue",
-        "is_late_start"
+        "is_late_start",
+        "added_by"
       ]
     },
     "v_project_progress_truth": {
@@ -7512,7 +7529,11 @@
         "tier",
         "_source_count",
         "_freshness_ts",
-        "_canonical_version"
+        "_canonical_version",
+        "latest_review_rating",
+        "latest_review_comment",
+        "latest_review_by",
+        "latest_review_at"
       ]
     },
     "v_service_request_truth": {
@@ -7560,7 +7581,9 @@
         "_canonical_version",
         "objection_deadline",
         "reviewed_at",
-        "review_note"
+        "review_note",
+        "reported_at",
+        "report_reason"
       ]
     },
     "v_service_open_broadcasts": {
@@ -9675,7 +9698,7 @@
     },
     "accept_service_request": {
       "defined_in": "20260728000040_service_hailing_engine.sql",
-      "args": "p_request_id uuid, p_eta_minutes integer DEFAULT NULL::integer",
+      "args": "p_request_id uuid, p_eta_minutes integer DEFAULT NULL::integer, p_provider_id uuid DEFAULT NULL::uuid",
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [
@@ -9685,7 +9708,7 @@
     },
     "submit_service_quote": {
       "defined_in": "20260728000040_service_hailing_engine.sql",
-      "args": "p_request_id uuid, p_price numeric, p_eta_minutes integer default null, p_message text default null",
+      "args": "p_request_id uuid, p_price numeric, p_eta_minutes integer DEFAULT NULL::integer, p_message text DEFAULT NULL::text, p_provider_id uuid DEFAULT NULL::uuid",
       "security_definer": true,
       "comment": "",
       "called_by_surfaces": [
@@ -11372,6 +11395,118 @@
       "comment": "",
       "called_by_surfaces": [],
       "called_by_edge_fns": []
+    },
+    "moderate_reported_post": {
+      "defined_in": "20261106000003_a_moderated_post_tells_its_author_and_its_reporters.sql",
+      "args": "p_post_id uuid, p_keep boolean, p_note text DEFAULT NULL",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "community.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "my_moderation_news": {
+      "defined_in": "20261106000003_a_moderated_post_tells_its_author_and_its_reporters.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "community.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "tg_best_answer_xp": {
+      "defined_in": "20261106000004_a_chosen_answer_earns_its_credit.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "tg_project_items_bind_added_by": {
+      "defined_in": "20261106000005_a_scope_item_says_who_added_it.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "tg_project_links_bind_linked_by": {
+      "defined_in": "20261106000006_a_project_link_says_who_linked_it.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "service_provider_record": {
+      "defined_in": "20261106000009_a_providers_record_reads_the_same_to_every_client.sql",
+      "args": "p_provider_id uuid",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "tg_inventory_items_bind_unit_cost": {
+      "defined_in": "20261106000010_a_part_has_a_price_and_a_machine_its_parts_cost.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "parts_cost_by_asset": {
+      "defined_in": "20261106000010_a_part_has_a_price_and_a_machine_its_parts_cost.sql",
+      "args": "p_hive_id uuid, p_period_days integer DEFAULT 30",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [
+        "analytics.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "tg_marketplace_reviews_pin_reply": {
+      "defined_in": "20261106000011_a_review_gets_a_reply_and_a_report_gets_an_answer.sql",
+      "args": "",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "reply_to_listing_review": {
+      "defined_in": "20261106000011_a_review_gets_a_reply_and_a_report_gets_an_answer.sql",
+      "args": "p_review_id uuid, p_reply text",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "marketplace-seller.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "my_feedback_outcomes": {
+      "defined_in": "20261106000011_a_review_gets_a_reply_and_a_report_gets_an_answer.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "tg_platform_feedback_tell_sender": {
+      "defined_in": "20261106000011_a_review_gets_a_reply_and_a_report_gets_an_answer.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "tg_marketplace_listings_tell_seller": {
+      "defined_in": "20261106000011_a_review_gets_a_reply_and_a_report_gets_an_answer.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -11388,7 +11523,7 @@
         "my_service_provider_ids"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 100.9
+      "size_kb": 101.0
     },
     "agentic-rag-observability.html": {
       "tables_read": [
@@ -11454,12 +11589,13 @@
       "tables_written": [],
       "rpcs_called": [
         "get_pm_compliance_smrp",
-        "get_pm_ontime_delivery"
+        "get_pm_ontime_delivery",
+        "parts_cost_by_asset"
       ],
       "edge_fns_invoked": [
         "batch-risk-scoring"
       ],
-      "size_kb": 260.9
+      "size_kb": 266.3
     },
     "asset-hub.html": {
       "tables_read": [
@@ -11503,7 +11639,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 355.6
+      "size_kb": 355.9
     },
     "assistant.html": {
       "tables_read": [
@@ -11559,6 +11695,8 @@
       "rpcs_called": [
         "get_community_reputation",
         "get_hive_trade_peers",
+        "moderate_reported_post",
+        "my_moderation_news",
         "notify_post_mentions",
         "notify_reply_accepted",
         "notify_reply_posted",
@@ -11568,7 +11706,7 @@
         "wh_trash"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 278.0
+      "size_kb": 284.8
     },
     "dayplanner.html": {
       "tables_read": [
@@ -11670,7 +11808,7 @@
         "export-hive-data",
         "supervisor-reset-password"
       ],
-      "size_kb": 543.7
+      "size_kb": 551.7
     },
     "index.html": {
       "tables_read": [],
@@ -11709,7 +11847,7 @@
       "edge_fns_invoked": [
         "cmms-sync"
       ],
-      "size_kb": 259.7
+      "size_kb": 262.3
     },
     "inventory.html": {
       "tables_read": [
@@ -11737,7 +11875,7 @@
         "inventory_restock"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 241.3
+      "size_kb": 243.2
     },
     "llm-observability.html": {
       "tables_read": [
@@ -11789,7 +11927,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 556.7
+      "size_kb": 559.2
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -11826,7 +11964,7 @@
         "marketplace_seller_reply_stats"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 90.7
+      "size_kb": 91.3
     },
     "marketplace-seller.html": {
       "tables_read": [
@@ -11869,13 +12007,14 @@
         "marketplace_platform_response_hours",
         "my_provider_credit_balance",
         "my_service_provider_ids",
+        "reply_to_listing_review",
         "seller_credit_balance",
         "service_knob",
         "service_knob_pct",
         "submit_service_quote"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 289.3
+      "size_kb": 301.8
     },
     "marketplace.html": {
       "tables_read": [
@@ -11930,7 +12069,7 @@
         "ai-gateway",
         "marketplace-listing-assist"
       ],
-      "size_kb": 426.5
+      "size_kb": 429.0
     },
     "offline-fallback.html": {
       "tables_read": [],
@@ -11965,7 +12104,7 @@
         "set_hive_retention"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 70.0
+      "size_kb": 70.3
     },
     "platform-actions.html": {
       "tables_read": [
@@ -11998,7 +12137,7 @@
         "get_credit_ledger_totals"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 167.6
+      "size_kb": 168.6
     },
     "pm-scheduler.html": {
       "tables_read": [
@@ -12070,7 +12209,7 @@
         "project-orchestrator",
         "project-progress"
       ],
-      "size_kb": 265.6
+      "size_kb": 266.1
     },
     "project-report.html": {
       "tables_read": [
@@ -12086,7 +12225,7 @@
       "edge_fns_invoked": [
         "project-orchestrator"
       ],
-      "size_kb": 96.3
+      "size_kb": 96.4
     },
     "promo-poster.html": {
       "tables_read": [],
@@ -12102,7 +12241,7 @@
       "tables_written": [],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "size_kb": 45.3
+      "size_kb": 47.4
     },
     "report-sender.html": {
       "tables_read": [
@@ -13020,17 +13159,17 @@
         "integration_configs",
         "inventory_items",
         "logbook",
-        "v_external_sync_truth",
-        "v_worker_truth"
+        "v_external_sync_truth"
       ],
       "tables_written": [
         "external_sync",
+        "integration_configs",
         "inventory_items",
         "logbook"
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 447
+      "loc": 458
     },
     "cold-archive-query": {
       "tables_read": [],
@@ -13443,7 +13582,7 @@
       ],
       "rpcs_called": [],
       "edge_fns_invoked": [],
-      "loc": 118
+      "loc": 125
     },
     "temporal-rag-orchestrator": {
       "tables_read": [

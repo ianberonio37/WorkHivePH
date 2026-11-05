@@ -2,7 +2,7 @@
 name: table-rls-community_posts
 type: table-rls
 source: db:pg_policies+pg_trigger:community_posts
-source_sha: d546ac0852cc6583
+source_sha: 3d3a2120c8ff258d
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: True
 
-Columns (*=NOT NULL): id*, hive_id*, author_name*, content*, category*, pinned*, flagged*, created_at*, auth_uid, public*, edited_at, deleted_at, mentions*, updated_at*, deleted_by
+Columns (*=NOT NULL): id*, hive_id*, author_name*, content*, category*, pinned*, flagged*, created_at*, auth_uid, public*, edited_at, deleted_at, mentions*, updated_at*, deleted_by, moderated_by, moderated_at, moderation_outcome, moderation_note
 
 Policies:
 - `community_posts_delete` [DELETE · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND ((auth_uid = ( SELECT auth.uid() AS uid)) OR (EXISTS ( SELECT 1 FROM hive` CHECK=`∅`

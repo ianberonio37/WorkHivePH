@@ -1,28 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:757
-source_sha: a766699dbe39291c
+source: dir:supabase/migrations:770
+source_sha: cd475ae2898eb108
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (757 migrations)
+## migration · catalog (770 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260826000002_notify_community_lifecycle` — fns:notify_post_mentions,notify_reply_accepted,notify_reply_posted
-- `20260826000003_pending_submission_reaches_supervisors` — fns:tg_notify_pending_submission · triggers:trg_notify_pending_asset,trg_notify_pending_part
-- `20260826000004_bounce_webhook_is_idempotent` — (misc DDL/DML)
-- `20260826000005_automation_log_warning_status` — tables:automation_log
-- `20260826000006_join_names_the_namesake` — fns:join_hive_by_code
-- `20260826000007_set_worker_display_name` — fns:set_worker_display_name
-- `20260826000008_rename_only_before_history` — fns:set_worker_display_name
-- `20260827000000_source_row_ids_match_logbook_key` — tables:canonical_period_summaries
-- `20260828000000_inventory_items_touch_updated_at` — triggers:tg_inventory_items_touch_updated
-- `20260828000001_low_stock_includes_no_stock` — (misc DDL/DML)
-- `20260828000002_pm_compliance_counted_skips_as_completions` — (misc DDL/DML)
-- `20260828000003_asset_truth_pm_completed_counted_skips` — (misc DDL/DML)
-- `20260828000004_schedule_items_empty_time_is_null` — tables:schedule_items
 - `20260828000005_schedule_items_normalize_time_not_reject` — fns:tg_schedule_items_blank_time_is_null · triggers:tg_schedule_items_blank_time_is_null · tables:schedule_items
 - `20260828000006_inventory_ledger_chain_normalize` — fns:tg_inventory_txn_chain_qty_after · triggers:trg_inventory_txn_chain_qty_after
 - `20260831000001_anon_cannot_read_post_author_uid` — (misc DDL/DML)
@@ -210,6 +197,19 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261105000006_a_client_cannot_rewrite_the_providers_quote` — fns:guard_service_offer_columns · triggers:trg_guard_service_offer_columns
 - `20261105000007_a_reply_stays_its_authors_words` — fns:tg_community_replies_authorship_fields · triggers:tg_community_replies_authorship_fields
 - `20261105000008_a_removed_member_keeps_their_own_history` — policies:ach_log_owner_read · fns:auth_own_history_names,my_recent_xp
+- `20261106000001_the_roster_says_when_each_member_joined` — fns:get_hive_board_dashboard
+- `20261106000002_a_stranger_reads_the_badge_not_the_contact` — (misc DDL/DML)
+- `20261106000003_a_moderated_post_tells_its_author_and_its_reporters` — fns:moderate_reported_post,my_moderation_news,tg_community_posts_moderation_fields,wh_bind_audit_actor · tables:community_posts
+- `20261106000004_a_chosen_answer_earns_its_credit` — fns:tg_best_answer_xp · triggers:trg_best_answer_xp
+- `20261106000005_a_scope_item_says_who_added_it` — fns:tg_project_items_bind_added_by · triggers:trg_project_items_bind_added_by · tables:project_items
+- `20261106000006_a_project_link_says_who_linked_it` — fns:tg_project_links_bind_linked_by · triggers:trg_project_links_bind_linked_by · tables:project_links
+- `20261106000007_a_machines_work_order_is_not_a_persons` — fns:trg_logbook_achievement_xp
+- `20261106000008_a_disputed_job_says_who_reported_it` — (misc DDL/DML)
+- `20261106000009_a_providers_record_reads_the_same_to_every_client` — fns:service_provider_record
+- `20261106000010_a_part_has_a_price_and_a_machine_its_parts_cost` — fns:parts_cost_by_asset,tg_inventory_items_bind_unit_cost · triggers:trg_inventory_items_bind_unit_cost · tables:inventory_items
+- `20261106000011_a_review_gets_a_reply_and_a_report_gets_an_answer` — fns:my_feedback_outcomes,reply_to_listing_review,tg_marketplace_listings_tell_seller,tg_marketplace_reviews_pin_reply,tg_platform_feedback_tell_sender · triggers:trg_marketplace_listings_tell_seller,trg_marketplace_reviews_pin_reply,trg_platform_feedback_tell_sender · tables:marketplace_reviews,platform_feedback
+- `20261106000012_a_provider_with_two_identities_chooses_which_one_answers` — fns:accept_service_request,submit_service_quote
+- `20261106000013_a_quote_is_offered_only_by_who_can_take_the_job` — fns:select_quote,submit_service_quote
 
 (showing last 200)
 

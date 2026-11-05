@@ -79,6 +79,10 @@ ALLOWED_MULTI_COMMIT = {
         "GJ M8 (2026-11-05): the release's definer-doors audit found the new functions still callable by anon - `revoke ... from public` never reaches anon, which Supabase grants explicitly - so the revoke was widened (and the trigger functions refuse authenticated too) BEFORE production applied the file; production received only the final content (pushed with 078e084b, read back: anon EXECUTE on none).",
     "20261105000008_a_removed_member_keeps_their_own_history.sql":
         "GJ M8 (2026-11-05): the release's definer-doors audit found the new functions still callable by anon - `revoke ... from public` never reaches anon, which Supabase grants explicitly - so the revoke was widened (and the trigger functions refuse authenticated too) BEFORE production applied the file; production received only the final content (pushed with 078e084b, read back: anon EXECUTE on none).",
+    "20261106000010_a_part_has_a_price_and_a_machine_its_parts_cost.sql":
+        "GJ M9 (2026-11-06): the J10 walk read the parts-cost card naming a vehicle by its plate alone (\"NBX 6851\"), so "
+        "parts_cost_by_asset gained asset_name (DROP + CREATE: a new output column) before production ever applied the "
+        "file - production receives the final content.",
     # ── 2026-09-04 prod deploy of the security batch (commit 1548378e, deploy recorded in 6fab5624) ──
     "20260831000001_anon_cannot_read_post_author_uid.sql":
         "2026-09-04 prod deploy: wrapped the GRANT to grafana_reader in a DO block guarded by pg_roles (the role exists only locally); idempotent no-op where the role is present, deployed content is the guarded form.",

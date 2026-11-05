@@ -2,7 +2,7 @@
 name: edge-fn-cmms-webhook-receiver
 type: edge-fn
 source: file:supabase/functions/cmms-webhook-receiver/index.ts
-source_sha: f5d07875e0ac93b2
+source_sha: b9104c29e3db9b9d
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -10,7 +10,7 @@ supersedes: null
 
 Auth gate: **auth idiom detected in body (verify it gates the hive_id it uses)**
 
-Tables touched: `external_sync`, `integration_configs`, `inventory_items`, `logbook`, `v_external_sync_truth`, `v_worker_truth`
+Tables touched: `external_sync`, `integration_configs`, `inventory_items`, `logbook`, `v_external_sync_truth`
 RPCs called: (none)
 
 Links: [[project_platform_knowledge_substrate]]

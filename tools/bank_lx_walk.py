@@ -757,7 +757,11 @@ def main() -> int:
         ctx: dict = {}
         ctx["page"] = page   # a_view's CA reading asks what the page itself read
         # the page's class as the cube seeded it (public / founder / production) - the public S rule in judge reads it
-        ctx["pageCls"] = next((c for c in (((reg_rows.get(r["id"]) or {}).get("cx") or {}).get("cls")
+        # ★A GROUP-JOURNEY ROW CARRIES ITS CLASS IN gj.cls (2026-11-06, GJ M10's public OEE calculator): the cube's rows
+        # keep it in cx.cls and the GJ rows in gj.cls, so reading only cx left every GJ cell unclassed - a public page that
+        # read nothing was judged as if it showed live figures ("the network went away ... reads as live").
+        ctx["pageCls"] = next((c for c in ((((reg_rows.get(r["id"]) or {}).get("cx") or {}).get("cls")
+                                            or ((reg_rows.get(r["id"]) or {}).get("gj") or {}).get("cls"))
                                            for r in cell.get("rows") or []) if c), None)
         # every hive the cast is an active member of (a multi-hive cast reads several); none for a hive-less person
         ctx["castHives"] = set(psql("select m.hive_id from hive_members m where m.worker_name = '%s' and m.status = 'active'"

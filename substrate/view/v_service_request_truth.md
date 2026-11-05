@@ -2,7 +2,7 @@
 name: view-v_service_request_truth
 type: view
 source: db:pg_get_viewdef:v_service_request_truth
-source_sha: 8172843a9dc27dd4
+source_sha: 34fd8ebfb63d93b1
 last_verified: 2026-07-13
 supersedes: null
 ---

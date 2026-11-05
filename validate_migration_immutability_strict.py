@@ -53,6 +53,9 @@ ALLOWED_MULTI_COMMIT = {
     "20261105000005_a_dispute_party_cannot_write_the_admins_decision.sql",
     "20261105000006_a_client_cannot_rewrite_the_providers_quote.sql",
     "20261105000008_a_removed_member_keeps_their_own_history.sql",
+    # 2026-11-06 - GJ M9: parts_cost_by_asset gained asset_name before production applied it (record in
+    # validate_migration_immutability.py ALLOWED_MULTI_COMMIT).
+    "20261106000010_a_part_has_a_price_and_a_machine_its_parts_cost.sql",
 }
 
 

@@ -1,16 +1,16 @@
 ---
 name: memory-corpus
 type: memory
-source: memory-curated:1090-files
-source_sha: 2bfe9f4d8d595a1d
+source: memory-curated:1091-files
+source_sha: a629da4ad46bc2db
 last_verified: 2026-07-13
 supersedes: null
 ---
-## memory · curated auto-memory (1090 durable topic files)
+## memory · curated auto-memory (1091 durable topic files)
 
 First-class substrate source. The BODIES live in `memory/*.md` (Memento-indexed for retrieval via `memory_cache.py --retrieve`); this manifest is the freshness/governance record for the CURATED corpus (reference/feedback/project) — transient handoffs are excluded.
 
-**By type:** feedback=691 · project=306 · reference=93
+**By type:** feedback=692 · project=306 · reference=93
 
 **Corpus fingerprint (source_sha):** editing/adding any curated memory changes it → rebuild `build_substrate.py --type memory` (part of the flywheel's persist spoke).
 
@@ -80,7 +80,7 @@ Entries (name · type · sha):
 - `feedback_a_fallback_is_a_cached_copy_of_the_token` · feedback · 873b84610bc41ee4
 - `feedback_a_false_red_hides_which_cell_broke` · feedback · 38921d8dbd6c2b2f
 - `feedback_a_family_that_measures_identically_is_a_reason_to_read_the_generator` · feedback · 8e3d0c61c0c2b3a4
-- `feedback_a_figure_about_someone_else_is_the_viewers_rls_slice` · feedback · 8d024cced63a4024
+- `feedback_a_figure_about_someone_else_is_the_viewers_rls_slice` · feedback · 922e9686ed73c2ce
 - `feedback_a_filename_is_not_a_key_when_180_files_share_it` · feedback · 447d7325cb2d0c25
 - `feedback_a_filipino_only_finding_is_descoped_work` · feedback · 18b91b8e7e82425d
 - `feedback_a_fix_in_a_new_script_is_skipped_by_the_old_one` · feedback · b72250a428b8fbe5
@@ -108,7 +108,7 @@ Entries (name · type · sha):
 - `feedback_a_guard_that_returns_without_speaking` · feedback · 6950a294f0d27cf4
 - `feedback_a_hand_set_fixture_is_not_a_reachable_state` · feedback · d597a08046039864
 - `feedback_a_healthy_page_shows_neither_its_errors_nor_its_buttons` · feedback · 9a91c83de2bcc335
-- `feedback_a_heredoc_halves_backslashes_so_an_apostrophe_broke_the_page` · feedback · 1b0f5865e09d5107
+- `feedback_a_heredoc_halves_backslashes_so_an_apostrophe_broke_the_page` · feedback · a9d37151ec1da382
 - `feedback_a_journey_path_is_a_route_not_a_list` · feedback · 24bf309aa7f1ac28
 - `feedback_a_journey_prover_has_four_blind_spots` · feedback · d637f954b3c4f68f
 - `feedback_a_killed_walk_skips_its_cleanup` · feedback · b07ef3d1eef2e36b
@@ -430,7 +430,7 @@ Entries (name · type · sha):
 - `feedback_local_runtime_verify_no_deploy` · feedback · 5c13ccf3a3b6b9c5
 - `feedback_local_supabase_rewrite` · feedback · a970d46ace63fba7
 - `feedback_local_triggers_called_prod_with_service_key` · feedback · 23f78e4991fb72c6
-- `feedback_low_memory_free_it_dont_wait` · feedback · 2fbfe412e32598c7
+- `feedback_low_memory_free_it_dont_wait` · feedback · a8e9573618a332a0
 - `feedback_lower_cards_rubric_applied_and_verified` · feedback · 071ce814e4717d4c
 - `feedback_make_it_earnable_not_coming_soon` · feedback · 580fc6fddab6aee8
 - `feedback_manufactured_ender_approval_fork_and_pct_gerrymander` · feedback · be016bcea85d4313
@@ -516,6 +516,6 @@ Entries (name · type · sha):
 - `feedback_provenance_user_voice_not_internals` · feedback · d625e82bd6e7f509
 - `feedback_psql_autocommit_made_my_teeth_test_permanent` · feedback · 30ac6a1f9cb5ef4c
 - `feedback_pyapi_validators_fail_in_gate_pass_standalone` · feedback · 1ff46ad3f053ea43
-- … +590 more (all included in the fingerprint)
+- … +591 more (all included in the fingerprint)
 
 Links: [[project_platform_knowledge_substrate]] [[reference_pm_attribution_pin]]

@@ -2,19 +2,19 @@
 name: page-public-feed
 type: page
 source: file:public-feed.html
-source_sha: aa537ec50848cdda
+source_sha: 7a83b16ca54ad038
 last_verified: 2026-07-13
 supersedes: null
 ---
 ## page · `public-feed.html` — Public Feed: WorkHive
 
-Size: 45KB · 8 top-level fns. (Retrieve THIS instead of reading the file.)
+Size: 47KB · 9 top-level fns. (Retrieve THIS instead of reading the file.)
 
 **DB writes** (0): (none detected)
 **RPC calls**: (none)
 **Edge invokes**: (none)
 **Truth views read**: `v_community_posts_truth`
 
-**Functions**: _T, catClass, catLabel, fetchPage, formatTimeAgo, loadInitial, loadMore, renderCard
+**Functions**: _T, catClass, catLabel, fetchPage, formatTimeAgo, loadInitial, loadMore, loadShared, renderCard
 
 Links: [[reference_per_page_bughunt_roadmap]] [[project_platform_knowledge_substrate]]

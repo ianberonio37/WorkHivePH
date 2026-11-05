@@ -2,7 +2,7 @@
 name: table-rls-marketplace_reviews
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_reviews
-source_sha: aa3ee0cd0201c9e9
+source_sha: cbd0bedb350a9b3e
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: False · has auth_uid: False
 
-Columns (*=NOT NULL): id*, listing_id, reviewer_name*, rating*, comment, verified_purchase*, created_at*, request_id, direction, reviewer_auth_uid
+Columns (*=NOT NULL): id*, listing_id, reviewer_name*, rating*, comment, verified_purchase*, created_at*, request_id, direction, reviewer_auth_uid, seller_reply, seller_replied_at, seller_replied_by
 
 Policies:
 - `mkt_reviews_delete` [DELETE · roles=public] USING=`((reviewer_auth_uid = ( SELECT auth.uid() AS uid)) OR is_marketplace_admin())` CHECK=`∅`

@@ -64,7 +64,7 @@ Two full runs were needed; the other two were the wrong loop.
 
 > **Prepared and verified locally on 2026-11-06.** M9 is the third group-journey milestone (§GJ.10): J19 J1 G-ONB J31
 > G-MOD J7 J25 J5 J12 G-PUBLIC J8 J30 J15 G-SVC J6 J10 J27, each walked at both viewports, per layer, per UFAI pillar and
-> per member, with its contract half through the library provers. Walking them found **two security holes** (a
+> per member, with its contract half through the library provers. **All 5,557 M9 rows are banked.** Walking them found **two security holes** (a
 > stranger read every seller's contact; a marketplace figure about a provider was each reader's own slice) and a dozen
 > hand-offs that ended in silence. M9 ships what landed since M8 (`945b6084`, production serves `workhive-shell-v591`).
 >
@@ -77,6 +77,13 @@ Two full runs were needed; the other two were the wrong loop.
 >
 > **Order: A -> B -> C.** The pages call the new functions and read the new columns (Leg A); the reset notice reads the
 > function's stamp (Leg B).
+>
+> **Preconditions read on production (read-only, before Leg A):** the dry run lists exactly `20261106000001`-`13`; the
+> two functions migration 12 drops have exactly the signatures it names (`submit_service_quote(uuid, numeric, integer,
+> text)`, `accept_service_request(uuid, integer)`); the four views migrations 05/08/09/10 recreate have production
+> bodies identical to the local ones they were written from (md5 of the normalised definition, all four equal), so each
+> migration changes only the columns it appends; none of the new columns exists yet. Leg B before: 60/62 functions are
+> the tree's code - the two that differ are exactly Leg B's.
 
 ### What a person using WorkHive will notice (release notes)
 
@@ -94,6 +101,7 @@ Two full runs were needed; the other two were the wrong loop.
 >   amounts, and a client is never shown a provider's wallet message.
 > - A provider's disputed job says who reported it, when, and what they said.
 > - Parts can carry a unit cost; analytics shows the parts cost per machine, and says it does not count labour.
+> - Analytics asks each figure once per load, and backs off when the server says to wait.
 > - A seller can answer a review publicly; a report sent from the feedback button is answered back to the sender; a
 >   listing WorkHive unpublishes or removes tells its seller why.
 > - **Security:** a visitor can no longer read a seller's contact details or certifications off the table.

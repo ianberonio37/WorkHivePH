@@ -2,7 +2,7 @@
 name: table-rls-project_items
 type: table-rls
 source: db:pg_policies+pg_trigger:project_items
-source_sha: c5b72ec46c7ec0e2
+source_sha: 5b86063efa6e3325
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: False
 
-Columns (*=NOT NULL): id*, project_id*, hive_id*, wbs_code, title*, owner_name, status*, pct_complete*, planned_start, planned_end, predecessors*, estimated_hours, actual_hours, notes, sort_order*, created_at*, updated_at*, actual_start, actual_end
+Columns (*=NOT NULL): id*, project_id*, hive_id*, wbs_code, title*, owner_name, status*, pct_complete*, planned_start, planned_end, predecessors*, estimated_hours, actual_hours, notes, sort_order*, created_at*, updated_at*, actual_start, actual_end, added_by
 
 Policies:
 - `project_items_hive_rw` [ALL · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))` CHECK=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (hive_id IN ( SELECT user_hive_ids() AS user_hive_ids)))`
