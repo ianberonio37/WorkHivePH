@@ -110,6 +110,8 @@ async function session(browser, m, vpName) {
   await ctx.addInitScript(([t, hive, hiveName, name, r]) => {
     try {
       if (!localStorage.getItem('sb-127-auth-token')) localStorage.setItem('sb-127-auth-token', JSON.stringify(t));
+      // a member the walk has removed (J14, G-LEAVE) stands where the product put them, not where the walk seated them
+      if (localStorage.getItem('wh_gj_noseat') === '1') return;
       localStorage.setItem('wh_last_worker', name);
       localStorage.setItem('wh_active_hive_id', hive); localStorage.setItem('wh_hive_name', hiveName);
       if (r) localStorage.setItem('wh_hive_role', r);
@@ -121,12 +123,17 @@ async function session(browser, m, vpName) {
   // member's request to the planner carries the LOCAL-ONLY debug_fault_inject flag (honoured only on a local runtime,
   // gate debug-hooks-prod-dead), so the plan is built from the real logbook, risk and PM rows with the deterministic
   // fallback briefing. No group walk is about the briefing's words.
-  await ctx.route('**/functions/v1/shift-planner-orchestrator**', async (route) => {
-    if (route.request().method() !== 'POST') return route.continue();   // the CORS preflight passes as it was
-    let body = {};
-    try { body = JSON.parse(route.request().postData() || '{}'); } catch (_) { /* not JSON: sent as it was */ }
-    await route.continue({ postData: JSON.stringify({ ...body, debug_fault_inject: true }) });
-  });
+  // ★AND NONE ON A REPORT OR A RECOMPUTE (2026-11-05, GJ M8): analytics-orchestrator ends its report and its
+  // prescriptive recompute in a model-written action plan - J2/J3 spent one per pass on "Refresh" and "Generate Report".
+  // It honours the same LOCAL-ONLY flag since M8 (gate debug-hooks-prod-dead); the plan then comes from the records.
+  for (const fn of ['shift-planner-orchestrator', 'analytics-orchestrator']) {
+    await ctx.route(`**/functions/v1/${fn}**`, async (route) => {
+      if (route.request().method() !== 'POST') return route.continue();   // the CORS preflight passes as it was
+      let body = {};
+      try { body = JSON.parse(route.request().postData() || '{}'); } catch (_) { /* not JSON: sent as it was */ }
+      await route.continue({ postData: JSON.stringify({ ...body, debug_fault_inject: true }) });
+    });
+  }
   const page = await ctx.newPage();
   page.on('dialog', (d) => d.accept().catch(() => {}));
   return { ctx, page, m, vp: vpName, token: tok.access_token };
@@ -232,6 +239,53 @@ async function reachTeam(R, marker, ms) {
   await R.page.evaluate(() => { const b = document.getElementById('btn-search-team'); if (b) b.click(); });
   return findText(R, marker, ms);
 }
+// ★A HAND-OFF THAT MUST NOT ARRIVE (2026-11-05, GJ M8 G-ADV): a member of another hive holding a record's link must be
+// REFUSED IN WORDS - the record never drawn, and a sentence that says why. Read from the first moment after the link
+// lands (a refusal is often a toast, read as it appears), then once more after it settles: the record must not be drawn
+// late either. `r.refused` is the sentence's shape; `r.marker` is the record's own text, which must never appear.
+async function readRefusal(R, r, ms = 20000) {
+  await R.page.goto(`${ORIGIN}/${r.path}`, { waitUntil: 'domcontentloaded', timeout: R.gotoTimeout || 60000 });
+  let said = null, leaked = false;
+  for (let t = 0; t < ms && !said; t += 250) {
+    const txt = await R.page.evaluate(() => document.body.innerText || '').catch(() => '');
+    said = txt.split('\n').map((l) => l.trim()).find((l) => l.length < 400 && r.refused.test(l)) || null;
+    if (r.marker && txt.includes(r.marker)) leaked = true;
+    if (!said) await sleep(250);
+  }
+  await sleep(2500);
+  const after = await R.page.evaluate(() => document.body.innerText || '').catch(() => '');
+  if (r.marker && after.includes(r.marker)) leaked = true;
+  return { ok: !!said && !leaked, refused: true, said, leaked,
+    ...(said ? {} : { why: 'no sentence said why the record was not shown' }), ...(leaked ? { why: 'the record was drawn for a reader outside its hive' } : {}) };
+}
+// ★A NAME THAT MUST NO LONGER BE LISTED (2026-11-05, GJ M8 G-LEAVE hand-off 4): the roster the remaining worker reads
+// must list the hive (`presentRx` - it loaded) and must not list the removed member (`nameRx`).
+async function readAbsence(R, r) {
+  await go(R, r.path);
+  if (r.prepare) await r.prepare(R);
+  const got = await R.page.evaluate((sel) => { const el = document.querySelector(sel); return el && el.checkVisibility && el.checkVisibility() ? (el.innerText || '').trim() : null; }, r.absent.container).catch(() => null);
+  const present = !!got && r.absent.presentRx.test(got);
+  const gone = !!got && !r.absent.nameRx.test(got);
+  return { ok: present && gone, said: got ? got.replace(/\s+/g, ' ').slice(0, 300) : null, present, gone,
+    ...(got ? {} : { why: 'the roster was not on screen' }), ...(got && !gone ? { why: 'the roster still lists the removed member' } : {}) };
+}
+// the receiver's report, asked of the same engine the page asks (analytics-orchestrator, phase report, the page's 90
+// days), with the walk's no-model flag: the figures BEFORE the sender acts, so the page's figure after is judged against
+// them (J4: the worker's breakdown is one more failure; J24: their safety-risk job is one more safety-risk failure)
+async function reportFigures(S, period = 90) {
+  const r = await fetch(`${SB}/functions/v1/analytics-orchestrator`, { method: 'POST',
+    headers: { apikey: KEY, Authorization: `Bearer ${S.token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phase: 'report', hive_id: S.m.seatId || HIVE_ID, worker_name: S.m.name, period_days: period, debug_fault_inject: true }) });
+  if (!r.ok) return { error: `HTTP ${r.status} ${(await r.text()).slice(0, 120)}` };
+  const d = await r.json();
+  const pick = (k) => (d && d[k] && typeof d[k] === 'object') ? d[k] : {};
+  const ff = (pick('descriptive').failure_frequency || {}).failure_frequency || [];
+  const dist = (pick('diagnostic').rcm_consequence || {}).distribution || [];
+  return { failures: ff.reduce((a, x) => a + (Number(x.failure_count) || 0), 0),
+    safety: Number((dist.find((x) => (x.consequence || x.label) === 'Safety risk') || {}).count || 0),
+    plan: d.action_plan || null };
+}
+
 // the live badge on an open logbook: its words, or null when nothing arrived within `ms`
 async function liveBadge(s, ms = 15000) {
   for (let t = 0; t < ms; t += 500) {
@@ -1148,13 +1202,416 @@ RECIPES['G-MULTI'] = {
 };
 
 // the rows the walk changes in place: today's snapshot and the machine's alerts (restored after); the rest it made is tagged
+
+// ══ M8 · the record's hand-offs (2026-11-05) ═════════════════════════════════════════════════════════════════════════
+// the shared confirm modal (utils.js whConfirm): its OK, as a person taps it
+async function modalOk(s, ms = 5000) {
+  const ok = s.page.locator('[data-wh-modal-ok]').first();
+  try { await ok.waitFor({ state: 'visible', timeout: ms }); } catch (_) { return false; }
+  await ok.click().catch(() => ok.evaluate((el) => el.click()));
+  await sleep(1200);
+  return true;
+}
+// analytics-report builds on the person's own tap: "Generate Report", then its header says when
+async function generateReport(P) {
+  await P.page.click('#generate-btn', { timeout: 10000 }).catch(() => P.page.evaluate(() => { const b = document.getElementById('generate-btn'); if (b) b.click(); }));
+  for (let t = 0; t < 90000; t += 1000) {
+    const ok = await P.page.evaluate(() => /Generated:/.test(document.body.innerText || '')).catch(() => false);
+    if (ok) { await sleep(800); return; }
+    await sleep(1000);
+  }
+}
+// the supervisor's Remove on the hive's roster, as tapped: Show, the member's Remove, the confirm's OK
+async function removeMember(X, s, l) {
+  const mid = psql(`select id from hive_members where hive_id = '${HIVE_ID}' and auth_uid = '${l.m.uid}' and status = 'active'`);
+  if (!mid) { X.notes.push(`remove: ${l.m.name} is not an active member of ${HOME}`); return false; }
+  await go(s, 'hive.html');
+  await s.page.evaluate(() => { const b = document.getElementById('btn-toggle-members'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click(); });
+  await sleep(1200);
+  const tapped = await s.page.evaluate((id) => {
+    const b = [...document.querySelectorAll('#members-list button')].find((x) => (x.getAttribute('onclick') || '').includes(id));
+    if (b) { b.click(); return true; } return false;
+  }, mid);
+  if (!tapped) { X.notes.push(`remove: no Remove control for ${l.m.name} on the roster`); return false; }
+  const ok = await modalOk(s);
+  await sleep(2000);
+  // from here the removed member's own page decides where they stand (the init script stops seating them)
+  if (l.page) await l.page.evaluate(() => { try { localStorage.setItem('wh_gj_noseat', '1'); } catch (_) { /* storage blocked */ } }).catch(() => {});
+  return ok;
+}
+// a job logged under a lock-out and a permit, through the wizard's own Safety Isolation section
+const lotoBeforeSave = (ref) => async (page) => {
+  await page.evaluate((r) => {
+    const cb = document.getElementById('f-loto');
+    if (cb && !cb.checked) cb.click();   // its onchange (toggleLotoPermit) opens the permit field
+    const f = document.getElementById('f-permit-ref');
+    if (f) { f.value = r; f.dispatchEvent(new Event('input', { bubbles: true })); f.dispatchEvent(new Event('change', { bubbles: true })); }
+  }, ref);
+};
+const reEsc = (t) => String(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// the hive's trail shows each line's details behind its own "Show details" - the tap a person makes on the line they are
+// reading (the row is found by its own id; Load more pages back if the line is older than the first page)
+const auditReach = (aid, marker) => async (R2, ms) => {
+  await go(R2, 'audit-log.html');
+  for (let i = 0; i < 5; i++) {
+    const tapped = await R2.page.evaluate((id) => {
+      const row = document.querySelector(`.entry[data-entry-id="${id}"]`);
+      if (!row) return false;
+      const b = [...row.querySelectorAll('button')].find((x) => x.hasAttribute('aria-expanded'));
+      if (b && b.getAttribute('aria-expanded') !== 'true') b.click();
+      return true;
+    }, String(aid || ''));
+    if (tapped) break;
+    const more = await R2.page.evaluate(() => { const b = document.querySelector('#audit-load-more-wrap:not(.hidden) button'); if (b) { b.click(); return true; } return false; });
+    if (!more) break;
+    await sleep(1500);
+  }
+  await sleep(800);
+  return findText(R2, marker, ms);
+};
+
+// ── J4 · audit season: the worker's entries are the supervisor's defence in front of an inspector
+RECIPES.J4 = {
+  1: async (X) => {   // the worker's entry reaches the supervisor (and the report's figures are taken before it lands)
+    X.rec.before = await reportFigures(X.S.s);
+    if (X.rec.before.error) X.notes.push(`the report before the worker logged: ${X.rec.before.error}`);
+    return RECIPES.J2[1](X);
+  },
+  2: async (X) => {   // the worker amends their entry; the supervisor's trail says what it said before and after
+    const { w } = X.S;
+    const e = X.rec.entry || {};
+    const amended = `${X.tag} bearing noise drive end - coupling found loose`;
+    const opened = await openEdit(w, X.tag);
+    await w.page.evaluate((v) => { const el = document.getElementById('f-problem'); if (el) { el.value = v; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); } }, amended);
+    await w.page.evaluate(() => { const b = document.getElementById('save-entry-btn'); if (b) b.click(); });
+    await sleep(3500);
+    const row = psql(`select id || '|' || coalesce(meta->'changed_fields'->'problem'->>'from','') || '|' || coalesce(meta->'changed_fields'->'problem'->>'to','')
+      from hive_audit_log where hive_id = '${HIVE_ID}' and action = 'edit_logbook_entry' and target_id = '${q(e.id || '')}' order by created_at desc limit 1`);
+    const [aid, from, to] = row ? row.split('|') : [null, '', ''];
+    return { act: { ok: opened && !!aid && to === amended, detail: `the entry's own Edit as ${w.m.name}: audit ${aid || 'NO ROW'}, problem "${from}" -> "${to}"` },
+      marker: amended, markerRx: /→/, path: 'audit-log.html', reach: auditReach(aid, amended), rec: { table: 'hive_audit_log', id: aid } };
+  },
+  3: async (X) => {   // the machine's history an inspector reads names the worker's job
+    const e = X.rec.entry || {};
+    return { act: { ok: !!e.node, detail: `the entry logged at hand-off 1 on ${e.machine} (${e.node || 'no machine'})` },
+      marker: X.tag, path: e.node ? `asset-hub.html?node_id=${e.node}` : 'asset-hub.html', rec: { table: 'v_logbook_truth', id: e.id } };
+  },
+  4: async (X) => {   // the worker's breakdown is one more failure in the report the supervisor generates
+    const b = X.rec.before || {};
+    return { act: { ok: b.failures != null, detail: `the report's engine before the worker logged: ${b.failures ?? 'unread'} failures in 90 days` },
+      marker: null, path: 'analytics-report.html', prepare: generateReport,
+      figure: async (R) => {
+        const v = await R.page.evaluate(() => {
+          const c = [...document.querySelectorAll('.kpi-cell')].find((x) => /Total Failures/i.test(x.innerText || ''));
+          const n = c && c.querySelector('.kpi-value');
+          return n ? Number((n.innerText || '').replace(/[^\d]/g, '')) : null;
+        }).catch(() => null);
+        const gen = await R.page.evaluate(() => ((document.body.innerText || '').match(/Generated:[^\n]{0,60}/) || [])[0] || null).catch(() => null);
+        const ok = v != null && b.failures != null && v === b.failures + 1 && !!gen;
+        return { ok, said: `Total Failures ${v} · ${gen || 'no "Generated" line'}`, before: b.failures ?? null,
+          ...(ok ? {} : { why: v == null ? 'the report states no Total Failures' : `the report says ${v}; before the worker's breakdown the engine said ${b.failures}` }) };
+      },
+      rec: { table: 'v_logbook_truth', id: (X.rec.entry || {}).id } };
+  },
+};
+
+// ── J24 · a safety incident: the worker's lock-out becomes the supervisor's record and an inspector's trail
+RECIPES.J24 = {
+  1: async (X) => {   // the worker's lock-out entry reaches the supervisor, badge and permit on it
+    const { w, s } = X.S;
+    X.rec.before = await reportFigures(s);
+    if (X.rec.before.error) X.notes.push(`the report before the worker logged: ${X.rec.before.error}`);
+    X.rec.permit = `PTW-${X.tag.slice(-7)}`;
+    await go(s, 'logbook.html');
+    await go(w, 'logbook.html');
+    const r = await logWizard(w.page, H(w.page), { tag: X.tag, problem: 'conveyor drive guard off for a belt change', consequence: 'safety',
+      beforeSave: lotoBeforeSave(X.rec.permit) });
+    const row = psql(`select id || '|' || machine || '|' || coalesce(asset_node_id::text,'') || '|' || loto_applied || '|' || coalesce(permit_reference,'') || '|' || coalesce(failure_consequence,'')
+      from logbook where problem like '${q(X.tag)}%' and hive_id = '${HIVE_ID}' order by created_at limit 1`);
+    const [id, machine, node, loto, permit, cons] = row ? row.split('|') : [];
+    X.rec.entry = { id, machine, node };
+    // psql renders this boolean as 'true' inside the || concat (an output function, not the 't' of a bare column)
+    return { act: { ok: !!id && /^t(rue)?$/.test(loto || '') && permit === X.rec.permit && /safety/i.test(cons || ''),
+      detail: `logbook wizard as ${w.m.name}, LOTO under ${X.rec.permit}: ${r.toast || 'no toast'} -> ${id || 'NO ROW'} loto=${loto} permit=${permit} consequence=${cons}` },
+      marker: X.tag, markerRx: /LOTO/, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, X.tag, ms), rec: { table: 'logbook', id } };
+  },
+  2: async (X) => {   // the machine's history says it was locked out, under which permit
+    const e = X.rec.entry || {};
+    return { act: { ok: !!e.node, detail: `the lock-out logged at hand-off 1 on ${e.machine}` },
+      marker: X.tag, markerRx: /locked out/i, path: e.node ? `asset-hub.html?node_id=${e.node}` : 'asset-hub.html', rec: { table: 'v_logbook_truth', id: e.id } };
+  },
+  3: async (X) => {   // the trail an inspector reads keeps the isolation and the permit
+    const e = X.rec.entry || {};
+    const aid = psql(`select id from hive_audit_log where hive_id = '${HIVE_ID}' and action = 'create_logbook_entry' and target_id = '${q(e.id || '')}' order by created_at desc limit 1`);
+    return { act: { ok: !!aid, detail: `the entry's line in the hive's trail: ${aid || 'NO ROW'}` },
+      marker: X.rec.permit, markerRx: /LOTO|lock/i, path: 'audit-log.html', reach: auditReach(aid, X.rec.permit), rec: { table: 'hive_audit_log', id: aid } };
+  },
+  4: async (X) => {   // the incident is one more safety-risk failure in the report
+    const b = X.rec.before || {};
+    return { act: { ok: b.safety != null, detail: `the report's engine before the worker logged: ${b.safety ?? 'unread'} failures classified as a safety risk` },
+      marker: null, path: 'analytics-report.html', prepare: generateReport,
+      figure: async (R) => {
+        const line = await R.page.evaluate(() => ((document.body.innerText || '').match(/(\d+) failures classified as a safety risk/) || [])[0] || null).catch(() => null);
+        const v = line ? Number(line.match(/\d+/)[0]) : null;
+        const ok = v != null && b.safety != null && v === b.safety + 1;
+        return { ok, said: line, before: b.safety ?? null,
+          ...(ok ? {} : { why: v == null ? 'the report states no safety-risk count' : `the report says ${v}; before the worker's lock-out job the engine said ${b.safety}` }) };
+      },
+      rec: { table: 'v_logbook_truth', id: (X.rec.entry || {}).id } };
+  },
+};
+
+// ── J14 · leaving: the supervisor removes a member, and what remains is honest to both
+RECIPES.J14 = {
+  1: async (X) => {   // the leaver's own job first, then the removal: the leaver reads who, when, and what stays theirs
+    const { s, l } = X.S;
+    X.rec.permit = `PTW-${X.tag.slice(-7)}`;
+    await go(l, 'logbook.html');
+    const r = await logWizard(l.page, H(l.page), { tag: X.tag, problem: 'gearbox oil top-up, sight glass cracked', beforeSave: lotoBeforeSave(X.rec.permit) });
+    const row = psql(`select id || '|' || machine || '|' || coalesce(asset_node_id::text,'') from logbook where problem like '${q(X.tag)}%' and hive_id = '${HIVE_ID}' order by created_at limit 1`);
+    const [id, machine, node] = row ? row.split('|') : [];
+    X.rec.entry = { id, machine, node };
+    const removed = await removeMember(X, s, l);
+    const mrow = psql(`select id || '|' || status || '|' || coalesce(removed_by,'') || '|' || coalesce(removed_at::text,'') from hive_members where hive_id = '${HIVE_ID}' and auth_uid = '${l.m.uid}'`);
+    const [mid, st, by, at] = mrow ? mrow.split('|') : [];
+    X.rec.member = mid;
+    return { act: { ok: !!id && removed && st === 'kicked' && by === s.m.name,
+      detail: `${l.m.name} logged ${id || 'NO ROW'} (${r.toast || 'no toast'}); Remove on the roster as ${s.m.name}: status ${st}, removed_by ${by || '(none)'} at ${at || '(none)'}` },
+      marker: 'removed from', markerRx: /stay yours|still yours/i, path: 'hive.html',
+      rec: { table: 'hive_members', id: mid, where: `and status = 'kicked'` } };
+  },
+  2: async (X) => {   // the leaver's entries stay in the supervisor's logbook, still theirs
+    const e = X.rec.entry || {};
+    return { act: { ok: !!e.id, detail: `${X.S.l.m.name}'s entry, logged before the removal` },
+      marker: X.tag, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, X.tag, ms), rec: { table: 'logbook', id: e.id } };
+  },
+  3: async (X) => {   // the trail keeps the leaver's work under their name
+    const e = X.rec.entry || {};
+    const aid = psql(`select id from hive_audit_log where hive_id = '${HIVE_ID}' and action = 'create_logbook_entry' and target_id = '${q(e.id || '')}' order by created_at desc limit 1`);
+    return { act: { ok: !!aid, detail: `the line the trail kept for ${X.S.l.m.name}'s entry: ${aid || 'NO ROW'}` },
+      marker: X.rec.permit, path: 'audit-log.html', reach: auditReach(aid, X.rec.permit), rec: { table: 'hive_audit_log', id: aid } };
+  },
+  4: async (X) => {   // the leaver's own achievements stay theirs: the XP their job earned is on their page
+    const { l } = X.S;
+    const xp = psql(`select count(*) || '|' || coalesce(sum(xp_earned),0) from achievement_xp_log where worker_name = '${q(l.m.name)}' and earned_at >= '${X.t0}'`);
+    const [n, pts] = (xp || '0|0').split('|');
+    return { act: { ok: Number(n) >= 1, detail: `${l.m.name}'s XP since the walk began: ${n} line(s), ${pts} XP` },
+      marker: null, path: 'achievements.html',
+      figure: async (R) => {
+        // the newest XP row (the list opens with a "Last 7 days" head line, then one .activity-row per action, newest first)
+        const first = await R.page.evaluate(() => { const c = document.querySelector('#recent-list .activity-row'); return c ? (c.innerText || '').replace(/\s+/g, ' ').trim() : null; }).catch(() => null);
+        // the row prints its XP as its amount ("+20"), not the word: the line is the job's own when it carries the points
+        // the walk's job earned and a time from today
+        const ok = !!first && new RegExp('\\+' + Number(pts) + '\\b').test(first) && /just now|ago|today|\d{1,2}:\d{2}/i.test(first) && Number(n) >= 1;
+        return { ok, said: first, ...(ok ? {} : { why: first ? 'the newest XP line is not the job logged before the removal' : 'no Recent XP line on the page' }) };
+      },
+      rec: { table: 'v_worker_achievements_truth', idCol: 'auth_uid', id: l.m.uid } };
+  },
+};
+
+// ── G-LEAVE · a member removed: their open work reassigned, their history kept, the roster honest to all three
+RECIPES['G-LEAVE'] = {
+  1: (X) => RECIPES.J14[1](X),   // the leaver's open job, then the removal - read by the leaver
+  2: async (X) => {   // the supervisor hands the departed member's open job to the remaining worker - pushed to them
+    const { s, w } = X.S;
+    const e = X.rec.entry || {};
+    // the entry's view offers a supervisor a departed member's open job: "Close this job" / "Assign to a member"
+    const seen = await reachTeam(s, X.tag, 15000);
+    const opened = await s.page.evaluate((t) => {
+      const card = [...document.querySelectorAll('#entries-list .entry-card, #entries-list [onclick*="openModal"], .entry-card')]
+        .find((c) => (c.textContent || '').includes(t));
+      if (!card) return false; (card.querySelector('[onclick*="openModal"]') || card).click(); return true;
+    }, X.tag);
+    await sleep(1200);
+    const picked = await s.page.evaluate(() => { const b = [...document.querySelectorAll('#departed-actions button')].find((x) => /assign to a member/i.test(x.innerText || '')); if (b) { b.click(); return true; } return false; });
+    await sleep(1500);
+    await s.page.selectOption('#departed-assignee', w.m.name).catch(() => {});
+    await s.page.evaluate(() => { const b = [...document.querySelectorAll('#departed-actions button')].find((x) => /^assign$/i.test((x.innerText || '').trim())); if (b) b.click(); });
+    await sleep(2500);
+    const toast = await s.page.evaluate(() => { const t = document.getElementById('toast-text'); return t ? t.textContent.trim() : ''; }).catch(() => '');
+    const got = psql(`select coalesce(wo_assigned_to,'') || '|' || coalesce(wo_state,'') from logbook where id = '${q(e.id || '')}'`);
+    const push = () => psql(`select count(*) from service_outbox where consumer = 'notify-push' and created_at >= '${X.t0}'
+      and payload->'auth_uids' ? '${w.m.uid}' and payload->>'title' = 'Work order assigned to you' and payload->>'url' like '/logbook.html?status=Open%'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where consumer = 'notify-push' and created_at >= '${X.t0}' and payload->'auth_uids' ? '${w.m.uid}' order by created_at desc limit 1`);
+    return { act: { ok: !!seen && opened && picked && got.startsWith(w.m.name), detail: `the departed member's job, "Assign to a member" -> ${w.m.name} as ${s.m.name} (toast: ${toast || 'none'}): wo_assigned_to|wo_state = ${got}` },
+      marker: X.tag, path: 'logbook.html?status=Open', channelSaid: pushSaid || null, rec: { table: 'logbook', id: e.id },
+      F: () => { const n = Number(push()); return { ok: n >= 1 && got.startsWith(w.m.name),
+        detail: `service_outbox notify-push to ${w.m.name} with /logbook.html?status=Open: ${n}; the entry reads assigned to ${got.split('|')[0] || 'nobody'}` }; } };
+  },
+  3: async (X) => {   // the leaver's job, as the one who carries it on reads it: still under the leaver's name
+    const e = X.rec.entry || {};
+    return { act: { ok: !!e.id, detail: `${X.S.l.m.name}'s job, now ${X.S.w.m.name}'s to carry on` },
+      marker: X.tag, path: 'logbook.html?status=Open', rec: { table: 'logbook', id: e.id } };
+  },
+  4: async (X) => {   // the roster the remaining worker reads no longer lists the leaver
+    const { s, l } = X.S;
+    return { act: { ok: !!X.rec.member, detail: `${l.m.name} removed at hand-off 1 (member ${X.rec.member || 'unknown'})` },
+      absent: { container: '#members-list', presentRx: new RegExp(reEsc(s.m.name.split(' ')[0]), 'i'), nameRx: new RegExp(reEsc(l.m.name), 'i') },
+      path: 'hive.html',
+      prepare: async (R) => { await R.page.evaluate(() => { const b = document.getElementById('btn-toggle-members'); if (b && b.getAttribute('aria-expanded') !== 'true') b.click(); }); await sleep(1500); },
+      rec: { table: 'hive_members', id: X.rec.member, where: `and status = 'active'` } };
+  },
+};
+
+// ── G-ADV · the record reached for from outside: the hand-off stays inside its hive, refused in words
+RECIPES['G-ADV'] = {
+  1: (X) => RECIPES.J2[1](X),
+  2: async (X) => {   // a member of another hive holding the entry's own link is refused in words
+    const e = X.rec.entry || {};
+    return { act: { ok: !!e.id, detail: `the entry's link (logbook.html?id=${e.id}) opened by ${X.S.a.m.name}, a member of ${X.S.a.m.seatName}` },
+      refused: /couldn.t find .* in a hive you belong to|not a member|not in your hive|do not have access/i,
+      marker: X.tag, path: `logbook.html?id=${e.id}`, rec: { table: 'logbook', id: e.id } };
+  },
+  3: async (X) => {   // the supervisor's machine record is refused to the foreign member, in words
+    const e = X.rec.entry || {};
+    const nm = e.node ? psql(`select name from asset_nodes where id = '${q(e.node)}'`) : '';
+    // the machine's name is the record's text - unless the other hive happens to have one of the same name
+    const clash = nm ? Number(psql(`select count(*) from asset_nodes where hive_id = '${X.S.a.m.seatId}' and name = '${q(nm)}'`)) : 0;
+    if (clash) X.notes.push(`hand-off 3: ${X.S.a.m.seatName} also has a machine called "${nm}" - the refusal is read without the name check`);
+    return { act: { ok: !!e.node, detail: `the machine's link (asset-hub.html?node_id=${e.node}) opened by ${X.S.a.m.name}` },
+      refused: /could not be resolved in this hive|not in your hive|do not have access|couldn.t find/i,
+      marker: clash ? null : nm, path: `asset-hub.html?node_id=${e.node}`, rec: { table: 'asset_nodes', id: e.node } };
+  },
+};
+
+// ── J21 · benchmark to decision: one hive shares, another hive reads, nobody loses their numbers
+RECIPES.J21 = {
+  1: async (X) => {   // the supervisor turns benchmark sharing on; the members are told, by whom and when
+    const { s } = X.S;
+    await go(s, 'hive.html');
+    await s.page.evaluate(() => { const m = document.getElementById('btn-hive-menu'); if (m) m.click(); });
+    await sleep(700);
+    const pressed = await s.page.evaluate(() => { const b = document.getElementById('btn-benchmark-sharing'); if (b && b.getAttribute('aria-checked') !== 'true') { b.click(); return true; } return false; });
+    const confirmed = pressed ? await modalOk(s) : false;
+    await sleep(2500);
+    const row = psql(`select federated_benchmark_opted_in || '|' || coalesce(federated_opt_in_by,'') || '|' || coalesce(federated_opt_in_at::text,'') from hives where id = '${HIVE_ID}'`);
+    const [on, by] = row.split('|');
+    return { act: { ok: /^t(rue)?$/.test(on || '') && by === s.m.name, detail: `"Share benchmarks" on the hive menu as ${s.m.name} (pressed ${pressed}, confirmed ${confirmed}): ${row}` },
+      marker: 'shares its anonymised figures', path: 'hive.html', rec: { table: 'hives', id: HIVE_ID, where: 'and federated_benchmark_opted_in' } };
+  },
+  2: async (X) => {   // the hive's contribution reaches the sector view another hive's supervisor reads - as a count, never a name
+    const { f, s } = X.S;
+    // ★A FIXTURE, SAID IN THE RECEIPT: ph-intelligence opens for a hive at Stair 3 (maturity-gate.js), and no local hive
+    // is above Stair 1 - so the reader's hive is shown at Stair 3 for the walk (its latest readiness row) and put back
+    // in cleanup. The hop is about what a Stair-3 hive's supervisor reads of another hive's contribution.
+    const rd = psql(`select id || '|' || current_stair from hive_readiness where hive_id = '${f.m.seatId}' order by snapshot_date desc, computed_at desc limit 1`);
+    if (rd) {
+      const [rdId, rdStair] = rd.split('|');
+      if (Number(rdStair) < 3) {
+        psql(`update hive_readiness set current_stair = 3 where id = '${rdId}'`);
+        X.restores = [...(X.restores || []), [`${f.m.seatName}'s stair back to ${rdStair}`, `update hive_readiness set current_stair = ${Number(rdStair)} where id = '${rdId}';`]];
+        X.notes.push(`hand-off 2: ${f.m.seatName} was shown at Stair 3 for the walk (it is at Stair ${rdStair}); ph-intelligence opens at Stair 3`);
+      }
+    }
+    await go(f, 'ph-intelligence.html');
+    const pressed = await f.page.evaluate(() => {
+      const b = document.getElementById('ph-regenerate-btn')
+        || [...document.querySelectorAll('button')].find((x) => /generate/i.test(x.innerText || '') && x.checkVisibility && x.checkVisibility());
+      if (b) { b.click(); return (b.innerText || b.id || '').trim(); } return null;
+    });
+    let rid = null;
+    for (let t = 0; t < 60000 && !rid; t += 2000) { await sleep(2000); rid = psql(`select id from ph_intelligence_reports where generated_at >= '${X.t0}' order by generated_at desc limit 1`) || null; }
+    const said = rid ? psql(`select coalesce(narrative->>'executive_summary','') from ph_intelligence_reports where id = '${rid}'`) : '';
+    return { act: { ok: !!rid, detail: `"${pressed || 'no Generate control'}" on ph-intelligence as ${f.m.name}: report ${rid || 'NOT GENERATED'} - ${said.slice(0, 140)}` },
+      marker: 'needed have opted in', whoRx: /\b\d+ of the \d+ needed have opted in/i,
+      mustNotSay: new RegExp([HOME, HOME.split(' ')[0], s.m.name].map(reEsc).join('|'), 'i'),
+      path: 'ph-intelligence.html', rec: { table: 'ph_intelligence_reports', id: rid },
+      // anonymised: the reader of the sector view may not read the contributing hive's own row or its own figures
+      I: () => {
+        const a = Number(asUser(f.m.uid, `select count(*) from hives where id = '${HIVE_ID}'`));
+        const b = Number(asUser(f.m.uid, `select count(*) from hive_benchmarks where hive_id = '${HIVE_ID}'`));
+        return { ok: a === 0 && b === 0, detail: `as ${f.m.name} (${f.m.seatName}): ${HOME}'s hive row ${a}, its own benchmark rows ${b} - both must be 0` };
+      } };
+  },
+  3: async (X) => {   // the supervisor shares the decision with the hive
+    const { s } = X.S;
+    await go(s, 'community.html');
+    await s.page.evaluate(() => { if (typeof openComposer === 'function') openComposer(); });
+    await sleep(1000);
+    const text = `${X.tag} we now share our anonymised figures with the PH benchmarks - totals only, never names or machines`;
+    await s.page.fill('#post-content', text).catch(() => {});
+    await s.page.evaluate(() => { const b = document.getElementById('btn-submit-post'); if (b) b.click(); });
+    await sleep(3500);
+    const pid = psql(`select id from community_posts where hive_id = '${HIVE_ID}' and content like '${q(X.tag)}%' order by created_at desc limit 1`);
+    return { act: { ok: !!pid, detail: `"Post to Hive" as ${s.m.name}: community_posts ${pid || 'NO ROW'}` },
+      marker: X.tag, path: 'community.html', rec: { table: 'community_posts', id: pid } };
+  },
+};
+
+// ── G-ESC · a problem the supervisor cannot settle: it reaches the platform (hand-offs 2-3 are M10's, the public board)
+RECIPES['G-ESC'] = {
+  1: async (X) => {   // the worker reports a post; it is in the supervisor's Mod Queue - who reported it, when, and why
+    const { w, s } = X.S;
+    // the post is a third member's (neither the reporter nor the supervisor), read from the hive, never typed
+    const arow = psql(`select m.auth_uid || '|' || p.display_name from hive_members m join worker_profiles p on p.auth_uid = m.auth_uid
+      where m.hive_id = '${HIVE_ID}' and m.status = 'active' and m.role = 'worker' and m.auth_uid not in ('${w.m.uid}', '${s.m.uid}') order by p.display_name limit 1`);
+    const [auid, aname] = (arow || '|').split('|');
+    // a fixture, written with triggers off: it earns its author no XP (the cleanup removes the CAST's XP only)
+    const pid = psql(`set session_replication_role = replica;
+      insert into community_posts (hive_id, author_name, auth_uid, content, category)
+      values ('${HIVE_ID}', '${q(aname)}', '${auid}', '${q(X.tag)} selling my own spare bearings at half price, message me', 'general') returning id;`)
+      .split('\n').find((l) => /^[0-9a-f-]{36}$/.test(l.trim())) || null;
+    await go(w, 'community.html');
+    // the feed draws its cards as the person scrolls (the pinned ones first): scroll down to the post, as they would
+    for (let i = 0; i < 12; i++) {
+      const drawn = await w.page.evaluate((id) => !!document.getElementById('post-' + id), pid);
+      if (drawn) break;
+      await w.page.evaluate(() => window.scrollBy(0, Math.round(window.innerHeight * 0.9)));
+      await sleep(600);
+    }
+    await w.page.evaluate((id) => { const c = document.getElementById('post-' + id); if (c) c.scrollIntoView({ block: 'center' }); }, pid);
+    await sleep(400);
+    // the post's own menu ("⋯") and its "Report this post", as a person taps them
+    const viaMenu = await w.page.evaluate((id) => {
+      const card = document.getElementById('post-' + id);
+      const trigger = card && [...card.querySelectorAll('.post-head button')].find((b) => b.getAttribute('aria-haspopup') || /more|menu|options/i.test(b.getAttribute('aria-label') || ''));
+      if (!trigger) return false;
+      trigger.click(); return true;
+    }, pid);
+    await sleep(600);
+    const tappedItem = viaMenu ? await w.page.evaluate(() => {
+      const it = [...document.querySelectorAll('[role="menuitem"], [role="menu"] button')].find((b) => /report this post/i.test(b.innerText || '') && b.checkVisibility && b.checkVisibility());
+      if (it) { it.click(); return true; } return false;
+    }) : false;
+    let opened = tappedItem;
+    if (!opened) {
+      X.notes.push('hand-off 1: the post menu\'s "Report this post" was not reached by taps - the report sheet was opened by its own function');
+      opened = await w.page.evaluate((id) => { if (typeof openReport === 'function') { openReport(id); return true; } return false; }, pid);
+    }
+    await sleep(900);
+    await w.page.selectOption('#report-reason', 'spam').catch(() => {});
+    await w.page.fill('#report-details', 'Personal sales in the plant feed').catch(() => {});
+    await w.page.evaluate(() => { const b = document.getElementById('btn-submit-report'); if (b) b.click(); });
+    await sleep(3000);
+    const flagged = psql(`select flagged from community_posts where id = '${q(pid)}'`);
+    return { act: { ok: flagged === 't' && opened, detail: `"Report Post" on ${aname}'s post as ${w.m.name} (reason spam): flagged = ${flagged}` },
+      marker: X.tag, markerRx: /Reported by/i, path: 'community.html',
+      reach: async (R2, ms) => {
+        await go(R2, 'community.html');
+        await R2.page.evaluate(() => { const t = document.getElementById('tab-mod'); if (t) t.click(); });
+        await sleep(1500);
+        return findText(R2, X.tag, ms);
+      },
+      rec: { table: 'community_posts', id: pid, where: 'and flagged' } };
+  },
+};
+
 function snapshotInPlace() {
   return { snaps: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from analytics_snapshots t where hive_id = '${HIVE_ID}'`),
     alerts: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from failure_signature_alerts t where hive_id = '${HIVE_ID}'`),
     // a publish changes the hive's shift plan in place (status, published_by, published_at)
     plans: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from shift_plans t where hive_id = '${HIVE_ID}'`),
     // the anomaly composer rewrites every signal of the hive (computed_at, scores)
-    anomalies: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from anomaly_signals t where hive_id = '${HIVE_ID}'`) };
+    anomalies: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from anomaly_signals t where hive_id = '${HIVE_ID}'`),
+    // a supervisor's Remove (J14, G-LEAVE) changes a membership in place: every member row of the home hive comes back
+    members: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from hive_members t where hive_id = '${HIVE_ID}'`),
+    // a supervisor's "Share benchmarks" (J21) changes the hive's consent and its stamp - every hive's, so a walk seated
+    // anywhere gives it back
+    optin: psql(`select coalesce(json_agg(json_build_object('id', id, 'federated_benchmark_opted_in', federated_benchmark_opted_in,
+      'federated_opt_in_at', federated_opt_in_at, 'federated_opt_in_by', federated_opt_in_by)), '[]') from hives`),
+    // a Generate on ph-intelligence (J21) upserts the network's report for the period - one table for every hive
+    reports: psql(`select coalesce(json_agg(row_to_json(t)), '[]') from ph_intelligence_reports t`) };
 }
 // ★EVERY STEP OF THE CLEANUP RUNS ON ITS OWN (2026-11-04, the first teeth run): one psql script with ON_ERROR_STOP died
 // on a wrong column at its fourth line, and the audit lines, the XP and the restores after it never ran - the walk left
@@ -1206,6 +1663,24 @@ function cleanup(X, kept) {
       insert into shift_plans select * from json_populate_recordset(null::shift_plans, '${q(kept.plans)}'); commit;`],
     ['analytics snapshots restored', `begin; delete from analytics_snapshots where hive_id = '${HIVE_ID}';
       insert into analytics_snapshots select * from json_populate_recordset(null::analytics_snapshots, '${q(kept.snaps)}'); commit;`],
+    // ★A REMOVED MEMBER IS A MEMBER AGAIN AFTER THE WALK (2026-11-05, GJ M8 J14 / G-LEAVE): the removal is the walk's
+    // act; the person is a member of the plant's demo hive in every other scenario. Status, role and the removal stamp
+    // come back exactly (triggers off: a restore is not a supervisor's re-approval).
+    ['memberships restored', `update hive_members m set status = k.status, role = k.role, removed_at = k.removed_at, removed_by = k.removed_by
+      from json_populate_recordset(null::hive_members, '${q(kept.members)}') k where m.id = k.id
+        and (m.status, m.role, m.removed_at, m.removed_by) is distinct from (k.status, k.role, k.removed_at, k.removed_by);`],
+    ['benchmark consent restored', `update hives h set federated_benchmark_opted_in = k.federated_benchmark_opted_in,
+        federated_opt_in_at = k.federated_opt_in_at, federated_opt_in_by = k.federated_opt_in_by
+      from json_populate_recordset(null::hives, '${q(kept.optin)}') k where h.id = k.id
+        and (h.federated_benchmark_opted_in, h.federated_opt_in_at, h.federated_opt_in_by)
+          is distinct from (k.federated_benchmark_opted_in, k.federated_opt_in_at, k.federated_opt_in_by);`],
+    ['PH reports restored', `begin; delete from ph_intelligence_reports where generated_at >= '${X.t0}';
+      insert into ph_intelligence_reports select * from json_populate_recordset(null::ph_intelligence_reports, '${q(kept.reports)}')
+        on conflict do nothing; commit;`],
+    ['report pushes', `delete from service_outbox where consumer = 'notify-push' and created_at >= '${X.t0}'
+      and payload->>'title' = 'A post was reported' and payload->'auth_uids' ?| array[${uids}];`],
+    // a recipe's own fixture, set for the walk and named in its receipt, is put back here (J21: the reader's stair)
+    ...(X.restores || []),
   ];
   // a member seated in ANOTHER hive (G-MULTI's second supervisor) means the walk made rows there too: the tag- and
   // time-keyed removals run in each such hive as well (the in-place restores are the home hive's alone)
@@ -1255,6 +1730,20 @@ async function walkPass(browser, pass, foreign) {
       let r;
       try { r = await recipe(X); } catch (e) { out.push({ ...res, act: { ok: false, detail: String(e.message || e).slice(0, 200) } }); continue; }
       res.act = r.act;
+      if (r.refused || r.absent) {
+        // a hand-off that must not arrive: U reads the refusal (or the absence), F and I read that the receiver's own
+        // session gets NO row, A asks the same on 3G
+        res.U = r.refused ? await readRefusal(R, r) : await readAbsence(R, r);
+        const idColR = (r.rec && r.rec.idCol) || 'id';
+        const recvR = r.rec && r.rec.id ? Number(asUser(R.m.uid, `select count(*) from ${r.rec.table} where ${idColR}::text = '${q(r.rec.id)}' ${r.rec.where || ''}`)) : -1;
+        const forR = r.rec && r.rec.id ? Number(asUser(foreign.uid, `select count(*) from ${r.rec.table} where ${idColR}::text = '${q(r.rec.id)}'`)) : -1;
+        res.F = r.F ? r.F() : { ok: recvR === 0, detail: `${r.rec.table} ${r.rec.id} read as ${R.m.name}${r.refused ? ' (another hive)' : ''} through RLS${r.rec.where ? ' ' + r.rec.where : ''}: ${recvR} row(s) - must be 0` };
+        res.I = r.I ? r.I(foreign) : { ok: recvR === 0 && forR === 0, receiver_rows: recvR, foreign: foreign.user, foreign_rows: forR };
+        res.A = await under3G(R, async (S2) => (r.refused ? (await readRefusal(S2, r, 45000)).ok : (await readAbsence(S2, r)).ok) || null);
+        out.push(res);
+        console.log(`  ${SCEN} pass ${pass} hand-off ${hop.handoff} ${hop.page}: act ${res.act.ok ? 'ok' : 'FAIL'} · U ${res.U.ok ? 'ok' : 'FAIL'} · F ${res.F.ok ? 'ok' : 'FAIL'} · I ${res.I.ok ? 'ok' : 'FAIL'} · A ${res.A.ok ? 'ok' : 'FAIL'}`);
+        continue;
+      }
       // U - the receiver lands by the hop's channel and reads the screen (the recipe's own route when it has one)
       const reach = r.reach || (async (S2, ms) => { await go(S2, r.path); return r.marker ? findText(S2, r.marker, ms) : true; });
       let seen = r.preRead || null;
@@ -1272,11 +1761,21 @@ async function walkPass(browser, pass, foreign) {
         res.U = { ok: !!seen && hasWho && hasWhen && rxOk, live: r.live ?? null, live_said: r.liveSaid || null, who: hasWho, when: hasWhen,
           said: seen ? card.replace(/\s+/g, ' ').slice(0, 300) : null };
         if (seen && !hasWho) res.U.why = `the screen shows the record but not who did it (${S[hop.sender].m.name})`;
+        // ★AN ANONYMISED HAND-OFF MUST STAY ANONYMOUS (2026-11-05, GJ M8 J21): what the receiver must NOT be told (the
+        // contributing hive's name, its supervisor's) is read off the whole screen, not only the card
+        if (r.mustNotSay && seen) {
+          const whole = await R.page.evaluate(() => document.body.innerText || '').catch(() => '');
+          const leak = (whole.match(r.mustNotSay) || [])[0] || null;
+          if (leak) { res.U.ok = false; res.U.leaked = leak; res.U.why = `the screen names what it must not: "${leak}"`; }
+        }
         // a reading that found nothing says what WAS on the screen, so the receipt explains itself (the closest lines)
         if (!seen) res.U.screen = await R.page.evaluate((src) => {
           const re = new RegExp(src, 'i');
           return [...new Set((document.body.innerText || '').split('\n').map((l) => l.trim()).filter((l) => l && l.length < 200 && re.test(l)))].slice(0, 8);
         }, r.hint || r.marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).catch(() => null);
+      } else if (r.figure) {
+        // a figure the receiver's page must state, judged against what the engine said before the sender acted
+        res.U = await r.figure(R);
       } else {
         const page = await R.page.evaluate(() => document.body.innerText || '');
         // ★A LABEL IS NOT A READING (2026-11-04, J3 hand-off 5): analytics-report's toolbar word "Period" matched, and U
@@ -1291,7 +1790,7 @@ async function walkPass(browser, pass, foreign) {
       // I - the receiver may, a member of another hive may not
       const witness = X.faults.has('foreign-let-in') ? { user: R.m.user, uid: R.m.uid } : foreign;
       const forRows = r.rec.id ? Number(asUser(witness.uid, `select count(*) from ${r.rec.table} where ${idCol}::text = '${q(r.rec.id)}'`)) : -1;
-      res.I = { ok: recvRows >= 1 && forRows === 0, receiver_rows: recvRows, foreign: witness.user, foreign_rows: forRows };
+      res.I = r.I ? r.I(witness) : { ok: recvRows >= 1 && forRows === 0, receiver_rows: recvRows, foreign: witness.user, foreign_rows: forRows };
       // A - the receiver's landing on 3G, the sender's network untouched
       // ★A MARKER-LESS PAGE'S A READING USED TO BE "IT LOADED" (2026-11-04): it returned true after the navigation, so a
       // figure page passed on 3G without its statement ever being read. It now reads the same dated line U read.
@@ -1299,6 +1798,7 @@ async function walkPass(browser, pass, foreign) {
         if (r.marker) return reach(S2, 45000);
         await go(S2, r.path);
         if (r.prepare) await r.prepare(S2);
+        if (r.figure) return (await r.figure(S2)).ok || null;
         for (let t = 0; t < 45000; t += 1000) {
           const txt = await S2.page.evaluate(() => document.body.innerText || '').catch(() => '');
           if (txt.split('\n').some((l) => r.freshnessRx.test(l) && l.length < 160 && /\d|just now/i.test(l))) return true;

@@ -124,7 +124,7 @@ def recipe(page: str, tables: list[str]) -> str:
                     f"-- expect: {k}_foreign_delete_touched \\| (0\\b|refused)"]
         if not owner:
             expects.append(f"-- expect: {k}_own_update_touched_gt0 \\| t")
-        expects.append(f"-- expect: {k}_move_into_foreign \\| (0\\b|refused)")
+        expects.append(f"-- expect: {k}_move_into_foreign \\| (0\\b|refused|pinned)")
         expects.append(f"-- forbid: {k}_move_into_foreign \\| [1-9]")   # a row moved into a foreign hive
         expects.append(f"-- expect: {k}_rows_restored \\| t")
         party = PARTY_SQL if t in PARTY_TABLES else ""
@@ -161,6 +161,16 @@ BEGIN
   ELSIF op = 'foreign_delete' THEN DELETE FROM {t} WHERE {pk} = (SELECT foreign_row FROM _wx_{k});
   ELSIF op = 'own_update' THEN UPDATE {t} SET {pk} = {pk} WHERE {pk} = (SELECT own_row FROM _wx_{k});
   ELSIF op = 'move' THEN UPDATE {t} SET hive_id = (SELECT foreign_hive FROM _wx_{k}) WHERE {pk} = (SELECT own_row FROM _wx_{k});
+    GET DIAGNOSTICS n = ROW_COUNT;
+    -- ★A PINNING GUARD SAYS "1 ROW" AND MOVES NOTHING (2026-11-05): community_replies' authorship trigger keeps
+    -- OLD.hive_id, so the UPDATE succeeds, touches the row, and the reply stays home - the row count was a stand-in
+    -- for "the row landed in the foreign hive" that a BEFORE trigger breaks. The invariant is where the row SITS.
+    -- Read as the member: still visible in their own hive = positively stayed. Invisible (moved, RLS-hidden) keeps
+    -- the count and fails - so a hidden row can never read as safe. No RETURNING (a SELECT grant would refuse it).
+    IF n > 0 AND EXISTS (SELECT 1 FROM {t} x WHERE x.{pk} = (SELECT own_row FROM _wx_{k}) AND x.hive_id = (SELECT mine FROM _wx_{k})) THEN
+      RETURN 'pinned (the row stayed in its own hive)';
+    END IF;
+    RETURN n::text;
   END IF;
   GET DIAGNOSTICS n = ROW_COUNT;
   RETURN n::text;
@@ -206,7 +216,7 @@ def main() -> int:
         # a write probe holds when it touched 0 rows or was refused; the own-hive control and the restore must read true
         bad = [l for l in lines if l.endswith("| false")
                or (any(x in l for x in ("_foreign_update_touched", "_foreign_delete_touched", "_move_into_foreign"))
-                   and not (l.endswith("| 0") or " | refused" in l))]
+                   and not (l.endswith("| 0") or " | refused" in l or " | pinned" in l))]
         verdict = "PASS" if lines and not bad and not errs else "FAIL"
         summary.append((page, verdict, f"{len(lines)} checks; tables={usable}" + (f"; skipped(n/a)={skipped}" if skipped else "") + (f"; bad={bad[:2]}" if bad else "") + (f"; errors={errs[:1]}" if errs else "")))
         if verdict == "FAIL":

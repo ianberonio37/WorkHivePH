@@ -2,7 +2,7 @@
 name: table-rls-achievement_xp_log
 type: table-rls
 source: db:pg_policies+pg_trigger:achievement_xp_log
-source_sha: 5950a361e9a5f3e8
+source_sha: c45a452314b5e97a
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -14,7 +14,7 @@ RLS enabled: **True** · has hive_id: False · has auth_uid: False
 Columns (*=NOT NULL): id*, worker_name*, achievement_id*, xp_earned*, source_action*, source_id, earned_at*, reversed_at
 
 Policies:
-- `ach_log_owner_read` [SELECT · roles=public] USING=`(worker_name IN ( SELECT auth_worker_names() AS auth_worker_names))` CHECK=`∅`
+- `ach_log_owner_read` [SELECT · roles=public] USING=`(worker_name IN ( SELECT auth_own_history_names() AS auth_own_history_names))` CHECK=`∅`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

@@ -2,7 +2,7 @@
 name: memory-corpus
 type: memory
 source: memory-curated:1090-files
-source_sha: a1bd5a3da9fc991e
+source_sha: 2bfe9f4d8d595a1d
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -102,7 +102,7 @@ Entries (name · type · sha):
 - `feedback_a_glob_is_a_claim_about_coverage` · feedback · 0e4b5b5dd37e2d7e
 - `feedback_a_green_gate_that_globbed_one_directory` · feedback · 5d2ebb0efc83a246
 - `feedback_a_guard_must_hide_on_the_way_out` · feedback · b95e5b1d476b443a
-- `feedback_a_guard_snapshot_taken_at_save_reads_the_live_cache` · feedback · da50c5eae4cfbeaa
+- `feedback_a_guard_snapshot_taken_at_save_reads_the_live_cache` · feedback · 2c82488d34deba8f
 - `feedback_a_guard_that_cannot_see_its_subject` · feedback · e82ecd243f37e549
 - `feedback_a_guard_that_could_never_fire` · feedback · 102b9718bb1b7210
 - `feedback_a_guard_that_returns_without_speaking` · feedback · 6950a294f0d27cf4
@@ -111,7 +111,7 @@ Entries (name · type · sha):
 - `feedback_a_heredoc_halves_backslashes_so_an_apostrophe_broke_the_page` · feedback · 1b0f5865e09d5107
 - `feedback_a_journey_path_is_a_route_not_a_list` · feedback · 24bf309aa7f1ac28
 - `feedback_a_journey_prover_has_four_blind_spots` · feedback · d637f954b3c4f68f
-- `feedback_a_killed_walk_skips_its_cleanup` · feedback · e9678b4703ddf190
+- `feedback_a_killed_walk_skips_its_cleanup` · feedback · b07ef3d1eef2e36b
 - `feedback_a_layout_shifts_sources_are_its_victims` · feedback · 58ff41f2e55e5adb
 - `feedback_a_lazy_global_raced_the_session_check` · feedback · fbafdb28eab16797
 - `feedback_a_lens_reported_a_test_it_never_ran` · feedback · c64fb719241deac8

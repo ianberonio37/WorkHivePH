@@ -2704,6 +2704,12 @@ async function assignDepartedEntry(id) {
     const entry = _departedEntry(id);
     writeAuditLog('assign_departed_job', 'logbook', id, (entry && entry.machine) || '(no machine)',
       { to: name, raised_by: (entry && entry.worker_name) || null });
+    // ★THE PERSON WHO INHERITS THE JOB WAS NEVER TOLD (2026-11-05, GJ M8 G-LEAVE hand-off 2). Every other way a work
+    // order is assigned pushes "Work order assigned to you" to the assignee (notify_wo_assigned, from set_logbook_wo, the
+    // save and the offline drain); handing a DEPARTED member's open job on was a direct update that told nobody, so the
+    // job a supervisor rescued from a member who left sat in the new assignee's list unannounced. The same notice now.
+    // .then() sends it (an unawaited builder sends nothing); a refused notice never undoes the assignment.
+    try { db.rpc('notify_wo_assigned', { p_entry_id: String(id) }).then(() => {}, () => {}); } catch (_) { /* empty-catch-allow: the notice is best-effort; the assignment landed */ }
   }
   showToast(data && data.length ? `Assigned to ${name}.` : 'This job is no longer open - it was closed before you pressed.', data && data.length ? 'success' : 'info');
   await _afterDepartedChange();
@@ -3153,10 +3159,18 @@ async function addEntry(entry) {
     if (typeof whPhotoDrop === 'function') whPhotoDrop(db, _photoNames);   // no row names it: take the upload back
     return { ok: false, reason: isQuota ? 'quota_daily' : 'db_insert', error };
   }
+  // ★THE TRAIL DID NOT SAY THE MACHINE WAS LOCKED OUT (2026-11-05, GJ M8 J24 hand-off 3, "the trail an inspector will
+  // read two years later"). A worker recorded a lock-out under a permit to work, and the line the hive's trail kept for
+  // the entry named its type, category and status - not the isolation, not the permit, not that its consequence was a
+  // safety risk. Those are the three facts an inspector reconstructing an incident asks the trail for; they ride the
+  // line now (only when present, so an ordinary entry's line is unchanged).
   writeAuditLog('create_logbook_entry', 'logbook', payload.id, payload.machine || '(no machine)', {
     maintenance_type: payload.maintenance_type, category: payload.category,
     status: payload.status, downtime_hours: payload.downtime_hours,
     parts_count: Array.isArray(payload.parts_used) ? payload.parts_used.length : 0,
+    ...(payload.loto_applied ? { lock_out: 'applied (LOTO)' } : {}),
+    ...(payload.permit_reference ? { permit_to_work: payload.permit_reference } : {}),
+    ...(payload.failure_consequence ? { consequence: payload.failure_consequence } : {}),
   });
   if (typeof whUse === 'function') whUse(db, 'entry_logged', { type: String(payload.maintenance_type || ''), closed: payload.status === 'Closed' });
   document.getElementById('sync-badge').classList.remove('hidden');
@@ -5410,6 +5424,33 @@ async function renderEntries(reload = true, fromStatPills = false) {
 // ────────────────────────────────────────────
 // MODAL: VIEW
 // ────────────────────────────────────────────
+// the deep-linked entry's refusal, kept on the page (GJ M8 G-ADV): one notice above the list, its own dismiss
+function _lbDeepLinkNotice(text) {
+  const list = document.getElementById('entries-list');
+  if (!list || !list.parentElement) return;
+  let el = document.getElementById('lb-deeplink-notice');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'lb-deeplink-notice';
+    el.setAttribute('role', 'status');
+    el.className = 'wh-card p-3 mb-3 text-sm flex items-start gap-3';
+    el.style.borderColor = 'rgba(var(--wh-orange-rgb, 247, 162, 27), 0.45)';
+    const p = document.createElement('p');
+    p.className = 'flex-1';
+    p.style.margin = '0';
+    const x = document.createElement('button');
+    x.type = 'button';
+    x.className = 'btn-ghost';
+    x.style.cssText = 'min-height:44px;min-width:44px;width:auto;padding:0 0.75rem;';
+    x.textContent = 'Dismiss';
+    x.addEventListener('click', () => el.remove());
+    el.appendChild(p);
+    el.appendChild(x);
+    list.parentElement.insertBefore(el, list);
+  }
+  el.querySelector('p').textContent = text;
+}
+
 async function openModal(id) {
   let entry = (_viewMode === 'team' ? _teamEntries : _allEntries).find(e => e.id === id);
   if (!entry) {
@@ -5419,9 +5460,15 @@ async function openModal(id) {
        tap. A silent return is the guard-that-returns-without-speaking class; say which it is. */
     const { data, error } = await db.from('logbook').select('*').eq('id', id).single();
     if (error && !data) {
-      showToast(typeof whReadError === 'function'
+      const _why = typeof whReadError === 'function'
         ? whReadError(error, 'this entry')
-        : 'Couldn’t open this entry. Check your connection and try again.', 'error');
+        : 'Couldn’t open this entry. Check your connection and try again.';
+      showToast(_why, 'error');
+      // ★A LINK THAT CANNOT OPEN SAYS SO WHERE IT STAYS (2026-11-05, GJ M8 G-ADV hand-off 2, read on 3G). On a slow
+      // connection the refusal came back before the page had finished loading, and its toast faded while the person was
+      // still waiting for the page - a link that "did nothing". The entry a link named is the one thing the person came
+      // for, so when it cannot open, the sentence stays above the list until they dismiss it.
+      if (window._lbDeepId === id) _lbDeepLinkNotice(_why);
       return;
     }
     entry = data;
@@ -5789,6 +5836,12 @@ async function saveEditFromForm() {
   // and the CMMS push read it - so an entry opened from the list was recorded "Closed -> Closed" in the amendment trail,
   // and its close never reached the CMMS. Read once, here.
   const prevStatus = existing ? existing.status : undefined;
+  // ★AND EVERY FIELD, NOT ONLY THE STATUS (2026-11-05, GJ M8 J4 hand-off 2, "the trail names the worker's changes, before
+  // and after"). The same refresh emptied the amendment line's `changed` list for every edit since it was added (SL L2,
+  // 2026-10-21): it compared the saved values with the cache the save had ALREADY refreshed to them, so a worker's
+  // corrected problem text reached the trail as "changed: []". The W4410 fix above took a copy of the status alone;
+  // the whole row as it stood before this edit is copied here, once, and the trail compares against that.
+  const _before = existing ? { ...existing } : null;
   const assetMatch = loadAssets().find(a => a.asset_id.toUpperCase() === machine.toUpperCase());
 
   const closedAt = newStatus === 'Closed'
@@ -6067,18 +6120,35 @@ async function saveEditFromForm() {
   // from here, in the same second. So a pure close leaves this row out; any other change keeps the amendment record,
   // and now says WHICH fields it changed (it said only the status, category and downtime it ended with).
   const _partsAdded = _partsUsed.filter(p => p.partId && !p._existing).length;
-  const _norm = (v) => JSON.stringify(v === undefined || v === '' ? null : v);
-  const _changed = existing
-    ? Object.keys(updates).filter(k => !['closed_at', 'updated_at', 'sync_meta'].includes(k) && _norm(updates[k]) !== _norm(existing[k]))
+  // an empty list is nothing, as an empty string is; and the save's own stamps (the hive it scopes to, the AI-provenance
+  // list it recomputes) are not something the person changed - with the cache no longer refreshed under the compare, those
+  // two read "not set -> <value>" on every edit, a change the trail would have attributed to the worker
+  const _norm = (v) => JSON.stringify(v === undefined || v === '' || (Array.isArray(v) && !v.length) ? null : v);
+  const _changed = _before
+    ? Object.keys(updates).filter(k => !['closed_at', 'updated_at', 'sync_meta', 'hive_id', 'ai_assisted_fields'].includes(k) && _norm(updates[k]) !== _norm(_before[k]))
     : Object.keys(updates);
   const _pureClose = prevStatus !== 'Closed' && newStatus === 'Closed' && !_partsAdded
     && _changed.every(k => k === 'status');
+  // ★THE TRAIL NAMED THE FIELDS AND NOT WHAT THEY SAID (GJ M8 J4, audit season). An inspector reading the supervisor's
+  // trail saw "changed: problem, action" - which fields a worker amended, never what the record said before. The edit now
+  // keeps each changed field's before and after (audit-log renders `changed_fields` as "Problem: <before> -> <after>");
+  // long text is cut at 140 characters and a list or object longer than that is named, not copied.
+  const _clip = (v) => {
+    if (v === undefined) return null;
+    if (typeof v === 'string') return v.length > 140 ? v.slice(0, 139) + '…' : v;
+    if (v && typeof v === 'object') { const j = JSON.stringify(v); return j.length > 140 ? '(' + (Array.isArray(v) ? v.length + ' item(s)' : 'changed') + ')' : v; }
+    return v;
+  };
+  const _changedFields = _before
+    ? Object.fromEntries(_changed.slice(0, 12).map((k) => [k, { from: _clip(_before[k]), to: _clip(updates[k]) }]))
+    : null;
   if (!_pureClose) {
     writeAuditLog('edit_logbook_entry', 'logbook', id, machine || '(no machine)', {
       new_status: newStatus, prev_status: prevStatus,
       new_category: updates.category, new_downtime_hours: updates.downtime_hours,
       parts_added: _partsAdded,
       changed: _changed,
+      ...(_changedFields ? { changed_fields: _changedFields } : {}),
     });
   }
 
@@ -8494,9 +8564,13 @@ document.getElementById('f-category').addEventListener('change', updateTasklistS
   try {
     const deepId = new URLSearchParams(window.location.search).get('id');
     if (deepId) {
-      const openDeep = () => openModal(deepId);
-      if (_allEntries && _allEntries.length) openDeep();
-      else loadEntries().then(openDeep);
+      // ★THE LINK OPENS ITS ENTRY AT ONCE, NOT AFTER THE WHOLE LOGBOOK (2026-11-05, GJ M8 G-ADV hand-off 2, read on 3G).
+      // This waited for loadEntries() - a SECOND full load, the start-up above had already begun one - before trying the
+      // linked entry, so on 3G a person following a link waited over a minute to see the entry (or to be told it is not
+      // theirs). openModal fetches one entry by its id when it is not in the loaded list, so it runs now; the list loads
+      // behind it.
+      window._lbDeepId = deepId;   // a refusal for THIS entry is also kept on the page (_lbDeepLinkNotice)
+      openModal(deepId);
     }
     // Deep-link via ?new=1 (hive "Log your first job" CTA + onboarding first_log/first_photo
     // step link here to START an entry; without this reader the param was dead).

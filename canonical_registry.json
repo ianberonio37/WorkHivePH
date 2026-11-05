@@ -536,7 +536,9 @@
         "role",
         "joined_at",
         "status",
-        "auth_uid"
+        "auth_uid",
+        "removed_at",
+        "removed_by"
       ],
       "rls_enabled": true,
       "grants": {
@@ -10838,7 +10840,7 @@
     },
     "my_recent_xp": {
       "defined_in": "20261020000003_lb2_read_shapes.sql",
-      "args": "p_limit integer default 30",
+      "args": "p_limit integer DEFAULT 30",
       "security_definer": false,
       "comment": "",
       "called_by_surfaces": [
@@ -11320,6 +11322,56 @@
         "logbook.html"
       ],
       "called_by_edge_fns": []
+    },
+    "hive_members_stamp_removal": {
+      "defined_in": "20261105000004_a_removed_member_is_told_who_and_when.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "my_recent_removal": {
+      "defined_in": "20261105000004_a_removed_member_is_told_who_and_when.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [
+        "hive.html"
+      ],
+      "called_by_edge_fns": []
+    },
+    "guard_marketplace_dispute_columns": {
+      "defined_in": "20261105000005_a_dispute_party_cannot_write_the_admins_decision.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "guard_service_offer_columns": {
+      "defined_in": "20261105000006_a_client_cannot_rewrite_the_providers_quote.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "tg_community_replies_authorship_fields": {
+      "defined_in": "20261105000007_a_reply_stays_its_authors_words.sql",
+      "args": "",
+      "security_definer": false,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
+    },
+    "auth_own_history_names": {
+      "defined_in": "20261105000008_a_removed_member_keeps_their_own_history.sql",
+      "args": "",
+      "security_definer": true,
+      "comment": "",
+      "called_by_surfaces": [],
+      "called_by_edge_fns": []
     }
   },
   "surfaces": {
@@ -11451,7 +11503,7 @@
         "pf-calculator",
         "weibull-fitter"
       ],
-      "size_kb": 354.6
+      "size_kb": 355.6
     },
     "assistant.html": {
       "tables_read": [
@@ -11516,7 +11568,7 @@
         "wh_trash"
       ],
       "edge_fns_invoked": [],
-      "size_kb": 277.4
+      "size_kb": 278.0
     },
     "dayplanner.html": {
       "tables_read": [
@@ -11606,6 +11658,7 @@
         "get_hive_readiness_current",
         "join_hive_by_code",
         "my_personal_history_count",
+        "my_recent_removal",
         "notify_submission_decided",
         "refresh_hive_readiness",
         "set_federated_benchmark_opt_in",
@@ -11617,7 +11670,7 @@
         "export-hive-data",
         "supervisor-reset-password"
       ],
-      "size_kb": 538.1
+      "size_kb": 543.7
     },
     "index.html": {
       "tables_read": [],
@@ -11736,7 +11789,7 @@
         "visual-defect-capture",
         "voice-logbook-entry"
       ],
-      "size_kb": 551.0
+      "size_kb": 556.7
     },
     "marketplace-admin.html": {
       "tables_read": [
@@ -11896,7 +11949,7 @@
       "edge_fns_invoked": [
         "intelligence-report"
       ],
-      "size_kb": 56.8
+      "size_kb": 57.2
     },
     "plant-connections.html": {
       "tables_read": [
@@ -12860,7 +12913,7 @@
         "get_repeat_failures"
       ],
       "edge_fns_invoked": [],
-      "loc": 1268
+      "loc": 1284
     },
     "asset-brain-query": {
       "tables_read": [

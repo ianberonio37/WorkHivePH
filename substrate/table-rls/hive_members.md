@@ -2,7 +2,7 @@
 name: table-rls-hive_members
 type: table-rls
 source: db:pg_policies+pg_trigger:hive_members
-source_sha: b1df356869fad902
+source_sha: 81f33f73a80b9a68
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -11,7 +11,7 @@ supersedes: null
 
 RLS enabled: **True** · has hive_id: True · has auth_uid: True
 
-Columns (*=NOT NULL): id*, hive_id, worker_name*, role*, joined_at, status*, auth_uid
+Columns (*=NOT NULL): id*, hive_id, worker_name*, role*, joined_at, status*, auth_uid, removed_at, removed_by
 
 Policies:
 - `hive_members_delete` [DELETE · roles=public] USING=`((( SELECT auth.uid() AS uid) IS NOT NULL) AND (auth_uid = ( SELECT auth.uid() AS uid)) AND (status <> 'kicked'::text))` CHECK=`∅`

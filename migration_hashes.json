@@ -750,5 +750,10 @@
   "20261104000003_a_decision_says_who_and_where.sql": "03724ea973d0b8dbdf15a2b1a266fa3add8b2aab40eaa0fd33bf3f213f767fee",
   "20261105000001_a_machine_that_reports_is_not_an_anomaly.sql": "c1c3b287233f6dff55b7568ba00cc8b6c367406c6d73e6b4c765b4bfdcffd516",
   "20261105000002_a_sensor_anomaly_names_its_machine.sql": "23ad2206bfc22031932c039c440300aaf75871644a2bd9d25006cb000a9f8b28",
-  "20261105000003_a_push_opens_in_its_hive.sql": "91a866413a2d8f185c6173d55b0102ad54d6606c6edaa0b7031fdcc94bf66942"
+  "20261105000003_a_push_opens_in_its_hive.sql": "91a866413a2d8f185c6173d55b0102ad54d6606c6edaa0b7031fdcc94bf66942",
+  "20261105000004_a_removed_member_is_told_who_and_when.sql": "651ffa56959d53a36a50a065d2fde323ce49ddaf2964f2f0887d84b45ceb4275",
+  "20261105000005_a_dispute_party_cannot_write_the_admins_decision.sql": "147db97220970aa7e631fdc9922f003bcd875bfc1d84cc75a6a974428a11b911",
+  "20261105000006_a_client_cannot_rewrite_the_providers_quote.sql": "1d9c5e5704cc299e275659cd7abcdd30b4d45cca43ba1ff63471145b017d46cb",
+  "20261105000007_a_reply_stays_its_authors_words.sql": "1289cce6816773b0a59816ab66a680268b68ee8e0d09f4ad5201f0a8093d3f42",
+  "20261105000008_a_removed_member_keeps_their_own_history.sql": "e9cdc79abc2f4219aee9e56a8feb864ea439894bd455b28e6c001b75bb1e650e"
 }

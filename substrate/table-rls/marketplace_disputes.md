@@ -2,7 +2,7 @@
 name: table-rls-marketplace_disputes
 type: table-rls
 source: db:pg_policies+pg_trigger:marketplace_disputes
-source_sha: 193d5bf0354e81f4
+source_sha: f4f08e702563a723
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -20,7 +20,7 @@ Policies:
 - `mkt_disp_read` [SELECT · roles=public] USING=`((opened_by_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_` CHECK=`∅`
 - `mkt_disp_update` [UPDATE · roles=public] USING=`((opened_by_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_` CHECK=`((opened_by_auth_uid = ( SELECT auth.uid() AS uid)) OR listing_is_mine(listing_id) OR ((order_id IS NOT NULL) AND order_`
 
-Guard triggers: `trg_bind_dispute_opener`
+Guard triggers: `trg_bind_dispute_opener`, `trg_guard_marketplace_dispute_columns`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

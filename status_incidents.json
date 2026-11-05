@@ -4,7 +4,7 @@
   "health": "platform_health.json",
   "automation_log": "public.automation_log"
  },
- "open": 4,
+ "open": 1,
  "resolved": 1,
  "incidents": [
   {
@@ -17,36 +17,9 @@
    "status": "resolved"
   },
   {
-   "id": "gate-no-dead-feature-remnants",
+   "id": "gate-psql-probe-suite",
    "source": "gate",
-   "title": "no-dead-feature-remnants",
-   "severity": "major",
-   "started_at": "2026-11-05T02:34:59.850843+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-cv-funnel",
-   "source": "gate",
-   "title": "cv-funnel",
-   "severity": "major",
-   "started_at": "2026-11-05T02:34:59.850843+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-substrate-freshness",
-   "source": "gate",
-   "title": "substrate-freshness",
-   "severity": "major",
-   "started_at": "2026-11-05T02:34:59.850843+00:00",
-   "ended_at": null,
-   "status": "open"
-  },
-  {
-   "id": "gate-sw-shell-membership",
-   "source": "gate",
-   "title": "sw-shell-membership",
+   "title": "psql-probe-suite",
    "severity": "major",
    "started_at": "2026-11-05T02:34:59.850843+00:00",
    "ended_at": null,

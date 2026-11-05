@@ -9,7 +9,7 @@ export const BUILD_STAMPS: Record<string, string> = {
   "ai-gateway": "12dadf72b9a0",
   "ai-orchestrator": "069859357852",
   "amc-orchestrator": "5f92eba4ea76",
-  "analytics-orchestrator": "74f9fedf5b68",
+  "analytics-orchestrator": "6fad50f36ade",
   "asset-brain-query": "34f2a77643ce",
   "batch-risk-scoring": "8ed3786b0704",
   "benchmark-compute": "536491d74e26",

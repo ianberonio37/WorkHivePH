@@ -20,21 +20,21 @@
         "message_head": "Reject this asset? It stays in the queue but will not appear in the approved list."
       },
       {
-        "line": 3615,
+        "line": 3625,
         "message_head": "Delete this FMEA failure mode? Linked RCM strategies will cascade."
       },
       {
-        "line": 3841,
+        "line": 3851,
         "message_head": "Delete this RCM strategy? Linked PM scope item will remain in PM Scheduler (unlink only)."
       }
     ],
     "community.html": [
       {
-        "line": 2575,
+        "line": 2578,
         "message_head": "Make this post public? Workers in every other hive will be able to read it in their Global feed."
       },
       {
-        "line": 3205,
+        "line": 3208,
         "message_head": "Copy this link:"
       }
     ],
@@ -60,39 +60,39 @@
     ],
     "hive.html": [
       {
-        "line": 3051,
+        "line": 3071,
         "message_head": "Deactivate your account? Your name and email will be permanently anonymized and you will lose"
       },
       {
-        "line": 3065,
+        "line": 3085,
         "message_head": "Your account has been deactivated and your personal data anonymized."
       },
       {
-        "line": 3209,
+        "line": 3246,
         "message_head": "${_coSups[0]}${_coSups.length > 1 ? ' and others' : ''} also supervise${_coSups.length > 1 ? '' : 's'} this hive, so it keeps a supervisor w"
       },
       {
-        "line": 3224,
+        "line": 3261,
         "message_head": "Leave this hive? You'll lose access to its board and can't post here anymore. Your past logbook entries stay in the hive's records."
       },
       {
-        "line": 3262,
+        "line": 3299,
         "message_head": "You are the ONLY supervisor. If you leave without transferring, no one can approve submissions, manage members, or run this hive - and it ca"
       },
       {
-        "line": 3473,
+        "line": 3510,
         "message_head": "Rename this hive. Everyone in it will see the new name."
       },
       {
-        "line": 5168,
+        "line": 5206,
         "message_head": "Reset ${workerName}'s password? You'll get a one-time temporary password to give them. They should change it after signing in."
       },
       {
-        "line": 5195,
+        "line": 5233,
         "message_head": "Temporary password for ${workerName}:\\n\\n${data.temp_password}\\n\\nGive this to ${workerName} now; it won't be shown again. Ask them to chang"
       },
       {
-        "line": 6494,
+        "line": 6558,
         "message_head": "Reject \"${label}\" submitted by ${submittedBy}? Tell them why, so they can fix it instead of guessing."
       }
     ],
@@ -164,11 +164,11 @@
         "message_head": "Close ${who}'s open job? It stays logged as theirs; the trail records that you closed it."
       },
       {
-        "line": 3270,
+        "line": 3284,
         "message_head": "Delete this entry? Any XP it earned is taken back. You can restore it from Recently deleted for at least 30 days."
       },
       {
-        "line": 3649,
+        "line": 3663,
         "message_head": "Remove this asset from the registry? It and its reliability history (Weibull fits, FMEA modes,"
       }
     ],
@@ -336,11 +336,11 @@
     ],
     "utils.js": [
       {
-        "line": 7070,
+        "line": 7081,
         "message_head": "Delete X?"
       },
       {
-        "line": 7073,
+        "line": 7084,
         "message_head": "Enter name"
       }
     ]

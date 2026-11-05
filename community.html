@@ -2094,7 +2094,7 @@ function _isMinePost(p) {
       ? ((document.querySelector('#report-reason option[value="' + CSS.escape(_rr.reason) + '"]') || {}).textContent || _rr.reason)
       : 'no reason picked';
     const reportReasonLine = _rr
-      ? `<p class="text-xs mt-1" style="color:var(--wh-orange);" data-wh-report-reason>&#9873; Reported: ${escHtml(_rrWords)}${_rr.details ? ' - ' + escHtml(_rr.details) : ''}</p>`
+      ? `<p class="text-xs mt-1" style="color:var(--wh-orange);" data-wh-report-reason>&#9873; Reported${_rr.by ? ' by ' + escHtml(_rr.by) : ''}${_rr.at && typeof whFmtDate === 'function' ? ', ' + escHtml(whFmtDate(_rr.at, { time: true })) : ''}: ${escHtml(_rrWords)}${_rr.details ? ' - ' + escHtml(_rr.details) : ''}</p>`
       // SL LB1: a flagged post whose reason was not among the reports read says so, rather than showing no reason
       : (_supFlag && _reportReasonsPartial)
         ? '<p class="text-xs mt-1" style="color:var(--wh-orange);" data-wh-more-note data-wh-report-reason role="note">&#9873; Reported - the reason was not loaded (more reports than this page reads). The Audit log has it.</p>'
@@ -2317,7 +2317,7 @@ function _isMinePost(p) {
     if (!flaggedIds.length) return;
     try {
       const { data } = await db.from('hive_audit_log')
-        .select('meta, created_at')
+        .select('meta, created_at, actor')
         .eq('hive_id', HIVE_ID).eq('action', 'report_post')
         // SL LB1: the reports OF THESE POSTS - the newest 200 of every report left an older flag without its reason
         .in('meta->>target_id', (flaggedIds || []).slice(0, 100))
@@ -2331,7 +2331,10 @@ function _isMinePost(p) {
       for (const row of (data || []).slice(0, 200).reverse()) {
         const m = row.meta || {};
         if (m.target_id && flaggedIds.includes(m.target_id) && (m.reason || m.details)) {
-          _reportReasons[m.target_id] = { reason: m.reason || '', details: m.details || '' };
+          // ★WHO REPORTED IT, AND WHEN (2026-11-05, GJ M8 G-ESC hand-off 1): the queue said why a post was flagged and
+          // not who flagged it - a supervisor settling a report cannot ask the reporter what they saw, or tell a report
+          // made this morning from one made last month, without leaving for the audit log. The same row says both.
+          _reportReasons[m.target_id] = { reason: m.reason || '', details: m.details || '', by: row.actor || '', at: row.created_at || null };
         }
       }
     } catch (_) { /* empty-catch-allow: the reason line is context, never gates the queue */ }

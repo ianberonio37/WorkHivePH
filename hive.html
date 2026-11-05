@@ -1874,6 +1874,11 @@
           <button id="btn-toggle-members" class="wh-toggle" aria-expanded="false" aria-controls="members-list" style="color:var(--wh-blue-text); background:none; border:none; cursor:pointer; font-size:var(--wh-fs-2xs, 0.75rem); font-weight:600; min-height:44px; min-width:44px; padding:0.5rem 0.5rem;" data-i="show">Show</button>
         </div>
         <div id="members-list" style="display:none; flex-direction:column; gap:0.5rem;"></div>
+        <!-- ★A CONSENT ONLY ITS GIVER COULD SEE (2026-11-05, GJ J21 hand-off 1). A supervisor's "Share benchmarks: on"
+             sends the hive's anonymised figures - every member's logged work - into the PH benchmarks, and the only
+             places it showed were the supervisor's own menu and the supervisor-only audit log. The members whose work
+             it shares are told here, with who turned it on and when (hives.federated_opt_in_by / _at). -->
+        <p id="hive-sharing-note" class="hidden text-xs mt-2" role="note" style="color:var(--wh-text-muted, rgba(255,255,255,0.80)); line-height:1.45;"></p>
       </div>
 
       <!-- Audit Log (supervisor only) -->
@@ -2015,9 +2020,12 @@
       var _rm = sessionStorage.getItem('wh_removed_notice');
       if (_rm) {
         sessionStorage.removeItem('wh_removed_notice');
+        // the stash is {hive, by, at} since 2026-11-05; a plain hive name (a tab opened before the release) still reads
+        var _rmHive = _rm, _rmBy = null, _rmAt = null;
+        try { var _rmJ = JSON.parse(_rm); if (_rmJ && typeof _rmJ === 'object') { _rmHive = _rmJ.hive || 'your hive'; _rmBy = _rmJ.by || null; _rmAt = _rmJ.at || null; } } catch (_) { /* empty-catch-allow: a plain name, as before */ }
         setTimeout(function () {
           if (typeof showToast === 'function') {
-            showToast(_t('You were removed from "' + _rm + '" by a supervisor. Your personal records are still yours. You can join another hive or create your own.', 'Inalis ka sa "' + _rm + '" ng supervisor. Sa iyo pa rin ang mga personal na record mo. Puwede kang sumali sa ibang hive o gumawa ng sarili mo.'));
+            showToast(_t('You were removed from "' + _rmHive + '"' + (typeof _whRemovedByWhen === 'function' ? _whRemovedByWhen(_rmBy, _rmAt) : ' by a supervisor') + '. Your logbook entries, achievements and personal records stay yours, and the hive keeps the work you logged under your name. You can join another hive or create your own.', 'Inalis ka sa "' + _rm + '" ng supervisor. Sa iyo pa rin ang mga personal na record mo. Puwede kang sumali sa ibang hive o gumawa ng sarili mo.'));
             // hive's showToast hides at a fixed 3s - too short for a two-sentence identity event
             // (the zero-ms-refusal lesson's cousin). Hold THIS notice for 12s.
             try {
@@ -2493,7 +2501,17 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
       // word about why. Graceful is not honest. Stash a one-shot notice (sessionStorage survives
       // the reload below, dies with the tab) BEFORE the clears erase the hive's name; the reloaded
       // page reads it and says what happened and what survived.
-      try { sessionStorage.setItem('wh_removed_notice', HIVE_NAME || 'your hive'); } catch (_) { /* empty-catch-allow: sessionStorage blocked -> the notice is progressive enhancement, the removal itself still lands */ }
+      // ★WHO AND WHEN (2026-11-05, GJ J14 / G-LEAVE hand-off 1): the notice said "by a supervisor", undated - a person
+      // removed from a hive with three supervisors could not tell who decided it, or whether it happened today or last
+      // month. The removal is stamped on the person's own membership row (removed_by / removed_at, migration
+      // 20261105000004), which they can always read; the stash carries it across the reload.
+      let _rmStamp = null;
+      try {
+        const { data: _own } = await db.from('hive_members')   // canonical-allow: the person's OWN row - v_worker_truth joins a removed membership away
+          .select('removed_by, removed_at').eq('auth_uid', _authUid).eq('hive_id', HIVE_ID).maybeSingle();
+        _rmStamp = _own || null;
+      } catch (_) { /* empty-catch-allow: the notice falls back to "by a supervisor"; the removal itself is what happened */ }
+      try { sessionStorage.setItem('wh_removed_notice', JSON.stringify({ hive: HIVE_NAME || 'your hive', by: _rmStamp && _rmStamp.removed_by, at: _rmStamp && _rmStamp.removed_at })); } catch (_) { /* empty-catch-allow: sessionStorage blocked -> the notice is progressive enhancement, the removal itself still lands */ }
       // Kicked or removed from the ACTIVE hive: clear its state, then re-decide from the server.
       ['wh_active_hive_id','wh_hive_id','wh_hive_role','wh_hive_name','wh_hive_code'].forEach(k => localStorage.removeItem(k));
       /* H8 (hive deepwalk 2026-07-27): also drop the is-supervisor paint hint. It is set early from the
@@ -2586,12 +2604,13 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
           // BRP-A (2026-10-04): identity, not display name. The comment above already notes this row is
     // readable because the policy begins `auth_uid = auth.uid()` - so the name filter added nothing
     // except a way to miss your OWN row once your display name drifted, which read as 'still a member'.
-    .select('status').eq('auth_uid', _authUid).eq('hive_id', HIVE_ID).maybeSingle();
+    .select('status, removed_by, removed_at').eq('auth_uid', _authUid).eq('hive_id', HIVE_ID).maybeSingle();
         if (meErr || !me || me.status !== 'kicked') return;   // offline, or still a member
         const noticeEl = document.getElementById('onboard-revoked');
         if (noticeEl) {
+          // GJ J14 (2026-11-05): who removed them and when, and what stays theirs - the two questions a removed person has
           noticeEl.textContent = _t(
-            'You have been removed from ' + (HIVE_NAME || 'that hive') + '. Its board, feed and jobs are no longer yours to see. Contact the supervisor to be re-added, or join another hive with a code.',
+            'You have been removed from ' + (HIVE_NAME || 'that hive') + _whRemovedByWhen(me.removed_by, me.removed_at) + '. Its board, feed and jobs are no longer yours to see. Your logbook entries, achievements and personal records stay yours, and the hive keeps the work you logged under your name. Contact the supervisor to be re-added, or join another hive with a code.',
             'Natanggal ka sa ' + (HIVE_NAME || 'hive na iyon') + '. Hindi mo na makikita ang board, feed at trabaho nito. Kausapin ang supervisor para maibalik, o sumali sa ibang hive gamit ang code.');
           noticeEl.classList.remove('hidden');
         }
@@ -2637,6 +2656,7 @@ document.getElementById('nav-worker').textContent = WORKER_NAME;
          a network error. Same rule as the reload in initHive: the server is the authority. */
       saveHiveList([]);
       showView('onboard');
+      _tellRecentRemoval();   // GJ M8 J14: a recent removal is said here on every visit, not only the first
       return;
     }
 
@@ -3091,6 +3111,22 @@ document.getElementById('btn-deactivate-account')?.addEventListener('click', asy
 // ★BENCHMARK SHARING (2026-10-08): the supervisor's switch for hives.federated_benchmark_opted_in. The label and
 // aria-checked show the hive's current choice; a press explains what is shared before it changes anything, goes
 // through set_federated_benchmark_opt_in (supervisor-only, stamped, audited) and says what happened.
+async function _loadSharingNote() {
+  const el = document.getElementById('hive-sharing-note');
+  if (!el || !HIVE_ID) return;
+  try {
+    const db = await getDb();
+    // canonical-allow: the consent flag and its stamp live only on hives (v_hives_truth does not carry them)
+    const { data, error } = await db.from('hives').select('federated_benchmark_opted_in, federated_opt_in_by, federated_opt_in_at').eq('id', HIVE_ID).maybeSingle();
+    if (error || !data) return;   // the line keeps what it said; a failed read is not "stopped sharing"
+    if (data.federated_benchmark_opted_in !== true) { el.classList.add('hidden'); el.textContent = ''; return; }
+    const who = data.federated_opt_in_by ? ' by ' + data.federated_opt_in_by : '';
+    const when = (data.federated_opt_in_at && typeof whFmtDate === 'function') ? ' on ' + whFmtDate(data.federated_opt_in_at, { time: true }) : '';
+    el.textContent = 'This hive shares its anonymised figures with the PH benchmarks - totals and averages only, never names or machines. Turned on' + who + when + '.';
+    el.classList.remove('hidden');
+  } catch (_) { /* empty-catch-allow: an information line; the board renders without it */ }
+}
+
 async function _loadBenchmarkSharing() {
   const btn = document.getElementById('btn-benchmark-sharing');
   if (!btn || !HIVE_ID) return;
@@ -3122,6 +3158,7 @@ document.getElementById('btn-benchmark-sharing')?.addEventListener('click', asyn
     btn.textContent = now ? 'Share benchmarks: on' : 'Share benchmarks: off';
     showToast(now ? 'This hive now shares its anonymised figures with the PH benchmarks. Recorded in the audit log.'
                   : 'This hive no longer shares its figures with the PH benchmarks. Recorded in the audit log.');
+    _loadSharingNote();   // the members' line says the new state
   } finally {
     btn.disabled = false;
   }
@@ -3574,6 +3611,7 @@ async function initBoard() {
     // Three of these also carry an inline display set elsewhere; clear it so the class decides.
     if (el.style.display === 'none' && _isSup) el.style.display = '';
   });
+  _loadSharingNote();   // every member: whether the hive shares its anonymised figures, and who decided
   if (_isSup) {
     _loadBenchmarkSharing();
     const savedCode = localStorage.getItem('wh_hive_code') || '';
@@ -5212,6 +5250,32 @@ function _whIsSelf(m) {
   if (typeof m.is_me === 'boolean') return m.is_me;
   if (m.auth_uid && _authUid) return m.auth_uid === _authUid;
   return m.worker_name === WORKER_NAME;   // name-compare-allow: the account was asked first; the name decides only a row with no auth_uid
+}
+
+// " by Hector Salvador on 5 Nov 2026, 14:02" - who removed a member and when, from the stamp on their own row
+// (removed_by / removed_at, migration 20261105000004); " by a supervisor" when the row predates the stamp
+function _whRemovedByWhen(by, at) {
+  const who = by ? ' by ' + by : ' by a supervisor';
+  const when = (at && typeof whFmtDate === 'function') ? ' on ' + whFmtDate(at, { time: true }) : '';
+  return who + when;
+}
+
+// ★THE NOTICE OUTLIVES THE FIRST VISIT (2026-11-05, GJ M8 J14 hand-off 1, read again on 3G). A removal was told once - a
+// toast stashed across one reload - and then the hive was forgotten, so a person who missed the toast on a bad
+// connection opened the Hive Board again to a plain "join or create" screen that never said why their hive was gone.
+// Their own most recent removal within 30 days (my_recent_removal, mig 20261105000004) is said on the onboard view on
+// every visit: which hive, who, when, and what stays theirs.
+async function _tellRecentRemoval() {
+  const el = document.getElementById('onboard-revoked');
+  if (!el || !_authUid) return;
+  try {
+    const { data, error } = await db.rpc('my_recent_removal');
+    const r = !error && Array.isArray(data) ? data[0] : null;
+    if (!r) return;
+    el.textContent = 'You have been removed from ' + (r.hive_name || 'a hive') + _whRemovedByWhen(r.removed_by, r.removed_at)
+      + '. Its board, feed and jobs are no longer yours to see. Your logbook entries, achievements and personal records stay yours, and the hive keeps the work you logged under your name. Contact the supervisor to be re-added, or join another hive with a code.';
+    el.classList.remove('hidden');
+  } catch (_) { /* empty-catch-allow: the onboard view still works; the notice is what it adds */ }
 }
 
 async function kickMember(memberId, workerName) {

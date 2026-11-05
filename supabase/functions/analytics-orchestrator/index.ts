@@ -570,6 +570,7 @@ async function callGroqSynthesis(
   db: SupabaseClient,
   persona?: unknown,
   horizon?: unknown,
+  faultInject?: { failAll: boolean },   // LOCAL-ONLY (see the handler); callAI ignores it on a production runtime
 ): Promise<string> {
   // S6 Action Brief: the horizon frames the SAME prescriptive data as a shift /
   // today / strategic slice (one engine, three surfaces). Absent → unchanged.
@@ -726,7 +727,7 @@ Format as JSON:
     // primary one on the surface - the page could not say which engine it used because nothing told
     // it. depth 0 = primary; anything higher means the providers above it were exhausted.
     let _served: { providerName: string; modelName: string; depth: number } | null = null;
-    const raw = await callAI(prompt, { systemPrompt: composedSystem, temperature: 0.3, maxTokens: 800, jsonMode: true,
+    const raw = await callAI(prompt, { systemPrompt: composedSystem, temperature: 0.3, maxTokens: 800, jsonMode: true, faultInject,
       onServed: (m) => { _served = { providerName: m.providerName, modelName: m.modelName, depth: m.depth }; } });
     if (raw && raw !== "{}") {
       const parsed = JSON.parse(raw);
@@ -742,7 +743,7 @@ Format as JSON:
           `Re-emit valid JSON matching exactly: { "summary": string, "this_week": string[], "watch_list": string[], "narration": string }\n` +
           `Same data, corrected shape only.`;
         try {
-          const retry = await callAI(fixPrompt, { systemPrompt: composedSystem, temperature: 0.1, maxTokens: 800, jsonMode: true });
+          const retry = await callAI(fixPrompt, { systemPrompt: composedSystem, temperature: 0.1, maxTokens: 800, jsonMode: true, faultInject });
           const retryParsed = JSON.parse(retry);
           const v2 = await validateContract(db, "analytics_action_plan_v1", retryParsed);
           if (v2.ok) return JSON.stringify(enforceReadablePlan(retryParsed));
@@ -916,6 +917,14 @@ serveObserved("analytics-orchestrator", tracedReply("analytics-orchestrator", as
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     let { phase, hive_id, worker_name, period_days, criticality, discipline, persona, horizon } = _whBody;
+    // ★NO GROUP WALK SPENDS A MODEL CALL ON A REPORT OR A RECOMPUTE (2026-11-05, GJ M8 J4/J24 hand-off 4). The report
+    // phase and the prescriptive recompute end in a model-written action plan, and the group walks press "Generate
+    // Report" and "Refresh" as a person does - two passes each, every scenario. The walk's requests carry
+    // debug_fault_inject, honoured only on a LOCAL runtime (kong/localhost/127.0.0.1 - callAI checks again inside), so the
+    // chain is taken down for that one request and the plan comes from the records (deterministicActionPlan). No walk is
+    // about the plan's words. The same local-only wire as the shift planner's (GJ G-SHIFT) and ai-gateway's (W4).
+    const _localRuntime = /\/\/(kong|localhost|127\.0\.0\.1)(:|\/|$)/.test(Deno.env.get("SUPABASE_URL") || "");
+    const fault = (_localRuntime && _whBody && _whBody.debug_fault_inject === true) ? { failAll: true } : undefined;
 
     // STREAMLINE S6 (Action Brief fusion): `horizon` lets ONE prescriptive engine
     // serve all three brief surfaces as time-scoped SLICES — shift-brain=shift,
@@ -1128,8 +1137,15 @@ serveObserved("analytics-orchestrator", tracedReply("analytics-orchestrator", as
             db,
             persona,
             horizon,
+            fault,
           );
           actionPlan = JSON.parse(raw);
+          // ★NO MODEL ANSWERED = NO PLAN, AND THE RECORDS STILL HAVE ONE - ON THE REPORT TOO (2026-11-05, GJ M8 J4
+          // hand-off 4). The prescriptive path learned this on 2026-10-09 (below): an exhausted chain answers "{}",
+          // which is truthy, so the report shipped `action_plan: {}` - an empty plan in a document an inspector holds.
+          // The report path is the same engine read a second way; it takes the same two steps.
+          if (actionPlan && typeof actionPlan === "object" && !Object.keys(actionPlan as Record<string, unknown>).length) actionPlan = null;
+          if (!actionPlan) actionPlan = deterministicActionPlan(prescriptive as Record<string, unknown>, canonicalRisk);
         } catch (_e) { actionPlan = null; }
       }
 
@@ -1275,7 +1291,7 @@ serveObserved("analytics-orchestrator", tracedReply("analytics-orchestrator", as
       };
 
       const canonicalRisk = await fetchCanonicalRiskTop(db, hive_id || null, 5);
-      const raw = await callGroqSynthesis(fullContext, hiveMembers, canonicalRisk, db, persona, horizon);
+      const raw = await callGroqSynthesis(fullContext, hiveMembers, canonicalRisk, db, persona, horizon, fault);
       try { groqSynthesis = JSON.parse(raw); } catch { groqSynthesis = null; }
       // ★NO MODEL ANSWERED = NO PLAN, not an empty one (2026-10-09). The synthesis returns "{}" when the chain is
       // exhausted; shipped as `action_plan: {}` it is truthy, and alert-hub / shift-brain replaced the brief already

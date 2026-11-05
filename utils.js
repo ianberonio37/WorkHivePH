@@ -5426,6 +5426,17 @@ function _whReadErrorText(err, what) {
   // The browser already knows which case this is, so the two cases get their own leading clause and the
   // Status pointer stays on the ONLINE one, where it is the useful next step. When the person really is
   // offline, "check your connection" IS the answer and the Status page is unreachable anyway.
+  // ★"WORKHIVE DID NOT ANSWER" FOR A RECORD THAT IS SIMPLY NOT THIS PERSON'S (2026-11-05, GJ G-ADV hand-off 2). A
+  // member of another hive opened a logbook entry's link. Row-level security answers that with NO row - PostgREST's
+  // PGRST116, "the result contains 0 rows" from .single(), not a 42501 - so it fell through to the sentence below and
+  // the page said WorkHive did not answer and to try again. WorkHive had answered, and trying again changes nothing.
+  // The sentence says the record is not in a hive this account belongs to, without saying whether it exists anywhere
+  // (a refusal that confirmed the record would leak it).
+  if (String((err && err.code) || '') === 'PGRST116' && /\b0 rows\b/i.test(msg + ' ' + hint)) {
+    if (_whSignedOut()) return T('WorkHive does not show ' + thing + ' to visitors who are not signed in. Sign in to see it.');
+    return T('Couldn’t find ' + thing + ' in a hive you belong to. It may have been removed, or the link is for a hive '
+         + 'you are not a member of. Your session is fine.');
+  }
   var _off = false;
   try { _off = (typeof navigator !== 'undefined' && navigator.onLine === false); } catch (_) { /* empty-catch-allow: assume online */ }
   if (_off) {

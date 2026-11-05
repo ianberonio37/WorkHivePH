@@ -2,7 +2,7 @@
 name: table-rls-service_offers
 type: table-rls
 source: db:pg_policies+pg_trigger:service_offers
-source_sha: a6ac563d398ea894
+source_sha: 0a863da0765d9d2e
 last_verified: 2026-07-13
 supersedes: null
 ---
@@ -17,6 +17,8 @@ Policies:
 - `service_offers_provider_insert` [INSERT · roles=authenticated] USING=`∅` CHECK=`(provider_id IN ( SELECT my_service_provider_ids() AS my_service_provider_ids))`
 - `service_offers_party_read` [SELECT · roles=authenticated] USING=`((provider_id IN ( SELECT my_service_provider_ids() AS my_service_provider_ids)) OR (request_id IN ( SELECT r.id FROM se` CHECK=`∅`
 - `service_offers_party_update` [UPDATE · roles=authenticated] USING=`((provider_id IN ( SELECT my_service_provider_ids() AS my_service_provider_ids)) OR (request_id IN ( SELECT r.id FROM se` CHECK=`∅`
+
+Guard triggers: `trg_guard_service_offer_columns`
 
 **Verdict:** SCOPED — no structural hole detected by rules (verify live before trusting for a fix).
 

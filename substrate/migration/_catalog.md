@@ -1,20 +1,15 @@
 ---
 name: migration-catalog
 type: migration
-source: dir:supabase/migrations:752
-source_sha: 88a58bd4c03afc51
+source: dir:supabase/migrations:757
+source_sha: a766699dbe39291c
 last_verified: 2026-07-13
 supersedes: null
 ---
-## migration · catalog (752 migrations)
+## migration · catalog (757 migrations)
 
 Append-only DDL history. Search here for 'has this table/policy been fixed' before re-diagnosing.
 
-- `20260825000003_notify_submission_decided` — fns:notify_submission_decided
-- `20260825000004_notify_wo_assigned` — fns:notify_wo_assigned
-- `20260825000005_report_notifies_supervisors` — fns:report_community_post
-- `20260825000006_pending_parts_created_at` — fns:get_hive_board_dashboard
-- `20260826000001_push_dedupe_window` — fns:enqueue_user_push
 - `20260826000002_notify_community_lifecycle` — fns:notify_post_mentions,notify_reply_accepted,notify_reply_posted
 - `20260826000003_pending_submission_reaches_supervisors` — fns:tg_notify_pending_submission · triggers:trg_notify_pending_asset,trg_notify_pending_part
 - `20260826000004_bounce_webhook_is_idempotent` — (misc DDL/DML)
@@ -210,6 +205,11 @@ Append-only DDL history. Search here for 'has this table/policy been fixed' befo
 - `20261105000001_a_machine_that_reports_is_not_an_anomaly` — fns:compute_anomaly_signals
 - `20261105000002_a_sensor_anomaly_names_its_machine` — fns:get_hive_dashboard
 - `20261105000003_a_push_opens_in_its_hive` — fns:notify_submission_decided,notify_wo_assigned
+- `20261105000004_a_removed_member_is_told_who_and_when` — fns:hive_members_stamp_removal,my_recent_removal · triggers:trg_hive_members_stamp_removal · tables:hive_members
+- `20261105000005_a_dispute_party_cannot_write_the_admins_decision` — fns:guard_marketplace_dispute_columns · triggers:trg_guard_marketplace_dispute_columns
+- `20261105000006_a_client_cannot_rewrite_the_providers_quote` — fns:guard_service_offer_columns · triggers:trg_guard_service_offer_columns
+- `20261105000007_a_reply_stays_its_authors_words` — fns:tg_community_replies_authorship_fields · triggers:tg_community_replies_authorship_fields
+- `20261105000008_a_removed_member_keeps_their_own_history` — policies:ach_log_owner_read · fns:auth_own_history_names,my_recent_xp
 
 (showing last 200)
 

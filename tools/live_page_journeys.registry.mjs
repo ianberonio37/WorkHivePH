@@ -682,7 +682,9 @@ export const JOURNEYS = [
 
 // ─── logbook add-entry wizard driver (shared by LOG1/LOG2/LOG3) ────────────────
 // exported (2026-11-04) so tools/prove_group_journeys.mjs drives the SAME wizard as LOG1-3 - one driver, never a copy
-export async function logWizard(page, h, { tag, maintType = 'Breakdown / Corrective', status = 'Open', downtime = null, problem = 'bearing noise drive end', action = 'inspected, scheduled fix' }) {
+// `consequence` picks the failure-consequence button (the wizard requires one for a breakdown); `beforeSave(page, h)` sets a
+// caller's own fields last (GJ M8 J24, 2026-11-05: the lock-out and its permit) - both default to what the wizard always did
+export async function logWizard(page, h, { tag, maintType = 'Breakdown / Corrective', status = 'Open', downtime = null, problem = 'bearing noise drive end', action = 'inspected, scheduled fix', consequence = 'stopped production', beforeSave = null }) {
   await h.click('#asset-picker-btn').catch(() => {});
   const pickedAsset = await h.waitFor('button[data-asset-id]', 6000);
   if (pickedAsset) await h.click('button[data-asset-id]').catch(() => {});
@@ -716,7 +718,8 @@ export async function logWizard(page, h, { tag, maintType = 'Breakdown / Correct
   }
   // consequence (required for Breakdown): a JS click fires its onclick regardless of the
   // section's visibility/animation (a Playwright click times out as "not visible").
-  await h.evalIn(() => { const btn = [...document.querySelectorAll('.consequence-btn')].find(b => /stopped production/i.test((b.getAttribute('data-value') || '') + ' ' + b.textContent)); if (btn) btn.click(); });
+  await page.evaluate((c) => { const re = new RegExp(c, 'i'); const btn = [...document.querySelectorAll('.consequence-btn')].find(b => re.test((b.getAttribute('data-value') || '') + ' ' + b.textContent)); if (btn) btn.click(); }, consequence);
+  if (beforeSave) await beforeSave(page, h);
   await h.click('#save-entry-btn').catch(() => {});
   await page.waitForTimeout(3000); // insert + audit-log round-trip
   // read the toast TEXT raw (the toast hides fast). 2026-07-21: the success copy was SHORTENED

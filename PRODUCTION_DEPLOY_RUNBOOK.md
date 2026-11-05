@@ -60,6 +60,53 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
+# M8 release (2026-11-05) - the record's hand-offs (IN PROGRESS)
+
+> **Prepared and verified locally on 2026-11-05.** M8 is the second group-journey milestone (§GJ): the record's
+> hand-offs, J4 J24 J14 G-LEAVE G-ADV J21 G-ESC. Each was walked at both viewports, per layer, per UFAI pillar and per
+> member, and its contract half went through the library provers. **All 2,240 M8 rows are banked.** Walking them also
+> found **three security holes**, each proven through PostgREST as the party before its guard and probed with teeth
+> after. M8 ships what landed since M7 (`fd051338`, production serves `workhive-shell-v590`).
+>
+> | Leg | Payload | Measured how |
+> |---|---|---|
+> | **A · DB** | **5 migrations**: `20261105000004` a removed member is told who and when (`removed_by`/`removed_at` stamp + `my_recent_removal()`), `...05` a dispute party cannot write the admin's decision, `...06` a client cannot rewrite the provider's quote, `...07` a reply stays its author's words, `...08` a removed member keeps their own history | production ledger read before the push (Supabase MCP `list_migrations`); local minus production must be exactly these five |
+> | **B · Edge** | **1 function**: `analytics-orchestrator` (local-only no-model flag; the report's empty plan becomes the records' plan) | `git diff fd051338..HEAD -- supabase/functions`; `stamp_functions.py --write` BEFORE the deploy (the M7 lesson) |
+> | **Render (python-api)** | no redeploy | `python-api/` unchanged |
+> | **C · Frontend** | logbook, asset-hub, hive, community, ph-intelligence, `utils.js`, `sw.js` -> **`workhive-shell-v591`** | `git diff --name-only fd051338..HEAD` |
+>
+> **Order: A -> B -> C.** The pages call `my_recent_removal` and read `removed_by`/`removed_at` (Leg A).
+> analytics-orchestrator's flag is dead in production either way (gate `debug-hooks-prod-dead`).
+
+### What a person using WorkHive will notice (release notes)
+
+> - A machine's history says when a job on it was locked out, under which permit, and when its consequence was a
+>   safety risk. The hive's trail keeps the lock-out and the permit on the entry's line.
+> - When a worker amends an entry, the hive's trail says which fields changed and what each said before and after.
+>   Since October it had recorded none.
+> - A member removed from a hive is told who removed them and when, and that their own entries, achievements and
+>   records stay theirs, on every visit for 30 days and not once. Their own XP history stays readable to them.
+> - A departed member's open job, handed to someone else, now tells that person.
+> - Every member sees when the hive shares its anonymised figures with the PH benchmarks, who turned it on and when.
+>   The sector view says how old its report is.
+> - A supervisor's Mod Queue says who reported a post and when, beside the reason.
+> - Opening a link to a record in a hive you are not a member of says so, and the sentence stays on the page, instead of
+>   "WorkHive did not answer". An entry link opens at once instead of after the whole logbook.
+> - A report generated when no AI model answers carries the plan built from the hive's records, not an empty one.
+> - **Security:** a party to a marketplace dispute can no longer write the admin's decision; a client can no longer
+>   change a provider's quoted price; a supervisor can no longer rewrite a member's reply, nor an author accept their own.
+
+### Leg A - DB: 5 migrations
+From `Z:` (subst): `npx supabase db push --dry-run`, then `npx supabase db push`; read back with `list_migrations`, and
+check the new function bodies carry no CR (`position(chr(13) in prosrc)`).
+
+### Leg B - Edge: 1 function
+`analytics-orchestrator` from `Z:`; `verify_function_builds.py --target prod` before and after (62/62).
+
+### Leg C - Frontend
+`git push origin master` (the full board in the pre-push hook); then the public and app smoke at `EXPECT_SW=v591`.
+IndexNow: `--changed` dry run first (no sitemap page's public content changed, so none is expected).
+
 # M7 release (2026-11-05) ✅ DEPLOYED
 
 > **✅ M7 DEPLOYED 2026-11-05: the shift's hand-offs are in production.** Production serves `workhive-shell-v590` from

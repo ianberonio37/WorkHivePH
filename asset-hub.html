@@ -2833,7 +2833,7 @@
       const queries = [];
       queries.push(
         scopeHive(db.from('v_logbook_truth')
-          .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at, worker_name, parts_used'))
+          .select('id, machine, problem, action, maintenance_type, status, created_at, closed_at, worker_name, parts_used, loto_applied, permit_reference, failure_consequence'))
           .eq('asset_node_id', node.id)
           .order('created_at', { ascending: false })
           .order('id')   // MR4 tiebreaker: the sort above is not total on its own
@@ -2890,12 +2890,22 @@
             return Array.isArray(p) ? p.filter((x) => x && (x.partName || x.part_name))
               .map((x) => (x.partName || x.part_name) + (x.qty ? ' ×' + x.qty : '')).join(', ') : '';
           };
+          // ★AND WHETHER THE MACHINE WAS LOCKED OUT (2026-11-05, the group-journey walk GJ J24 hand-off 2): a worker
+          // recorded a lock-out / permit to work on a job here, the logbook's card and view showed the LOTO badge, and the
+          // machine's own history - the page a supervisor and an inspector read about this machine - said nothing of it.
+          // "Was it isolated, and under which permit?" is the first question about a job on a machine, so the history says
+          // it, and says when the job's consequence was a safety risk. Plain words: the line is text, not a badge.
+          const _safetyOf = (r) => [
+            (r.loto_applied || r.permit_reference) ? 'locked out (LOTO' + (r.permit_reference ? ', permit ' + r.permit_reference : '') + ')' : '',
+            /safety/i.test(String(r.failure_consequence || '')) ? 'safety risk' : '',
+          ].filter(Boolean).join(', ');
           rows.forEach(r => events.push({
             kind: 'logbook',
             key: 'logbook:' + r.id,
             when: r.created_at,
             summary: (r.maintenance_type || 'Entry') + ': ' + (r.problem || '(no description)')
                      + (r.worker_name ? ' - logged by ' + r.worker_name + (typeof whMemberSuffix === 'function' ? whMemberSuffix(r.worker_name) : '') : '')
+                     + (_safetyOf(r) ? ' · ' + _safetyOf(r) : '')
                      + (_partsOf(r) ? ' · parts: ' + _partsOf(r) : ''),
             status: r.status,
           }));

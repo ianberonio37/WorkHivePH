@@ -324,7 +324,7 @@
 <script>typeof whSourcesSync === 'function' && whSourcesSync();</script>
 <!-- /wh-sources -->
 <script src="utils.js"></script>
-<script data-wh-skew-heal="whIsAccessDenied whListError whListSkeleton whReadError whSignInWall whSourcesSync whStartupHive whUseThen">
+<script data-wh-skew-heal="whFmtDate whIsAccessDenied whListError whListSkeleton whReadError whSignInWall whSourcesSync whStartupHive whUseThen">
 /* jscpd:ignore-start */
 /* BRH-D skew heal (2026-10-14), written by tools/render_skew_heal.py - change the generator, never this block.
    The page relies on the utils.js functions named above. An older utils.js (a copy kept from before a deploy) lacks
@@ -626,8 +626,12 @@
     // recommendation. Each card carries the shared "was this right?" row recording that card's exact words - three
     // passages, three rows, so a wrong recommendation is not filed against a right summary. A reload re-renders.
     const _plantsN = Number(data.hive_count) || 0;
+    // ★AND WHEN (2026-11-05, GJ M8 J21 hand-off 2): a supervisor reading another hive's contribution in the sector view read
+    // what the figures rest on and not how old they are - the age lived in a separate tile. A benchmark's date is part of
+    // the benchmark, so each passage's own "Based on" line says when the report was generated.
     const _trustGround = 'anonymised maintenance records from ' + _plantsN + ' contributing plant' + (_plantsN === 1 ? '' : 's')
-      + ' over the last ' + ((r.summary && r.summary.period_days) || 90) + ' days';
+      + ' over the last ' + ((r.summary && r.summary.period_days) || 90) + ' days'
+      + (data.generated_at && typeof whFmtDate === 'function' ? ', in the report generated ' + whFmtDate(data.generated_at, { time: true }) : '');
     const _trustCard = (cardId, section, text) => {
       const card = document.getElementById(cardId);
       if (!card || !text || typeof whAiTrustRow !== 'function') return;

@@ -59,67 +59,67 @@
         {
           "table": "hive_readiness",
           "allowed": true,
-          "offset": 257574
+          "offset": 261118
         },
         {
           "table": "hive_adoption_score",
           "allowed": true,
-          "offset": 271979
+          "offset": 275523
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 380397
+          "offset": 385714
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 380814
+          "offset": 386131
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 381939
+          "offset": 387256
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 382894
+          "offset": 388211
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 384835
+          "offset": 390152
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 433666
+          "offset": 438983
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 434121
+          "offset": 439438
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 435115
+          "offset": 440432
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 435578
+          "offset": 440895
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 437172
+          "offset": 442489
         },
         {
           "table": "inventory_items",
           "allowed": false,
-          "offset": 437699
+          "offset": 443016
         }
       ],
       "drift": []
@@ -245,42 +245,42 @@
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 232486
+          "offset": 233041
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 233748
+          "offset": 234303
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 238161
+          "offset": 238716
         },
         {
           "table": "community_replies",
           "allowed": false,
-          "offset": 240137
+          "offset": 240692
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 241712
+          "offset": 242267
         },
         {
           "table": "community_reactions",
           "allowed": false,
-          "offset": 242585
+          "offset": 243140
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 245903
+          "offset": 246458
         },
         {
           "table": "community_posts",
           "allowed": false,
-          "offset": 246163
+          "offset": 246718
         }
       ],
       "drift": []
@@ -557,42 +557,42 @@
         {
           "table": "sensor_readings",
           "allowed": false,
-          "offset": 211464
+          "offset": 212497
         },
         {
           "table": "logbook",
           "allowed": false,
-          "offset": 310213
+          "offset": 311246
         },
         {
           "table": "pm_completions",
           "allowed": false,
-          "offset": 310763
+          "offset": 311796
         },
         {
           "table": "rcm_fmea_modes",
           "allowed": false,
-          "offset": 311436
+          "offset": 312469
         },
         {
           "table": "asset_risk_scores",
           "allowed": false,
-          "offset": 312612
+          "offset": 313645
         },
         {
           "table": "rcm_strategies",
           "allowed": false,
-          "offset": 313295
+          "offset": 314328
         },
         {
           "table": "weibull_fits",
           "allowed": true,
-          "offset": 314157
+          "offset": 315190
         },
         {
           "table": "asset_nodes",
           "allowed": false,
-          "offset": 332545
+          "offset": 333578
         }
       ],
       "drift": []

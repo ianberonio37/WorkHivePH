@@ -7,27 +7,27 @@
 -- expect: community_posts_foreign_update_touched \| (0\b|refused)
 -- expect: community_posts_foreign_delete_touched \| (0\b|refused)
 -- expect: community_posts_own_update_touched_gt0 \| t
--- expect: community_posts_move_into_foreign \| (0\b|refused)
+-- expect: community_posts_move_into_foreign \| (0\b|refused|pinned)
 -- forbid: community_posts_move_into_foreign \| [1-9]
 -- expect: community_posts_rows_restored \| t
 -- expect: community_reactions_fixture \| t
 -- expect: community_reactions_foreign_update_touched \| (0\b|refused)
 -- expect: community_reactions_foreign_delete_touched \| (0\b|refused)
 -- expect: community_reactions_own_update_touched_gt0 \| t
--- expect: community_reactions_move_into_foreign \| (0\b|refused)
+-- expect: community_reactions_move_into_foreign \| (0\b|refused|pinned)
 -- forbid: community_reactions_move_into_foreign \| [1-9]
 -- expect: community_reactions_rows_restored \| t
 -- expect: community_replies_fixture \| t
 -- expect: community_replies_foreign_update_touched \| (0\b|refused)
 -- expect: community_replies_foreign_delete_touched \| (0\b|refused)
 -- expect: community_replies_own_update_touched_gt0 \| t
--- expect: community_replies_move_into_foreign \| (0\b|refused)
+-- expect: community_replies_move_into_foreign \| (0\b|refused|pinned)
 -- forbid: community_replies_move_into_foreign \| [1-9]
 -- expect: community_replies_rows_restored \| t
 -- expect: hive_audit_log_fixture \| t
 -- expect: hive_audit_log_foreign_update_touched \| (0\b|refused)
 -- expect: hive_audit_log_foreign_delete_touched \| (0\b|refused)
--- expect: hive_audit_log_move_into_foreign \| (0\b|refused)
+-- expect: hive_audit_log_move_into_foreign \| (0\b|refused|pinned)
 -- forbid: hive_audit_log_move_into_foreign \| [1-9]
 -- expect: hive_audit_log_rows_restored \| t
 
@@ -45,6 +45,9 @@ FROM hive_members m
 WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND EXISTS (SELECT 1 FROM community_posts x WHERE x.hive_id = m.hive_id)
+  -- a VALID foreign row exists for this member (an empty one manufactured a 'move into NULL', 2026-10-27)
+  AND EXISTS (SELECT 1 FROM community_posts x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
+          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active'))
   -- a marketplace/platform admin may write across hives BY DESIGN (is_marketplace_admin()); the refusal is proved for a plain member
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins a WHERE a.auth_uid = m.auth_uid)   -- by account, never by display name
 ORDER BY (m.role = 'supervisor') DESC
@@ -60,6 +63,16 @@ BEGIN
   ELSIF op = 'foreign_delete' THEN DELETE FROM community_posts WHERE id = (SELECT foreign_row FROM _wx_community_posts);
   ELSIF op = 'own_update' THEN UPDATE community_posts SET id = id WHERE id = (SELECT own_row FROM _wx_community_posts);
   ELSIF op = 'move' THEN UPDATE community_posts SET hive_id = (SELECT foreign_hive FROM _wx_community_posts) WHERE id = (SELECT own_row FROM _wx_community_posts);
+    GET DIAGNOSTICS n = ROW_COUNT;
+    -- ★A PINNING GUARD SAYS "1 ROW" AND MOVES NOTHING (2026-11-05): community_replies' authorship trigger keeps
+    -- OLD.hive_id, so the UPDATE succeeds, touches the row, and the reply stays home - the row count was a stand-in
+    -- for "the row landed in the foreign hive" that a BEFORE trigger breaks. The invariant is where the row SITS.
+    -- Read as the member: still visible in their own hive = positively stayed. Invisible (moved, RLS-hidden) keeps
+    -- the count and fails - so a hidden row can never read as safe. No RETURNING (a SELECT grant would refuse it).
+    IF n > 0 AND EXISTS (SELECT 1 FROM community_posts x WHERE x.id = (SELECT own_row FROM _wx_community_posts) AND x.hive_id = (SELECT mine FROM _wx_community_posts)) THEN
+      RETURN 'pinned (the row stayed in its own hive)';
+    END IF;
+    RETURN n::text;
   END IF;
   GET DIAGNOSTICS n = ROW_COUNT;
   RETURN n::text;
@@ -90,6 +103,9 @@ FROM hive_members m
 WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND EXISTS (SELECT 1 FROM community_reactions x WHERE x.hive_id = m.hive_id)
+  -- a VALID foreign row exists for this member (an empty one manufactured a 'move into NULL', 2026-10-27)
+  AND EXISTS (SELECT 1 FROM community_reactions x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
+          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active'))
   -- a marketplace/platform admin may write across hives BY DESIGN (is_marketplace_admin()); the refusal is proved for a plain member
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins a WHERE a.auth_uid = m.auth_uid)   -- by account, never by display name
 ORDER BY (m.role = 'supervisor') DESC
@@ -105,6 +121,16 @@ BEGIN
   ELSIF op = 'foreign_delete' THEN DELETE FROM community_reactions WHERE id = (SELECT foreign_row FROM _wx_community_reactions);
   ELSIF op = 'own_update' THEN UPDATE community_reactions SET id = id WHERE id = (SELECT own_row FROM _wx_community_reactions);
   ELSIF op = 'move' THEN UPDATE community_reactions SET hive_id = (SELECT foreign_hive FROM _wx_community_reactions) WHERE id = (SELECT own_row FROM _wx_community_reactions);
+    GET DIAGNOSTICS n = ROW_COUNT;
+    -- ★A PINNING GUARD SAYS "1 ROW" AND MOVES NOTHING (2026-11-05): community_replies' authorship trigger keeps
+    -- OLD.hive_id, so the UPDATE succeeds, touches the row, and the reply stays home - the row count was a stand-in
+    -- for "the row landed in the foreign hive" that a BEFORE trigger breaks. The invariant is where the row SITS.
+    -- Read as the member: still visible in their own hive = positively stayed. Invisible (moved, RLS-hidden) keeps
+    -- the count and fails - so a hidden row can never read as safe. No RETURNING (a SELECT grant would refuse it).
+    IF n > 0 AND EXISTS (SELECT 1 FROM community_reactions x WHERE x.id = (SELECT own_row FROM _wx_community_reactions) AND x.hive_id = (SELECT mine FROM _wx_community_reactions)) THEN
+      RETURN 'pinned (the row stayed in its own hive)';
+    END IF;
+    RETURN n::text;
   END IF;
   GET DIAGNOSTICS n = ROW_COUNT;
   RETURN n::text;
@@ -135,6 +161,9 @@ FROM hive_members m
 WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND EXISTS (SELECT 1 FROM community_replies x WHERE x.hive_id = m.hive_id)
+  -- a VALID foreign row exists for this member (an empty one manufactured a 'move into NULL', 2026-10-27)
+  AND EXISTS (SELECT 1 FROM community_replies x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
+          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active'))
   -- a marketplace/platform admin may write across hives BY DESIGN (is_marketplace_admin()); the refusal is proved for a plain member
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins a WHERE a.auth_uid = m.auth_uid)   -- by account, never by display name
 ORDER BY (m.role = 'supervisor') DESC
@@ -150,6 +179,16 @@ BEGIN
   ELSIF op = 'foreign_delete' THEN DELETE FROM community_replies WHERE id = (SELECT foreign_row FROM _wx_community_replies);
   ELSIF op = 'own_update' THEN UPDATE community_replies SET id = id WHERE id = (SELECT own_row FROM _wx_community_replies);
   ELSIF op = 'move' THEN UPDATE community_replies SET hive_id = (SELECT foreign_hive FROM _wx_community_replies) WHERE id = (SELECT own_row FROM _wx_community_replies);
+    GET DIAGNOSTICS n = ROW_COUNT;
+    -- ★A PINNING GUARD SAYS "1 ROW" AND MOVES NOTHING (2026-11-05): community_replies' authorship trigger keeps
+    -- OLD.hive_id, so the UPDATE succeeds, touches the row, and the reply stays home - the row count was a stand-in
+    -- for "the row landed in the foreign hive" that a BEFORE trigger breaks. The invariant is where the row SITS.
+    -- Read as the member: still visible in their own hive = positively stayed. Invisible (moved, RLS-hidden) keeps
+    -- the count and fails - so a hidden row can never read as safe. No RETURNING (a SELECT grant would refuse it).
+    IF n > 0 AND EXISTS (SELECT 1 FROM community_replies x WHERE x.id = (SELECT own_row FROM _wx_community_replies) AND x.hive_id = (SELECT mine FROM _wx_community_replies)) THEN
+      RETURN 'pinned (the row stayed in its own hive)';
+    END IF;
+    RETURN n::text;
   END IF;
   GET DIAGNOSTICS n = ROW_COUNT;
   RETURN n::text;
@@ -180,6 +219,9 @@ FROM hive_members m
 WHERE m.status = 'active'
   AND (SELECT count(*) FROM hive_members y WHERE y.auth_uid = m.auth_uid AND y.status = 'active') = 1
   AND EXISTS (SELECT 1 FROM hive_audit_log x WHERE x.hive_id = m.hive_id)
+  -- a VALID foreign row exists for this member (an empty one manufactured a 'move into NULL', 2026-10-27)
+  AND EXISTS (SELECT 1 FROM hive_audit_log x WHERE x.hive_id IS NOT NULL AND x.hive_id <> m.hive_id
+          AND NOT EXISTS (SELECT 1 FROM hive_members z WHERE z.auth_uid = m.auth_uid AND z.hive_id = x.hive_id AND z.status = 'active'))
   -- a marketplace/platform admin may write across hives BY DESIGN (is_marketplace_admin()); the refusal is proved for a plain member
   AND NOT EXISTS (SELECT 1 FROM marketplace_platform_admins a WHERE a.auth_uid = m.auth_uid)   -- by account, never by display name
 ORDER BY (m.role = 'supervisor') DESC
@@ -195,6 +237,16 @@ BEGIN
   ELSIF op = 'foreign_delete' THEN DELETE FROM hive_audit_log WHERE id = (SELECT foreign_row FROM _wx_hive_audit_log);
   ELSIF op = 'own_update' THEN UPDATE hive_audit_log SET id = id WHERE id = (SELECT own_row FROM _wx_hive_audit_log);
   ELSIF op = 'move' THEN UPDATE hive_audit_log SET hive_id = (SELECT foreign_hive FROM _wx_hive_audit_log) WHERE id = (SELECT own_row FROM _wx_hive_audit_log);
+    GET DIAGNOSTICS n = ROW_COUNT;
+    -- ★A PINNING GUARD SAYS "1 ROW" AND MOVES NOTHING (2026-11-05): community_replies' authorship trigger keeps
+    -- OLD.hive_id, so the UPDATE succeeds, touches the row, and the reply stays home - the row count was a stand-in
+    -- for "the row landed in the foreign hive" that a BEFORE trigger breaks. The invariant is where the row SITS.
+    -- Read as the member: still visible in their own hive = positively stayed. Invisible (moved, RLS-hidden) keeps
+    -- the count and fails - so a hidden row can never read as safe. No RETURNING (a SELECT grant would refuse it).
+    IF n > 0 AND EXISTS (SELECT 1 FROM hive_audit_log x WHERE x.id = (SELECT own_row FROM _wx_hive_audit_log) AND x.hive_id = (SELECT mine FROM _wx_hive_audit_log)) THEN
+      RETURN 'pinned (the row stayed in its own hive)';
+    END IF;
+    RETURN n::text;
   END IF;
   GET DIAGNOSTICS n = ROW_COUNT;
   RETURN n::text;
