@@ -1939,6 +1939,131 @@ RECIPES.J31 = {
   },
 };
 
+// ── G-MOD · a post flagged and moderated: poster, flagger and supervisor each read what happened
+// (cast: p = the worker who posted, f = the worker who reports it, s = the supervisor who decides)
+async function gmodNews(R2, words, ms) {
+  await go(R2, 'community.html');
+  for (let t = 0; t < ms; t += 500) {
+    const li = await R2.page.evaluate((w) => {
+      const box = document.getElementById('mod-news');
+      if (!box || box.hidden) return null;
+      const it = [...box.querySelectorAll('li')].find((x) => (x.innerText || '').includes(w));
+      return it ? it.innerText.trim() : null;
+    }, words).catch(() => null);
+    if (li) return { text: li, card: li };
+    await sleep(500);
+  }
+  return null;
+}
+RECIPES['G-MOD'] = {
+  1: async (X) => {   // the flag is in the supervisor's moderation queue - who reported it, when, why
+    const { p, f } = X.S;
+    const text = `${X.tag} selling my own spare bearings at half price, message me`;
+    X.restores = [...(X.restores || []), ['the walk\'s post', `delete from community_posts where content like '${q(X.tag)}%';`]];
+    // the poster's post: a fixture written with triggers off (no XP to clean), in the poster's own words and name
+    const pid = psql(`set session_replication_role = replica;
+      insert into community_posts (hive_id, author_name, auth_uid, content, category)
+      values ('${HIVE_ID}', '${q(p.m.name)}', '${p.m.uid}', '${q(text)}', 'general') returning id;`)
+      .split('\n').find((l) => /^[0-9a-f-]{36}$/.test(l.trim())) || null;
+    X.rec.post = { id: pid, words: text.slice(0, 40) };
+    await go(f, 'community.html');
+    for (let k = 0; k < 12; k++) {
+      if (await f.page.evaluate((id) => !!document.getElementById('post-' + id), pid)) break;
+      await f.page.evaluate(() => window.scrollBy(0, Math.round(window.innerHeight * 0.9)));
+      await sleep(600);
+    }
+    await f.page.evaluate((id) => { const c = document.getElementById('post-' + id); if (c) c.scrollIntoView({ block: 'center' }); }, pid);
+    await sleep(400);
+    const viaMenu = await f.page.evaluate((id) => {
+      const card = document.getElementById('post-' + id);
+      const b = card && card.querySelector('button[aria-haspopup="menu"]');
+      if (!b) return false; b.click(); return true;
+    }, pid);
+    await sleep(600);
+    const tapped = viaMenu ? await f.page.evaluate(() => {
+      const it = [...document.querySelectorAll('[role="menuitem"]')].find((b) => /report this post/i.test(b.innerText || '') && b.checkVisibility && b.checkVisibility());
+      if (it) { it.click(); return true; } return false;
+    }) : false;
+    await sleep(900);
+    await f.page.selectOption('#report-reason', 'spam').catch(() => {});
+    await f.page.fill('#report-details', 'Personal sales in the plant feed').catch(() => {});
+    await f.page.evaluate(() => { const b = document.getElementById('btn-submit-report'); if (b) b.click(); });
+    await sleep(3000);
+    const flagged = psql(`select flagged from community_posts where id = '${q(pid)}'`);
+    const acct = psql(`select count(*) from hive_audit_log where action = 'report_post' and target_id = '${q(pid)}' and meta->>'actor_auth_uid' = '${f.m.uid}'`);
+    return { act: { ok: flagged === 't' && tapped && Number(acct) >= 1,
+        detail: `"Report this post" on ${p.m.name}'s post as ${f.m.name} (reason spam): flagged = ${flagged}; the report's trail line carries the reporter's account: ${acct}` },
+      marker: X.tag, markerRx: /Reported by/i, path: 'community.html',
+      reach: async (R2, ms) => {
+        await go(R2, 'community.html');
+        await R2.page.evaluate(() => { const t = document.getElementById('tab-mod'); if (t) t.click(); });
+        await sleep(1500);
+        return findText(R2, X.tag, ms);
+      },
+      rec: { table: 'community_posts', id: pid, where: 'and flagged' } };
+  },
+  2: async (X) => {   // the supervisor removes it, with a reason - and the poster reads what was done to their post
+    const { s, p } = X.S;
+    const post = X.rec.post || {};
+    const reason = 'Personal sales are not allowed in the plant feed';
+    await go(s, 'community.html');
+    await s.page.evaluate(() => { const t = document.getElementById('tab-mod'); if (t) t.click(); });
+    await sleep(1500);
+    const opened = await s.page.evaluate((id) => {
+      const card = document.getElementById('post-' + id);
+      if (card) card.scrollIntoView({ block: 'center' });
+      const b = card && card.querySelector('button[aria-haspopup="menu"]');
+      if (!b) return false; b.click(); return true;
+    }, post.id);
+    await sleep(600);
+    const tapped = opened ? await s.page.evaluate(() => {
+      const it = [...document.querySelectorAll('[role="menuitem"]')].find((b) => /^remove post$/i.test((b.innerText || '').trim()) && b.checkVisibility && b.checkVisibility());
+      if (it) { it.click(); return true; } return false;
+    }) : false;
+    const asked = tapped ? await modalFill(s, reason) : false;
+    await sleep(3000);
+    const row = psql(`select coalesce(moderation_outcome,'') || '|' || coalesce(moderated_by,'') || '|' || (deleted_at is not null)::text from community_posts where id = '${q(post.id)}'`);
+    const [outcome, by, gone] = (row || '||').split('|');
+    const pushP = () => psql(`select count(*) from service_outbox where created_at >= '${X.t0}' and payload->'auth_uids' ? '${p.m.uid}' and payload->>'title' = 'Your post was removed'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where created_at >= '${X.t0}' and payload->'auth_uids' ? '${p.m.uid}' and payload->>'title' = 'Your post was removed' order by created_at desc limit 1`);
+    return { act: { ok: tapped && asked && outcome === 'removed' && by === s.m.name && /^t(rue)?$/.test(gone || ''),
+        detail: `the post's menu "Remove post" in the Mod Queue as ${s.m.name}, reason "${reason}": outcome ${outcome || '-'} by ${by || '-'}, in Recently deleted ${gone}` },
+      marker: post.words, path: 'community.html', reach: (R2, ms) => gmodNews(R2, post.words, ms), channelSaid: pushSaid || null,
+      rec: { table: 'community_posts', id: post.id },
+      // the poster's record of it: the push, and what they read back (their own removed post is no longer theirs to read)
+      F: () => {
+        const n = Number(pushP());
+        const back = asUser(p.m.uid, `select coalesce(outcome,'') || '|' || coalesce(note,'') from public.my_moderation_news() where kind = 'your_post' and post_id = '${q(post.id)}'`);
+        return { ok: n >= 1 && back.startsWith('removed|') && back.includes(reason), detail: `push "Your post was removed" to ${p.m.name}: ${n}; my_moderation_news as ${p.m.name}: ${back || 'nothing'}` };
+      },
+      I: (witness) => {
+        const mine = asUser(p.m.uid, `select count(*) from public.my_moderation_news() where post_id = '${q(post.id)}'`);
+        const theirs = asUser(witness.uid, `select count(*) from public.my_moderation_news() where post_id = '${q(post.id)}'`);
+        return { ok: Number(mine) >= 1 && Number(theirs) === 0, receiver_rows: Number(mine), foreign: witness.user, foreign_rows: Number(theirs) };
+      } };
+  },
+  3: async (X) => {   // the person who reported it reads the outcome of their report
+    const { f } = X.S;
+    const post = X.rec.post || {};
+    const pushF = () => psql(`select count(*) from service_outbox where created_at >= '${X.t0}' and payload->'auth_uids' ? '${f.m.uid}' and payload->>'title' = 'Your report was reviewed'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where created_at >= '${X.t0}' and payload->'auth_uids' ? '${f.m.uid}' and payload->>'title' = 'Your report was reviewed' order by created_at desc limit 1`);
+    return { act: { ok: !!post.id, detail: `the decision at hand-off 2 on the post ${f.m.name} reported` },
+      marker: post.words, markerRx: /your report/i, path: 'community.html', reach: (R2, ms) => gmodNews(R2, post.words, ms), channelSaid: pushSaid || null,
+      rec: { table: 'community_posts', id: post.id },
+      F: () => {
+        const n = Number(pushF());
+        const back = asUser(f.m.uid, `select coalesce(outcome,'') || '|' || coalesce(moderated_by,'') from public.my_moderation_news() where kind = 'your_report' and post_id = '${q(post.id)}'`);
+        return { ok: n >= 1 && back.startsWith('removed|'), detail: `push "Your report was reviewed" to ${f.m.name}: ${n}; my_moderation_news as ${f.m.name}: ${back || 'nothing'}` };
+      },
+      I: (witness) => {
+        const theirs = asUser(witness.uid, `select count(*) from public.my_moderation_news() where post_id = '${q(post.id)}'`);
+        return { ok: Number(theirs) === 0, foreign: witness.user, foreign_rows: Number(theirs) };
+      } };
+  },
+};
+
 // ── G-ADV · the record reached for from outside: the hand-off stays inside its hive, refused in words
 RECIPES['G-ADV'] = {
   1: (X) => RECIPES.J2[1](X),

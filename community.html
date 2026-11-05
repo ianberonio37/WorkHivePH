@@ -618,6 +618,7 @@
             <div style="height:90px; border-radius:8px;" class="skeleton"></div>
             <div style="height:90px; border-radius:8px;" class="skeleton"></div>
           </div>
+          <div id="mod-news" role="status" hidden class="wh-card" style="padding:0.85rem 1rem; margin-bottom:0.75rem; font-size:var(--wh-fs-sm); line-height:1.5;"></div>
           <div id="feed-list" style="display:none; display:flex; flex-direction:column; gap:0.75rem;"></div>
           <div id="feed-load-more" style="display:none; justify-content:center; padding:0.75rem 0;">
             <button id="btn-load-more-posts" onclick="loadMorePosts()"
@@ -1858,6 +1859,7 @@ function _isMinePost(p) {
     if (_formerP) await _formerP;
     renderFeed();
     loadModQueue();
+    loadModerationNews();   // GJ M9 G-MOD: what became of this person's posts and reports
   }
 
   async function loadReplyCounts(postIds) {
@@ -2111,10 +2113,15 @@ function _isMinePost(p) {
         act: 'togglePin', args: [p.id, !!p.pinned] },
       { label: p.public ? _t('Make post private', 'Gawing pribado ang post') : _t('Make post public', 'Gawing pampubliko ang post'),
         icon: 'ic-globe', on: !!p.public, act: 'togglePublic', args: [p.id, !!p.public] },
-      { label: p.flagged ? _t('Unflag post', 'Alisin ang flag sa post') : _t('Flag post', 'I-flag ang post'), icon: 'ic-flag', on: !!p.flagged,
-        act: 'toggleFlag', args: [p.id, !!p.flagged] },
+      // GJ M9 G-MOD: on someone else's REPORTED post the decision is a review that tells its author and its reporters
+      (p.flagged && !isMine)
+        ? { label: 'Keep post (clear the report)', icon: 'ic-flag', on: true, act: 'moderatePost', args: [p.id, true] }
+        : { label: p.flagged ? _t('Unflag post', 'Alisin ang flag sa post') : _t('Flag post', 'I-flag ang post'), icon: 'ic-flag', on: !!p.flagged,
+            act: 'toggleFlag', args: [p.id, !!p.flagged] },
       ...(p.public ? [{ label: 'Copy public link', icon: 'ic-globe', act: 'copyPublicLink', args: [p.id] }] : []),
-      { label: _t('Delete post', 'Burahin ang post'), icon: 'ic-delete', danger: true, act: 'deletePost', args: [p.id] },
+      isMine
+        ? { label: _t('Delete post', 'Burahin ang post'), icon: 'ic-delete', danger: true, act: 'deletePost', args: [p.id] }
+        : { label: 'Remove post', icon: 'ic-delete', danger: true, act: 'moderatePost', args: [p.id, false] },
     ] : isMine ? [
       { label: _t('Edit my post', 'I-edit ang post ko'), icon: 'ic-edit', act: 'openEditor', args: [p.id] },
       ...(p.public ? [{ label: 'Copy public link', icon: 'ic-globe', act: 'copyPublicLink', args: [p.id] }] : []),
@@ -2563,6 +2570,81 @@ function _isMinePost(p) {
     _updateRenderedCard(postId); // refresh only this card if expanded
     loadModQueue();
     showToast(currentlyFlagged ? 'Post unflagged' : 'Post flagged');
+  }
+
+  // ★A DECISION THAT TELLS THE PEOPLE IT IS ABOUT (2026-11-06, GJ M9 G-MOD). A supervisor's "Unflag" or "Delete" on someone
+  // else's reported post told nobody: the author found out by noticing their post vanish or come back, and the person who
+  // reported it learned nothing at all. On someone else's post the decision now goes through moderate_reported_post, which
+  // records it, keeps the trail, and pushes the author and every reporter - with the supervisor's reason when one is
+  // given. The author is never told who reported them.
+  async function moderatePost(postId, keep) {
+    if (HIVE_ROLE !== 'supervisor') { showToast('Supervisors only', 'error'); return; }
+    if (typeof whRequireOnline === 'function'
+        && !whRequireOnline(keep ? 'Keeping this post' : 'Removing this post', (m) => showToast(m, 'error'))) return;
+    const note = await window.whPrompt(keep
+      ? 'Keep this post. Say why, if you like: the person who wrote it and anyone who reported it will read this. Nobody is told who reported it.'
+      : 'Remove this post. Say why: the person who wrote it and anyone who reported it will read this. Nobody is told who reported it.',
+      { inputLabel: 'Reason (optional)', okLabel: keep ? 'Keep post' : 'Remove post', cancelLabel: 'Cancel' });
+    if (note === null || note === undefined) return;   // cancelled: nothing written
+    const { data, error } = await db.rpc('moderate_reported_post',
+      { p_post_id: postId, p_keep: !!keep, p_note: String(note || '').trim() || null });
+    if (error) {
+      showToast(whWriteError(error, keep ? 'The post was NOT kept - it is still reported.' : 'The post was NOT removed - it is still in the feed.'), 'error');
+      return;
+    }
+    if (keep) {
+      [allPosts, pinnedPosts].forEach((list) => { const x = list.find((q) => q.id === postId); if (x) x.flagged = false; });
+      _updateRenderedCard(postId);
+    } else {
+      allPosts = allPosts.filter((q) => q.id !== postId);
+      pinnedPosts = pinnedPosts.filter((q) => q.id !== postId);
+      _removePostCard(postId);
+      if (activeThreadId === postId) closeThread();
+    }
+    loadModQueue();
+    const n = (data && data.told_reporters) || 0;
+    showToast((keep ? 'Post kept. ' : 'Post removed. ') + 'Its author'
+      + (n ? ' and ' + n + (n === 1 ? ' person who reported it were told.' : ' people who reported it were told.') : ' was told.'));
+  }
+  window.moderatePost = moderatePost;
+
+  // What became of a person's own posts and of the posts they reported (my_moderation_news, 30 days) - said above the
+  // feed until they dismiss it. A report is not a message into a void: the reporter reads the outcome, or that it waits.
+  async function loadModerationNews() {
+    const box = document.getElementById('mod-news');
+    if (!box) return;
+    let rows = [];
+    try {
+      const { data, error } = await db.rpc('my_moderation_news');
+      if (error) return;   // the feed stands without it; the push already told them
+      rows = data || [];
+    } catch (_) { return; }   // empty-catch-allow: a nudge, never a blocker for the feed
+    const keyOf = (r) => 'wh_modnews_' + r.kind + '_' + r.post_id + '_' + (r.moderated_at || 'waiting');
+    const fresh = rows.filter((r) => !(typeof whIsDismissed === 'function' && whIsDismissed(keyOf(r))));
+    if (!fresh.length) { box.hidden = true; box.innerHTML = ''; return; }
+    const when = (t) => (t && typeof whFmtDate === 'function') ? whFmtDate(t, { time: true }) : '';
+    const line = (r) => {
+      const words = '"' + (r.words || '').trim() + (String(r.words || '').length >= 60 ? '…' : '') + '"';
+      const why = r.note ? ': ' + r.note : '';
+      if (r.kind === 'your_post') {
+        return (r.moderated_by || 'A supervisor') + (r.outcome === 'removed' ? ' removed your post ' : ' kept your post ')
+          + words + (r.moderated_at ? ' on ' + when(r.moderated_at) : '') + (why || '.');
+      }
+      if (!r.outcome) return 'Your report on ' + words + (r.reported_at ? ' (' + when(r.reported_at) + ')' : '') + ' is waiting for a supervisor.';
+      return 'Your report on ' + words + ': ' + (r.moderated_by || 'a supervisor') + (r.outcome === 'removed' ? ' removed the post' : ' kept the post')
+        + (r.moderated_at ? ' on ' + when(r.moderated_at) : '') + (why || '.');
+    };
+    box.innerHTML = '<p style="margin:0 0 0.4rem; font-weight:700; font-size:var(--wh-fs-sm);">About your posts and reports</p>'
+      + '<ul style="margin:0; padding-left:1.1rem; display:flex; flex-direction:column; gap:0.3rem;">'
+      + fresh.slice(0, 5).map((r) => '<li data-wh-modnews="' + escHtml(r.kind) + '">' + escHtml(line(r)) + '</li>').join('')
+      + '</ul>'
+      + '<button type="button" class="btn-ghost" style="min-height:44px; margin-top:0.5rem; width:auto;" data-wh-modnews-dismiss>Dismiss</button>';
+    box.hidden = false;
+    const b = box.querySelector('[data-wh-modnews-dismiss]');
+    if (b) b.addEventListener('click', () => {
+      fresh.forEach((r) => { if (typeof whSetDismissed === 'function') whSetDismissed(keyOf(r)); });
+      box.hidden = true;
+    });
   }
 
   async function togglePublic(postId, currentlyPublic) {
