@@ -1214,7 +1214,7 @@
     async function fetchFeedback() {
       try {
         const { data, error } = await db.from('platform_feedback')
-          .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at,is_public,updated_at')
+          .select('id,created_at,kind,rating,subject,body,status,priority,hive_id,worker_name,contact_email,page_url,admin_note,resolved_at,is_public,updated_at,sender_reply,auth_uid')
           .order('created_at', { ascending: false })
           .order('id')                       // MR4: the sort above is not total on its own
           .limit(500 + 1);   // more-said: by applyFeedbackView - the 'all' count says '500+' when a 501st exists (SL LB1)
@@ -1358,6 +1358,15 @@
         <label for="fb-d-note">Admin note (internal)</label>
         <textarea id="fb-d-note" placeholder="Triage notes for yourself…">${e(row.admin_note || '')}</textarea>
 
+        <!-- ★THE ANSWER TO THE PERSON WHO SENT IT (GJ M9 J27, 2026-11-06): a member who reported a listing or a problem
+             never learned what became of it. The note above stays internal; this is the one the sender reads - under
+             "Your reports" in their feedback panel, and as a notification when it or the status changes. -->
+        <label for="fb-d-reply">Answer to the sender</label>
+        <textarea id="fb-d-reply" maxlength="1000" placeholder="What WorkHive did about it, in a sentence or two…">${e(row.sender_reply || '')}</textarea>
+        <div class="fb-meta" style="margin-top:.35rem">${row.auth_uid
+          ? 'They read this in WorkHive and are notified when it or the status changes.'
+          : 'This was sent without an account, so it can only be answered by email (if they left one).'}</div>
+
         <label style="display:flex;align-items:center;gap:.5rem;margin-top:1rem;cursor:pointer;text-transform:none;letter-spacing:0;color:var(--wh-white, #fff)">
           <input type="checkbox" id="fb-d-public"${row.is_public ? ' checked' : ''} style="width:auto;min-height:0;cursor:pointer" />
           <span>Show on the public roadmap (/feedback/)</span>
@@ -1410,6 +1419,7 @@
       const status   = document.getElementById('fb-d-status').value;
       const priority = document.getElementById('fb-d-priority').value || null;
       const note     = document.getElementById('fb-d-note').value.trim() || null;
+      const reply    = (document.getElementById('fb-d-reply')?.value || '').trim() || null;   // GJ M9 J27: the sender reads this
       const isPublic = document.getElementById('fb-d-public')?.checked || false;
       const btn      = document.getElementById('fb-d-save');
       const row      = _fb.rows.find(r => r.id === id);
@@ -1448,7 +1458,7 @@
         // updated_at on every write, so a stale snapshot matches 0 rows instead of overwriting.
         const snap = row?.updated_at || null;
         let q = db.from('platform_feedback')
-          .update({ status, priority, admin_note: note, is_public: isPublic }).eq('id', id);
+          .update({ status, priority, admin_note: note, sender_reply: reply, is_public: isPublic }).eq('id', id);
         if (snap) q = q.eq('updated_at', snap);
         const { data: saved, error } = await q.select('id, updated_at');
         if (error) throw error;
@@ -1459,7 +1469,7 @@
           renderFeedback(await fetchFeedback());
           return;
         }
-        if (row) Object.assign(row, { status, priority, admin_note: note, is_public: isPublic,
+        if (row) Object.assign(row, { status, priority, admin_note: note, sender_reply: reply, is_public: isPublic,
           updated_at: saved[0].updated_at,
           resolved_at: ['resolved','wontfix','duplicate'].includes(status)
             ? (row.resolved_at || new Date().toISOString()) : row.resolved_at });

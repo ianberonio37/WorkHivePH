@@ -960,7 +960,7 @@
         // MK2 (deepwalk 2026-07-24): moderation_reason/_at come with the row so a rejected listing can
         // TELL the seller why (previously they saw only a bare red "Removed" chip). RLS keeps these
         // readable to the owning seller + admins only (mkt_listings_read).
-        .select('id,title,description,section,category,condition,price,location,seller_contact,image_url,view_count,status,created_at,updated_at,moderation_reason,moderated_at')
+        .select('id,title,description,section,category,condition,price,location,seller_contact,image_url,view_count,status,created_at,updated_at,moderation_reason,moderated_at,moderated_by')
         // ★MINE BY ACCOUNT, NOT BY NAME (2026-10-08, migration 20261008000060): seller_name is a display name anyone
         // can also hold, so a namesake's PUBLISHED listings appeared here as this seller's own. is_mine is the
         // account check, answered by the database without exposing the owner key.
@@ -1116,6 +1116,7 @@
       if (error) { if (typeof status !== 'undefined' && status) error._httpStatus = status; throw error; }
       _readFailed.inquiries = false; _readFailErr.inquiries = null;
       _inquiries = data || [];
+      await loadMyReviews();   // GJ M9 J27: the reviews of this seller's listings ride with their inquiries
       // True counts for the badge (un-capped by the detail .limit()).
       try {
         const { count: totalCount } = await db
@@ -1581,7 +1582,14 @@
     // long, that the listing is safe, and that editing keeps its place. Deliberately NO invented
     // SLA ('reviews take 2 days') - only what is true.
     const _draftAgeDays = (item) => Math.floor((Date.now() - new Date(item.created_at).getTime()) / 86400000);
+    /* ★AN UNPUBLISHED LISTING SAID "PENDING REVIEW" (GJ M9 J27, 2026-11-06: "the platform's action on the listing, read by
+       the seller"). The admin's Unpublish asks for a "Reason shown to the seller" and sends the listing back to draft with
+       it - and this card showed every draft the same "Draft: Pending Review", so a seller WorkHive had taken down read that
+       they were waiting in a queue, and the reason they were promised was nowhere. A draft carrying a moderation reason is
+       a decision, and says so: who, when, why, and what to do. */
+    const _unpublished = (item) => item.status === 'draft' && !!item.moderation_reason && !!item.moderated_at;
     const _draftChip = (item) => {
+      if (_unpublished(item)) return '<span class="meta-chip red">Unpublished by WorkHive</span>';
       const d = _draftAgeDays(item);
       return `<span class="meta-chip yellow">Draft: Pending Review${d >= 1 ? ` · ${e(String(d))}d waiting` : ''}</span>`;
     };
@@ -1609,7 +1617,13 @@
               <span class="meta-chip">${e(item.category || 'Other')}</span>
               <span class="meta-chip">${e(timeAgo(item.created_at))}</span>
             </div>
-            ${item.status === 'draft' && _draftAgeDays(item) >= 7 ? `
+            ${_unpublished(item) ? `
+            <div role="alert" data-record-id="${e(item.id)}" style="margin-top:0.5rem;padding:0.5rem 0.75rem;border-radius:0.5rem;background:rgba(var(--wh-red-rgb, 248, 113, 113), 0.1);border:1px solid rgba(var(--wh-red-rgb, 248, 113, 113), 0.3);">
+              <div style="font-size: var(--wh-fs-2xs, 0.75rem);font-weight:700;color:var(--wh-red-text);margin-bottom:0.125rem;">Unpublished by ${e(item.moderated_by || 'WorkHive')} · ${e(timeAgo(item.moderated_at))}</div>
+              <div style="font-size:var(--wh-fs-2xs, 0.75rem);color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);line-height:1.4;">${e(item.moderation_reason)}</div>
+              <div style="font-size: var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin-top:0.25rem;">Edit this listing to fix it, then save: it goes back into review.</div>
+            </div>` : ''}
+            ${item.status === 'draft' && !_unpublished(item) && _draftAgeDays(item) >= 7 ? `
             <div style="margin-top:0.5rem;padding:0.5rem 0.75rem;border-radius:0.5rem;background:rgba(var(--wh-amber-rgb, 250, 204, 21), 0.08);border:1px solid rgba(var(--wh-amber-rgb, 250, 204, 21), 0.25);font-size:var(--wh-fs-2xs, 0.75rem);color:rgba(var(--wh-white-rgb, 255, 255, 255), 0.85);line-height:1.4;">
               In review for ${e(String(_draftAgeDays(item)))} days - longer than it should be. Your listing is safe and stays in the queue; editing it keeps its place.
             </div>` : ''}
@@ -1650,6 +1664,84 @@
   }
 
   /* ── Render inquiries ───────────────────────────────────────────────────── */
+  /* ★A REVIEW OF YOUR LISTING NEVER REACHED YOU, AND COULD NOT BE ANSWERED (GJ M9 J27, 2026-11-06: "the buyer's complaint
+     is in the seller's console", "the seller's answer is under the buyer's review"). This console read no review at all -
+     a buyer's two-star complaint about a deal sat on the public listing and the seller's profile, where every visitor read
+     it, while the seller was the one person never shown it here; and nothing let them answer it on the platform. The
+     reviews of the seller's own listings are read beside their inquiries, newest first, and each takes one public answer
+     (reply_to_listing_review: only the listing's seller, stamped by the server, the reviewer pushed). null = the read
+     failed, which is said - never shown as "no reviews". */
+  let _myReviews = [];
+  let _myReviewsMore = false;
+  async function loadMyReviews() {
+    try {
+      // mine by ACCOUNT (is_mine), the same read the listings tab makes - never by the display name
+      const { data: mine, error: lErr } = await db.from('v_marketplace_listings_truth').select('id,title').eq('is_mine', true)
+        .order('created_at', { ascending: false }).order('id').limit(200);   // cap-ok (LB1): one seller's listings, far under 200
+      if (lErr) throw lErr;
+      const ids = (mine || []).map((l) => l.id);
+      if (!ids.length) { _myReviews = []; return; }
+      const titles = {}; (mine || []).forEach((l) => { titles[l.id] = l.title; });
+      const { data, error } = await db.from('marketplace_reviews')
+        .select('id,listing_id,reviewer_name,rating,comment,created_at,seller_reply,seller_replied_at,seller_replied_by')
+        .in('listing_id', ids)   // in-list-bounded: this seller's own listings (at most 200)
+        .order('created_at', { ascending: false }).order('id')
+        .limit(30 + 1);   // more-said: by _myReviewsHtml (SL LB1: a 31st review says more exist)
+      if (error) throw error;
+      _myReviewsMore = (data || []).length > 30;
+      _myReviews = (data || []).slice(0, 30).map((r) => Object.assign({}, r, { listing_title: titles[r.listing_id] || '' }));
+    } catch (_) { _myReviews = null; }
+  }
+  function _myReviewsHtml() {
+    const e = escHtml;
+    const head = '<h2 style="font-size:var(--wh-fs-md, 0.95rem);margin:1.25rem 0 0.5rem;">Reviews of your listings'
+      + (_myReviews && _myReviews.length ? ' <span class="tab-count">' + _myReviews.length + (_myReviewsMore ? '+' : '') + '</span>' : '') + '</h2>';
+    if (_myReviews === null) {
+      return head + '<p style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));">Your reviews could not be read just now, so this is unknown rather than none. Refresh to try again.</p>';
+    }
+    if (!_myReviews.length) {
+      return head + '<p style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));">No buyer has reviewed your listings yet.</p>';
+    }
+    return head + _myReviews.map((rv) => {
+      const low = Number(rv.rating) <= 2;
+      return '<div class="inquiry-item' + (rv.seller_reply ? ' replied' : '') + '" data-record-id="' + e(rv.id) + '"'
+        + (low && !rv.seller_reply ? ' style="border-left:3px solid var(--wh-red,#f87171);"' : '') + '>'
+        + '<div class="inq-header"><span class="inq-buyer">' + e(rv.reviewer_name || 'A buyer') + ' · '
+        + '<span role="img" aria-label="' + Math.round(Number(rv.rating) || 0) + ' out of 5 stars">' + '★'.repeat(Math.max(0, Math.min(5, Math.round(Number(rv.rating) || 0)))) + '</span></span>'
+        + '<span class="inq-date">' + e(timeAgo(rv.created_at)) + '</span></div>'
+        + '<div class="inq-listing">On: ' + e(rv.listing_title || 'your listing') + '</div>'
+        + (rv.comment ? '<div class="inq-message">' + e(rv.comment) + '</div>' : '')
+        + (rv.seller_reply
+            ? '<div style="font-size:var(--wh-fs-xs, 0.8125rem);margin-top:0.375rem;"><span style="color:var(--wh-green);">You answered '
+              + e(timeAgo(rv.seller_replied_at)) + ':</span> ' + e(rv.seller_reply) + '</div>'
+            : '<div class="reply-area" style="margin-top:0.5rem;">'
+              + '<label for="rv-reply-' + e(rv.id) + '" style="display:block;font-size:var(--wh-fs-xs, 0.8rem);font-weight:600;margin-bottom:0.25rem;">Answer publicly (shown under the review)</label>'
+              + '<textarea class="reply-textarea" id="rv-reply-' + e(rv.id) + '" maxlength="600" rows="2"></textarea>'
+              + '<div class="reply-actions"><button type="button" class="btn-sm primary" data-action="review-reply" data-id="' + e(rv.id) + '">Post answer</button></div></div>')
+        + '</div>';
+    }).join('')
+      + (_myReviewsMore ? '<p data-wh-more-note role="note" style="font-size:var(--wh-fs-xs, 0.8rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));">Showing your 30 newest reviews. There are more on your public profile.</p>' : '');
+  }
+  function _wireReviewReplies(root) {
+    root.querySelectorAll('[data-action="review-reply"]').forEach((b) => b.addEventListener('click', () => handleReviewReply(b.dataset.id, b)));
+  }
+  async function handleReviewReply(id, btn) {
+    const ta = document.getElementById('rv-reply-' + id);
+    const words = ((ta && ta.value) || '').trim();
+    if (words.length < 2) { showToast('Write your answer first.', 'error'); if (ta) ta.focus(); return; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Posting…'; }
+    try {
+      const { data, error } = await db.rpc('reply_to_listing_review', { p_review_id: id, p_reply: words });
+      if (error) { showToast(whWriteError(error, 'Your answer was not posted. It is still here, so try again.'), 'error'); return; }
+      if (!data || !data.ok) { showToast((data && data.reason) || 'Your answer was not posted.', 'error'); return; }
+      showToast('Answer posted under the review. The buyer was told.');
+      await loadMyReviews();
+      renderInquiries();
+    } finally {
+      if (btn && btn.isConnected) { btn.disabled = false; btn.textContent = 'Post answer'; }
+    }
+  }
+
   function renderInquiries() {
     const e = escHtml;
     const area = document.getElementById('content-area');
@@ -1678,7 +1770,8 @@
         <span class="ic ic-message" aria-hidden="true"></span>
         <h3 data-i="noinq">No inquiries yet</h3>
         <p>${escHtml(_t('Buyers will appear here when they contact you about your listings.', 'Lalabas dito ang mga buyer kapag kinontak ka nila tungkol sa mga listing mo.'))}</p>
-      </div>`;
+      </div>` + _myReviewsHtml();
+      _wireReviewReplies(area);
       return;
     }
 
@@ -1721,13 +1814,15 @@
         ? '<p data-wh-more-note role="note" style="font-size:var(--wh-fs-xs, 0.8rem);line-height:1.4;color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0 0 0.5rem;">Showing the ' + _inquiries.length + ' newest of ' + _inquiriesTotal.toLocaleString('en-PH') + ' inquiries.</p>'
           // HS L4 (2026-10-30, "a year of the hive", walked live): 166 questions, and an unanswered one older than the
           // newest 50 could not be reached to reply to - the older ones are read on demand, 50 at a time
-          + '<button type="button" data-action="older-inquiries" style="width:100%;min-height:44px;border-radius:0.75rem;background:var(--wh-white-05, rgba(255,255,255,0.05));border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));color:inherit;font-weight:600;">Show older inquiries</button>' : '');
+          + '<button type="button" data-action="older-inquiries" style="width:100%;min-height:44px;border-radius:0.75rem;background:var(--wh-white-05, rgba(255,255,255,0.05));border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));color:inherit;font-weight:600;">Show older inquiries</button>' : '')
+      + _myReviewsHtml();
 
     area.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => {
         if (btn.dataset.action === 'older-inquiries') loadOlderInquiries(btn);
         if (btn.dataset.action === 'reply') handleReply(btn.dataset.id);
         if (btn.dataset.action === 'close') handleCloseInquiry(btn.dataset.id);
+        if (btn.dataset.action === 'review-reply') handleReviewReply(btn.dataset.id, btn);
         // T170: reveal ONE buyer's contact, in place, on demand. Replacing the button with
         // the value keeps it copyable and makes it obvious which buyer it belongs to.
         if (btn.dataset.action === 'reveal-contact') {
@@ -2916,7 +3011,17 @@
         '<div class="simple-card" style="margin-bottom:0.75rem;display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;justify-content:space-between;padding:1rem 1rem;">' +
         '<div><strong>' + e(p.display_name) + '</strong> ' +
         (p.verified ? '<span style="color:var(--wh-green, rgb(74,222,128));font-size:var(--wh-fs-2xs, 0.75rem);font-weight:700;">✓ Verified</span>' : '<span style="opacity:0.7;font-size:var(--wh-fs-2xs, 0.75rem);">Pending verification</span>') +
-        '<div style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.8;margin-top:0.125rem;">' + e((p.categories || []).join(' · ')) + (p.service_areas && p.service_areas.length ? ' - ' + e(p.service_areas.join(', ')) : '') + ' · ' + Number(p.completed_jobs || 0) + ' job' + (Number(p.completed_jobs || 0) === 1 ? '' : 's') + ' done' + (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + (p.tier === 'gold' ? ' · 🥇 Gold' : p.tier === 'silver' ? ' · 🥈 Silver' : ' · 🥉 Bronze') + '</div></div>' +
+        '<div style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.8;margin-top:0.125rem;">' + e((p.categories || []).join(' · ')) + (p.service_areas && p.service_areas.length ? ' - ' + e(p.service_areas.join(', ')) : '') + ' · ' + Number(p.completed_jobs || 0) + ' job' + (Number(p.completed_jobs || 0) === 1 ? '' : 's') + ' done' + (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + (p.tier === 'gold' ? ' · 🥇 Gold' : p.tier === 'silver' ? ' · 🥈 Silver' : ' · 🥉 Bronze') + '</div>' +
+        /* WHAT THE LAST CLIENT SAID (GJ M9 J6, 2026-11-06): a client's review was written into a field that says "A sentence
+           for other clients" and then read by no page - the provider never saw it and neither did the next client. The
+           provider's record (service_provider_record, the same for every reader) carries the latest one. */
+        (p.latest_review_at
+          ? '<div class="svc-latest-review" data-wh-review-by="' + e(p.latest_review_by || '') + '" style="font-size:var(--wh-fs-xs, 0.8125rem);margin-top:0.375rem;">'
+            + 'Latest review: ★' + Number(p.latest_review_rating || 0) + ' from ' + e(p.latest_review_by || 'a client') + ', '
+            + e(new Date(p.latest_review_at).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric' }))
+            + (p.latest_review_comment ? ': <q>' + e(p.latest_review_comment) + '</q>' : '') + '</div>'
+          : '') +
+        '</div>' +
         (onJob
           ? '<span style="font-size:var(--wh-fs-2xs, 0.75rem);font-weight:700;color:var(--wh-orange-text);">On a job</span>'
           : '<button type="button" role="switch" aria-checked="' + (online ? 'true' : 'false') + '" onclick="_svcJobGuard(this,\'Updating…\',function(){return svcToggleAvail(\'' + e(p.id) + '\',\'' + (online ? 'offline' : 'online') + '\');})" style="' + (online ? _svcBtn : _svcBtnGhost) + '">' + (online ? 'Online: receiving jobs' : 'Offline: go Online') + '</button>') +
@@ -2959,15 +3064,24 @@
            +  '<span class="tab-count">' + disputed.length + '</span></h2>';
       disputed.forEach(j => {
         html +=
-          '<div class="simple-card" role="alert" style="margin-bottom:0.5rem;padding:1rem 1rem;'
+          '<div class="simple-card" role="alert" data-record-id="' + e(j.id) + '" style="margin-bottom:0.5rem;padding:1rem 1rem;'
           + 'border-left:3px solid var(--wh-red,#f87171);">'
           + '<strong>' + e(j.catalog_name || j.custom_scope || 'Service job') + '</strong>'
+          /* What the client reported, who, and when (GJ M9 G-SVC, 2026-11-06): the card said a problem existed and never
+             what it was - the reason raise_service_objection records sat in the job events, off this screen, while this is
+             the person the review can move money against. v_service_request_truth carries the latest report. */
+          + (j.report_reason
+              ? '<div class="svc-report" data-wh-reported-by="' + e(j.client_worker_name || '') + '" style="font-size:var(--wh-fs-xs, 0.8125rem);margin:0.375rem 0 0;">'
+                + e(j.client_worker_name || 'The client') + ' reported a problem'
+                + (j.reported_at ? ' on ' + e(new Date(j.reported_at).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '')
+                + ': <q>' + e(j.report_reason) + '</q></div>'
+              : '')
           + '<div style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.85;margin:0.25rem 0 0.5rem;">'
           + (j._review
-              ? 'The client reported a problem with this job. ' + e(j._review.note || 'WorkHive reviewed it.')
+              ? (j.report_reason ? 'WorkHive reviewed it: ' : 'The client reported a problem with this job. ') + e(j._review.note || 'WorkHive reviewed it.')
                 + ' (' + e(new Date(j._review.created_at).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric' })) + ')'
-              : 'The client reported a problem with this job, so it has not settled. WorkHive is '
-                + 'reviewing it. If credits were applied to this job they may be returned to the client '
+              : (j.report_reason ? 'So it has not settled. ' : 'The client reported a problem with this job, so it has not settled. ')
+                + 'WorkHive is reviewing it. If credits were applied to this job they may be returned to the client '
                 + 'as part of that review.')
           + '</div>'
           + '<div style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.8;margin-bottom:0.5rem;">'
@@ -3077,8 +3191,12 @@
     const _seenJob = new Map();
     feed.forEach(f => {
       const k = f.request_id;
-      if (_seenJob.has(k)) { const prev = _seenJob.get(k); prev.already_responded = prev.already_responded || f.already_responded; return; }
-      const row = Object.assign({}, f);
+      if (_seenJob.has(k)) {
+        const prev = _seenJob.get(k); prev.already_responded = prev.already_responded || f.already_responded;
+        if (f.my_provider_id && !prev._as.includes(f.my_provider_id)) prev._as.push(f.my_provider_id);
+        return;
+      }
+      const row = Object.assign({}, f, { _as: f.my_provider_id ? [f.my_provider_id] : [] });
       _seenJob.set(k, row);
       _byJob.push(row);
     });
@@ -3096,7 +3214,22 @@
           (f.catalog_category ? e(f.catalog_category) + ' · ' : '') + e(f.urgency || 'normal') + ' priority' +
           (f.distance_km != null ? ' · ' + Number(f.distance_km).toFixed(1) + ' km away' : '') +
           (f.area_hint ? ' · ' + e(f.area_hint) : '') + ' · ' + rate +
-          e(svcHoldHint(f.catalog_rate != null ? f.catalog_rate : f.budget)) + '</div>' +
+          e(svcHoldHint(f.catalog_rate != null ? f.catalog_rate : f.budget)) +
+          /* WHEN IT WAS ASKED (GJ M9 J6, 2026-11-06): the card said what, where and for how much, and never how long the
+             client had been waiting - a request posted a minute ago and one posted yesterday read the same, though a quote
+             on a stale one is wasted. The client stays unnamed here by design (coarse location pre-accept, the person on
+             match), so the time is the one fact about the asking this card can give. */
+          (f.created_at && typeof whFmtAgo === 'function' ? ' · posted ' + e(whFmtAgo(f.created_at)) : '') + '</div>' +
+          /* WHICH OF YOUR NAMES ANSWERS (GJ M9 J6, 2026-11-06): a hive's members are its field crew, so a member who also
+             runs their own business holds two provider identities, and the server picked one for them (verified first)
+             without the card ever saying which - a quote went out under the hive team's name when the person meant their
+             own. The choice is shown whenever the request reached more than one of them, and the chosen one answers. */
+          (!f.already_responded && f._as && f._as.length > 1
+            ? '<label style="display:flex;gap:0.375rem;align-items:center;flex-wrap:wrap;font-size:var(--wh-fs-xs, 0.8125rem);margin:0 0 0.5rem;">Answer as'
+              + ' <select id="svc-as-' + e(f.request_id) + '" style="min-height:44px;padding:0.375rem 0.5rem;border-radius:var(--wh-radius-sm);border:1px solid var(--wh-white-15, rgba(255,255,255,0.15));background:var(--wh-navy, #162032);color:inherit;">'
+              + f._as.map(id => { const pv = (provs || []).find(x => x.id === id) || {}; return '<option value="' + e(id) + '">' + e(pv.display_name || 'Provider') + (pv.provider_type === 'hive' ? ' (hive team)' : ' (you)') + '</option>'; }).join('')
+              + '</select></label>'
+            : '') +
           (f.already_responded
             ? '<span style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.75;">Responded. Waiting for the client</span>'
             : (f.mode === 'instant'
@@ -3202,7 +3335,8 @@
       showToast("You are offline. Accepting a job needs a connection - another provider may already have taken it.", "error");
       return;
     }
-    const { data, error, status } = await db.rpc('accept_service_request', { p_request_id: requestId });
+    const _as = (document.getElementById('svc-as-' + requestId) || {}).value || null;   // the identity the person chose (GJ M9 J6)
+    const { data, error, status } = await db.rpc('accept_service_request', Object.assign({ p_request_id: requestId }, _as ? { p_provider_id: _as } : {}));
     if (error) { showToast(whWriteError(error, _t('Couldn\'t accept this job. It was NOT accepted - the client is still waiting, so try again.', 'Hindi matanggap ang job na ito. HINDI ito natanggap - naghihintay pa ang client, kaya subukan muli.')), 'error'); return; }
     if (data && data.accepted) {
       showToast('Job is yours. Head over when ready');
@@ -3242,13 +3376,20 @@
     const inp = document.getElementById('svc-q-' + requestId);
     const price = inp ? Number(inp.value) : NaN;
     if (!isFinite(price) || price <= 0) { showToast('Enter your price first', 'error'); return; }
-    const { data, error, status } = await db.rpc('submit_service_quote', { p_request_id: requestId, p_price: price });
+    const _as = (document.getElementById('svc-as-' + requestId) || {}).value || null;   // the identity the person chose (GJ M9 J6)
+    const { data, error, status } = await db.rpc('submit_service_quote', Object.assign({ p_request_id: requestId, p_price: price }, _as ? { p_provider_id: _as } : {}));
     if (error) { showToast(whWriteError(error, _t('Couldn\'t send the quote. Nothing was sent - your price is still here, so try again.', 'Hindi maipadala ang quote. Walang naipadala - nandito pa ang presyo mo, kaya subukan muli.')), 'error'); return; }
     if (data && data.quoted) {
       // the price committed, so the next visit to this row starts fresh rather than re-offering
       // a number that is already on the client's screen
       try { if (typeof whRememberView === 'function') whRememberView('draft_svcquote_' + requestId, function () { return {}; }).clear(); } catch (_e) { /* empty-catch-allow: a stale draft is harmless next to a sent quote */ }
       showToast('Quote sent - you\'ll see it here if the client picks you');
+    }
+    // GJ M9 J6 (2026-11-06): a quote this identity could not honour is refused before the client sees it - say why and
+    // what fixes it, with the amounts (the 10% the job holds when the client chooses you)
+    else if (data && data.reason === 'needs_credits') {
+      showToast('Not sent: this job holds ' + _svcPeso(data.need) + ' in credits when the client chooses you, and you have '
+        + _svcPeso(data.balance) + '. Top up in your wallet below, then send your quote.', 'error');
     }
     else { showToast('Couldn\'t send the quote - the request may have closed', 'error'); }
     loadServices();

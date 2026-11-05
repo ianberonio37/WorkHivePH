@@ -1598,9 +1598,11 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
     html += renderFailureFrequency(data.failure_frequency);       // which assets break most (supports MTBF)
     html += renderRepeatFailures(data.repeat_failures);           // ineffective repair signal — high action
     html += renderPartsConsumption(data.parts_consumption);       // cost angle — least urgent for ops
+    html += '<div id="an-parts-cost" aria-live="polite"></div>';   // filled by loadPartsCost (GJ M9 J10) - the peso figure
 
     panel/* xss-allow: data values are numbers/CSS/static or escHtml() runs in .map() body after first ; */ .innerHTML = html;
     flushCharts();
+    loadPartsCost();
 
     // Plain-Read summary (Layer D — UX Contract). Rolls up OEE / MTBF /
     // PM compliance from the same descriptive payload.
@@ -2376,6 +2378,67 @@ body{padding-top:calc(64px + env(safe-area-inset-top, 0px));}</style>
   }
 
   // ── 7. Parts Consumption ───────────────────────────────────────────────────
+  /* ★WHAT A MACHINE'S REPAIRS COST IN PARTS (GJ M9 J10, 2026-11-06: "the driver's work in the owner's cost"). No page
+     could answer it: nothing on the platform carried a price. Parts now have a unit cost (inventory's part form), and
+     parts_cost_by_asset prices each period's logged parts by the part's ID. The card says its basis every time - parts at
+     today's unit cost, how many of the parts used it could price, and that labour and outside services are not in it -
+     because a figure that counts one half of a cost must name the half it leaves out. Read live, under the reader's own
+     RLS, not from the orchestrator's snapshot. */
+  async function loadPartsCost() {
+    const slot = document.getElementById('an-parts-cost');
+    if (!slot || !HIVE_ID || typeof db === 'undefined') return;
+    const days = _period;
+    const title = 'Parts cost by machine';
+    const std = `parts at today's unit cost · last ${days} days`;
+    let rows;
+    try {
+      const { data, error } = await db.rpc('parts_cost_by_asset', { p_hive_id: HIVE_ID, p_period_days: days });
+      if (error) throw error;
+      rows = data || [];
+    } catch (_) {
+      // a failed read is not "no cost": say it could not be read
+      slot.innerHTML = cardEmpty(title, std, 'The parts cost could not be read just now. Refresh to try again.');
+      return;
+    }
+    if (!rows.length) {
+      slot.innerHTML = cardEmpty(title, std, `No parts were logged against a machine in the last ${days} days.`);
+      return;
+    }
+    const priced = rows.reduce((n, r) => n + Number(r.priced_lines || 0), 0);
+    const unpriced = rows.reduce((n, r) => n + Number(r.unpriced_lines || 0), 0);
+    const peso = (v) => '₱' + Number(v).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const costed = rows.filter((r) => r.parts_cost != null);
+    const total = costed.reduce((n, r) => n + Number(r.parts_cost || 0), 0);
+    const basis = '<p class="card-note" style="font-size:var(--wh-fs-2xs, 0.75rem);color:var(--wh-text-muted, rgba(255,255,255,0.80));margin:0.5rem 0 0;">'
+      + escHtml('Priced ' + priced + ' of ' + (priced + unpriced) + ' parts used')
+      + (unpriced ? escHtml(' - ' + unpriced + ' have no unit cost on record, so they are not in the totals (set one on the part\'s Edit form in Inventory)') : '')
+      + escHtml('. Labour and outside services are not counted.') + '</p>';
+    if (!costed.length) {
+      slot.innerHTML = '<div class="card"><h2 class="card-title">' + escHtml(title) + ' <span class="card-standard">' + escHtml(std) + '</span></h2>'
+        + '<div class="empty">' + escHtml('None of the ' + unpriced + ' parts used in the last ' + days + ' days has a unit cost yet, so no peso figure can be given.') + '</div>' + basis + '</div>';
+      return;
+    }
+    const list = renderListWithShowAll({
+      items: rows,
+      tableHeader: '<thead><tr><th>' + 'Machine' + '</th><th class="num">' + 'Parts cost' + '</th><th class="num">' + 'Jobs' + '</th><th>' + 'Last logged' + '</th></tr></thead>',
+      defaultN: 10,
+      itemNoun: 'machine',
+      searchable: rows.length > 10,
+      renderRow: (r) => '<tr data-record-id="' + escHtml(String(r.asset_node_id || r.machine || '')) + '">'
+        + '<td class="machine-name">' + escHtml(r.machine || 'Unnamed machine') + '</td>'
+        + '<td class="num">' + (r.parts_cost != null ? escHtml(peso(r.parts_cost)) : '-')
+        + (Number(r.unpriced_lines || 0) ? ' <span style="opacity:0.8;">(' + Number(r.unpriced_lines) + ' unpriced)</span>' : '') + '</td>'
+        + '<td class="num">' + Number(r.entries || 0) + '</td>'
+        + '<td>' + escHtml(r.last_logged_by || '')
+        + (r.last_logged_at ? ', ' + escHtml(new Date(r.last_logged_at).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric' })) : '') + '</td>'
+        + '</tr>',
+    });
+    slot.innerHTML = '<div class="card">'
+      + '<h2 class="card-title">' + escHtml(title) + ' <span class="card-standard">' + escHtml(std) + '</span></h2>'
+      + '<p style="margin:0 0 0.5rem;font-size:var(--wh-fs-sm, 0.875rem);">' + escHtml(peso(total) + ' in parts across ' + costed.length + ' machine' + (costed.length === 1 ? '' : 's')) + '</p>'
+      + list + basis + '</div>';
+  }
+
   function renderPartsConsumption(d) {
     if (!d || !d.consumption?.length) return cardEmpty('Parts Consumption Rate', 'SMRP', d?.note || 'No parts usage transactions found in period.');
     const list = renderListWithShowAll({

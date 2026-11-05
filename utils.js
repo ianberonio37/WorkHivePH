@@ -9444,7 +9444,8 @@ var WH_ROW_COLS = {
     'photo_thumb_path',
   v_inventory_items_truth: 'id,hive_id,worker_name,part_number,part_name,category,unit,qty_on_hand,min_qty,reorder_point,' +
     'bin_location,linked_asset_node_ids,notes,status,submitted_by,approved_by,approved_at,created_at,updated_at,' +
-    'is_out_of_stock,is_low_stock,is_critical_low,lead_time_days,rejection_reason,auth_uid,photo_path,photo_thumb_path',
+    'is_out_of_stock,is_low_stock,is_critical_low,lead_time_days,rejection_reason,auth_uid,photo_path,photo_thumb_path,' +
+    'unit_cost,unit_cost_set_by,unit_cost_set_at',
 };
 function whRowCols(source) { return WH_ROW_COLS[source] || '*'; }
 function _whPhotoName() {

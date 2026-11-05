@@ -60,6 +60,46 @@ Two full runs were needed; the other two were the wrong loop.
 
 ---
 
+# M9 release (2026-11-06) - marketplace, onboarding and integrations
+
+> **Prepared and verified locally on 2026-11-06.** M9 is the third group-journey milestone (§GJ.10): J19 J1 G-ONB J31
+> G-MOD J7 J25 J5 J12 G-PUBLIC J8 J30 J15 G-SVC J6 J10 J27, each walked at both viewports, per layer, per UFAI pillar and
+> per member, with its contract half through the library provers. Walking them found **two security holes** (a
+> stranger read every seller's contact; a marketplace figure about a provider was each reader's own slice) and a dozen
+> hand-offs that ended in silence. M9 ships what landed since M8 (`945b6084`, production serves `workhive-shell-v591`).
+>
+> | Leg | Payload | Measured how |
+> |---|---|---|
+> | **A · DB** | **13 migrations** `20261106000001`-`13`: the roster's joined_at; a stranger reads the badge, not the contact (column grants); moderation tells author and reporters (`moderate_reported_post`, `my_moderation_news`); an accepted answer earns +30; scope items and project links say who added them; a CMMS work order is the CMMS's (no XP); a disputed job says who reported it and why; a provider's record is the same to every reader (`service_provider_record`); a part has a price and a machine its parts cost (`unit_cost`, `parts_cost_by_asset`); a review gets a reply and a report an answer (`reply_to_listing_review`, `sender_reply`, `my_feedback_outcomes`, pushes); a provider with two identities chooses which one answers; a quote only from who can take the job | `git diff 945b6084..HEAD --name-only -- supabase/migrations` |
+> | **B · Edge** | **2 functions**: `supervisor-reset-password` (stamps the reset on the account), `cmms-webhook-receiver` (the connection's name, sync_meta, last_sync) | `git diff 945b6084..HEAD -- supabase/functions`; `stamp_functions.py --write` before deploying |
+> | **Render (python-api)** | no redeploy | `python-api/` unchanged |
+> | **C · Frontend** | index, hive, community, public-feed, marketplace, marketplace-seller, marketplace-seller-profile, asset-hub, achievements, logbook, project-manager, project-report, plant-connections, integrations, inventory, analytics, `kpi-calc.js`, `utils.js`, `wh-feedback-fab.js`, `operator-actions.js` (+ its source `platform-actions.html`), `sw.js` -> **`workhive-shell-v592`** | `git diff --name-only 945b6084..HEAD` |
+>
+> **Order: A -> B -> C.** The pages call the new functions and read the new columns (Leg A); the reset notice reads the
+> function's stamp (Leg B).
+
+### What a person using WorkHive will notice (release notes)
+
+> - A worker whose password a supervisor reset is told who did it and when, and asked to set their own; everyone can
+>   change their password from the header.
+> - A supervisor can copy an invite link; the roster says when each member joined; a newcomer's first screen names the
+>   hive's supervisors.
+> - A moderated post tells its author and everyone who reported it what was decided; an answer chosen as the best earns
+>   its author 30 XP.
+> - A shared post has its own link; a shared calculation says when it was shared.
+> - Scope items, linked calculations and change orders say who added them.
+> - A CMMS's work orders appear under the connection's name, its sync status is current, and what it imported is listed.
+> - A service provider's quote card shows their real jobs done and their latest client review; a provider with their own
+>   business and a hive team chooses which one answers; a quote they cannot hold credits for is refused to them with the
+>   amounts, and a client is never shown a provider's wallet message.
+> - A provider's disputed job says who reported it, when, and what they said.
+> - Parts can carry a unit cost; analytics shows the parts cost per machine, and says it does not count labour.
+> - A seller can answer a review publicly; a report sent from the feedback button is answered back to the sender; a
+>   listing WorkHive unpublishes or removes tells its seller why.
+> - **Security:** a visitor can no longer read a seller's contact details or certifications off the table.
+
+---
+
 # M8 release (2026-11-05) - the record's hand-offs ✅ DEPLOYED
 
 > **✅ M8 DEPLOYED 2026-11-05: the record's hand-offs are in production.** Production serves `workhive-shell-v591` from

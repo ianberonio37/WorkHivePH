@@ -5838,6 +5838,68 @@ a time, walked through the Playwright MCP at both viewports in three batches wit
 
 **All 2,240 M8 rows are banked.** The direct layers came from the seven scenarios' receipts, the contract half from 507 library verdicts (three batches, none failing). M10's hops on audit-log ride the same walks: 420 of its 885 rows are banked. The release gate's own audit then found the new definer functions still callable by `anon`. On Supabase a revoke from PUBLIC never reaches anon, which is granted explicitly on every new function. All five now name anon, and the three trigger functions refuse every caller. The psql suite then read the new reply guard as a breach: the write-authz recipe counted a cross-hive move's touched rows, and a trigger that pins `hive_id` touches the row and moves nothing. The generator now asks where the row sits (still visible in its own hive = `pinned`, otherwise the count fails); with the trigger and both policies lifted the move reads `1` and fails. 214 of 214 recipes hold.
 
+### §GJ.10 M9 walked - marketplace, onboarding and integrations (J19 J1 G-ONB J31 G-MOD J7 J25 J5 J12 G-PUBLIC J8 J30 J15 G-SVC J6 J10 J27)
+
+**Every hand-off that ended in silence, fixed at its cause.** Each scenario's premise was read against the receiving
+page's own reads before a walk ran; the walks then found what reading could not. In order of harm:
+
+- **A stranger read every seller's contact (security, J31).** `marketplace_sellers` was granted whole to `anon`, so the
+  masking view's contact column was undone by reading the table under it. Column grants now give a stranger the badge
+  (tier, verifications, sales, rating, response) and nothing else (mig 20261106000002; probe with teeth).
+- **A provider's track record was the reader's own slice of it (J6).** "N jobs done · ★rating" on the quote a client
+  chooses from was counted under the reader's RLS: every provider read "0 jobs done" to every client who had not hired
+  them already (Hector Salvador 2 -> 0). One SECURITY DEFINER aggregate (`service_provider_record`) feeds the view, so
+  every reader gets the same record - and the client's review, written into a field that says "a sentence for other
+  clients", is now read: on the next client's quote and on the provider's console (mig 09; probe with teeth).
+- **A person with two provider identities could not choose which one answered (J6).** A hive's members are its field
+  crew, so a member with their own business holds two identities; the server picked "verified first" and never said
+  which. Jericho Bonifacio's quote went out as his hive's team. `p_provider_id` (one of the caller's own) on quote and
+  accept, and an "Answer as" choice whenever a request reached more than one (mig 12).
+- **A quote that could not be honoured, and the provider's wallet sentence shown to the client (J6).** A provider takes
+  a job only while holding 10% of it in credits; an identity with P0 could quote, and the client choosing it read "You
+  need PHP600 in credits... Top up to accept it". A quote is now refused to the provider (with the amounts) when its
+  identity cannot hold the job, and a balance spent before the client chooses is told to the client in their terms;
+  the request stays open (mig 13; probe with teeth).
+- **The provider's disputed job never said what the client reported (G-SVC).** The card said "the client reported a
+  problem" while the client's reason and its time sat in the job's events. The job's own read carries the report - the
+  status-change trigger writes a note-less 'disputed' event in the same instant, so the reason is the event that has one
+  (mig 08; probe with teeth).
+- **A worker never learned their password had been reset, and could not change it (J19)** - workers sign in with an
+  address that receives nothing, so the emailed recovery link was the only change path. The reset is stamped on the
+  account; sign-in tells them who reset it and when and asks for their own; everyone has a Change password control.
+- **Moderation told no one (G-MOD)**: `moderate_reported_post` records the decision on the post, pushes the author and
+  every reporter, and the community page reads it back (mig 03). **An accepted answer earned nothing (J7)**: +30 XP,
+  reversed on un-accept, none for your own answer to your own question (mig 04).
+- **No invite link, and a roster that said who but not when (J1, G-ONB)**; the welcome names the hive's supervisors.
+- **A teammate's profile said "No badges yet" about badges kept private, and the top discipline was hidden on every
+  profile by a stray selector (J25)**; a work order could be assigned to a typed name nobody holds.
+- **A scope item, a linked calculation, a change order said nothing of who added it (J8, J30)** (migs 05, 06).
+- **A CMMS's work orders were written under a supervisor's name and paid XP; its sync status never moved; what it
+  imported could not be read (J15)** (mig 07, cmms-webhook-receiver).
+- **A shared calculation was undated; a shared post had no link (G-PUBLIC, J31).**
+- **The fleet owner's month had no cost in it (J10)**: no table carried a price. `inventory_items.unit_cost` (stamped
+  by the server), the inventory form and detail, and an analytics card "Parts cost by machine" priced by the part's ID -
+  a part logged by name only is counted unpriced, never guessed - with its basis said every time: "Priced N of M parts
+  used ... Labour and outside services are not counted." (mig 10; probe with teeth; the fleet seeder prices its parts).
+  The walk registers the unit the way a fleet owner does - integrations' "Add my vehicle" (the asset with its plate and
+  odometer, its PM schedule and its starter parts in one act); the logbook's machine form has no vehicle type.
+- **A parts deal gone wrong had nowhere to go after the first word (J27).** A review could not be answered; a "Report
+  listing" reached the founder console and its answer reached no one (the panel even sent a signed-in member's report
+  with the public key, so it carried no account); a listing WorkHive took down told its seller nothing, and an
+  unpublished one read "Draft: Pending Review". Now: one public answer per review from the listing's seller
+  (`reply_to_listing_review`, the reviewer pushed); reports carry their sender's account and a separate "Answer to the
+  sender" (the console's admin note stays internal - the first draft would have pushed it, caught before it shipped);
+  "Your reports" in the feedback panel; a moderated listing pushes its seller and its card says why (mig 11).
+
+**Re-premised on the product's real model (for Ian):** J25 badges are private by design; J12 / G-PUBLIC - a code join
+is admission, there is no people-approval; J27 - the parts escrow-dispute loop was retired on 2026-08-03, so the walk
+follows review -> answer -> report -> moderation (rebuilding escrow is a product decision); J6 - pre-match anonymity is
+the design (the client sees a count per area, the provider a coarse area; names arrive with the quote); J7 - +30 XP is
+a new economy entry.
+
+**Fixtures, each named in its receipt:** G-SVC's finished job; J6's provider credits for the hold and the provider's
+doing between "chosen" and "done"; J15's webhook secret.
+
 ## §PRIORITY · The open book in the order it is worked — the less important last, and a push at each milestone (Ian, 2026-10-26)
 
 **A MILESTONE IS A BLOCK OF THE OPEN BOOK (2026-11-04, Wave GJ).** M1..M6 are the tier boundaries; every later wave declares its own blocks in its rows (`gj.milestone`: M7..M11, named in `tools/group_journey_census.GJ_MILESTONES`, see §GJ.1). The queue is block-major, each milestone carries its own count, and the header names the block that is next.

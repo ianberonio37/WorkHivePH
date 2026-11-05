@@ -404,6 +404,26 @@ def apply(revert: bool) -> int:
                 n_ob = len([x for x in (opened or "").split("\n") if x.strip()])
                 print(f"  {f}: and {n_ob} opening-balance row(s), so the shelf and its ledger start level")
 
+        # ★AND WHAT EACH PART COSTS (2026-11-06, GJ M9 J10 "the driver's work in the owner's cost"). A fleet owner's
+        # month ends in the cost, and no part carried a price (inventory_items had no unit cost until mig
+        # 20261106000010). The seeded parts are priced as the fleet's owner would price them - today's PH shop prices,
+        # in pesos - and the stamp names the hive's supervisor, the person who keeps the shelf's prices. Only a seeded
+        # part with no price yet is touched, so a price someone set through the page is never overwritten and a
+        # re-run changes nothing.
+        prices = {"Engine oil filter": 350, "Front brake pad set": 2400, "Alternator belt": 650,
+                  "Air filter element": 480, "Wheel bearing grease 1kg": 520}
+        owner = psql(f"select worker_name from hive_members where hive_id = '{hid}' and role = 'supervisor' "
+                     "and status = 'active' order by joined_at limit 1") or who
+        priced = 0
+        for pname, php in prices.items():
+            r = psql(f"with u as (update inventory_items set unit_cost = {php}, unit_cost_set_by = '{q(owner)}' "
+                     f"where hive_id = '{hid}' and part_name = '{q(pname)}' and unit_cost is null "
+                     f"and coalesce(notes,'') like '%{MARKER}%' returning 1) select count(*) from u")
+            priced += int(r) if r and r.isdigit() else 0
+        if priced:
+            print(f"  {f}: priced {priced} seeded part(s), set by {owner}")
+        total += priced
+
         # ★A THIRD AND FOURTH THING THIS FILE CLAIMED AND DID NOT DO (2026-09-08). The docstring says it
         # turns a vehicle registry into an operating fleet. Two journeys disagreed: J3 "the PM month" reads
         # least(pm_assets, pm_completions) and J4 "audit season" reads least(logbook, hive_audit_log), and

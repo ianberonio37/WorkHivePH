@@ -255,6 +255,11 @@
       .wh-fb-star.filled { color: var(--wh-orange, #F7A21B); }
       .wh-fb-star:focus-visible { outline: 2px solid var(--wh-blue, #29B6D9); outline-offset: 2px; border-radius: .25rem; }
 
+      .wh-fb-mine { margin-top: 0.875rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.75rem; }
+      .wh-fb-mine-title { font-size: 0.8125rem; font-weight: 700; margin: 0 0 0.375rem; }
+      .wh-fb-mine-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; font-size: 0.8125rem; line-height: 1.4; }
+      .wh-fb-mine-list strong { display: block; font-weight: 600; }
+      .wh-fb-mine-note { font-size: 0.8125rem; margin: 0; }
       .wh-fb-meta {
         font-size: .75rem; color: var(--wh-steel, #7B8794);
         background: rgba(0,0,0,.18);
@@ -406,6 +411,7 @@
 
         <div class="wh-fb-meta" id="wh-fb-meta"></div>
         <div id="wh-fb-status"></div>
+        <div id="wh-fb-mine" class="wh-fb-mine" hidden></div>
       </div>
       <div class="wh-fb-actions">
         <button class="wh-fb-submit" type="button" id="wh-fb-submit-btn">${_tt('Send feedback', 'Ipadala')}</button>
@@ -472,6 +478,7 @@
       } catch (_) { /* empty-catch-allow: a prefill must never block the panel from opening */ }
     }
     panel.setAttribute('aria-hidden', 'false');
+    loadMyReports();   // GJ M9 J27: what this person sent, and what WorkHive did about it
     // Next frame so the transform applies as a transition, not a jump
     requestAnimationFrame(() => panel.classList.add('open'));
     // Move focus inside the panel for keyboard users
@@ -532,6 +539,87 @@
     });
     document.getElementById('wh-fb-rating-block').style.display = 'none';
     document.getElementById('wh-fb-status').textContent = '';
+  }
+
+  /* ★A REPORT FROM A SIGNED-IN MEMBER WAS STORED AS ANONYMOUS, AND ITS ANSWER REACHED NO ONE (GJ M9 J27, 2026-11-06:
+     "the platform's decision, read by the buyer who reported the listing"). This panel sent every report with the public
+     key alone, so the server's own binding (trg_bind_platform_feedback_submitter: the account comes from the session,
+     never the client) had no session to read - a member's "Report listing" landed with no account on it, and the
+     founder console's answer (status, note) had nobody to go back to. Now a signed-in person's report goes with their own
+     session (the platform's stored one; a page that never signed in still sends with the public key, as before), and
+     "Your reports" lists what they sent with what WorkHive did about it (my_feedback_outcomes: their own rows only). */
+  function _whFbStoredToken() {
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i) || '';
+        if (!/^sb-.*-auth-token$/.test(k)) continue;
+        const v = JSON.parse(localStorage.getItem(k) || 'null');
+        const s = v && (v.access_token ? v : v.currentSession);
+        if (s && s.access_token && (!s.expires_at || s.expires_at * 1000 > Date.now() + 30000)) return s.access_token;
+      }
+    } catch (_) { /* empty-catch-allow: no readable session means the public key, as before */ }
+    return null;
+  }
+  async function _whFbToken() {
+    try {
+      if (window.db && window.db.auth && typeof window.db.auth.getSession === 'function') {
+        const r = await window.db.auth.getSession();
+        const t = r && r.data && r.data.session && r.data.session.access_token;
+        if (t) return t;
+      }
+    } catch (_) { /* empty-catch-allow: fall back to the stored session */ }
+    return _whFbStoredToken();
+  }
+  const _FB_STATUS = {
+    new: 'Sent, not read yet',
+    triaged: 'WorkHive has read it',
+    in_progress: 'WorkHive is working on it',
+    resolved: 'Resolved',
+    wontfix: 'WorkHive decided not to act on it',
+    duplicate: 'Handled with an earlier report',
+  };
+  async function loadMyReports() {
+    const slot = document.getElementById('wh-fb-mine');
+    if (!slot) return;
+    const tok = await _whFbToken();
+    if (!tok) { slot.hidden = true; return; }
+    let rows = null;
+    try {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/my_feedback_outcomes', {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+      if (res.ok) rows = await res.json();
+    } catch (_) { rows = null; }
+    slot.innerHTML = '';
+    const h = document.createElement('h3');
+    h.className = 'wh-fb-mine-title';
+    h.textContent = 'Your reports';
+    slot.appendChild(h);
+    if (rows === null) {
+      const p = document.createElement('p'); p.className = 'wh-fb-mine-note';
+      p.textContent = 'Your earlier reports could not be read just now.';
+      slot.appendChild(p); slot.hidden = false; return;
+    }
+    if (!rows.length) { slot.hidden = true; return; }
+    const ul = document.createElement('ul');
+    ul.className = 'wh-fb-mine-list';
+    rows.slice(0, 5).forEach((r) => {
+      const li = document.createElement('li');
+      li.setAttribute('data-record-id', r.id);
+      const when = new Date(r.updated_at || r.created_at);
+      const subj = document.createElement('strong');
+      subj.textContent = r.subject || 'Your report';
+      li.appendChild(subj);
+      const st = document.createElement('div');
+      st.textContent = (_FB_STATUS[r.status] || r.status || 'Sent') + (r.sender_reply ? ': ' + r.sender_reply : '')
+        + ' · ' + when.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric' });
+      li.appendChild(st);
+      ul.appendChild(li);
+    });
+    slot.appendChild(ul);
+    slot.hidden = false;
   }
 
   function setStatus(kind, msg) {
@@ -609,6 +697,10 @@
       // founder console's review queue. A reply needs the (optional) email, so name that condition
       // instead of implying one either way. Give the longer sentence time to be read.
       setStatus('success', _tt('Sent - it lands in the founder review queue. If you left an email, you get a reply there; there is no automated response.', 'Naipadala na - mapupunta ito sa review queue ng founder. Kung nag-iwan ka ng email, doon ka masasagot; walang automatic na sagot.'));
+      if (await _whFbToken()) {
+        setStatus('success', 'Sent. The answer from WorkHive comes back to you as a notification and under "Your reports" here.');
+        loadMyReports();
+      }
       setTimeout(() => closePanel(), 4200);
     } catch (e) {
       console.error('[wh-feedback-fab] unexpected error', e);
@@ -628,18 +720,24 @@
     try {
       // 10s timeout so a hung server doesn't strand the user behind a spinning "Sending…" button.
       const fwt = (typeof window !== 'undefined' && window.fetchWithTimeout) || null;
+      const tok = await _whFbToken();   // GJ M9 J27: a signed-in person's report carries their account
       const reqInit = {
         method: 'POST',
         headers: {
           'apikey':        SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Authorization': `Bearer ${tok || SUPABASE_KEY}`,
           'Content-Type':  'application/json',
           'Prefer':        'return=minimal',
         },
         body: JSON.stringify(row),
       };
       const url = `${SUPABASE_URL}/rest/v1/${TABLE}`;
-      const res = fwt ? await fwt(url, reqInit, 10000) : await fetch(url, reqInit);
+      let res = fwt ? await fwt(url, reqInit, 10000) : await fetch(url, reqInit);
+      // a stored session the server no longer accepts: the report still goes, with the public key, as it always did
+      if (res.status === 401 && tok) {
+        reqInit.headers.Authorization = `Bearer ${SUPABASE_KEY}`;
+        res = fwt ? await fwt(url, reqInit, 10000) : await fetch(url, reqInit);
+      }
       if (res.ok) return null;
       // PostgREST returns 400/409 with JSON body { code, message, details }
       let parsed = {};

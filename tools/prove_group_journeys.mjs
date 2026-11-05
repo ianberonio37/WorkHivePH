@@ -2822,6 +2822,548 @@ RECIPES.J15 = {
   },
 };
 
+// ── G-SVC · a service job goes wrong: the client's report, the provider's disputed bucket, WorkHive's review read by both
+// (cast: c = the client, p = the provider, o = a platform admin)
+// ★A FIXTURE, SAID IN THE RECEIPT: the job itself - hailed by the client, done and marked complete by the provider - is
+// written for the walk (its hailing, quoting and doing are J6's journey); everything from the client's report on is
+// walked through the pages. The job and everything hung on it are removed after.
+function gsvcJob(X) {
+  if (X.rec.job) return X.rec.job;
+  const { c, p } = X.S;
+  const prov = psql(`select id from service_providers where auth_uid = '${p.m.uid}' limit 1`);
+  const scope = `${X.tag} aircon not cooling in the control room - recharge and check the compressor`;
+  const id = psql(`insert into service_requests (client_auth_uid, client_worker_name, hive_id, segment, mode, custom_scope, address, urgency,
+      status, matched_provider_id, accepted_at, en_route_at, on_site_at, in_progress_at, completed_at, created_at)
+    values ('${c.m.uid}', '${q(c.m.name)}', '${HIVE_ID}', 'industrial', 'quote', '${q(scope)}', 'Control room, Plant 1', 'normal',
+      'completed', '${q(prov)}', now() - interval '5 hours', now() - interval '4 hours', now() - interval '3 hours', now() - interval '3 hours', now() - interval '30 minutes', now() - interval '6 hours')
+    returning id;`).split('\n').find((l) => /^[0-9a-f-]{36}$/.test(l.trim())) || '';
+  X.restores = [...(X.restores || []), ['the walk\'s service job and everything on it', `set session_replication_role = replica;
+      delete from service_job_events where request_id = '${q(id)}';
+      delete from service_offers where request_id = '${q(id)}';
+      delete from service_payments where request_id = '${q(id)}';
+      delete from credit_reservations where request_id = '${q(id)}';
+      delete from marketplace_reviews where request_id = '${q(id)}';
+      delete from service_requests where id = '${q(id)}';`]];
+  return (X.rec.job = { id, scope, prov });
+}
+// the provider's console opens on listings: their service jobs are its Services tab
+function svcConsoleReach(marker) {
+  return async (R2, ms) => {
+    await go(R2, 'marketplace-seller.html');
+    await R2.page.evaluate(() => { const t = document.getElementById('tab-services'); if (t) t.click(); });
+    await sleep(2500);
+    return findText(R2, marker, ms);
+  };
+}
+RECIPES['G-SVC'] = {
+  1: async (X) => {   // the client's problem report puts the job in the provider's disputed bucket
+    const { c } = X.S;
+    const job = gsvcJob(X);
+    await go(c, 'marketplace.html?section=services');
+    await sleep(2500);
+    const pressed = await c.page.evaluate((id) => {
+      const b = document.querySelector(`button[onclick="svcRaiseObjection('${id}')"]`);
+      if (b) { b.scrollIntoView({ block: 'center' }); b.click(); return true; } return false;
+    }, job.id);
+    const asked = pressed ? await modalFill(c, 'The control room is still at 29 C - it was never recharged') : false;
+    await sleep(3000);
+    const st = psql(`select status from service_requests where id = '${q(job.id)}'`);
+    return { act: { ok: pressed && asked && st === 'disputed', detail: `"Report a problem" on the finished job as ${c.m.name}: status ${st}` },
+      marker: X.tag, path: 'marketplace-seller.html', reach: svcConsoleReach(X.tag), rec: { table: 'service_requests', id: job.id } };
+  },
+  2: async (X) => {   // WorkHive's review, read by the client
+    const { o, c } = X.S;
+    const job = gsvcJob(X);
+    // the live admin surface is the founder console (platform-actions.html is retired: it renders an overlay and stops)
+    await go(o, 'founder-console.html');
+    await sleep(4000);
+    const pressed = await o.page.evaluate((id) => {
+      const b = document.querySelector(`button[data-dispute-act="client"][data-id="${id}"]`);
+      if (b) { b.scrollIntoView({ block: 'center' }); b.click(); return true; } return false;
+    }, job.id);
+    if (pressed) await modalOk(o, 4000);                                 // "Side with the client"
+    const noted = pressed ? await modalFill(o, 'The recharge was not done; the client is not charged for the visit') : false;
+    await sleep(3500);
+    const ev = psql(`select count(*) from service_job_events where request_id = '${q(job.id)}' and actor_role = 'admin'`);
+    const push = () => psql(`select count(*) from service_outbox where created_at >= '${X.t0}' and payload->'auth_uids' ? '${c.m.uid}'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where created_at >= '${X.t0}' and payload->'auth_uids' ? '${c.m.uid}' order by created_at desc limit 1`);
+    return { act: { ok: pressed && noted && Number(ev) >= 1, detail: `"Side with the client" on platform-actions as ${o.m.name}, with a note: admin events ${ev}` },
+      marker: X.tag, markerRx: /review/i, whoRx: /WorkHive|review/i, path: 'marketplace.html?section=services', channelSaid: pushSaid || null,
+      rec: { table: 'service_requests', id: job.id },
+      F: () => { const n = Number(push()); return { ok: n >= 1 && Number(ev) >= 1, detail: `push to ${c.m.name}: ${n}; WorkHive's review on the job: ${ev} admin event(s)` }; } };
+  },
+  3: async (X) => {   // the review and its credit adjustment, read by the provider
+    const { p } = X.S;
+    const job = gsvcJob(X);
+    const push = () => psql(`select count(*) from service_outbox where created_at >= '${X.t0}' and payload->'auth_uids' ? '${p.m.uid}'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where created_at >= '${X.t0}' and payload->'auth_uids' ? '${p.m.uid}' order by created_at desc limit 1`);
+    return { act: { ok: true, detail: `WorkHive's review of hand-off 2 on the job ${job.id}` },
+      marker: X.tag, markerRx: /review/i, whoRx: /WorkHive|review/i, path: 'marketplace-seller.html', reach: svcConsoleReach(X.tag), channelSaid: pushSaid || null,
+      rec: { table: 'service_requests', id: job.id },
+      F: () => { const n = Number(push()); return { ok: n >= 1, detail: `push to ${p.m.name}: ${n}` }; } };
+  },
+};
+
+// ── J6 · hire a specialist: the provider goes online, the client asks, the provider quotes, the client chooses and reviews
+// (cast: c = the client, p = the provider)
+// ★PRE-MATCH ANONYMITY IS THE DESIGN, SAID IN THE RECEIPT: until a quote is chosen the client sees providers as a count per
+// area ("N providers online now - Manila (k)") and the provider sees the request with a coarse area only
+// (v_service_open_broadcasts.area_hint: "coarse location pre-accept; exact address on match"). The person on each side is
+// named at the quote (hop 3) and on the job after it. Hops 1-2 read "who" as the area each side is told, not a name.
+// ★A FIXTURE, SAID IN THE RECEIPT: between the client choosing the quote (walked) and the review (walked), the provider's
+// travelling and doing (en route -> on site -> in progress -> marked done) is written for the walk - the doing is G-SVC's
+// and the trackers' territory. The request, its offers, events and review are removed after; the provider's availability
+// is put back.
+function j6Provider(X) {
+  if (X.rec.prov) return X.rec.prov;
+  const row = psql(`select id || '|' || availability || '|' || coalesce(display_name,'') || '|' || coalesce(service_areas[1],'')
+    from service_providers where auth_uid = '${X.S.p.m.uid}' order by created_at limit 1`);
+  const [id, avail, name, area] = row ? row.split('|') : ['', '', '', ''];
+  X.restores = [...(X.restores || []), ['the provider\'s availability put back', `update service_providers set availability = '${q(avail)}' where id = '${q(id)}';`],
+    ['the walk\'s credits taken back', `set session_replication_role = replica; delete from service_credit_ledger where note like '${q(X.tag)}%';`]];
+  // ★A FIXTURE, SAID IN THE RECEIPT: a provider takes a job only while holding 10% of it in credits (and since mig
+  // 20261106000013 may only quote what it can hold); the walk's provider is given P1,000 for the hold - topping up is the
+  // money journey's, not this one's
+  psql(`set session_replication_role = replica; insert into service_credit_ledger (account_type, account_id, entry_type, amount, note)
+    values ('provider', '${q(id)}', 'adjustment', 1000, '${q(X.tag)} walk fixture: credits for the job hold');`);
+  X.notes.push(`fixture: ${name} given P1,000 in credits for the job's 10% hold (removed after)`);
+  return (X.rec.prov = { id, avail, name, area });
+}
+function j6Cleanup(X, reqId) {
+  // the job first, so the availability restore (pushed in hop 1) runs after the job that set them on_job is gone
+  X.restores = [['the walk\'s service request and everything on it', `set session_replication_role = replica;
+      delete from service_job_events where request_id = '${q(reqId)}';
+      delete from service_offers where request_id = '${q(reqId)}';
+      delete from service_payments where request_id = '${q(reqId)}';
+      delete from credit_reservations where request_id = '${q(reqId)}';
+      delete from marketplace_reviews where request_id = '${q(reqId)}';
+      delete from service_requests where id = '${q(reqId)}';`], ...(X.restores || [])];
+}
+async function svcClientReach(R2, marker, ms, reqId) {
+  await go(R2, 'marketplace.html?section=services');
+  await sleep(2500);
+  if (reqId) {
+    await R2.page.evaluate((id) => {
+      const b = document.querySelector(`button[onclick="svcShowQuotes('${id}')"]`);
+      if (b) { b.scrollIntoView({ block: 'center' }); b.click(); }
+    }, reqId);
+    await sleep(2000);
+  }
+  return findText(R2, marker, ms);
+}
+RECIPES.J6 = {
+  1: async (X) => {   // the provider goes Online, and the client reads who is available before asking
+    const { p } = X.S;
+    const P = j6Provider(X);
+    await go(p, 'marketplace-seller.html');
+    await p.page.evaluate(() => { const t = document.getElementById('tab-services'); if (t) t.click(); });
+    await sleep(3000);
+    const press = () => p.page.evaluate((id) => {
+      const b = [...document.querySelectorAll('button[role="switch"]')].find((x) => (x.getAttribute('onclick') || '').includes(id));
+      if (b) { b.scrollIntoView({ block: 'center' }); b.click(); return b.textContent.trim(); } return null;
+    }, P.id);
+    let said1 = null;
+    if (psql(`select availability from service_providers where id = '${q(P.id)}'`) === 'online') { said1 = await press(); await sleep(3500); }
+    const said2 = await press();
+    await sleep(3500);
+    const now = psql(`select availability || '|' || (updated_at >= '${X.t0}') from service_providers where id = '${q(P.id)}'`);
+    const areaRx = new RegExp(reEsc(P.area || 'online'), 'i');
+    const stranger = await anonGet(`service_providers?id=eq.${P.id}&select=contact`);
+    return { act: { ok: now === 'online|true', detail: `the availability switch on the provider console as ${p.m.name} (${P.name}): ${said1 ? `"${said1}" then ` : ''}"${said2 || 'NO SWITCH'}" -> ${now}` },
+      marker: 'online now', markerRx: areaRx, whoRx: areaRx, path: 'marketplace.html?section=services',
+      reach: (R2, ms) => svcClientReach(R2, 'online now', ms),
+      rec: { table: 'service_providers', id: P.id },
+      I: (witness) => {
+        // the provider directory is the marketplace's cross-hive surface: another hive's member finds them too, by design;
+        // the boundary read is a stranger with only the public key, who must not read a provider at all
+        const other = Number(asUser(witness.uid, `select count(*) from service_providers where id = '${q(P.id)}'`));
+        return { ok: other === 1 && stranger.status !== 200, cross_hive_provider_rows: other, stranger_status: stranger.status,
+          note: 'a provider is cross-hive by design (any hive may hire them); the boundary read is the stranger' };
+      } };
+  },
+  2: async (X) => {   // the client's request reaches the provider's open requests
+    const { c } = X.S;
+    const scope = `${X.tag} chiller 2 tripping on high head pressure - check the condenser and the fan motor`;
+    const site = 'Plant 1 chiller deck, Manila';
+    await go(c, 'marketplace.html?section=services');
+    await sleep(3000);
+    await c.page.evaluate(() => { const t = document.getElementById('svc-quote-scope'); if (t) t.scrollIntoView({ block: 'center' }); });
+    await c.page.fill('#svc-quote-scope', scope).catch(() => {});
+    await c.page.fill('#svc-quote-budget', '6000').catch(() => {});
+    await c.page.fill('#svc-quote-address', site).catch(() => {});
+    await c.page.evaluate(() => { const b = document.getElementById('svc-quote-go'); if (b) b.click(); });
+    await sleep(3500);
+    const req = psql(`select id || '|' || status from service_requests where client_auth_uid = '${c.m.uid}' and custom_scope like '${q(X.tag)}%' order by created_at desc limit 1`);
+    const [id, st] = req ? req.split('|') : ['', ''];
+    if (id) j6Cleanup(X, id);
+    X.rec.req = { id, scope, site };
+    return { act: { ok: !!id && st === 'broadcasting', detail: `"Ask providers for quotes" as ${c.m.name}: service_requests ${id || 'NO ROW'} (${st || '-'})` },
+      marker: X.tag, whoRx: /Plant 1 chiller deck/i, path: 'marketplace-seller.html', reach: svcConsoleReach(X.tag),
+      rec: { table: 'v_service_open_broadcasts', id, idCol: 'request_id' } };
+  },
+  3: async (X) => {   // the provider's quote is on the client's request, to choose
+    const { p } = X.S;
+    const P = j6Provider(X);
+    const R = X.rec.req || {};
+    const price = 5850;
+    await go(p, 'marketplace-seller.html');
+    await p.page.evaluate(() => { const t = document.getElementById('tab-services'); if (t) t.click(); });
+    await sleep(3000);
+    await p.page.evaluate((id) => { const i = document.getElementById('svc-q-' + id); if (i) i.scrollIntoView({ block: 'center' }); }, R.id);
+    // a person holding two provider identities (their own business, and their hive's team) chooses which one answers -
+    // the walk's provider answers as their own business, the identity the census cast them in
+    const as = await p.page.evaluate(([id, pid]) => {
+      const sel = document.getElementById('svc-as-' + id); if (!sel) return null;
+      if ([...sel.options].some((o) => o.value === pid)) { sel.value = pid; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+      return sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].textContent.trim() : null;
+    }, [R.id, P.id]);
+    if (as) X.notes.push(`hand-off 3: the request reached more than one of ${p.m.name}'s provider identities; "Answer as" set to "${as}"`);
+    await p.page.fill(`#svc-q-${R.id}`, String(price)).catch(() => {});
+    const sent = await p.page.evaluate((id) => {
+      const inp = document.getElementById('svc-q-' + id); const b = inp && inp.parentElement && inp.parentElement.querySelector('button');
+      if (b) { b.click(); return b.textContent.trim(); } return null;
+    }, R.id);
+    await sleep(3500);
+    const off = psql(`select id || '|' || price from service_offers where request_id = '${q(R.id)}' and provider_id = '${q(P.id)}' and kind = 'quote' order by created_at desc limit 1`);
+    const [oid, oprice] = off ? off.split('|') : ['', ''];
+    X.rec.offer = oid;
+    const shown = '₱' + price.toLocaleString('en-US');
+    return { act: { ok: !!oid && Number(oprice) === price, detail: `"${sent || 'NO BUTTON'}" with ₱${price} on the open request as ${p.m.name}: service_offers ${oid || 'NO ROW'}` },
+      marker: shown, whoRx: new RegExp(reEsc(P.name.split(' ').slice(0, 2).join(' ')), 'i'), path: 'marketplace.html?section=services',
+      reach: (R2, ms) => svcClientReach(R2, shown, ms, R.id),
+      rec: { table: 'service_offers', id: oid } };
+  },
+  4: async (X) => {   // the client chooses the quote, the work is done, and the client's review follows the provider
+    const { c } = X.S;
+    const R = X.rec.req || {};
+    await svcClientReach(c, '₱', 8000, R.id);
+    const chose = await c.page.evaluate((oid) => {
+      const b = document.querySelector(`button[onclick="svcPickQuote('${oid}')"]`);
+      if (b) { b.scrollIntoView({ block: 'center' }); b.click(); return b.textContent.trim(); } return null;
+    }, X.rec.offer);
+    await sleep(3500);
+    const matched = psql(`select status || '|' || coalesce(matched_provider_id::text,'') from service_requests where id = '${q(R.id)}'`);
+    // the fixture: the provider's travelling and doing, then "marked done" (named in the receipt)
+    psql(`set session_replication_role = replica; update service_requests set status = 'completed', en_route_at = now() - interval '3 hours',
+      on_site_at = now() - interval '2 hours', in_progress_at = now() - interval '2 hours', completed_at = now() - interval '20 minutes'
+      where id = '${q(R.id)}';`);
+    X.notes.push(`hand-off 4: after "${chose}" (${matched}), the provider's en route -> on site -> in progress -> marked done was written for the walk (a fixture)`);
+    X.notes.push('hand-off 4: the census page is marketplace-seller-profile.html, the PARTS sellers\' profile (reviews by listing); a service provider has no public profile page, so the review is read where it follows the provider - their own console, and the next client\'s quote (service_provider_record)');
+    await go(c, 'marketplace.html?section=services');
+    await sleep(3000);
+    await c.page.evaluate((id) => { const b = document.querySelector(`button[onclick="svcRateProvider('${id}')"]`); if (b) { b.scrollIntoView({ block: 'center' }); b.click(); } }, R.id);
+    await sleep(800);
+    const said = `${X.tag}-R found the fouled condenser fast, cleaned it and the chiller holds pressure now`;
+    await c.page.fill(`#svc-rate-comment-${R.id}`, said).catch(() => {});
+    await c.page.evaluate(() => { const s = document.querySelector('button[data-svc-star="5"]'); if (s) s.click(); });
+    await sleep(3000);
+    const rv = psql(`select id from marketplace_reviews where request_id = '${q(R.id)}' and direction = 'client_to_provider' limit 1`);
+    return { act: { ok: !!chose && matched.startsWith('accepted|') && !!rv, detail: `"${chose || 'NO BUTTON'}" (${matched}); then "Rate provider" 5 stars with a sentence as ${c.m.name}: marketplace_reviews ${rv || 'NO ROW'}` },
+      marker: said.slice(0, 40), path: 'marketplace-seller.html', reach: svcConsoleReach(said.slice(0, 40)),
+      rec: { table: 'marketplace_reviews', id: rv },
+      I: (witness) => {
+        // the review's sentence is FOR other clients (the field says so) - another hive's member reads it on the provider's
+        // record, by design; the boundary read is the job itself, which stays the two parties'
+        const other = Number(asUser(witness.uid, `select count(*) from v_service_provider_truth where latest_review_comment like '${q(X.tag)}%'`));
+        const job = Number(asUser(witness.uid, `select count(*) from service_requests where id = '${q(R.id)}'`));
+        return { ok: other === 1 && job === 0, cross_hive_review_rows: other, foreign_job_rows: job,
+          note: 'the review is published on the provider\'s record by design; the boundary read is the job' };
+      } };
+  },
+};
+
+// ── J10 · the vehicle owner's month: the owner's unit and its PM, the driver's job on it with the part it took, the cost
+// (cast: o = the fleet's owner, a supervisor; d = the driver, a worker)
+// The unit is registered the product's own two ways (the logbook's asset form, then the hive's approval queue - J22's
+// steps); the PM plan is the Add Asset wizard (J3's); the driver closes a job on the unit with a part from the shelf; the
+// owner reads that job in the parts cost per machine (analytics, the card mig 20261106000010 made computable: the part's
+// unit cost x the quantity the driver logged, joined by the part's ID). The part's count and its movement are put back.
+async function logWithPart(p, tag, nodeId, problem, part, qty) {   // the logbook wizard, closed, with a part from the shelf
+  await go(p, 'logbook.html');
+  await p.page.click('#asset-picker-btn', { timeout: 6000 }).catch(() => {});
+  await sleep(800);
+  await p.page.fill('#asset-picker-search', tag).catch(() => {});
+  await sleep(900);
+  await p.page.click(`button[data-asset-ref="${nodeId}"]`, { timeout: 6000 }).catch(() => {});
+  await sleep(600);
+  await p.page.selectOption('#f-maint-type', { label: 'Breakdown / Corrective' }).catch(() => p.page.selectOption('#f-maint-type', { value: 'Breakdown' }).catch(() => {}));
+  await p.page.fill('#f-problem', `${tag} ${problem}`).catch(() => {});
+  await p.page.selectOption('#f-category', { label: 'Mechanical' }).catch(() => {});
+  await p.page.click('.btn-next:visible').catch(() => {});
+  await sleep(450);
+  await p.page.fill('#f-action', `replaced the ${part.name.toLowerCase()}, test drove 5 km, brakes hold`).catch(() => {});
+  // the job is done: Closed is the person's tap on the status toggle, which is what shows "Parts Used"
+  await p.page.evaluate(() => {
+    const r = document.querySelector('input[name="f-status"][value="Closed"]');
+    if (r) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); }
+  });
+  await sleep(1500);
+  await p.page.evaluate(() => { const b = document.getElementById('btn-add-part'); if (b) b.click(); });
+  await sleep(800);
+  await p.page.fill('#parts-picker-search', part.name).catch(() => {});
+  await sleep(900);
+  const picked = await p.page.evaluate((id) => { const b = document.querySelector(`#parts-picker-list button[data-part-id="${id}"]`); if (b && !b.disabled) { b.click(); return true; } return false; }, part.id);
+  await sleep(500);
+  await p.page.evaluate((n) => {
+    const i = document.querySelector('#selected-parts-display input[type="number"]');
+    if (i) { i.value = String(n); i.dispatchEvent(new Event('change', { bubbles: true })); }
+  }, qty);
+  await p.page.evaluate(() => { const b = [...document.querySelectorAll('.consequence-btn')].find((x) => /stopped production|reduced/i.test((x.getAttribute('data-value') || '') + ' ' + x.textContent)); if (b) b.click(); });
+  // closing a job asks the person to confirm they read its work tasklist ("Please acknowledge you have read the work
+  // tasklist before closing") - the driver ticks it, as the page asks
+  await p.page.evaluate(() => {
+    const c = document.getElementById('tasklist-ack-check');
+    if (c && !c.checked) { const l = document.getElementById('tasklist-ack-label'); if (l) l.click(); }
+  });
+  await sleep(300);
+  await p.page.click('#save-entry-btn').catch(() => {});
+  await sleep(3500);
+  const toast = await p.page.evaluate(() => { const t = document.getElementById('toast-text'); return t ? t.textContent.trim() : ''; }).catch(() => '');
+  if (/already logged today\.?\s*submit again/i.test(toast)) { await p.page.click('#save-entry-btn').catch(() => {}); await sleep(3500); }
+  const row = psql(`select id || '|' || coalesce(asset_node_id::text,'') || '|' || status || '|' || coalesce(parts_used::text,'') from logbook
+    where problem like '${q(tag)}%' and hive_id = '${HIVE_ID}' order by created_at desc limit 1`);
+  return { row, picked };
+}
+RECIPES.J10 = {
+  1: async (X) => {   // the unit the owner registered is in the driver's list
+    // ★THE FLEET OWNER'S OWN DOOR: integrations' "Add my vehicle" wizard - the vehicle is an asset with its plate and
+    // odometer (vehicle_meta), its PM schedule and its starter parts, in one act. The logbook's machine form has no
+    // vehicle type at all. The make carries the walk's tag, so the vehicle's name does too (the cleanup's handle).
+    const { o } = X.S;
+    const make = `${X.tag} Isuzu`, model = 'NLR delivery truck';
+    X.unit = `${make} ${model}`;
+    X.restores = [...(X.restores || []), ['the wizard\'s starter parts', `delete from inventory_transactions where item_id in (select id from inventory_items where hive_id = '${HIVE_ID}' and notes like '%(${q(X.unit)})%');
+      delete from inventory_items where hive_id = '${HIVE_ID}' and notes like '%(${q(X.unit)})%';`]];
+    await go(o, 'integrations.html');
+    await sleep(2500);
+    await o.page.evaluate(() => { const b = document.getElementById('veh-open'); if (b) { b.scrollIntoView({ block: 'center' }); b.click(); } });
+    await sleep(1200);
+    await o.page.fill('#veh-make', make).catch(() => {});
+    await o.page.fill('#veh-model', model).catch(() => {});
+    await o.page.fill('#veh-plate', `NBX ${String(Date.now()).slice(-4)}`).catch(() => {});
+    await o.page.fill('#veh-odo', '48210').catch(() => {});
+    const scope = await o.page.evaluate(() => {
+      const r = document.getElementById('veh-scope-hive');
+      if (r && !r.disabled) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); return 'fleet'; }
+      return r ? 'personal only' : 'no choice shown';
+    });
+    await o.page.evaluate(() => { if (typeof vehToStep2 === 'function') vehToStep2(); });
+    await sleep(900);
+    await o.page.evaluate(() => { if (typeof vehToStep3 === 'function') vehToStep3(); });
+    await sleep(900);
+    await o.page.evaluate(() => { const b = document.getElementById('veh-create'); if (b) b.click(); });
+    await sleep(5000);
+    const node = psql(`select id || '|' || coalesce(status,'') || '|' || coalesce(pm_asset_id::text,'') from asset_nodes where hive_id = '${HIVE_ID}' and name = '${q(X.unit)}' limit 1`);
+    const [nid, st, pmid] = node ? node.split('|') : ['', '', ''];
+    const tasks = pmid ? psql(`select count(*) from pm_scope_items where asset_id = '${q(pmid)}'`) : '0';
+    X.rec.node = { id: nid, name: X.unit };
+    X.rec.pm = { id: pmid, name: X.unit };
+    return { act: { ok: !!nid && !!pmid && Number(tasks) > 0, detail: `"Add my vehicle" on integrations as ${o.m.name} (${scope}): asset_nodes ${nid || 'NO ROW'} (${st || '-'}), its PM schedule ${pmid || 'none'} with ${tasks} task(s)` },
+      marker: X.unit, path: 'asset-hub.html',
+      reach: async (R2, ms) => {
+        await go(R2, 'asset-hub.html');
+        await R2.page.fill('#asset-search', X.unit).catch(() => {});
+        await sleep(1500);
+        return findText(R2, X.unit, ms);
+      },
+      rec: { table: 'asset_nodes', id: nid } };
+  },
+  2: async (X) => {   // the driver's job on the unit, with the part it took, reaches the owner's logbook
+    const { d } = X.S;
+    const n = X.rec.node || {};
+    const prow = psql(`select id || '|' || part_name || '|' || qty_on_hand || '|' || coalesce(unit_cost::text,'') from inventory_items
+      where hive_id = '${HIVE_ID}' and part_name = 'Front brake pad set' and deleted_at is null limit 1`);
+    const [pid, pname, pqty, pcost] = prow ? prow.split('|') : ['', '', '', ''];
+    X.rec.part = { id: pid, name: pname, before: pqty, cost: Number(pcost || 0), qty: 1 };
+    X.restores = [...(X.restores || []), ['the part the driver took, back on the shelf', `update inventory_items set qty_on_hand = ${Number(pqty || 0)} where id = '${q(pid)}';
+      delete from inventory_transactions where item_id = '${q(pid)}' and created_at >= '${X.t0}';`]];
+    const { row, picked } = await logWithPart(d, X.tag, n.id, 'front brakes grinding, pads down to the backing plate', { id: pid, name: pname }, 1);
+    const [id, node, st, parts] = row ? row.split('|') : [null, null, null, ''];
+    const took = psql(`select qty_on_hand from inventory_items where id = '${q(pid)}'`);
+    X.rec.entry = id;
+    return { act: { ok: !!id && node === n.id && st === 'Closed' && parts.includes(pid), detail: `the logbook wizard on ${n.name} as ${d.m.name}, Closed with "${pname}" x1 from the parts picker (picked ${picked}): entry ${id || 'NO ROW'} (${st || '-'}), parts ${parts.slice(0, 120) || 'none'}; the shelf ${pqty} -> ${took}` },
+      marker: X.tag, path: 'logbook.html', reach: (R2, ms) => reachTeam(R2, X.tag, ms), rec: { table: 'logbook', id } };
+  },
+  3: async (X) => {   // the owner's PM for the unit is on the driver's list - the schedule the vehicle wizard set at hand-off 1
+    const pm = X.rec.pm || {};
+    const tasks = pm.id ? psql(`select count(*) from pm_scope_items where asset_id = '${q(pm.id)}'`) : '0';
+    return { act: { ok: !!pm.id && Number(tasks) > 0, detail: `the PM schedule "Add my vehicle" set for ${pm.name} at hand-off 1: pm_assets ${pm.id || 'NONE'} with ${tasks} task(s)` },
+      marker: pm.name, path: 'pm-scheduler.html', reach: (R2, ms) => findPmAsset(R2, pm.name, ms), rec: { table: 'pm_assets', id: pm.id } };
+  },
+  4: async (X) => {   // the driver's job is in the owner's parts cost for the unit
+    const { o } = X.S;
+    const n = X.rec.node || {};
+    const pt = X.rec.part || {};
+    const expect = Math.round(pt.cost * pt.qty * 100) / 100;
+    const got = () => asUser(o.m.uid, `select coalesce(parts_cost::text,'') || '|' || coalesce(last_logged_by,'') from parts_cost_by_asset('${HIVE_ID}', 90) where asset_node_id = '${q(n.id || '')}'`) || '';
+    const said = got();
+    const shown = '₱' + expect.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return { act: { ok: Number(said.split('|')[0]) === expect, detail: `${n.name}: "${pt.name}" x${pt.qty} at ₱${pt.cost} (set on the part) = ${shown}; parts_cost_by_asset read as ${o.m.name}: ${said || 'NO ROW'}` },
+      marker: X.tag, markerRx: new RegExp(reEsc(shown)), path: 'analytics.html',
+      reach: async (R2, ms) => { await go(R2, 'analytics.html'); await sleep(4000); return findText(R2, X.tag, ms); },
+      rec: { table: 'logbook', id: X.rec.entry },
+      F: () => { const v = got(); return { ok: Number(v.split('|')[0]) === expect, detail: `parts_cost_by_asset(${HIVE_ID}, 90) for ${n.name} read as ${o.m.name}: ${v || 'NO ROW'} (expected ${shown})` }; },
+      I: (witness) => {
+        const other = Number(asUser(witness.uid, `select count(*) from parts_cost_by_asset('${HIVE_ID}', 90)`) || 0);
+        const mine = Number(asUser(o.m.uid, `select count(*) from parts_cost_by_asset('${HIVE_ID}', 90) where asset_node_id = '${q(n.id || '')}'`) || 0);
+        return { ok: mine === 1 && other === 0, receiver_rows: mine, foreign: witness.user, foreign_rows: other };
+      } };
+  },
+};
+
+// ── J27 · a parts deal goes wrong - RE-PREMISED ON THE LIVE PRODUCT (2026-11-06)
+// (cast: b = the buyer, v = the seller, o = WorkHive's admin)
+// The census named a dispute, the seller's reply on the buyer's ORDER, and the admin's resolution. The parts-escrow dispute
+// loop was retired on 2026-08-03 (marketplace_disputes had no client writer; parts deals settle between the two accounts),
+// so the walk follows the product's real model of a deal gone wrong: (1) the buyer's low review, in the seller's console;
+// (2) the seller's public answer under it; (3) the buyer's "Report listing" answered by WorkHive; (4) WorkHive taking the
+// listing down, read by its seller. Rebuilding parts escrow would be Ian's product decision, not a walk's.
+async function sellerConsoleTab(R2, tab) {
+  await go(R2, 'marketplace-seller.html');
+  await R2.page.evaluate((t) => { const b = document.getElementById('tab-' + t); if (b) b.click(); }, tab);
+  await sleep(2500);
+}
+RECIPES.J27 = {
+  1: async (X) => {   // the buyer's complaint - a two-star review with its words - is in the seller's console
+    const { b, v } = X.S;
+    const L = j5Listing(X);
+    // a review needs the buyer to have asked about the listing first (the review policy: an inquiry of theirs on it)
+    await openListing(b, L.id, L.title);
+    await b.page.evaluate(() => { const c = document.getElementById('btn-detail-contact'); if (c) c.click(); });
+    await sleep(1500);
+    await b.page.fill('#inq-name', b.m.name).catch(() => {});
+    await b.page.fill('#inq-contact', '0917 555 0188').catch(() => {});
+    await b.page.fill('#inq-message', `${X.tag} are these the same cartridges as in the photos? Need them this week.`).catch(() => {});
+    await b.page.evaluate(() => { const s = document.getElementById('btn-submit-inquiry'); if (s) s.click(); });
+    await sleep(3000);
+    await openListing(b, L.id, L.title);
+    await b.page.evaluate(() => { const o = document.getElementById('btn-open-review'); if (o) o.click(); });
+    await sleep(800);
+    await b.page.selectOption('#review-rating', '2').catch(() => {});
+    const comment = `${X.tag} two of the eight cartridges arrived cracked, and the photos showed them whole`;
+    await b.page.fill('#review-comment', comment).catch(() => {});
+    await b.page.evaluate(() => { const s = document.getElementById('btn-submit-review'); if (s) s.click(); });
+    await sleep(3000);
+    const rid = psql(`select id from marketplace_reviews where comment like '${q(X.tag)}%' order by created_at desc limit 1`);
+    X.rec.review = rid;
+    return { act: { ok: !!rid, detail: `"Contact seller", then "Write a review" (2 stars, with its words) on "${L.title}" as ${b.m.name}: marketplace_reviews ${rid || 'NO ROW'}` },
+      marker: X.tag, path: 'marketplace-seller.html',
+      reach: async (R2, ms) => { await sellerConsoleTab(R2, 'inquiries'); return findText(R2, comment.slice(0, 40), ms); },
+      rec: { table: 'marketplace_reviews', id: rid },
+      I: (witness) => {
+        const other = Number(asUser(witness.uid, `select count(*) from marketplace_reviews where id = '${q(rid)}'`));
+        const acct = psql(`select has_column_privilege('anon', 'public.marketplace_reviews', 'reviewer_auth_uid', 'SELECT')::text`);
+        return { ok: other === 1 && acct === 'false', other_hive_reads_the_public_review: other, stranger_may_read_reviewer_account: acct,
+          note: 'a review is public by design; the boundary is the reviewer\'s account' };
+      } };
+  },
+  2: async (X) => {   // the seller's answer is under the buyer's review, and the buyer is told
+    const { b, v } = X.S;
+    const L = j5Listing(X);
+    const rid = X.rec.review;
+    const answer = `${X.tag}-A sorry about that - two replacement cartridges ship to you today, no charge`;
+    await sellerConsoleTab(v, 'inquiries');
+    await v.page.evaluate((id) => { const t = document.getElementById('rv-reply-' + id); if (t) t.scrollIntoView({ block: 'center' }); }, rid);
+    await v.page.fill(`#rv-reply-${rid}`, answer).catch(() => {});
+    const pressed = await v.page.evaluate((id) => { const btn = document.querySelector(`button[data-action="review-reply"][data-id="${id}"]`); if (btn) { btn.click(); return btn.textContent.trim(); } return null; }, rid);
+    await sleep(3500);
+    const got = psql(`select coalesce(seller_reply,'') || '|' || coalesce(seller_replied_by,'') from marketplace_reviews where id = '${q(rid)}'`);
+    const push = () => Number(psql(`select count(*) from service_outbox where created_at >= '${X.t0}' and payload->'auth_uids' ? '${b.m.uid}' and payload->>'title' = 'The seller answered your review'`));
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where created_at >= '${X.t0}' and payload->'auth_uids' ? '${b.m.uid}' and payload->>'title' = 'The seller answered your review' order by created_at desc limit 1`);
+    return { act: { ok: got.startsWith(answer) && !!pressed, detail: `"${pressed || 'NO BUTTON'}" under the review in the seller console as ${v.m.name}: ${got.slice(0, 120) || 'NO REPLY'}` },
+      marker: answer.slice(0, 40), path: 'marketplace.html', channelSaid: pushSaid || null,
+      reach: async (R2, ms) => { await openListing(R2, L.id, L.title); return findText(R2, answer.slice(0, 40), ms); },
+      rec: { table: 'marketplace_reviews', id: rid },
+      F: () => { const n = push(); const r = asUser(b.m.uid, `select coalesce(seller_reply,'') from marketplace_reviews where id = '${q(rid)}'`) || '';
+        return { ok: n >= 1 && r.startsWith(answer), detail: `push to ${b.m.name}: ${n}; the answer read as ${b.m.name}: ${r.slice(0, 80) || 'none'}` }; },
+      I: (witness) => {
+        const other = asUser(witness.uid, `select coalesce(seller_reply,'') from marketplace_reviews where id = '${q(rid)}'`) || '';
+        const forged = psql(`select has_column_privilege('authenticated', 'public.marketplace_reviews', 'seller_reply', 'UPDATE')::text`);
+        return { ok: other.startsWith(answer) && forged === 'false', other_hive_reads_the_public_answer: other.slice(0, 40), a_client_may_write_a_reply: forged,
+          note: 'the answer is public like the review; the boundary is that only the listing\'s seller writes it (reply_to_listing_review)' };
+      } };
+  },
+  3: async (X) => {   // the buyer reports the listing, WorkHive answers, and the buyer reads the answer
+    const { b, o } = X.S;
+    const L = j5Listing(X);
+    X.restores = [...(X.restores || []), ['the walk\'s report', `delete from platform_feedback where body like '${q(X.tag)}%';`]];
+    await openListing(b, L.id, L.title);
+    await b.page.evaluate(() => { const r = document.querySelector('.wh-report-listing'); if (r) { r.scrollIntoView({ block: 'center' }); r.click(); } });
+    await sleep(1200);
+    await b.page.evaluate(() => { const k = document.querySelector('#wh-feedback-panel [data-kind="bug"]'); if (k) k.click(); });
+    await b.page.fill('#wh-fb-body', `${X.tag} two cartridges arrived cracked; the listing photos show them whole`).catch(() => {});
+    await b.page.evaluate(() => { const s = document.getElementById('wh-fb-submit-btn'); if (s) s.click(); });
+    await sleep(3500);
+    const fb = psql(`select id || '|' || coalesce(auth_uid::text,'') || '|' || coalesce(subject,'') from platform_feedback where body like '${q(X.tag)}%' order by created_at desc limit 1`);
+    const [fid, fuid, fsubj] = fb ? fb.split('|') : ['', '', ''];
+    // WorkHive's admin answers it on the founder console's Feedback inbox
+    await go(o, 'founder-console.html');
+    await sleep(4000);
+    await o.page.evaluate(() => { const s = document.getElementById('sec-feedback'); const d = s && s.closest('details'); if (d) d.open = true; if (s) s.scrollIntoView({ block: 'start' }); });
+    await sleep(2500);
+    const opened = await o.page.evaluate((id) => { const c = document.querySelector(`button[data-fb-id="${id}"]`); if (c) { c.click(); return true; } return false; }, fid);
+    await sleep(1500);
+    const reply = `${X.tag}-W We checked with the seller: two replacement cartridges ship to you today`;
+    await o.page.evaluate(() => { const s = document.getElementById('fb-d-status'); if (s) { s.value = 'resolved'; s.dispatchEvent(new Event('change', { bubbles: true })); } });
+    await o.page.fill('#fb-d-reply', reply).catch(() => {});
+    await o.page.evaluate(() => { const b2 = document.getElementById('fb-d-save'); if (b2) b2.click(); });
+    await sleep(3500);
+    const st = psql(`select status || '|' || coalesce(sender_reply,'') from platform_feedback where id = '${q(fid)}'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where created_at >= '${X.t0}' and payload->'auth_uids' ? '${b.m.uid}' and payload->>'title' = 'WorkHive answered your report' order by created_at desc limit 1`);
+    return { act: { ok: !!fid && fuid === b.m.uid && opened && st.startsWith('resolved|' + reply.slice(0, 20)),
+        detail: `"Report listing" -> the feedback panel as ${b.m.name}: platform_feedback ${fid || 'NO ROW'} (account bound: ${fuid === b.m.uid}, "${fsubj.slice(0, 60)}"); answered on the founder console as ${o.m.name}: ${st.slice(0, 90) || 'NOT SAVED'}` },
+      marker: reply.slice(0, 40), whoRx: /WorkHive|Resolved/i, path: 'marketplace.html', channelSaid: pushSaid || null,
+      reach: async (R2, ms) => {
+        await go(R2, 'marketplace.html');
+        await R2.page.evaluate(() => { const f = document.getElementById('wh-feedback-fab'); if (f) f.click(); });
+        await sleep(2500);
+        return findText(R2, reply.slice(0, 40), ms);
+      },
+      rec: { table: 'platform_feedback', id: fid },
+      F: () => {
+        const mine = Number(asUser(b.m.uid, `select count(*) from my_feedback_outcomes() where id = '${q(fid)}' and status = 'resolved' and sender_reply like '${q(X.tag)}%'`) || 0);
+        return { ok: mine === 1 && !!pushSaid, detail: `my_feedback_outcomes() read as ${b.m.name}: ${mine} (resolved, with the answer); the push: ${pushSaid || 'NONE'}` };
+      },
+      I: (witness) => {
+        const other = Number(asUser(witness.uid, `select count(*) from my_feedback_outcomes() where id = '${q(fid)}'`) || 0);
+        const raw = Number(asUser(witness.uid, `select count(*) from platform_feedback where id = '${q(fid)}'`) || 0);
+        return { ok: other === 0 && raw === 0, receiver_rows: 1, foreign: witness.user, foreign_outcome_rows: other, foreign_table_rows: raw };
+      } };
+  },
+  4: async (X) => {   // WorkHive takes the listing down with a reason, and the seller reads why
+    const { o, v } = X.S;
+    const L = j5Listing(X);
+    const kept = psql(`select status || '|' || coalesce(moderation_reason,'') || '|' || coalesce(moderated_at::text,'') || '|' || coalesce(moderated_by,'') from marketplace_listings where id = '${q(L.id)}'`);
+    const [ks, kr, ka, kb] = kept ? kept.split('|') : ['published', '', '', ''];
+    const lit = (x) => (x ? `'${q(x)}'` : 'null');
+    X.restores = [...(X.restores || []), ['the listing put back as it was', `set session_replication_role = replica;
+      update marketplace_listings set status = '${q(ks)}', moderation_reason = ${lit(kr)}, moderated_at = ${lit(ka)}, moderated_by = ${lit(kb)} where id = '${q(L.id)}';`]];
+    const reason = `${X.tag}-M the photos do not match the cartridges a buyer received; retake them before relisting`;
+    await go(o, 'marketplace-admin.html');
+    await sleep(3000);
+    await o.page.evaluate(() => { const t = document.getElementById('tab-published'); if (t) t.click(); });
+    await sleep(3000);
+    const pressed = await o.page.evaluate((id) => { const btn = document.querySelector(`button[data-action="unpublish"][data-id="${id}"]`); if (btn) { btn.scrollIntoView({ block: 'center' }); btn.click(); return true; } return false; }, L.id);
+    const asked = pressed ? await modalFill(o, reason) : false;
+    await sleep(3500);
+    const st = psql(`select status || '|' || coalesce(moderation_reason,'') || '|' || coalesce(moderated_by,'') from marketplace_listings where id = '${q(L.id)}'`);
+    const pushSaid = psql(`select coalesce(payload->>'title','') || ': ' || coalesce(payload->>'body','') from service_outbox
+      where created_at >= '${X.t0}' and payload->'auth_uids' ? '${v.m.uid}' and payload->>'title' like 'Your listing was%' order by created_at desc limit 1`);
+    return { act: { ok: pressed && asked && st.startsWith('draft|' + reason.slice(0, 20)), detail: `"Unpublish" on "${L.title}" in the marketplace admin as ${o.m.name}, with a reason: ${st.slice(0, 120) || 'unchanged'}` },
+      marker: reason.slice(0, 40), path: 'marketplace-seller.html', channelSaid: pushSaid || null,
+      reach: async (R2, ms) => { await sellerConsoleTab(R2, 'listings'); return findText(R2, reason.slice(0, 40), ms); },
+      rec: { table: 'v_marketplace_listings_truth', id: L.id, where: `and status = 'draft'` },
+      F: () => {
+        const r = Number(asUser(v.m.uid, `select count(*) from v_marketplace_listings_truth where id = '${q(L.id)}' and status = 'draft' and moderation_reason like '${q(X.tag)}%'`) || 0);
+        return { ok: r === 1 && !!pushSaid, detail: `the listing and its reason read as ${v.m.name}: ${r}; the push: ${pushSaid || 'NONE'}` };
+      } };
+  },
+};
+
 // ── G-ADV · the record reached for from outside: the hand-off stays inside its hive, refused in words
 RECIPES['G-ADV'] = {
   1: (X) => RECIPES.J2[1](X),

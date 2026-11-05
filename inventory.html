@@ -566,6 +566,13 @@
           <label for="f-lead-time" class="wh-label"><span data-i="leadtime">Lead Time (days)</span> <span class="text-white/80 font-normal normal-case" data-i="leadtimehint">(supplier delivery time, shown when a reorder is suggested)</span></label>
           <input id="f-lead-time" type="number" min="0" max="365" step="1" class="wh-input" placeholder="e.g. 7" />
         </div>
+        <!-- WHAT ONE COSTS (GJ M9 J10, 2026-11-06): no price existed anywhere on the platform, so no page could say what a
+             machine's repairs cost in parts. Optional, and empty means "not recorded" - never zero. The server stamps who set
+             it and when. -->
+        <div>
+          <label for="f-unit-cost" class="wh-label">Unit cost (₱) <span class="text-white/80 font-normal normal-case">(optional - what one costs today; it prices this part in the analytics parts cost)</span></label>
+          <input id="f-unit-cost" type="number" min="0" max="10000000" step="0.01" inputmode="decimal" class="wh-input" placeholder="e.g. 450" />
+        </div>
         <div>
           <label class="wh-label"><span data-i="linktoassets">Link to Assets</span> <span class="text-white/80 font-normal normal-case" data-i="whichmachines">(which machines use this part?)</span></label>
           <!-- HS L4 (2026-10-30, "a year of the hive"): 251 machines drawn as chips with no way to find one -->
@@ -1869,6 +1876,7 @@ function openAddModal(prefillId) {
   document.getElementById('f-qty').value       = '';
   document.getElementById('f-min-qty').value   = '';
   document.getElementById('f-lead-time').value = '';
+  document.getElementById('f-unit-cost').value = '';
   document.getElementById('f-unit').value      = 'pcs';
   document.getElementById('f-photo-preview').style.display = 'none';
   document.getElementById('f-photo-preview').classList.add('hidden');
@@ -1889,6 +1897,7 @@ function openAddModal(prefillId) {
     document.getElementById('f-location').value    = item.bin_location || '';
     // Nullable metadata: '' round-trips to null in submitPart, so an untouched field never writes 0.
     document.getElementById('f-lead-time').value   = (item.lead_time_days ?? '') === '' ? '' : String(item.lead_time_days);
+    document.getElementById('f-unit-cost').value   = (item.unit_cost ?? '') === '' ? '' : String(item.unit_cost);
     document.getElementById('f-notes').value       = item.notes || '';
     // Phase 5b.2: populate from uuid array, mapping back to display codes so
     // the picker UI keeps its (asset_id text) semantics. Codes without a uuid
@@ -1988,6 +1997,9 @@ async function submitPart() {
   // Mirrors the DB CHECK inventory_items_lead_time_days_sane (mig …070): 0–365 whole days or empty.
   const _lt = document.getElementById('f-lead-time').value.trim();
   if (_lt !== '' && (!/^\d+$/.test(_lt) || parseInt(_lt, 10) > 365)) { showFormError(errEl, 'Lead Time must be a whole number of days between 0 and 365, or left empty.'); document.getElementById('f-lead-time').focus(); return; }
+  // Mirrors the DB CHECK inventory_items_unit_cost_sane: a peso amount 0 - 10,000,000 with at most two decimals, or empty.
+  const _uc = document.getElementById('f-unit-cost').value.trim();
+  if (_uc !== '' && (!/^\d+(\.\d{1,2})?$/.test(_uc) || parseFloat(_uc) > 10000000)) { showFormError(errEl, 'Unit cost must be a peso amount (up to two decimals), or left empty.'); document.getElementById('f-unit-cost').focus(); return; }
 
   const items = loadInventory();
   if (items.some(i => i.part_number.toUpperCase() === partNumber.toUpperCase() && i.id !== editingItemId)) {
@@ -2016,6 +2028,7 @@ async function submitPart() {
     // Nullable on purpose: an empty field writes null ("not recorded"), never 0 — the reorder
     // banner tells those two apart and must not be fed a fabricated same-day lead time.
     lead_time_days:    _lt === '' ? null : parseInt(_lt, 10),
+    unit_cost:         _uc === '' ? null : Number(_uc),   // null = not recorded; who set it is the server's stamp
     // Phase 5b.2: write canonical uuids. selectedAssetIds holds display codes
     // (asset_id text); _assetIdToNodeId maps each to its asset_node uuid.
     // Codes without a matching node are dropped (they aren't in asset_nodes
@@ -2704,6 +2717,8 @@ function openDetailModal(id) {
         <div class="text-xs text-white/80 uppercase tracking-wider mt-0.5">Location</div>
       </div>
     </div>
+    ${item.unit_cost != null ? `
+    <p class="text-xs text-white/85 mb-4" data-fig="unit-cost">Unit cost ₱${escHtml(Number(item.unit_cost).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))} per ${escHtml(item.unit || 'pcs')}${item.unit_cost_set_by ? ` · set by ${escHtml(item.unit_cost_set_by)}` : ''}${item.unit_cost_set_at ? `, ${escHtml(new Date(item.unit_cost_set_at).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' }))}` : ''}</p>` : ''}
 
     ${(item.linked_asset_node_ids || []).length > 0 ? `
     <div class="mb-4">

@@ -3196,7 +3196,7 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     try {
       const { data: reviews } = await db
         .from('marketplace_reviews')
-        .select('reviewer_name,rating,comment,created_at,verified_purchase')
+        .select('id,reviewer_name,rating,comment,created_at,verified_purchase,seller_reply,seller_replied_at,seller_replied_by')
         .eq('listing_id', id)
         .order('created_at', { ascending: false })
         .order('id', { ascending: false })   // MR4 tiebreaker: created_at alone is not a total order
@@ -3215,6 +3215,10 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
               <span class="review-date">${e(timeAgo(rv.created_at))}</span>
             </div>
             <p class="review-text">${e(rv.comment)}</p>
+            ${rv.seller_reply ? `<div class="review-reply" data-record-id="${e(rv.id)}" style="margin:0.375rem 0 0 0.75rem;padding-left:0.625rem;border-left:2px solid var(--wh-white-12, rgba(255,255,255,0.12));font-size:var(--wh-fs-xs, 0.8125rem);">
+              <span style="font-weight:600;">${e(rv.seller_replied_by || 'The seller')} answered</span>${rv.seller_replied_at ? ` <span class="review-date">${e(timeAgo(rv.seller_replied_at))}</span>` : ''}
+              <p class="review-text" style="margin:0.125rem 0 0;">${e(rv.seller_reply)}</p>
+            </div>` : ''}
           </div>`).join('')
           + (_rvMore ? '<p class="review-text" data-wh-more-note role="note">Showing the 5 most recent reviews of this listing. There are more.</p>' : '');
       }
@@ -4948,12 +4952,15 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     if (error) { showToast(_svcErrorText(error, false), 'error'); return; }
     if (!offers || !offers.length) { slot.innerHTML = '<p style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.8;">No quotes yet - check back soon.</p>'; return; }
     const ids = offers.map(o => o.provider_id);
-    const { data: provs } = await db.from('v_service_provider_truth').select('id, provider_type, display_name, verified, completed_jobs, rating_avg, rating_count, tier').in('id', ids).limit(50);   // cap-ok (LB1): its largest group (the whole table) is far under 50 - sized live by list-caps-say-more   // in-list-bounded: the providers who quoted on one request
+    const { data: provs } = await db.from('v_service_provider_truth').select('id, provider_type, display_name, verified, completed_jobs, rating_avg, rating_count, tier, latest_review_rating, latest_review_comment, latest_review_by, latest_review_at').in('id', ids).limit(50);   // cap-ok (LB1): its largest group (the whole table) is far under 50 - sized live by list-caps-say-more   // in-list-bounded: the providers who quoted on one request
     const byId = {}; (provs || []).forEach(p => { byId[p.id] = p; });
     slot.innerHTML = offers.map(o => {
       const p = byId[o.provider_id] || {};
       return '<div style="border:1px solid var(--wh-white-12, rgba(255,255,255,0.12));border-radius:var(--wh-radius-sm);padding:0.6rem 0.7rem;margin:0.35rem 0;">' +
         '<strong>₱' + Number(o.price || 0).toLocaleString() + '</strong> - ' + e(p.display_name || 'Provider') +
+        // when the quote was sent (GJ M9 J6, 2026-11-06): three quotes read the same whether one came a minute ago and
+        // another yesterday, and a price can be stale
+        (o.created_at && typeof whFmtAgo === 'function' ? ' <span style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.8;">· sent ' + e(whFmtAgo(o.created_at)) + '</span>' : '') +
         /* T70 (2026-08-27): IS THIS A COMPANY OR A PERSON. provider_type ('hive' | 'freelancer')
            was written at provider signup and rendered nowhere, though v_service_provider_truth has
            carried it all along - 2 hive and 5 freelancer providers exist. This card is the moment a
@@ -4970,6 +4977,14 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
         (p.verified ? ' <span style="color:var(--wh-green, rgb(74,222,128));font-size: var(--wh-fs-2xs, 0.75rem);font-weight:700;">✓ Verified</span>' : '') +
         ' <span style="font-size: var(--wh-fs-2xs, 0.75rem);opacity:0.8;">· ' + Number(p.completed_jobs || 0) + ' jobs done' + (p.rating_avg != null ? ' · ★' + Number(p.rating_avg).toFixed(1) + ' (' + Number(p.rating_count || 0) + ')' : '') + (p.tier === 'gold' ? ' · 🥇 Gold' : p.tier === 'silver' ? ' · 🥈 Silver' : '') + (o.eta_minutes ? ' · ETA ' + (o.eta_minutes >= 1440 ? Math.round(o.eta_minutes / 1440) + 'd' : Math.round(o.eta_minutes / 60) + 'h') : '') + '</span>' +
         (o.message ? '<div style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.85;margin-top:0.2rem;">' + e(o.message) + '</div>' : '') +
+        /* the provider's latest client review (GJ M9 J6, 2026-11-06) - the "sentence for other clients" the review field asks
+           for, which until now no page read; from service_provider_record, so it and "N jobs done" read the same to every client */
+        (p.latest_review_at
+          ? '<div class="svc-latest-review" style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.9;margin-top:0.25rem;">Latest review: ★'
+            + Number(p.latest_review_rating || 0) + ' from ' + e(p.latest_review_by || 'a client') + ', '
+            + e(new Date(p.latest_review_at).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric' }))
+            + (p.latest_review_comment ? ': <q>' + e(p.latest_review_comment) + '</q>' : '') + '</div>'
+          : '') +
         '<button type="button" onclick="svcPickQuote(\'' + e(o.id) + '\')" style="' + _svcBtnC + 'margin-top:0.4rem;" data-i="choosethisprovider">Choose this provider</button>' +
         '</div>';
     }).join('');
@@ -4980,6 +4995,11 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
     const { data, error } = await db.rpc('select_quote', { p_offer_id: offerId });
     if (error) { showToast(_svcWriteError(error), 'error'); return; }
     if (data && data.selected) { showToast('Provider chosen - they\'ll head over as agreed'); }
+    // GJ M9 J6 (2026-11-06): the provider's credits no longer cover the job's hold - said in the client's terms (the
+    // provider's own sentence about topping up is theirs), and the request stays open for another quote
+    else if (data && data.reason === 'provider_cannot_take') {
+      showToast('This provider cannot take the job right now. Your request is still open: choose another quote, or wait for more.', 'error');
+    }
     else { showToast(((data && data.reason) === 'request_closed') ? 'This request already closed' : 'Couldn\'t select this quote'); }
     loadClientServices();
   }
@@ -5458,7 +5478,11 @@ and auth_worker_names() is a SECURITY DEFINER function returning the worker_name
       // implying live presence.
       slot.innerHTML = '<div style="font-size:var(--wh-fs-2xs, 0.75rem);opacity:0.85;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">' +
         '<span aria-hidden="true">🟢</span><span>' + total + ' provider' + (total === 1 ? '' : 's') +
-        ' online now - ' + areas + ' <span style="opacity:0.7;">(refreshed about every minute)</span></span></div>';
+        ' online now - ' + areas + ' <span style="opacity:0.7;">(as of '
+        // the time this was READ (GJ M9 J6, 2026-11-06): "online now" on a tab left open since the morning was the
+        // morning's count, and the line said nothing to tell the two apart
+        + e(new Date().toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour: 'numeric', minute: '2-digit' }))
+        + ', refreshed about every minute)</span></span></div>';
     } catch (_) { /* empty-catch-allow: the presence hint is additive; the composer works without it */ }
   }
   window.svcLoadPresence = svcLoadPresence;
